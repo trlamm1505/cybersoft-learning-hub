@@ -1,0 +1,214 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------------------------
+// ENUMS
+// --------------------------------------------------------
+
+enum UserRole {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum CourseLevel {
+  KID      // Lớp 3-5
+  TEEN     // Lớp 6-9
+  PRO      // Lớp 10-12 / Competitive
+  ADULT    // Người lớn Data/AI/Tester
+}
+
+enum ExerciseType {
+  QUIZ
+  CODE_BLOCK
+  CODE_TEXT
+  SQL_LAB
+}
+
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SubmissionStatus {
+  PASSED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  COMPILE_ERROR
+  RUNTIME_ERROR
+  PENDING
+}
+
+enum AttemptStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+// --------------------------------------------------------
+// MODELS / TABLES
+// --------------------------------------------------------
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  fullName    String
+  role        UserRole @default(STUDENT)
+  avatar      String?
+  bio         String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  authoredCourses Course[]      @relation("AuthorCourses")
+  attempts        Attempt[]
+  submissions     Submission[]
+  scores          Score[]
+
+  @@map("users")
+}
+
+model Course {
+  id          String      @id @default(uuid())
+  title       String
+  slug        String      @unique
+  description String?     @db.Text
+  thumbnail   String?
+  level       CourseLevel @default(TEEN)
+  isPublished Boolean     @default(false)
+  authorId    String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  author      User        @relation("AuthorCourses", fields: [authorId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+
+  @@map("courses")
+}
+
+model Lesson {
+  id          String   @id @default(uuid())
+  courseId    String
+  title       String
+  slug        String
+  content     String?  @db.Text
+  videoUrl    String?
+  orderIndex  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  exercises   Exercise[]
+
+  @@map("lessons")
+}
+
+model Exercise {
+  id           String          @id @default(uuid())
+  lessonId     String?
+  title        String
+  slug         String          @unique
+  description  String          @db.Text
+  type         ExerciseType    @default(CODE_TEXT)
+  difficulty   DifficultyLevel @default(EASY)
+  points       Int             @default(10)
+  starterCode  String?         @db.Text
+  solutionCode String?         @db.Text
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  lesson       Lesson?        @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  tests        Test[]
+  attempts     Attempt[]
+  submissions  Submission[]
+  scores       Score[]
+
+  @@map("exercises")
+}
+
+model Test {
+  id              String   @id @default(uuid())
+  exerciseId      String
+  version         Int      @default(1)
+  isActive        Boolean  @default(true)
+  input           String   @db.Text
+  expectedOutput  String   @db.Text
+  isHidden        Boolean  @default(false)
+  timeLimitMs     Int      @default(2000)
+  memoryLimitMb   Int      @default(128)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  exercise        Exercise     @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  submissions     Submission[]
+
+  @@map("tests")
+}
+
+model Attempt {
+  id          String        @id @default(uuid())
+  userId      String
+  exerciseId  String
+  code        String        @db.Text
+  status      AttemptStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise    Exercise      @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@map("attempts")
+}
+
+model Submission {
+  id              String           @id @default(uuid())
+  attemptId       String?
+  userId          String
+  exerciseId      String
+  testId          String?
+  code            String           @db.Text
+  status          SubmissionStatus @default(PENDING)
+  executionTimeMs Int?
+  memoryUsedMb    Int?
+  errorMessage    String?          @db.Text
+  createdAt       DateTime         @default(now())
+
+  attempt         Attempt?         @relation(fields: [attemptId], references: [id], onDelete: SetNull)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise        Exercise         @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  test            Test?            @relation(fields: [testId], references: [id], onDelete: SetNull)
+
+  @@map("submissions")
+}
+
+model Score {
+  id            String   @id @default(uuid())
+  userId        String
+  exerciseId    String
+  score         Float    @default(0)
+  maxScore      Float    @default(100)
+  attemptsCount Int      @default(0)
+  isPassed      Boolean  @default(false)
+  lastGradedAt  DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise      Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+  @@map("scores")
+}
