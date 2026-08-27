@@ -1,47 +1,67 @@
-# 🤖 AI_WORKLOG.md - Ngày 03: Khởi Tạo Khung Monorepo (FE & BE)
+# 🤖 AI_WORKLOG.md - Ngày 04: Cấu Trúc Monorepo Backend & Database Schema (MongoDB / Mongoose & Prisma)
 
-Tài liệu ghi nhận quá trình AI Assistant cùng Thực tập sinh thực hiện **Ngày 03 (Monorepo Setup)** cho dự án **CyberSoft Learning & Contest Hub**.
-
----
-
-## 📌 1. Bài Toán Trước AI (Problem Statement - Day 03)
-
-* **Nhiệm vụ:** Khởi tạo cấu trúc Monorepo thống nhất tại thư mục `learning-hub` bao gồm:
-  * Thư mục `FE`: Ứng dụng Frontend (React 18 + Vite + TypeScript).
-  * Thư mục `BE`: Ứng dụng Backend (NestJS + TypeScript).
-* **Yêu cầu kỹ thuật:**
-  * Quản lý tập trung các lệnh chạy qua `package.json` ở root bằng tham số `--prefix`.
-  * Cấu hình luồng CI/CD tự động bằng GitHub Actions (`learning-hub/.github/workflows/ci.yml`).
-  * Ghi nhận nhật ký kiểm chứng độc lập.
+Tài liệu ghi nhận toàn bộ quá trình trao đổi, yêu cầu điều chỉnh của người dùng và kết quả thực thi của **AI Technical Lead / Backend Developer Persona** trong **Ngày 04** dự án **CyberSoft Learning & Contest Hub**.
 
 ---
 
-## 🛠️ 2. Công Cụ & Chỉ Dẫn Chính (Tools & Directives)
+## 📌 1. Yêu Cầu & Mong Muốn Của Người Dùng (User Directives & Iterations)
 
-* **Công cụ đã dùng:** Antigravity AI Agent (Senior Tech Lead persona), VS Code, PowerShell, GitHub Actions runner.
-* **Chỉ dẫn chính:**
-  1. Khởi tạo `FE` dùng `npm create vite@latest FE -- --template react-ts`.
-  2. Khởi tạo `BE` dùng `npx @nestjs/cli new BE --strict --skip-git --package-manager npm`.
-  3. Cấu hình root `package.json` các script `--prefix`: `dev:fe`, `dev:be`, `build:fe`, `build:be`, `install:all`, `dev`.
-  4. Tạo file CI `learning-hub/.github/workflows/ci.yml` kiểm thử tự động `npm install`, `lint`, `build` cho cả FE lẫn BE khi có Pull Request.
+1. **Kiến trúc Thư mục Chuẩn:**
+   * Phân chia rõ ràng cấu trúc `BE/src`:
+     * `common/`: Tiện ích dùng chung (`constant/`, `decorators/`, `guards/`, `helper/`, `interceptors/`).
+     * `modules-api/`: Giữ sạch 100%, dành riêng cho việc phát triển các API chức năng nghiệp vụ sau này.
+     * `modules-system/`: Chứa `database/` (kết nối MongoDB) và `prisma/` (`prisma.module.ts`, `prisma.service.ts` cùng thư mục mô hình xuất `generated/prisma/models/`).
+     * `data/`: Tạo thư mục riêng lưu dữ liệu mẫu và script seed (`initial-data.ts`, `seed.ts`).
+
+2. **Cấu hình CSDL & Tệp `.env` Tinh Gọn:**
+   * Sử dụng **duy nhất 1 biến kết nối CSDL `DATABASE_URL`** trỏ tới MongoDB `cybersoft` (`mongodb://localhost:27017/cybersoft` hoặc MongoDB Atlas connection string).
+
+3. **Tài Khoản Mẫu Đơn Giản & Dễ Nhớ:**
+   * Cập nhật danh sách tài khoản kiểm thử ngắn gọn tại `src/data/initial-data.ts`:
+     * **Admin:** `admin@gmail.com` | Mật khẩu: `123456`
+     * **Teacher:** `teacher@gmail.com` | Mật khẩu: `123456`
+     * **Student:** `student@gmail.com` | Mật khẩu: `123456`
+
+4. **Khởi Tạo Đầy Đủ 8 Bảng CSDL (Collections):**
+   * Yêu cầu nạp dữ liệu đầy đủ cho toàn bộ 8 bảng theo đề bài: `users`, `courses`, `lessons`, `exercises`, `tests` (có quản lý version và test cases), `attempts`, `submissions`, và `scores`.
 
 ---
 
-## 🧪 3. Kiểm Chứng Độc Lập (Independent Verification)
+## 🛠️ 2. Các Bước Thực Thi Kỹ Thuật (Technical Implementation)
 
-### 📋 Checklist Ngày 03:
-- [x] **Cấu trúc Monorepo:** Thư mục `FE` (React+Vite) và `BE` (NestJS) tồn tại song song.
-- [x] **Root Script Execution:** Chạy lệnh `--prefix` thành công từ root `learning-hub`.
-- [x] **GitHub Actions Workflow:** File `learning-hub/.github/workflows/ci.yml` chuẩn cú pháp YAML v4.
-- [x] **Tài liệu hóa:** Cập nhật `AI_WORKLOG.md` và `README.md` theo chuẩn dự án CyberSoft Academy.
+* **Thiết kế Model & Schema:**
+  * Khai báo 8 Model Classes tại `BE/src/modules-system/prisma/generated/prisma/models/`: `Users.ts`, `Courses.ts`, `Lessons.ts`, `Exercises.ts`, `Tests.ts`, `Submissions.ts`, `Attempts.ts`, `Scores.ts`.
+  * Khai báo Mongoose Schemas & Types đầy đủ cho 8 Collections trong `src/data/seed.ts`.
+
+* **Tập Lệnh Seed Data (`src/data/seed.ts`):**
+  * Tự động mã hóa mật khẩu mẫu bằng `bcrypt`.
+  * Kết nối trực tiếp MongoDB `cybersoft`, thực hiện dọn dẹp và nạp mới dữ liệu cho toàn bộ 8 Collections.
+
+* **Sửa Lỗi Kỹ Thuật & Tối Ưu:**
+  * Loại bỏ `import '@prisma/client'` trong `initial-data.ts`, chuyển sang sử dụng hằng số chuỗi chuẩn MongoDB để triệt tiêu lỗi hiển thị vạch đỏ trong VS Code.
+  * Đảm bảo `app.module.ts` nạp `DatabaseModule` kết nối MongoDB an toàn không bị xung đột cổng hay kết nối CSDL phụ.
 
 ---
 
-## 📁 Danh Mục Tệp Đã Tạo / Cập Nhật Ngày 03
+## 🧪 3. Kiểm Chứng Độc Lập (Independent Verification Results)
 
-| Tệp Tài Liệu | Mô Tả | Trạng Thái |
+### 📋 Checklist Ngày 04:
+- [x] **Cấu trúc Thư mục `BE/src`:** `common/`, `modules-api/` (sạch), `modules-system/`, `data/`.
+- [x] **Tệp `.env`:** Chỉ chứa duy nhất `DATABASE_URL="mongodb://localhost:27017/cybersoft"`.
+- [x] **Nạp Dữ liệu Mẫu (Seed Output):** Đã chạy `npm run seed` thành công, nạp đủ 8 Collections vào CSDL `cybersoft`.
+- [x] **Biên dịch TypeScript (`npx tsc --noEmit`):** **0 Errors** (Không còn bất kỳ lỗi mã nguồn nào).
+- [x] **Build dự án (`npm run build`):** **Build Succeeded 100%**.
+
+---
+
+## 📁 Danh Mục Tệp Đã Tạo / Cập Nhật Ngày 04
+
+| Tệp Mã Nguồn | Mô Tả Chức Năng | Trạng Thái |
 | :--- | :--- | :---: |
-| [package.json](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/package.json) | Root package.json quản lý `--prefix` scripts | ✅ Complete |
-| [.github/workflows/ci.yml](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/.github/workflows/ci.yml) | GitHub Actions CI workflow trong folder learning-hub | ✅ Complete |
-| [AI_WORKLOG.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/AI_WORKLOG.md) | Nhật ký minh bạch quá trình làm việc Ngày 03 | ✅ Complete |
-| [README.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/README.md) | Hướng dẫn khởi chạy dự án Monorepo | ✅ Complete |
+| [BE/.env](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/.env) | Cấu hình biến môi trường với `DATABASE_URL` duy nhất cho MongoDB | ✅ Complete |
+| [BE/src/data/initial-data.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/data/initial-data.ts) | Dữ liệu tĩnh mẫu với tài khoản gõ test siêu ngắn gọn (`123456`) | ✅ Complete |
+| [BE/src/data/seed.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/data/seed.ts) | Kịch bản nạp tự động toàn bộ 8 Bảng CSDL MongoDB | ✅ Complete |
+| [BE/src/modules-system/database/database.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/database.module.ts) | NestJS DatabaseModule kết nối MongoDB via Mongoose | ✅ Complete |
+| [BE/src/modules-system/prisma/generated/prisma/models/](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/prisma/generated/prisma/models/) | Thư mục chứa 8 Model Classes CSDL | ✅ Complete |
+| [BE/src/app.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/app.module.ts) | AppModule nạp DatabaseModule kết nối CSDL | ✅ Complete |
+| [AI_WORKLOG.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/AI_WORKLOG.md) | Nhật ký ghi nhận đầy đủ quá trình làm việc Ngày 04 | ✅ Complete |
