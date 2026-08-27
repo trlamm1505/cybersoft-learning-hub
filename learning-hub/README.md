@@ -1,12 +1,48 @@
-# CyberSoft Learning & Contest Hub - Ngày 01
+# 🚀 CyberSoft Learning & Contest Hub
 
-Thư mục này chứa các tài liệu kết quả của **Ngày 01 (Khảo sát hành trình học và thi)** thuộc lộ trình 30 ngày.
+Dự án **CyberSoft Learning & Contest Hub** chứa 2 ứng dụng chính: Frontend (`FE`) sử dụng React + Vite và Backend (`BE`) sử dụng NestJS Framework.
 
-## 📂 Cấu trúc tài liệu
-- `Persona_cards.md`: Chân dung chi tiết 4 nhóm người dùng mục tiêu (Lớp 3-5, Lớp 6-9, Lớp 10-12, và Data/AI/Tester).
-- `User_Journey_Map.md`: Bản đồ luồng trải nghiệm khép kín từ học bài, luyện tập, nộp bài, phản hồi đến thi đấu[cite: 1].
-- `mvp_backlog.md`: Danh sách 10 điểm đau (pain points) có gắn chỉ số đo lường (metric) và phạm vi tính năng MVP cho 30 ngày[cite: 1].
-- `AI_WORKLOG.md`: Nhật ký minh bạch quá trình sử dụng và kiểm chứng AI trong ngày[cite: 1].
+---
 
-## 🚀 Hướng dẫn nhanh
-- Mở các file định dạng Markdown (`.md`) trực tiếp trên trình chỉnh sửa code (VS Code) hoặc GitHub để xem nội dung chi tiết[cite: 1].
+## 📂 Cấu Trúc Thư Mục Dự Án
+
+```text
+learning-hub/
+├── .github/
+│   └── workflows/
+│       └── ci.yml             # GitHub Actions CI
+├── FE/                        # Frontend (React 18 + Vite + TypeScript)
+│   ├── src/
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.ts
+├── BE/                        # Backend (NestJS + TypeScript)
+│   ├── src/
+│   ├── test/
+│   ├── package.json
+│   └── nest-cli.json
+├── AI_WORKLOG.md              # Nhật ký làm việc và kiểm chứng
+└── README.md                  # Hướng dẫn khởi chạy dự án
+```
+
+---
+
+## ⏱️ Quick Start Guide (Hướng Dẫn Khởi Chạy)
+
+### 1️⃣ Khởi Chạy Frontend (`FE` - React + Vite)
+```bash
+cd FE
+npm install
+npm run dev
+```
+👉 **Ứng dụng Frontend sẽ chạy tại:** `http://localhost:5173`
+
+---
+
+### 2️⃣ Khởi Chạy Backend (`BE` - NestJS)
+```bash
+cd BE
+npm install
+npm run start:dev
+```
+👉 **Ứng dụng Backend API sẽ chạy tại:** `http://localhost:3000`
