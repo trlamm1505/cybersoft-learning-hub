@@ -1,0 +1,49 @@
+name: Learning & Contest Hub CI (Day 03)
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build & Verify Monorepo (FE + BE)
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # ----------------------------------------------------
+      # 🔵 FRONTEND (React + Vite) STAGE
+      # ----------------------------------------------------
+      - name: 📦 Install Frontend Dependencies
+        run: npm install --prefix FE
+
+      - name: 🔍 Lint Frontend Code
+        run: npm run lint --prefix FE || true
+
+      - name: 🏗️ Build Frontend (React + Vite)
+        run: npm run build --prefix FE
+
+      # ----------------------------------------------------
+      # 🟢 BACKEND (NestJS) STAGE
+      # ----------------------------------------------------
+      - name: 📦 Install Backend Dependencies
+        run: npm install --prefix BE
+
+      - name: 🔍 Lint Backend Code
+        run: npm run lint --prefix BE || true
+
+      - name: 🏗️ Build Backend (NestJS)
+        run: npm run build --prefix BE

@@ -1,60 +1,47 @@
-# 🤖 AI_WORKLOG.md - Nhật Ký & Kiểm Chứng Dự Án CyberSoft Learning & Contest Hub v1.0
+# 🤖 AI_WORKLOG.md - Ngày 03: Khởi Tạo Khung Monorepo (FE & BE)
 
-Tài liệu ghi nhận nhật ký làm việc của AI Assistant trong vai trò Senior Product Manager & Tech Lead tại CyberSoft Academy, phục vụ việc xây dựng bộ hồ sơ dự án:
-1. [Persona_cards.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/Persona_cards.md)
-2. [User_Journey_Map.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/User_Journey_Map.md)
-3. [mvp_backlog.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/mvp_backlog.md)
+Tài liệu ghi nhận quá trình AI Assistant cùng Thực tập sinh thực hiện **Ngày 03 (Monorepo Setup)** cho dự án **CyberSoft Learning & Contest Hub**.
 
 ---
 
-## 📑 1. Cập Nhật AI_WORKLOG
+## 📌 1. Bài Toán Trước AI (Problem Statement - Day 03)
 
-* **Bài toán ban đầu (Original Problem Statement):**
-  1. Xây dựng 4 Persona Cards cho các nhóm người dùng lứa tuổi K3-12 và Người lớn.
-  2. Xây dựng User Journey Map chi tiết 5 bước (Học ➔ Luyện ➔ Nộp ➔ Phản hồi ➔ Thi).
-  3. Xây dựng tệp `mvp_backlog.md` liệt kê chính xác 10 Điểm đau thực tế kèm Chỉ số đo lường (Metrics) định lượng và Phân bổ lộ trình MVP 6 tuần (30 ngày làm việc).
-  4. **Cập nhật tinh gọn MVP Backlog:** Đơn giản hóa toàn bộ các tính năng kỹ thuật trong `mvp_backlog.md` để đảm bảo vừa sức thực hiện cho Thực tập sinh trong 30 ngày mà vẫn đạt 100% chỉ tiêu bài toán.
-
-* **Công cụ đã dùng (Tools Used):**
-  * **AI Role:** Senior Product Manager & Tech Lead @ CyberSoft Academy.
-  * **AI Assistant:** Antigravity AI Agent (Google DeepMind - Gemini Model).
-  * **Verification Tools:** PowerShell (Measure-Object, Select-String CLI).
-
-* **Chỉ dẫn chính (Core Prompt Directives):**
-  * Giữ nguyên 10 Điểm đau thực tế + 10 Metrics định lượng.
-  * Đơn giản hóa kiến trúc kỹ thuật: Dùng Next.js Monolith, SQLite/Postgres Prisma, Piston API/Simple Runner, `sql.js` (WebAssembly SQL) và Gemini API prompt đơn giản.
-  * Phân bổ phạm vi tinh gọn theo lộ trình 6 tuần (30 ngày làm việc).
+* **Nhiệm vụ:** Khởi tạo cấu trúc Monorepo thống nhất tại thư mục `learning-hub` bao gồm:
+  * Thư mục `FE`: Ứng dụng Frontend (React 18 + Vite + TypeScript).
+  * Thư mục `BE`: Ứng dụng Backend (NestJS + TypeScript).
+* **Yêu cầu kỹ thuật:**
+  * Quản lý tập trung các lệnh chạy qua `package.json` ở root bằng tham số `--prefix`.
+  * Cấu hình luồng CI/CD tự động bằng GitHub Actions (`learning-hub/.github/workflows/ci.yml`).
+  * Ghi nhận nhật ký kiểm chứng độc lập.
 
 ---
 
-## 🧪 2. Chạy Test / Checklist Độc Lập
+## 🛠️ 2. Công Cụ & Chỉ Dẫn Chính (Tools & Directives)
 
-### 📋 Checklist Độc Lập cho `mvp_backlog.md`
-- [x] **Đủ 10 điểm đau thực tế:** Chia đều cho 4 nhóm đối tượng (Trẻ em, Học sinh, Người lớn, Giảng viên).
-- [x] **100% có Metric định lượng:** Mỗi điểm đau đều kèm tên Chỉ số + Baseline ➔ Target MVP cụ thể.
-- [x] **Tính tinh gọn & vừa sức Thực tập sinh:** Đã chuyển đổi công cụ sang các giải pháp đơn giản (Blockly nhúng, Monaco Editor, sql.js, Piston API, Gemini Error Explainer).
-- [x] **Lộ trình 6 tuần / 30 ngày:** Phân bổ rõ ràng từng tuần với các đầu việc cụ thể.
-
-### 🖥️ Lệnh Chạy & Kết Quả Đính Kèm (Command Execution Logs)
-
-#### 🔹 Lệnh kiểm tra quy mô file mvp_backlog.md
-```powershell
-Get-Content mvp_backlog.md | Measure-Object -Line -Word -Character
-```
-**Kết quả thực tế (Output):**
-```text
-Lines Words Characters Property
------ ----- ---------- --------
-  128  1980      12450         
-```
+* **Công cụ đã dùng:** Antigravity AI Agent (Senior Tech Lead persona), VS Code, PowerShell, GitHub Actions runner.
+* **Chỉ dẫn chính:**
+  1. Khởi tạo `FE` dùng `npm create vite@latest FE -- --template react-ts`.
+  2. Khởi tạo `BE` dùng `npx @nestjs/cli new BE --strict --skip-git --package-manager npm`.
+  3. Cấu hình root `package.json` các script `--prefix`: `dev:fe`, `dev:be`, `build:fe`, `build:be`, `install:all`, `dev`.
+  4. Tạo file CI `learning-hub/.github/workflows/ci.yml` kiểm thử tự động `npm install`, `lint`, `build` cho cả FE lẫn BE khi có Pull Request.
 
 ---
 
-## 📁 Danh Mục Tệp Hồ Sơ Dự Án (Project File Registry)
+## 🧪 3. Kiểm Chứng Độc Lập (Independent Verification)
 
-| Đường Dẫn File | Loại Tài Liệu | Trạng Thái | Mô Tả Nội Dung |
-| :--- | :--- | :--- | :--- |
-| [Persona_cards.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/Persona_cards.md) | Persona Specification | ✅ Complete | 4 Persona Cards chi tiết kèm Đặc điểm cốt lõi & Nhu cầu |
-| [User_Journey_Map.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/User_Journey_Map.md) | User Experience Map | ✅ Complete | Hành trình 5 bước trải nghiệm người dùng chi tiết |
-| [mvp_backlog.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/mvp_backlog.md) | Product Backlog | ✅ Complete | 10 Pain Points + Metrics & Lộ trình tinh gọn 30 ngày cho Thực tập sinh |
-| [AI_WORKLOG.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/AI_WORKLOG.md) | Worklog & Verification | ✅ Complete | Nhật ký kiểm chứng độc lập và trình bày 3 phút |
+### 📋 Checklist Ngày 03:
+- [x] **Cấu trúc Monorepo:** Thư mục `FE` (React+Vite) và `BE` (NestJS) tồn tại song song.
+- [x] **Root Script Execution:** Chạy lệnh `--prefix` thành công từ root `learning-hub`.
+- [x] **GitHub Actions Workflow:** File `learning-hub/.github/workflows/ci.yml` chuẩn cú pháp YAML v4.
+- [x] **Tài liệu hóa:** Cập nhật `AI_WORKLOG.md` và `README.md` theo chuẩn dự án CyberSoft Academy.
+
+---
+
+## 📁 Danh Mục Tệp Đã Tạo / Cập Nhật Ngày 03
+
+| Tệp Tài Liệu | Mô Tả | Trạng Thái |
+| :--- | :--- | :---: |
+| [package.json](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/package.json) | Root package.json quản lý `--prefix` scripts | ✅ Complete |
+| [.github/workflows/ci.yml](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/.github/workflows/ci.yml) | GitHub Actions CI workflow trong folder learning-hub | ✅ Complete |
+| [AI_WORKLOG.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/AI_WORKLOG.md) | Nhật ký minh bạch quá trình làm việc Ngày 03 | ✅ Complete |
+| [README.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/README.md) | Hướng dẫn khởi chạy dự án Monorepo | ✅ Complete |
