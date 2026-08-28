@@ -1,6 +1,6 @@
-# 🤖 AI_WORKLOG.md - Ngày 05: Xây Dựng Giao Diện Học Viên Course UI v0.1 (React / FE + Tailwind CSS v4)
+# 🤖 AI_WORKLOG.md - Ngày 06: Quiz Engine NestJS Mongoose Schemas, QuizService, QuizController & Jest Unit/Integration Tests
 
-Tài liệu ghi nhận toàn bộ quá trình trao đổi, các câu prompt yêu cầu của người dùng và danh sách chi tiết các tệp mã nguồn được **Tạo mới / Cập nhật** theo từng bước prompt trong **Ngày 05** của dự án **Learning & Contest Hub** (CyberSoft Academy).
+Tài liệu ghi nhận toàn bộ quá trình trao đổi, các câu prompt yêu cầu của người dùng và danh sách chi tiết các tệp mã nguồn được **Tạo mới / Cập nhật** trong **Ngày 06** của dự án **Learning & Contest Hub** (CyberSoft Academy).
 
 ---
 
@@ -8,72 +8,70 @@ Tài liệu ghi nhận toàn bộ quá trình trao đổi, các câu prompt yêu
 
 ---
 
-### 💬 PROMPT 1: Xây dựng giao diện Học viên phiên bản v0.1
+### 💬 PROMPT 1: Thiết kế Mongoose Schemas & Seed 20 câu hỏi trắc nghiệm cho "Quiz Engine" (Backend NestJS)
 > **Nội dung Yêu cầu:**
-> Xây dựng giao diện Course UI v0.1 cho phía học viên trên ứng dụng React (`FE/`). Bao gồm trang Course Catalog và Lesson Detail, hiển thị đầy đủ: **Mục tiêu, Độ khó, Thời lượng, Điều kiện tiên quyết (Prerequisite)**, tích hợp 5 bài học mẫu, tương thích Responsive và chuẩn Accessibility.
+> Với vai trò Senior Database Architect, viết các Mongoose Schemas bằng TypeScript cho module "Quiz Engine" (Ngày 06) trong dự án NestJS (`BE/`):
+> 1. Schema `Question`: Chứa nội dung câu hỏi, danh sách đáp án (`key`, `text`, `isCorrect`), cờ đánh dấu đáp án đúng và giải thích (`explanation`).
+> 2. Schema `QuizAttempt`: Quản lý lượt làm bài của học viên (`userId`, `testId`, chuỗi `seed` ngẫu nhiên dùng để xáo trộn câu hỏi và đáp án, `shuffledQuestions`, thời gian bắt đầu/hạn nộp, trạng thái và điểm số).
+> 3. Tập lệnh seed mẫu 20 câu hỏi trắc nghiệm kèm giải thích chi tiết để nạp vào database.
 
 #### 📄 Danh sách File Tạo mới & Chỉnh sửa cho Prompt 1:
-- 🟢 **`FE/src/types/course.ts` [TẠO MỚI]**: Định nghĩa domain model TypeScript cho `Lesson`, `DifficultyLevel`, `PrerequisiteItem`.
-- 🟢 **`FE/src/data/mockLessons.ts` [TẠO MỚI]**: Tích hợp dữ liệu 5 bài học mẫu chuẩn CyberSoft đầy đủ thông số.
-- 🟢 **`FE/src/styles/main.css` [TẠO MỚI]**: Khởi tạo CSS Design Tokens, Flex/Grid layout & Accessibility `:focus-visible` styles.
-- 🟢 **`FE/src/components/DifficultyBadge.tsx` [TẠO MỚI]**: Badge hiển thị cấp độ bài học (Cơ bản, Trung bình, Nâng cao).
-- 🟢 **`FE/src/components/ObjectiveList.tsx` [TẠO MỚI]**: Component danh sách mục tiêu kết quả đầu ra sau bài học.
-- 🟢 **`FE/src/components/PrerequisiteCard.tsx` [TẠO MỚI]**: Component hiển thị điều kiện tiên quyết kèm icon trạng thái hoàn thành.
-- 🟢 **`FE/src/components/CourseCard.tsx` [TẠO MỚI]**: Thẻ bài học xem trước trong trang Catalog.
-- 🟢 **`FE/src/components/LessonSidebar.tsx` [TẠO MỚI]**: Sidebar danh sách bài học hỗ trợ chuyển bài tức thì.
-- 🟢 **`FE/src/components/ResponsiveGuideModal.tsx` [TẠO MỚI]**: Modal hướng dẫn chụp ảnh responsive bằng DevTools.
-- 🟢 **`FE/src/components/Header.tsx` [TẠO MỚI]**: Thanh navigation header hỗ trợ Mobile Drawer & Theme Switcher.
-- 🟢 **`FE/src/components/Footer.tsx` [TẠO MỚI]**: Footer thông tin bản quyền CyberSoft Academy chuẩn WCAG.
-- 🟢 **`FE/src/pages/CourseCatalogPage.tsx` [TẠO MỚI]**: Trang Danh mục với ô tìm kiếm, bộ lọc độ khó và thẻ thống kê.
-- 🟢 **`FE/src/pages/LessonDetailPage.tsx` [TẠO MỚI]**: Trang Chi tiết bài học hiển thị video player, metadata grid, objectives, prerequisites, content & prev/next buttons.
-- 🟡 **`FE/src/App.tsx` [CHỈNH SỬA]**: Kết nối router state giữa Catalog và Detail.
-- 🟡 **`FE/src/main.tsx` [CHỈNH SỬA]**: Mount ứng dụng React và nạp stylesheet `main.css`.
+- 🟢 **`BE/src/modules-system/database/schemas/question.schema.ts` [TẠO MỚI]**: NestJS Mongoose Decorator Schema `Question` & `QuestionOption`.
+- 🟢 **`BE/src/modules-system/database/schemas/quiz-attempt.schema.ts` [TẠO MỚI]**: NestJS Mongoose Decorator Schema `QuizAttempt` & `ShuffledQuestionItem`.
+- 🟢 **`BE/src/modules-system/database/schemas/index.ts` [TẠO MỚI]**: Barrel export cho các Mongoose schemas.
+- 🟡 **`BE/src/modules-system/database/database.module.ts` [CẬP NHẬT]**: Đăng ký `Question` và `QuizAttempt` Mongoose Models qua `MongooseModule.forFeature()`.
+- 🟢 **`BE/src/data/initial-quiz-questions.ts` [TẠO MỚI]**: Bộ 20 câu hỏi trắc nghiệm Lập trình Web thực tế kèm 4 lựa chọn A/B/C/D và giải thích chi tiết.
+- 🟢 **`BE/src/data/seed-quiz.ts` [TẠO MỚI]**: Kịch bản nạp tự động 20 câu hỏi vào CSDL MongoDB `cybersoft` và tạo lượt bài thi mẫu cho học viên `student@gmail.com`.
+- 🟡 **`BE/package.json` [CẬP NHẬT]**: Thêm lệnh `"seed:quiz": "ts-node src/data/seed-quiz.ts"`.
 
 ---
 
-### 💬 PROMPT 2: Tối ưu UI/UX & Khắc phục hiển thị Video bài học
+### 💬 PROMPT 2: Xây dựng QuizService & QuizController xử lý 3 luồng nghiệp vụ trắc nghiệm cốt lõi
 > **Nội dung Yêu cầu:**
-> Làm gọn banner hero, nâng cấp thẻ card bài học (thêm hiệu ứng hover bay lên, bo góc mềm mại 18px), bố trí cột video player và sidebar thẳng hàng trên desktop, đồng thời sửa lỗi "Video không có sẵn" cho cả 5 bài học mẫu.
+> Với vai trò Senior Backend Developer, viết toàn bộ `QuizService` và `QuizController` trong NestJS xử lý 3 luồng nghiệp vụ:
+> 1. API Bắt đầu làm bài (Start Attempt): Khởi tạo lượt làm bài, tự động xáo trộn các lựa chọn (shuffle options) dựa trên `seed` cố định (Fisher-Yates PRNG) và ẩn đáp án đúng/giải thích trong dữ liệu trả về cho học viên.
+> 2. API Nộp bài (Submit Attempt): Kiểm tra thời hạn (chống nộp quá hạn), tự động chấm điểm dựa trên đáp án học viên chọn, cập nhật trạng thái `GRADED` và điểm số.
+> 3. API Xem kết quả/Giải thích (Review Policy): Kiểm tra cấu hình Review Policy của giảng viên (`IMMEDIATE`, `AFTER_SUBMISSION`, `AFTER_DEADLINE`, `NEVER`) để quyết định có trả về danh sách đáp án đúng và phần giải thích chi tiết hay không.
 
-#### 📄 Danh sách File Chỉnh sửa cho Prompt 2:
-- 🟡 **`FE/src/data/mockLessons.ts` [CẬP NHẬT]**: Thay thế toàn bộ 5 link video mẫu bằng URL nhúng YouTube công khai tương thích cao (`youtube-nocookie.com/embed/...`).
-- 🟡 **`FE/src/styles/main.css` [CẬP NHẬT]**: Thêm hiệu ứng hover card (`transform: translateY(-6px)`), bo góc `18px`, banner hero gọn đẹp & sticky alignment cho sidebar.
-- 🟡 **`FE/src/components/CourseCard.tsx` [CẬP NHẬT]**: Bổ sung panel tóm tắt thông số bài học và cụm nút `Học ngay →`.
-- 🟡 **`FE/src/pages/CourseCatalogPage.tsx` [CẬP NHẬT]**: Làm gọn banner hero, căn chỉnh khoảng cách padding/margin giữa các khối bài học.
-- 🟡 **`FE/src/pages/LessonDetailPage.tsx` [CẬP NHẬT]**: Gán thuộc tính `key={currentLesson.id}` cho thẻ `iframe` giúp tự động re-mount và đổi video tức thì khi người dùng bấm chuyển bài.
+#### 📄 Danh sách File Tạo mới & Chỉnh sửa cho Prompt 2:
+- 🟢 **`BE/src/common/helper/prng.helper.ts` [TẠO MỚI]**: Thuật toán xáo trộn deterministic PRNG Fisher-Yates bằng LCG.
+- 🟢 **`BE/src/modules-api/quiz/dto/start-attempt.dto.ts` [TẠO MỚI]**: DTO đầu vào bắt đầu làm bài `{ userId, testId }`.
+- 🟢 **`BE/src/modules-api/quiz/dto/submit-attempt.dto.ts` [TẠO MỚI]**: DTO đầu vào nộp bài `{ userId, answers: [{ questionId, selectedOptionKey }] }`.
+- 🟢 **`BE/src/modules-api/quiz/dto/review-attempt.dto.ts` [TẠO MỚI]**: DTO đầu vào xem lại bài làm `{ userId, policy }`.
+- 🟢 **`BE/src/modules-api/quiz/quiz.service.ts` [TẠO MỚI]**: Service triển khai `startAttempt`, `submitAttempt` và `reviewAttempt`.
+- 🟢 **`BE/src/modules-api/quiz/quiz.controller.ts` [TẠO MỚI]**: Controller định nghĩa các endpoints `POST /quiz/start`, `POST /quiz/:id/submit`, `GET /quiz/:id/review`.
+- 🟢 **`BE/src/modules-api/quiz/quiz.module.ts` [TẠO MỚI]**: Module đăng ký `QuizService` và `QuizController`.
+- 🟡 **`BE/src/app.module.ts` [CẬP NHẬT]**: Nạp `QuizModule` vào AppModule gốc.
 
 ---
 
-### 💬 PROMPT 3: Chuyển đổi toàn bộ dự án sang Tailwind CSS v4
+### 💬 PROMPT 3: Viết bộ Jest Unit Test & Integration Test cho QuizEngine
 > **Nội dung Yêu cầu:**
-> Chuyển đổi toàn bộ giao diện dự án Frontend sang sử dụng Tailwind CSS.
+> Với vai trò QA/Testing Engineer, viết tập tin Unit Test và Integration Test bằng Jest cho `QuizService` với các kịch bản bắt buộc:
+> 1. Kiểm tra tính toàn vẹn của thuật toán xáo trộn câu hỏi/đáp án dựa trên seed (nhất quán 100%, không mất hoặc lệch đáp án đúng).
+> 2. Kiểm tra logic chặn nộp bài khi thời gian nộp vượt quá thời hạn cho phép (overdue check -> `BadRequestException` & `EXPIRED`).
+> 3. Kiểm tra tính đúng đắn của chính sách hiển thị giải thích (Review Policy: `NEVER`, `AFTER_SUBMISSION`, `AFTER_DEADLINE`, `IMMEDIATE`).
 
-#### 📄 Danh sách File Chỉnh sửa cho Prompt 3:
-- 🟡 **`FE/package.json` [CẬP NHẬT]**: Cài đặt dependencies `tailwindcss` và `@tailwindcss/vite`.
-- 🟡 **`FE/vite.config.ts` [CẬP NHẬT]**: Tích hợp plugin `@tailwindcss/vite` tương thích Vite 8.
-- 🟡 **`FE/src/styles/main.css` [CẬP NHẬT]**: Khai báo chỉ thị `@import "tailwindcss";`.
-- 🟡 **10 Component UI (`Header`, `Footer`, `DifficultyBadge`, `ObjectiveList`, `PrerequisiteCard`, `CourseCard`, `LessonSidebar`, `ResponsiveGuideModal`, `CourseCatalogPage`, `LessonDetailPage`) [CẬP NHẬT]**: Refactor toàn bộ 100% inline/CSS class cũ sang Tailwind Utility Classes.
-
----
-
-### 💬 PROMPT 4: Khắc phục màu sắc giao diện & Thiết lập mặc định Giao diện Sáng (Light Mode)
-> **Nội dung Prompt:**
-> "giao diện đang bị lỗi màu sắc chỉnh lại đi và tôi muốn giao diện mới vào sẽ là sáng"
-
-#### 📄 Danh sách File Chỉnh sửa cho Prompt 4:
-- 🟡 **`FE/src/App.tsx` [CẬP NHẬT]**: Đổi mặc định `isLightTheme = true` (khi mở trang web sẽ mặc định hiển thị Giao diện Sáng) và đồng bộ class `theme-dark` khi học viên bấm chuyển đổi theme.
-- 🟡 **`FE/src/styles/main.css` [CẬP NHẬT]**: Khai báo hệ thống biến CSS Theme Variables (`--bg-main: #f8fafc`, `--bg-card: #ffffff`, `--text-main: #0f172a`, `--border-color: #e2e8f0`) cho phép giao diện tự động chuyển đổi mịn màng giữa Sáng & Tối.
-- 🟡 **`FE/src/components/Header.tsx` [CẬP NHẬT]**: Chuyển đổi màu nền header và chữ sang biến theme tương phản cao trên nền sáng.
-- 🟡 **`FE/src/components/CourseCard.tsx` [CẬP NHẬT]**: Đổi thẻ card thành nền trắng `#ffffff`, viền nhẹ `border-slate-200`, chữ tối `text-slate-900` sắc nét.
-- 🟡 **`FE/src/components/DifficultyBadge.tsx` [CẬP NHẬT]**: Badge độ khó màu chữ đậm tương phản rõ ràng trên nền sáng (Xanh lá, Cam, Đỏ).
-- 🟡 **`FE/src/components/ObjectiveList.tsx` [CẬP NHẬT]**: Đổi màu chữ hiển thị mục tiêu theo biến theme.
-- 🟡 **`FE/src/components/PrerequisiteCard.tsx` [CẬP NHẬT]**: Đổi màu nền & chữ thẻ điều kiện tiên quyết theo biến theme.
-- 🟡 **`FE/src/components/LessonSidebar.tsx` [CẬP NHẬT]**: Đổi màu nền bài học active/inactive chuẩn tương phản trên nền sáng.
-- 🟡 **`FE/src/pages/CourseCatalogPage.tsx` [CẬP NHẬT]**: Banner hero dải màu dịu mát trên nền sáng, ô tìm kiếm & nút lọc rõ nét.
-- 🟡 **`FE/src/pages/LessonDetailPage.tsx` [CẬP NHẬT]**: Bố cục nội dung bài học chữ tối tương phản cao trên nền sáng.
+#### 📄 Danh sách File Tạo mới & Chỉnh sửa cho Prompt 3:
+- 🟢 **`BE/src/common/helper/prng.helper.spec.ts` [TẠO MỚI]**: Unit Test kiểm thử tính toàn vẹn và độ nhất quán ngẫu nhiên 100% của thuật toán PRNG Seed Shuffle.
+- 🟢 **`BE/src/modules-api/quiz/quiz.service.spec.ts` [TẠO MỚI]**: Unit & Integration Test Suite cho `QuizService` kiểm thử đầy đủ kịch bản Start Attempt (Sanitization), Overdue Submission Check (`EXPIRED`), và Review Policy (`NEVER`, `AFTER_SUBMISSION`, `GRADED`).
+- 🟡 **`BE/package.json` [CẬP NHẬT]**: Cấu hình khối `jest` với `ts-jest` transformer.
 
 ---
 
 ## 🧪 Kết Quả Kiểm Thử (Verification Summary)
-- **TypeScript Compilation**: `npm run build` -> Clean 100% (Vite build bundle thành công).
-- **Linter**: `npm run lint` -> 0 Warnings, 0 Errors trên 15 files.
+
+- **NestJS TypeScript Compilation (`npm run build`)**: **Build Succeeded 100%** (0 errors).
+- **Quiz Engine Database Seeding (`npm run seed:quiz`)**: Nạp thành công 20 câu hỏi trắc nghiệm kèm giải thích vào MongoDB `cybersoft`.
+- **Jest Test Runner Output (`npm run test` / `npx jest`)**:
+  ```text
+  PASS src/common/helper/prng.helper.spec.ts
+  PASS src/app.controller.spec.ts
+  PASS src/modules-api/quiz/quiz.service.spec.ts
+
+  Test Suites: 3 passed, 3 total
+  Tests:       10 passed, 10 total
+  Snapshots:   0 total
+  Time:        1.311 s
+  Ran all test suites.
+  ```
