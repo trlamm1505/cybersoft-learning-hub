@@ -5,10 +5,11 @@ import { Footer } from './components/Footer';
 import { ResponsiveGuideModal } from './components/ResponsiveGuideModal';
 import { CourseCatalogPage } from './pages/CourseCatalogPage';
 import { LessonDetailPage } from './pages/LessonDetailPage';
+import { QuizTakingPage } from './pages/QuizTakingPage';
 import './styles/main.css';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'catalog' | 'detail'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'detail' | 'quiz'>('catalog');
   const [selectedLessonId, setSelectedLessonId] = useState<string>(MOCK_LESSONS[0].id);
   const [isLightTheme, setIsLightTheme] = useState<boolean>(true); // Default to Light Mode
   const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
@@ -24,7 +25,7 @@ export function App() {
 
   const currentLesson = MOCK_LESSONS.find((l) => l.id === selectedLessonId) || MOCK_LESSONS[0];
 
-  const handleNavigate = (tab: 'catalog' | 'detail', lessonId?: string) => {
+  const handleNavigate = (tab: 'catalog' | 'detail' | 'quiz', lessonId?: string) => {
     setActiveTab(tab);
     if (lessonId) {
       setSelectedLessonId(lessonId);
@@ -56,13 +57,15 @@ export function App() {
             lessons={MOCK_LESSONS}
             onSelectLesson={handleSelectLessonFromCatalog}
           />
-        ) : (
+        ) : activeTab === 'detail' ? (
           <LessonDetailPage
             currentLesson={currentLesson}
             allLessons={MOCK_LESSONS}
             onSelectLesson={(id) => handleNavigate('detail', id)}
             onBackToCatalog={() => handleNavigate('catalog')}
           />
+        ) : (
+          <QuizTakingPage />
         )}
       </div>
 
