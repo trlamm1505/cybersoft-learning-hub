@@ -1,122 +1,81 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import { MOCK_LESSONS } from './data/mockLessons';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { ResponsiveGuideModal } from './components/ResponsiveGuideModal';
+import { CourseCatalogPage } from './pages/CourseCatalogPage';
+import { LessonDetailPage } from './pages/LessonDetailPage';
+import './styles/main.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export function App() {
+  const [activeTab, setActiveTab] = useState<'catalog' | 'detail'>('catalog');
+  const [selectedLessonId, setSelectedLessonId] = useState<string>(MOCK_LESSONS[0].id);
+  const [isLightTheme, setIsLightTheme] = useState<boolean>(true); // Default to Light Mode
+  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
+
+  // Sync theme class with document element
+  useEffect(() => {
+    if (isLightTheme) {
+      document.documentElement.classList.remove('theme-dark');
+    } else {
+      document.documentElement.classList.add('theme-dark');
+    }
+  }, [isLightTheme]);
+
+  const currentLesson = MOCK_LESSONS.find((l) => l.id === selectedLessonId) || MOCK_LESSONS[0];
+
+  const handleNavigate = (tab: 'catalog' | 'detail', lessonId?: string) => {
+    setActiveTab(tab);
+    if (lessonId) {
+      setSelectedLessonId(lessonId);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectLessonFromCatalog = (lessonId: string) => {
+    setSelectedLessonId(lessonId);
+    setActiveTab('detail');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="min-h-screen flex flex-col">
+      {/* Navigation Header */}
+      <Header
+        activeTab={activeTab}
+        onNavigate={handleNavigate}
+        isLightTheme={isLightTheme}
+        onToggleTheme={() => setIsLightTheme(!isLightTheme)}
+        onOpenGuide={() => setIsGuideOpen(true)}
+      />
 
-      <div className="ticks"></div>
+      {/* Main Container */}
+      <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
+        {activeTab === 'catalog' ? (
+          <CourseCatalogPage
+            lessons={MOCK_LESSONS}
+            onSelectLesson={handleSelectLessonFromCatalog}
+          />
+        ) : (
+          <LessonDetailPage
+            currentLesson={currentLesson}
+            allLessons={MOCK_LESSONS}
+            onSelectLesson={(id) => handleNavigate('detail', id)}
+            onBackToCatalog={() => handleNavigate('catalog')}
+          />
+        )}
+      </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Footer */}
+      <Footer />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Responsive Screenshot Guide Modal */}
+      <ResponsiveGuideModal
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;
