@@ -7,31 +7,35 @@ interface PrerequisiteCardProps {
 
 export const PrerequisiteCard: React.FC<PrerequisiteCardProps> = ({ prerequisites }) => {
   if (!prerequisites || prerequisites.length === 0) {
-    return <p style={{ color: 'var(--text-muted)' }}>Khóa học này không yêu cầu điều kiện tiên quyết.</p>;
+    return <p className="text-[var(--text-muted)] text-sm">Khóa học này không yêu cầu điều kiện tiên quyết.</p>;
   }
 
   return (
-    <div className="prereq-list" aria-label="Danh sách điều kiện tiên quyết">
+    <div className="flex flex-col gap-3" aria-label="Danh sách điều kiện tiên quyết">
       {prerequisites.map((item) => (
-        <div key={item.id} className="prereq-card">
+        <div key={item.id} className="flex items-start gap-3 p-3.5 bg-[var(--bg-main)] rounded-xl border border-[var(--border-color)]">
           <div
-            className={`prereq-icon ${item.isCompleted ? 'completed' : 'pending'}`}
+            className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-bold text-xs ${
+              item.isCompleted
+                ? 'bg-emerald-100 text-emerald-700 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30'
+                : 'bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30'
+            }`}
             title={item.isCompleted ? 'Đã hoàn thành' : 'Khuyên dùng trước khi học'}
             aria-label={item.isCompleted ? 'Đã đáp ứng điều kiện' : 'Chưa đáp ứng điều kiện'}
           >
             {item.isCompleted ? '✓' : '!'}
           </div>
           <div>
-            <div style={{ fontWeight: 600, fontSize: '0.925rem' }}>
-              {item.title}
+            <div className="font-semibold text-sm text-[var(--text-main)] flex items-center gap-2">
+              <span>{item.title}</span>
               {item.isCompleted && (
-                <span style={{ fontSize: '0.75rem', color: 'var(--success)', marginLeft: '0.5rem' }}>
+                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
                   (Đã đáp ứng)
                 </span>
               )}
             </div>
             {item.description && (
-              <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+              <div className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
                 {item.description}
               </div>
             )}

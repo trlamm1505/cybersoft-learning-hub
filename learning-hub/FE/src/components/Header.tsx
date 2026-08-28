@@ -18,8 +18,8 @@ export const Header: React.FC<HeaderProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="site-header" role="banner">
-      <div className="header-inner">
+    <header className="sticky top-0 z-50 bg-[var(--bg-card)]/90 backdrop-blur-md border-b border-[var(--border-color)] transition-colors shadow-xs" role="banner">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Brand Logo */}
         <a
           href="#catalog"
@@ -27,26 +27,32 @@ export const Header: React.FC<HeaderProps> = ({
             e.preventDefault();
             onNavigate('catalog');
           }}
-          className="brand-logo"
+          className="flex items-center gap-3 text-[var(--text-main)] font-extrabold text-lg tracking-tight"
           aria-label="Trang chủ CyberSoft Learning Hub"
         >
-          <div className="logo-badge">⚡</div>
-          <div>
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-lg shadow-md shadow-indigo-500/20">
+            ⚡
+          </div>
+          <div className="flex items-center">
             <span>CyberSoft</span>
-            <span style={{ color: 'var(--secondary)', marginLeft: '4px' }}>Hub</span>
-            <span style={{ fontSize: '0.65rem', background: 'var(--primary)', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px', textTransform: 'uppercase' }}>
+            <span className="text-cyan-600 dark:text-cyan-400 ml-1">Hub</span>
+            <span className="text-[10px] bg-indigo-600 text-white font-semibold px-1.5 py-0.5 rounded ml-2 uppercase">
               v0.1
             </span>
           </div>
         </a>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation Menu */}
         <nav role="navigation" aria-label="Thanh điều hướng chính">
-          <ul className="nav-menu">
+          <ul className="hidden md:flex items-center gap-6 list-none">
             <li>
               <a
                 href="#catalog"
-                className={`nav-link ${activeTab === 'catalog' ? 'active' : ''}`}
+                className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 ${
+                  activeTab === 'catalog'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
                 onClick={(e) => {
                   e.preventDefault();
                   onNavigate('catalog');
@@ -58,7 +64,11 @@ export const Header: React.FC<HeaderProps> = ({
             <li>
               <a
                 href="#detail"
-                className={`nav-link ${activeTab === 'detail' ? 'active' : ''}`}
+                className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 ${
+                  activeTab === 'detail'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
                 onClick={(e) => {
                   e.preventDefault();
                   onNavigate('detail');
@@ -70,11 +80,11 @@ export const Header: React.FC<HeaderProps> = ({
           </ul>
         </nav>
 
-        {/* Actions */}
-        <div className="header-actions">
+        {/* Header Actions */}
+        <div className="flex items-center gap-3">
           <button
             onClick={onOpenGuide}
-            className="btn btn-secondary btn-sm"
+            className="px-3.5 py-1.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-xl transition-all shadow-xs"
             aria-label="Mở hướng dẫn chụp ảnh responsive"
             title="Hướng dẫn nghiệm thu Responsive"
           >
@@ -83,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={onToggleTheme}
-            className="btn btn-secondary btn-sm"
+            className="px-3.5 py-1.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-xl transition-all shadow-xs"
             aria-label={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
             title="Thay đổi Theme Light/Dark"
           >
@@ -91,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           <button
-            className="mobile-menu-btn"
+            className="md:hidden p-2 text-[var(--text-main)] bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-expanded={mobileMenuOpen}
             aria-label="Toggle Mobile Menu"
@@ -103,10 +113,12 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <nav className="mobile-drawer" aria-label="Menu di động">
+        <nav className="md:hidden flex flex-col gap-3 p-4 bg-[var(--bg-card)] border-b border-[var(--border-color)]" aria-label="Menu di động">
           <a
             href="#catalog"
-            className={`nav-link ${activeTab === 'catalog' ? 'active' : ''}`}
+            className={`text-sm font-medium transition-colors ${
+              activeTab === 'catalog' ? 'text-indigo-600 dark:text-cyan-400 font-semibold' : 'text-[var(--text-muted)]'
+            }`}
             onClick={(e) => {
               e.preventDefault();
               onNavigate('catalog');
@@ -117,7 +129,9 @@ export const Header: React.FC<HeaderProps> = ({
           </a>
           <a
             href="#detail"
-            className={`nav-link ${activeTab === 'detail' ? 'active' : ''}`}
+            className={`text-sm font-medium transition-colors ${
+              activeTab === 'detail' ? 'text-indigo-600 dark:text-cyan-400 font-semibold' : 'text-[var(--text-muted)]'
+            }`}
             onClick={(e) => {
               e.preventDefault();
               onNavigate('detail');

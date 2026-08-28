@@ -26,49 +26,49 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
   return (
-    <div className="lesson-detail-page">
+    <div className="flex flex-col gap-5">
       {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" style={{ marginBottom: '1.25rem' }}>
-        <ol style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', listStyle: 'none', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+      <nav aria-label="Breadcrumb">
+        <ol className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
           <li>
             <button
               onClick={onBackToCatalog}
-              style={{ background: 'none', border: 'none', color: 'var(--secondary)', cursor: 'pointer', padding: 0, fontSize: '0.875rem', fontWeight: 600 }}
+              className="text-indigo-600 dark:text-cyan-400 font-semibold hover:underline cursor-pointer"
             >
               📚 Danh mục bài học
             </button>
           </li>
           <li aria-hidden="true">/</li>
-          <li style={{ color: 'var(--text-main)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <li className="text-[var(--text-main)] font-medium truncate">
             Bài {currentLesson.lessonNumber}: {currentLesson.title}
           </li>
         </ol>
       </nav>
 
-      {/* Main 2-Column Responsive Layout - Aligned Header & Sidebar */}
-      <div className="detail-layout">
-        {/* Left Main Content */}
-        <main id="main-content">
-          {/* Lesson Header Title */}
-          <div style={{ marginBottom: '1.25rem' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      {/* Main 2-Column Responsive Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
+        {/* Left Column: Lesson Player & Info */}
+        <main id="main-content" className="flex flex-col">
+          {/* Header Title */}
+          <div className="mb-4">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-xs font-bold text-indigo-600 dark:text-cyan-400 uppercase tracking-wider">
                 Bài {currentLesson.lessonNumber} • {currentLesson.category}
               </span>
               <DifficultyBadge difficulty={currentLesson.difficulty} />
             </div>
 
-            <h1 style={{ marginBottom: '0.5rem', lineHeight: '1.3' }}>
+            <h1 className="text-2xl font-bold text-[var(--text-main)] mb-2 leading-tight">
               {currentLesson.title}
             </h1>
 
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.5' }}>
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
               {currentLesson.summary}
             </p>
           </div>
 
-          {/* Video Player Container (Dynamic iframe key forces instant refresh) */}
-          <div className="video-container" aria-label="Khung trình chiếu bài học">
+          {/* Video Player */}
+          <div className="aspect-video-container bg-slate-950 rounded-2xl overflow-hidden border border-[var(--border-color)] shadow-lg mb-5">
             {!videoError && currentLesson.videoUrl ? (
               <iframe
                 key={currentLesson.id}
@@ -79,10 +79,10 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
                 onError={() => setVideoError(true)}
               ></iframe>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '2rem', textAlign: 'center', color: '#f8fafc', background: 'linear-gradient(135deg, #1e1b4b, #0f172a)' }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎬</div>
-                <h3 style={{ color: 'white', marginBottom: '0.5rem' }}>Khung phát bài học mẫu #{currentLesson.lessonNumber}</h3>
-                <p style={{ fontSize: '0.875rem', color: '#94a3b8', maxWidth: '480px', marginBottom: '1rem' }}>
+              <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gradient-to-br from-slate-900 to-indigo-950 text-white">
+                <div className="text-4xl mb-2">🎬</div>
+                <h3 className="text-base font-bold text-white mb-1">Khung phát bài học mẫu #{currentLesson.lessonNumber}</h3>
+                <p className="text-xs text-slate-300 max-w-md mb-4 leading-relaxed">
                   Video mẫu thực hành bài học: <strong>{currentLesson.title}</strong> ({currentLesson.durationText}).
                 </p>
                 {currentLesson.videoUrl && (
@@ -90,7 +90,7 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
                     href={currentLesson.videoUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="btn btn-primary btn-sm"
+                    className="inline-flex items-center gap-1 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all shadow-md"
                   >
                     Xem trực tiếp trên Youtube ↗
                   </a>
@@ -100,89 +100,57 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
           </div>
 
           {/* Metadata Grid */}
-          <div className="meta-grid" aria-label="Thông số bài học">
-            <div className="meta-item">
-              <span className="meta-label">🎯 Độ khó</span>
-              <span className="meta-value">
-                <DifficultyBadge difficulty={currentLesson.difficulty} />
-              </span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[var(--bg-main)] p-4 rounded-xl border border-[var(--border-color)] mb-5" aria-label="Thông số bài học">
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">🎯 Độ khó</span>
+              <span><DifficultyBadge difficulty={currentLesson.difficulty} /></span>
             </div>
-            <div className="meta-item">
-              <span className="meta-label">⏱ Thời lượng</span>
-              <span className="meta-value" style={{ color: 'var(--secondary)' }}>
-                {currentLesson.durationText}
-              </span>
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">⏱ Thời lượng</span>
+              <span className="text-sm font-semibold text-indigo-600 dark:text-cyan-400">{currentLesson.durationText}</span>
             </div>
-            <div className="meta-item">
-              <span className="meta-label">📋 Tiên quyết</span>
-              <span className="meta-value">
-                {currentLesson.prerequisites.length} Yêu cầu
-              </span>
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">📋 Tiên quyết</span>
+              <span className="text-sm font-semibold text-[var(--text-main)]">{currentLesson.prerequisites.length} Yêu cầu</span>
             </div>
-            <div className="meta-item">
-              <span className="meta-label">👨‍🏫 Giảng viên</span>
-              <span className="meta-value" style={{ fontSize: '0.85rem' }}>
-                {currentLesson.instructor.name}
-              </span>
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">👨‍🏫 Giảng viên</span>
+              <span className="text-xs font-semibold text-[var(--text-main)]">{currentLesson.instructor.name}</span>
             </div>
           </div>
 
           {/* Section 1: Learning Objectives */}
-          <section className="info-section" aria-labelledby="section-objectives">
-            <h2 id="section-objectives" className="info-section-title">
+          <section className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 mb-5 shadow-xs" aria-labelledby="section-objectives">
+            <h2 id="section-objectives" className="flex items-center gap-2 text-base font-bold text-[var(--text-main)] pb-3 mb-3 border-b border-[var(--border-color)]">
               🎯 Mục tiêu bài học (Learning Objectives)
             </h2>
             <ObjectiveList objectives={currentLesson.objectives} />
           </section>
 
           {/* Section 2: Prerequisites */}
-          <section className="info-section" aria-labelledby="section-prerequisites">
-            <h2 id="section-prerequisites" className="info-section-title">
+          <section className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 mb-5 shadow-xs" aria-labelledby="section-prerequisites">
+            <h2 id="section-prerequisites" className="flex items-center gap-2 text-base font-bold text-[var(--text-main)] pb-3 mb-3 border-b border-[var(--border-color)]">
               📋 Điều kiện tiên quyết (Prerequisites)
             </h2>
             <PrerequisiteCard prerequisites={currentLesson.prerequisites} />
           </section>
 
           {/* Section 3: Detailed Content */}
-          <section className="info-section" aria-labelledby="section-content">
-            <h2 id="section-content" className="info-section-title">
+          <section className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 mb-5 shadow-xs" aria-labelledby="section-content">
+            <h2 id="section-content" className="flex items-center gap-2 text-base font-bold text-[var(--text-main)] pb-3 mb-3 border-b border-[var(--border-color)]">
               📖 Nội dung hướng dẫn chi tiết
             </h2>
-            <div
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.85rem',
-                background: 'var(--bg-main)',
-                padding: '1.25rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border-color)',
-                whiteSpace: 'pre-wrap',
-                lineHeight: '1.6',
-                color: 'var(--text-main)'
-              }}
-            >
+            <div className="font-mono text-xs text-[var(--text-main)] bg-[var(--bg-main)] p-4 rounded-xl border border-[var(--border-color)] leading-relaxed whitespace-pre-wrap">
               {currentLesson.contentMarkdown}
             </div>
           </section>
 
           {/* Navigation Controls */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: '1rem',
-              marginTop: '1.75rem',
-              paddingTop: '1.25rem',
-              borderTop: '1px solid var(--border-color)'
-            }}
-            aria-label="Chuyển hướng bài học"
-          >
+          <div className="flex items-center justify-between gap-4 pt-4 border-t border-[var(--border-color)] mt-2" aria-label="Chuyển hướng bài học">
             {prevLesson ? (
               <button
                 onClick={() => { setVideoError(false); onSelectLesson(prevLesson.id); }}
-                className="btn btn-secondary"
+                className="px-4 py-2 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-xl transition-all"
                 aria-label={`Bài trước: ${prevLesson.title}`}
               >
                 ← Bài {prevLesson.lessonNumber}
@@ -191,28 +159,28 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
               <div />
             )}
 
-            <button onClick={onBackToCatalog} className="btn btn-outline btn-sm">
+            <button onClick={onBackToCatalog} className="px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-cyan-400 hover:bg-indigo-50 dark:hover:bg-cyan-500/10 border border-indigo-200 dark:border-cyan-500/40 rounded-xl transition-all">
               📋 Danh mục
             </button>
 
             {nextLesson ? (
               <button
                 onClick={() => { setVideoError(false); onSelectLesson(nextLesson.id); }}
-                className="btn btn-primary"
+                className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all"
                 aria-label={`Bài tiếp theo: ${nextLesson.title}`}
               >
                 Bài {nextLesson.lessonNumber} →
               </button>
             ) : (
-              <button onClick={onBackToCatalog} className="btn btn-primary">
+              <button onClick={onBackToCatalog} className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition-all">
                 🎉 Hoàn thành khóa học
               </button>
             )}
           </div>
         </main>
 
-        {/* Right Sidebar: Aligned with video player on desktop */}
-        <div style={{ position: 'sticky', top: '80px' }}>
+        {/* Right Sticky Sidebar */}
+        <div className="lg:sticky lg:top-20">
           <LessonSidebar
             lessons={allLessons}
             currentLessonId={currentLesson.id}

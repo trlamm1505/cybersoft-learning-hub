@@ -10,15 +10,15 @@ import './styles/main.css';
 export function App() {
   const [activeTab, setActiveTab] = useState<'catalog' | 'detail'>('catalog');
   const [selectedLessonId, setSelectedLessonId] = useState<string>(MOCK_LESSONS[0].id);
-  const [isLightTheme, setIsLightTheme] = useState<boolean>(false);
+  const [isLightTheme, setIsLightTheme] = useState<boolean>(true); // Default to Light Mode
   const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
 
-  // Sync theme class with body element
+  // Sync theme class with document element
   useEffect(() => {
     if (isLightTheme) {
-      document.documentElement.classList.add('theme-light');
+      document.documentElement.classList.remove('theme-dark');
     } else {
-      document.documentElement.classList.remove('theme-light');
+      document.documentElement.classList.add('theme-dark');
     }
   }, [isLightTheme]);
 
@@ -39,7 +39,7 @@ export function App() {
   };
 
   return (
-    <div className="app-container">
+    <div className="min-h-screen flex flex-col">
       {/* Navigation Header */}
       <Header
         activeTab={activeTab}
@@ -50,7 +50,7 @@ export function App() {
       />
 
       {/* Main Container */}
-      <div className="main-content">
+      <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
         {activeTab === 'catalog' ? (
           <CourseCatalogPage
             lessons={MOCK_LESSONS}

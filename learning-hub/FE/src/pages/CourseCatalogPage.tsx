@@ -35,38 +35,40 @@ export const CourseCatalogPage: React.FC<CourseCatalogPageProps> = ({
   }, [lessons]);
 
   return (
-    <div className="catalog-page">
-      {/* Compact Modern Hero Banner */}
-      <section className="hero-banner" aria-label="Giới thiệu danh mục bài học">
-        <h1 className="hero-title">Danh mục Khóa học & Bài học Thực chiến</h1>
-        <p style={{ color: 'var(--text-muted)', maxWidth: '680px', margin: '0 auto 1.25rem', fontSize: '0.95rem' }}>
-          Khám phá 5 bài học mẫu chuẩn CyberSoft với đầy đủ <strong>Mục tiêu đầu ra, Độ khó phân cấp, Thời lượng tối ưu</strong> và <strong>Điều kiện tiên quyết</strong>.
+    <div className="flex flex-col gap-6">
+      {/* Hero Banner - Glassmorphic Soft Gradient */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-indigo-500/10 via-sky-500/5 to-cyan-500/10 border border-[var(--border-color)] bg-[var(--bg-card)] rounded-3xl p-6 sm:p-8 text-center shadow-sm" aria-label="Giới thiệu danh mục bài học">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-600 dark:from-white dark:to-cyan-400 mb-2 tracking-tight">
+          Danh mục Khóa học & Bài học Thực chiến
+        </h1>
+        <p className="text-[var(--text-muted)] max-w-2xl mx-auto mb-5 text-sm leading-relaxed">
+          Khám phá 5 bài học mẫu chuẩn CyberSoft với đầy đủ <strong className="text-[var(--text-main)]">Mục tiêu đầu ra, Độ khó phân cấp, Thời lượng tối ưu</strong> và <strong className="text-[var(--text-main)]">Điều kiện tiên quyết</strong>.
         </p>
 
-        {/* Quick Stats Summary */}
-        <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: '1.25rem', justifyContent: 'center', background: 'var(--bg-card)', padding: '0.6rem 1.25rem', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-color)', fontSize: '0.825rem', boxShadow: 'var(--shadow-sm)' }}>
-          <div>📚 Bài học: <strong style={{ color: 'var(--secondary)' }}>{lessons.length} bài</strong></div>
-          <div aria-hidden="true">•</div>
-          <div>⏱ Tổng thời lượng: <strong style={{ color: 'var(--secondary)' }}>{totalMinutes} phút</strong></div>
-          <div aria-hidden="true">•</div>
-          <div>🎯 Chuẩn đầu ra: <strong style={{ color: 'var(--secondary)' }}>100% Thực chiến</strong></div>
+        {/* Quick Stats Pill */}
+        <div className="inline-flex flex-wrap items-center justify-center gap-3 bg-[var(--bg-main)] px-4 py-2 rounded-full border border-[var(--border-color)] text-xs text-[var(--text-muted)] shadow-xs">
+          <div>📚 Bài học: <strong className="text-indigo-600 dark:text-cyan-400 font-bold">{lessons.length} bài</strong></div>
+          <div aria-hidden="true" className="opacity-40">•</div>
+          <div>⏱ Tổng thời lượng: <strong className="text-indigo-600 dark:text-cyan-400 font-bold">{totalMinutes} phút</strong></div>
+          <div aria-hidden="true" className="opacity-40">•</div>
+          <div>🎯 Chuẩn đầu ra: <strong className="text-indigo-600 dark:text-cyan-400 font-bold">100% Thực chiến</strong></div>
         </div>
       </section>
 
-      {/* Search & Filter Controls */}
-      <section className="catalog-controls" aria-label="Bộ lọc và tìm kiếm bài học">
-        <div style={{ position: 'relative', width: '100%', maxWidth: '420px' }}>
+      {/* Search & Filter Bar */}
+      <section className="flex flex-col md:flex-row items-center justify-between gap-4" aria-label="Bộ lọc và tìm kiếm bài học">
+        <div className="w-full md:max-w-md">
           <input
             type="search"
-            placeholder="🔍 Tìm kiếm bài học (HTML, React, Flexbox)..."
+            placeholder="🔍 Tìm kiếm bài học (HTML, React, Tailwind)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
+            className="w-full px-4 py-2.5 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl text-[var(--text-main)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-indigo-500 shadow-xs transition-colors"
             aria-label="Tìm kiếm bài học"
           />
         </div>
 
-        <div className="filter-tabs" role="tablist" aria-label="Lọc theo độ khó">
+        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1" role="tablist" aria-label="Lọc theo độ khó">
           {['All', 'Beginner', 'Intermediate', 'Advanced'].map((level) => {
             const labelMap: Record<string, string> = {
               All: 'Tất cả độ khó',
@@ -81,7 +83,11 @@ export const CourseCatalogPage: React.FC<CourseCatalogPageProps> = ({
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => setSelectedDifficulty(level)}
-                className={`tab-btn ${isActive ? 'active' : ''}`}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                  isActive
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                    : 'bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-card-hover)]'
+                }`}
               >
                 {labelMap[level]}
               </button>
@@ -90,23 +96,22 @@ export const CourseCatalogPage: React.FC<CourseCatalogPageProps> = ({
         </div>
       </section>
 
-      {/* Course Grid */}
+      {/* Course Cards Grid */}
       <main id="catalog-content">
         {filteredLessons.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '3rem 1.5rem', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🔍</div>
-            <h3>Không tìm thấy bài học phù hợp</h3>
-            <p style={{ marginTop: '0.5rem' }}>Hãy thử thay đổi từ khóa tìm kiếm hoặc chọn lại độ khó.</p>
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl text-center p-12 text-[var(--text-muted)]">
+            <div className="text-4xl mb-2">🔍</div>
+            <h3 className="text-lg font-bold text-[var(--text-main)]">Không tìm thấy bài học phù hợp</h3>
+            <p className="text-sm mt-1">Hãy thử thay đổi từ khóa tìm kiếm hoặc chọn lại độ khó.</p>
             <button
               onClick={() => { setSearchQuery(''); setSelectedDifficulty('All'); }}
-              className="btn btn-secondary btn-sm"
-              style={{ marginTop: '1rem' }}
+              className="mt-4 px-4 py-2 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl border border-[var(--border-color)] transition-all"
             >
               Đặt lại bộ lọc
             </button>
           </div>
         ) : (
-          <div className="course-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredLessons.map((lesson) => (
               <CourseCard
                 key={lesson.id}

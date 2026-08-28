@@ -9,58 +9,57 @@ export const ResponsiveGuideModal: React.FC<ResponsiveGuideModalProps> = ({ isOp
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2 id="modal-title" style={{ fontSize: '1.25rem' }}>📸 Hướng dẫn chụp ảnh màn hình Responsive (v0.1)</h2>
-          <button className="close-btn" onClick={onClose} aria-label="Đóng cửa sổ hướng dẫn">
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+          <h2 id="modal-title" className="text-lg font-bold text-slate-100">📸 Hướng dẫn chụp ảnh Responsive (v0.1)</h2>
+          <button className="text-slate-400 hover:text-slate-100 text-2xl leading-none" onClick={onClose} aria-label="Đóng cửa sổ hướng dẫn">
             ×
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem', color: 'var(--text-main)' }}>
-          <p>
+        <div className="flex flex-col gap-4 text-xs text-slate-300">
+          <p className="leading-relaxed">
             Để đạt tiêu chuẩn bàn giao cuối ngày (Deliverables), hãy làm theo các bước chuẩn dưới đây bằng Google Chrome / Edge DevTools:
           </p>
 
-          <div style={{ background: 'var(--bg-main)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-            <h4 style={{ color: 'var(--secondary)', marginBottom: '0.5rem' }}>Bước 1: Mở Chrome Device Mode</h4>
-            <ul style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <li>Nhấn phím <kbd style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: '4px' }}>F12</kbd> hoặc <kbd style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: '4px' }}>Ctrl + Shift + I</kbd>.</li>
-              <li>Bấm biểu tượng 📱 <strong>Toggle Device Toolbar</strong> (<kbd style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: '4px' }}>Ctrl + Shift + M</kbd>).</li>
+          <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+            <h4 className="font-semibold text-cyan-400 mb-2 text-xs uppercase tracking-wide">Bước 1: Mở Chrome Device Mode</h4>
+            <ul className="list-disc list-inside flex flex-col gap-1 text-slate-300">
+              <li>Nhấn phím <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-200 font-mono">F12</kbd> hoặc <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-200 font-mono">Ctrl + Shift + I</kbd>.</li>
+              <li>Bấm biểu tượng 📱 <strong>Toggle Device Toolbar</strong> (<kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-200 font-mono">Ctrl + Shift + M</kbd>).</li>
             </ul>
           </div>
 
-          <div style={{ background: 'var(--bg-main)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-            <h4 style={{ color: 'var(--secondary)', marginBottom: '0.5rem' }}>Bước 2: Chọn các kích thước Viewport nghiệm thu</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem', marginTop: '0.5rem' }}>
-              <div style={{ background: 'var(--bg-card)', padding: '0.5rem', borderRadius: '6px' }}>
-                <strong>📱 Mobile View:</strong><br />
-                <span style={{ color: 'var(--text-muted)' }}>iPhone 12 / 375px × 812px</span>
+          <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+            <h4 className="font-semibold text-cyan-400 mb-2 text-xs uppercase tracking-wide">Bước 2: Chọn kích thước Viewport nghiệm thu</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+              <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                <strong className="text-slate-100">📱 Mobile View:</strong><br />
+                <span className="text-slate-400">375px × 812px</span>
               </div>
-              <div style={{ background: 'var(--bg-card)', padding: '0.5rem', borderRadius: '6px' }}>
-                <strong>📱 Tablet View:</strong><br />
-                <span style={{ color: 'var(--text-muted)' }}>iPad Air / 768px × 1024px</span>
+              <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                <strong className="text-slate-100">📱 Tablet View:</strong><br />
+                <span className="text-slate-400">768px × 1024px</span>
               </div>
-              <div style={{ background: 'var(--bg-card)', padding: '0.5rem', borderRadius: '6px' }}>
-                <strong>💻 Desktop View:</strong><br />
-                <span style={{ color: 'var(--text-muted)' }}>1280px × 800px+</span>
+              <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                <strong className="text-slate-100">💻 Desktop View:</strong><br />
+                <span className="text-slate-400">1280px × 800px+</span>
               </div>
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg-main)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-            <h4 style={{ color: 'var(--secondary)', marginBottom: '0.5rem' }}>Bước 3: Chụp Full Page Screenshot</h4>
-            <ul style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <li>Nhấn <kbd style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: '4px' }}>Ctrl + Shift + P</kbd> trong DevTools.</li>
-              <li>Gõ từ khóa: <code>Capture full size screenshot</code> và bấm Enter.</li>
-              <li>Lưu các ảnh với tên file chuẩn: <code>01_catalog_mobile.png</code>, <code>02_lesson_detail_desktop.png</code>.</li>
+          <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+            <h4 className="font-semibold text-cyan-400 mb-2 text-xs uppercase tracking-wide">Bước 3: Chụp Full Page Screenshot</h4>
+            <ul className="list-disc list-inside flex flex-col gap-1 text-slate-300">
+              <li>Nhấn <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-200 font-mono">Ctrl + Shift + P</kbd> trong DevTools.</li>
+              <li>Gõ từ khóa: <code className="bg-slate-800 px-1 text-slate-200 font-mono">Capture full size screenshot</code> và bấm Enter.</li>
             </ul>
           </div>
         </div>
 
-        <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-          <button className="btn btn-primary" onClick={onClose}>
+        <div className="mt-6 flex justify-end">
+          <button className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all" onClick={onClose}>
             Đã hiểu & Đóng
           </button>
         </div>
