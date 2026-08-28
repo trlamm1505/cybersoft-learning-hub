@@ -3,7 +3,13 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
+  // Enable CORS for Cross-Origin requests from Frontend (http://localhost:5173)
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
   // Set global prefix 'api' for all endpoints: http://localhost:3000/api/...
   app.setGlobalPrefix('api');
 

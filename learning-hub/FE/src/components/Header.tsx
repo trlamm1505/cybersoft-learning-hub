@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 interface HeaderProps {
-  activeTab: 'catalog' | 'detail';
-  onNavigate: (tab: 'catalog' | 'detail', lessonId?: string) => void;
+  activeTab: 'catalog' | 'detail' | 'quiz';
+  onNavigate: (tab: 'catalog' | 'detail' | 'quiz', lessonId?: string) => void;
   isLightTheme: boolean;
   onToggleTheme: () => void;
   onOpenGuide: () => void;
@@ -77,6 +77,22 @@ export const Header: React.FC<HeaderProps> = ({
                 📖 Chi tiết bài học
               </a>
             </li>
+            <li>
+              <a
+                href="#quiz"
+                className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 ${
+                  activeTab === 'quiz'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('quiz');
+                }}
+              >
+                📝 Thi Trắc Nghiệm
+              </a>
+            </li>
           </ul>
         </nav>
 
@@ -139,6 +155,19 @@ export const Header: React.FC<HeaderProps> = ({
             }}
           >
             📖 Chi tiết bài học
+          </a>
+          <a
+            href="#quiz"
+            className={`text-sm font-medium transition-colors ${
+              activeTab === 'quiz' ? 'text-indigo-600 dark:text-cyan-400 font-semibold' : 'text-[var(--text-muted)]'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate('quiz');
+              setMobileMenuOpen(false);
+            }}
+          >
+            📝 Thi Trắc Nghiệm
           </a>
         </nav>
       )}
