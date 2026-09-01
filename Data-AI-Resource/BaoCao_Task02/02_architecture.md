@@ -30,7 +30,7 @@ Hệ thống đóng vai trò là **hạ tầng dữ liệu và AI lõi (Core Dat
 
 ### 2.1. Sơ đồ kiến trúc Container (C4 Container Diagram)
 
-![Picture 0202](./Picture%200202.png)
+![Picture_Data](./Picture_Data.png)
 
 ---
 
