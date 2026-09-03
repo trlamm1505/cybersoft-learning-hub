@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 interface HeaderProps {
-  activeTab: 'catalog' | 'detail' | 'quiz';
-  onNavigate: (tab: 'catalog' | 'detail' | 'quiz', lessonId?: string) => void;
+  activeTab: 'catalog' | 'detail' | 'quiz' | 'playground';
+  onNavigate: (tab: 'catalog' | 'detail' | 'quiz' | 'playground', lessonId?: string) => void;
   isLightTheme: boolean;
   onToggleTheme: () => void;
   onOpenGuide: () => void;
@@ -93,6 +93,22 @@ export const Header: React.FC<HeaderProps> = ({
                 📝 Thi Trắc Nghiệm
               </a>
             </li>
+            <li>
+              <a
+                href="#playground"
+                className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 ${
+                  activeTab === 'playground'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('playground');
+                }}
+              >
+                🧑‍💻 Code Playground
+              </a>
+            </li>
           </ul>
         </nav>
 
@@ -168,6 +184,19 @@ export const Header: React.FC<HeaderProps> = ({
             }}
           >
             📝 Thi Trắc Nghiệm
+          </a>
+          <a
+            href="#playground"
+            className={`text-sm font-medium transition-colors ${
+              activeTab === 'playground' ? 'text-indigo-600 dark:text-cyan-400 font-semibold' : 'text-[var(--text-muted)]'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate('playground');
+              setMobileMenuOpen(false);
+            }}
+          >
+            🧑‍💻 Code Playground
           </a>
         </nav>
       )}
