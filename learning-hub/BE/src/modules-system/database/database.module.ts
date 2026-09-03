@@ -3,6 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Question, QuestionSchema } from './schemas/question.schema';
 import { QuizAttempt, QuizAttemptSchema } from './schemas/quiz-attempt.schema';
+import { Exercise, ExerciseSchema } from './schemas/exercise.schema';
+import { Submission, SubmissionSchema } from './schemas/submission.schema';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { QuizAttempt, QuizAttemptSchema } from './schemas/quiz-attempt.schema';
     MongooseModule.forFeature([
       { name: Question.name, schema: QuestionSchema },
       { name: QuizAttempt.name, schema: QuizAttemptSchema },
+      { name: Exercise.name, schema: ExerciseSchema },
+      { name: Submission.name, schema: SubmissionSchema },
     ]),
   ],
   exports: [MongooseModule],

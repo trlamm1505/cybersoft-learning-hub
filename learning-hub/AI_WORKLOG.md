@@ -1,55 +1,63 @@
-# 🤖 AI_WORKLOG.md - Ngày 06: Quiz Engine NestJS Backend, Jest Tests & React Frontend Quiz UI
+# AI Work Log — Ngày 07: Code Editor và Chạy Thử (Code Playground)
 
-Tài liệu ghi nhận toàn bộ quá trình trao đổi, các câu prompt yêu cầu của người dùng và danh sách chi tiết các tệp mã nguồn được **Tạo mới / Cập nhật** trong **Ngày 06** của dự án **Learning & Contest Hub** (CyberSoft Academy).
+Người thực hiện: Dương Chí Việt
+Ngày: 2026-09-03
+Nhánh làm việc: feature/learning-hub-day7
 
----
+## 1. Công cụ đã dùng
 
-## 📌 Chi Tiết Công Việc Theo Từng Prompt (Per-Prompt Detailed Change Log)
+| Hạng mục      | Chi tiết                                                                                                                                                                                                                                                            |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Công cụ       | Claude Code (CLI, chạy trong VSCode extension)                                                                                                                                                                                                                      |
+| Model           | Claude Sonnet 5                                                                                                                                                                                                                                                      |
+| Phạm vi quyền | Đọc/ghi file trong`learning-hub/`, chạy lệnh Bash/PowerShell cục bộ để cài đặt, build, test, khởi động dev server và gọi API kiểm chứng; không đụng đến `Test/` và `Data-AI-Resource/` (thuộc phạm vi thành viên khác trong repo) |
 
----
+## 2. Context đã nạp
 
-### 💬 PROMPT 1: Thiết kế Mongoose Schemas & Seed 20 câu hỏi trắc nghiệm cho "Quiz Engine" (Backend NestJS)
-- 🟢 **`BE/src/modules-system/database/schemas/question.schema.ts` [TẠO MỚI]**: NestJS Mongoose Decorator Schema `Question` & `QuestionOption`.
-- 🟢 **`BE/src/modules-system/database/schemas/quiz-attempt.schema.ts` [TẠO MỚI]**: NestJS Mongoose Decorator Schema `QuizAttempt` & `ShuffledQuestionItem`.
-- 🟢 **`BE/src/modules-system/database/schemas/index.ts` [TẠO MỚI]**: Barrel export cho các Mongoose schemas.
-- 🟡 **`BE/src/modules-system/database/database.module.ts` [CẬP NHẬT]**: Đăng ký `Question` và `QuizAttempt` Mongoose Models.
-- 🟢 **`BE/src/data/initial-quiz-questions.ts` [TẠO MỚI]**: Bộ 20 câu hỏi trắc nghiệm Lập trình Web thực tế.
-- 🟢 **`BE/src/data/seed-quiz.ts` [TẠO MỚI]**: Kịch bản nạp tự động 20 câu hỏi vào MongoDB `cybersoft`.
+- Cấu trúc dự án hiện có: monorepo `FE` (React 19 + Vite + TypeScript + Tailwind v4) và `BE` (NestJS 11 + Mongoose/MongoDB), khảo sát bằng agent Explore trước khi viết code.
+- Phát hiện quan trọng trong lúc khảo sát: `schema.prisma` (PostgreSQL) đã định nghĩa sẵn model `Exercise/Test/Attempt/Submission` nhưng chưa từng được kết nối vào ứng dụng thực tế — không có `PrismaModule` trong `AppModule`, không có `DATABASE_URL` cho Postgres. Toàn bộ hệ thống đang chạy MongoDB/Mongoose theo pattern đã dùng ở Ngày 06 (Quiz Engine).
+- Đề bài Ngày 07: 3 điều kiện nghiệm thu bắt buộc (sandbox/worker cô lập, timeout hoạt động, không cho đọc file hệ thống) và 3 bàn giao (Code Playground v0.1, Python sample exercises, Error UX).
+- Không có dữ liệu nhạy cảm trong context — toàn bộ là mã nguồn dự án học tập, không chứa credential hay dữ liệu người dùng thật.
 
----
+## 3. Prompt chính
 
-### 💬 PROMPT 2: Xây dựng QuizService & QuizController xử lý 3 luồng nghiệp vụ trắc nghiệm
-- 🟢 **`BE/src/common/helper/prng.helper.ts` [TẠO MỚI]**: Thuật toán xáo trộn deterministic PRNG Fisher-Yates bằng LCG.
-- 🟢 **`BE/src/modules-api/quiz/dto/` [TẠO MỚI]**: `start-attempt.dto.ts`, `submit-attempt.dto.ts`, `review-attempt.dto.ts`.
-- 🟢 **`BE/src/modules-api/quiz/quiz.service.ts` [TẠO MỚI]**: Service triển khai `startAttempt`, `submitAttempt` và `reviewAttempt`.
-- 🟢 **`BE/src/modules-api/quiz/quiz.controller.ts` [TẠO MỚI]**: Controller với tiền tố toàn cục `/api` (`POST /api/quiz/start`, `POST /api/quiz/:id/submit`, `GET /api/quiz/:id/review`).
+1. Yêu cầu khảo sát cấu trúc dự án và các ngày trước để chọn kiến trúc nhất quán, không tự ý đổi hướng so với hệ thống đã có.
+2. Đề xuất cơ chế sandbox chạy code Python — bị từ chối phương án Docker vì thêm hạ tầng mới ảnh hưởng cả nhóm mà không có đồng thuận trước; yêu cầu tìm phương án không cần cài thêm gì trên máy hiện tại nhưng vẫn đáp ứng đúng 3 điều kiện nghiệm thu.
+3. Xây dựng API `run` (chạy tự do, không chấm điểm) và `submit` (chấm theo bộ test mẫu, có test ẩn), có giới hạn thời gian và giới hạn dung lượng output.
+4. Tích hợp code editor ở Frontend, hiển thị stdout/stderr theo hướng Error UX — phân loại rõ các trạng thái (thành công / bị chặn bảo mật / timeout / lỗi runtime) kèm gợi ý khắc phục, không hiển thị stack trace thô.
+5. Yêu cầu kiểm tra lại toàn bộ một lần nữa, độc lập với kết luận trước đó — dẫn đến phát hiện lỗi thật (trình bày ở mục 5).
+6. Yêu cầu cập nhật AI_WORKLOG theo đúng định dạng chuẩn đã dùng ở Ngày 02 (bảng công cụ, bảng vấn đề/cách phát hiện/cách xử lý, lệnh kiểm thử độc lập, đánh giá độ tin cậy AI), bỏ hết icon/emoji trang trí.
 
----
+## 4. File đã tạo / cập nhật
 
-### 💬 PROMPT 3: Viết bộ Jest Unit Test & Integration Test cho QuizEngine
-- 🟢 **`BE/src/common/helper/prng.helper.spec.ts` [TẠO MỚI]**: Unit Test xáo trộn PRNG seed nhất quán.
-- 🟢 **`BE/src/modules-api/quiz/quiz.service.spec.ts` [TẠO MỚI]**: Test Suite 10/10 bài test tự động vượt qua 100%.
+| File                                                                                                   | Nội dung                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BE/src/common/helper/python-guard.helper.ts`                                                        | Quét mã nguồn Python theo dòng, chặn import module nguy hiểm (os, sys, subprocess, socket, shutil, ctypes...) và hàm eval/exec/compile/open trước khi cho chạy |
+| `BE/src/common/helper/code-runner.helper.ts`                                                         | Thực thi Python trong thư mục tạm riêng cho mỗi lần chạy, timeout kill tiến trình, giới hạn dung lượng output, dọn dẹp sau khi chạy                      |
+| `BE/src/modules-system/database/schemas/exercise.schema.ts`, `submission.schema.ts`                | Mongoose schema cho bài tập và lịch sử chấm bài                                                                                                                    |
+| `BE/src/modules-api/exercise/` (service, controller, module, dto)                                    | API`GET /exercises`, `GET /exercises/:slug`, `POST /exercises/:slug/run`, `POST /exercises/:slug/submit`                                                          |
+| `BE/src/data/initial-exercises.ts`, `seed-exercises.ts`                                            | 5 bài tập Python mẫu kèm test case (có test ẩn)                                                                                                                     |
+| `FE/src/components/CodeEditor.tsx`                                                                   | Tích hợp CodeMirror với cú pháp Python, theo theme sáng/tối của ứng dụng                                                                                        |
+| `FE/src/components/OutputPanel.tsx`, `TestResultsPanel.tsx`                                        | Hiển thị kết quả Run/Submit theo hướng Error UX, phân loại trạng thái và gợi ý khắc phục                                                                   |
+| `FE/src/pages/CodePlaygroundPage.tsx`, `FE/src/axios/exerciseApi.ts`, `FE/src/types/exercise.ts` | Trang Code Playground và tầng gọi API                                                                                                                                  |
+| `AI_WORKLOG.md`                                                                                      | Tài liệu này                                                                                                                                                           |
 
----
+## 5. Điểm AI làm chưa tối ưu và cách kiểm thử
 
-### 💬 PROMPT 4: Xây dựng React Frontend Quiz Engine UI & API Integration Layer (`FE/src/axios`)
-- 🟢 **`FE/src/axios/configAxios.ts` [TẠO MỚI]**: Cấu hình Axios Instance kết nối với `http://localhost:3000/api` có tự động đính kèm Bearer JWT Token và xử lý lỗi toàn cục.
-- 🟢 **`FE/src/axios/quizApi.ts` [TẠO MỚI]**: Tầng API Service Wrapper định nghĩa các hàm `startQuiz`, `submitQuiz`, `reviewQuiz`.
-- 🟢 **`FE/src/types/quiz.ts` [TẠO MỚI]**: Định nghĩa các TypeScript interfaces `QuestionItem`, `QuestionOption`, `QuizStartResponse`, `QuizSubmitResponse`, `QuizReviewResponse`.
-- 🟢 **`FE/src/components/QuizTimer.tsx` [TẠO MỚI]**: Component Đồng hồ đếm ngược thời gian thực 30:00 kèm cảnh báo quá hạn.
-- 🟢 **`FE/src/components/QuestionNavigator.tsx` [TẠO MỚI]**: Thanh lưới chuyển nhanh 20 câu hỏi hiển thị trạng thái Đã chọn / Chưa chọn.
-- 🟢 **`FE/src/components/QuestionCard.tsx` [TẠO MỚI]**: Thẻ câu hỏi trắc nghiệm với hiệu ứng chọn phương án A/B/C/D mượt mà và hộp hiển thị mã code snippet.
-- 🟢 **`FE/src/components/QuizResultView.tsx` [TẠO MỚI]**: Giao diện tổng kết điểm số kèm xem lại câu đúng/câu sai và **giải thích sư phạm chi tiết**.
-- 🟢 **`FE/src/pages/QuizTakingPage.tsx` [TẠO MỚI]**: Trang chính quản lý toàn bộ luồng Màn hình Chờ -> Màn hình Làm bài -> Modal Nộp bài -> Màn hình Kết quả.
-- 🟡 **`BE/src/main.ts` [CẬP NHẬT]**: Thêm `app.enableCors()` mở kết nối liên cổng từ Frontend `http://localhost:5173`.
-- 🟡 **`FE/src/App.tsx` & `FE/src/components/Header.tsx` [CẬP NHẬT]**: Thêm Tab "📝 Thi Trắc Nghiệm" vào thanh điều hướng chính.
+| Vấn đề                                                                                                                                                                                                                                                                                                             | Cách phát hiện                                                                                                                                                                                                                                        | Cách xử lý                                                                                                                                                                                                                                                                                                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Đề xuất ban đầu dùng Docker container cho mỗi lần chạy code — đúng về mặt kỹ thuật cô lập nhưng sai về phạm vi quyết định, vì thêm một hạ tầng mới (Docker daemon, image, cách cả nhóm setup) mà không hỏi trước                                                                | Tự nhận thấy ngay khi AI đề xuất, không cần chạy thử mới biết                                                                                                                                                                                | Từ chối phương án Docker, yêu cầu đổi sang giải pháp không cần cài thêm gì trên máy (child_process + static guard chặn import/hàm nguy hiểm), giữ đúng scope được giao                                                                                                                                                                   |
+| Khi strip biến môi trường để cô lập tiến trình con (`env: {}`), lệnh `python` trên Windows thực chất là App Execution Alias của Microsoft Store, mất khả năng resolve interpreter thật và tự động kích hoạt trình cài đặt Python Install Manager giữa chừng thay vì chạy script | Chạy`npx jest` cho `code-runner.helper.spec.ts`, thấy `exitCode: null` bất thường và `stderr` chứa log cài đặt Python thay vì lỗi chương trình                                                                                    | Resolve thẳng đường dẫn`python.exe` thật qua `%LOCALAPPDATA%\Python\bin\python.exe`, không phụ thuộc PATH bị strip                                                                                                                                                                                                                                    |
+| Bản vá`PYTHONIOENCODING=utf-8` cho lỗi mã hoá ban đầu chỉ set qua biến môi trường — nhưng cờ `-I` (isolated mode) của Python bỏ qua hoàn toàn `PYTHONIOENCODING` theo đúng tài liệu chính thức của Python, nên bản vá này không có tác dụng thật                             | Yêu cầu kiểm tra lại toàn bộ lần hai, chủ động đổi sang bài tập có đáp án tiếng Việt có dấu ("Chẵn"/"Lẻ") thay vì lặp lại các test case số nguyên đã qua trước đó; Submit code đúng 100% vẫn báo`WRONG_ANSWER` | Viết script debug độc lập (`ts-node`, gọi thẳng hàm, không qua HTTP) để cô lập nguyên nhân, xác nhận là `UnicodeEncodeError` với `cp1252`; đổi sang cờ dòng lệnh `-X utf8` (không bị `-I` vô hiệu hoá) thay vì biến môi trường, đồng thời ép decode `stdout`/`stderr` bằng `utf-8` tường minh ở phía Node |
+| Trong lúc kiểm thử qua PowerShell, kết quả vẫn báo sai sau khi đã sửa lỗi trên — dễ nhầm là bản vá chưa có tác dụng                                                                                                                                                                             | Gửi lại chính request đó bằng file JSON UTF-8 sạch qua`curl --data-binary @file`, xác minh byte gốc bằng `xxd` trước khi gửi                                                                                                            | Xác nhận bug thật đã hết (server trả đúng`Chẵn`/`Lẻ`); nguồn nhiễu còn lại là PowerShell 5.1 tự làm hỏng ký tự Unicode khi gõ trực tiếp trong lệnh `ConvertTo-Json` — không phải lỗi ứng dụng, không cần sửa code                                                                                                           |
+| Sau khi test bằng dev server thủ công, để sót 3 file log (`be-day7-out.log`, `be-day7-err.log`, `fe-day7-out.log`) trong thư mục `BE/`, `FE/`                                                                                                                                                       | Người dùng tự phát hiện qua`git status` khi mở file trong IDE                                                                                                                                                                                   | Dừng toàn bộ tiến trình dev server đang giữ handle các file log, sau đó xoá; xác nhận lại bằng`git status --short` không còn dòng nào liên quan                                                                                                                                                                                               |
 
----
+### Giới hạn còn lại, chưa kiểm chứng được ở Ngày 07
 
-## 🧪 Kết Quả Kiểm Thử (Verification Summary)
+Cơ chế cô lập hiện tại là `child_process` cộng với static guard quét mã nguồn, không phải cô lập cấp hệ điều hành như container. Một học viên cố tình né tránh danh sách chặn (ví dụ dùng kỹ thuật obfuscation hoặc gọi gián tiếp qua các module chưa nằm trong blacklist) có khả năng vượt qua được — đây là đánh đổi đã được người dùng chấp nhận có ý thức để không phải thêm Docker vào hạ tầng nhóm ở giai đoạn này, không phải giới hạn bị AI che giấu. Rủi ro này nên được ghi nhận lại nếu tính năng tiến tới môi trường có nhiều người dùng thật.
 
-- **Frontend TypeScript (`npx tsc -b`)**: **0 Errors** (Biên dịch thành công 100%).
-- **Frontend Linter (`npx oxlint`)**: **0 warnings, 0 errors** trên 24 tệp.
-- **Backend Tests (`npx jest`)**: **10/10 tests passed** (100% pass).
-- **Backend Database Seed (`npm run seed:quiz`)**: Nạp thành công 20 câu hỏi trắc nghiệm vào MongoDB `cybersoft`.
-- **Frontend App Running (`http://localhost:5173`)**: Đang chạy mượt mà, gọi API thành công qua CORS và làm bài trắc nghiệm nộp bài tự động 100%.
+## 6. Đánh giá độ tin cậy của AI
+
+Những phần có đúng/sai rõ ràng — chặn được `os.listdir`, timeout có kill tiến trình thật, chấm điểm so đúng chuỗi output — thì AI làm tốt và tự sửa được ngay khi có bằng chứng cụ thể (log lỗi, test sai), không cần chỉ tay từng chỗ. Chỉ cần yêu cầu kiểm tra lại lần nữa là AI tự đổi bộ input, tự phát hiện ra lỗi UTF-8 mà lần đầu bỏ sót.
+
+Nhưng có hai chỗ không nên tin ngay kết luận đầu của AI. Thứ nhất là các quyết định vượt ra ngoài phạm vi kỹ thuật thuần tuý, ví dụ đề xuất dùng Docker — AI chỉ tối ưu theo tiêu chí kỹ thuật, không tự biết việc đó ảnh hưởng đến cả nhóm nên cần người duyệt lại trước khi chấp nhận. Thứ hai là AI báo "đã sửa xong" sau một bản vá không đồng nghĩa là đã hết lỗi — bản vá `PYTHONIOENCODING` đầu tiên nhìn hợp lý nhưng thực ra sai, vì AI không nắm hết một chi tiết hành vi của chính công cụ nó đang gọi (cờ `-I` âm thầm vô hiệu hoá biến môi trường đó). Chỉ phát hiện ra vì có bước kiểm tra lại độc lập bằng bộ input khác, chứ không lặp lại đúng kịch bản test cũ. Rút kinh nghiệm: lời AI báo "đã kiểm chứng" vẫn cần tự test lại, và nên đổi dữ liệu test thay vì chỉ chạy lại đúng case AI đã chọn sẵn.

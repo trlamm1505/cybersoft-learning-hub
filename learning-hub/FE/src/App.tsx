@@ -6,10 +6,11 @@ import { ResponsiveGuideModal } from './components/ResponsiveGuideModal';
 import { CourseCatalogPage } from './pages/CourseCatalogPage';
 import { LessonDetailPage } from './pages/LessonDetailPage';
 import { QuizTakingPage } from './pages/QuizTakingPage';
+import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
 import './styles/main.css';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'catalog' | 'detail' | 'quiz'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'detail' | 'quiz' | 'playground'>('catalog');
   const [selectedLessonId, setSelectedLessonId] = useState<string>(MOCK_LESSONS[0].id);
   const [isLightTheme, setIsLightTheme] = useState<boolean>(true); // Default to Light Mode
   const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
@@ -25,7 +26,7 @@ export function App() {
 
   const currentLesson = MOCK_LESSONS.find((l) => l.id === selectedLessonId) || MOCK_LESSONS[0];
 
-  const handleNavigate = (tab: 'catalog' | 'detail' | 'quiz', lessonId?: string) => {
+  const handleNavigate = (tab: 'catalog' | 'detail' | 'quiz' | 'playground', lessonId?: string) => {
     setActiveTab(tab);
     if (lessonId) {
       setSelectedLessonId(lessonId);
@@ -64,8 +65,10 @@ export function App() {
             onSelectLesson={(id) => handleNavigate('detail', id)}
             onBackToCatalog={() => handleNavigate('catalog')}
           />
-        ) : (
+        ) : activeTab === 'quiz' ? (
           <QuizTakingPage />
+        ) : (
+          <CodePlaygroundPage isDark={!isLightTheme} />
         )}
       </div>
 

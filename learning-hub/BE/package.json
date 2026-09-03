@@ -21,7 +21,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "ts-node src/data/seed.ts",
     "seed": "ts-node src/data/seed.ts",
-    "seed:quiz": "ts-node src/data/seed-quiz.ts"
+    "seed:quiz": "ts-node src/data/seed-quiz.ts",
+    "seed:exercises": "ts-node src/data/seed-exercises.ts"
   },
   "prisma": {
     "seed": "ts-node src/data/seed.ts"
