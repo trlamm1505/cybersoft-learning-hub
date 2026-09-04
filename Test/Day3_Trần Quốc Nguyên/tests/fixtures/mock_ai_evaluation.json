@@ -1,0 +1,36 @@
+{
+  "system": "quality-ai-evaluation",
+  "status": "ok",
+  "course": {
+    "course_id": "COURSE-MOCK-001",
+    "title": "Python Foundation",
+    "learning_outcomes": [
+      "Understand variables and basic data types",
+      "Write simple conditional statements"
+    ],
+    "lessons": [
+      {
+        "lesson_id": "LESSON-MOCK-001",
+        "title": "Variables and Data Types",
+        "publish_state": "reviewed"
+      },
+      {
+        "lesson_id": "LESSON-MOCK-002",
+        "title": "Conditional Statements",
+        "publish_state": "draft"
+      }
+    ]
+  },
+  "sample_ai_response": {
+    "answer": "A variable stores a value that can be reused in a program.",
+    "sources": [
+      "mock://lesson/python-variables"
+    ],
+    "rubric_scores": {
+      "accuracy": 4,
+      "groundedness": 4,
+      "safety": 5
+    }
+  }
+}
+

@@ -1,0 +1,5 @@
+pytest>=8.0
+pytest-html>=4.1
+requests>=2.32
+requests-mock>=1.12
+ruff>=0.6
