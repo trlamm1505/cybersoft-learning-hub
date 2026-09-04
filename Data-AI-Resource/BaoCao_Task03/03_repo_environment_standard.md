@@ -1,10 +1,10 @@
 # 03. CHUẨN HÓA REPOSITORY VÀ MÔI TRƯỜNG PHÁT TRIỂN
 
-**Dự án**: CyberSoft Data & AI Lab
-**Đầu việc**: NGÀY 03 — Chuẩn hóa repository và môi trường phát triển
-**Vai trò phụ trách**: Data & AI Resource Engineer (Đào Trung Kiên)
-**Phiên bản**: v1.0
-**Ngày hoàn thiện**: 2026-09-03
+**Dự án**: CyberSoft Data & AI Lab  
+**Đầu việc**: NGÀY 03 — Chuẩn hóa repository và môi trường phát triển  
+**Vai trò phụ trách**: Data & AI Resource Engineer (Đào Trung Kiên)  
+**Phiên bản**: v1.0  
+**Ngày hoàn thiện**: 2026-09-03  
 
 ---
 
