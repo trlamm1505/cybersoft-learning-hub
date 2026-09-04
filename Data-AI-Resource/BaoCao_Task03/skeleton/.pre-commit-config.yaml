@@ -15,8 +15,6 @@ repos:
         name: Phát hiện và ngăn chặn commit Private Key
       - id: check-merge-conflict
         name: Kiểm tra conflict markers còn sót lại
-      - id: trailing-whitespace
-        name: Xóa bỏ khoảng trắng dư thừa ở cuối dòng
       - id: end-of-file-fixer
         name: Đảm bảo có dòng trống ở cuối file
       - id: check-yaml
