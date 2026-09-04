@@ -1,0 +1,24 @@
+{
+  "system": "learning-hub",
+  "status": "ok",
+  "version": "0.1.0",
+  "health": {
+    "api": "ok",
+    "database": "ok"
+  },
+  "critical_flows": [
+    {
+      "name": "course_catalog",
+      "enabled": true
+    },
+    {
+      "name": "quiz_attempt",
+      "enabled": true
+    },
+    {
+      "name": "code_submission",
+      "enabled": true
+    }
+  ]
+}
+

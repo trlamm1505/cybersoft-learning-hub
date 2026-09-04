@@ -1,0 +1,10 @@
+reports/*
+!reports/.gitkeep
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.docx
+~$*
