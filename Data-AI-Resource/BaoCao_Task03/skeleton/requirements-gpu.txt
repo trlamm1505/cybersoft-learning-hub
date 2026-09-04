@@ -1,0 +1,17 @@
+# ==============================================================================
+# CYBERSOFT DATA & AI LAB — GPU OPTIONAL REQUIREMENTS (TÙY CHỌN NÂNG CAO)
+# Sử dụng khi máy có GPU NVIDIA rời và đã cài CUDA Toolkit (v11.8 hoặc v12.1)
+# ==============================================================================
+
+# Kế thừa core CPU requirements
+-r requirements.txt
+
+# PyTorch GPU với CUDA 12.1 (Tùy chọn tải về khi cần tăng tốc suy luận / finetune)
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch>=2.2.0
+torchvision>=0.17.0
+torchaudio>=2.2.0
+
+# GPU Acceleration for Transformers & Vector Retrieval
+accelerate>=0.28.0
+bitsandbytes>=0.43.0

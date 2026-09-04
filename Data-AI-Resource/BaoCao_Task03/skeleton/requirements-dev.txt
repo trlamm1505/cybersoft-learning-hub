@@ -1,0 +1,22 @@
+# ==============================================================================
+# CYBERSOFT DATA & AI LAB — DEVELOPER & QA REQUIREMENTS
+# Dành cho quy trình kiểm thử tự động, linting, formatting và CI/CD
+# ==============================================================================
+
+# Kế thừa core CPU requirements
+-r requirements.txt
+
+# Automated Testing
+pytest>=8.0.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.23.5
+httpx>=0.27.0
+
+# Code Quality, Formatting & Git Hooks
+ruff>=0.6.2
+pre-commit>=3.6.2
+
+# Type Checking (Optional)
+mypy>=1.9.0
+types-PyYAML>=6.0.12.20240311
+types-requests>=2.31.0.20240311

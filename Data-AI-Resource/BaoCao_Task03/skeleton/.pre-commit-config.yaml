@@ -1,0 +1,35 @@
+# ==============================================================================
+# CYBERSOFT DATA & AI LAB — PRE-COMMIT CONFIGURATION
+# Tự động hóa kiểm soát chất lượng code, an ninh bảo mật và chặn dữ liệu lớn
+# ==============================================================================
+
+repos:
+  # 1. Base Security & Hygiene Hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        name: Chặn commit file vượt quá 50MB
+        args: ['--maxkb=50000']
+      - id: detect-private-key
+        name: Phát hiện và ngăn chặn commit Private Key
+      - id: check-merge-conflict
+        name: Kiểm tra conflict markers còn sót lại
+      - id: trailing-whitespace
+        name: Xóa bỏ khoảng trắng dư thừa ở cuối dòng
+      - id: end-of-file-fixer
+        name: Đảm bảo có dòng trống ở cuối file
+      - id: check-yaml
+        name: Kiểm tra cú pháp file YAML
+      - id: check-json
+        name: Kiểm tra cú pháp file JSON
+
+  # 2. Ruff: Siêu linter & formatter bằng Rust (thay thế Flake8 + Black + isort)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.2
+    hooks:
+      - id: ruff
+        name: Ruff linter & import sorting
+        args: [--fix]
+      - id: ruff-format
+        name: Ruff code formatting
