@@ -1,0 +1,28 @@
+# ==============================================================================
+# CYBERSOFT DATA & AI LAB — CPU-FIRST CORE REQUIREMENTS (MẶC ĐỊNH)
+# Triết lý: Tối ưu 100% tài nguyên CPU máy cá nhân, siêu nhẹ (<150MB), cài đặt <60s
+# ==============================================================================
+
+# Web API & Schema Validation
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+
+# Database & Data Manipulation
+sqlalchemy>=2.0.28
+pandas>=2.2.1
+numpy>=1.26.4
+
+# Environment & Logging
+python-dotenv>=1.0.1
+loguru>=0.7.2
+
+# CPU-First Vector Search & Embeddings (Local-first, Zero-cost)
+chromadb>=0.4.24
+sentence-transformers>=2.5.1
+
+# Utilities
+pyyaml>=6.0.1
+requests>=2.31.0
+tqdm>=4.66.2
