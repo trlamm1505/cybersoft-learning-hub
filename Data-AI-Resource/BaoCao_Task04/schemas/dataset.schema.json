@@ -1,0 +1,582 @@
+{
+  "$defs": {
+    "ColumnSchema": {
+      "description": "Data dictionary entry for a single column/field.",
+      "properties": {
+        "name": {
+          "description": "Column name",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "data_type": {
+          "description": "Data type (e.g., string, integer, float, boolean, datetime, text, vector[1536])",
+          "title": "Data Type",
+          "type": "string"
+        },
+        "nullable": {
+          "default": false,
+          "description": "Whether NULL/NaN values are permitted",
+          "title": "Nullable",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Clear business meaning of this field",
+          "minLength": 5,
+          "title": "Description",
+          "type": "string"
+        },
+        "is_pii": {
+          "default": false,
+          "description": "Flag indicating whether column contains PII",
+          "title": "Is Pii",
+          "type": "boolean"
+        },
+        "pii_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Type of PII if applicable: name, phone, email, address, citizen_id, ip, salary",
+          "title": "Pii Type"
+        },
+        "constraints": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Integrity checks, e.g. min, max, regex, allowed_values",
+          "title": "Constraints"
+        },
+        "example": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Illustrative sample value",
+          "title": "Example"
+        }
+      },
+      "required": [
+        "name",
+        "data_type",
+        "description"
+      ],
+      "title": "ColumnSchema",
+      "type": "object"
+    },
+    "ComplianceTagEnum": {
+      "description": "Regulatory and internal compliance standards.",
+      "enum": [
+        "GDPR",
+        "PDPA_VN",
+        "HIPAA",
+        "CCPA",
+        "INTERNAL_CYBERSOFT"
+      ],
+      "title": "ComplianceTagEnum",
+      "type": "string"
+    },
+    "DataFormatEnum": {
+      "description": "Storage format of data files.",
+      "enum": [
+        "csv",
+        "parquet",
+        "json",
+        "jsonl",
+        "sqlite"
+      ],
+      "title": "DataFormatEnum",
+      "type": "string"
+    },
+    "DataLineage": {
+      "description": "Data provenance, generation history and transformation lineage.",
+      "properties": {
+        "source_system": {
+          "description": "Origin system or organization",
+          "minLength": 3,
+          "title": "Source System",
+          "type": "string"
+        },
+        "upstream_sources": {
+          "description": "Upstream raw feeds, APIs or parent repositories",
+          "items": {
+            "type": "string"
+          },
+          "title": "Upstream Sources",
+          "type": "array"
+        },
+        "ingestion_method": {
+          "description": "Method: synthetic_generator, api_sync, manual_curation",
+          "title": "Ingestion Method",
+          "type": "string"
+        },
+        "generation_tool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Tool used for synthesis/curation: Faker, NumPy, Scrapy, CyberSoft LMS",
+          "title": "Generation Tool"
+        },
+        "transformation_pipeline": {
+          "description": "Sequence of transformation stages applied from raw to published",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Transformation Pipeline",
+          "type": "array"
+        },
+        "raw_data_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Cryptographic hash of raw input data before cleaning",
+          "title": "Raw Data Hash"
+        }
+      },
+      "required": [
+        "source_system",
+        "ingestion_method",
+        "transformation_pipeline"
+      ],
+      "title": "DataLineage",
+      "type": "object"
+    },
+    "DifficultyEnum": {
+      "description": "Problem-solving complexity difficulty.",
+      "enum": [
+        "easy",
+        "medium",
+        "hard"
+      ],
+      "title": "DifficultyEnum",
+      "type": "string"
+    },
+    "DomainEnum": {
+      "description": "Business & Technical domains supported in CyberSoft Lab.",
+      "enum": [
+        "retail_ecommerce",
+        "hr_operations",
+        "fintech_banking",
+        "nlp_genai",
+        "computer_vision",
+        "healthtech",
+        "education",
+        "logistics"
+      ],
+      "title": "DomainEnum",
+      "type": "string"
+    },
+    "ForeignKeySchema": {
+      "description": "Foreign key relation between tables.",
+      "properties": {
+        "column": {
+          "description": "Column name in this table",
+          "title": "Column",
+          "type": "string"
+        },
+        "ref_table": {
+          "description": "Referenced parent table name",
+          "title": "Ref Table",
+          "type": "string"
+        },
+        "ref_column": {
+          "description": "Referenced primary key column name",
+          "title": "Ref Column",
+          "type": "string"
+        }
+      },
+      "required": [
+        "column",
+        "ref_table",
+        "ref_column"
+      ],
+      "title": "ForeignKeySchema",
+      "type": "object"
+    },
+    "IntegrityInfo": {
+      "description": "Cryptographic fingerprint and payload verification.",
+      "properties": {
+        "algorithm": {
+          "default": "SHA-256",
+          "description": "Hashing algorithm used",
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "checksum": {
+          "description": "64-character hexadecimal SHA-256 hash",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "title": "Checksum",
+          "type": "string"
+        },
+        "file_size_bytes": {
+          "description": "Total size in bytes of packaged dataset",
+          "minimum": 0,
+          "title": "File Size Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "checksum",
+        "file_size_bytes"
+      ],
+      "title": "IntegrityInfo",
+      "type": "object"
+    },
+    "LearningOutcomes": {
+      "description": "Educational alignment for CyberSoft curriculums.",
+      "properties": {
+        "target_roles": {
+          "description": "Intended career tracks (e.g., data_analyst, ai_engineer)",
+          "items": {
+            "$ref": "#/$defs/RoleEnum"
+          },
+          "minItems": 1,
+          "title": "Target Roles",
+          "type": "array"
+        },
+        "core_competencies": {
+          "description": "Skills taught: Star Schema, SQL Window Functions, RAG, Embeddings, etc.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Core Competencies",
+          "type": "array"
+        },
+        "sample_business_questions": {
+          "description": "Business analysis or ML problem statements students will solve",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Sample Business Questions",
+          "type": "array"
+        },
+        "recommended_exercises": {
+          "description": "Recommended lab assignments or capstone challenges",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Recommended Exercises",
+          "type": "array"
+        }
+      },
+      "required": [
+        "target_roles",
+        "core_competencies",
+        "sample_business_questions",
+        "recommended_exercises"
+      ],
+      "title": "LearningOutcomes",
+      "type": "object"
+    },
+    "LevelEnum": {
+      "description": "Target learner competency level.",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "title": "LevelEnum",
+      "type": "string"
+    },
+    "PIIClassification": {
+      "description": "PII governance and data protection policy.",
+      "properties": {
+        "level": {
+          "$ref": "#/$defs/PIILevelEnum",
+          "description": "Sensitivity rating (none, low, moderate, high, critical)"
+        },
+        "has_pii": {
+          "description": "Whether any sensitive personal data is present",
+          "title": "Has Pii",
+          "type": "boolean"
+        },
+        "anonymization_applied": {
+          "description": "Techniques applied: synthetic_generation, hashing_sha256, faker_masking, etc.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Anonymization Applied",
+          "type": "array"
+        },
+        "compliance_tags": {
+          "description": "Relevant compliance framework (e.g. PDPA_VN, GDPR, INTERNAL_CYBERSOFT)",
+          "items": {
+            "$ref": "#/$defs/ComplianceTagEnum"
+          },
+          "minItems": 1,
+          "title": "Compliance Tags",
+          "type": "array"
+        },
+        "handling_instructions": {
+          "description": "Security instructions for students and instructors handling this data",
+          "minLength": 10,
+          "title": "Handling Instructions",
+          "type": "string"
+        }
+      },
+      "required": [
+        "level",
+        "has_pii",
+        "compliance_tags",
+        "handling_instructions"
+      ],
+      "title": "PIIClassification",
+      "type": "object"
+    },
+    "PIILevelEnum": {
+      "description": "Sensitivity classification for Personally Identifiable Information.",
+      "enum": [
+        "none",
+        "low",
+        "moderate",
+        "high",
+        "critical"
+      ],
+      "title": "PIILevelEnum",
+      "type": "string"
+    },
+    "RoleEnum": {
+      "description": "Target professional career paths.",
+      "enum": [
+        "data_analyst",
+        "ai_engineer",
+        "data_engineer",
+        "bi_analyst"
+      ],
+      "title": "RoleEnum",
+      "type": "string"
+    },
+    "TableSchema": {
+      "description": "Relational or document schema for a table/entity within a dataset.",
+      "properties": {
+        "table_name": {
+          "description": "Unique table name",
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Table Name",
+          "type": "string"
+        },
+        "description": {
+          "description": "Purpose of this table in the dataset",
+          "minLength": 10,
+          "title": "Description",
+          "type": "string"
+        },
+        "file_path": {
+          "description": "Relative file path within dataset package",
+          "title": "File Path",
+          "type": "string"
+        },
+        "format": {
+          "$ref": "#/$defs/DataFormatEnum",
+          "description": "File format (csv, parquet, jsonl, etc.)"
+        },
+        "row_count": {
+          "description": "Total number of records",
+          "minimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "column_count": {
+          "description": "Total number of columns",
+          "minimum": 1,
+          "title": "Column Count",
+          "type": "integer"
+        },
+        "primary_key": {
+          "description": "Primary key column(s)",
+          "items": {
+            "type": "string"
+          },
+          "title": "Primary Key",
+          "type": "array"
+        },
+        "foreign_keys": {
+          "description": "Foreign key links",
+          "items": {
+            "$ref": "#/$defs/ForeignKeySchema"
+          },
+          "title": "Foreign Keys",
+          "type": "array"
+        },
+        "columns": {
+          "description": "List of column definitions",
+          "items": {
+            "$ref": "#/$defs/ColumnSchema"
+          },
+          "minItems": 1,
+          "title": "Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "table_name",
+        "description",
+        "file_path",
+        "format",
+        "row_count",
+        "column_count",
+        "columns"
+      ],
+      "title": "TableSchema",
+      "type": "object"
+    }
+  },
+  "description": "Master Dataset Registry Metadata Schema (DoD Standard).",
+  "properties": {
+    "id": {
+      "description": "Globally unique slug identifier (e.g. ds-ecommerce-sales-v1)",
+      "pattern": "^ds-[a-z0-9-]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "title": {
+      "description": "Human-readable title",
+      "maxLength": 200,
+      "minLength": 5,
+      "title": "Title",
+      "type": "string"
+    },
+    "description": {
+      "description": "Comprehensive overview of the dataset",
+      "minLength": 20,
+      "title": "Description",
+      "type": "string"
+    },
+    "version": {
+      "description": "Semantic Versioning (SemVer 2.0: Major.Minor.Patch)",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-([a-zA-Z0-9.-]+))?$",
+      "title": "Version",
+      "type": "string"
+    },
+    "domain": {
+      "$ref": "#/$defs/DomainEnum",
+      "description": "Business or AI domain classification"
+    },
+    "level": {
+      "$ref": "#/$defs/LevelEnum",
+      "description": "Target proficiency level (beginner, intermediate, advanced)"
+    },
+    "difficulty": {
+      "$ref": "#/$defs/DifficultyEnum",
+      "description": "Problem difficulty (easy, medium, hard)"
+    },
+    "license": {
+      "description": "Mandatory open-source or proprietary educational license (e.g., CC-BY-4.0, MIT)",
+      "minLength": 3,
+      "title": "License",
+      "type": "string"
+    },
+    "pii": {
+      "$ref": "#/$defs/PIIClassification",
+      "description": "Mandatory PII governance and compliance policy"
+    },
+    "lineage": {
+      "$ref": "#/$defs/DataLineage",
+      "description": "Mandatory data provenance and lineage pipeline"
+    },
+    "learning_outcomes": {
+      "$ref": "#/$defs/LearningOutcomes",
+      "description": "Curriculum mapping and educational outcomes"
+    },
+    "tables": {
+      "description": "List of tables/entities in this dataset",
+      "items": {
+        "$ref": "#/$defs/TableSchema"
+      },
+      "minItems": 1,
+      "title": "Tables",
+      "type": "array"
+    },
+    "integrity": {
+      "$ref": "#/$defs/IntegrityInfo",
+      "description": "Data integrity and checksum information"
+    },
+    "tags": {
+      "description": "Searchable keyword tags",
+      "items": {
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "author": {
+      "description": "Dataset creator or curator",
+      "minLength": 2,
+      "title": "Author",
+      "type": "string"
+    },
+    "maintainer": {
+      "description": "Active maintainer contact/team",
+      "minLength": 2,
+      "title": "Maintainer",
+      "type": "string"
+    },
+    "created_at": {
+      "description": "ISO 8601 creation timestamp",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})?)?$",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "description": "ISO 8601 last update timestamp",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})?)?$",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "description",
+    "version",
+    "domain",
+    "level",
+    "difficulty",
+    "license",
+    "pii",
+    "lineage",
+    "learning_outcomes",
+    "tables",
+    "integrity",
+    "author",
+    "maintainer",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "CyberSoft Dataset Registry Schema (DoD Standard)",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -1,0 +1,221 @@
+{
+  "id": "ds-hr-operations-attendance-v1",
+  "title": "CyberSoft Enterprise HR Workforce & Attendance Benchmark",
+  "description": "Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.",
+  "version": "1.1.0",
+  "domain": "hr_operations",
+  "level": "intermediate",
+  "difficulty": "medium",
+  "license": "CyberSoft-Educational-Proprietary-v1",
+  "pii": {
+    "level": "moderate",
+    "has_pii": true,
+    "anonymization_applied": [
+      "synthetic_generation",
+      "salary_band_bucketing",
+      "synthetic_vietnamese_staff_ids"
+    ],
+    "compliance_tags": [
+      "PDPA_VN",
+      "INTERNAL_CYBERSOFT"
+    ],
+    "handling_instructions": "Compensation figures are categorized into synthetic salary bands to protect enterprise privacy. Do not attempt re-identification."
+  },
+  "lineage": {
+    "source_system": "CyberSoft Internal Ops Lab",
+    "upstream_sources": [
+      "Base.vn HRM Anonymized Telemetry",
+      "CyberSoft Teaching Faculty Data"
+    ],
+    "ingestion_method": "synthetic_generator",
+    "generation_tool": "Faker HR Module + Custom Shift Simulation Engine",
+    "transformation_pipeline": [
+      "Simulate headcount growth from 150 to 500 personnel over 3 fiscal years",
+      "Generate biometric fingerprint check-in/check-out timestamps with realistic tardiness patterns",
+      "Compute aggregated quarterly KPI ratings",
+      "Export validated relational tables to CSV and SQLite"
+    ],
+    "raw_data_hash": "c4d5e6f7a8b90123456789abcdef0123456789abcdef0123456789abcdef0123"
+  },
+  "learning_outcomes": {
+    "target_roles": [
+      "data_analyst",
+      "bi_analyst"
+    ],
+    "core_competencies": [
+      "Time-Series and Date-Time SQL Manipulation",
+      "Complex Multi-condition CASE WHEN logic",
+      "Attrition / Turnover Rate Calculation",
+      "Overtime & Punctuality Variance Analysis",
+      "HR Talent Retention Modeling"
+    ],
+    "sample_business_questions": [
+      "What is the rolling 90-day voluntary turnover rate grouped by department and job seniority?",
+      "Which business units exhibit an overtime rate exceeding 25% accompanied by declining KPI scores?",
+      "Determine the correlation between remote work flexibility and employee tenure."
+    ],
+    "recommended_exercises": [
+      "Lab 03: Construct an automated SQL query calculating employee daily work hours.",
+      "Lab 04: Build a Power BI HR Executive Attrition & Absenteeism Cockpit.",
+      "Mini-Capstone: Predictive analysis on staff burnout and resignation signals."
+    ]
+  },
+  "tables": [
+    {
+      "table_name": "dim_employees",
+      "description": "Master employee directory including department, job title, and employment lifecycle.",
+      "file_path": "data/processed/dim_employees.csv",
+      "format": "csv",
+      "row_count": 500,
+      "column_count": 7,
+      "primary_key": [
+        "employee_id"
+      ],
+      "foreign_keys": [],
+      "columns": [
+        {
+          "name": "employee_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Standardized staff employee ID",
+          "is_pii": false,
+          "example": "EMP-VN-0021"
+        },
+        {
+          "name": "full_name",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Synthetic employee full name",
+          "is_pii": true,
+          "pii_type": "name",
+          "example": "Trần Thị Mai Phương"
+        },
+        {
+          "name": "department",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Functional department: Engineering, Marketing, Sales, Product, HR",
+          "is_pii": false,
+          "example": "Engineering"
+        },
+        {
+          "name": "job_level",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Hierarchical level: Junior, Mid, Senior, Lead, Director",
+          "is_pii": false,
+          "example": "Senior"
+        },
+        {
+          "name": "salary_band",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Anonymized compensation tier: Band_1 (<15M), Band_2 (15-30M), Band_3 (30-50M), Band_4 (>50M)",
+          "is_pii": true,
+          "pii_type": "salary",
+          "example": "Band_3"
+        },
+        {
+          "name": "hire_date",
+          "data_type": "datetime",
+          "nullable": false,
+          "description": "Official onboarding date",
+          "is_pii": false,
+          "example": "2023-03-01T00:00:00Z"
+        },
+        {
+          "name": "employment_status",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Status code: ACTIVE, PROBATION, RESIGNED, TERMINATED",
+          "is_pii": false,
+          "example": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "table_name": "fact_attendance",
+      "description": "Daily electronic fingerprint biometric clock-in and clock-out logs.",
+      "file_path": "data/processed/fact_attendance.csv",
+      "format": "csv",
+      "row_count": 120000,
+      "column_count": 6,
+      "primary_key": [
+        "log_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "employee_id",
+          "ref_table": "dim_employees",
+          "ref_column": "employee_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "log_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Unique biometric record identifier",
+          "is_pii": false,
+          "example": "LOG-2025-0912-0041"
+        },
+        {
+          "name": "employee_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Employee ID foreign key",
+          "is_pii": false,
+          "example": "EMP-VN-0021"
+        },
+        {
+          "name": "work_date",
+          "data_type": "datetime",
+          "nullable": false,
+          "description": "Calendar shift date",
+          "is_pii": false,
+          "example": "2025-05-14T00:00:00Z"
+        },
+        {
+          "name": "check_in_time",
+          "data_type": "datetime",
+          "nullable": true,
+          "description": "Actual morning badge swipe timestamp",
+          "is_pii": false,
+          "example": "2025-05-14T08:24:12Z"
+        },
+        {
+          "name": "check_out_time",
+          "data_type": "datetime",
+          "nullable": true,
+          "description": "Actual evening badge swipe timestamp",
+          "is_pii": false,
+          "example": "2025-05-14T17:45:00Z"
+        },
+        {
+          "name": "attendance_status",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Code: ON_TIME, LATE, EARLY_LEAVE, ABSENT_EXCUSED, ABSENT_UNEXCUSED",
+          "is_pii": false,
+          "example": "ON_TIME"
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "SHA-256",
+    "checksum": "e2f1a3b4c5d60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef1",
+    "file_size_bytes": 9824310
+  },
+  "tags": [
+    "hr-analytics",
+    "attendance",
+    "workforce",
+    "retention",
+    "sql-window-functions"
+  ],
+  "author": "CyberSoft Enterprise Systems Lab",
+  "maintainer": "Dao Trung Kien (Data & AI Resource Engineer)",
+  "created_at": "2026-09-02T10:00:00Z",
+  "updated_at": "2026-09-04T12:00:00Z"
+}

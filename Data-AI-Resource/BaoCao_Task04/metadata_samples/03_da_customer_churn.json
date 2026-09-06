@@ -1,0 +1,194 @@
+{
+  "id": "ds-fintech-customer-churn-v1",
+  "title": "CyberSoft Digital Banking Customer Churn & Credit Telemetry",
+  "description": "Retail digital banking dataset designed for exploratory data analysis (EDA), predictive churn modeling, and feature engineering. Includes customer financial health metrics, card activity, credit score tiers, and a binary churn indicator.",
+  "version": "1.0.1",
+  "domain": "fintech_banking",
+  "level": "intermediate",
+  "difficulty": "medium",
+  "license": "CC-BY-4.0",
+  "pii": {
+    "level": "none",
+    "has_pii": false,
+    "anonymization_applied": [
+      "fully_synthetic_data",
+      "differential_privacy_noise"
+    ],
+    "compliance_tags": [
+      "INTERNAL_CYBERSOFT"
+    ],
+    "handling_instructions": "This dataset contains 100% synthetically simulated financial telemetry. No real bank accounts or customer identities exist."
+  },
+  "lineage": {
+    "source_system": "CyberSoft AI Synthetic Data Generator",
+    "upstream_sources": [
+      "Statistical distribution fitted on European Credit Card & Kaggle Banking benchmarks"
+    ],
+    "ingestion_method": "synthetic_generator",
+    "generation_tool": "Scikit-Learn Synthetic + SDV (Synthetic Data Vault)",
+    "transformation_pipeline": [
+      "Fit Gaussian Copula on financial behavioral distributions",
+      "Inject realistic Vietnamese banking tenure and balance ratios",
+      "Balance churn ratio to 20.4% baseline",
+      "Export as optimized Apache Parquet"
+    ],
+    "raw_data_hash": "f5e4d3c2b1a09876543210fedcba9876543210fedcba9876543210fedcba9876"
+  },
+  "learning_outcomes": {
+    "target_roles": [
+      "data_analyst",
+      "ai_engineer"
+    ],
+    "core_competencies": [
+      "Exploratory Data Analysis (EDA) & Bivariate Profiling",
+      "Feature Engineering: Debt-to-Income, Activity Ratios",
+      "Handling Class Imbalance (SMOTE, Class Weighting)",
+      "Logistic Regression & XGBoost Binary Classification",
+      "ROC-AUC, Precision-Recall Curve Evaluation"
+    ],
+    "sample_business_questions": [
+      "Which credit score and balance tier exhibits the highest propensity to close accounts?",
+      "Does holding multiple banking products reduce the probability of customer attrition?",
+      "What is the estimated revenue loss if customers in the top churn decile are not engaged?"
+    ],
+    "recommended_exercises": [
+      "Lab 05: Build correlation matrix and hypothesis tests on churn drivers.",
+      "Lab 06: Train a baseline churn classifier and evaluate confusion matrix.",
+      "Capstone: End-to-end customer churn early warning dashboard."
+    ]
+  },
+  "tables": [
+    {
+      "table_name": "customer_churn_features",
+      "description": "Denormalized customer financial features and 90-day forward churn label.",
+      "file_path": "data/processed/customer_churn_features.parquet",
+      "format": "parquet",
+      "row_count": 25000,
+      "column_count": 10,
+      "primary_key": [
+        "account_id"
+      ],
+      "foreign_keys": [],
+      "columns": [
+        {
+          "name": "account_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Synthetic masked bank customer account UUID",
+          "is_pii": false,
+          "example": "ACC-VN-980124"
+        },
+        {
+          "name": "credit_score",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Simulated credit bureau score (300 to 850)",
+          "is_pii": false,
+          "constraints": {
+            "min": 300,
+            "max": 850
+          },
+          "example": 685
+        },
+        {
+          "name": "geography",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Region: North, Central, South",
+          "is_pii": false,
+          "example": "South"
+        },
+        {
+          "name": "gender",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Gender code: M, F",
+          "is_pii": false,
+          "example": "F"
+        },
+        {
+          "name": "age",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Customer age in years",
+          "is_pii": false,
+          "constraints": {
+            "min": 18,
+            "max": 95
+          },
+          "example": 38
+        },
+        {
+          "name": "tenure_months",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Months customer has held an active account",
+          "is_pii": false,
+          "example": 24
+        },
+        {
+          "name": "account_balance_vnd",
+          "data_type": "float",
+          "nullable": false,
+          "description": "Average quarterly savings balance in VND",
+          "is_pii": false,
+          "constraints": {
+            "min": 0.0
+          },
+          "example": 85400000.0
+        },
+        {
+          "name": "num_of_products",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Count of banking products utilized (Savings, Credit Card, Loan, Investment)",
+          "is_pii": false,
+          "constraints": {
+            "min": 1,
+            "max": 4
+          },
+          "example": 2
+        },
+        {
+          "name": "is_active_member",
+          "data_type": "boolean",
+          "nullable": false,
+          "description": "Active digital banking user in last 30 days (1=True, 0=False)",
+          "is_pii": false,
+          "example": true
+        },
+        {
+          "name": "exited_churn",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Target label: 1 if customer churned within 90 days, 0 otherwise",
+          "is_pii": false,
+          "constraints": {
+            "allowed_values": [
+              0,
+              1
+            ]
+          },
+          "example": 0
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "SHA-256",
+    "checksum": "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
+    "file_size_bytes": 5242880
+  },
+  "tags": [
+    "fintech",
+    "banking",
+    "churn-prediction",
+    "classification",
+    "eda",
+    "xgboost"
+  ],
+  "author": "CyberSoft AI & Data Science Guild",
+  "maintainer": "Dao Trung Kien (Data & AI Resource Engineer)",
+  "created_at": "2026-09-02T14:00:00Z",
+  "updated_at": "2026-09-04T12:00:00Z"
+}
