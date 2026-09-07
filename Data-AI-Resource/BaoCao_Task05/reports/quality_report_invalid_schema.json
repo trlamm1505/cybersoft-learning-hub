@@ -1,0 +1,131 @@
+{
+  "dataset_name": "CyberSoft Student Course Enrollments",
+  "input_file": "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task05\\data_samples\\invalid_schema.csv",
+  "rules_file": "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task05\\config\\course_students_rules.json",
+  "timestamp": "2026-09-07 14:30:59",
+  "total_records": 1,
+  "total_columns": 10,
+  "overall_passed": false,
+  "exit_code": 1,
+  "summary": {
+    "total_checks_configured": 7,
+    "checks_passed": 6,
+    "checks_failed": 1,
+    "total_evaluations": 35,
+    "passed_evaluations": 31,
+    "failed_evaluations": 4,
+    "pass_rate_pct": 88.57,
+    "critical_errors": 3,
+    "warnings": 1,
+    "strict_mode": false
+  },
+  "check_results": [
+    {
+      "check_name": "SchemaCheck",
+      "rule_type": "schema",
+      "passed": false,
+      "total_evaluated": 13,
+      "passed_count": 9,
+      "failed_count": 4,
+      "execution_time_ms": 0.05,
+      "issues": [
+        {
+          "check_name": "SchemaCheck",
+          "rule_type": "schema",
+          "severity": "CRITICAL",
+          "message": "Cột bắt buộc bị thiếu trong schema: 'email'",
+          "row_index": null,
+          "column": "email",
+          "invalid_value": null
+        },
+        {
+          "check_name": "SchemaCheck",
+          "rule_type": "schema",
+          "severity": "CRITICAL",
+          "message": "Cột bắt buộc bị thiếu trong schema: 'enrollment_date'",
+          "row_index": null,
+          "column": "enrollment_date",
+          "invalid_value": null
+        },
+        {
+          "check_name": "SchemaCheck",
+          "rule_type": "schema",
+          "severity": "CRITICAL",
+          "message": "Cột bắt buộc bị thiếu trong schema: 'graduation_date'",
+          "row_index": null,
+          "column": "graduation_date",
+          "invalid_value": null
+        },
+        {
+          "check_name": "SchemaCheck",
+          "rule_type": "schema",
+          "severity": "WARNING",
+          "message": "Phát hiện cột không được phép trong cấu trúc: 'extra_random_column'",
+          "row_index": null,
+          "column": "extra_random_column",
+          "invalid_value": null
+        }
+      ]
+    },
+    {
+      "check_name": "NullCheck",
+      "rule_type": "null",
+      "passed": true,
+      "total_evaluated": 5,
+      "passed_count": 5,
+      "failed_count": 0,
+      "execution_time_ms": 25.57,
+      "issues": []
+    },
+    {
+      "check_name": "DuplicateCheck",
+      "rule_type": "duplicate",
+      "passed": true,
+      "total_evaluated": 3,
+      "passed_count": 3,
+      "failed_count": 0,
+      "execution_time_ms": 23.75,
+      "issues": []
+    },
+    {
+      "check_name": "TypeCheck",
+      "rule_type": "type",
+      "passed": true,
+      "total_evaluated": 9,
+      "passed_count": 9,
+      "failed_count": 0,
+      "execution_time_ms": 0.39,
+      "issues": []
+    },
+    {
+      "check_name": "RangeCheck",
+      "rule_type": "range",
+      "passed": true,
+      "total_evaluated": 3,
+      "passed_count": 3,
+      "failed_count": 0,
+      "execution_time_ms": 0.11,
+      "issues": []
+    },
+    {
+      "check_name": "CategoryCheck",
+      "rule_type": "category",
+      "passed": true,
+      "total_evaluated": 2,
+      "passed_count": 2,
+      "failed_count": 0,
+      "execution_time_ms": 0.05,
+      "issues": []
+    },
+    {
+      "check_name": "DateCheck",
+      "rule_type": "date",
+      "passed": true,
+      "total_evaluated": 0,
+      "passed_count": 0,
+      "failed_count": 0,
+      "execution_time_ms": 0.05,
+      "issues": []
+    }
+  ]
+}

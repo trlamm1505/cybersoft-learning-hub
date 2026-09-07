@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSoft Data Quality Audit Report — CyberSoft Student Course Enrollments</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 32px 24px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 24px 32px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+        .header-title h1 { font-size: 24px; color: var(--text); margin-bottom: 6px; }
+        .header-title p { color: var(--text-muted); font-size: 14px; }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+        }
+        .status-pass { background-color: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .status-fail { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .stat-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        .stat-value { font-size: 28px; font-weight: 800; margin-top: 6px; color: var(--text); }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .card h2 { font-size: 18px; margin-bottom: 16px; color: var(--text); }
+
+        .table-responsive { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: #f1f5f9;
+            color: #475569;
+            text-align: left;
+            padding: 12px 14px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        tr:hover td { background-color: #f8fafc; }
+
+        .badge-pass { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700; }
+        .badge-fail { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700; }
+        .badge-type { background: #e0e7ff; color: #3730a3; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; font-family: monospace; }
+        .badge-critical { background: #ef4444; color: #ffffff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .badge-warning { background: #f59e0b; color: #ffffff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .val-pill { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #b91c1c; font-family: monospace; }
+
+        .progress-container {
+            position: relative;
+            background: #e2e8f0;
+            border-radius: 9999px;
+            height: 18px;
+            width: 100px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .progress-bar {
+            background: #10b981;
+            height: 100%;
+            border-radius: 9999px;
+        }
+        .progress-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            font-size: 10px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1>🛡️ CyberSoft Data Quality Audit Dashboard</h1>
+                <p>Tập dữ liệu: <strong>CyberSoft Student Course Enrollments</strong> • Thời gian: 2026-09-07 17:50:01</p>
+            </div>
+            <div>
+                <span class="status-badge status-fail">
+                    <span>✕</span> FAILED
+                </span>
+            </div>
+        </header>
+
+        <div class="grid-stats">
+            <div class="stat-card">
+                <div class="stat-label">Tổng số dòng dữ liệu</div>
+                <div class="stat-value">16</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tổng số cột thẩm định</div>
+                <div class="stat-value">12</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Lỗi nghiêm trọng (Critical)</div>
+                <div class="stat-value" style="color: #ef4444;">16</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Cảnh báo (Warning)</div>
+                <div class="stat-value" style="color: #f59e0b;">1</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tỷ lệ đạt chuẩn</div>
+                <div class="stat-value" style="color: #10b981;">96.5%</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Bảng Đối Soát 7 Nhóm Kiểm Tra Chất Lượng</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px; text-align: center;">STT</th>
+                            <th>Tên Check</th>
+                            <th>Phân loại</th>
+                            <th>Trạng thái</th>
+                            <th style="text-align: right;">Đã duyệt</th>
+                            <th style="text-align: right;">Hợp lệ</th>
+                            <th style="text-align: right;">Vi phạm</th>
+                            <th style="width: 120px;">Tỷ lệ đạt</th>
+                            <th style="text-align: right;">Thời gian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr>
+                <td style="text-align: center;">1</td>
+                <td><strong>SchemaCheck</strong></td>
+                <td><span class="badge-type">schema</span></td>
+                <td><span class="badge-pass">PASSED</span></td>
+                <td style="text-align: right;">13</td>
+                <td style="text-align: right; color: #10b981;">13</td>
+                <td style="text-align: right; color: #ef4444;">0</td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 100.0%;"></div>
+                        <span class="progress-text">100.0%</span>
+                    </div>
+                </td>
+                <td style="text-align: right;">0.06 ms</td>
+            </tr>
+            
+            <tr>
+                <td style="text-align: center;">2</td>
+                <td><strong>NullCheck</strong></td>
+                <td><span class="badge-type">null</span></td>
+                <td><span class="badge-fail">FAILED</span></td>
+                <td style="text-align: right;">112</td>
+                <td style="text-align: right; color: #10b981;">109</td>
+                <td style="text-align: right; color: #ef4444;">3</td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 97.3%;"></div>
+                        <span class="progress-text">97.3%</span>
+                    </div>
+                </td>
+                <td style="text-align: right;">10.20 ms</td>
+            </tr>
+            
+            <tr>
+                <td style="text-align: center;">3</td>
+                <td><strong>DuplicateCheck</strong></td>
+                <td><span class="badge-type">duplicate</span></td>
+                <td><span class="badge-fail">FAILED</span></td>
+                <td style="text-align: right;">48</td>
+                <td style="text-align: right; color: #10b981;">46</td>
+                <td style="text-align: right; color: #ef4444;">2</td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 95.8%;"></div>
+                        <span class="progress-text">95.8%</span>
+                    </div>
+                </td>
+                <td style="text-align: right;">5.02 ms</td>
+            </tr>
+            
+            <tr>
+                <td style="text-align: center;">4</td>
+                <td><strong>TypeCheck</strong></td>
+                <td><span class="badge-type">type</span></td>
+                <td><span class="badge-fail">FAILED</span></td>
+                <td style="text-align: right;">192</td>
+                <td style="text-align: right; color: #10b981;">188</td>
+                <td style="text-align: right; color: #ef4444;">4</td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 97.9%;"></div>
+                        <span class="progress-text">97.9%</span>
+                    </div>
+                </td>
+                <td style="text-align: right;">31.23 ms</td>
+            </tr>
+            
+            <tr>
+                <td style="text-align: center;">5</td>
+                <td><strong>RangeCheck</strong></td>
+                <td><span class="badge-type">range</span></td>
+                <td><span class="badge-fail">FAILED</span></td>
+                <td style="text-align: right;">48</td>
+                <td style="text-align: right; color: #10b981;">45</td>
+                <td style="text-align: right; color: #ef4444;">3</td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 93.8%;"></div>
+                        <span class="progress-text">93.8%</span>
+                    </div>
+                </td>
+                <td style="text-align: right;">0.22 ms</td>
+            </tr>
+            
+            <tr>
+                <td style="text-align: center;">6</td>
+                <td><strong>CategoryCheck</strong></td>
+                <td><span class="badge-type">category</span></td>
+                <td><span class="badge-fail">FAILED</span></td>
+                <td style="text-align: right;">32</td>
+                <td style="text-align: right; color: #10b981;">30</td>
+                <td style="text-align: right; color: #ef4444;">2</td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 93.8%;"></div>
+                        <span class="progress-text">93.8%</span>
+                    </div>
+                </td>
+                <td style="text-align: right;">0.14 ms</td>
+            </tr>
+            
+            <tr>
+                <td style="text-align: center;">7</td>
+                <td><strong>DateCheck</strong></td>
+                <td><span class="badge-type">date</span></td>
+                <td><span class="badge-fail">FAILED</span></td>
+                <td style="text-align: right;">47</td>
+                <td style="text-align: right; color: #10b981;">44</td>
+                <td style="text-align: right; color: #ef4444;">3</td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 93.6%;"></div>
+                        <span class="progress-text">93.6%</span>
+                    </div>
+                </td>
+                <td style="text-align: right;">0.90 ms</td>
+            </tr>
+            
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        
+            <div class="card" style="margin-top: 24px;">
+                <h2>🔍 Chi Tiết Lỗi Phát Hiện (17 vi phạm)</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 70px; text-align: center;">Dòng</th>
+                                <th style="width: 150px;">Cột</th>
+                                <th style="width: 120px;">Loại Check</th>
+                                <th style="width: 110px;">Mức độ</th>
+                                <th style="width: 180px;">Giá trị vi phạm</th>
+                                <th>Chi tiết vi phạm</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                <tr>
+                    <td style="text-align: center;"><strong>3</strong></td>
+                    <td><code>student_id</code></td>
+                    <td><span class="badge-type">null</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill"><em>None</em></code></td>
+                    <td>Giá trị bị rỗng/khuyết thiếu tại dòng 3, cột &#x27;student_id&#x27;</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>4</strong></td>
+                    <td><code>full_name</code></td>
+                    <td><span class="badge-type">null</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill"><em>None</em></code></td>
+                    <td>Giá trị bị rỗng/khuyết thiếu tại dòng 4, cột &#x27;full_name&#x27;</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>5</strong></td>
+                    <td><code>email</code></td>
+                    <td><span class="badge-type">null</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill"><em>None</em></code></td>
+                    <td>Giá trị bị rỗng/khuyết thiếu tại dòng 5, cột &#x27;email&#x27;</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>6</strong></td>
+                    <td><code>student_id</code></td>
+                    <td><span class="badge-type">duplicate</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">{&#x27;student_id&#x27;: &#x27;1001&#x27;}</code></td>
+                    <td>Trùng lặp khóa chính [&#x27;student_id&#x27;] tại dòng 6: {&#x27;student_id&#x27;: &#x27;1001&#x27;}</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>6</strong></td>
+                    <td><code>student_id,course_id</code></td>
+                    <td><span class="badge-type">duplicate</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">{&#x27;student_id&#x27;: &#x27;1001&#x27;, &#x27;course_id&#x27;: &#x27;DS-101&#x27;}</code></td>
+                    <td>Trùng lặp khóa kết hợp [&#x27;student_id&#x27;, &#x27;course_id&#x27;] tại dòng 6: {&#x27;student_id&#x27;: &#x27;1001&#x27;, &#x27;course_id&#x27;: &#x27;DS-101&#x27;}</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>7</strong></td>
+                    <td><code>student_id</code></td>
+                    <td><span class="badge-type">type</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">INVALID_ID</code></td>
+                    <td>Sai kiểu dữ liệu tại dòng 7, cột &#x27;student_id&#x27;: giá trị &#x27;INVALID_ID&#x27; không khớp kiểu &#x27;integer&#x27;</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>8</strong></td>
+                    <td><code>email</code></td>
+                    <td><span class="badge-type">type</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">ha.bui_wrong_email</code></td>
+                    <td>Sai kiểu dữ liệu tại dòng 8, cột &#x27;email&#x27;: giá trị &#x27;ha.bui_wrong_email&#x27; không khớp kiểu &#x27;email&#x27;</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>9</strong></td>
+                    <td><code>age</code></td>
+                    <td><span class="badge-type">type</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">not_a_number</code></td>
+                    <td>Sai kiểu dữ liệu tại dòng 9, cột &#x27;age&#x27;: giá trị &#x27;not_a_number&#x27; không khớp kiểu &#x27;integer&#x27;</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>15</strong></td>
+                    <td><code>enrollment_date</code></td>
+                    <td><span class="badge-type">type</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">2024-13-45</code></td>
+                    <td>Sai kiểu dữ liệu tại dòng 15, cột &#x27;enrollment_date&#x27;: giá trị &#x27;2024-13-45&#x27; không khớp kiểu &#x27;date&#x27;</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>10</strong></td>
+                    <td><code>age</code></td>
+                    <td><span class="badge-type">range</span></td>
+                    <td><span class="badge-warning">WARNING</span></td>
+                    <td><code class="val-pill">14</code></td>
+                    <td>Giá trị ngoài khoảng cho phép tại dòng 10, cột &#x27;age&#x27;: nhỏ hơn ngưỡng tối thiểu (14.0 &lt; 18)</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>11</strong></td>
+                    <td><code>gpa</code></td>
+                    <td><span class="badge-type">range</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">4.85</code></td>
+                    <td>Giá trị ngoài khoảng cho phép tại dòng 11, cột &#x27;gpa&#x27;: vượt quá ngưỡng tối đa (4.85 &gt; 4.0)</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>12</strong></td>
+                    <td><code>tuition_fee</code></td>
+                    <td><span class="badge-type">range</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">-5000000.0</code></td>
+                    <td>Giá trị ngoài khoảng cho phép tại dòng 12, cột &#x27;tuition_fee&#x27;: nhỏ hơn ngưỡng tối thiểu (-5000000.0 &lt; 0.0)</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>13</strong></td>
+                    <td><code>track</code></td>
+                    <td><span class="badge-type">category</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">Blockchain Expert</code></td>
+                    <td>Giá trị danh mục không hợp lệ tại dòng 13, cột &#x27;track&#x27;: &#x27;Blockchain Expert&#x27; không nằm trong danh mục cho phép [&#x27;Data Science&#x27;, &#x27;AI Engineer&#x27;, &#x27;Fullstack Web&#x27;, &#x27;Cybersecurity&#x27;]</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>14</strong></td>
+                    <td><code>status</code></td>
+                    <td><span class="badge-type">category</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">expelled</code></td>
+                    <td>Giá trị danh mục không hợp lệ tại dòng 14, cột &#x27;status&#x27;: &#x27;expelled&#x27; không nằm trong danh mục cho phép [&#x27;enrolled&#x27;, &#x27;graduated&#x27;, &#x27;dropped&#x27;, &#x27;deferred&#x27;]</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>15</strong></td>
+                    <td><code>enrollment_date</code></td>
+                    <td><span class="badge-type">date</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">2024-13-45</code></td>
+                    <td>Sai định dạng hoặc ngày không tồn tại tại dòng 15, cột &#x27;enrollment_date&#x27;: &#x27;2024-13-45&#x27; không khớp chuẩn &#x27;%Y-%m-%d&#x27;</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>16</strong></td>
+                    <td><code>enrollment_date</code></td>
+                    <td><span class="badge-type">date</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">2099-01-01</code></td>
+                    <td>Vi phạm ràng buộc thời gian tại dòng 16, cột &#x27;enrollment_date&#x27;: ngày &#x27;2099-01-01&#x27; vượt quá ngày hiện tại (không được phép trong tương lai)</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: center;"><strong>17</strong></td>
+                    <td><code>enrollment_date,graduation_date</code></td>
+                    <td><span class="badge-type">date</span></td>
+                    <td><span class="badge-critical">CRITICAL</span></td>
+                    <td><code class="val-pill">{&#x27;start&#x27;: &#x27;2024-06-01&#x27;, &#x27;end&#x27;: &#x27;2023-01-01&#x27;}</code></td>
+                    <td>Nghịch lý thời gian tại dòng 17: Ngày nhập học (enrollment_date) phải trước hoặc bằng ngày tốt nghiệp (graduation_date) (enrollment_date=&#x27;2024-06-01&#x27; &gt; graduation_date=&#x27;2023-01-01&#x27;)</td>
+                </tr>
+                
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+
+        <footer>
+            <p>© 2026 CyberSoft Data & AI Lab — Data Quality Harness v0. Kỹ sư thực hiện: Đào Trung Kiên.</p>
+        </footer>
+    </div>
+</body>
+</html>
