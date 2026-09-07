@@ -2,12 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Exercise, ExerciseDocument } from '../../modules-system/database/schemas/exercise.schema';
-import {
-  Submission,
-  SubmissionDocument,
-  SubmissionTestResult,
-} from '../../modules-system/database/schemas/submission.schema';
+import { Submission, SubmissionDocument } from '../../modules-system/database/schemas/submission.schema';
 import { runPythonCode } from '../../common/helper/code-runner.helper';
+import { JudgeQueueService } from '../judge/judge-queue.service';
+import { JudgeStatus } from '../judge/judge-status.enum';
 import { RunCodeDto } from './dto/run-code.dto';
 import { SubmitCodeDto } from './dto/submit-code.dto';
 
@@ -16,6 +14,7 @@ export class ExerciseService {
   constructor(
     @InjectModel(Exercise.name) private readonly exerciseModel: Model<ExerciseDocument>,
     @InjectModel(Submission.name) private readonly submissionModel: Model<SubmissionDocument>,
+    private readonly judgeQueueService: JudgeQueueService,
   ) {}
 
   async findAll() {
@@ -49,66 +48,28 @@ export class ExerciseService {
   }
 
   /**
-   * "Submit" — runs code against every sample test case and records a Submission.
+   * "Submit" — creates a QUEUED Submission and hands it to the judge worker, returning
+   * immediately. Grading itself (compile-check, per-test-case run, WA/TLE/RE/CE/AC
+   * classification) happens asynchronously in JudgeQueueService; the caller polls
+   * GET /exercises/submissions/:id for the result.
    */
   async submitCode(slug: string, dto: SubmitCodeDto) {
     const exercise = await this.exerciseModel.findOne({ slug }).lean();
     if (!exercise) throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
 
-    const testCases = exercise.testCases ?? [];
-    const results: SubmissionTestResult[] = [];
-    let status: string = 'PASSED';
-    let errorMessage: string | undefined;
-
-    for (let i = 0; i < testCases.length; i++) {
-      const tc = testCases[i];
-      const run = await runPythonCode(dto.code, tc.input, exercise.timeLimitMs);
-
-      if (run.blocked) {
-        status = 'RUNTIME_ERROR';
-        errorMessage = run.blockedReason;
-        results.push({ index: i, passed: false, isHidden: tc.isHidden, stderr: run.blockedReason });
-        break;
-      }
-
-      const actualOutput = run.stdout.trim();
-      const expectedOutput = tc.expectedOutput.trim();
-      const passed = !run.timedOut && run.exitCode === 0 && actualOutput === expectedOutput;
-
-      results.push({
-        index: i,
-        passed,
-        isHidden: tc.isHidden,
-        input: tc.isHidden ? undefined : tc.input,
-        expectedOutput: tc.isHidden ? undefined : expectedOutput,
-        actualOutput: tc.isHidden ? undefined : actualOutput,
-        stderr: run.stderr || undefined,
-        executionTimeMs: run.executionTimeMs,
-      });
-
-      if (!passed) {
-        if (run.timedOut) status = 'TIME_LIMIT_EXCEEDED';
-        else if (run.exitCode !== 0) status = 'RUNTIME_ERROR';
-        else status = 'WRONG_ANSWER';
-        if (run.stderr) errorMessage = run.stderr;
-      }
-    }
-
-    const passedCount = results.filter((r) => r.passed).length;
-    if (testCases.length === 0) status = 'PASSED';
-
     const submission = await this.submissionModel.create({
       exerciseId: String((exercise as any)._id),
       userId: dto.userId,
       code: dto.code,
-      status,
-      passedCount,
-      totalCount: testCases.length,
-      results,
-      errorMessage,
+      status: JudgeStatus.QUEUED,
+      passedCount: 0,
+      totalCount: (exercise.testCases ?? []).length,
+      results: [],
     });
 
-    return submission.toObject();
+    this.judgeQueueService.enqueue(String(submission._id));
+
+    return { submissionId: String(submission._id), status: JudgeStatus.QUEUED };
   }
 
   private toRunResponse(result: Awaited<ReturnType<typeof runPythonCode>>) {

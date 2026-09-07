@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CodeEditor } from '../components/CodeEditor';
 import { OutputPanel } from '../components/OutputPanel';
 import { TestResultsPanel } from '../components/TestResultsPanel';
 import exerciseApi from '../axios/exerciseApi';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
+import { TERMINAL_SUBMISSION_STATUSES } from '../types/exercise';
+
+const POLL_INTERVAL_MS = 700;
+const POLL_TIMEOUT_MS = 15000;
 
 interface CodePlaygroundPageProps {
   isDark: boolean;
@@ -27,9 +31,17 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
 
   const [submission, setSubmission] = useState<SubmitCodeResponse | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [loadError, setLoadError] = useState<string | null>(null);
   const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit'>('run');
+
+  const stopPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  };
 
   useEffect(() => {
     exerciseApi
@@ -43,6 +55,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
 
   useEffect(() => {
     if (!selectedSlug) return;
+    stopPolling();
     setLoadError(null);
     setRunResult(null);
     setSubmission(null);
@@ -55,6 +68,8 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
       })
       .catch(() => setLoadError(`Không thể tải bài tập "${selectedSlug}".`));
   }, [selectedSlug]);
+
+  useEffect(() => stopPolling, []);
 
   const handleRun = async () => {
     if (!selectedSlug) return;
@@ -79,17 +94,38 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
 
   const handleSubmit = async () => {
     if (!selectedSlug) return;
+    stopPolling();
     setIsSubmitting(true);
     setActiveResultTab('submit');
+    setSubmission(null);
     try {
-      const result = await exerciseApi.submitCode(selectedSlug, code);
-      setSubmission(result);
+      const ack = await exerciseApi.submitCode(selectedSlug, code);
+      const startedAt = Date.now();
+
+      pollIntervalRef.current = setInterval(async () => {
+        try {
+          const result = await exerciseApi.getSubmission(ack.submissionId);
+          setSubmission(result);
+
+          if (TERMINAL_SUBMISSION_STATUSES.includes(result.status)) {
+            stopPolling();
+            setIsSubmitting(false);
+          } else if (Date.now() - startedAt > POLL_TIMEOUT_MS) {
+            stopPolling();
+            setIsSubmitting(false);
+            setLoadError('Đang xử lý lâu hơn dự kiến. Vui lòng thử lại sau.');
+          }
+        } catch {
+          stopPolling();
+          setIsSubmitting(false);
+          setLoadError('Không thể lấy kết quả chấm bài. Vui lòng thử lại sau.');
+        }
+      }, POLL_INTERVAL_MS);
     } catch {
       // Network / server error UX — keep it friendly, not a raw stack trace.
       setSubmission(null);
-      setLoadError('Không thể nộp bài lúc này. Vui lòng thử lại sau.');
-    } finally {
       setIsSubmitting(false);
+      setLoadError('Không thể nộp bài lúc này. Vui lòng thử lại sau.');
     }
   };
 

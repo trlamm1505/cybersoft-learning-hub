@@ -13,6 +13,9 @@ export class ExerciseTestCase {
 
   @Prop({ type: Boolean, default: false })
   isHidden: boolean;
+
+  @Prop({ type: Number })
+  memoryLimitMb?: number;
 }
 
 export const ExerciseTestCaseSchema = SchemaFactory.createForClass(ExerciseTestCase);

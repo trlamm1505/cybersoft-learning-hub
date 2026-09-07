@@ -7,28 +7,43 @@ interface TestResultsPanelProps {
 }
 
 const STATUS_LABEL: Record<string, { label: string; icon: string; className: string }> = {
-  PASSED: {
-    label: 'Đạt tất cả test',
+  AC: {
+    label: 'Đạt tất cả test (Accepted)',
     icon: '🎉',
     className: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300',
   },
-  WRONG_ANSWER: {
+  WA: {
     label: 'Kết quả sai (Wrong Answer)',
     icon: '⚠️',
     className: 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300',
   },
-  TIME_LIMIT_EXCEEDED: {
+  TLE: {
     label: 'Quá thời gian (Time Limit Exceeded)',
     icon: '⏱️',
     className: 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300',
   },
-  RUNTIME_ERROR: {
+  RE: {
     label: 'Lỗi khi chạy (Runtime Error)',
     icon: '❌',
     className: 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300',
   },
-  PENDING: {
-    label: 'Đang chờ',
+  CE: {
+    label: 'Lỗi cú pháp (Compile Error)',
+    icon: '🛑',
+    className: 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300',
+  },
+  FAILED: {
+    label: 'Lỗi hệ thống khi chấm bài',
+    icon: '🚧',
+    className: 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300',
+  },
+  QUEUED: {
+    label: 'Đang chờ trong hàng đợi',
+    icon: '⏳',
+    className: 'bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300',
+  },
+  RUNNING: {
+    label: 'Đang chấm bài',
     icon: '⏳',
     className: 'bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300',
   },
@@ -51,7 +66,7 @@ export const TestResultsPanel: React.FC<TestResultsPanelProps> = ({ submission, 
     );
   }
 
-  const status = STATUS_LABEL[submission.status] ?? STATUS_LABEL.PENDING;
+  const status = STATUS_LABEL[submission.status] ?? STATUS_LABEL.QUEUED;
 
   return (
     <div className="space-y-3">
