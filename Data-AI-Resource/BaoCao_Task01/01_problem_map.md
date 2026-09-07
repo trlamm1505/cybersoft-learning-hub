@@ -2,6 +2,7 @@
 
 **Dự án**: CyberSoft Data & AI Lab  
 **Đầu việc**: NGÀY 01 - Xác định bài toán và người dùng  
+**Vai trò phụ trách**: Data & AI Resource Engineer (Đào Trung Kiên)  
 **Phiên bản**: v1.1  
 **Ngày thực hiện**: 2026-08-28  
 
