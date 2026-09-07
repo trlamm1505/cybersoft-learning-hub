@@ -40,7 +40,6 @@ cybersoft-learning-hub/
         ├── README.md                      # Hướng dẫn tổng quan & Quick Start 1 lệnh
         ├── 03_repo_environment_standard.md # Tài liệu đặc tả chuẩn hóa repo & env
         ├── AI_WORKLOG.md                  # Nhật ký làm chủ AI, diffs & thẩm định
-        ├── DEFENSE_SCRIPT.md              # Kịch bản bảo vệ 3 phút trước Giảng viên
         ├── scripts/
         │   └── validate_day03.py          # Harness kiểm thử độc lập 100% tiêu chí DoD
         └── skeleton/                      # Skeleton hoàn chỉnh sẵn sàng áp dụng
