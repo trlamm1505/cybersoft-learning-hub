@@ -1,0 +1,261 @@
+{
+  "dataset_name": "CyberSoft Student Course Enrollments",
+  "input_file": "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task05\\data_samples\\dirty_students.csv",
+  "rules_file": "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task05\\config\\course_students_rules.json",
+  "timestamp": "2026-09-07 17:50:01",
+  "total_records": 16,
+  "total_columns": 12,
+  "overall_passed": false,
+  "exit_code": 1,
+  "summary": {
+    "total_checks_configured": 7,
+    "checks_passed": 1,
+    "checks_failed": 6,
+    "total_evaluations": 492,
+    "passed_evaluations": 475,
+    "failed_evaluations": 17,
+    "pass_rate_pct": 96.54,
+    "critical_errors": 16,
+    "warnings": 1,
+    "strict_mode": false
+  },
+  "check_results": [
+    {
+      "check_name": "SchemaCheck",
+      "rule_type": "schema",
+      "passed": true,
+      "total_evaluated": 13,
+      "passed_count": 13,
+      "failed_count": 0,
+      "execution_time_ms": 0.06,
+      "issues": []
+    },
+    {
+      "check_name": "NullCheck",
+      "rule_type": "null",
+      "passed": false,
+      "total_evaluated": 112,
+      "passed_count": 109,
+      "failed_count": 3,
+      "execution_time_ms": 10.2,
+      "issues": [
+        {
+          "check_name": "NullCheck",
+          "rule_type": "null",
+          "severity": "CRITICAL",
+          "message": "Giá trị bị rỗng/khuyết thiếu tại dòng 3, cột 'student_id'",
+          "row_index": 3,
+          "column": "student_id",
+          "invalid_value": null
+        },
+        {
+          "check_name": "NullCheck",
+          "rule_type": "null",
+          "severity": "CRITICAL",
+          "message": "Giá trị bị rỗng/khuyết thiếu tại dòng 4, cột 'full_name'",
+          "row_index": 4,
+          "column": "full_name",
+          "invalid_value": null
+        },
+        {
+          "check_name": "NullCheck",
+          "rule_type": "null",
+          "severity": "CRITICAL",
+          "message": "Giá trị bị rỗng/khuyết thiếu tại dòng 5, cột 'email'",
+          "row_index": 5,
+          "column": "email",
+          "invalid_value": null
+        }
+      ]
+    },
+    {
+      "check_name": "DuplicateCheck",
+      "rule_type": "duplicate",
+      "passed": false,
+      "total_evaluated": 48,
+      "passed_count": 46,
+      "failed_count": 2,
+      "execution_time_ms": 5.02,
+      "issues": [
+        {
+          "check_name": "DuplicateCheck",
+          "rule_type": "duplicate",
+          "severity": "CRITICAL",
+          "message": "Trùng lặp khóa chính ['student_id'] tại dòng 6: {'student_id': '1001'}",
+          "row_index": 6,
+          "column": "student_id",
+          "invalid_value": {
+            "student_id": "1001"
+          }
+        },
+        {
+          "check_name": "DuplicateCheck",
+          "rule_type": "duplicate",
+          "severity": "CRITICAL",
+          "message": "Trùng lặp khóa kết hợp ['student_id', 'course_id'] tại dòng 6: {'student_id': '1001', 'course_id': 'DS-101'}",
+          "row_index": 6,
+          "column": "student_id,course_id",
+          "invalid_value": {
+            "student_id": "1001",
+            "course_id": "DS-101"
+          }
+        }
+      ]
+    },
+    {
+      "check_name": "TypeCheck",
+      "rule_type": "type",
+      "passed": false,
+      "total_evaluated": 192,
+      "passed_count": 188,
+      "failed_count": 4,
+      "execution_time_ms": 31.23,
+      "issues": [
+        {
+          "check_name": "TypeCheck",
+          "rule_type": "type",
+          "severity": "CRITICAL",
+          "message": "Sai kiểu dữ liệu tại dòng 7, cột 'student_id': giá trị 'INVALID_ID' không khớp kiểu 'integer'",
+          "row_index": 7,
+          "column": "student_id",
+          "invalid_value": "INVALID_ID"
+        },
+        {
+          "check_name": "TypeCheck",
+          "rule_type": "type",
+          "severity": "CRITICAL",
+          "message": "Sai kiểu dữ liệu tại dòng 8, cột 'email': giá trị 'ha.bui_wrong_email' không khớp kiểu 'email'",
+          "row_index": 8,
+          "column": "email",
+          "invalid_value": "ha.bui_wrong_email"
+        },
+        {
+          "check_name": "TypeCheck",
+          "rule_type": "type",
+          "severity": "CRITICAL",
+          "message": "Sai kiểu dữ liệu tại dòng 9, cột 'age': giá trị 'not_a_number' không khớp kiểu 'integer'",
+          "row_index": 9,
+          "column": "age",
+          "invalid_value": "not_a_number"
+        },
+        {
+          "check_name": "TypeCheck",
+          "rule_type": "type",
+          "severity": "CRITICAL",
+          "message": "Sai kiểu dữ liệu tại dòng 15, cột 'enrollment_date': giá trị '2024-13-45' không khớp kiểu 'date'",
+          "row_index": 15,
+          "column": "enrollment_date",
+          "invalid_value": "2024-13-45"
+        }
+      ]
+    },
+    {
+      "check_name": "RangeCheck",
+      "rule_type": "range",
+      "passed": false,
+      "total_evaluated": 48,
+      "passed_count": 45,
+      "failed_count": 3,
+      "execution_time_ms": 0.22,
+      "issues": [
+        {
+          "check_name": "RangeCheck",
+          "rule_type": "range",
+          "severity": "WARNING",
+          "message": "Giá trị ngoài khoảng cho phép tại dòng 10, cột 'age': nhỏ hơn ngưỡng tối thiểu (14.0 < 18)",
+          "row_index": 10,
+          "column": "age",
+          "invalid_value": "14"
+        },
+        {
+          "check_name": "RangeCheck",
+          "rule_type": "range",
+          "severity": "CRITICAL",
+          "message": "Giá trị ngoài khoảng cho phép tại dòng 11, cột 'gpa': vượt quá ngưỡng tối đa (4.85 > 4.0)",
+          "row_index": 11,
+          "column": "gpa",
+          "invalid_value": "4.85"
+        },
+        {
+          "check_name": "RangeCheck",
+          "rule_type": "range",
+          "severity": "CRITICAL",
+          "message": "Giá trị ngoài khoảng cho phép tại dòng 12, cột 'tuition_fee': nhỏ hơn ngưỡng tối thiểu (-5000000.0 < 0.0)",
+          "row_index": 12,
+          "column": "tuition_fee",
+          "invalid_value": "-5000000.0"
+        }
+      ]
+    },
+    {
+      "check_name": "CategoryCheck",
+      "rule_type": "category",
+      "passed": false,
+      "total_evaluated": 32,
+      "passed_count": 30,
+      "failed_count": 2,
+      "execution_time_ms": 0.14,
+      "issues": [
+        {
+          "check_name": "CategoryCheck",
+          "rule_type": "category",
+          "severity": "CRITICAL",
+          "message": "Giá trị danh mục không hợp lệ tại dòng 13, cột 'track': 'Blockchain Expert' không nằm trong danh mục cho phép ['Data Science', 'AI Engineer', 'Fullstack Web', 'Cybersecurity']",
+          "row_index": 13,
+          "column": "track",
+          "invalid_value": "Blockchain Expert"
+        },
+        {
+          "check_name": "CategoryCheck",
+          "rule_type": "category",
+          "severity": "CRITICAL",
+          "message": "Giá trị danh mục không hợp lệ tại dòng 14, cột 'status': 'expelled' không nằm trong danh mục cho phép ['enrolled', 'graduated', 'dropped', 'deferred']",
+          "row_index": 14,
+          "column": "status",
+          "invalid_value": "expelled"
+        }
+      ]
+    },
+    {
+      "check_name": "DateCheck",
+      "rule_type": "date",
+      "passed": false,
+      "total_evaluated": 47,
+      "passed_count": 44,
+      "failed_count": 3,
+      "execution_time_ms": 0.9,
+      "issues": [
+        {
+          "check_name": "DateCheck",
+          "rule_type": "date",
+          "severity": "CRITICAL",
+          "message": "Sai định dạng hoặc ngày không tồn tại tại dòng 15, cột 'enrollment_date': '2024-13-45' không khớp chuẩn '%Y-%m-%d'",
+          "row_index": 15,
+          "column": "enrollment_date",
+          "invalid_value": "2024-13-45"
+        },
+        {
+          "check_name": "DateCheck",
+          "rule_type": "date",
+          "severity": "CRITICAL",
+          "message": "Vi phạm ràng buộc thời gian tại dòng 16, cột 'enrollment_date': ngày '2099-01-01' vượt quá ngày hiện tại (không được phép trong tương lai)",
+          "row_index": 16,
+          "column": "enrollment_date",
+          "invalid_value": "2099-01-01"
+        },
+        {
+          "check_name": "DateCheck",
+          "rule_type": "date",
+          "severity": "CRITICAL",
+          "message": "Nghịch lý thời gian tại dòng 17: Ngày nhập học (enrollment_date) phải trước hoặc bằng ngày tốt nghiệp (graduation_date) (enrollment_date='2024-06-01' > graduation_date='2023-01-01')",
+          "row_index": 17,
+          "column": "enrollment_date,graduation_date",
+          "invalid_value": {
+            "start": "2024-06-01",
+            "end": "2023-01-01"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "dataset_name": "CyberSoft Student Course Enrollments",
+  "version": "1.0.0",
+  "description": "Bộ quy tắc thẩm định chất lượng dữ liệu 7 tầng cho hồ sơ học viên và kết quả học tập",
+  "rules": {
+    "schema": {
+      "required_columns": [
+        "student_id",
+        "full_name",
+        "email",
+        "age",
+        "track",
+        "course_id",
+        "course_name",
+        "gpa",
+        "tuition_fee",
+        "status",
+        "enrollment_date",
+        "graduation_date"
+      ],
+      "allow_unexpected_columns": false,
+      "severity": "CRITICAL"
+    },
+    "null": {
+      "not_null_columns": [
+        "student_id",
+        "full_name",
+        "email",
+        "track",
+        "course_id",
+        "status",
+        "enrollment_date"
+      ],
+      "max_null_threshold_pct": 0.0,
+      "severity": "CRITICAL"
+    },
+    "duplicate": {
+      "primary_key": ["student_id"],
+      "allow_duplicate_records": false,
+      "composite_unique_keys": [
+        ["student_id", "course_id"]
+      ],
+      "severity": "CRITICAL"
+    },
+    "type": {
+      "column_types": {
+        "student_id": "integer",
+        "full_name": "string",
+        "email": "email",
+        "age": "integer",
+        "track": "string",
+        "course_id": "string",
+        "course_name": "string",
+        "gpa": "float",
+        "tuition_fee": "float",
+        "status": "string",
+        "enrollment_date": "date",
+        "graduation_date": "date"
+      },
+      "severity": "CRITICAL"
+    },
+    "range": {
+      "columns": {
+        "age": {
+          "min": 18,
+          "max": 65,
+          "severity": "WARNING"
+        },
+        "gpa": {
+          "min": 0.0,
+          "max": 4.0,
+          "severity": "CRITICAL"
+        },
+        "tuition_fee": {
+          "min": 0.0,
+          "max": 50000000.0,
+          "severity": "CRITICAL"
+        }
+      }
+    },
+    "category": {
+      "columns": {
+        "track": {
+          "allowed_values": [
+            "Data Science",
+            "AI Engineer",
+            "Fullstack Web",
+            "Cybersecurity"
+          ],
+          "case_sensitive": true,
+          "severity": "CRITICAL"
+        },
+        "status": {
+          "allowed_values": [
+            "enrolled",
+            "graduated",
+            "dropped",
+            "deferred"
+          ],
+          "case_sensitive": false,
+          "severity": "CRITICAL"
+        }
+      }
+    },
+    "date": {
+      "columns": {
+        "enrollment_date": {
+          "format": "%Y-%m-%d",
+          "allow_future": false,
+          "severity": "CRITICAL"
+        },
+        "graduation_date": {
+          "format": "%Y-%m-%d",
+          "allow_future": true,
+          "severity": "CRITICAL"
+        }
+      },
+      "chronological_order": [
+        {
+          "start_column": "enrollment_date",
+          "end_column": "graduation_date",
+          "message": "Ngày nhập học (enrollment_date) phải trước hoặc bằng ngày tốt nghiệp (graduation_date)",
+          "severity": "CRITICAL"
+        }
+      ]
+    }
+  }
+}

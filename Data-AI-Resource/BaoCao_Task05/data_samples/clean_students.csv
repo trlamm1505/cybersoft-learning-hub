@@ -1,0 +1,11 @@
+student_id,full_name,email,age,track,course_id,course_name,gpa,tuition_fee,status,enrollment_date,graduation_date
+1001,Nguyen Van An,an.nguyen@cybersoft.edu.vn,22,Data Science,DS-101,Python for Data Science,3.65,12000000.0,graduated,2023-03-01,2023-09-01
+1002,Tran Thi Bich,bich.tran@cybersoft.edu.vn,25,AI Engineer,AIE-201,Deep Learning & RAG Architectures,3.85,18500000.0,enrolled,2023-08-15,2024-02-15
+1003,Le Hoang Cuong,cuong.le@cybersoft.edu.vn,28,Fullstack Web,FS-301,Fullstack Modern Web Development,3.40,15000000.0,graduated,2022-10-01,2023-04-01
+1004,Pham Minh Duc,duc.pham@cybersoft.edu.vn,21,Cybersecurity,CS-401,Ethical Hacking & SecOps,3.20,16000000.0,enrolled,2024-01-10,2024-07-10
+1005,Vo Thi En,en.vo@cybersoft.edu.vn,24,AI Engineer,AIE-202,LLM Agents & Tool Use,3.92,19000000.0,enrolled,2023-11-01,2024-05-01
+1006,Dang Quoc Giang,giang.dang@cybersoft.edu.vn,30,Data Science,DS-102,Applied Machine Learning,3.50,13500000.0,graduated,2023-02-01,2023-08-01
+1007,Bui Thanh Ha,ha.bui@cybersoft.edu.vn,23,Fullstack Web,FS-302,Next.js & Cloud Native Deployment,3.75,15500000.0,enrolled,2024-02-01,2024-08-01
+1008,Do Tuan Kiet,kiet.do@cybersoft.edu.vn,26,Cybersecurity,CS-402,Network Defense & Threat Hunting,3.10,16500000.0,deferred,2023-09-15,2024-03-15
+1009,Hoang Ngoc Lan,lan.hoang@cybersoft.edu.vn,27,AI Engineer,AIE-201,Deep Learning & RAG Architectures,3.88,18500000.0,graduated,2023-04-01,2023-10-01
+1010,Truong Gia Minh,minh.truong@cybersoft.edu.vn,22,Data Science,DS-101,Python for Data Science,3.55,12000000.0,enrolled,2024-03-01,2024-09-01

@@ -1,0 +1,94 @@
+{
+  "dataset_name": "CyberSoft Student Course Enrollments",
+  "input_file": "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task05\\data_samples\\clean_students.csv",
+  "rules_file": "In-memory Config",
+  "timestamp": "2026-09-07 14:53:55",
+  "total_records": 10,
+  "total_columns": 12,
+  "overall_passed": true,
+  "exit_code": 0,
+  "summary": {
+    "total_checks_configured": 7,
+    "checks_passed": 7,
+    "checks_failed": 0,
+    "total_evaluations": 313,
+    "passed_evaluations": 313,
+    "failed_evaluations": 0,
+    "pass_rate_pct": 100.0,
+    "critical_errors": 0,
+    "warnings": 0,
+    "strict_mode": false
+  },
+  "check_results": [
+    {
+      "check_name": "SchemaCheck",
+      "rule_type": "schema",
+      "passed": true,
+      "total_evaluated": 13,
+      "passed_count": 13,
+      "failed_count": 0,
+      "execution_time_ms": 0.03,
+      "issues": []
+    },
+    {
+      "check_name": "NullCheck",
+      "rule_type": "null",
+      "passed": true,
+      "total_evaluated": 70,
+      "passed_count": 70,
+      "failed_count": 0,
+      "execution_time_ms": 7.23,
+      "issues": []
+    },
+    {
+      "check_name": "DuplicateCheck",
+      "rule_type": "duplicate",
+      "passed": true,
+      "total_evaluated": 30,
+      "passed_count": 30,
+      "failed_count": 0,
+      "execution_time_ms": 2.94,
+      "issues": []
+    },
+    {
+      "check_name": "TypeCheck",
+      "rule_type": "type",
+      "passed": true,
+      "total_evaluated": 120,
+      "passed_count": 120,
+      "failed_count": 0,
+      "execution_time_ms": 11.98,
+      "issues": []
+    },
+    {
+      "check_name": "RangeCheck",
+      "rule_type": "range",
+      "passed": true,
+      "total_evaluated": 30,
+      "passed_count": 30,
+      "failed_count": 0,
+      "execution_time_ms": 0.1,
+      "issues": []
+    },
+    {
+      "check_name": "CategoryCheck",
+      "rule_type": "category",
+      "passed": true,
+      "total_evaluated": 20,
+      "passed_count": 20,
+      "failed_count": 0,
+      "execution_time_ms": 0.05,
+      "issues": []
+    },
+    {
+      "check_name": "DateCheck",
+      "rule_type": "date",
+      "passed": true,
+      "total_evaluated": 30,
+      "passed_count": 30,
+      "failed_count": 0,
+      "execution_time_ms": 0.26,
+      "issues": []
+    }
+  ]
+}

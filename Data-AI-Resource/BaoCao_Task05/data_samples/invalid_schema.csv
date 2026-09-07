@@ -1,0 +1,2 @@
+student_id,full_name,age,track,course_id,course_name,gpa,tuition_fee,status,extra_random_column
+1001,Nguyen Van An,22,Data Science,DS-101,Python for Data Science,3.65,12000000.0,graduated,unexpected_val
