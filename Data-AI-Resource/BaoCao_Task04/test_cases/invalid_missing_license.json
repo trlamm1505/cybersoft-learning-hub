@@ -1,0 +1,68 @@
+{
+  "id": "ds-invalid-missing-license-v1",
+  "title": "Invalid Sample - Missing Mandatory License Field",
+  "description": "This sample intentionally omits the license property to test strict schema rejection.",
+  "version": "1.0.0",
+  "domain": "retail_ecommerce",
+  "level": "beginner",
+  "difficulty": "easy",
+  "pii": {
+    "level": "none",
+    "has_pii": false,
+    "compliance_tags": [
+      "INTERNAL_CYBERSOFT"
+    ],
+    "handling_instructions": "Standard internal data handling policy."
+  },
+  "lineage": {
+    "source_system": "CyberSoft Lab",
+    "ingestion_method": "synthetic_generator",
+    "transformation_pipeline": [
+      "Initial generation"
+    ]
+  },
+  "learning_outcomes": {
+    "target_roles": [
+      "data_analyst"
+    ],
+    "core_competencies": [
+      "SQL"
+    ],
+    "sample_business_questions": [
+      "Sample query?"
+    ],
+    "recommended_exercises": [
+      "Lab 01"
+    ]
+  },
+  "tables": [
+    {
+      "table_name": "sample_table",
+      "description": "Sample test table with single column",
+      "file_path": "data/sample.csv",
+      "format": "csv",
+      "row_count": 10,
+      "column_count": 1,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Primary key index"
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "SHA-256",
+    "checksum": "0000000000000000000000000000000000000000000000000000000000000000",
+    "file_size_bytes": 1024
+  },
+  "author": "Tester",
+  "maintainer": "QA Team",
+  "created_at": "2026-09-04T00:00:00Z",
+  "updated_at": "2026-09-04T00:00:00Z"
+}

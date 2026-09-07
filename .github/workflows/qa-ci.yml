@@ -1,0 +1,51 @@
+name: Day 3 QA CI
+
+on:
+  push:
+    branches:
+      - feature/test-day3
+    paths:
+      - "Test/Day3_Trần Quốc Nguyên/**"
+      - ".github/workflows/qa-ci.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "Test/Day3_Trần Quốc Nguyên/**"
+      - ".github/workflows/qa-ci.yml"
+
+jobs:
+  qa-smoke:
+    name: QA smoke tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: "Test/Day3_Trần Quốc Nguyên"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run lint
+        run: ruff check .
+
+      - name: Run tests
+        run: pytest
+
+      - name: Upload QA reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: day-3-qa-reports
+          path: "Test/Day3_Trần Quốc Nguyên/reports/"

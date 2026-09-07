@@ -1,0 +1,105 @@
+# ==============================================================================
+# CYBERSOFT DATA & AI LAB — GITIGNORE STANDARD
+# Chiến lược bảo mật 4 lớp: Chống commit secret, cache và dữ liệu dung lượng lớn (>50MB)
+# ==============================================================================
+
+# --- LỚP 1: SECRETS, CREDENTIALS & LOCAL CONFIG ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.pfx
+*.pkcs12
+id_rsa*
+*.pub
+credentials.json
+token.json
+client_secrets.json
+
+# --- LỚP 2: DỮ LIỆU LỚN, NHỊ PHÂN & VECTOR STORE (>10MB / Heavy Assets) ---
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.tar.gz
+*.tar
+*.zip
+*.7z
+*.rar
+*.mp4
+*.avi
+*.mkv
+
+# SQLite & ChromaDB Vector Store
+*.db
+*.sqlite
+*.sqlite3
+chroma_db/
+./chroma_db/
+
+# Model Checkpoints & Large Weights
+*.pt
+*.pth
+*.bin
+*.onnx
+*.safetensors
+models/*
+!models/.gitkeep
+
+# --- LỚP 3: PYTHON RUNTIME, CACHE & BUILD ARTIFACTS ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- LỚP 4: VIRTUAL ENVIRONMENTS & IDE ARTIFACTS ---
+.venv/
+venv/
+ENV/
+env/
+.env/
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- TEST, COVERAGE & LINTER CACHE ---
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
