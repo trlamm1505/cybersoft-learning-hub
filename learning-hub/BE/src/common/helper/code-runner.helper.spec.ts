@@ -1,4 +1,4 @@
-import { runPythonCode } from './code-runner.helper';
+import { runPythonCode, checkPythonSyntax } from './code-runner.helper';
 
 describe('CodeRunnerHelper - runPythonCode', () => {
   jest.setTimeout(15000);
@@ -44,5 +44,27 @@ describe('CodeRunnerHelper - runPythonCode', () => {
   it('cannot read arbitrary host filesystem paths', async () => {
     const result = await runPythonCode('print(open("C:/Windows/win.ini").read())', '');
     expect(result.blocked).toBe(true);
+  });
+});
+
+describe('CodeRunnerHelper - checkPythonSyntax', () => {
+  jest.setTimeout(15000);
+
+  it('accepts syntactically valid code', async () => {
+    const result = await checkPythonSyntax('a = int(input())\nprint(a + 1)');
+    expect(result.ok).toBe(true);
+    expect(result.errorMessage).toBeUndefined();
+  });
+
+  it('rejects code with a SyntaxError', async () => {
+    const result = await checkPythonSyntax('def f(:\n    pass');
+    expect(result.ok).toBe(false);
+    expect(result.errorMessage).toContain('SyntaxError');
+  });
+
+  it('rejects code with an IndentationError', async () => {
+    const result = await checkPythonSyntax('if True:\nprint(1)');
+    expect(result.ok).toBe(false);
+    expect(result.errorMessage).toContain('IndentationError');
   });
 });

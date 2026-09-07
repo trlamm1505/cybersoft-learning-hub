@@ -42,12 +42,24 @@ export interface SubmissionTestResult {
 }
 
 export type SubmissionStatus =
-  | 'PASSED'
-  | 'WRONG_ANSWER'
-  | 'TIME_LIMIT_EXCEEDED'
-  | 'RUNTIME_ERROR'
-  | 'PENDING';
+  | 'QUEUED'
+  | 'RUNNING'
+  | 'AC'
+  | 'WA'
+  | 'TLE'
+  | 'RE'
+  | 'CE'
+  | 'FAILED';
 
+export const TERMINAL_SUBMISSION_STATUSES: SubmissionStatus[] = ['AC', 'WA', 'TLE', 'RE', 'CE', 'FAILED'];
+
+/** Immediate ack returned by POST /exercises/:slug/submit — grading happens async. */
+export interface SubmitAckResponse {
+  submissionId: string;
+  status: SubmissionStatus;
+}
+
+/** Full submission doc, as returned by GET /exercises/submissions/:id polling. */
 export interface SubmitCodeResponse {
   _id: string;
   exerciseId: string;
@@ -57,4 +69,5 @@ export interface SubmitCodeResponse {
   totalCount: number;
   results: SubmissionTestResult[];
   errorMessage?: string;
+  memoryUsedMb?: number;
 }

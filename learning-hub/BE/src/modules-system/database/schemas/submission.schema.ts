@@ -28,6 +28,9 @@ export class SubmissionTestResult {
 
   @Prop({ type: Number })
   executionTimeMs?: number;
+
+  @Prop({ type: Number })
+  memoryUsedMb?: number;
 }
 
 export const SubmissionTestResultSchema = SchemaFactory.createForClass(SubmissionTestResult);
@@ -45,8 +48,8 @@ export class Submission {
 
   @Prop({
     type: String,
-    enum: ['PASSED', 'WRONG_ANSWER', 'TIME_LIMIT_EXCEEDED', 'RUNTIME_ERROR', 'PENDING'],
-    default: 'PENDING',
+    enum: ['QUEUED', 'RUNNING', 'AC', 'WA', 'TLE', 'RE', 'CE', 'FAILED'],
+    default: 'QUEUED',
   })
   status: string;
 
@@ -61,6 +64,15 @@ export class Submission {
 
   @Prop({ type: String })
   errorMessage?: string;
+
+  @Prop({ type: String, index: true, sparse: true, unique: true })
+  idempotencyKey?: string;
+
+  @Prop({ type: Number })
+  memoryUsedMb?: number;
+
+  @Prop({ type: Number, default: 0 })
+  attempts: number;
 }
 
 export const SubmissionSchema = SchemaFactory.createForClass(Submission);

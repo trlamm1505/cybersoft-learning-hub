@@ -13,6 +13,12 @@ export interface RunResult {
   executionTimeMs: number;
   blocked: boolean;
   blockedReason?: string;
+  peakMemoryMb?: number;
+}
+
+export interface SyntaxCheckResult {
+  ok: boolean;
+  errorMessage?: string;
 }
 
 const DEFAULT_TIMEOUT_MS = 2000;
@@ -101,11 +107,22 @@ export async function runPythonCode(
       let stderr = '';
       let timedOut = false;
       let settled = false;
+      let peakMemoryMb: number | undefined;
 
       const timer = setTimeout(() => {
         timedOut = true;
         child.kill('SIGKILL');
       }, timeoutMs);
+
+      const memorySampler = child.pid
+        ? setInterval(() => {
+            sampleProcessMemoryMb(child.pid as number).then((mb) => {
+              if (mb !== undefined && (peakMemoryMb === undefined || mb > peakMemoryMb)) {
+                peakMemoryMb = mb;
+              }
+            });
+          }, MEMORY_SAMPLE_INTERVAL_MS)
+        : undefined;
 
       child.stdout.on('data', (chunk) => {
         if (stdout.length < MAX_OUTPUT_BYTES) stdout += chunk.toString('utf-8');
@@ -118,6 +135,7 @@ export async function runPythonCode(
         if (settled) return;
         settled = true;
         clearTimeout(timer);
+        if (memorySampler) clearInterval(memorySampler);
         resolve({
           stdout: '',
           stderr: `Không thể khởi chạy Python: ${err.message}`,
@@ -132,6 +150,7 @@ export async function runPythonCode(
         if (settled) return;
         settled = true;
         clearTimeout(timer);
+        if (memorySampler) clearInterval(memorySampler);
         resolve({
           stdout: stdout.slice(0, MAX_OUTPUT_BYTES),
           stderr: stderr.slice(0, MAX_OUTPUT_BYTES),
@@ -139,6 +158,7 @@ export async function runPythonCode(
           timedOut,
           executionTimeMs: Date.now() - startedAt,
           blocked: false,
+          peakMemoryMb,
         });
       });
 
@@ -147,6 +167,93 @@ export async function runPythonCode(
     });
   } finally {
     // Windows can briefly hold the killed child's file handle open; retry a couple times.
+    fs.rmSync(runDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+  }
+}
+
+const MEMORY_SAMPLE_INTERVAL_MS = 100;
+
+/**
+ * Best-effort peak-RSS sampling for a child process. Not precise (no cgroup/Docker-level
+ * accounting available on this host — see Day 8 worklog), just enough to record memory
+ * "at an appropriate level" alongside execution time. Silently returns undefined if the
+ * platform-specific probe fails (e.g. `wmic` deprecated on newer Windows builds, or the
+ * process already exited between sampling ticks) — memory becomes "not available" rather
+ * than blocking/failing the actual grading.
+ */
+async function sampleProcessMemoryMb(pid: number): Promise<number | undefined> {
+  try {
+    if (process.platform === 'linux' || process.platform === 'darwin') {
+      const status = fs.readFileSync(`/proc/${pid}/status`, 'utf-8');
+      const match = status.match(/VmRSS:\s*(\d+)\s*kB/);
+      if (match) return Number(match[1]) / 1024;
+      return undefined;
+    }
+
+    // Windows: shell out to wmic. Deliberately not polled tightly (see MEMORY_SAMPLE_INTERVAL_MS
+    // usage above being capped by the caller's own timeout) since spawning a process per sample
+    // is expensive relative to the thing being measured.
+    return await new Promise<number | undefined>((resolve) => {
+      const probe = spawn('wmic', ['process', 'where', `ProcessId=${pid}`, 'get', 'WorkingSetSize', '/value'], {
+        windowsHide: true,
+      });
+      let out = '';
+      probe.stdout?.on('data', (c) => (out += c.toString('utf-8')));
+      probe.on('close', () => {
+        const match = out.match(/WorkingSetSize=(\d+)/);
+        resolve(match ? Number(match[1]) / (1024 * 1024) : undefined);
+      });
+      probe.on('error', () => resolve(undefined));
+    });
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Pre-execution syntax check ("compile step" for an interpreted language) via `python -m
+ * py_compile`. Run once per submission before the test-case loop, since the source doesn't
+ * change between test cases — a SyntaxError/IndentationError here maps to judge status CE,
+ * distinct from RE (a runtime error raised by otherwise-valid code).
+ */
+export async function checkPythonSyntax(code: string): Promise<SyntaxCheckResult> {
+  const runDir = fs.mkdtempSync(path.join(os.tmpdir(), 'code-runner-syntax-'));
+  const scriptPath = path.join(runDir, `${randomUUID()}.py`);
+  fs.writeFileSync(scriptPath, code, 'utf-8');
+
+  try {
+    return await new Promise<SyntaxCheckResult>((resolve) => {
+      const minimalEnv: NodeJS.ProcessEnv = { PATH: process.env.PATH };
+      if (process.platform === 'win32') {
+        minimalEnv.SystemRoot = process.env.SystemRoot;
+      }
+
+      const child = spawn(PYTHON_BIN, ['-I', '-B', '-m', 'py_compile', scriptPath], {
+        cwd: runDir,
+        env: minimalEnv,
+        windowsHide: true,
+      });
+
+      let stderr = '';
+      let settled = false;
+
+      child.stderr.on('data', (chunk) => {
+        stderr += chunk.toString('utf-8');
+      });
+
+      child.on('error', (err) => {
+        if (settled) return;
+        settled = true;
+        resolve({ ok: false, errorMessage: `Không thể kiểm tra cú pháp: ${err.message}` });
+      });
+
+      child.on('close', (exitCode) => {
+        if (settled) return;
+        settled = true;
+        resolve({ ok: exitCode === 0, errorMessage: exitCode === 0 ? undefined : stderr.trim() });
+      });
+    });
+  } finally {
     fs.rmSync(runDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
   }
 }

@@ -4,6 +4,7 @@ import type {
   ExerciseDetail,
   RunCodeResponse,
   SubmitCodeResponse,
+  SubmitAckResponse,
 } from '../types/exercise';
 
 /**
@@ -33,10 +34,18 @@ export const exerciseApi = {
   },
 
   /**
-   * POST /api/exercises/:slug/submit — grades code against all sample tests
+   * POST /api/exercises/:slug/submit — enqueues code for grading, returns immediately.
+   * Poll getSubmission() with the returned submissionId until a terminal status.
    */
-  submitCode: async (slug: string, code: string): Promise<SubmitCodeResponse> => {
+  submitCode: async (slug: string, code: string): Promise<SubmitAckResponse> => {
     return await axiosClient.post(`/exercises/${slug}/submit`, { code });
+  },
+
+  /**
+   * GET /api/exercises/submissions/:id — poll for judge result (AC/WA/TLE/RE/CE/FAILED).
+   */
+  getSubmission: async (id: string): Promise<SubmitCodeResponse> => {
+    return await axiosClient.get(`/exercises/submissions/${id}`);
   },
 };
 
