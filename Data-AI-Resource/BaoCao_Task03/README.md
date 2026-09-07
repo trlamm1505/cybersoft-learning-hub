@@ -15,7 +15,6 @@ Data-AI-Resource/
     ├── README.md                          # Hướng dẫn tổng quan & chỉ mục nghiệm thu Ngày 03
     ├── 03_repo_environment_standard.md    # Tài liệu đặc tả chuẩn hóa repo, môi trường CPU/GPU, CI/CD
     ├── AI_WORKLOG.md                      # Nhật ký sử dụng AI minh bạch, phát hiện lỗi & làm chủ kỹ thuật
-    ├── DEFENSE_SCRIPT.md                  # Kịch bản bảo vệ 3 phút trước Giảng viên & Q&A phản biện
     ├── scripts/
     │   └── validate_day03.py              # Script kiểm thử tự động độc lập 100% tiêu chuẩn DoD
     └── skeleton/                          # Khung xương Repository hoàn chỉnh chạy bằng 1 lệnh

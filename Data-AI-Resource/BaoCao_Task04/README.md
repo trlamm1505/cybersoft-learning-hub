@@ -2,7 +2,7 @@
 
 **Dự án**: CyberSoft Data & AI Lab  
 **Đầu việc**: NGÀY 04 — Thiết kế schema Dataset Registry & Data Governance  
-**Kỹ sư thực hiện**: Đào Trung Kiên — Data & AI Resource Engineer  
+**Vai trò**: Data & AI Resource Engineer (Đào Trung Kiên)  
 **Trạng thái**:  **ĐÃ HOÀN THÀNH 100% THEO ĐIỀU KIỆN NGHIỆM THU (DOD)**  
 
 ---

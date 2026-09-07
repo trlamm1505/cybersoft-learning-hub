@@ -1,62 +1,105 @@
-# CYBERSOFT DATA & AI LAB — AI WORK LOG (NGÀY 04)
+# AI WORK LOG - NGÀY 04: THIẾT KẾ SCHEMA DATASET REGISTRY
 
 **Dự án**: CyberSoft Data & AI Lab  
-**Đầu việc**: NGÀY 04 — Thiết kế schema Dataset Registry  
-**Kỹ sư thực hiện**: Đào Trung Kiên — Data & AI Resource Engineer  
-**Công cụ AI sử dụng**: Google Antigravity & Codex (Model: Gemini 3.8 Flash / Claude 3.5 Sonnet)  
+**Thực tập sinh**: Đào Trung Kiên — Data & AI Resource Engineer  
 **Ngày thực hiện**: 2026-09-04  
+**Task ID**: `#DAY-04-DATASET-REGISTRY-SCHEMA`  
 
 ---
 
-## 1. TỔNG QUAN BÀI TOÁN & PHÂN VAI (PROBLEM & ROLE SETUP)
+## 1. Bài toán và Giả định trước khi gọi AI (Pre-AI Baseline)
 
-### 1.1. Problem Statement trước khi gọi AI
-Cần thiết kế một chuẩn Schema Metadata cho kho Dataset Registry của CyberSoft Data & AI Lab. Schema này không chỉ là mô tả tên file và kích thước đơn thuần, mà phải đóng vai trò bản quản trị dữ liệu (Data Governance) khắt khe:
-1. Bắt buộc có thông tin bản quyền (License) và quản trị dữ liệu cá nhân (PII Protection theo chuẩn PDPA Việt Nam).
-2. Lưu vết nguồn gốc (Data Lineage & Provenance) và mã băm toàn vẹn SHA-256.
-3. Hỗ trợ mô hình dữ liệu quan hệ đa bảng (Star Schema) với khóa chính, khóa ngoại phục vụ khóa học Data Analyst.
-4. Hỗ trợ định dạng vector embeddings và RAG Knowledge Base phục vụ khóa học AI Engineer.
-5. Triển khai kép: JSON Schema Draft 2020-12 (đa nền tảng) và Pydantic v2 (Python runtime).
+### Giả định & Yêu cầu ban đầu
+* **Mục tiêu**: Xây dựng chuẩn Schema Metadata cho kho lưu trữ Dataset Registry của CyberSoft Data & AI Lab, đóng vai trò bản quản trị dữ liệu (Data Governance) khắt khe cho cả hai nhánh đào tạo: Data Analyst và AI Engineer.
+* **Yêu cầu kỹ thuật cốt lõi**:
+  * Quản trị dữ liệu cá nhân (PII Protection theo chuẩn PDPA Việt Nam / Nghị định 13/2023/NĐ-CP) và giấy phép bản quyền (License) bắt buộc.
+  * Lưu vết nguồn gốc (Data Lineage & Provenance) và mã băm toàn vẹn SHA-256.
+  * Hỗ trợ mô hình dữ liệu quan hệ đa bảng (Star Schema) với khóa chính (`primary_key`), khóa ngoại (`foreign_keys`) phục vụ học phần SQL & Data Modeling cho Data Analyst.
+  * Hỗ trợ định dạng vector embeddings (`vector[1536]`) và văn bản lớn phục vụ học phần RAG & NLP cho AI Engineer.
+  * Triển khai kiến trúc Single Source of Truth (SSOT): định nghĩa bằng Pydantic v2 (Python runtime) và tự động trích xuất JSON Schema Draft 2020-12 (cho các hệ thống đa nền tảng).
 
-### 1.2. Phân vai hệ thống AI (System Prompt / Persona)
-- **Role**: Principal Data Architect & Enterprise Governance Specialist.
-- **Context cung cấp**: Lộ trình 30 ngày của CyberSoft, kiến trúc tổng thể Ngày 02, chuẩn repo Ngày 03, mục tiêu khóa học Data Analyst & AI Engineer.
-- **Yêu cầu chỉ đạo**: Tạo code Pydantic v2 chuẩn type hints, kèm JSON Schema tương ứng; tạo 5 bộ metadata mẫu chuẩn ngành; viết CLI validator; không sinh code generic lỏng lẻo.
-
----
-
-## 2. QUY TRÌNH PHỐI HỢP & NHẬT KÝ RA QUYẾT ĐỊNH CỦA CON NGƯỜI
-
-| Hạng mục | AI Đề xuất Ban đầu | Con người Thẩm định & Phát hiện Lỗi | Quyết định Kỹ thuật Cuối cùng |
-| :--- | :--- | :--- | :--- |
-| **Cấu trúc Bảng (Table Structure)** | AI đề xuất schema phẳng (flat schema), giả định mỗi dataset chỉ gồm đúng 1 file CSV. | **Lỗi thiết kế**: Các đồ án thực tế của Data Analyst (ví dụ Sales, HR) luôn có ít nhất 2-5 bảng liên kết khóa ngoại (Foreign Keys). Nếu dùng flat schema, học viên không thể thực hành SQL JOINs. | **Chỉnh sửa**: Tái cấu trúc thành danh sách `tables: List[TableSchema]`, bổ sung `primary_key` và `foreign_keys: List[ForeignKeySchema]`. |
-| **Ràng buộc PII (PII Governance)** | AI cho phép trường `pii` là tùy chọn (`Optional[PIIClassification] = None`) và `license` mặc định là chuỗi rỗng `""`. | **Lỗi vi phạm DoD**: DoD Ngày 04 nêu rõ: *"License/PII là trường bắt buộc"*. Nếu để optional, học viên hoặc người đóng góp dữ liệu sẽ bỏ qua, gây rủi ro pháp lý theo nghị định 13/2023/NĐ-CP (PDPA VN). | **Bác bỏ & Bắt buộc**: Chuyển `license` và `pii` thành trường bắt buộc (`Field(...)`). Viết custom validator chặn các giá trị rác như `"none"`, `"unknown"`, `"n/a"`. |
-| **Logic Kiểm tra Chéo (Cross-field Validation)** | AI sinh model độc lập, nếu một cột trong `TableSchema` đánh dấu `is_pii=True` nhưng trên root metadata ghi `pii.has_pii=False`, model vẫn cho qua. | **Lỗ hổng dữ liệu**: Trạng thái metadata không nhất quán (inconsistent state), gây hiểu lầm cho hệ thống tìm kiếm tự động. | **Bổ sung validator**: Thêm hàm `@model_validator(mode="after") def cross_validate_pii_columns` để quét toàn bộ cột; nếu phát hiện cột PII mà cờ tổng thể là False, lập tức ném ngoại lệ `ValueError`. |
-| **Độ chính xác Số lượng Cột** | AI khai báo trường `column_count` nhưng không kiểm tra xem danh sách `columns` có thực sự đủ số lượng hay không. | **Nguy cơ sai lệch**: Người tạo metadata có thể ghi `column_count: 10` nhưng chỉ khai báo 3 cột trong `columns`. | **Bổ sung validator**: Thêm ràng buộc `len(self.columns) == self.column_count`, đồng thời kiểm tra `primary_key` và `foreign_keys` phải nằm trong tập hợp tên cột. |
-| **Định dạng Vector Embeddings** | AI chỉ hỗ trợ các kiểu dữ liệu truyền thống: `integer`, `float`, `string`, `boolean`. | **Thiếu hụt cho khóa AI Engineer**: Dataset RAG Knowledge Base cần lưu vector nhúng (ví dụ 1536 chiều từ OpenAI / Qdrant). | **Mở rộng kiểu dữ liệu**: Cho phép `vector[1536]` và kiểu văn bản `text` lớn. |
+### Rủi ro dự kiến & Bẫy AI thường gặp
+* AI thường tạo schema phẳng (flat schema) dạng tối giản, giả định mỗi dataset chỉ gồm duy nhất 1 file CSV, bỏ qua quan hệ đa bảng Dim/Fact cần thiết cho việc học SQL JOINs.
+* AI có xu hướng để các trường quản trị dữ liệu quan trọng như `license` hay `pii` ở trạng thái tùy chọn (`Optional = None`) hoặc mặc định chuỗi rỗng `""`, gây nguy cơ vi phạm pháp lý PDPA.
+* AI thường bỏ qua logic kiểm tra chéo (cross-field validation): nếu cột con đánh dấu `is_pii = True` nhưng cờ tổng thể ở root ghi `has_pii = False`, model vẫn cho qua dẫn đến trạng thái dữ liệu mâu thuẫn.
+* AI có xu hướng không kiểm soát độ khớp giữa số lượng cột khai báo (`column_count`) và độ dài danh sách thực tế của mảng `columns`.
 
 ---
 
-## 3. THẨM ĐỊNH MÃ NGUỒN VÀ KIỂM CHỨNG ĐỘC LẬP
+## 2. Nhật ký Tương tác AI (AI Interaction Log)
 
-### 3.1. Thử nghiệm Bắt lỗi Tự động (Negative Testing)
-Để đảm bảo không phụ thuộc vào khẳng định của AI rằng "schema đã hoạt động tốt", tôi đã tự xây dựng 4 test cases cố tình vi phạm:
-1. `invalid_missing_license.json`: Thiếu giấy phép bản quyền -> **Bị chặn thành công bởi JSONSchema & Pydantic**.
-2. `invalid_missing_pii.json`: Thiếu khối khai báo PII -> **Bị chặn thành công**.
-3. `invalid_wrong_type.json`: `column_count` là chuỗi và `row_count` âm -> **Bị chặn thành công**.
-4. `invalid_bad_version.json`: Chuỗi version `version_one_alpha` không theo SemVer -> **Bị chặn thành công**.
+* **Công cụ / Model**: Google Antigravity & Codex (Model: Gemini 3.8 Flash / Claude 3.5 Sonnet).
+* **Mục tiêu tương tác**: Xây dựng Pydantic v2 data models với strict type hints, trích xuất JSON Schema Draft 2020-12, thiết lập 5 bộ metadata mẫu chuẩn ngành, và viết CLI script thẩm định chất lượng.
 
-### 3.2. Lệnh thực thi & Kết quả đo lường:
-```powershell
-python Data-AI-Resource/BaoCao_Task04/scripts/validate_metadata.py
+### Context & Prompt chính đã sử dụng:
+```text
+Bạn là Principal Data Architect & Enterprise Governance Specialist tại CyberSoft Academy.
+Bối cảnh: Kế thừa kiến trúc tổng thể Ngày 02 và chuẩn repository Ngày 03, hãy thiết kế Schema Metadata cho kho Dataset Registry của CyberSoft Data & AI Lab.
+Ràng buộc: Đội ngũ 3 người, thời hạn 30 ngày, phục vụ cả 2 đối tượng học viên Data Analyst (mô hình dữ liệu quan hệ) và AI Engineer (RAG vector embeddings).
+Hãy thực hiện các yêu cầu sau theo chuẩn công nghiệp:
+1. Xây dựng Data Models bằng Pydantic v2 hỗ trợ quan hệ đa bảng: TableSchema, ColumnSchema, ForeignKeySchema, PIISchema, LineageSchema.
+2. Thiết lập quy tắc quản trị bắt buộc (Strict Governance): License và PII là trường bắt buộc, không được để trống hoặc gán giá trị rác.
+3. Viết các custom cross-field validators kiểm tra tính toàn vẹn: cờ has_pii phải khớp với các cột con, tên primary_key và foreign_keys phải tồn tại trong danh sách columns, column_count phải khớp chính xác độ dài danh sách columns.
+4. Mở rộng kiểu dữ liệu hỗ trợ cả kiểu truyền thống và định dạng vector embeddings (vector[1536]).
+5. Tự động sinh JSON Schema Draft 2020-12 từ Pydantic model để làm Single Source of Truth.
+6. Xây dựng 5 bộ metadata mẫu chuẩn ngành và 4 bộ dữ liệu âm bản (negative test cases) để kiểm thử CLI validator.
 ```
-- **Kết quả**: 5/5 bộ metadata hợp lệ đạt 100% PASS.
-- **Negative cases**: 4/4 bộ dữ liệu lỗi bị phát hiện và từ chối đúng như kỳ vọng (0 False Positives, 0 False Negatives).
 
 ---
 
-## 4. BÀI HỌC VÀ LÀM CHỦ KỸ THUẬT (ENGINEERING REFLECTION)
+## 3. Thẩm định và Quyết định của Con người (Human Evaluation & Decisions)
 
-1. **Hiểu bài toán trước khi nhận code AI**: AI thường có xu hướng tạo ra các model "tối giản nhất có thể" (minimal viable schema) và bỏ qua các ràng buộc nghiệp vụ phức tạp nếu kỹ sư không có định hướng rõ ràng về relational schema và data governance.
-2. **Sức mạnh của Pydantic v2 Core (Rust)**: Tốc độ validation cực nhanh, cho phép áp dụng các logic cross-field validation phức tạp mà không làm chậm quy trình ingest dữ liệu.
-3. **Tính tương thích đa nền tảng**: Xuất file `dataset.schema.json` từ chính model Pydantic là cách tiếp cận Single Source of Truth (SSOT) tối ưu nhất, giúp đội ngũ Frontend/Backend (Node.js/Go) và đội Data (Python) luôn đồng bộ 100% định dạng schema.
+| Đề xuất ban đầu của AI | Vấn đề / Rủi ro phát hiện được | Quyết định & Chỉnh sửa của Con người |
+| :--- | :--- | :--- |
+| **Đề xuất flat schema tối giản**, giả định mỗi dataset chỉ có 1 file bảng đơn lẻ. | Đồ án thực tế của Data Analyst (Sales, HR, E-commerce) luôn gồm từ 2 đến 5 bảng liên kết khóa ngoại. Nếu dùng flat schema, học viên không thể học và thực hành SQL JOINs. | **TÁI CẤU TRÚC HỆ THỐNG ĐA BẢNG**: Thiết kế cấu trúc `tables: List[TableSchema]`, bổ sung định nghĩa khóa chính `primary_key` và danh sách khóa ngoại `foreign_keys: List[ForeignKeySchema]`. |
+| **Cho phép trường `pii` là tùy chọn (`Optional[PII] = None`)** và `license` mặc định chuỗi rỗng `""`. | Vi phạm nghiêm trọng DoD Ngày 04 (*License/PII là bắt buộc*). Nếu để tùy chọn, người đóng góp dữ liệu sẽ bỏ qua, gây rủi ro pháp lý nghiêm trọng theo Nghị định 13/2023/NĐ-CP (PDPA Việt Nam). | **SIẾT CHẶT QUẢN TRỊ BẮT BUỘC**: Chuyển `license` và `pii` thành trường bắt buộc (`Field(...)`). Viết validator chặn các giá trị vô nghĩa như `"none"`, `"unknown"`, `"n/a"`. |
+| **Bỏ qua kiểm tra chéo (Cross-field Validation) giữa các tầng**. | Trạng thái dữ liệu không nhất quán: Cột con trong `TableSchema` đánh dấu `is_pii=True` nhưng cờ root metadata lại khai báo `pii.has_pii=False`, dẫn đến lọt dữ liệu nhạy cảm. | **BỔ SUNG MODEL VALIDATOR TỰ ĐỘNG**: Thêm hàm `@model_validator(mode="after")` quét toàn bộ cột; nếu phát hiện cột PII mà cờ tổng thể là False thì lập tức ném ngoại lệ chặn lại. |
+| **Khai báo trường `column_count` nhưng không kiểm tra thực tế**. | Nguy cơ sai lệch thông tin metadata: người khai báo có thể ghi `column_count: 10` nhưng thực tế chỉ khai báo 3 cột trong danh sách `columns`. | **BỔ SUNG RÀNG BUỘC TOÀN VẸN**: Thêm validator kiểm tra `len(self.columns) == self.column_count`, đồng thời kiểm tra `primary_key` và `foreign_keys` phải thuộc danh sách cột hợp lệ. |
+| **Chỉ hỗ trợ các kiểu dữ liệu truyền thống**: `integer`, `float`, `string`, `boolean`. | Thiếu hụt nghiêm trọng đối với khóa AI Engineer: Dataset RAG Knowledge Base cần lưu trữ vector nhúng đặc trưng (ví dụ 1536 chiều từ OpenAI / Qdrant) và trường văn bản `text` dài. | **MỞ RỘNG DATA TYPES**: Cho phép kiểu dữ liệu vector đặc thù (`vector[1536]`, `vector[384]`) và trường văn bản `text`, đảm bảo tính tương thích toàn diện cho cả DA và AI. |
+
+---
+
+## 4. Kiểm chứng Độc lập (Independent Verification)
+
+Con người không nghiệm thu bằng cảm tính mà thực thi hệ thống kiểm thử độc lập bao gồm 5 bộ dữ liệu chuẩn ngành và 4 bộ dữ liệu âm bản (*negative test cases*) cố tình vi phạm để kiểm tra khả năng bắt lỗi tự động:
+1. `invalid_missing_license.json`: Thiếu giấy phép bản quyền $\rightarrow$ Bị chặn thành công bởi JSONSchema & Pydantic.
+2. `invalid_missing_pii.json`: Thiếu khối khai báo PII $\rightarrow$ Bị chặn thành công.
+3. `invalid_wrong_type.json`: `column_count` là chuỗi và `row_count` âm $\rightarrow$ Bị chặn thành công.
+4. `invalid_bad_version.json`: Chuỗi version không theo chuẩn SemVer $\rightarrow$ Bị chặn thành công.
+
+### Lệnh chạy kiểm thử:
+```powershell
+python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task04/scripts/validate_metadata.py
+```
+
+### Kết quả chạy thực tế:
+```text
+======================================================================
+  CYBERSOFT DATA & AI LAB -- DAY 04 METADATA VALIDATION HARNESS
+======================================================================
+[INFO] Validating 5 Production Sample Datasets:
+  [PASS] sample_ecommerce_star_schema.json (Relational / Star Schema)
+  [PASS] sample_hr_analytics.json          (HR Analytics / PII Masked)
+  [PASS] sample_financial_fraud.json       (Financial Transactions)
+  [PASS] sample_rag_knowledge_base.json    (RAG Chunks / Vector Embeddings)
+  [PASS] sample_student_performance.json   (Education / Clean Dataset)
+
+[INFO] Validating 4 Negative Test Cases (Must Catch Violations):
+  [PASS] invalid_missing_license.json      (Caught: Missing required license)
+  [PASS] invalid_missing_pii.json          (Caught: Missing PII classification)
+  [PASS] invalid_wrong_type.json           (Caught: Invalid type & negative row_count)
+  [PASS] invalid_bad_version.json          (Caught: Version violates SemVer regex)
+----------------------------------------------------------------------
+[*] Kết quả nghiệm thu: 5/5 valid datasets PASS (100%), 4/4 invalid datasets REJECTED
+======================================================================
+>>> CHÚC MỪNG: HOÀN THÀNH 100% ĐIỀU KIỆN NGHIỆM THU NGÀY 04 (DoD PASS) <<<
+```
+
+---
+
+## 5. Bốn Tầng Năng lực AI đã thể hiện (AI Competence Tiers)
+
+* **Tầng 1 — Hiểu việc (Task Comprehension)**: Tự phân tích yêu cầu Data Governance, thiết lập khung quản trị PII theo luật PDPA Việt Nam, và xác định nhu cầu hỗ trợ đồng thời mô hình quan hệ đa bảng cho Data Analyst cùng vector embeddings cho AI Engineer.
+* **Tầng 2 — Điều phối AI (AI Orchestration)**: Phân vai Principal Data Architect, thiết kế prompt chi tiết định hướng AI sinh code Pydantic v2 hiện đại thay vì code Python lỏng lẻo, tận dụng cơ chế trích xuất JSON Schema làm Single Source of Truth.
+* **Tầng 3 — Thẩm định (Critical Evaluation)**: Phát hiện và loại bỏ các thiết kế flat schema ngây thơ của AI; phát hiện lỗ hổng thiếu cross-field validation; bắt buộc chuyển các trường License và PII từ dạng optional sang required.
+* **Tầng 4 — Làm chủ (Engineering Ownership)**: Tự thiết kế 4 kịch bản negative test cases để thách thức và đo lường độ tin cậy của validator; làm chủ kiến trúc schema đa bảng và vector; đảm bảo 100% tài liệu và công cụ có thể chuyển giao an toàn cho toàn đội ngũ.

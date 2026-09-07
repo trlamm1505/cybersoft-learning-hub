@@ -54,4 +54,3 @@ SUCCESS: All Day 01 DoD requirements passed!
 - [x] **Có README hướng dẫn sử dụng**: Đầy đủ mục tiêu, sơ đồ thư mục và lệnh chạy.
 - [x] **Có kiểm thử tự động**: Script `validate_day01.py` kiểm định 100% tiêu chí markdown.
 - [x] **Ghi rõ phần AI và sự làm chủ của con người**: Thể hiện minh bạch trong `AI_WORKLOG.md`.
-- [x] **Sẵn sàng Defense**: Kịch bản 3 phút được chuẩn bị chu đáo trong `DEFENSE_SCRIPT.md`.
