@@ -1,0 +1,299 @@
+{
+  "id": "ds-retail-ecommerce-sales-v1",
+  "title": "CyberSoft Retail E-Commerce Multi-Table Sales Benchmark",
+  "description": "Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.",
+  "version": "1.0.0",
+  "domain": "retail_ecommerce",
+  "level": "beginner",
+  "difficulty": "medium",
+  "license": "CC-BY-4.0",
+  "pii": {
+    "level": "low",
+    "has_pii": true,
+    "anonymization_applied": [
+      "synthetic_generation",
+      "faker_vietnamese_names",
+      "hashing_sha256_phone_numbers"
+    ],
+    "compliance_tags": [
+      "PDPA_VN",
+      "INTERNAL_CYBERSOFT"
+    ],
+    "handling_instructions": "This dataset contains synthetic Vietnamese names and hashed phone numbers. Strictly for classroom analytics; do not correlate with external customer lists."
+  },
+  "lineage": {
+    "source_system": "CyberSoft Synthetic Data Factory",
+    "upstream_sources": [
+      "Simulated Shopify Order API",
+      "KiotViet Schema Reference"
+    ],
+    "ingestion_method": "synthetic_generator",
+    "generation_tool": "Faker 24.0 + NumPy 1.26 Generator Pipeline",
+    "transformation_pipeline": [
+      "Generate raw customer identities and seed addresses",
+      "Simulate 12-month transactions with seasonal Black Friday & Tet spikes",
+      "Apply intentional dirty anomalies (orphan foreign keys, null prices, dirty phone formatting) in interim tier",
+      "Export clean relational benchmark to Parquet and CSV"
+    ],
+    "raw_data_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0"
+  },
+  "learning_outcomes": {
+    "target_roles": [
+      "data_analyst",
+      "bi_analyst"
+    ],
+    "core_competencies": [
+      "Star Schema Data Modeling",
+      "SQL Multi-table JOINs and Aggregations",
+      "Window Functions (RANK, DENSE_RANK, LEAD, LAG)",
+      "RFM (Recency, Frequency, Monetary) Customer Segmentation",
+      "Power BI Interactive Executive Dashboarding"
+    ],
+    "sample_business_questions": [
+      "Calculate the monthly customer retention rate and cohort survival curve across 2025.",
+      "Identify the top 5 product categories driving 80% of net margin using Pareto analysis.",
+      "Detect delayed fulfillment bottlenecks by measuring average transit time per 3PL shipping carrier."
+    ],
+    "recommended_exercises": [
+      "Lab 01: Write SQL queries to identify duplicate customer profiles.",
+      "Lab 02: Build a dimensional data model in Power BI with Fact and Dim tables.",
+      "Capstone: Comprehensive E-Commerce Sales Performance & Churn Diagnostic Report."
+    ]
+  },
+  "tables": [
+    {
+      "table_name": "dim_customers",
+      "description": "Master dimension table storing customer demographic details and registration status.",
+      "file_path": "data/processed/dim_customers.parquet",
+      "format": "parquet",
+      "row_count": 10000,
+      "column_count": 6,
+      "primary_key": [
+        "customer_id"
+      ],
+      "foreign_keys": [],
+      "columns": [
+        {
+          "name": "customer_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Unique synthetic customer UUID",
+          "is_pii": false,
+          "example": "CUST-00001"
+        },
+        {
+          "name": "full_name",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Synthetic customer full name generated via Faker Vietnam",
+          "is_pii": true,
+          "pii_type": "name",
+          "example": "Nguyễn Văn An"
+        },
+        {
+          "name": "phone_hash",
+          "data_type": "string",
+          "nullable": false,
+          "description": "SHA-256 salted hash of customer mobile phone number",
+          "is_pii": true,
+          "pii_type": "phone",
+          "example": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "city",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Vietnamese province/city (e.g., TP. Hồ Chí Minh, Hà Nội, Đà Nẵng)",
+          "is_pii": false,
+          "example": "TP. Hồ Chí Minh"
+        },
+        {
+          "name": "customer_segment",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Assigned loyalty tier: Bronze, Silver, Gold, Platinum",
+          "is_pii": false,
+          "example": "Gold"
+        },
+        {
+          "name": "created_at",
+          "data_type": "datetime",
+          "nullable": false,
+          "description": "Timestamp of customer account creation",
+          "is_pii": false,
+          "example": "2025-01-15T08:30:00Z"
+        }
+      ]
+    },
+    {
+      "table_name": "dim_products",
+      "description": "Product catalog dimension containing SKU, category, and pricing hierarchy.",
+      "file_path": "data/processed/dim_products.parquet",
+      "format": "parquet",
+      "row_count": 1200,
+      "column_count": 5,
+      "primary_key": [
+        "product_id"
+      ],
+      "foreign_keys": [],
+      "columns": [
+        {
+          "name": "product_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Unique product SKU identifier",
+          "is_pii": false,
+          "example": "PROD-TECH-0042"
+        },
+        {
+          "name": "product_name",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Commercial product display title",
+          "is_pii": false,
+          "example": "Bàn phím cơ không dây Bluetooth RGB"
+        },
+        {
+          "name": "category",
+          "data_type": "string",
+          "nullable": false,
+          "description": "High-level merchandise category (Electronics, Apparel, Home & Living)",
+          "is_pii": false,
+          "example": "Electronics"
+        },
+        {
+          "name": "unit_cost_vnd",
+          "data_type": "float",
+          "nullable": false,
+          "description": "Cost of goods sold (COGS) in Vietnamese Dong",
+          "is_pii": false,
+          "constraints": {
+            "min": 10000.0
+          },
+          "example": 450000.0
+        },
+        {
+          "name": "unit_price_vnd",
+          "data_type": "float",
+          "nullable": false,
+          "description": "Standard retail selling price in Vietnamese Dong",
+          "is_pii": false,
+          "constraints": {
+            "min": 15000.0
+          },
+          "example": 790000.0
+        }
+      ]
+    },
+    {
+      "table_name": "fact_sales_orders",
+      "description": "Central transactional fact table recording e-commerce order items and fulfillment metrics.",
+      "file_path": "data/processed/fact_sales_orders.parquet",
+      "format": "parquet",
+      "row_count": 85000,
+      "column_count": 8,
+      "primary_key": [
+        "order_item_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "customer_id",
+          "ref_table": "dim_customers",
+          "ref_column": "customer_id"
+        },
+        {
+          "column": "product_id",
+          "ref_table": "dim_products",
+          "ref_column": "product_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_item_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Primary key for line item record",
+          "is_pii": false,
+          "example": "ITEM-2025-00129"
+        },
+        {
+          "name": "order_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Parent order tracking identifier",
+          "is_pii": false,
+          "example": "ORD-2025-08144"
+        },
+        {
+          "name": "customer_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Foreign key reference to dim_customers",
+          "is_pii": false,
+          "example": "CUST-00001"
+        },
+        {
+          "name": "product_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Foreign key reference to dim_products",
+          "is_pii": false,
+          "example": "PROD-TECH-0042"
+        },
+        {
+          "name": "quantity",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Units purchased in this line item",
+          "is_pii": false,
+          "constraints": {
+            "min": 1,
+            "max": 100
+          },
+          "example": 2
+        },
+        {
+          "name": "total_amount_vnd",
+          "data_type": "float",
+          "nullable": false,
+          "description": "Gross revenue after discounts (quantity * unit_price)",
+          "is_pii": false,
+          "example": 1580000.0
+        },
+        {
+          "name": "order_status",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Status code: COMPLETED, CANCELLED, RETURNED, IN_TRANSIT",
+          "is_pii": false,
+          "example": "COMPLETED"
+        },
+        {
+          "name": "order_timestamp",
+          "data_type": "datetime",
+          "nullable": false,
+          "description": "Order placement timestamp",
+          "is_pii": false,
+          "example": "2025-06-12T14:22:15Z"
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "SHA-256",
+    "checksum": "8f4b23594b2958349285098234908234908234098234908234908234908234ab",
+    "file_size_bytes": 14680064
+  },
+  "tags": [
+    "retail",
+    "ecommerce",
+    "star-schema",
+    "sql",
+    "power-bi",
+    "cohort-analysis"
+  ],
+  "author": "CyberSoft Data Curriculum Team",
+  "maintainer": "Dao Trung Kien (Data & AI Resource Engineer)",
+  "created_at": "2026-09-01T09:00:00Z",
+  "updated_at": "2026-09-04T12:00:00Z"
+}

@@ -1,0 +1,69 @@
+{
+  "id": "ds-invalid-bad-version-v1",
+  "title": "Invalid Sample - Non-SemVer Version String",
+  "description": "This sample intentionally provides an invalid version string 'version_one_alpha' violating SemVer regex.",
+  "version": "version_one_alpha",
+  "domain": "nlp_genai",
+  "level": "advanced",
+  "difficulty": "hard",
+  "license": "Apache-2.0",
+  "pii": {
+    "level": "none",
+    "has_pii": false,
+    "compliance_tags": [
+      "INTERNAL_CYBERSOFT"
+    ],
+    "handling_instructions": "Standard internal data handling policy."
+  },
+  "lineage": {
+    "source_system": "CyberSoft Lab",
+    "ingestion_method": "synthetic_generator",
+    "transformation_pipeline": [
+      "Initial generation"
+    ]
+  },
+  "learning_outcomes": {
+    "target_roles": [
+      "ai_engineer"
+    ],
+    "core_competencies": [
+      "RAG"
+    ],
+    "sample_business_questions": [
+      "Sample query?"
+    ],
+    "recommended_exercises": [
+      "Lab 01"
+    ]
+  },
+  "tables": [
+    {
+      "table_name": "sample_table",
+      "description": "Sample test table with single column",
+      "file_path": "data/sample.csv",
+      "format": "csv",
+      "row_count": 10,
+      "column_count": 1,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Primary key index"
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "SHA-256",
+    "checksum": "0000000000000000000000000000000000000000000000000000000000000000",
+    "file_size_bytes": 1024
+  },
+  "author": "Tester",
+  "maintainer": "QA Team",
+  "created_at": "2026-09-04T00:00:00Z",
+  "updated_at": "2026-09-04T00:00:00Z"
+}

@@ -1,0 +1,185 @@
+{
+  "id": "ds-nlp-toxicity-detection-v1",
+  "title": "CyberSoft Vietnamese Online Forum Toxic Speech & Moderation Benchmark",
+  "description": "Multi-label text classification dataset covering Vietnamese community forum comments, annotated for toxicity, obscenity, identity attack, and insult. Used by AI Engineer students to train Transformer text classifiers (PhoBERT, ViBERT) and build safety guardrails for LLMs.",
+  "version": "1.0.0",
+  "domain": "nlp_genai",
+  "level": "intermediate",
+  "difficulty": "medium",
+  "license": "CC-BY-4.0",
+  "pii": {
+    "level": "low",
+    "has_pii": true,
+    "anonymization_applied": [
+      "user_handle_pseudonymization",
+      "regex_ip_masking",
+      "phone_email_redaction"
+    ],
+    "compliance_tags": [
+      "PDPA_VN",
+      "INTERNAL_CYBERSOFT"
+    ],
+    "handling_instructions": "This dataset contains offensive vocabulary for academic content moderation research. Handles and identifiers have been pseudonymized."
+  },
+  "lineage": {
+    "source_system": "CyberSoft Community Safety Lab",
+    "upstream_sources": [
+      "Public Vietnamese EdTech Discussion Forums",
+      "Student Open Q&A Threads (Scraped & Anonymized)"
+    ],
+    "ingestion_method": "synthetic_generator",
+    "generation_tool": "Faker + Human-in-the-loop Annotation Tooling",
+    "transformation_pipeline": [
+      "Scrape and deduplicate raw public forum threads",
+      "Mask all Vietnamese personal phone numbers, emails, and student ID tokens with [REDACTED]",
+      "Independent double annotation by 3 teaching assistants with Cohen Kappa agreement >= 0.85",
+      "Export stratified splits (Train/Val/Test) in Parquet format"
+    ],
+    "raw_data_hash": "7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b"
+  },
+  "learning_outcomes": {
+    "target_roles": [
+      "ai_engineer"
+    ],
+    "core_competencies": [
+      "Vietnamese Text Preprocessing & Word Segmentation (PyVi, Underthesea)",
+      "Fine-tuning Pretrained Transformer Encoders (PhoBERT-base)",
+      "Multi-Label Classification Loss Functions (BCEWithLogitsLoss)",
+      "Model Interpretability & Attention Heatmaps (LIME, Integrated Gradients)",
+      "Deploying ONNX Runtime Inference Endpoint"
+    ],
+    "sample_business_questions": [
+      "Can PhoBERT accurately detect subtle passive-aggressive toxicity in Vietnamese informal slang?",
+      "What is the Macro F1-score across under-represented minority attack categories?",
+      "What is the inference latency per comment when deployed on CPU with ONNX quantization?"
+    ],
+    "recommended_exercises": [
+      "Lab 09: Clean Vietnamese text and build a TF-IDF + Logistic Regression baseline.",
+      "Lab 10: Fine-tune PhoBERT using Hugging Face Trainer with early stopping.",
+      "Capstone: Build a real-time moderation filter microservice with FastAPI and ONNX."
+    ]
+  },
+  "tables": [
+    {
+      "table_name": "forum_comments_labeled",
+      "description": "Annotated Vietnamese comments with multi-label toxicity classifications.",
+      "file_path": "data/processed/forum_comments_labeled.parquet",
+      "format": "parquet",
+      "row_count": 15000,
+      "column_count": 8,
+      "primary_key": [
+        "comment_id"
+      ],
+      "foreign_keys": [],
+      "columns": [
+        {
+          "name": "comment_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Unique comment identifier",
+          "is_pii": false,
+          "example": "CMT-2025-08129"
+        },
+        {
+          "name": "author_pseudonym",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Pseudonymized username handle",
+          "is_pii": true,
+          "pii_type": "name",
+          "example": "student_anon_401"
+        },
+        {
+          "name": "comment_text",
+          "data_type": "text",
+          "nullable": false,
+          "description": "Raw Vietnamese text comment with redacted sensitive tokens",
+          "is_pii": false,
+          "example": "Khóa học này dạy quá tệ, giảng viên chả biết gì..."
+        },
+        {
+          "name": "is_toxic",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "General toxicity indicator (0 or 1)",
+          "is_pii": false,
+          "constraints": {
+            "allowed_values": [
+              0,
+              1
+            ]
+          },
+          "example": 1
+        },
+        {
+          "name": "is_insult",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Personal attack or insulting tone (0 or 1)",
+          "is_pii": false,
+          "constraints": {
+            "allowed_values": [
+              0,
+              1
+            ]
+          },
+          "example": 1
+        },
+        {
+          "name": "is_threat",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Physical or harassment threat indicator (0 or 1)",
+          "is_pii": false,
+          "constraints": {
+            "allowed_values": [
+              0,
+              1
+            ]
+          },
+          "example": 0
+        },
+        {
+          "name": "split_set",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Stratified dataset split: train, val, test",
+          "is_pii": false,
+          "constraints": {
+            "allowed_values": [
+              "train",
+              "val",
+              "test"
+            ]
+          },
+          "example": "train"
+        },
+        {
+          "name": "created_at",
+          "data_type": "datetime",
+          "nullable": false,
+          "description": "Comment creation timestamp",
+          "is_pii": false,
+          "example": "2025-08-10T19:40:12Z"
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "SHA-256",
+    "checksum": "2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c",
+    "file_size_bytes": 4194304
+  },
+  "tags": [
+    "nlp",
+    "transformers",
+    "phobert",
+    "text-classification",
+    "content-moderation",
+    "ai-safety"
+  ],
+  "author": "CyberSoft AI Safety & NLP Research Team",
+  "maintainer": "Dao Trung Kien (Data & AI Resource Engineer)",
+  "created_at": "2026-09-03T15:00:00Z",
+  "updated_at": "2026-09-04T12:00:00Z"
+}
