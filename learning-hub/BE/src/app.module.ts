@@ -6,9 +6,10 @@ import { QuizModule } from './modules-api/quiz/quiz.module';
 import { ExerciseModule } from './modules-api/exercise/exercise.module';
 import { JudgeModule } from './modules-api/judge/judge.module';
 import { HintModule } from './modules-api/hint/hint.module';
+import { AuthoringModule } from './modules-api/authoring/authoring.module';
 
 @Module({
-  imports: [DatabaseModule, QuizModule, ExerciseModule, JudgeModule, HintModule],
+  imports: [DatabaseModule, QuizModule, ExerciseModule, JudgeModule, HintModule, AuthoringModule],
   controllers: [AppController],
   providers: [AppService],
 })

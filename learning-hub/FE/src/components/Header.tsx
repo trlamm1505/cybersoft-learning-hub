@@ -5,12 +5,16 @@ interface HeaderProps {
   isLightTheme: boolean;
   onToggleTheme: () => void;
   onOpenGuide: () => void;
+  userRole: 'student' | 'teacher';
+  onToggleRole: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   isLightTheme,
   onToggleTheme,
   onOpenGuide,
+  userRole,
+  onToggleRole,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -18,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const getActiveTab = () => {
     const path = location.pathname;
+    if (path.startsWith('/authoring')) return 'authoring';
     if (path.startsWith('/playground')) return 'playground';
     if (path.startsWith('/quiz')) return 'quiz';
     if (path.startsWith('/detail')) return 'detail';
@@ -36,11 +41,11 @@ export const Header: React.FC<HeaderProps> = ({
       className="sticky top-0 z-50 bg-[var(--bg-card)]/90 backdrop-blur-md border-b border-[var(--border-color)] transition-colors shadow-xs"
       role="banner"
     >
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <button
           onClick={() => handleNavigate('/catalog')}
-          className="flex items-center gap-3 text-[var(--text-main)] font-extrabold text-lg tracking-tight bg-transparent border-none cursor-pointer text-left"
+          className="flex items-center gap-3 text-[var(--text-main)] font-extrabold text-lg tracking-tight bg-transparent border-none cursor-pointer text-left shrink-0"
           aria-label="Trang chủ CyberSoft Learning Hub"
         >
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-lg shadow-md shadow-indigo-500/20">
@@ -57,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Desktop Navigation Menu */}
         <nav role="navigation" aria-label="Thanh điều hướng chính">
-          <ul className="hidden md:flex items-center gap-6 list-none">
+          <ul className="hidden md:flex items-center gap-6 list-none m-0 p-0">
             <li>
               <button
                 className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
@@ -106,14 +111,65 @@ export const Header: React.FC<HeaderProps> = ({
                 🧑‍💻 Code Playground
               </button>
             </li>
+            {userRole === 'teacher' && (
+              <li>
+                <button
+                  className={`text-sm font-semibold transition-all px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 ${
+                    activeTab === 'authoring'
+                      ? 'text-indigo-600 dark:text-cyan-400 border-indigo-500'
+                      : 'text-indigo-600 dark:text-indigo-300'
+                  }`}
+                  onClick={() => handleNavigate('/authoring')}
+                >
+                  🛠️ Authoring Tool
+                </button>
+              </li>
+            )}
           </ul>
         </nav>
 
-        {/* Header Actions */}
-        <div className="flex items-center gap-3">
+        {/* Header Actions & Role Switcher */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          {/* Role Switcher Toggle */}
+          <div
+            className="flex items-center p-1 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-xs font-semibold shadow-xs"
+            title="Chuyển đổi góc nhìn giữa Học viên và Quản trị Giảng viên"
+          >
+            <button
+              onClick={() => {
+                if (userRole !== 'student') {
+                  onToggleRole();
+                  handleNavigate('/catalog');
+                }
+              }}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none text-xs ${
+                userRole === 'student'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent'
+              }`}
+            >
+              🎓 Student
+            </button>
+            <button
+              onClick={() => {
+                if (userRole !== 'teacher') {
+                  onToggleRole();
+                  handleNavigate('/authoring');
+                }
+              }}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer border-none text-xs ${
+                userRole === 'teacher'
+                  ? 'bg-amber-600 text-white shadow-xs font-bold'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent'
+              }`}
+            >
+              👨‍🏫 Teacher
+            </button>
+          </div>
+
           <button
             onClick={onOpenGuide}
-            className="px-3.5 py-1.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-xl transition-all shadow-xs cursor-pointer"
+            className="hidden sm:inline-block px-3 py-1.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-xl transition-all shadow-xs cursor-pointer"
             aria-label="Mở hướng dẫn chụp ảnh responsive"
             title="Hướng dẫn nghiệm thu Responsive"
           >
@@ -122,7 +178,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={onToggleTheme}
-            className="px-3.5 py-1.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-xl transition-all shadow-xs cursor-pointer"
+            className="px-3 py-1.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-xl transition-all shadow-xs cursor-pointer"
             aria-label={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
             title="Thay đổi Theme Light/Dark"
           >
@@ -198,6 +254,21 @@ export const Header: React.FC<HeaderProps> = ({
           >
             🧑‍💻 Code Playground
           </button>
+          {userRole === 'teacher' && (
+            <button
+              className={`text-sm font-semibold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                activeTab === 'authoring'
+                  ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                  : 'text-amber-600 dark:text-amber-400'
+              }`}
+              onClick={() => {
+                handleNavigate('/authoring');
+                setMobileMenuOpen(false);
+              }}
+            >
+              🛠️ Authoring Tool (Quản trị Giảng viên)
+            </button>
+          )}
         </nav>
       )}
     </header>
