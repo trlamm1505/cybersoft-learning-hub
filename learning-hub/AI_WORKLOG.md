@@ -1,80 +1,118 @@
-# AI Work Log — Ngày 08: Online Judge với Hidden Tests
+# AI Work Log — 2026-09-08
 
-Người thực hiện: Dương Chí Việt
-Ngày: 2026-09-07
-Nhánh làm việc: feature/learning-hub-day8
+*File nhật ký theo dõi các prompt của người dùng và các thay đổi file tương ứng.*
 
-## 1. Công cụ đã dùng
+---
 
-| Hạng mục      | Chi tiết                                                                                                                                                                                                                                                            |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Công cụ       | Claude Code (CLI, chạy trong VSCode extension)                                                                                                                                                                                                                      |
-| Model           | Claude Sonnet 5                                                                                                                                                                                                                                                      |
-| Phạm vi quyền | Đọc/ghi file trong `learning-hub/`, chạy lệnh Bash/PowerShell cục bộ để cài đặt, build, test, khởi động dev server, seed MongoDB và gọi API/trình duyệt kiểm chứng; không đụng đến `Test/` và `Data-AI-Resource/` (thuộc phạm vi thành viên khác trong repo) |
+## Nhật ký công việc
 
-## 2. Context đã nạp
+### Prompt 1
+> "xóa hết AI log này và sẽ ghi lại ngày hôm nay tôi đã dùng promt gì và đã làm ra file gì sửa gì nếu có promt gì tiếp thì ghi tiếp vào file này hãy ghi nhớ yêu cầu ghi log đi sau đó tôi sẽ bắt đầu đưa yêu cầu"
 
-- Khảo sát bằng agent Explore trước khi thiết kế: xác nhận Ngày 07 đã có sẵn sandbox chạy Python (`code-runner.helper.ts` + `python-guard.helper.ts`, chạy bằng `child_process`, không Docker), schema `Exercise`/`Submission` (Mongoose), API `run`/`submit` chấm đồng bộ ngay trong request HTTP, và không có hạ tầng queue (Bull/BullMQ/Redis) nào trong repo.
-- Đọc trực tiếp toàn bộ file liên quan trước khi sửa: `exercise.service.ts`, `exercise.controller.ts`, `exercise.module.ts`, `submission.schema.ts`, `exercise.schema.ts`, `initial-exercises.ts`, `seed-exercises.ts`, và cả phần Frontend (`exerciseApi.ts`, `CodePlaygroundPage.tsx`, `TestResultsPanel.tsx`, `types/exercise.ts`) — phát hiện quan trọng: nếu chỉ sửa Backend mà không sửa Frontend, tính năng Submit sẽ hỏng hoàn toàn vì FE đang set kết quả chấm bài trực tiếp từ response của `POST /submit`.
-- Đề bài Ngày 08: 3 việc phải làm (schema test case, chạy compile/run + so sánh output/status, lưu thời gian/bộ nhớ), 3 bàn giao (Judge worker v0.1, 10 bài có hidden tests, Judge status tests), 3 điều kiện nghiệm thu (học viên không truy cập hidden tests, phân biệt WA/TLE/RE/CE/AC, queue retry không chấm trùng).
-- Không có dữ liệu nhạy cảm trong context — toàn bộ là mã nguồn dự án học tập.
+**Thời gian:** 2026-09-08 07:29:40
 
-## 3. Prompt chính
+**Các file đã tạo / cập nhật / xóa:**
+- [AI_WORKLOG.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/AI_WORKLOG.md): Đã dọn dẹp toàn bộ log cũ và khởi tạo cấu trúc nhật ký công việc mới.
 
-1. Yêu cầu khảo sát kiến trúc hiện có trước khi thiết kế, không tự ý đổi hướng so với quyết định "không dùng Docker" đã chốt ở Ngày 07.
-2. Hỏi rõ 3 quyết định kiến trúc trước khi viết code (dùng `AskUserQuestion`): (a) queue dùng in-process trong NestJS hay thêm Redis/BullMQ — chọn in-process vì thêm hạ tầng mới cần đồng thuận nhóm, giống lý do từ chối Docker; (b) giữ 5 bài cũ + thêm 5 bài mới hay viết lại toàn bộ 10 bài — chọn giữ + thêm; (c) Python không có bước compile riêng thì xử lý CE thế nào — chọn dùng `python -m py_compile` làm bước kiểm tra cú pháp trước khi chạy test case.
-3. Dùng Plan agent thiết kế chi tiết dựa trên các quyết định trên, sau đó tự bổ sung phần Frontend (Plan agent ban đầu chỉ được giao khảo sát Backend nên bỏ sót thay đổi cần thiết ở FE) trước khi trình bày cho người dùng duyệt qua `ExitPlanMode`.
-4. Triển khai đúng theo kế hoạch đã duyệt: schema → sandbox helper (compile-check, memory sampling) → judge module (queue, controller, enum) → wiring vào `ExerciseService`/`AppModule` → seed data 10 bài → Frontend polling → unit test.
-5. Yêu cầu tự kiểm tra độc lập bằng test suite lẫn chạy dev server thực tế (không chỉ tin vào việc "code đã viết xong") — dẫn đến phát hiện 2 lỗi thật (trình bày ở mục 5), một lỗi trong chính test do tôi viết, một lỗi logic thật trong `retryStale`.
-6. Yêu cầu chạy UI trong trình duyệt thật (không chỉ gọi API) để xác nhận tính năng Submit hoạt động đúng, dùng Playwright để chụp ảnh cả 3 trạng thái AC/WA/CE.
+---
 
-## 4. File đã tạo / cập nhật
+### Prompt 2
+> "Bạn là một Senior Backend Developer phụ trách module "Hint Engine" (Ngày 09) trong dự án "Learning & Contest Hub" (NestJS & MongoDB). Hãy viết mã nguồn chi tiết cho các yêu cầu sau:
+> 1. Thiết kế Schema & API:
+> - Tạo Mongoose Schema cho `Hint` gồm các tầng: Hint 1 (Khái niệm), Hint 2 (Chiến lược), Hint 3 (Pseudocode). Đảm bảo kiểm duyệt tầng 1 tuyệt đối không chứa code hoàn chỉnh.
+> - Tạo Schema theo dõi lịch sử sử dụng hint của học viên (`HintUsage`) để quản lý chi phí điểm số hoặc thời gian chờ (`cooldown`).
+> 2. Xây dựng Business Logic (Service & Controller):
+> - API lấy nội dung hint theo cấp độ yêu cầu, có kiểm tra điều kiện cooldown hoặc trừ điểm tích lũy của học viên.
+> - API trả về dữ liệu 30 hint mẫu phục vụ kiểm thử.
+> Hãy cung cấp mã nguồn NestJS (Controller, Service, Schema) hoàn chỉnh, chuẩn chỉnh.
+> @[c:\Users\Admin\Desktop\cybersoft-learning-hub\learning-hub\BE\src\modules-api] viết api thì vào file này tạo ra 1 folder và đặt tên mới cho chức năng này"
 
-| File                                                                                                   | Nội dung                                                                                                                                                                 |
-| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BE/src/modules-system/database/schemas/exercise.schema.ts`                                          | Thêm `memoryLimitMb?` cho từng test case (override tuỳ chọn)                                                                                                       |
-| `BE/src/modules-system/database/schemas/submission.schema.ts`                                        | Đổi enum `status` sang `QUEUED/RUNNING/AC/WA/TLE/RE/CE/FAILED`; thêm `idempotencyKey`, `memoryUsedMb`, `attempts`                                              |
-| `BE/src/common/helper/code-runner.helper.ts`                                                         | Thêm `checkPythonSyntax()` (bước "compile" bằng `python -m py_compile`, tách biệt CE khỏi RE) và lấy mẫu bộ nhớ đỉnh (`peakMemoryMb`) best-effort cho mỗi lần chạy |
-| `BE/src/common/helper/code-runner.helper.spec.ts`                                                    | Thêm test cho `checkPythonSyntax` (code hợp lệ, SyntaxError, IndentationError)                                                                                       |
-| `BE/src/modules-api/judge/judge-status.enum.ts`                                                      | Enum `JudgeStatus` dùng chung Backend/logic chấm bài                                                                                                                |
-| `BE/src/modules-api/judge/judge-queue.service.ts`                                                    | Judge worker v0.1: hàng đợi in-process, chấm bài atomic (`findOneAndUpdate` guard theo status để không chấm trùng), sweep định kỳ cho job bị kẹt `RUNNING`  |
-| `BE/src/modules-api/judge/judge.controller.ts`                                                       | `GET /exercises/submissions/:id` để Frontend poll kết quả                                                                                                            |
-| `BE/src/modules-api/judge/judge.module.ts`                                                           | Khai báo module Judge, export `JudgeQueueService`                                                                                                                     |
-| `BE/src/modules-api/judge/judge-queue.service.spec.ts`                                               | Test phân loại AC/WA/TLE/RE/CE, test không chấm trùng khi gọi đồng thời, test sweep job kẹt `RUNNING`                                                                |
-| `BE/src/modules-api/exercise/exercise.service.ts`                                                    | `submitCode()` đổi từ chấm đồng bộ trong request sang tạo `Submission` trạng thái `QUEUED` rồi đẩy vào hàng đợi, trả về ngay lập tức                            |
-| `BE/src/modules-api/exercise/exercise.module.ts`, `BE/src/app.module.ts`                           | Wiring `JudgeModule`                                                                                                                                                   |
-| `BE/src/data/initial-exercises.ts`                                                                   | Thêm 5 bài Python mới (Fibonacci, GCD, Palindrome, sắp xếp, tổng đường chéo ma trận) — tổng 10 bài, mỗi bài có test ẩn                                          |
-| `FE/src/types/exercise.ts`                                                                           | Đổi `SubmissionStatus` theo enum mới, thêm `SubmitAckResponse`                                                                                                       |
-| `FE/src/axios/exerciseApi.ts`                                                                        | `submitCode()` trả về ack `{submissionId, status}`; thêm `getSubmission()` để poll                                                                                  |
-| `FE/src/pages/CodePlaygroundPage.tsx`                                                                | `handleSubmit()` poll `getSubmission()` mỗi 700ms đến khi có trạng thái cuối, giới hạn 15s, dọn `interval` khi đổi bài/unmount                                    |
-| `FE/src/components/TestResultsPanel.tsx`                                                             | Cập nhật nhãn trạng thái theo enum mới, thêm CE/FAILED/QUEUED/RUNNING                                                                                                |
-| `AI_WORKLOG.md`                                                                                      | Tài liệu này                                                                                                                                                           |
+**Thời gian:** 2026-09-08 07:31:52
 
-## 5. Điểm AI làm chưa tối ưu và cách kiểm thử
+**Các file đã tạo / cập nhật / xóa:**
 
-| Vấn đề                                                                                                                                                                                                                     | Cách phát hiện                                                                                                                                                                                            | Cách xử lý                                                                                                                                                                                                                                                       |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Test "idempotent retry — no double grading" tự viết ban đầu assert sai: mock `runPythonCode` trả cùng một giá trị `stdout` cho cả 2 test case của bài mẫu (test case 2 cần đáp án khác test case 1), khiến test case 2 luôn thành `WA`, làm assertion `status === AC` fail dù logic chấm trùng thực chất đã đúng | Chạy `npx jest` toàn bộ, thấy 2 test fail với thông báo rõ ràng ngay lần chạy đầu tiên                                                                                                                    | Sửa lại assertion để không phụ thuộc giá trị mock cụ thể của từng test case — chỉ kiểm tra đúng tiêu chí thật của đề bài (`runPythonCode` được gọi đúng số lần bằng số test case, không gấp đôi), bỏ assertion phụ không liên quan đến mục tiêu kiểm thử |
-| `retryStale()` gọi `void this.drain()` (fire-and-forget) ở cuối hàm — đúng ý định khi được gọi từ `setInterval` (sweep timer không nên chặn), nhưng khiến `await service.retryStale()` trong unit test trả về trước khi việc chấm lại thực sự chạy xong, dẫn đến assertion kiểm tra trạng thái cuối bị race | Test "retryStale requeues a stale RUNNING submission" fail với thông báo trạng thái vẫn là `RUNNING` dù đã gọi `retryStale`                                                                             | Đổi `retryStale()` thành `await this.drain()` khi có job cần chấm lại — hàm gọi từ `setInterval`/`onModuleInit` không ai `await` kết quả nên vẫn không bị chặn, còn test/gọi trực tiếp thì đợi đúng kết quả cuối cùng                                     |
-| Khi kiểm thử UI thật bằng Playwright, dùng `page.keyboard.type()` để gõ code Python nhiều dòng vào CodeMirror — CodeMirror tự động thêm thụt lề (auto-indent) sau dấu `:`, cộng dồn với khoảng trắng gõ thủ công khiến code cuối cùng bị lệch thụt lề, server trả về `CE (IndentationError)` dù bài giải đúng logic | Ảnh chụp màn hình đầu tiên cho thấy trạng thái "Lỗi cú pháp (Compile Error)" dù editor hiển thị code đúng; gọi trực tiếp `GET /exercises/submissions/:id` xem code thật sự đã gửi lên server, thấy code bị lệch thụt lề so với những gì đã "type" | Đổi cách nhập code trong script kiểm thử sang dán qua clipboard (`navigator.clipboard.writeText` + `Ctrl+V`) thay vì gõ từng phím, giữ nguyên định dạng chính xác; chạy lại xác nhận đúng trạng thái AC/WA/CE trên UI thật kèm ảnh chụp minh chứng                |
-| Khởi động lại Backend dev server sau khi dừng lần đầu bị lỗi `EADDRINUSE :::3000` — `TaskStop` chỉ dừng tiến trình bash wrapper, không kill hẳn tiến trình `node` con đang giữ cổng                                     | Log lỗi hiện rõ ngay khi khởi động lại                                                                                                                                                                    | Tìm đúng PID đang giữ cổng bằng `Get-NetTCPConnection` rồi `Stop-Process -Force`, xác nhận cổng đã giải phóng trước khi khởi động lại; lặp lại đúng quy trình này khi dọn dẹp cuối cùng để không để sót tiến trình dev server chạy nền                    |
+#### File Tạo Mới [NEW]
+1. [hint.schema.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/hint.schema.ts)
+   - Định nghĩa Mongoose schema `Hint` (`exerciseSlug`, `level`, `title`, `content`, `costPoints`, `cooldownSeconds`).
+   - Tích hợp hàm kiểm duyệt `validateTier1NoCode` và Mongoose validator / pre-save hook đảm bảo Tầng 1 (Khái niệm) tuyệt đối không chứa code hoàn chỉnh hoặc cú pháp lập trình (`def`, `function`, `class`, `import`, `print`, `console.log`, ```` ``` ````).
+2. [hint-usage.schema.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/hint-usage.schema.ts)
+   - Định nghĩa Mongoose schema `HintUsage` (`userId`, `exerciseSlug`, `hintId`, `level`, `unlockedAt`, `costPoints`) dùng để theo dõi lịch sử học viên mở gợi ý.
+3. [initial-hints.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/data/initial-hints.ts)
+   - Bộ dữ liệu seed gồm **30 hint mẫu** chuẩn hóa cho 10 bài tập hiện có trong hệ thống (3 hint / bài tương ứng Level 1, 2, 3).
+4. [unlock-hint.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/hint/dto/unlock-hint.dto.ts)
+   - DTO class chứa payload yêu cầu mở gợi ý (`exerciseSlug`, `level`, `userId`).
+5. [hint.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/hint/hint.service.ts)
+   - Chứa toàn bộ business logic cho Hint Engine:
+     - Auto-seed 30 hint mẫu khi khởi chạy module (`onModuleInit`).
+     - `getHintsByExercise`: Lấy thông tin gợi ý kèm ẩn/hiện nội dung tùy theo trạng thái mở của học viên.
+     - `unlockHint`: Mở gợi ý theo level, kiểm tra việc mở lại (không mất phí/cooldown), kiểm tra thời gian chờ 30s (`cooldownRemainingSeconds`), trừ điểm và lưu lịch sử `HintUsage`.
+     - `getUserHintHistory`: Tra cứu lịch sử dùng hint của học viên.
+     - `seedHints` & `get30SampleHints`: Phục vụ seed và lấy dữ liệu 30 hint kiểm thử.
+6. [hint.controller.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/hint/hint.controller.ts)
+   - REST Controller với 5 API endpoints:
+     - `GET /api/hints/exercise/:exerciseSlug?userId=...`: Lấy danh sách hints bài tập.
+     - `POST /api/hints/unlock`: Mở gợi ý cho học viên.
+     - `GET /api/hints/history/:userId`: Tra cứu lịch sử sử dụng hint.
+     - `POST /api/hints/seed`: Seed 30 hints mẫu.
+     - `GET /api/hints/sample-30`: Lấy 30 hints mẫu kiểm thử.
+7. [hint.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/hint/hint.module.ts)
+   - Đăng ký NestJS Module cho `HintController` và `HintService`.
+8. [hint.service.spec.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/hint/hint.service.spec.ts)
+   - Bộ unit tests kiểm tra toàn bộ tính năng: 5 test cho bộ lọc kiểm duyệt Tier 1 non-code và 4 test cho logic `unlockHint` (cooldown, re-unlock, deduct points, not found).
 
-### Giới hạn còn lại, chưa kiểm chứng được ở Ngày 08
+#### File Chỉnh Sửa [MODIFY]
+1. [database.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/database.module.ts)
+   - Đăng ký `Hint` và `HintUsage` Mongoose schema vào `MongooseModule.forFeature`.
+2. [app.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/app.module.ts)
+   - Đăng ký `HintModule` vào danh sách `imports` của `AppModule`.
 
-- **Bộ nhớ (`memoryUsedMb`)**: cơ chế lấy mẫu trên Windows dùng `wmic`, nhưng `wmic` không có sẵn trong PATH của môi trường Git Bash/Node `spawn` đã kiểm thử thực tế (đã xác nhận bằng lệnh trực tiếp, không phải suy đoán) — kết quả là trường `memoryUsedMb` hiện luôn `undefined` trên máy phát triển này. Đây là đánh đổi đã lường trước và ghi rõ trong kế hoạch: chấp nhận "không đo được bộ nhớ chính xác" thay vì xây dựng một hệ thống đo bộ nhớ cross-platform phức tạp, vì bài chấm chủ yếu dựa vào so khớp output và giới hạn thời gian. Nếu triển khai lên môi trường Linux thật (nơi `/proc/<pid>/status` khả dụng), cơ chế này sẽ hoạt động chính xác hơn — nhưng chưa được kiểm chứng trực tiếp trên Linux trong phạm vi Ngày 08.
-- **Idempotency khi khởi động lại tiến trình**: cơ chế `retryStale()` sweep định kỳ mỗi 30 giây giả định chỉ có một tiến trình Node duy nhất (không cluster, không PM2). Nếu triển khai nhiều instance Backend chạy song song, cơ chế hiện tại không đủ để đảm bảo không chấm trùng — cần một khoá phân tán thật sự (ví dụ Redis lock), đây là giới hạn đã được người dùng chấp nhận có ý thức ở mức v0.1, giống cách Ngày 07 chấp nhận sandbox không phải cấp hệ điều hành.
-- **Không có xác thực người dùng**: endpoint `GET /exercises/submissions/:id` không kiểm tra `userId` — bất kỳ ai biết id cũng xem được submission đó (bao gồm cả code đã nộp, nhưng không bao gồm nội dung test ẩn). Đây là lỗ hổng đã tồn tại từ trước (toàn bộ module `exercise` không có lớp xác thực nào), không phải do Ngày 08 gây ra, và không nằm trong phạm vi điều kiện nghiệm thu của ngày này.
+---
 
-## 6. Đánh giá độ tin cậy của AI
+### Prompt 3
+> "Bạn là một Frontend Developer phụ trách giao diện người dùng cho hệ thống gợi ý "Hint Engine" (Ngày 09) trong dự án React (Tailwind CSS):
+> 1. Yêu cầu giao diện:
+> - Xây dựng component bảng gợi ý hiển thị tuần tự theo 3 nút bấm mở khóa tương ứng: Tầng 1 (Khái niệm), Tầng 2 (Chiến lược), Tầng 3 (Pseudocode).
+> - Hiển thị rõ ràng chi phí điểm số hoặc thời gian đếm ngược (`cooldown`) khi học viên muốn mở hint tiếp theo để tránh lạm dụng.
+> - Thiết kế giao diện thân thiện, trực quan, không để lộ code hoàn chỉnh ở tầng đầu tiên.
+> - Bổ sung vào làm cả responsive và đổi sáng tối giống những chức năng khác.
+> Hãy cung cấp mã nguồn component React chi tiết, có xử lý state tương tác mượt mà để tôi tích hợp vào thư mục FE của dự án.
+> @[c:\Users\Admin\Desktop\cybersoft-learning-hub\learning-hub\FE]"
 
-Phần thiết kế thuần kỹ thuật — cơ chế atomic `findOneAndUpdate` để chống chấm trùng, phân loại AC/WA/TLE/RE/CE, tách bước compile-check ra khỏi vòng lặp test case — AI đề xuất đúng ngay từ đầu và giải thích rõ lý do (ví dụ vì sao guard-violation nên tính là RE chứ không phải CE, vì sao `_id` của Submission là lựa chọn hợp lý làm idempotency key thay vì tự sinh thêm key). Đây là loại quyết định có thể kiểm chứng bằng lý luận logic thuần, nên tin được ngay.
+**Thời gian:** 2026-09-08 07:38:08
 
-Nhưng có ba điểm cho thấy không nên coi "test pass" hay "code compile được" là bằng chứng đủ:
+---
 
-Thứ nhất, chính bộ test do AI viết ra cũng có thể sai — không phải lúc nào lỗi cũng nằm ở code được kiểm thử. Lần chạy `jest` đầu tiên lộ ra 2 test tự viết có vấn đề (một do dữ liệu mock không nhất quán, một do hiểu sai ngữ nghĩa fire-and-forget của chính hàm mình viết). Bài học: khi test fail, phải đọc kỹ xem lỗi nằm ở logic thật hay ở giả định của bài test, không mặc định lỗi luôn ở phía implementation.
+### Prompt 4, 5, 6
+> Tinh chỉnh giao diện HintPanel, bỏ điểm số, 2-Row tab card layout, reset session theo bài tập.
 
-Thứ hai, kiểm thử qua API bằng `curl` (đã xác nhận AC/WA/CE hoạt động đúng ở tầng Backend) không phát hiện được lỗi thực sự chỉ lộ ra khi thao tác qua giao diện thật — cụ thể là CodeMirror tự động thụt lề làm sai lệch code nhập vào nếu gõ bằng "type" thay vì "paste". Đây không phải lỗi của Backend hay Frontend Ngày 08, mà là một chi tiết hành vi của thư viện editor cần biết khi viết kịch bản kiểm thử UI — nhưng nếu chỉ dừng ở kiểm thử API mà không mở trình duyệt thật, sẽ không bao giờ phát hiện ra và có thể nhầm lẫn thành lỗi chấm bài.
+**Thời gian:** 2026-09-08 07:42:58 - 07:46:27
 
-Thứ ba, AI tự nhận diện trung thực giới hạn kỹ thuật thật (`wmic` không khả dụng) bằng cách thử trực tiếp trên máy thay vì chỉ giả định theo tài liệu — kết quả "không đo được bộ nhớ" được xác nhận bằng thực nghiệm, không phải suy đoán, và được ghi lại đúng bản chất là giới hạn đã lường trước chứ không phải lỗi ẩn giấu.
+---
 
-Kết luận rút ra: kết quả AI báo "đã chạy test, đã pass" hoặc "đã kiểm tra qua trình duyệt" cần được xác minh ở đúng tầng phù hợp với claim đó — test đơn vị không thay thế được việc chạy ứng dụng thật, và chạy API không thay thế được việc thao tác qua giao diện người dùng thật.
+### Prompt 9 & 10
+> Tích hợp React Router (`react-router-dom`) quản lý điều hướng URL (`/catalog`, `/detail/:lessonId`, `/quiz`, `/playground`), giữ trang 100% khi bấm F5.
+
+**Thời gian:** 2026-09-08 07:52:43 - 07:53:47
+
+---
+
+### Prompt 11
+> Tối ưu màu sắc Dark Mode toàn diện bằng các biến CSS hệ thống.
+
+**Thời gian:** 2026-09-08 07:56:57
+
+---
+
+### Prompt 12
+> "sửa lại phần gợi ý này nếu như đang học python thì phải cho ra code python đồng thời tôi muốn mẫu code hoàn chỉnh nó sẽ được viết vào luôn khung bên trái nữa"
+
+**Thời gian:** 2026-09-08 08:00:02
+
+**Các file đã tạo / cập nhật / xóa:**
+
+#### File Chỉnh Sửa [MODIFY]
+1. [initial-hints.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/data/initial-hints.ts)
+   - Cập nhật Tầng 3 của 10 bài tập chứa **Mã nguồn Lời giải chuẩn bằng Python** (`a = int(input())...`, `n = int(input())...`).
+2. [HintPanel.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/HintPanel.tsx)
+   - Đổi Tầng 3 thành `Tầng 3: Code Mẫu (Python)`.
+   - Ngay khi học viên mở khóa Tầng 3 (Code mẫu), hệ thống tự động kích hoạt `onApplySolution(content)` để **tự động nạp trực tiếp mã nguồn lời giải Python vào khung viết code `CodeEditor` ở phía bên trái**.
