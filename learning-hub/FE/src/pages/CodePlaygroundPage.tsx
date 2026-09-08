@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CodeEditor } from '../components/CodeEditor';
 import { OutputPanel } from '../components/OutputPanel';
 import { TestResultsPanel } from '../components/TestResultsPanel';
+import { HintPanel } from '../components/HintPanel';
 import exerciseApi from '../axios/exerciseApi';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
 import { TERMINAL_SUBMISSION_STATUSES } from '../types/exercise';
@@ -34,7 +35,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit'>('run');
+  const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit' | 'hint'>('run');
 
   const stopPolling = () => {
     if (pollIntervalRef.current) {
@@ -230,12 +231,31 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
               >
                 Kết quả Test mẫu
               </button>
+              <button
+                className={`px-3 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors flex items-center gap-1 ${
+                  activeResultTab === 'hint'
+                    ? 'border-indigo-600 text-indigo-600 dark:text-cyan-400'
+                    : 'border-transparent text-[var(--text-muted)]'
+                }`}
+                onClick={() => setActiveResultTab('hint')}
+              >
+                <span>💡</span>
+                <span>Gợi ý (Hint Engine)</span>
+              </button>
             </div>
 
             {activeResultTab === 'run' ? (
               <OutputPanel result={runResult} isRunning={isRunning} />
-            ) : (
+            ) : activeResultTab === 'submit' ? (
               <TestResultsPanel submission={submission} isSubmitting={isSubmitting} />
+            ) : (
+              selectedSlug && (
+                <HintPanel
+                  exerciseSlug={selectedSlug}
+                  isDark={isDark}
+                  onApplySolution={(solutionCode) => setCode(solutionCode)}
+                />
+              )
             )}
           </div>
         </div>

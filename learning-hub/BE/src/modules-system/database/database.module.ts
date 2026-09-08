@@ -5,6 +5,8 @@ import { Question, QuestionSchema } from './schemas/question.schema';
 import { QuizAttempt, QuizAttemptSchema } from './schemas/quiz-attempt.schema';
 import { Exercise, ExerciseSchema } from './schemas/exercise.schema';
 import { Submission, SubmissionSchema } from './schemas/submission.schema';
+import { Hint, HintSchema } from './schemas/hint.schema';
+import { HintUsage, HintUsageSchema } from './schemas/hint-usage.schema';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { Submission, SubmissionSchema } from './schemas/submission.schema';
       { name: QuizAttempt.name, schema: QuizAttemptSchema },
       { name: Exercise.name, schema: ExerciseSchema },
       { name: Submission.name, schema: SubmissionSchema },
+      { name: Hint.name, schema: HintSchema },
+      { name: HintUsage.name, schema: HintUsageSchema },
     ]),
   ],
   exports: [MongooseModule],
