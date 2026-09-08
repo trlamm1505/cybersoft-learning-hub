@@ -1,0 +1,201 @@
+customer_id,full_name,email,phone,city,customer_segment,created_at
+CUST_00001,Nguyễn Minh Dũng,nguyen.minh.dung.001@example.com,0939958838,Đà Nẵng,Wholesale,2024-12-12 00:00:00
+CUST_00002,Võ Đức Phúc,vo.duc.phuc.002@example.com,0966629388,Hà Nội,Retail,2024-04-21 00:00:00
+CUST_00003,Đặng Thị Quyên,dang.thi.quyen.003@example.com,0936687537,Huế,Retail,2024-08-17 00:00:00
+CUST_00004,Hồ Văn Tùng,ho.van.tung.004@example.com,0931429110,Đồng Nai,Retail,2024-03-20 00:00:00
+CUST_00005,Hồ Khánh Chi,ho.khanh.chi.005@example.com,0922448136,Đồng Nai,Retail,2024-06-25 00:00:00
+CUST_00006,Hồ Văn Sơn,ho.van.son.006@example.com,0971662963,Huế,Retail,2024-07-12 00:00:00
+CUST_00007,Hoàng Ánh Yến,hoang.anh.yen.007@example.com,0958537831,Vũng Tàu,Retail,2024-02-05 00:00:00
+CUST_00008,Phạm Phương Chi,pham.phuong.chi.008@example.com,0941244663,Hồ Chí Minh,Retail,2024-08-20 00:00:00
+CUST_00009,Huỳnh Hữu Huy,huynh.huu.huy.009@example.com,0957683626,Cần Thơ,Wholesale,2024-12-25 00:00:00
+CUST_00010,Bùi Đức Phúc,bui.duc.phuc.010@example.com,0995225343,Đà Nẵng,Retail,2024-05-05 00:00:00
+CUST_00011,Phan Phương Trang,phan.phuong.trang.011@example.com,0984752529,TP.HCM,Wholesale,2024-01-29 00:00:00
+CUST_00012,Nguyễn Khánh Mai,nguyen.khanh.mai.012@example.com,0945935572,Hồ Chí Minh,Retail,2024-10-17 00:00:00
+CUST_00013,Huỳnh Thành Quân,huynh.thanh.quan.013@example.com,0977005685,Đồng Nai,Wholesale,2024-11-25 00:00:00
+CUST_00014,Hoàng Thu Hà,hoang.thu.ha.014@example.com,0985345555,Huế,Retail,2024-10-26 00:00:00
+CUST_00015,Đặng Hải Linh,dang.hai.linh.015@example.com,0939436733,Đà Nẵng,Retail,2024-02-16 00:00:00
+CUST_00016,Ngô Đức Cường,ngo.duc.cuong.016@example.com,0994214382,Đà Nẵng,Wholesale,2024-08-04 00:00:00
+CUST_00017,Phan Gia Phúc,phan.gia.phuc.017@example.com,0972820592,Huế,Retail,2024-10-10 00:00:00
+CUST_00018,Nguyễn Đức Quân,nguyen.duc.quan.018@example.com,0982070937,Hải Phòng,Wholesale,2024-06-23 00:00:00
+CUST_00019,Phan Thu Nga,phan.thu.nga.019@example.com,0910435578,Hải Phòng,VIP,2024-04-01 00:00:00
+CUST_00020,Trần Minh Việt,tran.minh.viet.020@example.com,0995758349,Huế,Retail,2024-03-19 00:00:00
+CUST_00021,Lê Mỹ Vy,le.my.vy.021@example.com,0981182864,Hà Nội,Retail,2024-09-07 00:00:00
+CUST_00022,Dương Khánh Yến,duong.khanh.yen.022@example.com,0951273847,Cần Thơ,Retail,2024-10-17 00:00:00
+CUST_00023,Trần Tuấn Việt,tran.tuan.viet.023@example.com,0919289546,HCM,Wholesale,2024-03-06 00:00:00
+CUST_00024,Võ Hữu Hải,vo.huu.hai.024@example.com,0980823176,Vũng Tàu,Retail,2024-04-18 00:00:00
+CUST_00025,Hồ Thành Sơn,ho.thanh.son.025@example.com,0951837852,Đồng Nai,VIP,2024-11-28 00:00:00
+CUST_00026,Dương Mỹ Nga,duong.my.nga.026@example.com,0926240908,Cần Thơ,Retail,2024-06-22 00:00:00
+CUST_00027,Võ Mai Thảo,vo.mai.thao.027@example.com,0939557077,Hà Nội,Retail,2024-11-19 00:00:00
+CUST_00028,Trần Thị Yến,tran.thi.yen.028@example.com,0954349361,Hồ Chí Minh,Retail,2024-05-22 00:00:00
+CUST_00029,Phạm Hoàng Cường,pham.hoang.cuong.029@example.com,0986644106,Vũng Tàu,Retail,2024-08-30 00:00:00
+CUST_00030,Phạm Đức Bình,pham.duc.binh.030@example.com,0998447167,Đồng Nai,Retail,2024-07-29 00:00:00
+CUST_00031,Đỗ Thị Trang,do.thi.trang.031@example.com,0997705310,Hồ Chí Minh,Retail,2024-06-22 00:00:00
+CUST_00032,Trần Thành Dũng,tran.thanh.dung.032@example.com,0935529407,Huế,Retail,2024-08-04 00:00:00
+CUST_00033,Vũ Mai Yến,vu.mai.yen.033@example.com,0920117988,Nha Trang,Wholesale,2024-10-08 00:00:00
+CUST_00034,Bùi Mỹ Yến,bui.my.yen.034@example.com,0911980765,Hồ Chí Minh,VIP,2024-05-01 00:00:00
+CUST_00035,Vũ Thanh Hà,nguyenvana_invalid_email.com,090PHONE123,Hà Nội,Retail,2024-01-02 00:00:00
+CUST_00036,Hoàng Tuấn Hải,hoang.tuan.hai.036@example.com,0966775103,Huế,Wholesale,2024-09-06 00:00:00
+CUST_00037,Hoàng Mai Anh,hoang.mai.anh.037@example.com,0987736262,Huế,Retail,2024-06-09 00:00:00
+CUST_00038,Đặng Thanh Quyên,dang.thanh.quyen.038@example.com,0981286543,Đà Nẵng,Retail,2024-09-17 00:00:00
+CUST_00039,Lê Ngọc Thảo,le.ngoc.thao.039@example.com,0919121552,Cần Thơ,Retail,2024-10-18 00:00:00
+CUST_00040,Đặng Thị Thảo,dang.thi.thao.040@example.com,0921003626,Đồng Nai,Wholesale,2024-10-16 00:00:00
+CUST_00041,Dương Minh Dũng,duong.minh.dung.041@example.com,0999889098,Bình Dương,Retail,2024-07-21 00:00:00
+CUST_00042,Bùi Phương Nga,bui.phuong.nga.042@example.com,0952436584,Hồ Chí Minh,Retail,2024-11-14 00:00:00
+CUST_00043,Trần Đức Nam,tran.duc.nam.043@example.com,0938609087,Huế,Retail,2024-06-27 00:00:00
+CUST_00044,Dương Thành Huy,duong.thanh.huy.044@example.com,0948250360,Đà Nẵng,Retail,2024-10-05 00:00:00
+CUST_00045,Đặng Hoàng An,dang.hoang.an.045@example.com,0999639081,Huế,Retail,2024-12-05 00:00:00
+CUST_00046,Dương Thu Hương,duong.thu.huong.046@example.com,0925492573,Hồ Chí Minh,Wholesale,2024-03-20 00:00:00
+CUST_00047,Đặng Mai Uyên,dang.mai.uyen.047@example.com,0956020613,Cần Thơ,Wholesale,2024-05-15 00:00:00
+CUST_00048,Hoàng Văn Bình,hoang.van.binh.048@example.com,0995132217,Đồng Nai,Wholesale,2024-01-23 00:00:00
+CUST_00049,Hồ Thu Trang,ho.thu.trang.049@example.com,0945159040,Đà Nẵng,Wholesale,2024-10-09 00:00:00
+CUST_00050,Võ Văn Bình,vo.van.binh.050@example.com,0920099059,Đà Nẵng,Retail,2024-07-08 00:00:00
+CUST_00051,Lê Gia Cường,le.gia.cuong.051@example.com,0915614174,Hải Phòng,Retail,2024-01-21 00:00:00
+CUST_00052,Phạm Thành Quân,pham.thanh.quan.052@example.com,0923796726,Bình Dương,Wholesale,2024-07-27 00:00:00
+CUST_00053,Đỗ Hữu Dũng,do.huu.dung.053@example.com,0931810617,Đà Nẵng,Wholesale,2024-01-13 00:00:00
+CUST_00054,Dương Khánh Vy,duong.khanh.vy.054@example.com,0965259205,Cần Thơ,Retail,2024-12-25 00:00:00
+CUST_00055,Ngô Thị Yến,ngo.thi.yen.055@example.com,0973174945,Cần Thơ,Retail,2024-08-23 00:00:00
+CUST_00056,Ngô Mai Hà,ngo.mai.ha.056@example.com,0913176186,hồ chí minh,Retail,2024-05-22 00:00:00
+CUST_00057,Hồ Minh Huy,ho.minh.huy.057@example.com,0996098221,Huế,Retail,2024-10-01 00:00:00
+CUST_00058,Nguyễn Ngọc Hương,nguyen.ngoc.huong.058@example.com,0933966966,Vũng Tàu,VIP,2024-05-15 00:00:00
+CUST_00059,Đặng Hải Linh,dang.hai.linh.059@example.com,0952101056,Đồng Nai,Retail,2024-09-18 00:00:00
+CUST_00060,Dương Ánh Hà,duong.anh.ha.060@example.com,0944188276,Hà Nội,Wholesale,2024-01-01 00:00:00
+CUST_00061,Hồ Hoàng Quân,ho.hoang.quan.061@example.com,0936445607,Bình Dương,Retail,2024-12-06 00:00:00
+CUST_00062,Đặng Quốc Quân,dang.quoc.quan.062@example.com,0926726926,Hải Phòng,Retail,2024-12-07 00:00:00
+CUST_00063,Phan Phương Quyên,phan.phuong.quyen.063@example.com,0927084279,Cần Thơ,Retail,2024-07-13 00:00:00
+CUST_00064,Dương Hữu Phúc,duong.huu.phuc.064@example.com,0986384014,Hải Phòng,Retail,2024-01-01 00:00:00
+CUST_00065,Phạm Hải Vy,pham.hai.vy.065@example.com,0987844239,Vũng Tàu,Wholesale,2024-08-26 00:00:00
+CUST_00066,Bùi Mai Quyên,bui.mai.quyen.066@example.com,0973509974,Đà Nẵng,Wholesale,2024-05-25 00:00:00
+CUST_00067,Bùi Quang Huy,bui.quang.huy.067@example.com,0922534217,Cần Thơ,Wholesale,2024-04-25 00:00:00
+CUST_00068,Lê Văn An,le.van.an.068@example.com,0942862209,Nha Trang,Retail,2024-02-07 00:00:00
+CUST_00069,Dương Ánh Hà,duong.anh.ha.069@example.com,0961536717,HN,Retail,2024-03-16 00:00:00
+CUST_00070,Nguyễn Đức Tùng,nguyen.duc.tung.070@example.com,0967062156,Cần Thơ,Retail,2024-12-22 00:00:00
+CUST_00071,Nguyễn Hoàng Dũng,nguyen.hoang.dung.071@example.com,0926288475,Nha Trang,Retail,2024-08-25 00:00:00
+CUST_00072,Võ Quang Huy,vo.quang.huy.072@example.com,0969401199,Vũng Tàu,Wholesale,2024-09-15 00:00:00
+CUST_00073,Dương Mỹ Nga,duong.my.nga.073@example.com,0931361812,Nha Trang,Retail,2024-05-06 00:00:00
+CUST_00074,Hoàng Hoàng Long,hoang.hoang.long.074@example.com,0994120751,Cần Thơ,Retail,2024-02-09 00:00:00
+CUST_00075,Phạm Minh Huy,pham.minh.huy.075@example.com,0952910691,Huế,Retail,2024-03-18 00:00:00
+CUST_00076,Đỗ Thu Uyên,do.thu.uyen.076@example.com,0938716269,Hồ Chí Minh,Retail,2024-06-18 00:00:00
+CUST_00077,Phan Văn Dũng,phan.van.dung.077@example.com,0966390708,Đồng Nai,VIP,2024-10-26 00:00:00
+CUST_00078,Nguyễn Quang Khoa,nguyen.quang.khoa.078@example.com,0974019136,Hà Nội,VIP,2024-06-01 00:00:00
+CUST_00079,Ngô Gia Nam,ngo.gia.nam.079@example.com,0983300637,Vũng Tàu,Wholesale,2024-09-06 00:00:00
+CUST_00080,Phan Thanh Anh,phan.thanh.anh.080@example.com,0962191530,Bình Dương,Wholesale,2024-07-26 00:00:00
+CUST_00081,Ngô Tuấn Cường,ngo.tuan.cuong.081@example.com,0993517915,Huế,Retail,2024-07-20 00:00:00
+CUST_00082,Bùi Văn Bình,bui.van.binh.082@example.com,0996268397,Đồng Nai,Retail,2024-08-24 00:00:00
+CUST_00083,Hoàng Hải Linh,hoang.hai.linh.083@example.com,0938408562,Nha Trang,Retail,2024-07-13 00:00:00
+CUST_00084,Ngô Hải Hương,ngo.hai.huong.084@example.com,0920993268,Nha Trang,Retail,2024-10-03 00:00:00
+CUST_00085,Huỳnh Mai Trang,huynh.mai.trang.085@example.com,0919209801,Hà Nội,Wholesale,2024-05-06 00:00:00
+CUST_00086,Nguyễn Ánh Dung,nguyen.anh.dung.086@example.com,0942016960,Đà Nẵng,Retail,2024-02-28 00:00:00
+CUST_00087,Phạm Tuấn Sơn,pham.tuan.son.087@example.com,0944392446,Bình Dương,Retail,2024-11-06 00:00:00
+CUST_00015,Đỗ Đức Tùng,do.duc.tung.088@example.com,0931980274,Hải Phòng,Retail,2024-01-14 00:00:00
+CUST_00089,Đặng Gia Khoa,dang.gia.khoa.089@example.com,0936619372,Hồ Chí Minh,Retail,2024-11-17 00:00:00
+CUST_00090,Đỗ Phương Yến,do.phuong.yen.090@example.com,0990585882,Hồ Chí Minh,Wholesale,2024-10-16 00:00:00
+CUST_00091,Huỳnh Hoàng Khoa,huynh.hoang.khoa.091@example.com,0998787891,Bình Dương,Retail,2024-11-27 00:00:00
+CUST_00092,Ngô Hải Yến,ngo.hai.yen.092@example.com,0975793759,Hồ Chí Minh,Retail,2024-07-04 00:00:00
+CUST_00093,Ngô Tuấn Sơn,ngo.tuan.son.093@example.com,0930534124,Đồng Nai,Retail,2024-09-24 00:00:00
+CUST_00094,Hoàng Quang Tùng,hoang.quang.tung.094@example.com,0982232344,Nha Trang,Retail,2024-10-30 00:00:00
+CUST_00095,Ngô Mai Yến,ngo.mai.yen.095@example.com,0921631697,Hải Phòng,Wholesale,2024-05-04 00:00:00
+CUST_00096,Đặng Quang Quân,dang.quang.quan.096@example.com,0960867083,Bình Dương,Retail,2024-06-15 00:00:00
+CUST_00097,Phạm Khánh Vy,pham.khanh.vy.097@example.com,0944675473,Bình Dương,Retail,2024-11-01 00:00:00
+CUST_00098,Hoàng Hoàng An,hoang.hoang.an.098@example.com,0979340535,Cần Thơ,Retail,2024-07-27 00:00:00
+CUST_00099,Hồ Thành Sơn,ho.thanh.son.099@example.com,0973900135,Nha Trang,Retail,2024-01-09 00:00:00
+CUST_00100,Phạm Hải Uyên,pham.hai.uyen.100@example.com,0942655866,Hải Phòng,Wholesale,2024-07-07 00:00:00
+CUST_00101,Võ Khánh Mai,vo.khanh.mai.101@example.com,0983871890,Bình Dương,Retail,2024-08-20 00:00:00
+CUST_00102,Hoàng Mai Chi,hoang.mai.chi.102@example.com,0935848226,Bình Dương,Retail,2024-10-01 00:00:00
+CUST_00103,Đỗ Hữu Dũng,do.huu.dung.103@example.com,0939042654,Nha Trang,Retail,2024-10-28 00:00:00
+CUST_00104,Võ Quang Hải,vo.quang.hai.104@example.com,0923492385,Cần Thơ,Retail,2024-07-03 00:00:00
+CUST_00105,Nguyễn Mỹ Dung,nguyen.my.dung.105@example.com,0946817443,Hà Nội,VIP,2024-10-10 00:00:00
+CUST_00106,Lê Thanh Chi,le.thanh.chi.106@example.com,0911646234,Vũng Tàu,Retail,2024-09-02 00:00:00
+CUST_00107,Lê Thị Hương,le.thi.huong.107@example.com,0974119726,Hồ Chí Minh,Wholesale,2024-07-24 00:00:00
+CUST_00108,Đặng Văn Cường,dang.van.cuong.108@example.com,0930024960,Vũng Tàu,VIP,2024-02-13 00:00:00
+CUST_00109,Trần Hoàng Tùng,tran.hoang.tung.109@example.com,0965857931,Vũng Tàu,Retail,2024-11-12 00:00:00
+CUST_00110,Võ Hải Nga,vo.hai.nga.110@example.com,0969421007,Hải Phòng,Wholesale,2024-08-07 00:00:00
+CUST_00111,Đặng Thị Thảo,dang.thi.thao.111@example.com,0923318904,Cần Thơ,Retail,2024-05-15 00:00:00
+CUST_00112,Lê Thành Cường,le.thanh.cuong.112@example.com,0984087145,Hồ Chí Minh,Retail,2024-07-28 00:00:00
+CUST_00113,Đặng Thanh Hương,dang.thanh.huong.113@example.com,0914380847,Cần Thơ,Retail,2024-05-24 00:00:00
+CUST_00114,Vũ Đức Quân,vu.duc.quan.114@example.com,0941329612,Hải Phòng,Wholesale,2024-11-16 00:00:00
+CUST_00115,Hồ Thành Khoa,ho.thanh.khoa.115@example.com,0925405014,Huế,Retail,2024-03-17 00:00:00
+CUST_00116,Ngô Hữu Bình,ngo.huu.binh.116@example.com,0918004482,Đà Nẵng,Wholesale,2024-10-31 00:00:00
+CUST_00117,Đặng Minh Long,dang.minh.long.117@example.com,0926690465,Nha Trang,Wholesale,2024-12-24 00:00:00
+CUST_00118,Hoàng Mỹ Quyên,hoang.my.quyen.118@example.com,0976276072,Nha Trang,Retail,2024-01-21 00:00:00
+CUST_00119,Đỗ Quốc Phúc,do.quoc.phuc.119@example.com,0943603811,Hà Nội,Retail,2024-12-11 00:00:00
+CUST_00120,Đặng Quang An,dang.quang.an.120@example.com,0946173157,Vũng Tàu,Retail,2024-03-30 00:00:00
+CUST_00121,Bùi Thanh Hương,bui.thanh.huong.121@example.com,0934359060,Vũng Tàu,Retail,2024-09-08 00:00:00
+CUST_00122,Vũ Quốc Khoa,vu.quoc.khoa.122@example.com,0954735895,Bình Dương,Wholesale,2024-03-23 00:00:00
+CUST_00123,Đỗ Thanh Hương,do.thanh.huong.123@example.com,0998930456,Đồng Nai,Wholesale,2024-10-08 00:00:00
+CUST_00124,Trần Khánh Hương,tran.khanh.huong.124@example.com,0953389073,Hồ Chí Minh,VIP,2024-07-25 00:00:00
+CUST_00125,Ngô Văn Quân,ngo.van.quan.125@example.com,0982825679,Nha Trang,Retail,2024-04-06 00:00:00
+CUST_00126,Đặng Tuấn Quân,dang.tuan.quan.126@example.com,0969329732,Hà Nội,Retail,2024-10-08 00:00:00
+CUST_00127,Hoàng Thanh Uyên,hoang.thanh.uyen.127@example.com,0975056916,Hồ Chí Minh,Retail,2024-11-18 00:00:00
+CUST_00128,Phạm Hữu Hải,pham.huu.hai.128@example.com,0983932360,Hà Nội,Retail,2024-02-17 00:00:00
+CUST_00129,Ngô Ngọc Nga,ngo.ngoc.nga.129@example.com,0925766039,Đà Nẵng,Retail,2024-05-29 00:00:00
+CUST_00130,Hoàng Gia Việt,hoang.gia.viet.130@example.com,0974759996,Nha Trang,Retail,2024-10-09 00:00:00
+CUST_00131,Phạm Ánh Quyên,pham.anh.quyen.131@example.com,0928321839,Hồ Chí Minh,Retail,2024-07-31 00:00:00
+CUST_00132,Hồ Mỹ Hương,ho.my.huong.132@example.com,0910344303,Hải Phòng,Wholesale,2024-10-27 00:00:00
+CUST_00133,Bùi Tuấn Việt,bui.tuan.viet.133@example.com,0929944139,Nha Trang,Retail,2024-06-25 00:00:00
+CUST_00134,Hồ Mỹ Mai,ho.my.mai.134@example.com,0971115319,Bình Dương,Wholesale,2024-12-23 00:00:00
+CUST_00135,Phan Mai Yến,phan.mai.yen.135@example.com,0965133300,Hà Nội,Retail,2024-08-30 00:00:00
+CUST_00136,Hồ Gia Khoa,ho.gia.khoa.136@example.com,0999078806,Đà Nẵng,Retail,2024-01-19 00:00:00
+CUST_00137,Đặng Khánh Yến,dang.khanh.yen.137@example.com,0923470708,Nha Trang,Retail,2024-08-21 00:00:00
+CUST_00138,Lê Hải Yến,le.hai.yen.138@example.com,0997883261,Đà Nẵng,Retail,2024-05-15 00:00:00
+CUST_00139,Đỗ Hải Trang,do.hai.trang.139@example.com,0920779739,Bình Dương,Wholesale,2024-09-30 00:00:00
+CUST_00140,Huỳnh Thanh Yến,huynh.thanh.yen.140@example.com,0982613940,Hà Nội,Retail,2024-04-30 00:00:00
+CUST_00141,Dương Minh Dũng,duong.minh.dung.141@example.com,0922130508,Đồng Nai,VIP,2024-11-20 00:00:00
+CUST_00142,Trần Tuấn Cường,tran.tuan.cuong.142@example.com,0950193656,Hà Nội,Retail,2024-01-29 00:00:00
+CUST_00143,Huỳnh Hải Dung,huynh.hai.dung.143@example.com,0942775624,Huế,Retail,2024-12-15 00:00:00
+CUST_00144,Lê Hữu Bình,le.huu.binh.144@example.com,0991804602,Đồng Nai,Retail,2024-05-03 00:00:00
+CUST_00145,Đặng Hữu Dũng,dang.huu.dung.145@example.com,0971894493,Hải Phòng,Retail,2024-12-07 00:00:00
+CUST_00146,Hồ Thanh Hương,ho.thanh.huong.146@example.com,0983363160,Đà Nẵng,Retail,2024-06-25 00:00:00
+CUST_00147,Hoàng Gia Sơn,hoang.gia.son.147@example.com,0943567615,Nha Trang,Wholesale,2024-04-11 00:00:00
+CUST_00148,Ngô Tuấn Bình,ngo.tuan.binh.148@example.com,0941837210,Đồng Nai,Retail,2024-10-21 00:00:00
+CUST_00149,Đỗ Phương Anh,do.phuong.anh.149@example.com,0998346110,Đồng Nai,Retail,2024-10-16 00:00:00
+CUST_00150,Hồ Văn Phúc,ho.van.phuc.150@example.com,0976669607,Hải Phòng,Wholesale,2024-04-27 00:00:00
+CUST_00151,Huỳnh Thành Quân,huynh.thanh.quan.151@example.com,0935519083,Vũng Tàu,Retail,2024-12-03 00:00:00
+CUST_00152,Lê Đức Quân,le.duc.quan.152@example.com,0996750368,Hà Nội,Retail,2024-08-13 00:00:00
+CUST_00153,Huỳnh Thu Chi,huynh.thu.chi.153@example.com,0949609054,Bình Dương,Wholesale,2024-03-30 00:00:00
+CUST_00154,Hồ Mỹ Linh,ho.my.linh.154@example.com,0981249799,Huế,VIP,2024-03-25 00:00:00
+CUST_00155,Ngô Thanh Vy,ngo.thanh.vy.155@example.com,0949613214,Bình Dương,Wholesale,2024-08-27 00:00:00
+CUST_00156,Lê Thành Việt,le.thanh.viet.156@example.com,0963339667,Huế,Retail,2024-07-21 00:00:00
+CUST_00157,Võ Ngọc Nga,vo.ngoc.nga.157@example.com,0959470729,Hải Phòng,Retail,2024-11-22 00:00:00
+CUST_00158,Trần Thành Long,tran.thanh.long.158@example.com,0913358751,Vũng Tàu,Wholesale,2024-10-14 00:00:00
+CUST_00159,Đặng Mai Trang,dang.mai.trang.159@example.com,0918484847,Nha Trang,VIP,2024-06-03 00:00:00
+CUST_00160,Trần Hữu An,tran.huu.an.160@example.com,0914994527,Hải Phòng,VIP,2024-02-29 00:00:00
+CUST_00161,Dương Mỹ Dung,duong.my.dung.161@example.com,0962163160,Nha Trang,Retail,2024-12-22 00:00:00
+CUST_00162,Phan Quang Sơn,phan.quang.son.162@example.com,0930739712,Đồng Nai,Wholesale,2024-09-07 00:00:00
+CUST_00163,Hoàng Văn Sơn,hoang.van.son.163@example.com,0959731689,Cần Thơ,Retail,2024-04-30 00:00:00
+CUST_00164,Trần Quốc Nam,tran.quoc.nam.164@example.com,0996547189,Bình Dương,Retail,2024-05-21 00:00:00
+CUST_00165,Trần Thanh Chi,tran.thanh.chi.165@example.com,0998955314,Cần Thơ,Retail,2024-11-01 00:00:00
+CUST_00166,Nguyễn Quốc Dũng,nguyen.quoc.dung.166@example.com,0926901217,Vũng Tàu,Retail,2024-10-10 00:00:00
+CUST_00167,Phạm Mai Linh,pham.mai.linh.167@example.com,0929804386,Vũng Tàu,Retail,2024-03-15 00:00:00
+CUST_00168,Võ Minh Tùng,vo.minh.tung.168@example.com,0933420607,Hồ Chí Minh,Wholesale,2024-01-14 00:00:00
+CUST_00169,Huỳnh Mai Thảo,huynh.mai.thao.169@example.com,0953455870,Hà Nội,Retail,2024-01-27 00:00:00
+CUST_00170,Phan Mỹ Chi,phan.my.chi.170@example.com,0918530615,Nha Trang,Retail,2024-07-04 00:00:00
+CUST_00171,Trần Tuấn Nam,tran.tuan.nam.171@example.com,0939735904,Vũng Tàu,Retail,2024-12-03 00:00:00
+CUST_00172,Vũ Văn An,vu.van.an.172@example.com,0974287863,Đồng Nai,Retail,2024-02-25 00:00:00
+CUST_00173,Dương Tuấn Bình,duong.tuan.binh.173@example.com,0920843514,Bình Dương,Retail,2024-02-03 00:00:00
+CUST_00174,Đặng Ánh Quyên,dang.anh.quyen.174@example.com,0953645651,Đồng Nai,VIP,2024-09-28 00:00:00
+CUST_00175,Võ Ánh Mai,vo.anh.mai.175@example.com,0923311507,Hồ Chí Minh,Wholesale,2024-11-29 00:00:00
+CUST_00176,Võ Thành Khoa,vo.thanh.khoa.176@example.com,0970606674,Cần Thơ,Retail,2024-08-20 00:00:00
+CUST_00177,Đỗ Ngọc Linh,do.ngoc.linh.177@example.com,0967279295,Bình Dương,Wholesale,2024-07-10 00:00:00
+CUST_00178,Bùi Tuấn Bình,bui.tuan.binh.178@example.com,0922243983,Hồ Chí Minh,Retail,2024-02-19 00:00:00
+CUST_00179,Huỳnh Hữu Nam,huynh.huu.nam.179@example.com,0918050510,Vũng Tàu,VIP,2024-10-14 00:00:00
+CUST_00180,Trần Hải Linh,tran.hai.linh.180@example.com,0999300492,Đồng Nai,Wholesale,2024-01-27 00:00:00
+CUST_00181,Đặng Minh Huy,dang.minh.huy.181@example.com,0923905032,Vũng Tàu,Retail,2024-03-20 00:00:00
+CUST_00182,Phạm Đức Huy,pham.duc.huy.182@example.com,0984660688,Bình Dương,Retail,2024-05-22 00:00:00
+CUST_00183,Hồ Gia Việt,ho.gia.viet.183@example.com,0985291541,Vũng Tàu,Retail,2024-11-25 00:00:00
+CUST_00184,Đặng Minh An,dang.minh.an.184@example.com,0934215035,Hải Phòng,Wholesale,2024-06-07 00:00:00
+CUST_00185,Huỳnh Văn Cường,huynh.van.cuong.185@example.com,0929226889,Vũng Tàu,Wholesale,2024-02-05 00:00:00
+CUST_00186,Bùi Thị Chi,bui.thi.chi.186@example.com,0981200181,Cần Thơ,Retail,2024-08-20 00:00:00
+CUST_00187,Huỳnh Phương Uyên,huynh.phuong.uyen.187@example.com,0953537934,Vũng Tàu,Retail,2024-01-27 00:00:00
+CUST_00188,Hồ Ánh Anh,ho.anh.anh.188@example.com,0920949687,Hải Phòng,Retail,2024-08-05 00:00:00
+CUST_00189,Vũ Gia Hải,vu.gia.hai.189@example.com,0938933176,Huế,Retail,2024-08-08 00:00:00
+CUST_00190,Bùi Ánh Nga,bui.anh.nga.190@example.com,0980723898,Hải Phòng,Retail,2024-07-21 00:00:00
+CUST_00191,Nguyễn Văn Dũng,nguyen.van.dung.191@example.com,0950455821,Cần Thơ,Wholesale,2024-05-10 00:00:00
+CUST_00192,Trần Thị Nga,tran.thi.nga.192@example.com,0967801537,Đà Nẵng,Retail,2024-09-29 00:00:00
+CUST_00193,Võ Hoàng Việt,vo.hoang.viet.193@example.com,0999663907,Bình Dương,Retail,2024-01-22 00:00:00
+CUST_00194,Vũ Ngọc Yến,vu.ngoc.yen.194@example.com,0952018286,Vũng Tàu,Retail,2024-07-26 00:00:00
+CUST_00195,Phan Minh Bình,phan.minh.binh.195@example.com,0964362516,Hà Nội,VIP,2024-03-28 00:00:00
+CUST_00196,Đặng Tuấn Việt,dang.tuan.viet.196@example.com,0958567046,Hồ Chí Minh,Retail,2024-02-24 00:00:00
+CUST_00197,Đặng Hải Quyên,dang.hai.quyen.197@example.com,0920555833,Đồng Nai,Wholesale,2024-06-22 00:00:00
+CUST_00198,Hồ Thu Chi,ho.thu.chi.198@example.com,0978515906,Hồ Chí Minh,Retail,2024-04-09 00:00:00
+CUST_00199,Huỳnh Quốc Sơn,huynh.quoc.son.199@example.com,0996629889,Đà Nẵng,Retail,2024-03-15 00:00:00
+CUST_00200,Lê Ánh Dung,le.anh.dung.200@example.com,0997980930,Hồ Chí Minh,Retail,2024-11-17 00:00:00

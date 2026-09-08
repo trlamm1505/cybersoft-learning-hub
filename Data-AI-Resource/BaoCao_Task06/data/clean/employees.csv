@@ -1,0 +1,21 @@
+employee_id,full_name,department,position,hire_date,region
+EMP_001,Hồ Quang Tùng,Sales Department,Key Account Manager,2023-04-05,Miền Nam
+EMP_002,Đặng Quang Huy,Sales Department,Key Account Manager,2022-11-20,Miền Bắc
+EMP_003,Vũ Thanh Trang,Sales Department,Senior Sales Specialist,2022-10-09,Miền Nam
+EMP_004,Võ Ngọc Hương,Sales Department,Senior Sales Specialist,2023-04-08,Miền Bắc
+EMP_005,Ngô Phương Chi,Sales Department,Key Account Manager,2022-04-03,Miền Nam
+EMP_006,Phan Tuấn Phúc,Sales Department,Key Account Manager,2024-01-27,Miền Bắc
+EMP_007,Hồ Ánh Trang,Sales Department,Sales Executive,2022-11-26,Miền Nam
+EMP_008,Lê Thị Nga,Sales Department,Sales Executive,2022-12-18,Miền Nam
+EMP_009,Bùi Thu Anh,Sales Department,Sales Executive,2023-12-26,Miền Trung
+EMP_010,Võ Hoàng Phúc,Sales Department,Sales Executive,2023-01-08,Miền Trung
+EMP_011,Phan Gia Tùng,Sales Department,Senior Sales Specialist,2023-11-27,Miền Nam
+EMP_012,Bùi Khánh Chi,Sales Department,Senior Sales Specialist,2022-04-07,Miền Nam
+EMP_013,Hoàng Minh Sơn,Sales Department,Key Account Manager,2023-09-10,Miền Bắc
+EMP_014,Đặng Thu Linh,Sales Department,Senior Sales Specialist,2023-11-03,Miền Nam
+EMP_015,Lê Quang Sơn,Sales Department,Sales Executive,2022-11-14,Miền Nam
+EMP_016,Hồ Khánh Yến,Sales Department,Sales Executive,2023-11-18,Miền Nam
+EMP_017,Đỗ Hoàng Bình,Sales Department,Key Account Manager,2023-11-18,Miền Trung
+EMP_018,Nguyễn Quốc Hải,Sales Department,Sales Executive,2022-08-08,Miền Trung
+EMP_019,Vũ Thành Dũng,Sales Department,Sales Executive,2022-06-08,Miền Bắc
+EMP_020,Hồ Ngọc Quyên,Sales Department,Key Account Manager,2024-01-27,Miền Nam

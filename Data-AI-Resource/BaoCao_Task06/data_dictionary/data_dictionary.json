@@ -1,0 +1,77 @@
+{
+  "dataset_name": "sales_v1",
+  "version": "1.0",
+  "domain": "Retail & E-Commerce Sales",
+  "tables": {
+    "customers": {
+      "file": "customers.csv",
+      "row_count": 200,
+      "primary_key": "customer_id",
+      "columns": {
+        "customer_id": {"type": "VARCHAR(10)", "pk": true, "fk": null, "nullable": false, "description": "Mã khách hàng duy nhất"},
+        "full_name": {"type": "VARCHAR(100)", "pk": false, "fk": null, "nullable": false, "description": "Họ và tên khách hàng"},
+        "email": {"type": "VARCHAR(150)", "pk": false, "fk": null, "nullable": false, "description": "Địa chỉ thư điện tử"},
+        "phone": {"type": "VARCHAR(15)", "pk": false, "fk": null, "nullable": false, "description": "Số điện thoại di động"},
+        "city": {"type": "VARCHAR(50)", "pk": false, "fk": null, "nullable": false, "description": "Tỉnh/Thành phố sinh sống"},
+        "customer_segment": {"type": "VARCHAR(20)", "pk": false, "fk": null, "nullable": false, "description": "Phân khúc khách hàng (Retail, Wholesale, VIP)"},
+        "created_at": {"type": "DATETIME", "pk": false, "fk": null, "nullable": false, "description": "Thời gian đăng ký tài khoản"}
+      }
+    },
+    "employees": {
+      "file": "employees.csv",
+      "row_count": 20,
+      "primary_key": "employee_id",
+      "columns": {
+        "employee_id": {"type": "VARCHAR(10)", "pk": true, "fk": null, "nullable": false, "description": "Mã nhân viên bán hàng"},
+        "full_name": {"type": "VARCHAR(100)", "pk": false, "fk": null, "nullable": false, "description": "Họ và tên nhân viên"},
+        "department": {"type": "VARCHAR(50)", "pk": false, "fk": null, "nullable": false, "description": "Phòng ban công tác"},
+        "position": {"type": "VARCHAR(50)", "pk": false, "fk": null, "nullable": false, "description": "Vị trí chức danh"},
+        "hire_date": {"type": "DATE", "pk": false, "fk": null, "nullable": false, "description": "Ngày tuyển dụng"},
+        "region": {"type": "VARCHAR(30)", "pk": false, "fk": null, "nullable": false, "description": "Khu vực thị trường phụ trách"}
+      }
+    },
+    "products": {
+      "file": "products.csv",
+      "row_count": 50,
+      "primary_key": "product_id",
+      "columns": {
+        "product_id": {"type": "VARCHAR(10)", "pk": true, "fk": null, "nullable": false, "description": "Mã sản phẩm duy nhất"},
+        "product_name": {"type": "VARCHAR(150)", "pk": false, "fk": null, "nullable": false, "description": "Tên sản phẩm thương mại"},
+        "category": {"type": "VARCHAR(50)", "pk": false, "fk": null, "nullable": false, "description": "Ngành hàng sản phẩm"},
+        "cost_price": {"type": "NUMERIC(12,2)", "pk": false, "fk": null, "nullable": false, "description": "Giá vốn nhập kho (VNĐ)"},
+        "selling_price": {"type": "NUMERIC(12,2)", "pk": false, "fk": null, "nullable": false, "description": "Giá bán niêm yết (VNĐ)"},
+        "stock_quantity": {"type": "INT", "pk": false, "fk": null, "nullable": false, "description": "Số lượng tồn kho"},
+        "status": {"type": "VARCHAR(20)", "pk": false, "fk": null, "nullable": false, "description": "Trạng thái kinh doanh"}
+      }
+    },
+    "orders": {
+      "file": "orders.csv",
+      "row_count": 1000,
+      "primary_key": "order_id",
+      "columns": {
+        "order_id": {"type": "VARCHAR(10)", "pk": true, "fk": null, "nullable": false, "description": "Mã đơn hàng duy nhất"},
+        "customer_id": {"type": "VARCHAR(10)", "pk": false, "fk": "customers.customer_id", "nullable": false, "description": "Khách hàng đặt mua"},
+        "employee_id": {"type": "VARCHAR(10)", "pk": false, "fk": "employees.employee_id", "nullable": false, "description": "Nhân viên kinh doanh phụ trách"},
+        "order_date": {"type": "DATE", "pk": false, "fk": null, "nullable": false, "description": "Ngày chốt đơn đặt hàng"},
+        "shipping_date": {"type": "DATE", "pk": false, "fk": null, "nullable": true, "description": "Ngày bàn giao cho đối tác vận chuyển"},
+        "order_status": {"type": "VARCHAR(20)", "pk": false, "fk": null, "nullable": false, "description": "Trạng thái tiến trình đơn hàng"},
+        "payment_method": {"type": "VARCHAR(30)", "pk": false, "fk": null, "nullable": false, "description": "Phương thức thanh toán"},
+        "total_amount": {"type": "NUMERIC(14,2)", "pk": false, "fk": null, "nullable": false, "description": "Tổng giá trị thanh toán đơn hàng"}
+      }
+    },
+    "order_details": {
+      "file": "order_details.csv",
+      "row_count": 1803,
+      "primary_key": "order_detail_id",
+      "columns": {
+        "order_detail_id": {"type": "VARCHAR(12)", "pk": true, "fk": null, "nullable": false, "description": "Mã dòng chi tiết đơn hàng"},
+        "order_id": {"type": "VARCHAR(10)", "pk": false, "fk": "orders.order_id", "nullable": false, "description": "Mã đơn hàng sở hữu"},
+        "product_id": {"type": "VARCHAR(10)", "pk": false, "fk": "products.product_id", "nullable": false, "description": "Mã sản phẩm được mua"},
+        "quantity": {"type": "INT", "pk": false, "fk": null, "nullable": false, "description": "Số lượng sản phẩm mua"},
+        "unit_price": {"type": "NUMERIC(12,2)", "pk": false, "fk": null, "nullable": false, "description": "Đơn giá bán tại thời điểm mua"},
+        "discount": {"type": "NUMERIC(4,2)", "pk": false, "fk": null, "nullable": false, "description": "Tỷ lệ chiết khấu giảm giá"},
+        "line_total": {"type": "NUMERIC(14,2)", "pk": false, "fk": null, "nullable": false, "description": "Thành tiền của dòng sản phẩm"}
+      }
+    }
+  }
+}

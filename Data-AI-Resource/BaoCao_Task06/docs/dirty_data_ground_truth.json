@@ -1,0 +1,112 @@
+[
+  {
+    "error_id": "ERR_01_PK_DUP",
+    "error_type": "Duplicate Primary Key",
+    "table": "customers",
+    "column": "customer_id",
+    "row_identifier": "Original row with name Đỗ Đức Tùng",
+    "dirty_value": "CUST_00015",
+    "expected_value": "CUST_00088",
+    "impact": "Vi phạm tính toàn vẹn thực thể (Entity Integrity). Gây sai lệch khi JOIN với bảng orders (1-N thành N-N).",
+    "resolution_sql": "UPDATE customers SET customer_id = 'CUST_00088' WHERE full_name = 'Đỗ Đức Tùng' AND customer_id = 'CUST_00015';"
+  },
+  {
+    "error_id": "ERR_02_FK_ORPHAN",
+    "error_type": "Orphan Foreign Key",
+    "table": "order_details",
+    "column": "product_id",
+    "row_identifier": "DTL_000250",
+    "dirty_value": "PROD_9999",
+    "expected_value": "PROD_0031",
+    "impact": "Vi phạm toàn vẹn tham chiếu (Referential Integrity). INNER JOIN sẽ làm mất đơn hàng khỏi báo cáo doanh thu sản phẩm.",
+    "resolution_sql": "UPDATE order_details SET product_id = 'PROD_0031' WHERE order_detail_id = 'DTL_000250';"
+  },
+  {
+    "error_id": "ERR_03_NULL_MANDATORY",
+    "error_type": "Missing Value in Mandatory Column",
+    "table": "orders",
+    "column": "order_date",
+    "row_identifier": "ORD_00120",
+    "dirty_value": "",
+    "expected_value": "2025-09-12",
+    "impact": "Lỗi NULL trong trường thời gian quan trọng. Khiến đơn hàng bị loại khỏi các báo cáo doanh thu theo tháng/quý.",
+    "resolution_sql": "UPDATE orders SET order_date = '2025-09-12' WHERE order_id = 'ORD_00120';"
+  },
+  {
+    "error_id": "ERR_04_INVALID_FORMAT",
+    "error_type": "Invalid Syntax / Regex Mismatch",
+    "table": "customers",
+    "column": "email & phone",
+    "row_identifier": "CUST_00035",
+    "dirty_value": "email='nguyenvana_invalid_email.com', phone='090PHONE123'",
+    "expected_value": "email='vu.thanh.ha.035@example.com', phone='0963826716'",
+    "impact": "Không thể gửi email xác nhận hoặc SMS Marketing. CRM pipeline bị gián đoạn.",
+    "resolution_sql": "UPDATE customers SET email = 'vu.thanh.ha.035@example.com', phone = '0963826716' WHERE customer_id = 'CUST_00035';"
+  },
+  {
+    "error_id": "ERR_05_TEMPORAL_PARADOX",
+    "error_type": "Temporal Sequence Paradox",
+    "table": "orders",
+    "column": "shipping_date",
+    "row_identifier": "ORD_00076",
+    "dirty_value": "2024-12-01",
+    "expected_value": "2025-04-09",
+    "impact": "Tính toán thời gian giao hàng (Lead Time) ra số âm (-35 ngày), làm sai lệch KPI Logistics.",
+    "resolution_sql": "UPDATE orders SET shipping_date = '2025-04-09' WHERE order_id = 'ORD_00076';"
+  },
+  {
+    "error_id": "ERR_06_OUT_OF_RANGE",
+    "error_type": "Out of Range / Negative Number",
+    "table": "order_details",
+    "column": "quantity",
+    "row_identifier": "DTL_000500",
+    "dirty_value": -5,
+    "expected_value": 1,
+    "impact": "Làm âm tổng số lượng hàng bán ra và kéo giảm sai lệch tổng doanh thu của sản phẩm.",
+    "resolution_sql": "UPDATE order_details SET quantity = 1 WHERE order_detail_id = 'DTL_000500';"
+  },
+  {
+    "error_id": "ERR_07_INCONSISTENT_CAT",
+    "error_type": "Inconsistent Categorical Labeling",
+    "table": "customers",
+    "column": "city",
+    "row_identifier": "Customer rows: ['CUST_00011', 'CUST_00023', 'CUST_00056', 'CUST_00069']",
+    "dirty_value": "Mix values: ['TP.HCM', 'HCM', 'hồ chí minh', 'HN']",
+    "expected_value": "Chuẩn hóa theo danh mục chuẩn: 'Hồ Chí Minh', 'Hà Nội'",
+    "impact": "Phép toán GROUP BY city bị phân mảnh thành nhiều nhóm rời rạc, làm sai biểu đồ địa lý BI.",
+    "resolution_sql": "UPDATE customers SET city = 'Hồ Chí Minh' WHERE LOWER(city) IN ('tp.hcm', 'hcm', 'hồ chí minh'); UPDATE customers SET city = 'Hà Nội' WHERE city = 'HN';"
+  },
+  {
+    "error_id": "ERR_08_MATH_DISCREPANCY",
+    "error_type": "Business Logic Calculation Mismatch",
+    "table": "order_details",
+    "column": "line_total",
+    "row_identifier": "DTL_000800",
+    "dirty_value": 99999999.0,
+    "expected_value": 990000.0,
+    "impact": "Làm đội doanh thu tổng thể lên gần 100 triệu VNĐ, vi phạm định luật tính tiền: line_total = quantity * unit_price * (1 - discount).",
+    "resolution_sql": "UPDATE order_details SET line_total = ROUND(quantity * unit_price * (1 - discount), 2) WHERE order_detail_id = 'DTL_000800';"
+  },
+  {
+    "error_id": "ERR_09_WHITESPACE_ARTIFACT",
+    "error_type": "Leading / Trailing Whitespace Padding",
+    "table": "products & employees",
+    "column": "product_name, full_name",
+    "row_identifier": "PROD: PROD_0005, EMP: EMP_003",
+    "dirty_value": "'   Màn hình LG 4K UHD 32 inch   ', 'Vũ Thanh Trang  \t'",
+    "expected_value": "'Màn hình LG 4K UHD 32 inch', 'Vũ Thanh Trang'",
+    "impact": "Tìm kiếm chuỗi bằng mệnh đề WHERE name = '...' hoặc JOIN chuỗi bị thất bại do khoảng trắng ẩn.",
+    "resolution_sql": "UPDATE products SET product_name = TRIM(product_name); UPDATE employees SET full_name = TRIM(full_name);"
+  },
+  {
+    "error_id": "ERR_10_STATUS_CONFLICT",
+    "error_type": "Workflow State Conflict",
+    "table": "orders",
+    "column": "order_status vs shipping_date",
+    "row_identifier": "ORD_00211",
+    "dirty_value": "order_status='Cancelled' nhưng shipping_date='2025-08-15'",
+    "expected_value": "Nếu Cancelled thì shipping_date phải rỗng (NULL)",
+    "impact": "Gây mâu thuẫn báo cáo logistics: một đơn hàng đã hủy không thể phát sinh hoạt động giao vận thành công.",
+    "resolution_sql": "UPDATE orders SET shipping_date = NULL WHERE order_id = 'ORD_00211' AND order_status = 'Cancelled';"
+  }
+]

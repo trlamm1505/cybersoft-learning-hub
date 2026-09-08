@@ -1,0 +1,51 @@
+product_id,product_name,category,cost_price,selling_price,stock_quantity,status
+PROD_0001,Laptop Dell XPS 13,Electronics,22000000.0,27500000.0,19,Active
+PROD_0002,Laptop Lenovo ThinkPad T14,Electronics,19000000.0,24000000.0,179,Active
+PROD_0003,Laptop Asus Zenbook 14,Electronics,17500000.0,21900000.0,96,Active
+PROD_0004,Màn hình Dell UltraSharp 27 inch,Electronics,7500000.0,9500000.0,234,Active
+PROD_0005,Màn hình LG 4K UHD 32 inch,Electronics,9000000.0,11500000.0,206,Active
+PROD_0006,Bàn phím cơ Keychron K2,Electronics,1500000.0,2100000.0,168,Active
+PROD_0007,Chuột không dây Logitech MX Master 3S,Electronics,1800000.0,2450000.0,43,Active
+PROD_0008,Tai nghe chống ồn Sony WH-1000XM5,Electronics,6500000.0,8490000.0,162,Active
+PROD_0009,Ổ cứng SSD Samsung 980 Pro 1TB,Electronics,2100000.0,2850000.0,106,Active
+PROD_0010,Webcam Logitech C922 Pro,Electronics,1600000.0,2200000.0,49,Active
+PROD_0011,Cáp sạc USB-C Anker PowerLine III,Accessories,180000.0,290000.0,51,Active
+PROD_0012,Củ sạc nhanh Baseus GaN 65W,Accessories,380000.0,550000.0,56,Active
+PROD_0013,Pin sạc dự phòng Xiaomi 20000mAh,Accessories,350000.0,490000.0,222,Active
+PROD_0014,Giá đỡ laptop nhôm tản nhiệt Orico,Accessories,220000.0,350000.0,187,Active
+PROD_0015,Túi chống sốc Tomtoc 14 inch,Accessories,450000.0,690000.0,207,Active
+PROD_0016,Hub chuyển đổi Type-C 7 in 1 Ugreen,Accessories,520000.0,790000.0,169,Active
+PROD_0017,Miếng lót chuột Gaming Size L,Accessories,120000.0,190000.0,217,Active
+PROD_0018,Bút cảm ứng Stylus Pen iPad,Accessories,600000.0,890000.0,241,Active
+PROD_0019,Balo laptop chống nước Tigernu,Accessories,480000.0,720000.0,52,Active
+PROD_0020,Đèn led treo màn hình Baseus,Accessories,320000.0,490000.0,194,Active
+PROD_0021,Ghế công thái học Sihoo M57,Office Supplies,3200000.0,4290000.0,122,Active
+PROD_0022,Bàn nâng hạ thông minh FlexiSpot,Office Supplies,5800000.0,7900000.0,21,Active
+PROD_0023,Bảng vẽ kỹ thuật số Wacom One,Office Supplies,1400000.0,1990000.0,115,Active
+PROD_0024,Máy in laser Canon LBP 2900,Office Supplies,3500000.0,4490000.0,103,Active
+PROD_0025,Máy hủy tài liệu mini Deli,Office Supplies,950000.0,1350000.0,183,Active
+PROD_0026,Kệ sách để bàn bằng gỗ tự nhiên,Office Supplies,180000.0,290000.0,194,Active
+PROD_0027,Đồng hồ hẹn giờ Pomodoro,Office Supplies,120000.0,190000.0,70,Active
+PROD_0028,Sổ tay bìa da cao cấp A5,Office Supplies,90000.0,150000.0,123,Active
+PROD_0029,Bộ bút ký kim loại Parker,Office Supplies,350000.0,520000.0,166,Active
+PROD_0030,Kẹp giữ dây cáp để bàn,Office Supplies,40000.0,75000.0,82,Active
+PROD_0031,Robot hút bụi lau nhà Roborock Q Revo,Smart Home,12000000.0,15990000.0,202,Active
+PROD_0032,Máy lọc không khí Xiaomi 4 Pro,Smart Home,3800000.0,4990000.0,201,Active
+PROD_0033,Cân điện tử thông minh Eufy Smart Scale,Smart Home,650000.0,990000.0,210,Active
+PROD_0034,Ổ cắm thông minh Tuya Wifi 16A,Smart Home,110000.0,180000.0,124,Active
+PROD_0035,Camera an ninh thông minh Ezviz C6N,Smart Home,420000.0,650000.0,69,Active
+PROD_0036,Đèn thông minh Yeelight Smart LED,Smart Home,280000.0,420000.0,146,Active
+PROD_0037,Khóa cửa điện tử vân tay Xiaomi,Smart Home,3900000.0,5200000.0,71,Active
+PROD_0038,Nồi chiên không dầu Philips 5L,Smart Home,1800000.0,2590000.0,89,Active
+PROD_0039,Máy đo nồng độ bụi mịn PM2.5,Smart Home,850000.0,1250000.0,217,Active
+PROD_0040,Chuông cửa có hình Aqara G4,Smart Home,1900000.0,2690000.0,210,Active
+PROD_0041,Loa Bluetooth Marshall Acton III,Audio & Gadgets,6200000.0,7990000.0,130,Active
+PROD_0042,Loa Bluetooth JBL Flip 6,Audio & Gadgets,2100000.0,2890000.0,241,Active
+PROD_0043,Máy đọc sách Kindle Paperwhite 5,Audio & Gadgets,3100000.0,3990000.0,223,Active
+PROD_0044,Vòng đeo tay thông minh Mi Band 8,Audio & Gadgets,620000.0,890000.0,59,Active
+PROD_0045,Đồng hồ thể thao Garmin Forerunner 55,Audio & Gadgets,4100000.0,5290000.0,104,Active
+PROD_0046,Micro thu âm USB Rode NT-USB Mini,Audio & Gadgets,2400000.0,3200000.0,183,Active
+PROD_0047,Tay cầm chơi game Xbox Wireless,Audio & Gadgets,1250000.0,1690000.0,156,Active
+PROD_0048,Kính thực tế ảo Meta Quest 3,Audio & Gadgets,11500000.0,14900000.0,122,Active
+PROD_0049,Bộ phát Wifi Mesh TP-Link Deco M4,Audio & Gadgets,1450000.0,1990000.0,128,Active
+PROD_0050,Bộ lưu điện UPS Santak 500VA,Audio & Gadgets,850000.0,1190000.0,206,Active
