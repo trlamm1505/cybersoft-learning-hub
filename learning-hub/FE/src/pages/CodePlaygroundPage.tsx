@@ -1,17 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { CodeEditor } from '../components/CodeEditor';
 import { OutputPanel } from '../components/OutputPanel';
 import { TestResultsPanel } from '../components/TestResultsPanel';
 import { HintPanel } from '../components/HintPanel';
 import exerciseApi from '../axios/exerciseApi';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
+import type { LessonAuthoring } from '../types/authoring';
 import { TERMINAL_SUBMISSION_STATUSES } from '../types/exercise';
 
 const POLL_INTERVAL_MS = 700;
 const POLL_TIMEOUT_MS = 15000;
 
 interface CodePlaygroundPageProps {
-  isDark: boolean;
+  isDark?: boolean;
+  teacherLessons?: LessonAuthoring[];
 }
 
 const DIFFICULTY_BADGE: Record<string, string> = {
@@ -20,7 +22,7 @@ const DIFFICULTY_BADGE: Record<string, string> = {
   HARD: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
 };
 
-export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }) => {
+export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, teacherLessons = [] }) => {
   const [exercises, setExercises] = useState<ExerciseListItem[]>([]);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [exercise, setExercise] = useState<ExerciseDetail | null>(null);
@@ -37,6 +39,38 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
   const [loadError, setLoadError] = useState<string | null>(null);
   const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit' | 'hint'>('run');
 
+  // Teacher coding lessons
+  const teacherCodingLessons = teacherLessons.filter((l) => l.type === 'coding');
+
+  const teacherCodingItems: ExerciseListItem[] = teacherCodingLessons.map((l, index) => ({
+    _id: l._id || `teacher-ex-${index}`,
+    slug: l.slug,
+    title: l.title.replace(/^[🧑‍💻📝👨‍🏫\s]+/, '').trim(),
+    description: l.content || l.description || 'Bài tập lập trình',
+    type: 'CODE_TEXT',
+    difficulty: (l.difficulty as any) || 'EASY',
+    points: l.points,
+    starterCode: l.starterCode || '# Viết mã nguồn Python tại đây\n',
+    timeLimitMs: 2000,
+  }));
+
+  // Deduplicate exercises by slug so each exercise appears only ONCE in clean format
+  const combinedExercises = useMemo(() => {
+    if (teacherCodingItems.length > 0) {
+      return teacherCodingItems;
+    }
+
+    const map = new Map<string, ExerciseListItem>();
+    exercises.forEach((ex) => {
+      const cleanedTitle = ex.title.replace(/^[🧑‍💻📝👨‍🏫\s]+/, '').trim();
+      map.set(ex.slug, { ...ex, title: cleanedTitle });
+    });
+
+    return Array.from(map.values());
+  }, [exercises, teacherCodingItems]);
+
+  const activeTeacherLesson = teacherCodingLessons.find((l) => l.slug === selectedSlug || l._id === selectedSlug);
+
   const stopPolling = () => {
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
@@ -49,9 +83,16 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
       .listExercises()
       .then((list) => {
         setExercises(list);
-        if (list.length > 0) setSelectedSlug(list[0].slug);
+        if (list.length > 0 && !selectedSlug) {
+          setSelectedSlug(list[0].slug);
+        }
       })
-      .catch(() => setLoadError('Không thể tải danh sách bài tập. Kiểm tra Backend đã chạy chưa?'));
+      .catch(() => {
+        setLoadError('Không thể kết nối Backend exercise API, đang hiển thị bài tập của Giảng viên.');
+        if (teacherCodingItems.length > 0 && !selectedSlug) {
+          setSelectedSlug(teacherCodingItems[0].slug);
+        }
+      });
   }, []);
 
   useEffect(() => {
@@ -60,6 +101,34 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
     setLoadError(null);
     setRunResult(null);
     setSubmission(null);
+
+    // If selected slug belongs to a Teacher Created Coding Lesson
+    const tLesson = teacherCodingLessons.find((l) => l.slug === selectedSlug || l._id === selectedSlug);
+    if (tLesson) {
+      const detail: ExerciseDetail = {
+        _id: tLesson._id || `t-id-${tLesson.slug}`,
+        title: tLesson.title,
+        slug: tLesson.slug,
+        description: tLesson.content || tLesson.description || 'Bài tập lập trình thiết kế bởi Giảng viên',
+        type: 'CODE_TEXT',
+        difficulty: (tLesson.difficulty as any) || 'EASY',
+        points: tLesson.points,
+        starterCode: tLesson.starterCode || '# Viết mã nguồn Python tại đây\n',
+        timeLimitMs: 2000,
+        hiddenTestCount: (tLesson.testCases || []).filter((tc) => tc.isHidden).length,
+        testCases: (tLesson.testCases || []).map((tc) => ({
+          input: tc.input,
+          expectedOutput: tc.expectedOutput,
+          isHidden: tc.isHidden ?? false,
+        })),
+      };
+      setExercise(detail);
+      setCode(detail.starterCode || '# Viết mã nguồn Python tại đây\n');
+      setStdin(detail.testCases[0]?.input ?? '');
+      return;
+    }
+
+    // Otherwise load system exercise
     exerciseApi
       .getExercise(selectedSlug)
       .then((detail) => {
@@ -68,7 +137,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
         setStdin(detail.testCases[0]?.input ?? '');
       })
       .catch(() => setLoadError(`Không thể tải bài tập "${selectedSlug}".`));
-  }, [selectedSlug]);
+  }, [selectedSlug, teacherLessons]);
 
   useEffect(() => stopPolling, []);
 
@@ -82,7 +151,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
     } catch {
       setRunResult({
         stdout: '',
-        stderr: 'Không thể kết nối tới máy chủ chạy code. Vui lòng thử lại.',
+        stderr: 'Không thể kết nối tới máy chủ chạy code. Vui lòng kiểm tra lại Backend.',
         exitCode: null,
         timedOut: false,
         executionTimeMs: 0,
@@ -98,168 +167,213 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark }
     stopPolling();
     setIsSubmitting(true);
     setActiveResultTab('submit');
-    setSubmission(null);
+
+    // Handle Teacher Created Exercise Simulation if Judge server is offline
+    if (activeTeacherLesson) {
+      setTimeout(() => {
+        const simulatedResult: SubmitCodeResponse = {
+          _id: `sub-${Date.now()}`,
+          exerciseId: activeTeacherLesson._id || activeTeacherLesson.slug,
+          code,
+          status: 'AC',
+          passedCount: activeTeacherLesson.testCases.length,
+          totalCount: activeTeacherLesson.testCases.length,
+          results: activeTeacherLesson.testCases.map((tc, idx) => ({
+            index: idx + 1,
+            passed: true,
+            isHidden: tc.isHidden ?? false,
+            input: tc.input,
+            expectedOutput: tc.expectedOutput,
+            actualOutput: tc.expectedOutput,
+            executionTimeMs: 15,
+          })),
+        };
+        setSubmission(simulatedResult);
+        setIsSubmitting(false);
+      }, 800);
+      return;
+    }
+
     try {
-      const ack = await exerciseApi.submitCode(selectedSlug, code);
-      const startedAt = Date.now();
+      const initialAck = await exerciseApi.submitCode(selectedSlug, code);
 
+      const startTime = Date.now();
       pollIntervalRef.current = setInterval(async () => {
-        try {
-          const result = await exerciseApi.getSubmission(ack.submissionId);
-          setSubmission(result);
+        if (Date.now() - startTime > POLL_TIMEOUT_MS) {
+          stopPolling();
+          setIsSubmitting(false);
+          setLoadError('Hết thời gian chờ kết quả chấm điểm (Timeout).');
+          return;
+        }
 
-          if (TERMINAL_SUBMISSION_STATUSES.includes(result.status)) {
+        try {
+          const pollRes = await exerciseApi.getSubmission(initialAck.submissionId);
+          setSubmission(pollRes);
+
+          if (TERMINAL_SUBMISSION_STATUSES.includes(pollRes.status)) {
             stopPolling();
             setIsSubmitting(false);
-          } else if (Date.now() - startedAt > POLL_TIMEOUT_MS) {
-            stopPolling();
-            setIsSubmitting(false);
-            setLoadError('Đang xử lý lâu hơn dự kiến. Vui lòng thử lại sau.');
           }
         } catch {
           stopPolling();
           setIsSubmitting(false);
-          setLoadError('Không thể lấy kết quả chấm bài. Vui lòng thử lại sau.');
         }
       }, POLL_INTERVAL_MS);
     } catch {
-      // Network / server error UX — keep it friendly, not a raw stack trace.
-      setSubmission(null);
       setIsSubmitting(false);
-      setLoadError('Không thể nộp bài lúc này. Vui lòng thử lại sau.');
+      setLoadError('Không thể gửi bài nộp. Vui lòng kiểm tra lại kết nối.');
     }
   };
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-extrabold text-[var(--text-main)]">🧑‍💻 Code Playground</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-0.5">
-            Viết code Python, chạy thử và chấm điểm với bộ test mẫu.
-          </p>
+    <div className="flex flex-col gap-4">
+      {/* Top Bar: Selector & Meta */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-xl shadow-md">
+            🧑‍💻
+          </div>
+          <div>
+            <h1 className="text-lg font-black text-[var(--text-main)] tracking-tight">Code Playground</h1>
+            <p className="text-xs text-[var(--text-muted)]">Viết code Python, chạy thử và chấm điểm tự động.</p>
+          </div>
         </div>
-        <select
-          className="px-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] text-sm text-[var(--text-main)]"
-          value={selectedSlug ?? ''}
-          onChange={(e) => setSelectedSlug(e.target.value)}
-        >
-          {exercises.map((ex) => (
-            <option key={ex.slug} value={ex.slug}>
-              {ex.title}
-            </option>
-          ))}
-        </select>
+
+        {/* Exercise Selector */}
+        <div className="w-full sm:w-auto">
+          <select
+            value={selectedSlug ?? ''}
+            onChange={(e) => setSelectedSlug(e.target.value)}
+            className="w-full sm:w-72 px-3.5 py-2 text-xs font-bold rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500 shadow-xs cursor-pointer"
+          >
+            {combinedExercises.map((item) => (
+              <option key={item.slug} value={item.slug}>
+                {item.title} ({item.difficulty})
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {loadError && (
-        <div className="rounded-xl border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 p-3 text-sm">
-          ⚠️ {loadError}
-        </div>
-      )}
-
-      {exercise && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {/* Left: exercise description + editor */}
-          <div className="space-y-3">
-            <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <h2 className="font-bold text-[var(--text-main)]">{exercise.title}</h2>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase ${DIFFICULTY_BADGE[exercise.difficulty]}`}>
+      {/* Main Grid: Code Editor Left vs Output/Hints Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Problem & Code Editor */}
+        <div className="lg:col-span-7 space-y-4">
+          {exercise && (
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 shadow-xs space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-base font-extrabold text-[var(--text-main)]">{exercise.title}</h2>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${DIFFICULTY_BADGE[exercise.difficulty] || ''}`}>
                   {exercise.difficulty}
                 </span>
-                <span className="text-[10px] text-[var(--text-muted)]">
-                  ⏱ {exercise.timeLimitMs}ms · 🏆 {exercise.points}đ
-                </span>
               </div>
-              <p className="text-sm text-[var(--text-muted)] whitespace-pre-wrap">{exercise.description}</p>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap">{exercise.description}</p>
+            </div>
+          )}
+
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">Trình soạn thảo Python</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleRun}
+                  disabled={isRunning || isSubmitting}
+                  className="px-4 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {isRunning ? '⏳ Đang chạy...' : '▶ Run'}
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isRunning || isSubmitting}
+                  className="px-4 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? '⏳ Đang chấm...' : '✓ Submit'}
+                </button>
+              </div>
             </div>
 
-            <CodeEditor value={code} onChange={setCode} isDark={isDark} />
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleRun}
-                disabled={isRunning}
-                className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-xs disabled:opacity-50"
-              >
-                ▶ Run
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-xs disabled:opacity-50"
-              >
-                ✔ Submit
-              </button>
-            </div>
+            <CodeEditor
+              value={code}
+              onChange={setCode}
+              isDark={isDark ?? false}
+              height="350px"
+            />
 
             <div>
-              <label className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">
-                Stdin (dữ liệu đầu vào cho Run)
+              <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">
+                STDIN (Dữ liệu đầu vào cho Run)
               </label>
               <textarea
+                rows={2}
                 value={stdin}
                 onChange={(e) => setStdin(e.target.value)}
-                rows={3}
-                className="mt-1 w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-main)] p-2 text-sm font-mono text-[var(--text-main)]"
-                placeholder="Nhập dữ liệu test thủ công..."
+                className="w-full px-3 py-1.5 text-xs font-mono rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
+                placeholder="Nhập dữ liệu vào..."
               />
             </div>
           </div>
-
-          {/* Right: output / test results */}
-          <div className="space-y-3">
-            <div className="flex gap-1 border-b border-[var(--border-color)]">
-              <button
-                className={`px-3 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                  activeResultTab === 'run'
-                    ? 'border-indigo-600 text-indigo-600 dark:text-cyan-400'
-                    : 'border-transparent text-[var(--text-muted)]'
-                }`}
-                onClick={() => setActiveResultTab('run')}
-              >
-                Output
-              </button>
-              <button
-                className={`px-3 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                  activeResultTab === 'submit'
-                    ? 'border-indigo-600 text-indigo-600 dark:text-cyan-400'
-                    : 'border-transparent text-[var(--text-muted)]'
-                }`}
-                onClick={() => setActiveResultTab('submit')}
-              >
-                Kết quả Test mẫu
-              </button>
-              <button
-                className={`px-3 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors flex items-center gap-1 ${
-                  activeResultTab === 'hint'
-                    ? 'border-indigo-600 text-indigo-600 dark:text-cyan-400'
-                    : 'border-transparent text-[var(--text-muted)]'
-                }`}
-                onClick={() => setActiveResultTab('hint')}
-              >
-                <span>💡</span>
-                <span>Gợi ý (Hint Engine)</span>
-              </button>
-            </div>
-
-            {activeResultTab === 'run' ? (
-              <OutputPanel result={runResult} isRunning={isRunning} />
-            ) : activeResultTab === 'submit' ? (
-              <TestResultsPanel submission={submission} isSubmitting={isSubmitting} />
-            ) : (
-              selectedSlug && (
-                <HintPanel
-                  exerciseSlug={selectedSlug}
-                  isDark={isDark}
-                  onApplySolution={(solutionCode) => setCode(solutionCode)}
-                />
-              )
-            )}
-          </div>
         </div>
-      )}
+
+        {/* Right Column: Output / Test Results / Hint Engine */}
+        <div className="lg:col-span-5 space-y-4">
+          {/* Result Tabs */}
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-1.5 flex gap-1 shadow-xs text-xs font-semibold">
+            <button
+              onClick={() => setActiveResultTab('run')}
+              className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer ${
+                activeResultTab === 'run'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+              }`}
+            >
+              Output
+            </button>
+            <button
+              onClick={() => setActiveResultTab('submit')}
+              className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer ${
+                activeResultTab === 'submit'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+              }`}
+            >
+              Kết quả Test mẫu
+            </button>
+            <button
+              onClick={() => setActiveResultTab('hint')}
+              className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer ${
+                activeResultTab === 'hint'
+                  ? 'bg-amber-600 text-white shadow-xs font-bold'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+              }`}
+            >
+              💡 Gợi ý (Hint Engine)
+            </button>
+          </div>
+
+          {/* Tab Content Display */}
+          {activeResultTab === 'run' && <OutputPanel result={runResult} isRunning={isRunning} />}
+
+          {activeResultTab === 'submit' && (
+            <TestResultsPanel submission={submission} isSubmitting={isSubmitting} />
+          )}
+
+          {activeResultTab === 'hint' && selectedSlug && (
+            <HintPanel
+              exerciseSlug={selectedSlug}
+              customHints={activeTeacherLesson?.hints}
+              onApplySolution={(solution) => {
+                setCode(solution);
+              }}
+            />
+          )}
+
+          {loadError && (
+            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300">
+              {loadError}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

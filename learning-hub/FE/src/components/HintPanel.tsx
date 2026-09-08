@@ -7,6 +7,11 @@ interface HintPanelProps {
   userId?: string;
   isDark?: boolean;
   onApplySolution?: (solutionCode: string) => void;
+  customHints?: {
+    hint1?: string;
+    hint2?: string;
+    hint3?: string;
+  };
 }
 
 const TIER_META = [
@@ -36,6 +41,7 @@ const TIER_META = [
 export const HintPanel: React.FC<HintPanelProps> = ({
   exerciseSlug,
   onApplySolution,
+  customHints,
 }) => {
   // Generate a unique session ID per practice attempt/exercise change
   const [sessionId, setSessionId] = useState<string>(
@@ -65,6 +71,44 @@ export const HintPanel: React.FC<HintPanelProps> = ({
     if (!exerciseSlug) return;
     setIsLoading(true);
     setErrorMsg(null);
+
+    if (customHints && (customHints.hint1 || customHints.hint2 || customHints.hint3)) {
+      setHints([
+        {
+          id: 'hint-c-1',
+          exerciseSlug,
+          level: 1,
+          title: 'Khái niệm & Định hướng tư duy',
+          content: customHints.hint1 || 'Chưa cập nhật gợi ý Tầng 1',
+          costPoints: 0,
+          cooldownSeconds: 30,
+          isUnlocked: false,
+        },
+        {
+          id: 'hint-c-2',
+          exerciseSlug,
+          level: 2,
+          title: 'Chiến lược thuật toán',
+          content: customHints.hint2 || 'Chưa cập nhật gợi ý Tầng 2',
+          costPoints: 0,
+          cooldownSeconds: 30,
+          isUnlocked: false,
+        },
+        {
+          id: 'hint-c-3',
+          exerciseSlug,
+          level: 3,
+          title: 'Code mẫu hoàn chỉnh (Python)',
+          content: customHints.hint3 || 'Chưa cập nhật gợi ý Tầng 3',
+          costPoints: 0,
+          cooldownSeconds: 30,
+          isUnlocked: false,
+        },
+      ]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const res = await hintApi.getHintsByExercise(exerciseSlug, sessionId);
       setHints(res.hints || []);
@@ -105,6 +149,27 @@ export const HintPanel: React.FC<HintPanelProps> = ({
     setIsUnlocking(true);
     setErrorMsg(null);
     setSuccessMsg(null);
+
+    if (customHints && (customHints.hint1 || customHints.hint2 || customHints.hint3)) {
+      setSuccessMsg(`Đã mở gợi ý Tầng ${level} thành công!`);
+      setCooldownSeconds(30);
+
+      const targetContent =
+        level === 1 ? customHints.hint1 : level === 2 ? customHints.hint2 : customHints.hint3;
+
+      if (level === 3 && targetContent) {
+        onApplySolution?.(targetContent);
+      }
+
+      setHints((prevHints) =>
+        prevHints.map((h) =>
+          h.level === level ? { ...h, isUnlocked: true, content: targetContent || h.content } : h,
+        ),
+      );
+      setIsUnlocking(false);
+      return;
+    }
+
     try {
       const res = await hintApi.unlockHint({
         exerciseSlug,
