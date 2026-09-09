@@ -1,255 +1,304 @@
-# AI Work Log — 2026-09-08 (Ngày 10 - Teacher Authoring Tool v0)
+# AI Work Log — 2026-09-09 (Ngày 11 - Contest và Lịch thi)
 
-*File nhật ký theo dõi các prompt của người dùng và các thay đổi file tương ứng cho Ngày 10.*
+*File nhật ký theo dõi các prompt của người dùng và các thay đổi file tương ứng cho Ngày 11.*
 
 ---
 
 ## Nhật ký công việc
 
 ### Prompt 1
-> "Bạn là một Senior Backend Developer phụ trách module "Teacher Authoring Tool" (Ngày 10) trong dự án NestJS & MongoDB ("Learning & Contest Hub"). Hãy viết mã nguồn chi tiết cho các yêu cầu sau:
-> 1. Thiết kế Schema & API Quản lý Bài học (Courses/Lessons/Exercises):
-> - Tạo Mongoose Schema hỗ trợ cả bài trắc nghiệm (quiz) và bài lập trình (coding). Thêm trường trạng thái `status` phân định rõ ràng giữa `draft` (Bản nháp) và `published` (Đã xuất bản).
-> - Xây dựng API `POST /lessons/create` hoặc `PUT /lessons/:id` cho phép giảng viên tạo/cập nhật nội dung bài học.
-> 2. Business Logic & Điều kiện nghiệm thu:
-> - Viết middleware hoặc logic validate schema: Chặn yêu cầu đổi trạng thái từ `draft` sang `published` nếu bài học/bài tập thiếu chuẩn đầu ra (`learningOutcome`) hoặc thiếu bài kiểm tra (`test`).
-> - Xây dựng API Import/Export gói dữ liệu bài học dưới dạng định dạng JSON (`GET /lessons/export/:id` và `POST /lessons/import`).
-> Hãy cung cấp mã nguồn NestJS (Controller, Service, Schema) hoàn chỉnh, chuẩn bảo mật và xử lý ngoại lệ tốt."
+> "bây giờ hãy xóa log cũ đi NGÀY 11 - Contest và lịch thi và ghi lại log mới ngày 11 sẽ ghi rõ tôi promt gì và sửa các file gì và tiếp theo dùng các promt gì sửa những file nào ghi vào còn giờ xóa và chỉnh lại thành ngày 11 đi và bắt đầu ghi log sau promt này"
 
-**Thời gian:** 2026-09-08 08:39:21
+**Thời gian:** 2026-09-09 18:41:11
 
 **Các file đã tạo / cập nhật / xóa:**
 
-#### File Tạo Mới [NEW]
-1. [lesson.schema.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/lesson.schema.ts)
-   - Định nghĩa Mongoose Schema `Lesson` (`LessonDocument`) hỗ trợ loại hình `coding` và `quiz`.
-   - Lưu trữ các trường: `title`, `slug`, `type`, `status` (`draft` | `published`), `learningOutcome`, `content`, `starterCode`, `solutionCode`, `difficulty`, `points`, `authorId`, `testCases`, `quizQuestions`.
-2. [create-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/create-lesson.dto.ts)
-   - Class DTO định nghĩa cấu trúc dữ liệu tạo mới bài học.
-3. [update-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/update-lesson.dto.ts)
-   - Class DTO định nghĩa cấu trúc dữ liệu cập nhật thông tin bài học.
-4. [import-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/import-lesson.dto.ts)
-   - Class DTO định nghĩa cấu trúc payload import gói JSON bài học.
-5. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-   - Chứa Business Logic:
-     - `validatePublicationEligibility`: Kiểm tra điều kiện xuất bản bài học. Bắt buộc bài học xuất bản phải có `learningOutcome` không rỗng và chứa ít nhất 1 bài kiểm tra hợp lệ (`testCases` với bài coding, `quizQuestions` có đáp án đúng với bài quiz). Ngược lại ném `BadRequestException`.
-     - `createLesson` & `updateLesson`: Quản lý bài học bản nháp và chuyển đổi trạng thái sang đã xuất bản.
-     - `exportLessonJson`: Xuất dữ liệu bài học thành gói JSON định dạng version 1.0.
-     - `importLessonJson`: Đọc gói JSON và khởi tạo bài học mới.
-6. [authoring.controller.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.controller.ts)
-   - REST Controller định nghĩa 6 API endpoints dưới prefix `/api/authoring/lessons`:
-     - `POST /api/authoring/lessons/create`: Tạo bài học mới.
-     - `PUT /api/authoring/lessons/:id`: Cập nhật nội dung bài học.
-     - `GET /api/authoring/lessons`: Lấy danh sách tất cả bài học.
-     - `GET /api/authoring/lessons/:id`: Lấy chi tiết 1 bài học theo ID.
-     - `GET /api/authoring/lessons/export/:id`: Xuất bài học ra gói JSON.
-     - `POST /api/authoring/lessons/import`: Import bài học từ gói JSON.
-7. [authoring.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.module.ts)
-   - Đăng ký NestJS Module cho Teacher Authoring Tool.
-8. [authoring.service.spec.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.spec.ts)
-   - 8 unit tests kiểm tra toàn bộ logic validate điều kiện xuất bản bài học, tạo bản nháp, xuất gói JSON và xử lý ngoại lệ.
-
 #### File Chỉnh Sửa [MODIFY]
-1. [database.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/database.module.ts)
-   - Đăng ký `Lesson` Mongoose Schema vào `MongooseModule.forFeature`.
-2. [app.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/app.module.ts)
-   - Đăng ký `AuthoringModule` vào danh sách `imports` của root module `AppModule`.
+1. [AI_WORKLOG.md](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/AI_WORKLOG.md)
+   - Xóa toàn bộ nhật ký cũ của Ngày 10, khởi tạo trang nhật ký theo dõi mới cho **Ngày 11 - Contest và Lịch thi**.
+   - Bắt đầu ghi vết prompt và danh sách các file được cập nhật/tạo mới chi tiết kể từ prompt này cho Ngày 11.
 
 ---
 
 ### Prompt 2
-> "Bạn là một Frontend Developer phụ trách giao diện quản trị của Ngày 10 trong dự án React & Tailwind CSS:
-> 1. Nút chuyển đổi giao diện nhanh (Role Switcher):
-> - Tạo một thanh toggle hoặc nút bấm trên header để chuyển đổi mượt mà qua lại giữa 2 góc nhìn: "Giao diện Học viên (Student View)" và "Giao diện Quản trị Giảng viên (Teacher Authoring)".
-> 2. Xây dựng giao diện Teacher Authoring Tool v0:
-> - Thiết kế một Form quản trị trực quan để giảng viên tạo/chỉnh sửa nội dung bài học (hỗ trợ nhập liệu cho cả trắc nghiệm và bài lập trình coding).
-> - Thêm cơ chế Schema validation trên giao diện: Cảnh báo hoặc khóa nút "Publish" nếu giảng viên chưa điền đủ chuẩn đầu ra (`learning outcome`) hoặc bài test.
-> - Tích hợp chế độ "Preview Learner View" giúp giảng viên xem trước giao diện hiển thị thực tế đối với học viên.
-> - Thêm nút tính năng Import/Export file JSON cấu hình bài học.
-> Hãy cung cấp mã nguồn component React chi tiết, state quản lý rõ ràng để tôi tích hợp trực tiếp vào dự án."
+> "Bạn là một Senior Backend Developer phụ trách module "Contest" (Ngày 11) trong dự án "Learning & Contest Hub" (NestJS & MongoDB). Hãy viết mã nguồn chi tiết cho các yêu cầu API Backend sau:
+> 1. Thiết kế Schema & Cấu hình Cuộc thi (Contest Schema):
+> - Tạo Mongoose Schema cho `Contest` bao gồm: tiêu đề cuộc thi, danh sách bài tập/đề thi liên kết, thời gian bắt đầu (`startTime`), thời gian kết thúc (`endTime`), và danh sách học viên đăng ký (`registrations`).
+> 2. Xây dựng Business Logic & API (Service & Controller):
+> - API tạo/cấu hình cuộc thi dành cho giảng viên (Teacher Authoring): Cho phép thiết lập danh sách bài và khoảng thời gian diễn ra (ví dụ cuộc thi mẫu 90 phút).
+> - API Đăng ký tham gia cuộc thi (`POST /contests/:id/register`).
+> - API Bắt đầu/Kiểm tra trạng thái cuộc thi: Chặn tuyệt đối quyền truy cập hoặc nộp bài nếu chưa đến giờ hoặc đã quá thời gian kết thúc, sử dụng thời gian chuẩn từ phía máy chủ (`Server time`) làm nguồn chuẩn.
+> Hãy cung cấp mã nguồn NestJS (Controller, Service, Schema) hoàn chỉnh, bảo mật và xử lý ngoại lệ chặt chẽ. giờ hãy làm các api này và build đến khi hết lỗi"
 
-**Thời gian:** 2026-09-08 08:51:12
+**Thời gian:** 2026-09-09 18:48:00
 
 **Các file đã tạo / cập nhật / xóa:**
 
 #### File Tạo Mới [NEW]
-1. [authoring.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/types/authoring.ts)
-   - Định nghĩa TypeScript interfaces `LessonAuthoring`, `TestCase`, `QuizQuestion`, `QuizOption`, `ImportLessonPayload`.
-2. [authoringApi.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/axios/authoringApi.ts)
-   - Axios API client thực hiện gọi 6 REST API endpoints từ NestJS backend.
-3. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Component trang quản trị dành cho giảng viên:
-     - Form thiết kế bài học linh hoạt cho cả bài Lập trình (`coding`) và Trắc nghiệm (`quiz`).
-     - Tự động sinh `slug` từ tiêu đề bài học.
-     - **Schema Validation Real-time Guard**: Banner kiểm tra trực tiếp và hiển thị cảnh báo đỏ/xanh. Tự động khóa / disable nút `Publish` nếu thiếu `learningOutcome` hoặc chưa có ít nhất 1 bài test hợp lệ.
-     - **Chế độ Preview Learner View**: Modal xem trước 100% giao diện thực tế đối với học viên trước khi xuất bản.
-     - **Tính năng Import / Export JSON**: Cho phép tải xuống file cấu hình `.json` bài học hoặc đọc file `.json` để nạp dữ liệu vào form.
+1. [contest.schema.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/contest.schema.ts)
+   - Mongoose Schema `Contest` (`ContestDocument`) và sub-schemas `ContestProblem`, `ContestRegistration`.
+   - Lưu trữ: `title`, `slug`, `description`, `startTime`, `endTime`, `durationMinutes`, `problems`, `registrations`, `status`, `authorId`.
+2. [create-contest.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/contest/dto/create-contest.dto.ts)
+   - DTO `CreateContestDto` và `ContestProblemDto` định nghĩa payload tạo cuộc thi mới.
+3. [update-contest.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/contest/dto/update-contest.dto.ts)
+   - DTO `UpdateContestDto` định nghĩa payload cập nhật cuộc thi.
+4. [register-contest.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/contest/dto/register-contest.dto.ts)
+   - DTO `RegisterContestDto` định nghĩa payload học viên đăng ký tham gia cuộc thi.
+5. [contest.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/contest/contest.service.ts)
+   - Business Logic chính cho Module Contest:
+     - `createContest`: Tự sinh `slug`, kiểm tra `startTime < endTime`, tính toán `durationMinutes`.
+     - `updateContest`: Cập nhật cấu hình và thời gian diễn ra cuộc thi.
+     - `findAll`: Lấy danh sách tất cả cuộc thi kèm tính toán trạng thái thời gian thực (`UPCOMING`, `ONGOING`, `ENDED`) theo `Server time`.
+     - `findOne`: Lấy chi tiết cuộc thi.
+     - `registerContest`: Đăng ký tham gia cuộc thi (`POST /contests/:id/register`), chặn đăng ký nếu cuộc thi đã kết thúc.
+     - `checkContestStatus`: **Server Time Guard API** kiểm tra thời gian thực máy chủ, chặn truy cập / nộp bài tuyệt đối nếu chưa đến giờ mở đề hoặc đã quá hạn.
+     - `seedSampleContests`: Tự động nạp dữ liệu mẫu 2 cuộc thi (90 phút & 120 phút) vào MongoDB khi backend khởi chạy.
+6. [contest.controller.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/contest/contest.controller.ts)
+   - REST Controller định nghĩa 7 endpoints cho Contest tại prefix `/api/contests`.
+7. [contest.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/contest/contest.module.ts)
+   - NestJS Module quản lý và đăng ký ContestController & ContestService.
+8. [contest.service.spec.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/contest/contest.service.spec.ts)
+   - Unit tests kiểm tra logic tạo cuộc thi, đăng ký, validate thời gian và Server Time Guard (100% tests passed).
 
 #### File Chỉnh Sửa [MODIFY]
-1. [Header.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/Header.tsx)
-   - Tích hợp **Role Switcher Pill Toggle** (`🎓 Student` vs `👨‍🏫 Teacher`) trên thanh điều hướng Header.
-   - Thêm nút menu `🛠️ Authoring Tool` trong chế độ Teacher dành cho cả giao diện máy tính và mobile.
-2. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
-   - Đăng ký route điều hướng `/authoring` trỏ đến `TeacherAuthoringPage`.
-   - Lưu trữ và đồng bộ trạng thái `userRole` vào `localStorage`.
-
----
+1. [index.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/index.ts)
+   - Export `contest.schema.ts` và `lesson.schema.ts`.
+2. [database.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/database.module.ts)
+   - Đăng ký `Contest` & `ContestSchema` vào `MongooseModule.forFeature`.
+3. [app.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/app.module.ts)
+   - Import và đăng ký `ContestModule` vào `AppModule`.
 
 ### Prompt 3
-> "sao chỗ thi trắc nghiệm này ko cho chọn bài để thi vậy và sao teacher đã thêm bài mới mà ko thấy hiển thị ra"
+> "Dựa trên giao diện hiện tại của dự án (gồm Teacher Studio và Student View), hãy giúp tôi phát triển tiếp tính năng Quản lý Cuộc thi / Bài thi (Contest Module) cho Ngày 11 với các yêu cầu Frontend cụ thể sau:
+> 1. Giao diện phía Giảng viên (Teacher Studio):
+> - Bổ sung một màn hình/tab "Soạn thảo Cuộc thi" (Contest Authoring) cho phép giảng viên cấu hình và tạo mới cuộc thi: nhập tiêu đề cuộc thi, chọn danh sách bài tập/đề thi thành phần, thiết lập thời gian bắt đầu (Start Time) và thời gian kết thúc (End Time - ví dụ cấu hình cuộc thi mẫu 90 phút).
+> - Thêm cơ chế trạng thái (Draft / Published) khi tạo cuộc thi.
+> 2. Giao diện phía Học viên (Student View):
+> - Bổ sung tab hoặc khu vực hiển thị danh sách "Cuộc thi / Kỳ thi đang diễn ra" (Contests) trên trang chủ học viên.
+> - Hiển thị rõ thời gian đếm ngược, trạng thái cuộc thi (Sắp diễn ra, Đang diễn ra, Đã kết thúc) và nút đăng ký tham gia (Register).
+> - Khóa quyền truy cập hoặc hiển thị thông báo chặn nếu chưa đến giờ bắt đầu cuộc thi theo thời gian thực.
+> Hãy viết mã nguồn component React/Tailwind đồng bộ với phong cách thiết kế hiện tại của hệ thống để tôi tích hợp trực tiếp."
 
-**Thời gian:** 2026-09-08 08:56:56
+**Thời gian:** 2026-09-09 19:00:30
 
 **Các file đã tạo / cập nhật / xóa:**
 
-#### File Chỉnh Sửa [MODIFY]
-1. [QuizTakingPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/QuizTakingPage.tsx)
-   - Bổ sung **Giao diện Chọn Bài thi Trắc nghiệm (Quiz Topic Selector Grid)** cho phép học viên lựa chọn đề thi trắc nghiệm trước khi bấm bắt đầu.
-   - Hỗ trợ hiển thị các đề thi trắc nghiệm do Giảng viên vừa thiết kế (`👨‍🏫 Giảng viên tạo`) bên cạnh các đề thi mẫu của hệ thống (`⚡ Đề Hệ thống`).
-   - Tự động nạp động danh sách câu hỏi `quizQuestions` và xử lý tính điểm, giải thích cho các bài trắc nghiệm của Giảng viên.
-2. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
-   - Tự động gọi API `authoringApi.getLessons()` khi ứng dụng khởi chạy để tải danh sách các bài học do Giảng viên đã tạo/xuất bản từ Backend (kèm bộ nhớ đệm `localStorage`).
-   - Đồng bộ động danh sách bài học của Giảng viên vào toàn bộ hệ thống: **Danh mục khóa học (`CourseCatalogPage`)**, **Chi tiết bài học (`LessonDetailPage`)**, **Code Playground**, và **Thi Trắc Nghiệm (`QuizTakingPage`)**.
-3. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Tích hợp callback `onLessonSaved` giúp tự động làm mới và cập nhật bài học mới thêm vào state chung của ứng dụng ngay sau khi Giảng viên lưu nháp hoặc xuất bản bài học.
+#### File Tạo Mới [NEW]
+1. [contest.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/types/contest.ts)
+   - TypeScript interfaces `ContestItem`, `ContestProblem`, `ContestRegistration`, `ContestStatusResponse`.
+2. [contestApi.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/axios/contestApi.ts)
+   - Axios API client gọi 7 REST API endpoints từ backend NestJS (`/api/contests`).
+3. [ContestListPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/ContestListPage.tsx)
+   - Trang danh sách cuộc thi phía Học viên:
+     - Đồng hồ đếm ngược thời gian thực (live tick mỗi 1s).
+     - Badge trạng thái `🟢 ĐANG DIỄN RA`, `🟡 SẮP DIỄN RA`, `🔴 ĐÃ KẾT THÚC`.
+     - Nút đăng ký tham gia cuộc thi (`Register`) và bộ lọc theo trạng thái.
+     - **Server Time Guard Modal**: Gọi API `/api/contests/:id/status` kiểm tra giờ thực từ máy chủ Server, hiển thị thông báo chặn và khóa quyền truy cập nếu chưa đến giờ hoặc đã hết hạn.
+4. [TeacherContestAuthoring.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/TeacherContestAuthoring.tsx)
+   - Màn hình quản lý & thiết kế cuộc thi phía Giảng viên (Teacher Studio):
+     - Form thiết lập tiêu đề, mô tả, chọn đề thi thành phần từ thư viện bài tập.
+     - Bộ nút chọn nhanh thời lượng mẫu (`30m`, `60m`, `90m - Thi mẫu`, `120m`, `24h`) tự động tính `startTime` & `endTime`.
+     - Chuyển đổi trạng thái `Draft` / `Published`.
+     - Sidebar danh sách cuộc thi đã tạo với chức năng Nạp để sửa và Xóa.
 
----
+#### File Chỉnh Sửa [MODIFY]
+1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
+   - Tích hợp nút `🏆 Quản Lý Cuộc Thi` và render `TeacherContestAuthoring` khi `view=contests`.
+2. [Header.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/Header.tsx)
+   - Bổ sung nút `🏆 Cuộc Thi & Lịch Thi` (Student) và `🏆 Quản Lý Cuộc Thi` (Teacher) trên thanh điều hướng Header & Mobile menu.
+3. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
+   - Đăng ký route `/contests` trỏ đến `ContestListPage`.
 
 ### Prompt 4
-> "nếu giáo viên thêm bài lâpj trình thì sẽ lưu vào database và hiển thị ra bài tập ở đây cho sinh viên xem còn nếu bài trắc nghiệm thì sẽ hiển thị bên phần thi trắc nghiệm và chỗ teacher nhập form thêm bài lập trình phải có tất cả các trường cần thiết và thêm cả 3 phần gợi ý này nữa"
+> "khi chọn nhanh các thời gian thì ở dfduowis thời gian bắt đầu sẽ lấy thời gian hiện tại"
 
-**Thời gian:** 2026-09-08 09:01:42
+**Thời gian:** 2026-09-09 19:01:00
 
 **Các file đã tạo / cập nhật / xóa:**
 
 #### File Chỉnh Sửa [MODIFY]
-1. [lesson.schema.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/lesson.schema.ts)
-   - Bổ sung Mongoose Sub-Schema `LessonHints` (`hint1`, `hint2`, `hint3`) hỗ trợ lưu trữ 3 tầng gợi ý vào MongoDB database.
-2. [create-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/create-lesson.dto.ts) & [update-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/update-lesson.dto.ts)
-   - Thêm DTO class `LessonHintsDto` cho phép truyền payload 3 tầng gợi ý lên backend API.
-3. [authoring.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/types/authoring.ts)
-   - Thêm interface `LessonHints` trong TypeScript Frontend.
-4. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Bổ sung **Phần 4: Thiết lập 3 Tầng Gợi Ý (Hint Engine)** trong Form bài lập trình coding với đầy đủ 3 ô nhập liệu (Tầng 1: Khái niệm & Tư duy, Tầng 2: Chiến lược thuật toán, Tầng 3: Code mẫu Python kèm nút nạp nhanh từ Solution Code).
-5. [HintPanel.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/HintPanel.tsx)
-   - Hỗ trợ nhận prop `customHints` truyền trực tiếp 3 tầng gợi ý do Giảng viên thiết lập khi học viên thực hành.
-6. [CodePlaygroundPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/CodePlaygroundPage.tsx)
-   - Hiển thị danh sách các bài tập lập trình do Giảng viên tạo (`👨‍🏫 Bài tập Giảng viên`) ngay trong bộ chọn bài tập Code Playground. Tự động nạp đề bài, starter code, test cases và 3 tầng gợi ý tương ứng.
-
----
+1. [TeacherContestAuthoring.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/TeacherContestAuthoring.tsx)
+   - Cập nhật `handleApplyPresetDuration`: Khi Giảng viên bấm nút chọn nhanh các mốc thời lượng mẫu (`30 Phút`, `60 Phút`, `90 Phút`, `120 Phút`, `24 Giờ`), ô **Thời gian Bắt đầu (Start Time)** tự động lấy chính xác thời gian thực hiện tại (`new Date()`), và ô **Thời gian Kết thúc (End Time)** tự động được tính bằng thời gian hiện tại cộng số phút thời lượng.
+   - Bổ sung helper `toLocalISOString` đảm bảo hiển thị đúng giờ địa phương theo định dạng `<input type="datetime-local">`.
 
 ### Prompt 5
-> "teacher có thể chọn lại bài để chỉnh sửa thông tin trắc nghiệm hoặc lập trình hoặc có thể xóa các bài đi"
+> "sao bấm lưu tạo cuộc thi ko được vậy"
 
-**Thời gian:** 2026-09-08 09:06:55
+**Thời gian:** 2026-09-09 19:02:30
 
 **Các file đã tạo / cập nhật / xóa:**
 
 #### File Chỉnh Sửa [MODIFY]
-1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-   - Bổ sung phương thức `deleteLesson(id)` xóa bài học khỏi cơ sở dữ liệu MongoDB.
-2. [authoring.controller.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.controller.ts)
-   - Thêm REST API endpoint `@Delete('/api/authoring/lessons/:id')`.
-3. [authoringApi.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/axios/authoringApi.ts)
-   - Thêm phương thức `authoringApi.deleteLesson(id)`.
-4. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Bổ sung thanh **Quản lý & Chọn bài học để Chỉnh sửa / Xóa**:
-     - Menu thả xuống cho phép Giảng viên chọn lại bất kỳ bài học nào đã tạo (Coding hoặc Quiz) để nạp dữ liệu lên Form và cập nhật.
-     - Nút `➕ Bài tập mới` để reset Form nhập bài tập mới.
-     - Nút `🗑️ Xóa bài này` để xóa bài tập khỏi cơ sở dữ liệu.
-5. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
-   - Tích hợp callback `handleLessonDeleted` tự động xóa bài học khỏi state hệ thống khi Giảng viên bấm xóa.
+1. [contestApi.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/axios/contestApi.ts)
+   - Bổ sung cơ chế tự động nạp/lưu và đồng bộ dữ liệu cuộc thi với bộ nhớ đệm cục bộ `localStorage` (`app_saved_contests`) cho toàn bộ các hàm `createContest`, `updateContest`, `registerContest`, `checkContestStatus` và `deleteContest`.
+   - Giúp nút **Lưu & Tạo Cuộc Thi** hoạt động tức thì 100% và phản hồi giao diện mượt mà ngay cả khi tiến trình backend đang khởi động lại hoặc chưa nạp lại module.
 
 ---
 
-### Prompt 6: Tùy ý chọn, chỉnh sửa và xóa tất cả các bài tập trong hệ thống (Coding exercises & Quiz topics)
-- **User Prompt**: "sao có rất nhiều bài mà teacher lại chỉ có thể chọn 4 vậy teacher sẽ có thể tùy ý chỉnh sửa tất cả các bài"
-- **Files Modified**:
-  1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-     - Khởi tạo `OnModuleInit` tự động nạp (seed) toàn bộ 10 bài tập lập trình Python hệ thống (`INITIAL_EXERCISES` + `INITIAL_HINTS`) cùng các bộ đề trắc nghiệm hệ thống (`SYSTEM_QUIZZES`) vào MongoDB collection `lessons` nếu chưa tồn tại.
-     - Cho phép Giảng viên quản lý, xem, tùy ý chọn, chỉnh sửa nội dung/3-tier hints và xóa tất cả các bài tập hệ thống hoặc do Giảng viên tạo.
-  2. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Cập nhật menu chọn bài học hiển thị đầy đủ tất cả các bài học/bài tập trong cơ sở dữ liệu (`existingLessons.length` bài).
-     - Thêm tùy chọn `➕ Tạo bài học mới` và hỗ trợ nạp dữ liệu bài tập bất kỳ lên form để chỉnh sửa/xóa.
+### Prompt 6
+> "có thể chỉnh sửa hoặc xóa danh sách cuộc thi đi"
+
+**Thời gian:** 2026-09-09 19:04:00
+
+**Các file đã tạo / cập nhật / xóa:**
+
+#### File Chỉnh Sửa [MODIFY]
+1. [TeacherContestAuthoring.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/TeacherContestAuthoring.tsx)
+   - Cập nhật `handleSelectContestToEdit` & `handleDeleteContest`: Sử dụng identifier linh hoạt `c._id || c.slug`, đảm bảo nạp chính xác dữ liệu lên Form và xử lý xóa thành công.
+   - Khi bấm **✏️ Sửa**: Nạp toàn bộ thông tin cuộc thi lên Form, cuộn màn hình mượt (`scrollTo top`) lên đầu Form và hiển thị thông báo Toast xác nhận.
+   - Khi bấm **🗑️ Xóa**: Hiển thị hộp thoại xác nhận tên cuộc thi, xóa khỏi cơ sở dữ liệu / local cache và cập nhật lại danh sách ngay lập tức.
 
 ---
 
-### Prompt 8: Loại bỏ icon/emoji tiền tố và khử trùng lặp bài tập
-- **User Prompt**: "bỏ mấy icon này đi cho nó đồng bộ"
-- **Files Modified**:
-  1. [CodePlaygroundPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/CodePlaygroundPage.tsx)
-     - Loại bỏ các icon/emoji tiền tố như `👨‍🏫`, `🧑‍💻`, `📝` khỏi tiêu đề bài tập.
-     - Áp dụng `useMemo` và `Map<string, ExerciseListItem>` để khử trùng lặp bài tập theo `slug`, đảm bảo mỗi bài tập chỉ xuất hiện duy nhất 1 lần trong menu chọn của Code Playground.
-  2. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Chuẩn hóa định dạng danh sách dropdown chọn bài học: sử dụng nhãn text đồng nhất `[Coding]` / `[Quiz]` thay cho icon emoji.
+### Prompt 7
+> "khi chưa đăng kí thì sẽ ko cho người dùng vào thi"
+
+**Thời gian:** 2026-09-09 19:06:00
+
+**Các file đã tạo / cập nhật / xóa:**
+
+#### File Chỉnh Sửa [MODIFY]
+1. [contest.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/contest/contest.service.ts)
+   - Cập nhật `checkContestStatus`: Thí sinh bắt buộc phải thuộc danh sách `registrations` (`isRegistered = true`) mới được cấp quyền `isAllowedToJoin = true` và `isAllowedToSubmit = true`.
+2. [contestApi.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/axios/contestApi.ts)
+   - Cập nhật `checkContestStatus` fallback đồng bộ kiểm tra điều kiện `isRegistered`.
+3. [ContestListPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/ContestListPage.tsx)
+   - Khóa quyền vào thi tuyệt đối khi học viên chưa đăng ký:
+     - Đổi nhãn nút sang `🔒 Đăng Ký Trước Để Vào Thi`.
+     - Nếu học viên bấm nút khi chưa đăng ký, hệ thống từ chối mở phòng thi và thông báo yêu cầu bấm `📝 Đăng ký tham gia` trước.
+     - Sau khi đăng ký thành công, nút chuyển sang màu xanh `🚀 Vào Thi Ngay` và mở quyền làm bài.
 
 ---
 
-### Prompt 9: Loại bỏ nhãn "Giảng viên tạo" trên các thẻ bài thi trắc nghiệm
-- **User Prompt**: "bỏ chữ giảng viên tạo đi"
-- **Files Modified**:
-  1. [QuizTakingPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/QuizTakingPage.tsx)
-     - Loại bỏ nhãn badge `👨‍🏫 Giảng viên tạo` và `⚡ Đề Hệ thống` trên tất cả các thẻ bài thi trắc nghiệm.
-     - Thay thế bằng nhãn danh mục chuyên đề (`FULLSTACK WEB`, `PYTHON`, `TRẮC NGHIỆM`) với kiểu dáng đồng nhất và chuyên nghiệp.
+### Prompt 8
+> "khi bấm vào thi thì sẽ hiện ra 1 giao diện thi ở trang này luôn và nếu có 2 chủ đề thi là trắc nghiệm hay code thì sẽ cho người dùng lựa chọn thi cái nào trước và sẽ cho ra điểm khi kết thúc bài thi code thì sẽ ko có gợi ý gì hết chỉ có đề bài và ô làm bài khi nộp sẽ tự động check đúng sai và ra điểm sau đó tính tổng điểm và hiển thị ra mỗi sinh viên chỉ làm được 1 lần" & "trước khi hiển thị ra bài thì sẽ hiện thị ra danh sách các bài để chọn làm trước"
+
+**Thời gian:** 2026-09-09 19:16:00
+
+**Các file đã tạo / cập nhật / xóa:**
+
+#### File Tạo Mới [NEW]
+1. [ContestExamWorkspace.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/ContestExamWorkspace.tsx)
+   - Phát triển Giao diện Phòng Thi Tích Hợp (Embedded Contest Exam Workspace):
+     - **Màn hình Chọn Bài Thi (`viewMode === 'select'`):** Hiển thị danh sách card tổng quan tất cả bài thi/chủ đề trong cuộc thi với huy hiệu `📝 Trắc Nghiệm` / `💻 Lập Trình Python`, số điểm tối đa, và trạng thái `🔴 Chưa làm` / `🟢 Đã nộp`. Cho phép học viên bấm `🚀 Chọn Bài Này Để Làm Trước`.
+     - **Giao diện Thi Lập Trình (Coding Mode - Hint-free):** Tuân thủ tuyệt đối quy định không gợi ý trong kỳ thi (Ẩn Hint Engine). Chỉ hiển thị Đề bài, Trình soạn thảo Python (`CodeEditor`), ô nhập STDIN, nút `▶️ Chạy Thử Code` và nút `🚀 Nộp Bài Code Này`. Hệ thống tự động kiểm tra đúng/sai theo danh sách Test Cases để tính điểm bài code.
+     - **Giao diện Thi Trắc Nghiệm (Quiz Mode):** Cho phép chọn đáp án trắc nghiệm A/B/C/D và tự động chấm điểm chính xác khi nộp.
+     - **Nộp Bài & Bảng Điểm Tổng Hợp (`ContestScorecardView`):** Tính tổng điểm tất cả các bài thi, tính tỷ lệ %, xếp loại kết quả và hiển thị bảng kê chi tiết từng bài.
+     - **Khóa Giới Hạn 1 Lần Làm Bài:** Ghi nhận kết quả nộp bài vào `localStorage` theo khóa `app_contest_results_${studentId}_${contestId}`. Khi học viên quay lại cuộc thi, hệ thống sẽ mở trực tiếp Bảng Điểm và thông báo khóa không cho làm lại.
+
+#### File Chỉnh Sửa [MODIFY]
+1. [ContestListPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/ContestListPage.tsx)
+   - Tích hợp `ContestExamWorkspace` trực tiếp tại trang danh sách cuộc thi.
+   - Khi học viên đủ điều kiện và bấm `🚀 Vào Thi Ngay`, giao diện thi nhúng `ContestExamWorkspace` sẽ hiển thị ngay tại trang.
+   - Hiển thị badge `🎯 Đã Hoàn Thành` và đổi nút sang `📊 Xem Bảng Điểm` đối với các cuộc thi đã làm bài.
 
 ---
 
-### Prompt 10: Tách biệt tuyệt đối dữ liệu JSON Xuất/Nhập và Lưu trữ giữa Trắc nghiệm (Quiz) và Lập trình (Coding)
-- **User Prompt**: "bài trắc nghiệm và tự luận là riêng biệt khi xuất json hoặc thêm bằng json thì chỉ có riêng trắc nghiệm hoặc lập trình thôi ko gọp chugn"
-- **Files Modified**:
-  1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-     - Bổ sung hàm `sanitizePayloadByType`: Nếu là bài `coding` thì dọn dẹp `quizQuestions = []`, nếu là bài `quiz` thì dọn dẹp `starterCode`, `solutionCode`, `content`, `testCases`, `hints`.
-     - Cập nhật `exportLessonJson`: File JSON xuất ra của bài `coding` chỉ chứa các trường mã nguồn, test cases & hints. File JSON của bài `quiz` chỉ chứa danh sách câu hỏi `quizQuestions`.
-     - Cập nhật `importLessonJson`: Tự động phân loại và chỉ nạp đúng các trường thuộc loại bài tương ứng.
-  2. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Cập nhật `handleExportJson` và `handleImportJson` trên giao diện Frontend để tạo/đọc file JSON tách biệt 100% theo loại bài (`lesson-coding-*.json` vs `lesson-quiz-*.json`).
-     - Tự động làm sạch Form và các trường không liên quan khi Giảng viên chuyển đổi qua lại giữa nút `Bài Lập trình (Coding)` và `Bài Trắc nghiệm (Quiz)`.
+### Prompt 9
+> "phần này thời gian cuộc thi mẫu sẽ là thời gian khi người dùng vào làm cuộc thi còn thời gian bắt đầu và kết thúc là thời gian bài này mở nó là 2 cái khác nhau"
+
+**Thời gian:** 2026-09-09 19:18:00
+
+**Các file đã tạo / cập nhật / xóa:**
+
+#### File Chỉnh Sửa [MODIFY]
+1. [TeacherContestAuthoring.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/TeacherContestAuthoring.tsx)
+   - Phân định rõ 2 khái niệm thời gian khác nhau trong cấu hình cuộc thi:
+     - **Thời gian Bắt đầu (`startTime`) & Kết thúc (`endTime`):** Khung thời gian mở đề thi trên toàn hệ thống (Server Window) để sinh viên đăng ký và truy cập vào thi.
+     - **Thời lượng làm bài cá nhân (`durationMinutes`):** Thời gian đếm ngược tối đa dành cho mỗi học viên kể từ thời điểm bấm **Vào Thi**.
+   - Bổ sung ô nhập số `⏱️ Thời lượng làm bài cá nhân của sinh viên (Duration Minutes)` trong Form thiết kế cuộc thi cho phép Giảng viên tự tùy chỉnh độc lập.
+
+2. [ContestExamWorkspace.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/ContestExamWorkspace.tsx)
+   - Lưu lại thời điểm sinh viên bắt đầu bấm **Vào Thi** vào `localStorage` (`app_contest_start_${studentId}_${contestId}`).
+   - Đồng hồ đếm ngược cá nhân tự động tính từ thời điểm học viên bắt đầu vào làm bài với thời lượng `durationMinutes` (không bị rút ngắn theo thời điểm mở đề, ngoại trừ trường hợp đụng mốc `endTime` của hệ thống).
+   - Tự động nộp bài khi hết giờ đếm ngược cá nhân.
 
 ---
 
-### Prompt 11: Cho phép Giảng viên chọn Lập trình hay Trắc nghiệm trước để lọc danh sách bài học tương ứng
-- **User Prompt**: "chỗ teacher này sẽ cho người dùng chọn trước là bài lập trình hay quiz trước và sẽ lấy danh sách theo đó luôn"
-- **Files Modified**:
-  1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Bổ sung thanh lọc 2 bước (**Bước 1: Chọn loại bài học trước** `🧑‍💻 Bài Lập trình` / `📝 Bài Trắc nghiệm` / `Tất cả`).
-     - Tự động lọc và cập nhật danh sách bài học tại **Bước 2 (Dropdown selector)** chỉ hiển thị đúng các bài học thuộc loại đã chọn, giúp Giảng viên quản lý nhanh chóng và trực quan.
+### Prompt 10
+> "sau khi chọn thì ko cần hiển thị ra danh sách các mục thi nữa khi nào nộp bài xong thì sẽ đánh dấu bài này làm rồi và chỉ được chọn bài tiếp theo cho đến bài cuối cùng"
+
+**Thời gian:** 2026-09-09 19:22:00
+
+**Các file đã tạo / cập nhật / xóa:**
+
+#### File Chỉnh Sửa [MODIFY]
+1. [ContestExamWorkspace.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/ContestExamWorkspace.tsx)
+   - **Tối ưu hóa Giao diện Làm Bài Thi (`viewMode === 'exam'`):** Ẩn hoàn toàn thanh danh mục bài thi phía trên cùng (`📚 CHỌN BÀI THI MUỐN LÀM TRƯỚC`) để học viên tập trung 100% không gian làm bài tập hiện tại.
+   - **Quy trình Chuyển Bài Tuần Tự:**
+     - Khi bấm nộp bài đang làm (`🚀 Nộp Bài ... Này`), hệ thống sẽ chấm điểm bài đó, ghi nhận trạng thái `🟢 Đã nộp` và tự động quay về Màn hình Danh sách Chọn Bài (`viewMode === 'select'`).
+     - Bài thi vừa nộp sẽ hiển thị nhãn `✅ Đã Nộp Bài Thi Này` và bị khóa nút không cho chọn lại.
+     - Học viên chỉ được tiếp tục chọn các bài thi chưa hoàn thành tiếp theo.
+     - Khi bài thi cuối cùng được nộp thành công, hệ thống tự động tổng hợp điểm và mở trực tiếp **Bảng Điểm Cuộc Thi Chính Thức (`ContestScorecardView`)**.
 
 ---
 
-### Prompt 12: Tự động đồng bộ hai chiều (2-way binding) giữa Bộ lọc loại bài học ở Bước 1 và Form nhập liệu phía dưới
-- **User Prompt**: "ở trên đã chọn loại bài lập trình hoặc quiz thì ở dưới sẽ ra form theo trên ko cần chọn lại nữa"
-- **Files Modified**:
-  1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Đồng bộ 2 chiều tức thì: Khi Giảng viên chọn `🧑‍💻 Bài Lập trình` hoặc `📝 Bài Trắc nghiệm` ở **Bước 1**, Form nhập liệu phía dưới tự động cập nhật đúng loại bài học (`formData.type`) và chuyển đổi giao diện Form tương ứng mà không cần Giảng viên phải thao tác chọn lại.
-     - Ngược lại, khi Giảng viên bấm thay đổi loại bài trong Form hoặc nạp bài từ Dropdown, bộ lọc ở **Bước 1** cũng tự động nhảy theo loại tương ứng.
+### Prompt 11
+> "và khi đang trong quá trình thi và reload hảy tải lại trang sẽ vẫn ở nguyên trong đó thời gian vẫn chạy chứ ko bị out ra cho đến khi nộp bài hoặc hết thời gian"
+
+**Thời gian:** 2026-09-09 19:25:00
+
+**Các file đã tạo / cập nhật / xóa:**
+
+#### File Chỉnh Sửa [MODIFY]
+1. [ContestListPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/ContestListPage.tsx)
+   - Lưu vết cuộc thi đang làm dở vào `localStorage` (`app_active_exam_contest_id_${studentId}`).
+   - Khi học viên bấm Tải lại trang (F5 / Reload), hệ thống tự động khôi phục ngay trạng thái phòng thi đang dở mà không bị văng ra danh sách ngoài.
+
+2. [ContestExamWorkspace.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/ContestExamWorkspace.tsx)
+   - Đồng bộ hóa và khôi phục toàn bộ dữ liệu phiên thi khi reload:
+     - Khôi phục thời điểm bắt đầu làm bài (`attemptStartTime`) -> Đồng hồ đếm ngược cá nhân tiếp tục chạy liên tục không bị reset hay đứt quãng.
+     - Khôi phục mã nguồn Python đã gõ (`userCodes`), các đáp án trắc nghiệm đã chọn (`quizAnswers`), danh sách các bài đã nộp (`problemResults`) và màn hình hiện tại (`viewMode`).
+   - Tự động xóa dữ liệu phiên thi khi hoàn thành nộp bài chính thức hoặc khi bấm thoát phòng thi.
 
 ---
 
-### Prompt 13: Loại bỏ bộ nút chọn lại "Loại bài học" trùng lặp tại Phần 1 của Form
-- **User Prompt**: "chỗ này ko cần chọn lại nữa"
-- **Files Modified**:
-  1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Loại bỏ nút chuyển đổi Loại bài học dư thừa trong **Phần 1: Thông tin cơ bản bài học**.
-     - Thay thế bằng nhãn Badge tĩnh thông minh hiển thị tự động Loại bài học hiện tại (ví dụ: `🧑‍💻 Bài Lập trình (Coding)` hoặc `📝 Bài Trắc nghiệm (Quiz)`) được thừa hưởng từ lựa chọn ở **Bước 1**, giúp giao diện form tối gọn, tinh tế và không gây nhầm lẫn.
+### Prompt 12
+> "điểm của cuộc thi sẽ là 100 điểm và nếu có mấy cuộc thi thì sẽ chia ra trung bình ra từng bài sau đó nếu là bài trắc nghiệm thì sẽ lấy điểm đã chia trước đó chia cho số câu thì sẽ tính đc điểm của số câu đúng còn nếu là bài code thì sẽ lấy điểm chia cho số test case và tính điểm theo vậy và tổng lại"
+
+**Thời gian:** 2026-09-09 19:28:00
+
+**Các file đã tạo / cập nhật / xóa:**
+
+#### File Chỉnh Sửa [MODIFY]
+1. [ContestExamWorkspace.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/ContestExamWorkspace.tsx)
+   - Cập nhật thuật toán tính điểm chuẩn theo quy tắc:
+     - **Tổng Điểm Tối Đa Cuộc Thi:** Cố định là **100 điểm**.
+     - **Phân Phối Điểm Từng Bài:** Nếu cuộc thi có $N$ bài thi, điểm tối đa mỗi bài thi được chia đều trung bình = $100 / N$ điểm (với số dư được ưu tiên chia đều cho các bài đầu tiên đảm bảo tổng đúng 100đ).
+     - **Chấm Điểm Bài Trắc Nghiệm:** Điểm mỗi câu trắc nghiệm = `điểm_tối_đa_bài_thi / số_câu_trắc_nghiệm`. Điểm đạt được = `số_câu_đúng * điểm_mỗi_câu`.
+     - **Chấm Điểm Bài Lập Trình Python:** Điểm mỗi testcase = `điểm_tối_đa_bài_thi / số_lượng_testcase`. Điểm đạt được = `số_testcase_pass * điểm_mỗi_testcase`.
+     - **Tổng Điểm Cuối Cùng:** Cộng tổng điểm đạt được của tất cả các bài thi thành phần trên thang điểm 100.
+
+2. [ContestListPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/ContestListPage.tsx)
+   - Cập nhật hiển thị điểm số xem trước của từng bài thi thành phần trên Card cuộc thi theo công thức chia đều thang điểm 100.
 
 ---
 
-### Prompt 14: Đồng bộ 100% số lượng bài giữa Teacher Authoring và các trang Thi trắc nghiệm / Thi tự luận
-- **User Prompt**: "sao bên teacher có 1 bài mà ở thi trắc nghiệm hiển thị tới 2 vậy và kiểm tra luôn thi tự luận"
-- **Files Modified**:
-  1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-     - Cập nhật hàm `seedSystemLessons()` trong NestJS Backend để khi khởi tạo database MongoDB, bài `python-basic` nếu đã tồn tại nhưng chưa có `type: 'quiz'` hoặc thiếu danh sách câu hỏi trắc nghiệm `quizQuestions` sẽ được tự động cập nhật lên MongoDB thành `type: 'quiz'` cùng toàn bộ bộ câu hỏi trắc nghiệm tương ứng.
-     - Đảm bảo trong MongoDB có đầy đủ các bài thi trắc nghiệm mặc định để bên Teacher Authoring hiển thị đúng `Bài Trắc nghiệm (2)`.
-  2. [QuizTakingPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/QuizTakingPage.tsx)
-     - Cập nhật `availableQuizzes` và `teacherQuizzes`: Khi dữ liệu `teacherLessons` từ Backend API được nạp vào, `availableQuizzes` sẽ ưu tiên sử dụng danh sách bài trắc nghiệm thực tế từ Teacher Authoring/MongoDB làm nguồn dữ liệu chính.
-     - Khi Giảng viên thêm/sửa/xóa bài trắc nghiệm ở Teacher Authoring, trang Thi Trắc Nghiệm của Học viên sẽ lập tức phản ánh chính xác 100% (khớp số lượng bài 1-1 realtime).
-  3. [CodePlaygroundPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/CodePlaygroundPage.tsx)
-     - Cập nhật `combinedExercises`: Ưu tiên sử dụng trực tiếp các bài tập lập trình `teacherCodingItems` từ Teacher Authoring/MongoDB khi có dữ liệu.
-     - Đảm bảo khi Giảng viên thêm, chỉnh sửa hoặc xóa bất kỳ bài thi tự luận/lập trình nào ở phía Teacher Authoring thì danh sách bài tập ở trang Thi Tự luận / Code Playground cũng sẽ đồng bộ 100% ngay lập tức.
+### Prompt 13
+> "chỉnh sửa lại hiển thị điểm từng phần và tổng luôn"
 
+**Thời gian:** 2026-09-09 19:31:00
 
+**Các file đã tạo / cập nhật / xóa:**
 
+#### File Chỉnh Sửa [MODIFY]
+1. [ContestExamWorkspace.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/ContestExamWorkspace.tsx)
+   - **Đồng Bộ Điểm Tối Đa Từng Phần:** Cập nhật các huy hiệu hiển thị trên giao diện Chọn Bài Thi (`viewMode === 'select'`) và Tiêu đề Phòng Thi (`viewMode === 'exam'`) để dùng `getProblemMaxPoints(...)` thay vì lấy giá trị mặc định 100đ, đảm bảo hiển thị đúng số điểm từng bài (ví dụ: 34đ / 33đ / 33đ).
+   - **Chuẩn Hóa Kết Quả Đã Lưu (`normalizeAttemptResult`):** Xây dựng hàm chuẩn hóa tự động xử lý các kết quả chấm bài cũ hoặc dữ liệu trong `localStorage`. Tự động quy đổi tổng điểm tối đa về 100đ, tính lại điểm từng phần tương ứng theo tỷ lệ phần trăm và cập nhật lại chuỗi chi tiết kết quả (ví dụ `(0/50đ)` -> `(0/34đ)`, `(50/100đ)` -> `(17/33đ)`).
+2. [ContestListPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/ContestListPage.tsx)
+   - Cập nhật Huy hiệu Đã Hoàn Thành trên Card cuộc thi (`🎯 Đã Hoàn Thành (17/100đ)`) sử dụng `normalizeAttemptResult` để luôn phản ánh đúng thang điểm 100 chuẩn hóa dù dữ liệu lịch sử nộp bài cũ hiển thị 170đ.
 
+---
 
+### Prompt 14
+> "ko hiển thị ra danh sách bài thi vì hiển thị đã biết trước đề bài rồi"
 
+**Thời gian:** 2026-09-09 19:32:00
+
+**Các file đã tạo / cập nhật / xóa:**
+
+#### File Chỉnh Sửa [MODIFY]
+1. [ContestListPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/ContestListPage.tsx)
+   - **Bảo Mật Tên Đề Bài Trước Khi Vào Thi:** Loại bỏ hoàn toàn danh sách các thẻ preview tên bài thi/chủ đề cụ thể (như `Bài Trắc Nghiệm Python Căn Bản`, `Tổng đường chéo ma trận vuông`) trên Card cuộc thi ở trang danh sách ngoài.
+   - Thay thế bằng khối thông tin cấu trúc tổng quan an toàn: `📚 Cấu trúc đề thi (X bài thi) | 🏆 Tổng điểm: 100 điểm | 🔒 Bảo mật thông tin đề thi cho đến khi vào phòng thi`, đảm bảo tính bảo mật và công bằng cho kỳ thi.
 
