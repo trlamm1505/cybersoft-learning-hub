@@ -39,8 +39,10 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
   const [loadError, setLoadError] = useState<string | null>(null);
   const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit' | 'hint'>('run');
 
-  // Teacher coding lessons
-  const teacherCodingLessons = teacherLessons.filter((l) => l.type === 'coding');
+  // Teacher coding lessons (Only Published)
+  const teacherCodingLessons = teacherLessons.filter(
+    (l) => (l.status === 'published' || !l.status) && l.type === 'coding',
+  );
 
   const teacherCodingItems: ExerciseListItem[] = teacherCodingLessons.map((l, index) => ({
     _id: l._id || `teacher-ex-${index}`,

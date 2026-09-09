@@ -9,6 +9,7 @@ import { LessonDetailPage } from './pages/LessonDetailPage';
 import { QuizTakingPage } from './pages/QuizTakingPage';
 import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
 import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
+import { ContestListPage } from './pages/ContestListPage';
 import type { Lesson } from './types/course';
 import type { LessonAuthoring } from './types/authoring';
 import { authoringApi } from './axios/authoringApi';
@@ -88,15 +89,20 @@ export function App() {
     fetchTeacherLessons();
   }, [fetchTeacherLessons]);
 
-  // Combine Mock lessons with Teacher created lessons
-  const convertedTeacherLessons = teacherLessons.map(mapAuthoringToCourseLesson);
+  // Filter published lessons for student views (Draft lessons are hidden from users)
+  const publishedTeacherLessons = teacherLessons.filter(
+    (l) => l.status === 'published' || l.status === undefined
+  );
+
+  // Combine Mock lessons with Published Teacher created lessons
+  const convertedTeacherLessons = publishedTeacherLessons.map(mapAuthoringToCourseLesson);
   
   // Catalog lessons for Homepage (only core course curriculum, excluding standalone coding & quiz exercises)
   const catalogLessons: Lesson[] = [
     ...MOCK_LESSONS,
     ...convertedTeacherLessons.filter(
       (_, idx) => {
-        const orig = teacherLessons[idx];
+        const orig = publishedTeacherLessons[idx];
         return orig && orig.type !== 'coding' && orig.type !== 'quiz';
       }
     ),
@@ -171,7 +177,7 @@ export function App() {
       {/* Main Routes Container */}
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
         <Routes>
-          <Route path="/" element={<Navigate to="/catalog" replace />} />
+          <Route path="/" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
           <Route
             path="/catalog"
             element={
@@ -219,9 +225,10 @@ export function App() {
           />
           <Route
             path="/quiz"
-            element={<QuizTakingPage teacherLessons={teacherLessons} />}
+            element={<QuizTakingPage teacherLessons={publishedTeacherLessons} />}
           />
-          <Route path="/playground" element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={teacherLessons} />} />
+          <Route path="/playground" element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} />} />
+          <Route path="/contests" element={<ContestListPage />} />
           <Route
             path="/authoring"
             element={
@@ -231,7 +238,7 @@ export function App() {
               />
             }
           />
-          <Route path="*" element={<Navigate to="/catalog" replace />} />
+          <Route path="*" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
         </Routes>
       </div>
 

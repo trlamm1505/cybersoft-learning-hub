@@ -256,8 +256,9 @@ export class AuthoringService implements OnModuleInit {
     return updated;
   }
 
-  async findAll(): Promise<LessonDocument[]> {
-    return this.lessonModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(forStudent?: boolean): Promise<LessonDocument[]> {
+    const filter: any = forStudent ? { status: { $ne: 'draft' } } : {};
+    return this.lessonModel.find(filter).sort({ createdAt: -1 }).exec();
   }
 
   async findOne(id: string): Promise<LessonDocument> {

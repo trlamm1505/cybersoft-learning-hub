@@ -22,7 +22,13 @@ export const Header: React.FC<HeaderProps> = ({
 
   const getActiveTab = () => {
     const path = location.pathname;
-    if (path.startsWith('/authoring')) return 'authoring';
+    const search = location.search;
+    if (path.startsWith('/authoring')) {
+      if (search.includes('view=library')) return 'teacher-library';
+      if (search.includes('view=contests')) return 'teacher-contests';
+      return 'authoring';
+    }
+    if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
     if (path.startsWith('/quiz')) return 'quiz';
     if (path.startsWith('/detail')) return 'detail';
@@ -44,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <button
-          onClick={() => handleNavigate('/catalog')}
+          onClick={() => handleNavigate(userRole === 'teacher' ? '/authoring' : '/catalog')}
           className="flex items-center gap-3 text-[var(--text-main)] font-extrabold text-lg tracking-tight bg-transparent border-none cursor-pointer text-left shrink-0"
           aria-label="Trang chủ CyberSoft Learning Hub"
         >
@@ -54,76 +60,125 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center">
             <span>CyberSoft</span>
             <span className="text-cyan-600 dark:text-cyan-400 ml-1">Hub</span>
-            <span className="text-[10px] bg-indigo-600 text-white font-semibold px-1.5 py-0.5 rounded ml-2 uppercase">
-              v0.1
-            </span>
+            {userRole === 'teacher' ? (
+              <span className="text-[10px] bg-amber-600 text-white font-bold px-2 py-0.5 rounded-full ml-2 uppercase tracking-wide flex items-center gap-1 shadow-xs">
+                👨‍🏫 Teacher Studio
+              </span>
+            ) : (
+              <span className="text-[10px] bg-indigo-600 text-white font-semibold px-1.5 py-0.5 rounded ml-2 uppercase">
+                v0.1
+              </span>
+            )}
           </div>
         </button>
 
         {/* Desktop Navigation Menu */}
         <nav role="navigation" aria-label="Thanh điều hướng chính">
-          <ul className="hidden md:flex items-center gap-6 list-none m-0 p-0">
-            <li>
-              <button
-                className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
-                  activeTab === 'catalog'
-                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                    : 'text-[var(--text-muted)]'
-                }`}
-                onClick={() => handleNavigate('/catalog')}
-              >
-                📚 Danh mục khóa học
-              </button>
-            </li>
-            <li>
-              <button
-                className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
-                  activeTab === 'detail'
-                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                    : 'text-[var(--text-muted)]'
-                }`}
-                onClick={() => handleNavigate('/detail')}
-              >
-                📖 Chi tiết bài học
-              </button>
-            </li>
-            <li>
-              <button
-                className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
-                  activeTab === 'quiz'
-                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                    : 'text-[var(--text-muted)]'
-                }`}
-                onClick={() => handleNavigate('/quiz')}
-              >
-                📝 Thi Trắc Nghiệm
-              </button>
-            </li>
-            <li>
-              <button
-                className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
-                  activeTab === 'playground'
-                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                    : 'text-[var(--text-muted)]'
-                }`}
-                onClick={() => handleNavigate('/playground')}
-              >
-                🧑‍💻 Code Playground
-              </button>
-            </li>
-            {userRole === 'teacher' && (
-              <li>
-                <button
-                  className={`text-sm font-semibold transition-all px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 ${
-                    activeTab === 'authoring'
-                      ? 'text-indigo-600 dark:text-cyan-400 border-indigo-500'
-                      : 'text-indigo-600 dark:text-indigo-300'
-                  }`}
-                  onClick={() => handleNavigate('/authoring')}
-                >
-                  🛠️ Authoring Tool
-                </button>
-              </li>
+          <ul className="hidden md:flex items-center gap-4 list-none m-0 p-0">
+            {userRole === 'student' ? (
+              /* Student Mode Navigation */
+              <>
+                <li>
+                  <button
+                    className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
+                      activeTab === 'catalog'
+                        ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                        : 'text-[var(--text-muted)]'
+                    }`}
+                    onClick={() => handleNavigate('/catalog')}
+                  >
+                    📚 Danh mục khóa học
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
+                      activeTab === 'detail'
+                        ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                        : 'text-[var(--text-muted)]'
+                    }`}
+                    onClick={() => handleNavigate('/detail')}
+                  >
+                    📖 Chi tiết bài học
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
+                      activeTab === 'quiz'
+                        ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                        : 'text-[var(--text-muted)]'
+                    }`}
+                    onClick={() => handleNavigate('/quiz')}
+                  >
+                    📝 Thi Trắc Nghiệm
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
+                      activeTab === 'playground'
+                        ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                        : 'text-[var(--text-muted)]'
+                    }`}
+                    onClick={() => handleNavigate('/playground')}
+                  >
+                    🧑‍💻 Code Playground
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-cyan-400 bg-transparent border-none cursor-pointer ${
+                      activeTab === 'contests'
+                        ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                        : 'text-[var(--text-muted)]'
+                    }`}
+                    onClick={() => handleNavigate('/contests')}
+                  >
+                    🏆 Cuộc Thi & Lịch Thi
+                  </button>
+                </li>
+              </>
+            ) : (
+              /* Teacher Mode Navigation - 3 clear tabs */
+              <>
+                <li>
+                  <button
+                    className={`text-sm font-semibold transition-all px-3 py-1.5 rounded-xl border cursor-pointer ${
+                      activeTab === 'authoring'
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                        : 'bg-[var(--bg-main)] text-[var(--text-main)] border-[var(--border-color)] hover:border-indigo-500'
+                    }`}
+                    onClick={() => handleNavigate('/authoring')}
+                  >
+                    🛠️ Soạn Thảo Bài Thi
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`text-sm font-semibold transition-all px-3 py-1.5 rounded-xl border cursor-pointer ${
+                      activeTab === 'teacher-library'
+                        ? 'bg-cyan-600 text-white border-cyan-600 shadow-xs'
+                        : 'bg-[var(--bg-main)] text-[var(--text-main)] border-[var(--border-color)] hover:border-cyan-500'
+                    }`}
+                    onClick={() => handleNavigate('/authoring?view=library')}
+                  >
+                    📋 Xem Các Bài Thi
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`text-sm font-semibold transition-all px-3 py-1.5 rounded-xl border cursor-pointer ${
+                      activeTab === 'teacher-contests'
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                        : 'bg-[var(--bg-main)] text-[var(--text-main)] border-[var(--border-color)] hover:border-amber-500'
+                    }`}
+                    onClick={() => handleNavigate('/authoring?view=contests')}
+                  >
+                    🏆 Quản Lý Cuộc Thi
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </nav>
@@ -202,72 +257,116 @@ export const Header: React.FC<HeaderProps> = ({
           className="md:hidden flex flex-col gap-3 p-4 bg-[var(--bg-card)] border-b border-[var(--border-color)]"
           aria-label="Menu di động"
         >
-          <button
-            className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
-              activeTab === 'catalog'
-                ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                : 'text-[var(--text-muted)]'
-            }`}
-            onClick={() => {
-              handleNavigate('/catalog');
-              setMobileMenuOpen(false);
-            }}
-          >
-            📚 Danh mục khóa học
-          </button>
-          <button
-            className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
-              activeTab === 'detail'
-                ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                : 'text-[var(--text-muted)]'
-            }`}
-            onClick={() => {
-              handleNavigate('/detail');
-              setMobileMenuOpen(false);
-            }}
-          >
-            📖 Chi tiết bài học
-          </button>
-          <button
-            className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
-              activeTab === 'quiz'
-                ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                : 'text-[var(--text-muted)]'
-            }`}
-            onClick={() => {
-              handleNavigate('/quiz');
-              setMobileMenuOpen(false);
-            }}
-          >
-            📝 Thi Trắc Nghiệm
-          </button>
-          <button
-            className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
-              activeTab === 'playground'
-                ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                : 'text-[var(--text-muted)]'
-            }`}
-            onClick={() => {
-              handleNavigate('/playground');
-              setMobileMenuOpen(false);
-            }}
-          >
-            🧑‍💻 Code Playground
-          </button>
-          {userRole === 'teacher' && (
-            <button
-              className={`text-sm font-semibold text-left transition-colors bg-transparent border-none cursor-pointer ${
-                activeTab === 'authoring'
-                  ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                  : 'text-amber-600 dark:text-amber-400'
-              }`}
-              onClick={() => {
-                handleNavigate('/authoring');
-                setMobileMenuOpen(false);
-              }}
-            >
-              🛠️ Authoring Tool (Quản trị Giảng viên)
-            </button>
+          {userRole === 'student' ? (
+            <>
+              <button
+                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'catalog'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/catalog');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                📚 Danh mục khóa học
+              </button>
+              <button
+                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'detail'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/detail');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                📖 Chi tiết bài học
+              </button>
+              <button
+                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'quiz'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/quiz');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                📝 Thi Trắc Nghiệm
+              </button>
+              <button
+                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'playground'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/playground');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                🧑‍💻 Code Playground
+              </button>
+              <button
+                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'contests'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/contests');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                🏆 Cuộc Thi & Lịch Thi
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className={`text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'authoring'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/authoring');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                🛠️ Soạn Thảo Bài Thi
+              </button>
+              <button
+                className={`text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'teacher-library'
+                    ? 'text-cyan-600 dark:text-cyan-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/authoring?view=library');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                📋 Xem Các Bài Thi
+              </button>
+              <button
+                className={`text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'teacher-contests'
+                    ? 'text-amber-600 dark:text-amber-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/authoring?view=contests');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                🏆 Quản Lý Cuộc Thi
+              </button>
+            </>
           )}
         </nav>
       )}

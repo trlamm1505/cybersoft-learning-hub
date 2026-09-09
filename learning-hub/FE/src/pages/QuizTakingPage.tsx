@@ -44,9 +44,15 @@ const SYSTEM_QUIZZES: QuizTopic[] = [
 ];
 
 export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons = [] }) => {
-  // Combine System Quizzes with Teacher Created Quizzes (deduplicated)
+  // Combine System Quizzes with Teacher Created Quizzes (Only Published)
   const teacherQuizzes: QuizTopic[] = teacherLessons
-    .filter((l) => l.type === 'quiz' && l.quizQuestions && l.quizQuestions.length > 0)
+    .filter(
+      (l) =>
+        (l.status === 'published' || !l.status) &&
+        l.type === 'quiz' &&
+        l.quizQuestions &&
+        l.quizQuestions.length > 0,
+    )
     .map((l) => ({
       id: l.slug || l._id || '',
       title: l.title.replace(/^[🧑‍💻📝👨‍🏫\s]+/, '').trim(),
