@@ -24,6 +24,8 @@ Nếu như **Task 06** tập trung vào mô hình bán hàng đơn giản (`sale
 
 Hệ thống dữ liệu `HR_ops_v1` được cấu trúc kết hợp giữa 2 bảng Dimension (`employees`, `turnovers`) và 3 bảng Fact (`attendance`, `kpi_evaluations`, `training_records`):
 
+![Sơ đồ Quan hệ Thực thể ERD Nhân sự và Vận hành HR_ops_v1](./Picture_07-Detail.png)
+
 ```mermaid
 erDiagram
     employees ||--o{ attendance : "quẹt thẻ hàng ngày"

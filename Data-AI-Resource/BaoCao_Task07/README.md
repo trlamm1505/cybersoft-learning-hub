@@ -14,6 +14,8 @@ Data-AI-Resource/
 └── BaoCao_Task07/
     ├── README.md                            # Hướng dẫn tổng quan & chỉ mục nghiệm thu Ngày 07
     ├── 07_hr_ops_dataset.md                 # Bản đặc tả kỹ thuật kiến trúc mô hình dữ liệu nhân sự & vận hành
+    ├── Picture_07-Detail.png                # Sơ đồ quan hệ thực thể ERD Nhân sự & Vận hành (Dark Mode)
+    ├── Picture_07-Detail.drawio             # Tệp thiết kế gốc mở trực tiếp bằng Draw.io (đường vuông góc 100%)
     ├── AI_WORKLOG.md                        # Nhật ký sử dụng AI minh bạch, thẩm định lỗi & làm chủ kỹ thuật
     ├── data_dictionary/                     # Từ điển dữ liệu chi tiết
     │   ├── data_dictionary.md               # Bản từ điển dữ liệu định dạng Markdown
