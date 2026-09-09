@@ -1,0 +1,222 @@
+[
+  {
+    "anomaly_id": "ANO-01-1",
+    "error_type": "Foreign Key Orphan",
+    "table": "attendance.csv",
+    "row_index": 104,
+    "column": "employee_id",
+    "faulty_value": "EMP999",
+    "expected_value": "EMP115",
+    "description": "Mã nhân viên EMP999 không tồn tại trong bảng employees (vi phạm khóa ngoại).",
+    "sql_fix": "UPDATE attendance SET employee_id = 'EMP115' WHERE attendance_id = 'ATT00103';"
+  },
+  {
+    "anomaly_id": "ANO-01-2",
+    "error_type": "Foreign Key Orphan",
+    "table": "attendance.csv",
+    "row_index": 542,
+    "column": "employee_id",
+    "faulty_value": "EMP999",
+    "expected_value": "EMP107",
+    "description": "Mã nhân viên EMP999 không tồn tại trong bảng employees (vi phạm khóa ngoại).",
+    "sql_fix": "UPDATE attendance SET employee_id = 'EMP107' WHERE attendance_id = 'ATT00541';"
+  },
+  {
+    "anomaly_id": "ANO-01-3",
+    "error_type": "Foreign Key Orphan",
+    "table": "attendance.csv",
+    "row_index": 1207,
+    "column": "employee_id",
+    "faulty_value": "EMP999",
+    "expected_value": "EMP103",
+    "description": "Mã nhân viên EMP999 không tồn tại trong bảng employees (vi phạm khóa ngoại).",
+    "sql_fix": "UPDATE attendance SET employee_id = 'EMP103' WHERE attendance_id = 'ATT01206';"
+  },
+  {
+    "anomaly_id": "ANO-02-1",
+    "error_type": "Inverted Datetime",
+    "table": "attendance.csv",
+    "row_index": 322,
+    "column": "check_out",
+    "faulty_value": "08:30:00 (trước check-in 17:30:00)",
+    "expected_value": "17:30:00",
+    "description": "Giờ ra ca sớm hơn giờ vào ca, vi phạm logic trình tự thời gian.",
+    "sql_fix": "UPDATE attendance SET check_in = '08:30:00', check_out = '17:30:00' WHERE attendance_id = 'ATT00321';"
+  },
+  {
+    "anomaly_id": "ANO-02-2",
+    "error_type": "Inverted Datetime",
+    "table": "attendance.csv",
+    "row_index": 892,
+    "column": "check_out",
+    "faulty_value": "08:30:00 (trước check-in 17:30:00)",
+    "expected_value": "17:30:00",
+    "description": "Giờ ra ca sớm hơn giờ vào ca, vi phạm logic trình tự thời gian.",
+    "sql_fix": "UPDATE attendance SET check_in = '08:30:00', check_out = '17:30:00' WHERE attendance_id = 'ATT00891';"
+  },
+  {
+    "anomaly_id": "ANO-02-3",
+    "error_type": "Inverted Datetime",
+    "table": "attendance.csv",
+    "row_index": 1642,
+    "column": "check_out",
+    "faulty_value": "08:30:00 (trước check-in 17:30:00)",
+    "expected_value": "17:30:00",
+    "description": "Giờ ra ca sớm hơn giờ vào ca, vi phạm logic trình tự thời gian.",
+    "sql_fix": "UPDATE attendance SET check_in = '08:30:00', check_out = '17:30:00' WHERE attendance_id = 'ATT01641';"
+  },
+  {
+    "anomaly_id": "ANO-03-1",
+    "error_type": "Duplicate Attendance Record",
+    "table": "attendance.csv",
+    "row_index": 52,
+    "column": "attendance_id, employee_id, work_date",
+    "faulty_value": "EMP004 - 2025-10-05",
+    "expected_value": "Duy nhất một bản ghi chấm công mỗi nhân viên mỗi ngày",
+    "description": "Trùng lặp 2 bản ghi chấm công của nhân viên EMP004 trong cùng ngày 2025-10-05.",
+    "sql_fix": "DELETE FROM attendance WHERE attendance_id = 'ATT_DUP_1';"
+  },
+  {
+    "anomaly_id": "ANO-03-2",
+    "error_type": "Duplicate Attendance Record",
+    "table": "attendance.csv",
+    "row_index": 252,
+    "column": "attendance_id, employee_id, work_date",
+    "faulty_value": "EMP005 - 2025-10-08",
+    "expected_value": "Duy nhất một bản ghi chấm công mỗi nhân viên mỗi ngày",
+    "description": "Trùng lặp 2 bản ghi chấm công của nhân viên EMP005 trong cùng ngày 2025-10-08.",
+    "sql_fix": "DELETE FROM attendance WHERE attendance_id = 'ATT_DUP_2';"
+  },
+  {
+    "anomaly_id": "ANO-04-1",
+    "error_type": "Out-of-bounds KPI Score",
+    "table": "kpi_evaluations.csv",
+    "row_index": 27,
+    "column": "actual_score",
+    "faulty_value": "999.0",
+    "expected_value": "95.0",
+    "description": "Điểm KPI thực tế 999.0 nằm ngoài dải giá trị chuẩn (0 đến 150 điểm).",
+    "sql_fix": "UPDATE kpi_evaluations SET actual_score = 95.0, completion_rate = 95.0 WHERE kpi_id = 'KPI0026';"
+  },
+  {
+    "anomaly_id": "ANO-04-2",
+    "error_type": "Out-of-bounds KPI Score",
+    "table": "kpi_evaluations.csv",
+    "row_index": 114,
+    "column": "actual_score",
+    "faulty_value": "-25.0",
+    "expected_value": "75.0",
+    "description": "Điểm KPI thực tế -25.0 nằm ngoài dải giá trị chuẩn (0 đến 150 điểm).",
+    "sql_fix": "UPDATE kpi_evaluations SET actual_score = 75.0, completion_rate = 75.0 WHERE kpi_id = 'KPI0113';"
+  },
+  {
+    "anomaly_id": "ANO-05-1",
+    "error_type": "KPI Rating Mismatch",
+    "table": "kpi_evaluations.csv",
+    "row_index": 50,
+    "column": "rating",
+    "faulty_value": "Xuất sắc (trong khi completion_rate = 58.5%)",
+    "expected_value": "Không đạt",
+    "description": "Điểm hoàn thành dưới 70% nhưng xếp loại lại là Xuất sắc, vi phạm quy tắc thang đánh giá.",
+    "sql_fix": "UPDATE kpi_evaluations SET rating = 'Không đạt' WHERE kpi_id = 'KPI0049';"
+  },
+  {
+    "anomaly_id": "ANO-05-2",
+    "error_type": "KPI Rating Mismatch",
+    "table": "kpi_evaluations.csv",
+    "row_index": 187,
+    "column": "rating",
+    "faulty_value": "Xuất sắc (trong khi completion_rate = 58.5%)",
+    "expected_value": "Không đạt",
+    "description": "Điểm hoàn thành dưới 70% nhưng xếp loại lại là Xuất sắc, vi phạm quy tắc thang đánh giá.",
+    "sql_fix": "UPDATE kpi_evaluations SET rating = 'Không đạt' WHERE kpi_id = 'KPI0186';"
+  },
+  {
+    "anomaly_id": "ANO-06-1",
+    "error_type": "Ghost Attendance Post-Turnover",
+    "table": "attendance.csv",
+    "row_index": 5096,
+    "column": "work_date",
+    "faulty_value": "2025-10-15",
+    "expected_value": "Không có bản ghi sau ngày 2025-03-11",
+    "description": "Nhân viên EMP017 đã thôi việc từ 2025-03-11 nhưng vẫn có chấm công ngày 2025-10-15.",
+    "sql_fix": "DELETE FROM attendance WHERE attendance_id = 'ATT_GHOST_1';"
+  },
+  {
+    "anomaly_id": "ANO-07-1",
+    "error_type": "Turnover Status Discrepancy",
+    "table": "employees.csv",
+    "row_index": 38,
+    "column": "status",
+    "faulty_value": "Active",
+    "expected_value": "Resigned",
+    "description": "Nhân viên EMP037 đã có hồ sơ trong bảng turnovers nhưng trạng thái trong employees vẫn ghi là Active.",
+    "sql_fix": "UPDATE employees SET status = 'Resigned' WHERE employee_id = 'EMP037';"
+  },
+  {
+    "anomaly_id": "ANO-08-1",
+    "error_type": "Invalid Base Salary",
+    "table": "employees.csv",
+    "row_index": 17,
+    "column": "base_salary",
+    "faulty_value": "-15000000.0",
+    "expected_value": "18000000.0",
+    "description": "Lương cơ bản có giá trị -15000000.0 VND không hợp lệ (nhỏ hơn hoặc bằng 0).",
+    "sql_fix": "UPDATE employees SET base_salary = 18000000.0 WHERE employee_id = 'EMP016';"
+  },
+  {
+    "anomaly_id": "ANO-08-2",
+    "error_type": "Invalid Base Salary",
+    "table": "employees.csv",
+    "row_index": 80,
+    "column": "base_salary",
+    "faulty_value": "0.0",
+    "expected_value": "18000000.0",
+    "description": "Lương cơ bản có giá trị 0.0 VND không hợp lệ (nhỏ hơn hoặc bằng 0).",
+    "sql_fix": "UPDATE employees SET base_salary = 18000000.0 WHERE employee_id = 'EMP079';"
+  },
+  {
+    "anomaly_id": "ANO-09-1",
+    "error_type": "Inverted Training Dates",
+    "table": "training_records.csv",
+    "row_index": 44,
+    "column": "end_date",
+    "faulty_value": "2025-08-10 (trước start_date 2025-08-20)",
+    "expected_value": "2025-08-25",
+    "description": "Ngày kết thúc khóa đào tạo diễn ra trước ngày bắt đầu.",
+    "sql_fix": "UPDATE training_records SET start_date = '2025-03-14', end_date = '2025-08-25' WHERE record_id = 'TRG0043';"
+  },
+  {
+    "anomaly_id": "ANO-09-2",
+    "error_type": "Inverted Training Dates",
+    "table": "training_records.csv",
+    "row_index": 170,
+    "column": "end_date",
+    "faulty_value": "2025-08-10 (trước start_date 2025-08-20)",
+    "expected_value": "2025-08-25",
+    "description": "Ngày kết thúc khóa đào tạo diễn ra trước ngày bắt đầu.",
+    "sql_fix": "UPDATE training_records SET start_date = '2025-08-20', end_date = '2025-08-25' WHERE record_id = 'TRG0169';"
+  },
+  {
+    "anomaly_id": "ANO-10-1",
+    "error_type": "Inconsistent Attendance Status",
+    "table": "attendance.csv",
+    "row_index": 217,
+    "column": "status, hours_worked",
+    "faulty_value": "status='On Leave', hours_worked=8.0",
+    "expected_value": "status='Present' hoặc hours_worked=0.0",
+    "description": "Bản ghi trạng thái là Nghỉ phép (On Leave) nhưng vẫn có dữ liệu chấm công và giờ làm việc 8.0.",
+    "sql_fix": "UPDATE attendance SET status = 'Present' WHERE attendance_id = 'ATT00215';"
+  },
+  {
+    "anomaly_id": "ANO-10-2",
+    "error_type": "Inconsistent Attendance Status",
+    "table": "attendance.csv",
+    "row_index": 672,
+    "column": "status, hours_worked",
+    "faulty_value": "status='On Leave', hours_worked=8.0",
+    "expected_value": "status='Present' hoặc hours_worked=0.0",
+    "description": "Bản ghi trạng thái là Nghỉ phép (On Leave) nhưng vẫn có dữ liệu chấm công và giờ làm việc 8.0.",
+    "sql_fix": "UPDATE attendance SET status = 'Present' WHERE attendance_id = 'ATT00669';"
+  }
+]

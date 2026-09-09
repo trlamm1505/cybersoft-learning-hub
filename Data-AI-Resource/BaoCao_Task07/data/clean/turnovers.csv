@@ -1,0 +1,36 @@
+turnover_id,employee_id,resignation_date,last_working_date,reason,exit_interview_score,handover_status
+TRN001,EMP017,2025-02-01,2025-03-11,Chuyển nơi cư trú hoặc việc gia đình,3.4,Completed
+TRN002,EMP018,2025-06-17,2025-07-27,Lý do sức khỏe và cân bằng công việc,3.6,Completed
+TRN003,EMP019,2025-10-12,2025-11-22,Chuyển nơi cư trú hoặc việc gia đình,3.5,Completed
+TRN004,EMP033,2025-02-01,2025-03-11,Chuyển hướng chuyên môn / khởi nghiệp,3.7,Completed
+TRN005,EMP034,2025-02-09,2025-03-19,Lý do sức khỏe và cân bằng công việc,3.2,Completed
+TRN006,EMP037,2025-09-12,2025-10-22,Cơ hội phát triển nghề nghiệp tốt hơn,2.8,Completed
+TRN007,EMP039,2025-06-06,2025-07-16,Chuyển hướng chuyên môn / khởi nghiệp,3.6,Completed
+TRN008,EMP046,2025-09-04,2025-10-14,Chuyển nơi cư trú hoặc việc gia đình,3.5,Completed
+TRN009,EMP061,2025-05-08,2025-06-18,Cơ hội phát triển nghề nghiệp tốt hơn,2.8,Completed
+TRN010,EMP066,2025-06-06,2025-07-16,Cơ hội phát triển nghề nghiệp tốt hơn,3.0,Pending
+TRN011,EMP067,2025-07-08,2025-08-18,Chuyển hướng chuyên môn / khởi nghiệp,2.2,Pending
+TRN012,EMP068,2025-06-09,2025-07-19,Cơ hội phát triển nghề nghiệp tốt hơn,3.0,Completed
+TRN013,EMP070,2025-10-06,2025-11-16,Chuyển nơi cư trú hoặc việc gia đình,3.7,Pending
+TRN014,EMP073,2025-07-03,2025-08-13,Thu nhập và chế độ đãi ngộ cạnh tranh,3.8,Completed
+TRN015,EMP081,2025-05-11,2025-06-21,Cơ hội phát triển nghề nghiệp tốt hơn,3.0,Completed
+TRN016,EMP082,2025-04-10,2025-05-20,Lý do sức khỏe và cân bằng công việc,3.6,Completed
+TRN017,EMP118,2025-04-15,2025-05-25,Chuyển hướng chuyên môn / khởi nghiệp,3.1,Completed
+TRN018,EMP119,2025-04-18,2025-05-28,Chuyển nơi cư trú hoặc việc gia đình,1.9,Pending
+TRN019,EMP125,2025-08-08,2025-09-18,Lý do sức khỏe và cân bằng công việc,2.4,Completed
+TRN020,EMP140,2025-01-11,2025-02-21,Cơ hội phát triển nghề nghiệp tốt hơn,3.5,Completed
+TRN021,EMP150,2025-05-04,2025-06-14,Chuyển nơi cư trú hoặc việc gia đình,2.9,Completed
+TRN022,EMP154,2025-08-02,2025-09-12,Chuyển nơi cư trú hoặc việc gia đình,3.4,Completed
+TRN023,EMP161,2025-04-17,2025-05-27,Thu nhập và chế độ đãi ngộ cạnh tranh,3.4,Completed
+TRN024,EMP162,2025-10-03,2025-11-13,Lý do sức khỏe và cân bằng công việc,1.8,Completed
+TRN025,EMP165,2025-10-03,2025-11-13,Lý do sức khỏe và cân bằng công việc,3.0,Completed
+TRN026,EMP174,2025-03-08,2025-04-18,Chuyển hướng chuyên môn / khởi nghiệp,2.2,Completed
+TRN027,EMP177,2025-07-11,2025-08-21,Chuyển hướng chuyên môn / khởi nghiệp,2.7,Completed
+TRN028,EMP184,2025-04-05,2025-05-15,Lý do sức khỏe và cân bằng công việc,1.8,Completed
+TRN029,EMP190,2025-08-15,2025-09-25,Chuyển hướng chuyên môn / khởi nghiệp,2.6,Completed
+TRN030,EMP194,2025-09-15,2025-10-25,Chuyển hướng chuyên môn / khởi nghiệp,2.8,Completed
+TRN031,EMP199,2025-02-06,2025-03-16,Chuyển hướng chuyên môn / khởi nghiệp,3.7,Completed
+TRN032,EMP200,2025-01-07,2025-02-17,Chuyển hướng chuyên môn / khởi nghiệp,1.9,Completed
+TRN033,EMP238,2025-06-13,2025-07-23,Lý do sức khỏe và cân bằng công việc,1.6,Completed
+TRN034,EMP247,2025-03-01,2025-04-11,Thu nhập và chế độ đãi ngộ cạnh tranh,3.8,Completed
+TRN035,EMP248,2025-09-08,2025-10-18,Cơ hội phát triển nghề nghiệp tốt hơn,2.7,Completed
