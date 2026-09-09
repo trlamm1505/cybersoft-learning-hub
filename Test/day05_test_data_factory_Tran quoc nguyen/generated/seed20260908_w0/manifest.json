@@ -1,0 +1,7 @@
+{
+  "seed": 20260908,
+  "worker_id": "w0",
+  "run_id": "seed20260908_w0",
+  "scenario_count": 20,
+  "note": "Synthetic test data only. No real PII."
+}
