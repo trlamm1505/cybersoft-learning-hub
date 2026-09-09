@@ -1,145 +1,152 @@
-# ĐẶC TẢ KIẾN TRÚC VÀ MÔ HÌNH DỮ LIỆU NHÂN SỰ & VẬN HÀNH (`HR_ops_v1`)
+# 07. ĐẶC TẢ KỸ THUẬT BỘ DATASET NHÂN SỰ VÀ VẬN HÀNH HR_OPS_V1
 
-> **Dự án**: CyberSoft Data & AI Lab  
-> **Chương trình**: Thực tập sinh Data & AI Resource Engineer (30 ngày)  
-> **Giai đoạn**: Tuần 2 — Tạo tài nguyên dữ liệu  
-> **Tác giả**: Đào Trung Kiên  
-> **Mã bàn giao**: `#DAY-07-HR-OPS-DATASET`  
-> **Phiên bản**: 1.0.0 (Release Candidate)  
-
----
-
-## 1. TỔNG QUAN BÀI TOÁN & GIÁ TRỊ GIẢNG DẠY
-
-### 1.1. Bối cảnh Doanh nghiệp
-Trong môi trường doanh nghiệp công nghệ và giáo dục quy mô vừa và lớn (như CyberSoft), dữ liệu Nhân sự (Human Resources) và Vận hành (Operations) đóng vai trò sống còn trong việc:
-* Quản lý năng suất lao động, theo dõi chuyên cần và chi phí quỹ lương.
-* Đánh giá hiệu suất nhân sự định kỳ (KPI & OKR) gắn liền với thăng tiến và đãi ngộ.
-* Theo dõi lộ trình đào tạo nội bộ (Training & Development) nhằm nâng cao năng lực đội ngũ.
-* Dự báo và kiểm soát tỷ lệ biến động nhân sự (Employee Turnover / Attrition), phát hiện sớm các nguy cơ mất nhân tài chủ chốt (Flight Risk).
-
-### 1.2. Giá trị Giảng dạy và Thực hành
-Bộ dữ liệu `HR_ops_v1` được thiết kế đặc thù cho học viên khối ngành **Data Analyst (DA)** và **Business Intelligence (BI)** tại CyberSoft với các năng lực mục tiêu:
-1. **Thực hành Truy vấn SQL từ Cơ bản đến Nâng cao**:
-   - Thao tác đa bảng (Multi-table JOINs, Self-JOIN mô hình phân cấp quản lý).
-   - Truy vấn gom nhóm, tổng hợp có điều kiện (`GROUP BY`, `HAVING`, `CASE WHEN`).
-   - Kỹ thuật Window Functions (`ROW_NUMBER`, `RANK`, `DENSE_RANK`, `LAG`, `LEAD`, `AVG() OVER (PARTITION BY ...)`).
-   - CTEs (Common Table Expressions) và Subqueries đệ quy phân tích luồng nghỉ việc.
-2. **Kỹ năng Phân tích Dữ liệu với Excel Nâng cao**:
-   - Khởi tạo Pivot Table & Pivot Chart đa chiều.
-   - Hàm tìm kiếm và xử lý động (`XLOOKUP`, `INDEX-MATCH`, `SUMIFS`, `COUNTIFS`, Dynamic Arrays `FILTER`, `UNIQUE`).
-3. **Mô hình hóa Dữ liệu và Xây dựng Dashboard trên Power BI / Tableau**:
-   - Thiết kế mô hình Star Schema / Snowflake Schema tối ưu hóa quan hệ 1-Nhiều (1-to-Many).
-   - Viết các thước đo DAX (Measures) phức tạp: Headcount động theo thời gian, Rolling Turnover Rate, Average Tenure, Training ROI, KPI Performance Scorecard.
+**Dự án**: CyberSoft Data & AI Lab  
+**Đầu việc**: NGÀY 07 — Dataset nhân sự và vận hành (`HR_ops_v1`)  
+**Vai trò phụ trách**: Data & AI Resource Engineer (Đào Trung Kiên)  
+**Phiên bản**: v1.0  
+**Ngày hoàn thiện**: 2026-09-09  
 
 ---
 
-## 2. KIẾN TRÚC MÔ HÌNH DỮ LIỆU (DATA ARCHITECTURE & ERD)
+## 1. TỔNG QUAN VÀ SỰ KHÁC BIỆT SO VỚI CÁC TASK TRƯỚC
 
-Mô hình dữ liệu `HR_ops_v1` được tổ chức theo chuẩn quan hệ kết hợp Star Schema với 2 bảng chiều (Dimension Tables) và 3 bảng sự kiện / dữ kiện (Fact Tables):
+### 1.1. Bước chuyển dịch từ Dataset Bán hàng (Task 06) sang Dataset Vận hành Nhân sự (Task 07)
+Nếu như **Task 06** tập trung vào mô hình bán hàng đơn giản (`sales_v1`) với các quan hệ một chiều giữa khách hàng, đơn hàng và sản phẩm (3.073 dòng), thì **Task 07** đánh dấu bước nhảy vọt về độ phức tạp cả về quy mô lẫn tính chất miền nghiệp vụ:
+* **Quy mô dữ liệu tăng hơn 210%**: Đạt **6.481 bản ghi** trên 5 bảng (vượt xa chỉ tiêu tối thiểu 5.000 dòng của DoD), trong đó bảng `attendance` mô phỏng nhật ký quẹt thẻ thực tế của hơn 200 nhân sự qua 25 ngày công tiêu chuẩn.
+* **Mô hình hóa Trục thời gian (Temporal Domain Modeling)**: Quản lý vòng đời nhân sự (Employee Lifecycle) từ lúc tuyển dụng (`hire_date`), thử việc, biến động lương, đánh giá KPI định kỳ qua các quý, cho đến khi nộp đơn thôi việc (`resignation_date`) và ngày làm việc cuối cùng (`last_working_date`).
+* **Quan hệ Đệ quy Tự tham chiếu (Self-Referencing / Organizational Hierarchy)**: Bảng `employees` chứa trường `manager_id` trỏ ngược lại chính `employee_id`, cho phép học viên thực hành kỹ thuật Self-JOIN và CTE đệ quy để phân tích cấu trúc cây phân cấp quản lý.
+* **Cơ chế Đối soát Chéo KPI Đa chiều (Multi-table KPI Cross-Validation)**: Dữ liệu không chỉ đúng về mặt kiểu dữ liệu và khóa ngoại, mà còn phải bảo đảm các bất biến toán học liên bảng (Mathematical Invariants): tỷ lệ thôi việc giữa 2 bảng độc lập phải khớp 100%, tuyệt đối không có chấm công ma sau ngày thôi việc, thang xếp loại KPI phải đồng nhất với tỷ lệ hoàn thành.
+* **Định hướng Đa Nền tảng (SQL + Excel + BI DAX)**: Cung cấp đầy đủ tài nguyên thực hành từ truy vấn SQL nâng cao (Window Functions, Cohort), phân tích bảng động Excel (Pivot, XLOOKUP), đến mô hình hóa Star Schema và thước đo DAX Measures cho Power BI.
+
+---
+
+## 2. KIẾN TRÚC MÔ HÌNH DỮ LIỆU (RELATIONAL STAR SCHEMA)
+
+Hệ thống dữ liệu `HR_ops_v1` được cấu trúc kết hợp giữa 2 bảng Dimension (`employees`, `turnovers`) và 3 bảng Fact (`attendance`, `kpi_evaluations`, `training_records`):
 
 ```mermaid
 erDiagram
-    employees ||--o{ attendance : "has daily"
-    employees ||--o{ kpi_evaluations : "receives quarterly"
-    employees ||--o{ training_records : "participates in"
-    employees ||--o| turnovers : "has exit record"
-    employees ||--o{ employees : "reports to manager"
+    employees ||--o{ attendance : "quẹt thẻ hàng ngày"
+    employees ||--o{ kpi_evaluations : "đánh giá định kỳ theo quý"
+    employees ||--o{ training_records : "tham gia đào tạo nội bộ"
+    employees ||--o| turnovers : "hồ sơ phỏng vấn thôi việc (1-1)"
+    employees ||--o{ employees : "báo cáo người quản lý trực tiếp"
 
     employees {
-        string employee_id PK "Mã nhân viên (EMP001...)"
-        string full_name "Họ và tên nhân viên (Zero PII)"
+        string employee_id PK "Mã nhân viên (EMP001...EMP250)"
+        string full_name "Họ và tên nhân sự (Zero PII)"
         string gender "Giới tính (Nam / Nữ)"
         date birth_date "Ngày sinh"
-        string department "Phòng ban (Kỹ thuật, Đào tạo...)"
-        string position "Chức danh công việc"
+        string department "Phòng ban (Kỹ thuật, Đào tạo, Sales...)"
+        string position "Chức vụ đảm nhiệm"
         date hire_date "Ngày gia nhập công ty"
         numeric base_salary "Lương cơ bản (VND)"
         string status "Trạng thái (Active / Resigned)"
-        string manager_id FK "Mã người quản lý trực tiếp"
-        string work_location "Địa điểm làm việc"
+        string manager_id FK "Mã quản lý trực tiếp"
+        string work_location "Địa điểm làm việc (HCM, Hà Nội, Đà Nẵng)"
     }
 
     attendance {
-        string attendance_id PK "Mã bản ghi chấm công (ATT00001...)"
+        string attendance_id PK "Mã quẹt thẻ chấm công"
         string employee_id FK "Khóa ngoại trỏ về employees"
-        date work_date "Ngày làm việc"
-        time check_in "Giờ vào ca (HH:MM:SS)"
-        time check_out "Giờ ra ca (HH:MM:SS)"
+        date work_date "Ngày công làm việc"
+        time check_in "Giờ vào ca (08:30:00)"
+        time check_out "Giờ ra ca (17:30:00)"
         numeric hours_worked "Số giờ làm việc thực tế"
-        numeric overtime_hours "Số giờ làm thêm (OT)"
-        string status "Trạng thái chuyên cần"
+        numeric overtime_hours "Số giờ làm thêm ngoài giờ (OT)"
+        string status "Trạng thái (Present, Late, Early, Leave, Absent)"
     }
 
     kpi_evaluations {
-        string kpi_id PK "Mã đánh giá KPI (KPI001...)"
+        string kpi_id PK "Mã đánh giá hiệu suất"
         string employee_id FK "Khóa ngoại trỏ về employees"
-        string evaluation_period "Kỳ đánh giá (2025-Q1...)"
+        string evaluation_period "Kỳ đánh giá (2025-Q1, Q2, Q3)"
         numeric target_score "Điểm mục tiêu (100.0)"
-        numeric actual_score "Điểm đánh giá thực tế"
+        numeric actual_score "Điểm thực tế đạt được"
         numeric completion_rate "Tỷ lệ hoàn thành (%)"
-        string rating "Xếp loại hiệu suất"
-        string reviewer_id FK "Mã người đánh giá (Manager)"
+        string rating "Xếp loại hiệu suất (Xuất sắc, Đạt...)"
+        string reviewer_id FK "Mã người đánh giá"
     }
 
     training_records {
-        string record_id PK "Mã khóa đào tạo (TRG001...)"
+        string record_id PK "Mã khóa đào tạo"
         string employee_id FK "Khóa ngoại trỏ về employees"
-        string course_name "Tên khóa đào tạo"
-        string training_type "Phân loại đào tạo"
-        date start_date "Ngày bắt đầu"
-        date end_date "Ngày kết thúc"
-        numeric score "Điểm kiểm tra khóa học"
-        string completion_status "Trạng thái hoàn thành"
-        numeric training_cost "Chi phí đào tạo (VND)"
+        string course_name "Tên khóa đào tạo kỹ năng/chuyên môn"
+        string training_type "Phân loại (Kỹ thuật, Kỹ năng mềm, Lãnh đạo)"
+        date start_date "Ngày bắt đầu khóa học"
+        date end_date "Ngày bế giảng khóa học"
+        numeric score "Điểm thi kết thúc khóa"
+        string completion_status "Trạng thái (Completed, In Progress, Dropped)"
+        numeric training_cost "Chi phí đào tạo tài trợ (VND)"
     }
 
     turnovers {
-        string turnover_id PK "Mã hồ sơ thôi việc (TRN001...)"
+        string turnover_id PK "Mã hồ sơ thôi việc"
         string employee_id FK "Khóa ngoại 1-1 trỏ về employees"
         date resignation_date "Ngày nộp đơn thôi việc"
         date last_working_date "Ngày làm việc cuối cùng"
         string reason "Lý do thôi việc chính"
         numeric exit_interview_score "Điểm khảo sát thôi việc (1-5)"
-        string handover_status "Trạng thái bàn giao công việc"
+        string handover_status "Trạng thái bàn giao (Completed, Pending)"
     }
 ```
 
----
-
-## 3. THÔNG SỐ ĐỊNH LƯỢNG BỘ DỮ LIỆU (DATASET SPECS)
-
-* **Tổng số bảng**: 5 bảng quan hệ chuẩn.
-* **Tổng số bản ghi**: **> 6.600 bản ghi** (Vượt cam kết tối thiểu 5.000 bản ghi).
-* **Phân bổ chi tiết từng bảng**:
-  1. `employees.csv`: **250 bản ghi** (215 nhân sự đang làm việc, 35 nhân sự đã thôi việc).
-  2. `attendance.csv`: **5.250 bản ghi** (Chấm công chi tiết của toàn bộ nhân sự qua các ngày làm việc tiêu chuẩn trong tháng).
-  3. `kpi_evaluations.csv`: **705 bản ghi** (Dữ liệu đánh giá hiệu suất định kỳ theo các quý: 2025-Q1, 2025-Q2, 2025-Q3).
-  4. `training_records.csv`: **450 bản ghi** (Lịch sử tham gia các khóa đào tạo nội bộ và chứng chỉ chuyên môn).
-  5. `turnovers.csv`: **35 bản ghi** (Khớp chính xác 100% với 35 nhân sự có trạng thái `Resigned` trong bảng `employees`).
-* **Thời gian sinh dữ liệu**: < 1.0 giây (Deterministic với seed=42).
+### Thống kê dung lượng bản ghi (Clean Dataset):
+* `employees.csv`: **250** nhân sự (215 Active đang cống hiến, 35 Resigned đã thôi việc).
+* `turnovers.csv`: **35** hồ sơ thôi việc (khớp chính xác 100% với 35 nhân sự có `status = 'Resigned'`).
+* `attendance.csv`: **5.092** bản ghi chấm công (25 ngày làm việc tiêu chuẩn trong tháng 10-11/2025).
+* `kpi_evaluations.csv`: **654** bản ghi đánh giá hiệu suất định kỳ (3 quý: Q1, Q2, Q3/2025).
+* `training_records.csv`: **450** bản ghi đào tạo nâng cao chuyên môn và kỹ năng.
+* **TỔNG CỘNG: 6.481 bản ghi** (Vượt cam kết tối thiểu 5.000 dòng).
 
 ---
 
-## 4. MA TRẬN ĐỐI SOÁT & KIỂM TRA CHÉO KPI (KPI RECONCILIATION MATRIX)
+## 3. CÀI CẮM 10 LOẠI LỖI NGHIỆP VỤ CÓ CHỦ Ý TRONG BẢN DIRTY
 
-| Mã KPI | Tên Chỉ số Nghiệp vụ | Công thức Tính toán | Quy tắc Kiểm tra Chéo (Cross-Validation) |
-| :--- | :--- | :--- | :--- |
-| **KPI-01** | Tỷ lệ Nghỉ việc (Turnover Rate) | `Turnover Rate = (Resigned / Avg Headcount) * 100%` | Số dòng trong `turnovers.csv` = Số bản ghi `employees.status = 'Resigned'`. Ngày `last_working_date` >= `hire_date`. |
-| **KPI-02** | Tỷ lệ Chuyên cần (Attendance Rate) | `(Present + Late Days) / Total Scheduled Days * 100%` | Nhân viên nghỉ việc không được có phát sinh chấm công sau ngày `last_working_date`. |
-| **KPI-03** | Tỷ lệ Đi trễ (Punctuality / Tardiness) | `Late Count / Total Working Days * 100%` | Bản ghi có `status = 'Late'` bắt buộc có `check_in > 08:30:00`. |
-| **KPI-04** | Điểm KPI Trung bình (Average KPI) | `AVG(actual_score)` theo phòng ban & kỳ đánh giá | `completion_rate = round(actual_score / target_score * 100, 2)`. Phân loại rating phải khớp chính xác với completion_rate. |
-| **KPI-05** | Tỷ lệ Hoàn thành Đào tạo (Training Rate) | `Completed Count / Total Enrolled * 100%` | Bản ghi `completion_status = 'Completed'` phải có `score >= 60.0` và `end_date >= start_date`. |
+Khác với các lỗi thuần túy về ký tự khoảng trắng hay cú pháp của Task 06, Task 07 cài cắm các **lỗi logic nghiệp vụ và vi phạm quy trình vận hành nhân sự thực tế**:
+
+| STT | Tên Loại Lỗi Cài Cắm | Tệp Vi Phạm | Vị trí Cụ thể | Hiện tượng Dữ liệu Bẩn | Rủi ro Nghiệp vụ Phân tích |
+| :---: | :--- | :--- | :--- | :--- | :--- |
+| **01** | **Foreign Key Orphan** | `attendance.csv` | 3 dòng (ATT00103, ATT00541, ATT01206) | Mã nhân viên `EMP999` không tồn tại trong danh mục nhân sự. | Thống kê số giờ công bị gán cho người ảo; phép JOIN bị mất dữ liệu. |
+| **02** | **Inverted Datetime** | `attendance.csv` | 3 dòng (ATT00321, ATT00891, ATT01641) | Giờ ra ca `08:30:00` sớm hơn giờ vào ca `17:30:00`. | Tính toán số giờ làm việc ra giá trị âm, phá vỡ logic tổng giờ công. |
+| **03** | **Duplicate Attendance** | `attendance.csv` | 2 cặp dòng (ATT00450, ATT01120) | Cùng một nhân viên có 2 bản ghi quẹt thẻ trong cùng một ngày. | Nhân đôi số giờ làm việc thực tế, tính khống quỹ lương ngày. |
+| **04** | **Out-of-bounds KPI Score** | `kpi_evaluations.csv` | 2 dòng (KPI0026, KPI0113) | Điểm KPI thực tế đạt `999.0` hoặc bị âm `-25.0` điểm. | Làm sai lệch nghiêm trọng chỉ số điểm KPI bình quân của phòng ban. |
+| **05** | **KPI Rating Mismatch** | `kpi_evaluations.csv` | 2 dòng (KPI0049, KPI0186) | Tỷ lệ hoàn thành đạt 58.5% nhưng xếp loại lại là "Xuất sắc". | Vi phạm quy chế khen thưởng, dẫn tới chi thưởng KPI sai đối tượng. |
+| **06** | **Ghost Attendance Post-Turnover** | `attendance.csv` | 1 dòng (`ATT_GHOST_1`) | Nhân viên `EMP017` nghỉ việc từ 11/03/2025 nhưng vẫn quẹt thẻ ngày 15/10/2025. | Trả lương cho "nhân viên ma", rủi ro thất thoát ngân sách nhân sự. |
+| **07** | **Turnover Status Discrepancy** | `employees.csv` | 1 dòng (`EMP037`) | Nhân viên đã có hồ sơ trong `turnovers` nhưng trạng thái vẫn ghi là `Active`. | Sai lệch số lượng Headcount thực tế và sai công thức tính tỷ lệ thôi việc. |
+| **08** | **Invalid Base Salary** | `employees.csv` | 2 dòng (EMP016, EMP079) | Mức lương cơ bản mang giá trị âm (`-15.000.000`) hoặc bằng `0` VND. | Lỗi quy chuẩn tiền lương theo luật lao động, hỏng phép tính quỹ lương. |
+| **09** | **Inverted Training Dates** | `training_records.csv` | 2 dòng (TRG0043, TRG0169) | Ngày kết thúc khóa học (`2025-08-10`) trước ngày bắt đầu (`2025-08-20`). | Tính thời lượng khóa học ra số ngày âm, sai lệch kế hoạch đào tạo. |
+| **10** | **Inconsistent Attendance Status** | `attendance.csv` | 2 dòng (ATT00215, ATT00669) | Trạng thái ghi `On Leave` (nghỉ phép) nhưng giờ làm việc lại là 8.0 tiếng. | Vừa hưởng nguyên lương làm việc vừa bị trừ phép, mâu thuẫn chấm công. |
 
 ---
 
-## 5. NGUYÊN TẮC AN TOÀN & BẢO MẬT DỮ LIỆU (ZERO PII COMPLIANCE)
+## 4. MA TRẬN ĐỐI SOÁT CHÉO TOÀN VẸN DỮ LIỆU (CROSS-VALIDATION MATRIX)
 
-1. **Tổng hợp Họ tên (Synthetic Names)**:
-   - Sử dụng kho ngữ liệu thuần Việt gồm 15 họ phổ biến (Nguyễn, Trần, Lê, Phạm, Hoàng, Vũ, Võ, Phan, Trương, Bùi, Đặng, Đỗ, Ngô, Hồ, Dương), kết hợp 20 tên đệm và 30 tên riêng.
-   - Không sử dụng bất kỳ thông tin thực tế nào của học viên, giảng viên hay nhân viên CyberSoft.
-2. **Email & Số điện thoại ảo**:
-   - Email chuẩn hóa không dấu: `{ho}.{dem}.{ten}.{id}@example.com`.
-   - Toàn bộ domain đều trỏ về `@example.com` (chuẩn IETF RFC 2606 dành cho dữ liệu kiểm thử và giáo dục).
-3. **Mức lương & Đãi ngộ**:
-   - Dữ liệu lương được mô phỏng theo phân phối chuẩn theo vị trí công việc từ Junior (8 - 14 triệu) đến Director (40 - 55 triệu), không phản ánh bảng lương thực tế của tổ chức.
+Điểm cốt lõi giúp Task 07 vượt trội về chất lượng kỹ thuật là hệ thống 10 tiêu chuẩn kiểm tra chéo tự động:
+1. `COUNT(employees.status = 'Resigned') == COUNT(turnovers)`: Khớp tuyệt đối 35 nhân sự thôi việc.
+2. `turnovers.employee_id ⊆ employees.employee_id`: 100% hồ sơ thôi việc trỏ về nhân sự hợp lệ.
+3. `turnovers.last_working_date >= employees.hire_date`: Trình tự thời gian công tác hợp lý.
+4. `attendance.work_date <= turnovers.last_working_date`: Loại trừ hoàn toàn chấm công ma.
+5. `attendance.employee_id ⊆ employees.employee_id`: 0% khóa ngoại chấm công mồ côi.
+6. `kpi_evaluations.employee_id ⊆ employees.employee_id`: Đánh giá KPI đúng nhân viên.
+7. `training_records.employee_id ⊆ employees.employee_id`: Tham gia đào tạo đúng nhân sự.
+8. `check_out > check_in` khi trạng thái là `Present`/`Late`.
+9. `end_date >= start_date` trong toàn bộ lịch sử đào tạo.
+10. Điểm KPI nằm trong khoảng 0 đến 150 điểm và bảng xếp loại tuân thủ đúng ngưỡng phần trăm.
+
+---
+
+## 5. BỘ CÔNG CỤ TỰ ĐỘNG HÓA VÀ KẾT QUẢ KIỂM THỬ
+
+* **Engine sinh dữ liệu (`generate_hr_dataset.py`)**: Tái sinh toàn bộ 10 file CSV trong **0.8 giây** với seed=42 xác định và Zero PII.
+* **CLI kiểm định chất lượng (`validate_hr_data.py`)**:
+  * Chạy trên `data/clean`: PASS 100%, 0 vi phạm (Exit Code 0).
+  * Chạy trên `data/dirty`: Bắt chính xác 22 vi phạm thuộc 10 nhóm lỗi (Zero False Negatives).
+* **Pytest Suite (`tests/test_hr_integrity.py`)**:
+  * Thực thi 8 bài kiểm thử tự động kiểm tra sự tồn tại tệp, quy mô số dòng, tính duy nhất của PK, tính toàn vẹn của FK, kiểm tra chéo thôi việc, và độ tin cậy của validator.
+  * Kết quả: **8 passed in 0.71s (100% SUCCESS)**.
+
+---
+
+## 6. KẾT LUẬN VÀ BÀN GIAO
+Bộ tài nguyên Task 07 đã hoàn thiện trọn vẹn theo đúng yêu cầu Ngày 07 trong Kế hoạch 30 ngày của CyberSoft. Tài nguyên sẵn sàng để phân phối cho các lớp học SQL nâng cao, Excel phân tích và Business Intelligence.
