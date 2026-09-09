@@ -16,13 +16,13 @@ Data-AI-Resource/
     ├── 07_hr_ops_dataset.md                 # Bản đặc tả kỹ thuật kiến trúc mô hình dữ liệu nhân sự & vận hành
     ├── Picture_07-Detail.png                # Sơ đồ quan hệ thực thể ERD Nhân sự & Vận hành (Dark Mode)
     ├── Picture_07-Detail.drawio             # Tệp thiết kế gốc mở trực tiếp bằng Draw.io (đường vuông góc 100%)
-    ├── AI_WORKLOG.md                        # Nhật ký sử dụng AI minh bạch, thẩm định lỗi & làm chủ kỹ thuật
+    ├── AI_WORKLOG.md                        # Nhật ký sử dụng AI minh bạch theo chuẩn 5 mục CyberSoft
     ├── data_dictionary/                     # Từ điển dữ liệu chi tiết
     │   ├── data_dictionary.md               # Bản từ điển dữ liệu định dạng Markdown
     │   └── data_dictionary.json             # Bản từ điển dữ liệu máy đọc (JSON Schema)
     ├── data/
     │   ├── clean/                           # 5 bảng dữ liệu sạch 100% (HR_ops_v1_clean - 6.481 bản ghi)
-    │   │   ├── employees.csv                # 250 nhân viên
+    │   │   ├── employees.csv                # 250 nhân viên (215 Active, 35 Resigned)
     │   │   ├── turnovers.csv                # 35 hồ sơ thôi việc (khớp 100% nhân sự Resigned)
     │   │   ├── attendance.csv               # 5.092 bản ghi quẹt thẻ chấm công
     │   │   ├── kpi_evaluations.csv          # 654 bản ghi đánh giá KPI định kỳ 3 quý
@@ -50,12 +50,16 @@ Data-AI-Resource/
 
 ---
 
-## 🚀 2. HƯỚNG DẪN THỰC THI NHANH (QUICK START)
+## 🚀 2. HƯỚNG DẪN THỰC THI (QUICK START)
+
+> **Lưu ý đường dẫn**: Các lệnh dưới đây có thể chạy trực tiếp từ thư mục `cybersoft-learning-hub/`. Nếu đứng từ thư mục gốc `d:\Cybersoft\Kien`, chỉ cần thêm tiền tố `cybersoft-learning-hub/`.
 
 ### 2.1. Tái sinh toàn bộ bộ dữ liệu (Deterministic Data Generation)
 ```powershell
 python Data-AI-Resource/BaoCao_Task07/scripts/generate_hr_dataset.py
 ```
+* **Thời gian thực thi**: < 1.0 giây.
+* **Kết quả**: Tự động tạo 10 tệp CSV (5 clean, 5 dirty) với **6.481 dòng sạch** và bảng đối chứng `dirty_data_ground_truth`.
 
 ### 2.2. Kiểm định tính toàn vẹn và đối soát chéo KPI qua CLI
 * **Tự động kiểm tra cả 2 bộ (Clean & Dirty Benchmark)**:
@@ -68,7 +72,7 @@ python Data-AI-Resource/BaoCao_Task07/scripts/validate_hr_data.py
 python Data-AI-Resource/BaoCao_Task07/scripts/validate_hr_data.py -d Data-AI-Resource/BaoCao_Task07/data/clean
 ```
 
-* **Kiểm tra riêng bộ dữ liệu bẩn (Kết quả: Bắt đúng 22 vi phạm, Exit Code 1)**:
+* **Kiểm tra riêng bộ dữ liệu bẩn (Kết quả: Bắt đúng 22 vi phạm thuộc 10 nhóm lỗi, Exit Code 1)**:
 ```powershell
 python Data-AI-Resource/BaoCao_Task07/scripts/validate_hr_data.py -d Data-AI-Resource/BaoCao_Task07/data/dirty
 ```
@@ -77,6 +81,7 @@ python Data-AI-Resource/BaoCao_Task07/scripts/validate_hr_data.py -d Data-AI-Res
 ```powershell
 pytest Data-AI-Resource/BaoCao_Task07/tests/ -v
 ```
+* **Kết quả**: `8 passed in 0.71s (100% SUCCESS)`.
 
 ---
 
