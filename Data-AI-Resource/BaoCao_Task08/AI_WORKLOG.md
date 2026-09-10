@@ -13,7 +13,7 @@
 * **Mục tiêu**: Xây dựng toàn diện tài nguyên dữ liệu phục vụ huấn luyện và đánh giá hệ thống RAG (Retrieval-Augmented Generation) cho hệ sinh thái CyberSoft Academy, bao gồm 2 thành phần cốt lõi:
   1. `RAG Corpus v1`: Tập ngữ liệu sạch gồm tối thiểu 20 tài liệu chuẩn hóa về quy chế học vụ, chính sách tài chính, hướng dẫn kỹ thuật và lộ trình đào tạo, được gắn metadata đầy đủ (document_id, title, category, section_id, version, tags).
   2. `RAG Evaluation Benchmark (100 câu hỏi)`: Bộ câu hỏi kiểm thử chất lượng hệ thống RAG có kèm Ground-truth Citations chuẩn xác, phân loại rõ ràng 4 nhóm câu hỏi (Single-hop, Multi-hop, Unanswerable, Adversarial/Distractor).
-* **Ràng buộc nghiệm thu khắt khe (Acceptance Criteria / DoD)**:
+* **Tiêu chí nghiệm thu (Acceptance Criteria / DoD)**:
   * Tối thiểu 20 tài liệu văn bản Markdown và đúng 100 câu hỏi đánh giá.
   * Phải có các câu hỏi gây nhiễu (Distractor / Adversarial) và câu không đủ dữ kiện (Unanswerable / Out-of-scope) để kiểm tra khả năng phòng vệ chống ảo giác (Hallucination Defense).
   * **Tuyệt đối không để xảy ra Answer Leakage**: Câu hỏi không được chứa mã hiệu nội bộ (`SEC-...`) hoặc sao chép nguyên văn cụm từ khóa của câu trả lời.
