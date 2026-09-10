@@ -11,7 +11,7 @@
 ## 1. TỔNG QUAN VÀ BỐI CẢNH KỸ THUẬT
 
 ### 1.1. Bước Chuyển dịch từ Dữ liệu Quan hệ (Task 07) sang Tài nguyên RAG (Task 08)
-Nếu như **Task 07** tập trung vào mô hình hóa dữ liệu quan hệ có cấu trúc (`HR_ops_v1` với 6.481 bản ghi dạng Star Schema phục vụ SQL, Excel và BI), thì **Task 08** đánh dấu bước chuyển mình quyết định sang lĩnh vực **Kỹ thuật Tài nguyên cho Hệ thống Trí tuệ Nhân tạo Tạo sinh (GenAI Resource Engineering)**:
+Kế thừa nền tảng từ **Task 07** (mô hình hóa dữ liệu quan hệ có cấu trúc `HR_ops_v1` với 6.481 bản ghi dạng Star Schema phục vụ SQL, Excel và BI), **Task 08** đánh dấu bước chuyển dịch chiến lược sang lĩnh vực **Kỹ thuật Tài nguyên cho Hệ thống Trí tuệ Nhân tạo Tạo sinh (GenAI Resource Engineering)**:
 * **Từ Dữ liệu Bảng (Tabular) sang Dữ liệu Văn bản Bán cấu trúc (Semi-structured Text with Frontmatter)**: Tài liệu được số hóa dạng Markdown kết hợp YAML metadata phong phú, sẵn sàng cho các công đoạn Text Splitting, Tokenization và Vector Embeddings.
 * **Chuẩn hóa Phân đoạn (Granular Section Partitioning)**: Toàn bộ 20 tài liệu được chia tách thành **81 phân đoạn (sections)** có mã định danh duy nhất (`SEC-XXX-YY`), bảo đảm mỗi phân đoạn là một đơn vị ngữ nghĩa độc lập có độ dài từ 120 đến 250 từ (300 - 600 tokens).
 * **Thiết kế Benchmark Đánh giá Đa chiều (Multi-faceted Eval Benchmark)**: Biên soạn đúng **100 câu hỏi kiểm thử** chia theo 4 nhóm thử thách riêng biệt: Truy xuất sự thật trực tiếp (Single-hop), Tổng hợp đa điều khoản (Multi-hop), Phòng vệ chống ảo giác (Unanswerable) và Nhận diện tiền đề bẫy (Adversarial/Distractor).
