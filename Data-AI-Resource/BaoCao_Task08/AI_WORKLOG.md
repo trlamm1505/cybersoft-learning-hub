@@ -7,11 +7,11 @@
 
 ---
 
-## 1. BÀI TOÁN VÀ GIẢ ĐỊNH TRƯỚC KHI GỌI AI (PRE-AI BASELINE)
+## 1. Bài toán và Giả định trước khi gọi AI (Pre-AI Baseline)
 
-### Giả định & Yêu cầu Kỹ thuật Ban đầu
+### Giả định & Yêu cầu ban đầu
 * **Mục tiêu**: Xây dựng toàn diện tài nguyên dữ liệu phục vụ huấn luyện và đánh giá hệ thống RAG (Retrieval-Augmented Generation) cho hệ sinh thái CyberSoft Academy, bao gồm 2 thành phần cốt lõi:
-  1. `RAG Corpus v1`: Tập ngữ liệu sạch gồm tối thiểu 20 tài liệu chuẩn hóa về quy chế học vụ, chính sách tài chính, hướng dẫn kỹ thuật và lộ trình đào tạo, được gắn metadata đầy đủ (document_id, title, category, section_id, version, tags).
+  1. `RAG Corpus v1`: Tập ngữ liệu gồm tối thiểu 20 tài liệu chuẩn hóa về quy chế học vụ, chính sách tài chính, hướng dẫn kỹ thuật và lộ trình đào tạo, được gắn metadata đầy đủ (`document_id`, `title`, `category`, `section_id`, `version`, `tags`).
   2. `RAG Evaluation Benchmark (100 câu hỏi)`: Bộ câu hỏi kiểm thử chất lượng hệ thống RAG có kèm Ground-truth Citations chuẩn xác, phân loại rõ ràng 4 nhóm câu hỏi (Single-hop, Multi-hop, Unanswerable, Adversarial/Distractor).
 * **Tiêu chí nghiệm thu (Acceptance Criteria / DoD)**:
   * Tối thiểu 20 tài liệu văn bản Markdown và đúng 100 câu hỏi đánh giá.
@@ -20,20 +20,20 @@
   * Trích dẫn Citation phải ánh xạ 100% khớp từng ký tự với nội dung văn bản nguồn trong corpus.
   * Có công cụ kiểm định tự động tuân thủ mã thoát POSIX (0/1/2) và test suite Pytest tự động 100% PASS.
 
-### Rủi ro Kỹ thuật & Bẫy AI Thường Gặp
-* **Bẫy Answer Leakage cơ học**: AI khi được yêu cầu sinh câu hỏi thường đưa trực tiếp cụm từ khóa của đáp án vào trong câu hỏi (Ví dụ: *"Thời gian bảo lưu 6 tháng có áp dụng cho học viên nghỉ phép không?"*). Lỗi này làm mất giá trị đánh giá năng lực của bộ máy tìm kiếm (Retriever) vì chỉ cần match từ khóa cơ học là ra kết quả.
+### Rủi ro dự kiến & Bẫy AI thường gặp
+* **Bẫy Answer Leakage cơ học**: AI khi được yêu cầu sinh câu hỏi thường đưa trực tiếp cụm từ khóa của đáp án hoặc mã định danh vào trong câu hỏi (Ví dụ: *"Thời gian bảo lưu 6 tháng có áp dụng cho học viên nghỉ phép không?"* hay *"Theo điều khoản SEC-POL-001-01..."*). Lỗi này làm mất giá trị đánh giá năng lực của bộ máy tìm kiếm (Retriever) vì chỉ cần match từ khóa cơ học là ra kết quả.
 * **Bẫy Bịa đặt Trích dẫn (Hallucinated Citations)**: AI có xu hướng tóm tắt hoặc viết lại câu trích dẫn citation theo ý hiểu thay vì trích xuất nguyên văn (verbatim substring) từ văn bản gốc, dẫn đến việc kiểm tra chuỗi `text_citation in section_content` bị thất bại.
 * **Bẫy Trả lời Bừa khi Gặp Câu Ngoài Phạm vi (False Ground Truth)**: Khi gặp các câu hỏi ngoài phạm vi corpus (như hỏi về bảo lưu 5 năm du học hay trả góp 36 tháng), AI thường tự suy đoán chính sách chung của xã hội để trả lời thay vì kiên quyết khẳng định tài liệu không đề cập và gán citations rỗng `[]`.
 * **Bẫy Phân mảnh Ngữ cảnh (Over-chunking)**: AI cắt vụn văn bản thành các câu đơn lẻ làm mất tính mạch lạc của các bảng điều kiện trong quy chế đào tạo.
 
 ---
 
-## 2. NHẬT KÝ TƯƠNG TÁC AI (AI INTERACTION LOG)
+## 2. Nhật ký Tương tác AI (AI Interaction Log)
 
-* **Công cụ / Model**: Google Antigravity & Codex (Model: Gemini 3.8 Flash).
+* **Công cụ / Model**: Google Antigravity & Codex (Model: Gemini 3.8 Flash / Claude 3.5 Sonnet).
 * **Mục tiêu tương tác**: Thiết kế cấu trúc 20 tài liệu văn bản Markdown, phân bổ 81 phân đoạn ngữ nghĩa, sinh bộ 100 câu hỏi đánh giá cân bằng 4 nhóm, xây dựng các JSON/Markdown Schema, bộ tài liệu hướng dẫn kỹ thuật và script kiểm thử toàn vẹn tự động.
 
-### Context & Prompt Chính Đã Sử Dụng:
+### Context & Prompt chính đã sử dụng:
 ```text
 Bạn là Principal AI Architect & Curriculum Engineering Lead tại CyberSoft Academy.
 Bối cảnh: Thực hiện Task 08 trong Kế hoạch 30 ngày Thực tập sinh Data & AI Resource Engineer.
@@ -53,27 +53,32 @@ Yêu cầu kỹ thuật chi tiết:
 
 ---
 
-## 3. THẨM ĐỊNH VÀ QUYẾT ĐỊNH CỦA CON NGƯỜI (HUMAN EVALUATION & DECISIONS)
+## 3. Thẩm định và Quyết định của Con người (Human Evaluation & Decisions)
 
 | Đề xuất ban đầu của AI | Vấn đề / Rủi ro phát hiện được | Quyết định & Chỉnh sửa của Con người |
 | :--- | :--- | :--- |
 | **Đưa mã định danh `SEC-POL-001-01` vào câu hỏi của người dùng** (Ví dụ: *"Theo điều khoản SEC-POL-001-01, học viên được bảo lưu khi nào?"*). | **Rò rỉ dữ liệu nghiêm trọng (Severe Answer Leakage)**: Người dùng thực tế không bao giờ biết mã section nội bộ; đưa mã này vào query sẽ biến bài toán tìm kiếm ngữ nghĩa thành tìm kiếm từ khóa tầm thường. | **LOẠI BỎ TRIỆT ĐỂ MÃ NỘI BỘ TRONG QUERY**: Viết lại toàn bộ câu hỏi dưới dạng ngôn ngữ tự nhiên mở (*"Điều kiện về thời lượng hoàn thành để học viên được quyền nộp đơn xin bảo lưu khóa học tại CyberSoft là gì?"*). Thiết lập regex audit kiểm tra cấm từ `sec-` trong query. |
-| **AI tự ý tóm tắt lại nội dung trích dẫn trong trường `text_citation` thay vì trích nguyên văn**. | Khiến việc kiểm tra tự động `text_citation in section_content` bị báo lỗi 100% (AssertionError) vì câu tóm tắt không tồn tại trong tài liệu gốc. | **ÉP BUỘC TRÍCH XUẤT NGUYÊN VĂN (EXACT SUBSTRING EXTRACTION)**: Rà soát và thay thế toàn bộ chuỗi trích dẫn bằng các đoạn văn bản nguyên mẫu (Verbatim text spans) lấy trực tiếp từ các file Markdown, bảo đảm hàm `find_citation()` trả về True 100%. |
+| **AI tự ý tóm tắt lại nội dung trích dẫn trong trường `text_citation` thay vì trích nguyên văn**. | Khiến việc kiểm tra tự động `text_citation in section_content` bị báo lỗi 100% (`AssertionError`) vì câu tóm tắt không tồn tại trong tài liệu gốc. | **ÉP BUỘC TRÍCH XUẤT NGUYÊN VĂN (EXACT SUBSTRING EXTRACTION)**: Rà soát và thay thế toàn bộ chuỗi trích dẫn bằng các đoạn văn bản nguyên mẫu (Verbatim text spans) lấy trực tiếp từ các file Markdown, bảo đảm hàm `find_citation()` trả về True 100%. |
 | **Khi xử lý câu Unanswerable Q071 (Hỏi về việc Mentor giải bài tập đại học riêng), AI trả lời: "Theo CS-FAQ-003, Mentor có quyền từ chối..."**. | Không có từ khóa khẳng định rõ ràng ("Không hỗ trợ" hoặc "Tài liệu không có"), khiến bài kiểm thử nhận diện câu trả lời từ chối bị fail. | **CHUẨN HÓA CÂU PHẢN HỒI CHO UNANSWERABLE**: Bổ sung rõ ràng *"Không hỗ trợ. Theo CS-FAQ-003..."* để thống nhất chuẩn ngữ nghĩa cho toàn bộ 20 câu hỏi âm tính (Negative examples). |
 | **Sử dụng cơ chế cắt đoạn theo số lượng token cố định (Fixed-size Chunking 200 tokens)**. | Cắt ngang giữa các câu quy chế, tách rời con số phần trăm điều kiện khỏi điều khoản tương ứng, phá vỡ tính logic của văn bản pháp lý. | **ÁP DỤNG MARKDOWN HEADER CHUNKING THEO TIÊU ĐỀ `## SEC-...`**: Giữ nguyên vẹn toàn bộ một điều khoản trong một section độc lập (300 - 600 tokens), tối ưu hóa cấu trúc cho cả Retriever và LLM Context. |
 | **Sử dụng lệnh `import generate_rag_dataset` bên trong chính file `generate_rag_dataset.py`**. | Gây lỗi vòng lặp `AttributeError: partially initialized module (circular import)` khi chạy độc lập qua CLI. | **TÁCH BIỆT VÀ CHUYỂN THÀNH HÀM `load_corpus_documents()` ĐỘC LẬP**: Đọc trực tiếp các file `.md` từ thư mục `data/corpus/`, loại bỏ hoàn toàn sự phụ thuộc lẫn nhau của các module. |
 
 ---
 
-## 4. KIỂM CHỨNG ĐỘC LẬP (INDEPENDENT VERIFICATION)
+## 4. Kiểm chứng Độc lập (Independent Verification)
 
-Con người tiến hành kiểm chứng chất lượng toàn diện thông qua các công cụ độc lập, ghi nhận log thực thi khách quan:
+Con người không nghiệm thu bằng cảm tính mà thực thi hệ thống kiểm thử tự động độc lập gồm script sinh dữ liệu, CLI validator và bộ 9 Pytest unit tests.
 
-### 4.1. Lệnh Kiểm định CLI Toàn diện:
+### Lệnh chạy kiểm thử:
 ```powershell
+# 1. Tự động kiểm định chất lượng toàn vẹn và đối soát trích dẫn RAG:
 python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task08/scripts/validate_rag_dataset.py
+
+# 2. Chạy toàn bộ Pytest Suite tự động:
+pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task08/tests/ -v
 ```
-**Kết quả Output**:
+
+### Kết quả chạy thực tế:
 ```text
 ================================================================================
  CYBERSOFT DATA & AI RESOURCE QUALITY GATE - TASK 08 RAG VALIDATOR
@@ -111,14 +116,7 @@ python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task08/scripts/validate_ra
 
 [PASS] ALL CHECKS PASSED 100%! DATASET INTEGRITY VERIFIED.
 Validator exiting with Exit Code 0 (Success).
-```
 
-### 4.2. Lệnh Kiểm thử Tự động Pytest Suite:
-```powershell
-pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task08/tests/ -v
-```
-**Kết quả Output**:
-```text
 ============================= test session starts =============================
 platform win32 -- Python 3.10.11, pytest-9.1.1, pluggy-1.6.0
 rootdir: D:\Cybersoft\Kien
@@ -139,16 +137,9 @@ tests/test_rag_integrity.py::test_validator_cli_execution PASSED [100%]
 
 ---
 
-## 5. BÀI HỌC KINH NGHIỆM & BÀI THUYẾT TRÌNH 3 PHÚT
+## 5. Bốn Tầng Năng lực AI đã thể hiện (AI Competence Tiers)
 
-### Ba Bài học Kinh nghiệm Kỹ thuật (Key Learnings)
-1. **RAG Dataset Engineering đòi hỏi tính chặt chẽ về mặt ranh giới ngữ nghĩa (Semantic Boundary)**: Khác với dữ liệu quan hệ có khóa chính/khóa ngoại tường minh, dữ liệu văn bản RAG đòi hỏi mỗi section phải là một khối kiến thức tự thân hoàn chỉnh (Self-contained context), nếu chia cắt quá vụn sẽ làm hỏng khả năng tổng hợp của mô hình.
-2. **Bộ Mẫu Âm tính (Negative Examples) là chốt chặn quan trọng nhất của hệ thống RAG thực tế**: Đa phần các lỗi nghiêm trọng trong doanh nghiệp xuất phát từ việc LLM cố gắng bịa ra câu trả lời khi người dùng hỏi các câu hỏi không có trong chính sách. Việc thiết kế 20 câu Unanswerable kèm ground truth từ chối dứt khoát là điều kiện tiên quyết để rèn luyện chốt chặn Faithfulness.
-3. **Phòng chống Answer Leakage phải được tích hợp vào CI/CD Pipeline**: Việc kiểm tra rò rỉ đáp án không thể làm thủ công bằng mắt. Cần xây dựng các bộ linter tự động quét n-gram overlap và cấm các mã định danh kỹ thuật xuất hiện trong câu hỏi kiểm thử.
-
-### Bài Thuyết trình 3 Phút (Elevator Pitch)
-> *"Kính thưa Ban Đào tạo CyberSoft, hôm nay em xin đại diện nhóm Data & AI bàn giao tài nguyên Ngày 08: Bộ dữ liệu RAG Corpus v1 và Benchmark Đánh giá 100 Câu hỏi.  
-> Điểm đột phá của sản phẩm hôm nay là chúng em không chỉ xây dựng 20 tài liệu văn bản sạch với 81 phân đoạn có metadata đầy đủ, mà chúng em đã thiết kế một bộ khung đánh giá chất lượng RAG chuẩn công nghiệp:  
-> Thứ nhất, 100 câu hỏi được phân chia khoa học với 40 câu đơn, 20 câu tổng hợp đa văn bản, 20 câu kiểm tra phòng thủ ảo giác và 20 câu bẫy ranh giới.  
-> Thứ hai, 100% trích dẫn bằng chứng Ground-truth Citations được đối chiếu khớp từng ký tự với văn bản nguồn, tuyệt đối không bịa đặt và không rò rỉ đáp án trong câu hỏi.  
-> Toàn bộ tài nguyên đã vượt qua 9/9 bài kiểm thử tự động của Pytest trong 0.35 giây và có CLI Validator đạt mã thoát POSIX 0. Tài nguyên này sẵn sàng 100% để chuyển giao làm dữ liệu huấn luyện và chấm điểm cho các hệ thống Trợ lý Tri thức RAG tại CyberSoft. Em xin cảm ơn!"*
+* **Tầng 1 — Hiểu việc (Task Comprehension)**: Phân tích bài toán thiết kế kiến trúc RAG Corpus 20 tài liệu văn bản bán cấu trúc (81 sections kèm Frontmatter YAML phong phú), hoạch định bộ 100 câu hỏi Benchmark chia 4 nhóm đặc thù (Single-hop, Multi-hop, Unanswerable, Adversarial/Distractor), xác lập chiến lược phân đoạn Markdown Header Chunking và ma trận đối soát trích dẫn Ground Truth trước khi gọi AI.
+* **Tầng 2 — Điều phối AI (AI Orchestration)**: Phân vai Principal AI Architect & Curriculum Engineering Lead, thiết kế prompt có cấu trúc chặt chẽ với các ràng buộc kỹ thuật rõ ràng (Zero Answer Leakage, trích dẫn nguyên văn substring, POSIX exit codes), kiểm soát mạch lạc từng module bàn giao (Corpus Data, Benchmark QA, JSON/Markdown Schemas, Technical Docs, CLI Validator và Pytest test suite).
+* **Tầng 3 — Thẩm định (Critical Evaluation)**: Độc lập phát hiện và loại bỏ các cạm bẫy do AI sinh ra: triệt tiêu hiện tượng rò rỉ đáp án (xóa sạch mã `SEC-...` trong câu hỏi), ép buộc trích xuất nguyên văn `text_citation` thay vì tóm tắt, chuẩn hóa phản hồi dứt khoát "Không hỗ trợ" cho nhóm câu hỏi phòng vệ chống ảo giác (Unanswerable Q071), và sửa lỗi vòng lặp phụ thuộc `circular import`.
+* **Tầng 4 — Làm chủ (Technical Ownership)**: Tự thiết kế và hiện thực hóa CLI Validator chuẩn POSIX (exit code 0/1/2), bộ test suite 9 unit tests bằng Pytest tự động hóa hoàn toàn, ma trận Ground Truth 100% khớp văn bản nguồn, và làm chủ toàn diện 100% tài nguyên kỹ thuật bàn giao phục vụ các hệ thống RAG thực tế tại CyberSoft.

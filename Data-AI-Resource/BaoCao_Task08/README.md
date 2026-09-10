@@ -15,6 +15,8 @@ Data-AI-Resource/
     ├── README.md                            # Hướng dẫn tổng quan & chỉ mục nghiệm thu Ngày 08
     ├── 08_rag_dataset.md                    # Bản đặc tả kỹ thuật chi tiết RAG Corpus & Eval Benchmark
     ├── AI_WORKLOG.md                        # Nhật ký sử dụng AI minh bạch theo chuẩn CyberSoft
+    ├── Picture_08_01-Detail.png             # Sơ đồ kiến trúc cấu trúc phân bổ tập ngữ liệu RAG Corpus v1
+    ├── Picture_08_02-Detail.png             # Sơ đồ quy trình xử lý dữ liệu Ingestion và truy xuất RAG Pipeline
     ├── data/
     │   ├── corpus/                          # Tập ngữ liệu 20 tài liệu Markdown chuẩn hóa metadata
     │   │   ├── CS-POL-001_quy_che_bao_luu.md
