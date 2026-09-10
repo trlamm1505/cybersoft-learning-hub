@@ -25,20 +25,6 @@ Tập tài liệu `RAG Corpus v1` bao gồm **20 tài liệu Markdown** chuẩn 
 
 ![Sơ đồ Cấu trúc Phân bổ Tập Ngữ liệu RAG Corpus v1](./Picture_08_01-Detail.png)
 
-```mermaid
-graph TD
-    Corpus["RAG Corpus v1 (20 Documents / 81 Sections)"]
-    Corpus --> POL["1. Academic Policy (CS-POL-001 -> 005)"]
-    Corpus --> TEC["2. Technical Guide (CS-TEC-001 -> 005)"]
-    Corpus --> CRS["3. Curriculum (CS-CRS-001 -> 005)"]
-    Corpus --> FAQ["4. Academic FAQ (CS-FAQ-001 -> 005)"]
-    
-    POL --> POL_Desc["Bảo lưu, Hoàn phí, Chuyên cần Capstone, Cấp bằng, Học bổng"]
-    TEC --> TEC_Desc["Môi trường Python, Git Classroom, Docker DB, GPU Colab, Clean Code"]
-    CRS --> CRS_Desc["Fullstack Web, Data & AI, DevOps AWS, SOC Analyst, Mobile App"]
-    FAQ --> FAQ_Desc["Học phí trả góp, Online/Offline, Hỗ trợ Mentor, Việc làm, Portal LMS"]
-```
-
 ### Thống kê Danh mục Tài liệu trong Corpus:
 
 | Mã Tài Liệu | Tiêu Đề Văn Bản Nghiệp Vụ | Phân Loại | Số Phân Đoạn | Từ Khóa Metadata Phục Vụ Lọc |
@@ -113,19 +99,6 @@ Bộ dữ liệu đánh giá gồm đúng **100 câu hỏi** phân cấp chặt 
 Tài liệu `docs/rag_chunking_and_retrieval_guidelines.md` đặc tả quy trình khuyến nghị khi triển khai RAG Engine thực tế:
 
 ![Sơ đồ Quy trình Xử lý Dữ liệu Ingestion và Truy xuất RAG Pipeline](./Picture_08_02-Detail.png)
-
-```mermaid
-flowchart TD
-    Raw[20 Markdown Documents] --> HeaderChunk[Markdown Section Splitter]
-    HeaderChunk --> MetaInject[Metadata Injection: doc_id, category, tags]
-    MetaInject --> VectorStore[(Vector Store: ChromaDB / Qdrant)]
-    
-    UserQuery[User Inquiry] --> HyDE[Hybrid Search: Dense + BM25]
-    HyDE --> VectorStore
-    VectorStore --> CandidateChunks[Top-K Candidates: K=5]
-    CandidateChunks --> CrossRerank[Cross-Encoder Reranker]
-    CrossRerank --> LLMGen[LLM Generator: Faithfulness Guardrails]
-```
 
 1. **Chunking theo Tiêu đề Cấp 2 (`## SEC-...`)**:
    - Tránh việc cắt văn bản cơ học theo số token cố định làm đứt gãy câu hoặc tách rời tiêu chí điều kiện.
