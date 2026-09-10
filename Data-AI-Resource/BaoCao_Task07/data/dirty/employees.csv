@@ -1,0 +1,251 @@
+employee_id,full_name,gender,birth_date,department,position,hire_date,base_salary,status,manager_id,work_location
+EMP001,Nguyễn Ngọc Trang,Nữ,1988-06-09,Kỹ thuật & Công nghệ,Engineering Lead,2021-06-04,39000000.0,Active,,Hồ Chí Minh
+EMP002,Đỗ Tuấn Khoa,Nam,2000-01-24,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2021-07-03,41000000.0,Active,,Hà Nội
+EMP003,Đỗ Thùy Hà,Nữ,1997-02-02,Vận hành & Hỗ trợ,Operations Supervisor,2021-05-03,25500000.0,Active,,Hà Nội
+EMP004,Dương Quốc Huy,Nam,1986-06-07,Vận hành & Hỗ trợ,Facility Coordinator,2022-10-21,10000000.0,Active,EMP003,Hồ Chí Minh
+EMP005,Dương Gia Khoa,Nam,1995-12-18,Kỹ thuật & Công nghệ,QA Automation Engineer,2024-01-08,28000000.0,Active,EMP001,Hồ Chí Minh
+EMP006,Võ Đình Hải,Nam,1993-12-11,Kỹ thuật & Công nghệ,QA Automation Engineer,2025-07-21,22000000.0,Active,EMP001,Hồ Chí Minh
+EMP007,Võ Tuấn Nghĩa,Nam,1993-07-12,Kỹ thuật & Công nghệ,Frontend Engineer,2025-02-25,17500000.0,Active,EMP001,Hà Nội
+EMP008,Huỳnh Gia Thắng,Nam,1977-07-13,Kinh doanh & Marketing,Sales Team Leader,2022-09-09,25000000.0,Active,,Hà Nội
+EMP009,Võ Quốc Dũng,Nam,1984-07-06,Đào tạo & Học vụ,Giảng viên Full-stack,2024-09-25,25500000.0,Active,EMP002,Hồ Chí Minh
+EMP010,Đặng Hải Thắng,Nam,1981-03-12,Nhân sự & Hành chính,HR Manager,2021-09-25,49500000.0,Active,,Hồ Chí Minh
+EMP011,Bùi Thành An,Nam,1978-06-27,Đào tạo & Học vụ,Giảng viên Data & AI,2022-04-19,24500000.0,Active,EMP002,Hồ Chí Minh
+EMP012,Lê Hải Tú,Nam,1979-03-22,Kinh doanh & Marketing,Sales Team Leader,2023-05-17,38500000.0,Active,EMP008,Đà Nẵng
+EMP013,Phan Mai Linh,Nữ,1996-11-12,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2025-02-08,19500000.0,Active,EMP002,Hồ Chí Minh
+EMP014,Vũ Tuấn Hùng,Nam,1975-02-23,Vận hành & Hỗ trợ,Customer Success Executive,2023-02-02,15000000.0,Active,EMP003,Hồ Chí Minh
+EMP015,Đinh Minh Quang,Nam,1979-12-19,Kinh doanh & Marketing,Partnership Executive,2023-08-26,21500000.0,Active,EMP008,Hồ Chí Minh
+EMP016,Ngô Quốc Nghĩa,Nam,1988-08-28,Nhân sự & Hành chính,Talent Acquisition Specialist,2022-01-13,-15000000.0,Active,EMP010,Hồ Chí Minh
+EMP017,Vũ Thu Hà,Nữ,1992-08-05,Đào tạo & Học vụ,Giảng viên Data & AI,2024-08-08,24000000.0,Resigned,EMP002,Hồ Chí Minh
+EMP018,Phạm Thị Quỳnh,Nữ,1992-01-03,Nhân sự & Hành chính,C&B Specialist,2023-07-16,21500000.0,Resigned,EMP010,Hồ Chí Minh
+EMP019,Trần Hữu Nam,Nam,1975-07-09,Đào tạo & Học vụ,Mentor Học tập,2025-09-22,19500000.0,Resigned,EMP002,Hồ Chí Minh
+EMP020,Trần Tuấn Trung,Nam,1992-01-24,Đào tạo & Học vụ,Giảng viên Full-stack,2022-10-16,36000000.0,Active,EMP002,Đà Nẵng
+EMP021,Trần Hải Cường,Nam,2002-03-03,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2023-07-04,19000000.0,Active,EMP008,Hồ Chí Minh
+EMP022,Lê Hải Thảo,Nữ,1993-10-17,Đào tạo & Học vụ,Mentor Học tập,2023-11-23,17000000.0,Active,EMP002,Hồ Chí Minh
+EMP023,Đặng Thành Long,Nam,1999-02-01,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2022-02-18,19000000.0,Active,EMP002,Hồ Chí Minh
+EMP024,Đỗ Đình Hùng,Nam,1986-05-06,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2024-10-26,26000000.0,Active,EMP002,Hồ Chí Minh
+EMP025,Đặng Thanh Yến,Nữ,1979-05-04,Kỹ thuật & Công nghệ,QA Automation Engineer,2023-05-10,24500000.0,Active,EMP001,Hồ Chí Minh
+EMP026,Võ Hải Phúc,Nam,1983-01-03,Vận hành & Hỗ trợ,Operations Supervisor,2024-01-01,27000000.0,Active,EMP003,Hà Nội
+EMP027,Võ Ngọc Trâm,Nữ,1989-09-23,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2022-02-03,30000000.0,Active,EMP002,Hà Nội
+EMP028,Trần Quốc Sơn,Nam,1992-03-14,Kỹ thuật & Công nghệ,Backend Engineer,2024-06-26,19000000.0,Active,EMP001,Hà Nội
+EMP029,Vũ Đình Minh,Nam,1999-09-28,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2023-04-28,18500000.0,Active,EMP002,Đà Nẵng
+EMP030,Ngô Thị Giang,Nữ,1998-06-26,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2023-05-06,35000000.0,Active,EMP002,Hồ Chí Minh
+EMP031,Đinh Minh Hải,Nam,2001-08-12,Đào tạo & Học vụ,Giảng viên Data & AI,2023-01-22,28000000.0,Active,EMP002,Hồ Chí Minh
+EMP032,Lê Đức Minh,Nam,1995-09-13,Vận hành & Hỗ trợ,Facility Coordinator,2022-02-09,10000000.0,Active,EMP003,Hồ Chí Minh
+EMP033,Trần Thanh Phương,Nữ,1988-06-24,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2022-07-19,9500000.0,Resigned,EMP002,Hồ Chí Minh
+EMP034,Nguyễn Mỹ Uyên,Nữ,1992-11-24,Nhân sự & Hành chính,C&B Specialist,2024-07-03,24500000.0,Resigned,EMP010,Đà Nẵng
+EMP035,Phạm Mai Nhi,Nữ,1984-11-14,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2024-09-05,9500000.0,Active,EMP002,Hồ Chí Minh
+EMP036,Huỳnh Thùy Oanh,Nữ,1984-07-18,Kỹ thuật & Công nghệ,Data Engineer,2024-04-14,38500000.0,Active,EMP001,Hồ Chí Minh
+EMP037,Dương Thành Tiến,Nam,1981-09-16,Nhân sự & Hành chính,C&B Specialist,2022-05-17,24500000.0,Active,EMP010,Hồ Chí Minh
+EMP038,Vũ Đức Hùng,Nam,2000-04-05,Kỹ thuật & Công nghệ,Backend Engineer,2023-08-20,20000000.0,Active,EMP001,Hồ Chí Minh
+EMP039,Phan Hải Ngân,Nữ,1987-04-05,Vận hành & Hỗ trợ,Customer Success Executive,2022-07-08,12500000.0,Resigned,EMP003,Hà Nội
+EMP040,Dương Thị Nhung,Nữ,1982-02-15,Kỹ thuật & Công nghệ,Engineering Lead,2025-09-18,47500000.0,Active,EMP001,Hồ Chí Minh
+EMP041,Dương Thùy Vân,Nữ,1998-09-14,Kinh doanh & Marketing,Partnership Executive,2023-12-28,22500000.0,Active,EMP008,Hồ Chí Minh
+EMP042,Võ Mỹ Ngân,Nữ,1995-04-09,Đào tạo & Học vụ,Giảng viên Full-stack,2024-04-09,30500000.0,Active,EMP002,Hồ Chí Minh
+EMP043,Hoàng Hữu Hùng,Nam,1987-12-05,Vận hành & Hỗ trợ,IT Helpdesk System,2022-07-14,16000000.0,Active,EMP003,Hồ Chí Minh
+EMP044,Phan Gia Nam,Nam,1999-10-23,Kỹ thuật & Công nghệ,Engineering Lead,2025-08-01,43500000.0,Active,EMP001,Hồ Chí Minh
+EMP045,Ngô Hải Trung,Nam,1998-09-26,Kinh doanh & Marketing,Digital Marketing Specialist,2025-04-09,20500000.0,Active,EMP008,Hồ Chí Minh
+EMP046,Hồ Hữu Vinh,Nam,1989-03-20,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2025-01-03,20000000.0,Resigned,EMP008,Hồ Chí Minh
+EMP047,Huỳnh Thị Hoa,Nữ,1987-06-07,Đào tạo & Học vụ,Mentor Học tập,2024-07-09,18500000.0,Active,EMP002,Hồ Chí Minh
+EMP048,Nguyễn Hải Bình,Nam,1986-04-21,Kỹ thuật & Công nghệ,Engineering Lead,2022-01-08,41000000.0,Active,EMP001,Hà Nội
+EMP049,Vũ Ngọc Ngân,Nữ,1996-02-19,Kỹ thuật & Công nghệ,AI/ML Engineer,2024-06-06,41000000.0,Active,EMP001,Hồ Chí Minh
+EMP050,Phạm Ngọc Hương,Nữ,1978-10-01,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2025-07-23,19000000.0,Active,EMP002,Hồ Chí Minh
+EMP051,Vũ Thanh Trang,Nữ,1999-05-28,Vận hành & Hỗ trợ,Customer Success Executive,2022-06-18,16500000.0,Active,EMP003,Hà Nội
+EMP052,Bùi Văn Vũ,Nam,1988-08-04,Đào tạo & Học vụ,Mentor Học tập,2025-03-14,14500000.0,Active,EMP002,Hà Nội
+EMP053,Võ Thùy Uyên,Nữ,1992-08-15,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2024-06-28,39500000.0,Active,EMP002,Hà Nội
+EMP054,Dương Minh Tú,Nam,1989-10-20,Vận hành & Hỗ trợ,Operations Supervisor,2024-01-16,27000000.0,Active,EMP003,Hồ Chí Minh
+EMP055,Võ Quốc Khoa,Nam,1994-12-09,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2023-02-08,21500000.0,Active,EMP008,Hồ Chí Minh
+EMP056,Vũ Khánh Quỳnh,Nữ,1997-08-15,Kỹ thuật & Công nghệ,Backend Engineer,2024-04-13,25500000.0,Active,EMP001,Hồ Chí Minh
+EMP057,Đinh Mỹ Nhi,Nữ,1986-07-24,Kinh doanh & Marketing,Content Creator,2024-12-15,15000000.0,Active,EMP008,Hồ Chí Minh
+EMP058,Phan Quốc Dũng,Nam,1998-09-25,Vận hành & Hỗ trợ,IT Helpdesk System,2023-04-24,18500000.0,Active,EMP003,Hồ Chí Minh
+EMP059,Đặng Thanh Vân,Nữ,1981-05-08,Đào tạo & Học vụ,Giảng viên Data & AI,2024-01-23,39000000.0,Active,EMP002,Hồ Chí Minh
+EMP060,Trần Hải Kiên,Nam,1997-03-21,Nhân sự & Hành chính,HR Manager,2022-01-19,39500000.0,Active,EMP010,Hồ Chí Minh
+EMP061,Huỳnh Văn Khoa,Nam,2002-08-04,Kỹ thuật & Công nghệ,AI/ML Engineer,2025-02-19,42000000.0,Resigned,EMP001,Hà Nội
+EMP062,Đặng Đình Hùng,Nam,1978-09-25,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2023-09-13,23000000.0,Active,EMP002,Đà Nẵng
+EMP063,Ngô Đức Sơn,Nam,1994-01-20,Nhân sự & Hành chính,Talent Acquisition Specialist,2023-11-07,17000000.0,Active,EMP010,Hà Nội
+EMP064,Huỳnh Hải Cường,Nam,1980-01-14,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2025-05-02,39000000.0,Active,EMP002,Hồ Chí Minh
+EMP065,Dương Đình Tiến,Nam,1982-05-26,Vận hành & Hỗ trợ,IT Helpdesk System,2025-02-18,14500000.0,Active,EMP003,Hồ Chí Minh
+EMP066,Hoàng Thanh Bích,Nữ,1980-05-20,Nhân sự & Hành chính,HR Operations Officer,2025-02-15,14500000.0,Resigned,EMP010,Hà Nội
+EMP067,Đinh Khánh Châu,Nữ,1994-01-14,Nhân sự & Hành chính,HR Operations Officer,2024-01-03,13500000.0,Resigned,EMP010,Đà Nẵng
+EMP068,Nguyễn Mai Oanh,Nữ,1976-03-16,Kinh doanh & Marketing,Partnership Executive,2024-03-19,21500000.0,Resigned,EMP008,Hồ Chí Minh
+EMP069,Lê Thành Minh,Nam,1988-06-11,Vận hành & Hỗ trợ,Customer Success Executive,2023-06-14,17500000.0,Active,EMP003,Hồ Chí Minh
+EMP070,Trần Khánh Châu,Nữ,1985-05-11,Kỹ thuật & Công nghệ,Engineering Lead,2025-09-27,38000000.0,Resigned,EMP001,Hà Nội
+EMP071,Ngô Văn Hải,Nam,1991-06-20,Nhân sự & Hành chính,HR Manager,2025-01-07,39000000.0,Active,EMP010,Hồ Chí Minh
+EMP072,Dương Khánh Dung,Nữ,1975-11-20,Kỹ thuật & Công nghệ,QA Automation Engineer,2023-05-18,15000000.0,Active,EMP001,Hồ Chí Minh
+EMP073,Phạm Thành Dũng,Nam,1995-03-16,Vận hành & Hỗ trợ,Facility Coordinator,2024-07-27,12500000.0,Resigned,EMP003,Đà Nẵng
+EMP074,Hoàng Gia Hải,Nam,1994-09-24,Kỹ thuật & Công nghệ,Engineering Lead,2022-05-25,50500000.0,Active,EMP001,Hà Nội
+EMP075,Võ Văn Kiên,Nam,1998-05-27,Kinh doanh & Marketing,Sales Team Leader,2025-03-15,42000000.0,Active,EMP008,Hồ Chí Minh
+EMP076,Hồ Thành Long,Nam,2002-04-23,Kỹ thuật & Công nghệ,DevOps Engineer,2025-04-28,33000000.0,Active,EMP001,Hồ Chí Minh
+EMP077,Hồ Hải Thảo,Nữ,2000-11-05,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2023-09-19,15000000.0,Active,EMP008,Hà Nội
+EMP078,Dương Thanh Nhi,Nữ,1989-01-24,Kỹ thuật & Công nghệ,AI/ML Engineer,2023-02-16,47000000.0,Active,EMP001,Đà Nẵng
+EMP079,Hồ Đình Vũ,Nam,1985-11-28,Kinh doanh & Marketing,Partnership Executive,2024-11-23,0.0,Active,EMP008,Hà Nội
+EMP080,Trần Thùy Châu,Nữ,1982-11-22,Đào tạo & Học vụ,Giảng viên Data & AI,2022-07-04,42000000.0,Active,EMP002,Hà Nội
+EMP081,Huỳnh Đức An,Nam,1976-06-26,Kỹ thuật & Công nghệ,Data Engineer,2024-06-14,24500000.0,Resigned,EMP001,Hồ Chí Minh
+EMP082,Huỳnh Hữu Huy,Nam,1977-10-28,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2023-08-19,18000000.0,Resigned,EMP002,Hồ Chí Minh
+EMP083,Dương Mai Thảo,Nữ,1975-08-10,Vận hành & Hỗ trợ,IT Helpdesk System,2022-08-12,20000000.0,Active,EMP003,Hồ Chí Minh
+EMP084,Võ Khánh Vy,Nữ,1984-04-13,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2023-07-19,15500000.0,Active,EMP008,Hồ Chí Minh
+EMP085,Đặng Thị Vân,Nữ,1996-07-09,Kỹ thuật & Công nghệ,DevOps Engineer,2022-10-24,35500000.0,Active,EMP001,Hà Nội
+EMP086,Vũ Thùy Uyên,Nữ,1986-04-21,Kỹ thuật & Công nghệ,DevOps Engineer,2024-11-25,24000000.0,Active,EMP001,Hồ Chí Minh
+EMP087,Trần Mai Uyên,Nữ,1989-01-19,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2023-02-10,42000000.0,Active,EMP002,Hà Nội
+EMP088,Hoàng Hải Minh,Nam,1991-09-09,Kỹ thuật & Công nghệ,Data Engineer,2025-05-24,30500000.0,Active,EMP001,Hà Nội
+EMP089,Lê Hữu Tú,Nam,1982-11-24,Vận hành & Hỗ trợ,Operations Supervisor,2024-02-26,28000000.0,Active,EMP003,Hồ Chí Minh
+EMP090,Dương Quốc Tiến,Nam,1998-11-09,Kinh doanh & Marketing,Partnership Executive,2024-02-22,18500000.0,Active,EMP008,Hồ Chí Minh
+EMP091,Bùi Thùy Hạnh,Nữ,1995-02-21,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2024-11-14,35500000.0,Active,EMP002,Hồ Chí Minh
+EMP092,Đặng Khánh Dung,Nữ,1978-04-18,Kỹ thuật & Công nghệ,AI/ML Engineer,2025-06-22,45500000.0,Active,EMP001,Hà Nội
+EMP093,Hoàng Gia Thịnh,Nam,1978-08-20,Đào tạo & Học vụ,Mentor Học tập,2022-12-12,15000000.0,Active,EMP002,Hồ Chí Minh
+EMP094,Đỗ Thanh Thảo,Nữ,1986-09-21,Đào tạo & Học vụ,Giảng viên Full-stack,2025-05-07,23500000.0,Active,EMP002,Đà Nẵng
+EMP095,Lê Thu Quỳnh,Nữ,1995-10-01,Kỹ thuật & Công nghệ,Engineering Lead,2024-04-05,50500000.0,Active,EMP001,Hồ Chí Minh
+EMP096,Phan Tuấn Hải,Nam,2001-04-11,Nhân sự & Hành chính,C&B Specialist,2022-05-28,16000000.0,Active,EMP010,Đà Nẵng
+EMP097,Huỳnh Đình Tiến,Nam,2002-01-05,Kỹ thuật & Công nghệ,Data Engineer,2023-10-11,20500000.0,Active,EMP001,Hồ Chí Minh
+EMP098,Ngô Hải Dũng,Nam,1998-02-16,Đào tạo & Học vụ,Mentor Học tập,2022-08-17,15500000.0,Active,EMP002,Đà Nẵng
+EMP099,Đặng Thành Thịnh,Nam,1975-01-16,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2022-08-23,11500000.0,Active,EMP002,Hồ Chí Minh
+EMP100,Hoàng Đình Đạt,Nam,1983-10-21,Kinh doanh & Marketing,Sales Team Leader,2024-07-20,41500000.0,Active,EMP008,Hồ Chí Minh
+EMP101,Ngô Đình Việt,Nam,1997-02-28,Vận hành & Hỗ trợ,IT Helpdesk System,2025-08-08,17500000.0,Active,EMP003,Hồ Chí Minh
+EMP102,Ngô Đình Long,Nam,1988-06-22,Kỹ thuật & Công nghệ,Data Engineer,2023-11-16,22000000.0,Active,EMP001,Hồ Chí Minh
+EMP103,Ngô Đình Trung,Nam,1998-06-26,Kỹ thuật & Công nghệ,DevOps Engineer,2022-10-18,37500000.0,Active,EMP001,Hồ Chí Minh
+EMP104,Đỗ Gia Vũ,Nam,1998-01-10,Kinh doanh & Marketing,Content Creator,2024-02-19,19000000.0,Active,EMP008,Hồ Chí Minh
+EMP105,Vũ Thanh Lan,Nữ,2002-09-12,Kỹ thuật & Công nghệ,Engineering Lead,2024-10-08,50500000.0,Active,EMP001,Hồ Chí Minh
+EMP106,Nguyễn Thùy Thảo,Nữ,2001-12-09,Kỹ thuật & Công nghệ,Frontend Engineer,2024-12-25,25500000.0,Active,EMP001,Đà Nẵng
+EMP107,Huỳnh Hữu Sơn,Nam,1996-07-03,Kỹ thuật & Công nghệ,QA Automation Engineer,2022-02-24,23000000.0,Active,EMP001,Hồ Chí Minh
+EMP108,Bùi Hữu Minh,Nam,1984-12-11,Nhân sự & Hành chính,Talent Acquisition Specialist,2022-03-06,25000000.0,Active,EMP010,Hồ Chí Minh
+EMP109,Võ Khánh Thảo,Nữ,1988-08-20,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2024-04-25,12000000.0,Active,EMP002,Hồ Chí Minh
+EMP110,Đặng Tuấn Phúc,Nam,1991-11-10,Kỹ thuật & Công nghệ,Frontend Engineer,2025-01-01,22500000.0,Active,EMP001,Hồ Chí Minh
+EMP111,Hoàng Đức Kiên,Nam,1985-02-01,Kinh doanh & Marketing,Partnership Executive,2023-03-13,23500000.0,Active,EMP008,Hà Nội
+EMP112,Đỗ Đình Nam,Nam,2002-12-02,Đào tạo & Học vụ,Giảng viên Full-stack,2025-02-28,30000000.0,Active,EMP002,Hồ Chí Minh
+EMP113,Ngô Mai Dung,Nữ,1987-01-11,Kỹ thuật & Công nghệ,Engineering Lead,2025-06-03,44500000.0,Active,EMP001,Hà Nội
+EMP114,Hồ Hải Cường,Nam,1987-05-24,Đào tạo & Học vụ,Giảng viên Data & AI,2024-03-03,38000000.0,Active,EMP002,Hồ Chí Minh
+EMP115,Phan Quốc Minh,Nam,1998-11-27,Kỹ thuật & Công nghệ,Frontend Engineer,2022-03-09,22000000.0,Active,EMP001,Hồ Chí Minh
+EMP116,Lê Hữu Tú,Nam,1995-08-15,Nhân sự & Hành chính,HR Manager,2024-11-11,37000000.0,Active,EMP010,Hồ Chí Minh
+EMP117,Đặng Đức Sơn,Nam,1976-06-17,Kỹ thuật & Công nghệ,Data Engineer,2025-08-02,21500000.0,Active,EMP001,Hồ Chí Minh
+EMP118,Lê Tuấn Thắng,Nam,1991-07-15,Kinh doanh & Marketing,Sales Team Leader,2022-08-26,31000000.0,Resigned,EMP008,Hồ Chí Minh
+EMP119,Hoàng Văn Phong,Nam,1978-06-23,Kỹ thuật & Công nghệ,DevOps Engineer,2023-01-08,34000000.0,Resigned,EMP001,Đà Nẵng
+EMP120,Huỳnh Quốc Minh,Nam,1984-07-14,Nhân sự & Hành chính,HR Operations Officer,2022-11-21,15000000.0,Active,EMP010,Hồ Chí Minh
+EMP121,Hồ Đức Khoa,Nam,1998-11-20,Kỹ thuật & Công nghệ,Data Engineer,2022-10-22,24500000.0,Active,EMP001,Đà Nẵng
+EMP122,Hồ Hữu Thắng,Nam,1997-02-10,Kinh doanh & Marketing,Partnership Executive,2024-03-22,26000000.0,Active,EMP008,Hà Nội
+EMP123,Lê Hải Nhi,Nữ,1986-01-12,Đào tạo & Học vụ,Giảng viên Data & AI,2023-06-25,37500000.0,Active,EMP002,Hồ Chí Minh
+EMP124,Hoàng Thanh Hương,Nữ,2002-02-17,Nhân sự & Hành chính,Talent Acquisition Specialist,2024-10-05,22500000.0,Active,EMP010,Hồ Chí Minh
+EMP125,Huỳnh Thành Bình,Nam,1988-06-22,Nhân sự & Hành chính,C&B Specialist,2025-05-25,25500000.0,Resigned,EMP010,Hà Nội
+EMP126,Vũ Đức Việt,Nam,2000-08-27,Kỹ thuật & Công nghệ,Data Engineer,2025-08-25,29000000.0,Active,EMP001,Hà Nội
+EMP127,Ngô Hữu Vinh,Nam,1981-10-05,Kỹ thuật & Công nghệ,Backend Engineer,2025-06-18,21000000.0,Active,EMP001,Hà Nội
+EMP128,Phạm Đức Cường,Nam,1999-03-09,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2023-07-03,19500000.0,Active,EMP002,Hà Nội
+EMP129,Nguyễn Hải Bích,Nữ,1987-09-12,Kỹ thuật & Công nghệ,AI/ML Engineer,2022-06-08,22500000.0,Active,EMP001,Hồ Chí Minh
+EMP130,Bùi Hữu Đạt,Nam,1976-05-27,Kinh doanh & Marketing,Digital Marketing Specialist,2025-08-20,14000000.0,Active,EMP008,Đà Nẵng
+EMP131,Phan Hữu Quang,Nam,1998-10-17,Đào tạo & Học vụ,Giảng viên Full-stack,2024-04-10,23500000.0,Active,EMP002,Hồ Chí Minh
+EMP132,Dương Đình Dũng,Nam,2001-08-20,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2023-12-05,14500000.0,Active,EMP008,Hồ Chí Minh
+EMP133,Vũ Thùy Mai,Nữ,1980-11-22,Kỹ thuật & Công nghệ,DevOps Engineer,2024-02-17,37000000.0,Active,EMP001,Hồ Chí Minh
+EMP134,Nguyễn Hải Vy,Nữ,1990-01-21,Đào tạo & Học vụ,Mentor Học tập,2024-12-01,17500000.0,Active,EMP002,Hà Nội
+EMP135,Phạm Tuấn Trung,Nam,1999-06-05,Kỹ thuật & Công nghệ,Data Engineer,2024-11-06,41500000.0,Active,EMP001,Hồ Chí Minh
+EMP136,Huỳnh Ngọc Châu,Nữ,1997-08-02,Đào tạo & Học vụ,Giảng viên Data & AI,2022-04-02,32000000.0,Active,EMP002,Đà Nẵng
+EMP137,Đinh Đức Bình,Nam,1999-11-07,Đào tạo & Học vụ,Mentor Học tập,2022-11-11,16000000.0,Active,EMP002,Hồ Chí Minh
+EMP138,Hồ Thành Nam,Nam,1985-03-16,Vận hành & Hỗ trợ,Operations Supervisor,2024-09-09,34500000.0,Active,EMP003,Hồ Chí Minh
+EMP139,Ngô Tuấn Vinh,Nam,1980-09-10,Đào tạo & Học vụ,Giảng viên Full-stack,2022-06-22,29000000.0,Active,EMP002,Hồ Chí Minh
+EMP140,Ngô Ngọc Trang,Nữ,1989-06-15,Kỹ thuật & Công nghệ,QA Automation Engineer,2024-10-14,19000000.0,Resigned,EMP001,Hồ Chí Minh
+EMP141,Trần Thanh Thảo,Nữ,1995-07-12,Kinh doanh & Marketing,Digital Marketing Specialist,2022-03-28,23500000.0,Active,EMP008,Hà Nội
+EMP142,Hoàng Đình Hùng,Nam,1999-11-12,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2022-10-05,13000000.0,Active,EMP002,Hồ Chí Minh
+EMP143,Dương Đình Sơn,Nam,1979-09-12,Đào tạo & Học vụ,Mentor Học tập,2024-04-04,12000000.0,Active,EMP002,Hà Nội
+EMP144,Hồ Hải Dũng,Nam,1983-05-23,Đào tạo & Học vụ,Giảng viên Data & AI,2024-12-16,28000000.0,Active,EMP002,Hồ Chí Minh
+EMP145,Dương Ngọc Yến,Nữ,1997-08-03,Vận hành & Hỗ trợ,Facility Coordinator,2024-12-03,13000000.0,Active,EMP003,Hồ Chí Minh
+EMP146,Huỳnh Ngọc Uyên,Nữ,1986-09-08,Kỹ thuật & Công nghệ,Frontend Engineer,2023-04-26,31500000.0,Active,EMP001,Hồ Chí Minh
+EMP147,Đỗ Khánh Uyên,Nữ,1992-03-20,Kỹ thuật & Công nghệ,Backend Engineer,2024-07-23,33000000.0,Active,EMP001,Hồ Chí Minh
+EMP148,Lê Ngọc Huyền,Nữ,1995-02-15,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2024-03-27,37500000.0,Active,EMP002,Hà Nội
+EMP149,Trần Đình Quân,Nam,1979-05-06,Kỹ thuật & Công nghệ,Data Engineer,2023-06-17,29000000.0,Active,EMP001,Hà Nội
+EMP150,Võ Hữu Thịnh,Nam,1984-10-18,Kỹ thuật & Công nghệ,DevOps Engineer,2023-10-19,24500000.0,Resigned,EMP001,Hồ Chí Minh
+EMP151,Bùi Thùy Bích,Nữ,2001-01-03,Kỹ thuật & Công nghệ,QA Automation Engineer,2024-11-07,27000000.0,Active,EMP001,Hồ Chí Minh
+EMP152,Nguyễn Khánh Yến,Nữ,1995-09-10,Vận hành & Hỗ trợ,Facility Coordinator,2025-04-26,15000000.0,Active,EMP003,Hà Nội
+EMP153,Lê Văn Huy,Nam,1989-07-16,Đào tạo & Học vụ,Giảng viên Data & AI,2024-10-05,32000000.0,Active,EMP002,Hà Nội
+EMP154,Đỗ Gia Đạt,Nam,1999-06-17,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2024-04-15,11500000.0,Resigned,EMP008,Hồ Chí Minh
+EMP155,Phạm Văn Kiên,Nam,1987-10-14,Kỹ thuật & Công nghệ,Engineering Lead,2023-06-19,49500000.0,Active,EMP001,Hồ Chí Minh
+EMP156,Đinh Mỹ Nga,Nữ,1990-05-16,Kỹ thuật & Công nghệ,Backend Engineer,2025-09-15,25500000.0,Active,EMP001,Hồ Chí Minh
+EMP157,Trần Đức Phúc,Nam,1994-11-22,Kinh doanh & Marketing,Content Creator,2022-02-14,13000000.0,Active,EMP008,Hà Nội
+EMP158,Hồ Phương Bích,Nữ,1987-01-19,Kinh doanh & Marketing,Digital Marketing Specialist,2024-09-10,15000000.0,Active,EMP008,Hồ Chí Minh
+EMP159,Võ Tuấn Tiến,Nam,1994-02-05,Kỹ thuật & Công nghệ,AI/ML Engineer,2024-06-18,33500000.0,Active,EMP001,Hà Nội
+EMP160,Hồ Hải Bình,Nam,1976-01-05,Vận hành & Hỗ trợ,Facility Coordinator,2025-09-15,10000000.0,Active,EMP003,Hồ Chí Minh
+EMP161,Bùi Tuấn Long,Nam,1980-07-20,Nhân sự & Hành chính,HR Operations Officer,2024-09-27,18000000.0,Resigned,EMP010,Hồ Chí Minh
+EMP162,Đặng Khánh Vân,Nữ,1975-06-11,Vận hành & Hỗ trợ,Customer Success Executive,2025-05-26,10000000.0,Resigned,EMP003,Hồ Chí Minh
+EMP163,Vũ Văn Sơn,Nam,1990-03-17,Vận hành & Hỗ trợ,Operations Supervisor,2023-11-08,22500000.0,Active,EMP003,Hồ Chí Minh
+EMP164,Phan Thị Nga,Nữ,1985-07-05,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2023-07-17,47000000.0,Active,EMP002,Hà Nội
+EMP165,Trần Ngọc Nhi,Nữ,1981-09-11,Vận hành & Hỗ trợ,Operations Supervisor,2025-06-06,29000000.0,Resigned,EMP003,Đà Nẵng
+EMP166,Đỗ Đức Thắng,Nam,1990-04-08,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2024-04-10,28000000.0,Active,EMP002,Hồ Chí Minh
+EMP167,Đinh Quốc Phúc,Nam,1986-09-26,Nhân sự & Hành chính,HR Operations Officer,2024-02-19,16000000.0,Active,EMP010,Hà Nội
+EMP168,Đỗ Hữu Kiên,Nam,1976-05-23,Kỹ thuật & Công nghệ,Data Engineer,2025-05-24,35000000.0,Active,EMP001,Hồ Chí Minh
+EMP169,Võ Mỹ Trang,Nữ,1983-03-04,Kinh doanh & Marketing,Sales Team Leader,2023-04-02,41500000.0,Active,EMP008,Hồ Chí Minh
+EMP170,Phạm Gia Long,Nam,1997-08-04,Vận hành & Hỗ trợ,IT Helpdesk System,2022-09-06,17500000.0,Active,EMP003,Hà Nội
+EMP171,Đinh Khánh Quỳnh,Nữ,1981-05-11,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2022-02-21,39000000.0,Active,EMP002,Hồ Chí Minh
+EMP172,Trần Ngọc Mai,Nữ,2001-03-02,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2023-12-28,10000000.0,Active,EMP002,Hà Nội
+EMP173,Phạm Quốc Kiên,Nam,1989-11-18,Kinh doanh & Marketing,Partnership Executive,2023-09-15,19000000.0,Active,EMP008,Hồ Chí Minh
+EMP174,Huỳnh Thành Thịnh,Nam,1983-12-06,Kỹ thuật & Công nghệ,QA Automation Engineer,2024-05-19,25500000.0,Resigned,EMP001,Hà Nội
+EMP175,Hồ Gia Quân,Nam,1985-02-13,Vận hành & Hỗ trợ,Customer Success Executive,2023-03-16,15000000.0,Active,EMP003,Đà Nẵng
+EMP176,Hồ Minh Phong,Nam,1999-05-11,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2022-05-21,21500000.0,Active,EMP002,Hà Nội
+EMP177,Phạm Thành Kiên,Nam,1980-07-22,Kinh doanh & Marketing,Content Creator,2022-11-10,16500000.0,Resigned,EMP008,Hồ Chí Minh
+EMP178,Hoàng Thành Đạt,Nam,1989-12-20,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2025-09-26,13000000.0,Active,EMP002,Hà Nội
+EMP179,Lê Mỹ Nga,Nữ,1991-12-12,Kỹ thuật & Công nghệ,DevOps Engineer,2022-01-27,37500000.0,Active,EMP001,Đà Nẵng
+EMP180,Hoàng Hữu Long,Nam,2002-09-15,Kỹ thuật & Công nghệ,QA Automation Engineer,2023-12-19,22500000.0,Active,EMP001,Hồ Chí Minh
+EMP181,Trần Thành Đạt,Nam,1991-07-15,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2025-05-24,10000000.0,Active,EMP008,Hồ Chí Minh
+EMP182,Phan Thùy Châu,Nữ,1976-07-12,Vận hành & Hỗ trợ,Customer Success Executive,2022-02-16,10500000.0,Active,EMP003,Hồ Chí Minh
+EMP183,Hoàng Gia Minh,Nam,1987-08-28,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2022-11-22,12000000.0,Active,EMP002,Hồ Chí Minh
+EMP184,Phạm Ngọc Nhung,Nữ,1987-09-05,Nhân sự & Hành chính,C&B Specialist,2022-01-10,21000000.0,Resigned,EMP010,Hà Nội
+EMP185,Hồ Minh Hùng,Nam,1989-06-05,Đào tạo & Học vụ,Giảng viên Data & AI,2022-01-26,43000000.0,Active,EMP002,Hồ Chí Minh
+EMP186,Nguyễn Thu Hà,Nữ,1977-02-20,Kỹ thuật & Công nghệ,AI/ML Engineer,2022-04-24,23000000.0,Active,EMP001,Hồ Chí Minh
+EMP187,Phan Văn Đạt,Nam,1991-05-08,Nhân sự & Hành chính,HR Operations Officer,2024-04-10,12000000.0,Active,EMP010,Đà Nẵng
+EMP188,Ngô Đức Khoa,Nam,1976-09-19,Nhân sự & Hành chính,C&B Specialist,2025-09-16,14500000.0,Active,EMP010,Đà Nẵng
+EMP189,Hồ Mỹ Huyền,Nữ,1997-07-14,Kỹ thuật & Công nghệ,Data Engineer,2025-03-25,37000000.0,Active,EMP001,Hồ Chí Minh
+EMP190,Đặng Ngọc Uyên,Nữ,1989-01-18,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2023-07-08,10000000.0,Resigned,EMP002,Hồ Chí Minh
+EMP191,Dương Phương Châu,Nữ,1992-12-27,Kỹ thuật & Công nghệ,Backend Engineer,2024-07-22,37000000.0,Active,EMP001,Hồ Chí Minh
+EMP192,Phan Thùy Trâm,Nữ,1996-09-07,Kinh doanh & Marketing,Digital Marketing Specialist,2024-05-01,17000000.0,Active,EMP008,Đà Nẵng
+EMP193,Phạm Khánh Hạnh,Nữ,1997-10-23,Kỹ thuật & Công nghệ,AI/ML Engineer,2023-09-11,46500000.0,Active,EMP001,Hồ Chí Minh
+EMP194,Đỗ Đức Khoa,Nam,1986-09-16,Đào tạo & Học vụ,Giảng viên Full-stack,2025-06-07,31500000.0,Resigned,EMP002,Hồ Chí Minh
+EMP195,Vũ Hữu An,Nam,1983-09-19,Kinh doanh & Marketing,Partnership Executive,2024-03-07,20000000.0,Active,EMP008,Hồ Chí Minh
+EMP196,Vũ Khánh Nhung,Nữ,1995-11-11,Kỹ thuật & Công nghệ,Engineering Lead,2025-08-15,40500000.0,Active,EMP001,Hà Nội
+EMP197,Hoàng Hải Phúc,Nam,1980-09-21,Kỹ thuật & Công nghệ,DevOps Engineer,2022-02-27,21500000.0,Active,EMP001,Hà Nội
+EMP198,Vũ Đình Toàn,Nam,1979-01-07,Kinh doanh & Marketing,Partnership Executive,2024-01-20,25000000.0,Active,EMP008,Hà Nội
+EMP199,Đinh Khánh Anh,Nữ,1975-09-18,Đào tạo & Học vụ,Giảng viên Full-stack,2022-09-24,28500000.0,Resigned,EMP002,Hồ Chí Minh
+EMP200,Ngô Hữu Dũng,Nam,1978-09-05,Kỹ thuật & Công nghệ,Frontend Engineer,2024-06-09,28500000.0,Resigned,EMP001,Hồ Chí Minh
+EMP201,Dương Thùy Hạnh,Nữ,1997-04-10,Vận hành & Hỗ trợ,Customer Success Executive,2022-02-13,16000000.0,Active,EMP003,Hồ Chí Minh
+EMP202,Nguyễn Hữu Cường,Nam,1990-07-21,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2022-09-02,19500000.0,Active,EMP002,Hồ Chí Minh
+EMP203,Đinh Mai Bích,Nữ,1977-11-09,Kinh doanh & Marketing,Sales Team Leader,2022-03-28,35000000.0,Active,EMP008,Hồ Chí Minh
+EMP204,Hoàng Gia Cường,Nam,1984-03-19,Kỹ thuật & Công nghệ,DevOps Engineer,2025-09-11,32000000.0,Active,EMP001,Hà Nội
+EMP205,Lê Hải Trung,Nam,1986-01-04,Đào tạo & Học vụ,Giảng viên Data & AI,2022-06-20,41500000.0,Active,EMP002,Đà Nẵng
+EMP206,Bùi Văn Thịnh,Nam,1983-08-16,Kỹ thuật & Công nghệ,Data Engineer,2025-07-06,41500000.0,Active,EMP001,Hồ Chí Minh
+EMP207,Đặng Minh Toàn,Nam,1977-02-09,Kỹ thuật & Công nghệ,AI/ML Engineer,2023-12-13,32000000.0,Active,EMP001,Hồ Chí Minh
+EMP208,Đặng Thành Minh,Nam,1999-05-04,Kỹ thuật & Công nghệ,Backend Engineer,2023-07-15,35500000.0,Active,EMP001,Hồ Chí Minh
+EMP209,Nguyễn Đình Minh,Nam,1992-02-20,Kinh doanh & Marketing,Content Creator,2025-01-10,17500000.0,Active,EMP008,Hồ Chí Minh
+EMP210,Vũ Tuấn Quân,Nam,1980-11-13,Kỹ thuật & Công nghệ,Frontend Engineer,2024-05-09,31500000.0,Active,EMP001,Hồ Chí Minh
+EMP211,Võ Gia Kiên,Nam,1990-02-12,Kỹ thuật & Công nghệ,Frontend Engineer,2025-04-15,19000000.0,Active,EMP001,Hồ Chí Minh
+EMP212,Hồ Quốc Vinh,Nam,1994-07-26,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2024-07-27,13000000.0,Active,EMP002,Đà Nẵng
+EMP213,Bùi Tuấn Toàn,Nam,1981-08-11,Kỹ thuật & Công nghệ,AI/ML Engineer,2024-05-24,44000000.0,Active,EMP001,Hồ Chí Minh
+EMP214,Vũ Phương Linh,Nữ,1983-07-12,Kỹ thuật & Công nghệ,DevOps Engineer,2023-10-18,25500000.0,Active,EMP001,Hà Nội
+EMP215,Dương Thu Nga,Nữ,2000-05-27,Vận hành & Hỗ trợ,Customer Success Executive,2025-08-05,14500000.0,Active,EMP003,Hồ Chí Minh
+EMP216,Ngô Hải Châu,Nữ,1989-10-16,Kinh doanh & Marketing,Partnership Executive,2025-09-02,27500000.0,Active,EMP008,Đà Nẵng
+EMP217,Lê Thanh Tuyết,Nữ,1982-11-22,Đào tạo & Học vụ,Giảng viên Data & AI,2022-10-21,43500000.0,Active,EMP002,Hồ Chí Minh
+EMP218,Bùi Hải Dung,Nữ,1975-02-09,Kỹ thuật & Công nghệ,DevOps Engineer,2023-08-12,32500000.0,Active,EMP001,Hồ Chí Minh
+EMP219,Hoàng Phương Anh,Nữ,1990-02-10,Đào tạo & Học vụ,Giảng viên Full-stack,2022-12-05,31000000.0,Active,EMP002,Hồ Chí Minh
+EMP220,Phan Hải Phúc,Nam,1986-08-04,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2025-06-03,41500000.0,Active,EMP002,Hồ Chí Minh
+EMP221,Nguyễn Phương Quỳnh,Nữ,1978-11-26,Kỹ thuật & Công nghệ,QA Automation Engineer,2023-09-06,23500000.0,Active,EMP001,Hồ Chí Minh
+EMP222,Dương Thu Uyên,Nữ,1987-11-06,Kỹ thuật & Công nghệ,QA Automation Engineer,2025-07-01,26500000.0,Active,EMP001,Hồ Chí Minh
+EMP223,Ngô Gia An,Nam,1997-04-07,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2022-10-04,37500000.0,Active,EMP002,Hồ Chí Minh
+EMP224,Phạm Đức Tiến,Nam,2002-08-17,Vận hành & Hỗ trợ,Facility Coordinator,2025-07-19,9500000.0,Active,EMP003,Hồ Chí Minh
+EMP225,Huỳnh Mai Phương,Nữ,1993-02-22,Kỹ thuật & Công nghệ,Data Engineer,2022-04-10,23500000.0,Active,EMP001,Hồ Chí Minh
+EMP226,Hồ Hải Phương,Nữ,1979-10-13,Đào tạo & Học vụ,Giảng viên Data & AI,2025-09-23,42500000.0,Active,EMP002,Đà Nẵng
+EMP227,Huỳnh Thành Kiên,Nam,1979-03-11,Đào tạo & Học vụ,Chuyên viên R&D Khóa học,2022-06-01,23500000.0,Active,EMP002,Hồ Chí Minh
+EMP228,Đinh Hải Thảo,Nữ,1990-07-23,Đào tạo & Học vụ,Trợ giảng Kỹ thuật,2023-02-19,8000000.0,Active,EMP002,Hà Nội
+EMP229,Trần Đức Hùng,Nam,1992-05-06,Nhân sự & Hành chính,HR Manager,2025-09-17,36500000.0,Active,EMP010,Hồ Chí Minh
+EMP230,Đỗ Hải Vinh,Nam,1999-01-25,Nhân sự & Hành chính,HR Manager,2023-07-04,46500000.0,Active,EMP010,Hà Nội
+EMP231,Đặng Thị Nga,Nữ,1983-06-28,Kỹ thuật & Công nghệ,AI/ML Engineer,2022-04-07,47500000.0,Active,EMP001,Hà Nội
+EMP232,Ngô Ngọc Phương,Nữ,1979-04-27,Kỹ thuật & Công nghệ,Engineering Lead,2022-10-12,46500000.0,Active,EMP001,Hồ Chí Minh
+EMP233,Bùi Đức Kiên,Nam,1993-05-28,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2023-07-02,14000000.0,Active,EMP008,Hà Nội
+EMP234,Hoàng Minh Đạt,Nam,1997-06-27,Kỹ thuật & Công nghệ,Engineering Lead,2025-08-05,47000000.0,Active,EMP001,Hồ Chí Minh
+EMP235,Hồ Khánh Châu,Nữ,1995-02-13,Kinh doanh & Marketing,Content Creator,2024-08-16,16000000.0,Active,EMP008,Hồ Chí Minh
+EMP236,Lê Khánh Quỳnh,Nữ,1996-12-12,Kỹ thuật & Công nghệ,Engineering Lead,2025-04-14,51000000.0,Active,EMP001,Hồ Chí Minh
+EMP237,Đặng Quốc Quang,Nam,1993-03-19,Kinh doanh & Marketing,Content Creator,2022-01-04,18000000.0,Active,EMP008,Hồ Chí Minh
+EMP238,Huỳnh Khánh Nga,Nữ,1975-07-07,Vận hành & Hỗ trợ,IT Helpdesk System,2024-03-28,15000000.0,Resigned,EMP003,Hồ Chí Minh
+EMP239,Lê Quốc Tiến,Nam,1995-03-02,Đào tạo & Học vụ,Trưởng nhóm Đào tạo,2024-12-23,39000000.0,Active,EMP002,Hồ Chí Minh
+EMP240,Phạm Văn Hải,Nam,1990-02-05,Kinh doanh & Marketing,Digital Marketing Specialist,2025-01-01,25000000.0,Active,EMP008,Hồ Chí Minh
+EMP241,Ngô Hữu Phúc,Nam,1977-04-13,Kỹ thuật & Công nghệ,QA Automation Engineer,2022-02-11,20500000.0,Active,EMP001,Hà Nội
+EMP242,Hoàng Hữu Cường,Nam,1991-10-01,Kinh doanh & Marketing,Digital Marketing Specialist,2025-06-24,17000000.0,Active,EMP008,Hồ Chí Minh
+EMP243,Ngô Tuấn Tiến,Nam,1989-04-03,Kỹ thuật & Công nghệ,Frontend Engineer,2022-10-24,28000000.0,Active,EMP001,Hồ Chí Minh
+EMP244,Hoàng Minh Khoa,Nam,1995-02-08,Kinh doanh & Marketing,Sales Team Leader,2024-12-01,34500000.0,Active,EMP008,Hồ Chí Minh
+EMP245,Phan Hải Hương,Nữ,1995-01-26,Kỹ thuật & Công nghệ,AI/ML Engineer,2025-02-08,37500000.0,Active,EMP001,Hồ Chí Minh
+EMP246,Nguyễn Quốc Long,Nam,1979-07-28,Kinh doanh & Marketing,Partnership Executive,2024-09-22,17500000.0,Active,EMP008,Hà Nội
+EMP247,Lê Thị Oanh,Nữ,1977-01-09,Kỹ thuật & Công nghệ,Backend Engineer,2022-07-17,27000000.0,Resigned,EMP001,Hồ Chí Minh
+EMP248,Ngô Gia Toàn,Nam,1987-02-21,Kinh doanh & Marketing,Sales Team Leader,2023-05-03,34500000.0,Resigned,EMP008,Hồ Chí Minh
+EMP249,Hoàng Mỹ Huyền,Nữ,1987-10-21,Nhân sự & Hành chính,Talent Acquisition Specialist,2024-12-14,24500000.0,Active,EMP010,Đà Nẵng
+EMP250,Vũ Đình Nghĩa,Nam,1978-08-20,Kinh doanh & Marketing,Chuyên viên Tư vấn Tuyển sinh,2024-11-24,20500000.0,Active,EMP008,Hà Nội

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "dataset_name": "HR_ops_v1",
+  "version": "1.0.0",
+  "author": "Dao Trung Kien",
+  "project": "CyberSoft Data & AI Lab",
+  "tables": [
+    {
+      "name": "employees",
+      "type": "Dimension",
+      "description": "Bảng lưu trữ thông tin nhân sự, phòng ban, vị trí công tác, thâm niên và mức lương cơ bản.",
+      "record_count": 250,
+      "primary_key": ["employee_id"],
+      "foreign_keys": [
+        {
+          "column": "manager_id",
+          "references_table": "employees",
+          "references_column": "employee_id"
+        }
+      ],
+      "columns": [
+        {"name": "employee_id", "type": "VARCHAR(10)", "nullable": false, "description": "Mã định danh nhân viên duy nhất"},
+        {"name": "full_name", "type": "VARCHAR(100)", "nullable": false, "description": "Họ và tên nhân viên (Zero PII)"},
+        {"name": "gender", "type": "VARCHAR(10)", "nullable": false, "description": "Giới tính (Nam, Nữ)"},
+        {"name": "birth_date", "type": "DATE", "nullable": false, "description": "Ngày sinh (YYYY-MM-DD)"},
+        {"name": "department", "type": "VARCHAR(50)", "nullable": false, "description": "Phòng ban làm việc"},
+        {"name": "position", "type": "VARCHAR(100)", "nullable": false, "description": "Chức danh công việc"},
+        {"name": "hire_date", "type": "DATE", "nullable": false, "description": "Ngày gia nhập công ty (YYYY-MM-DD)"},
+        {"name": "base_salary", "type": "DECIMAL(12,2)", "nullable": false, "description": "Mức lương cơ bản (VND)"},
+        {"name": "status", "type": "VARCHAR(20)", "nullable": false, "description": "Trạng thái công tác (Active, Resigned)"},
+        {"name": "manager_id", "type": "VARCHAR(10)", "nullable": true, "description": "Mã quản lý trực tiếp"},
+        {"name": "work_location", "type": "VARCHAR(50)", "nullable": false, "description": "Địa điểm văn phòng"}
+      ]
+    },
+    {
+      "name": "attendance",
+      "type": "Fact",
+      "description": "Bảng ghi nhận nhật ký quẹt thẻ chấm công, giờ làm việc và chuyên cần hàng ngày.",
+      "record_count": 5092,
+      "primary_key": ["attendance_id"],
+      "foreign_keys": [
+        {
+          "column": "employee_id",
+          "references_table": "employees",
+          "references_column": "employee_id"
+        }
+      ],
+      "columns": [
+        {"name": "attendance_id", "type": "VARCHAR(15)", "nullable": false, "description": "Mã bản ghi chấm công"},
+        {"name": "employee_id", "type": "VARCHAR(10)", "nullable": false, "description": "Mã nhân viên"},
+        {"name": "work_date", "type": "DATE", "nullable": false, "description": "Ngày làm việc (YYYY-MM-DD)"},
+        {"name": "check_in", "type": "TIME", "nullable": true, "description": "Giờ vào ca (HH:MM:SS)"},
+        {"name": "check_out", "type": "TIME", "nullable": true, "description": "Giờ ra ca (HH:MM:SS)"},
+        {"name": "hours_worked", "type": "DECIMAL(4,1)", "nullable": false, "description": "Số giờ làm việc thực tế"},
+        {"name": "overtime_hours", "type": "DECIMAL(4,1)", "nullable": false, "description": "Số giờ làm thêm ngoài giờ"},
+        {"name": "status", "type": "VARCHAR(25)", "nullable": false, "description": "Trạng thái chuyên cần (Present, Late, Early Departure, On Leave, Absent)"}
+      ]
+    },
+    {
+      "name": "kpi_evaluations",
+      "type": "Fact",
+      "description": "Bảng ghi nhận kết quả đánh giá hiệu suất định kỳ theo quý của nhân viên.",
+      "record_count": 654,
+      "primary_key": ["kpi_id"],
+      "foreign_keys": [
+        {
+          "column": "employee_id",
+          "references_table": "employees",
+          "references_column": "employee_id"
+        },
+        {
+          "column": "reviewer_id",
+          "references_table": "employees",
+          "references_column": "employee_id"
+        }
+      ],
+      "columns": [
+        {"name": "kpi_id", "type": "VARCHAR(12)", "nullable": false, "description": "Mã bản ghi KPI"},
+        {"name": "employee_id", "type": "VARCHAR(10)", "nullable": false, "description": "Mã nhân viên"},
+        {"name": "evaluation_period", "type": "VARCHAR(10)", "nullable": false, "description": "Kỳ đánh giá (2025-Q1, 2025-Q2, 2025-Q3)"},
+        {"name": "target_score", "type": "DECIMAL(5,1)", "nullable": false, "description": "Điểm mục tiêu tiêu chuẩn (100.0)"},
+        {"name": "actual_score", "type": "DECIMAL(5,1)", "nullable": false, "description": "Điểm thực tế đạt được"},
+        {"name": "completion_rate", "type": "DECIMAL(5,2)", "nullable": false, "description": "Tỷ lệ hoàn thành mục tiêu (%)"},
+        {"name": "rating", "type": "VARCHAR(30)", "nullable": false, "description": "Xếp loại (Xuất sắc, Đạt, Cần cải thiện, Không đạt)"},
+        {"name": "reviewer_id", "type": "VARCHAR(10)", "nullable": false, "description": "Mã quản lý đánh giá"}
+      ]
+    },
+    {
+      "name": "training_records",
+      "type": "Fact",
+      "description": "Bảng ghi nhận lịch sử học tập, đào tạo nội bộ và nâng cao năng lực chuyên môn.",
+      "record_count": 450,
+      "primary_key": ["record_id"],
+      "foreign_keys": [
+        {
+          "column": "employee_id",
+          "references_table": "employees",
+          "references_column": "employee_id"
+        }
+      ],
+      "columns": [
+        {"name": "record_id", "type": "VARCHAR(12)", "nullable": false, "description": "Mã khóa đào tạo"},
+        {"name": "employee_id", "type": "VARCHAR(10)", "nullable": false, "description": "Mã nhân viên"},
+        {"name": "course_name", "type": "VARCHAR(150)", "nullable": false, "description": "Tên khóa đào tạo"},
+        {"name": "training_type", "type": "VARCHAR(50)", "nullable": false, "description": "Phân loại đào tạo"},
+        {"name": "start_date", "type": "DATE", "nullable": false, "description": "Ngày bắt đầu"},
+        {"name": "end_date", "type": "DATE", "nullable": false, "description": "Ngày kết thúc"},
+        {"name": "score", "type": "DECIMAL(4,1)", "nullable": true, "description": "Điểm thi kết thúc khóa"},
+        {"name": "completion_status", "type": "VARCHAR(25)", "nullable": false, "description": "Trạng thái hoàn thành (Completed, In Progress, Dropped)"},
+        {"name": "training_cost", "type": "DECIMAL(12,2)", "nullable": false, "description": "Chi phí đào tạo (VND)"}
+      ]
+    },
+    {
+      "name": "turnovers",
+      "type": "Fact",
+      "description": "Bảng ghi nhận biến động nhân sự, ngày thôi việc, lý do và kết quả phỏng vấn thôi việc.",
+      "record_count": 35,
+      "primary_key": ["turnover_id"],
+      "foreign_keys": [
+        {
+          "column": "employee_id",
+          "references_table": "employees",
+          "references_column": "employee_id"
+        }
+      ],
+      "columns": [
+        {"name": "turnover_id", "type": "VARCHAR(12)", "nullable": false, "description": "Mã hồ sơ thôi việc"},
+        {"name": "employee_id", "type": "VARCHAR(10)", "nullable": false, "description": "Mã nhân viên thôi việc"},
+        {"name": "resignation_date", "type": "DATE", "nullable": false, "description": "Ngày nộp đơn thôi việc"},
+        {"name": "last_working_date", "type": "DATE", "nullable": false, "description": "Ngày làm việc cuối cùng"},
+        {"name": "reason", "type": "VARCHAR(150)", "nullable": false, "description": "Lý do thôi việc"},
+        {"name": "exit_interview_score", "type": "DECIMAL(3,1)", "nullable": false, "description": "Điểm khảo sát thôi việc (1-5)"},
+        {"name": "handover_status", "type": "VARCHAR(25)", "nullable": false, "description": "Trạng thái bàn giao"}
+      ]
+    }
+  ]
+}
