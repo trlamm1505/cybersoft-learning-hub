@@ -149,6 +149,18 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     setActiveResultTab('run');
     try {
       const result = await exerciseApi.runCode(selectedSlug, code, stdin);
+
+      // If STDIN matches a known sample test case's input, show a real pass/fail
+      // hint here too — instead of only "ran without error" (Run has no grading
+      // authority of its own; Submit remains the source of truth).
+      const matchingTestCase = exercise?.testCases.find((tc) => !tc.isHidden && (tc.input ?? '') === stdin);
+      if (matchingTestCase?.expectedOutput !== undefined) {
+        const actualOutput = (result.stdout ?? '').trim();
+        const expectedOutput = matchingTestCase.expectedOutput.trim();
+        const passed = !result.timedOut && result.exitCode === 0 && actualOutput === expectedOutput;
+        result.matchedTestCase = { expectedOutput: matchingTestCase.expectedOutput, passed };
+      }
+
       setRunResult(result);
     } catch {
       setRunResult({
@@ -170,29 +182,97 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     setIsSubmitting(true);
     setActiveResultTab('submit');
 
-    // Handle Teacher Created Exercise Simulation if Judge server is offline
+    // Teacher Authoring lessons have no matching row in the backend Exercise
+    // collection, so the queued judge pipeline (/exercises/:slug/submit) can't
+    // resolve them. Grade for real here instead: actually run the student's code
+    // against each test case via the sandboxed /run endpoint and compare output.
     if (activeTeacherLesson) {
-      setTimeout(() => {
-        const simulatedResult: SubmitCodeResponse = {
+      try {
+        const testCases = activeTeacherLesson.testCases;
+
+        const syntaxCheck = await exerciseApi.checkSyntax(code);
+        if (!syntaxCheck.ok) {
+          setSubmission({
+            _id: `sub-${Date.now()}`,
+            exerciseId: activeTeacherLesson._id || activeTeacherLesson.slug,
+            code,
+            status: 'CE',
+            passedCount: 0,
+            totalCount: testCases.length,
+            results: [],
+            errorMessage: syntaxCheck.errorMessage,
+          });
+          return;
+        }
+
+        // Mirrors judge-queue.service.ts's gradeOne(): status is overwritten by whichever
+        // test case failed LAST in test-case order (not a fixed severity ranking), so a
+        // teacher-authored lesson reports the same AC/WA/RE/TLE granularity system
+        // exercises get, instead of a flat AC/WA.
+        const outcomes = await Promise.all(
+          testCases.map(async (tc, idx) => {
+            try {
+              const run = await exerciseApi.runCode(selectedSlug, code, tc.input ?? '');
+              const actualOutput = (run.stdout ?? '').trim();
+              const expectedOutput = (tc.expectedOutput ?? '').trim();
+              const passed = !run.timedOut && run.exitCode === 0 && actualOutput === expectedOutput;
+
+              let failureKind: 'TLE' | 'RE' | 'WA' | null = null;
+              if (!passed) {
+                failureKind = run.timedOut ? 'TLE' : run.exitCode !== 0 ? 'RE' : 'WA';
+              }
+
+              return {
+                failureKind,
+                result: {
+                  index: idx,
+                  passed,
+                  isHidden: tc.isHidden ?? false,
+                  input: tc.input,
+                  expectedOutput: tc.expectedOutput,
+                  actualOutput,
+                  stderr: run.stderr || undefined,
+                  executionTimeMs: run.executionTimeMs ?? 0,
+                },
+              };
+            } catch {
+              return {
+                failureKind: 'RE' as const,
+                result: {
+                  index: idx,
+                  passed: false,
+                  isHidden: tc.isHidden ?? false,
+                  input: tc.input,
+                  expectedOutput: tc.expectedOutput,
+                  actualOutput: 'Không thể kết nối tới máy chủ chạy code.',
+                  executionTimeMs: 0,
+                },
+              };
+            }
+          }),
+        );
+
+        const results = outcomes.map((o) => o.result);
+        const passedCount = results.filter((r) => r.passed).length;
+
+        let status: SubmitCodeResponse['status'] = 'AC';
+        for (const o of outcomes) {
+          if (o.failureKind) status = o.failureKind;
+        }
+
+        const realResult: SubmitCodeResponse = {
           _id: `sub-${Date.now()}`,
           exerciseId: activeTeacherLesson._id || activeTeacherLesson.slug,
           code,
-          status: 'AC',
-          passedCount: activeTeacherLesson.testCases.length,
-          totalCount: activeTeacherLesson.testCases.length,
-          results: activeTeacherLesson.testCases.map((tc, idx) => ({
-            index: idx + 1,
-            passed: true,
-            isHidden: tc.isHidden ?? false,
-            input: tc.input,
-            expectedOutput: tc.expectedOutput,
-            actualOutput: tc.expectedOutput,
-            executionTimeMs: 15,
-          })),
+          status,
+          passedCount,
+          totalCount: testCases.length,
+          results,
         };
-        setSubmission(simulatedResult);
+        setSubmission(realResult);
+      } finally {
         setIsSubmitting(false);
-      }, 800);
+      }
       return;
     }
 
@@ -246,7 +326,8 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
           <select
             value={selectedSlug ?? ''}
             onChange={(e) => setSelectedSlug(e.target.value)}
-            className="w-full sm:w-72 px-3.5 py-2 text-xs font-bold rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500 shadow-xs cursor-pointer"
+            disabled={isRunning || isSubmitting}
+            className="w-full sm:w-72 px-3.5 py-2 text-xs font-bold rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500 shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {combinedExercises.map((item) => (
               <option key={item.slug} value={item.slug}>

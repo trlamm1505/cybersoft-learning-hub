@@ -28,6 +28,16 @@ export interface RunCodeResponse {
   timedOut: boolean;
   executionTimeMs: number;
   blocked: boolean;
+  /** Present only when STDIN matched a known sample test case's input — lets Run show a real pass/fail hint. */
+  matchedTestCase?: {
+    expectedOutput: string;
+    passed: boolean;
+  };
+}
+
+export interface CheckSyntaxResponse {
+  ok: boolean;
+  errorMessage?: string;
 }
 
 export interface SubmissionTestResult {

@@ -5,6 +5,7 @@ import type {
   RunCodeResponse,
   SubmitCodeResponse,
   SubmitAckResponse,
+  CheckSyntaxResponse,
 } from '../types/exercise';
 
 /**
@@ -46,6 +47,13 @@ export const exerciseApi = {
    */
   getSubmission: async (id: string): Promise<SubmitCodeResponse> => {
     return await axiosClient.get(`/exercises/submissions/${id}`);
+  },
+
+  /**
+   * POST /api/exercises/check-syntax — standalone Compile Error (CE) detection.
+   */
+  checkSyntax: async (code: string): Promise<CheckSyntaxResponse> => {
+    return await axiosClient.post('/exercises/check-syntax', { code });
   },
 };
 

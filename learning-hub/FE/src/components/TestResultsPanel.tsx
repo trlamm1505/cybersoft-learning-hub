@@ -78,6 +78,12 @@ export const TestResultsPanel: React.FC<TestResultsPanelProps> = ({ submission, 
         </span>
       </div>
 
+      {submission.errorMessage && (
+        <pre className="rounded-lg bg-red-950/90 text-red-200 text-xs p-3 overflow-x-auto whitespace-pre-wrap break-words">
+          {submission.errorMessage}
+        </pre>
+      )}
+
       <div className="space-y-2">
         {submission.results.map((r) => (
           <div
