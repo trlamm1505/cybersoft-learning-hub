@@ -36,11 +36,36 @@ function classifyResult(result: RunCodeResponse): {
       hint: 'Xem chi tiết lỗi ở phần Stderr bên dưới để biết dòng nào gây lỗi.',
     };
   }
+  if (result.matchedTestCase) {
+    return result.matchedTestCase.passed
+      ? {
+          label: 'Khớp với đáp án mẫu ✔',
+          tone: 'success',
+          icon: '✅',
+          hint: 'STDIN trùng với một test case mẫu và output khớp đáp án. Vẫn nên bấm "✓ Submit" để chấm điểm chính thức trên đầy đủ test case (kể cả test ẩn).',
+        }
+      : {
+          label: 'Sai so với đáp án mẫu',
+          tone: 'error',
+          icon: '❌',
+          hint: `STDIN trùng với một test case mẫu nhưng output KHÔNG khớp đáp án đúng ("${result.matchedTestCase.expectedOutput}"). Hãy kiểm tra lại logic code.`,
+        };
+  }
+
+  if (!result.stdout.trim()) {
+    return {
+      label: 'Chạy xong — chương trình không in ra gì',
+      tone: 'warning',
+      icon: '⚠️',
+      hint: 'Không có lỗi runtime, nhưng chương trình chưa in kết quả nào ra Stdout. Đây không phải là xác nhận đáp án đúng — hãy bấm "✓ Submit" để chấm điểm thật.',
+    };
+  }
+
   return {
-    label: 'Chạy thành công',
+    label: 'Chạy xong, không có lỗi',
     tone: 'success',
     icon: '✅',
-    hint: 'Chương trình đã chạy xong không có lỗi.',
+    hint: 'Chương trình chạy không lỗi runtime. Đây chưa phải kết quả chấm điểm — hãy bấm "✓ Submit" để kiểm tra đáp án có đúng hay không.',
   };
 }
 
