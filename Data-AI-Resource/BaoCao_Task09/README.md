@@ -15,6 +15,8 @@ Data-AI-Resource/
     ├── README.md                                    # Hướng dẫn tổng quan & chỉ mục nghiệm thu Ngày 09
     ├── AI_WORKLOG.md                                # Nhật ký phối hợp & thẩm định AI minh bạch chuẩn CyberSoft
     ├── 09_ai_controlled_synthetic_data_pipeline.md  # Bản đặc tả kỹ thuật chi tiết Pipeline & Data Quality Harness
+    ├── Picture_09-Detail.png                        # Sơ đồ kiến trúc tổng thể Pipeline sinh dữ liệu có kiểm soát bằng AI
+    ├── Picture_09-Detail.drawio                     # File thiết kế gốc draw.io của sơ đồ kiến trúc Pipeline
     ├── data/
     │   ├── synthetic_learning_eval_dataset.json    # Tập dữ liệu 100 bản ghi đánh giá học vụ chuẩn hóa
     │   ├── synthetic_learning_eval_dataset.csv     # Dữ liệu dạng bảng trích xuất phục vụ phân tích

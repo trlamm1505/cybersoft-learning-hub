@@ -774,6 +774,7 @@ class ControlledDataGenerator:
         json_path = data_dir / "synthetic_learning_eval_dataset.json"
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(dataset, f, ensure_ascii=False, indent=2)
+            f.write("\n")
 
         # Flatten records for CSV
         csv_path = data_dir / "synthetic_learning_eval_dataset.csv"
@@ -828,6 +829,7 @@ class ControlledDataGenerator:
         # Write correction summary
         with open(self.summary_file, "w", encoding="utf-8") as f:
             json.dump(stats, f, ensure_ascii=False, indent=2)
+            f.write("\n")
 
         self.logger.info("=" * 80)
         self.logger.info(

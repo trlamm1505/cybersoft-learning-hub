@@ -1,5 +1,4 @@
 # 09. ĐẶC TẢ KỸ THUẬT: PIPELINE SINH DỮ LIỆU CÓ KIỂM SOÁT BẰNG AI
-## CYBERSOFT DATA & AI RESOURCE ENGINEERING — TASK 09
 
 **Dự án**: CyberSoft Data & AI Lab  
 **Đầu việc**: NGÀY 09 — Pipeline sinh dữ liệu có kiểm soát bằng AI (`synthetic_learning_eval_dataset` & `data_quality_harness`)  
@@ -33,47 +32,25 @@
 
 Pipeline được tổ chức thành 5 phân lớp độc lập, tuần tự và khép kín:
 
-```text
-+-----------------------------------------------------------------------------------+
-| 1. DETERMINISTIC SEED & FAKER LAYER (Lớp Khởi tạo Tất định)                       |
-|    - Global Seed (seed=42) & Thuật toán Deterministic Sub-seed Progression        |
-|    - Faker (vi_VN) sinh định danh học viên: Họ tên tiếng Việt, Email, Mã HV       |
-+-----------------------------------------------------------------------------------+
-                                      |
-                                      v
-+-----------------------------------------------------------------------------------+
-| 2. CONTROLLED PROMPT & SYNTHESIS LAYER (Lớp Điều phối Sinh Dữ liệu)               |
-|    - System Instructions: Ràng buộc Structured Output & Chống rò rỉ              |
-|    - Prompt v2.1.0 Few-Shot: Ràng buộc tổng rubric 100% & bảng dải điểm           |
-|    - Domain Knowledge Bank: 5 chuyên ngành CyberSoft (Web, AI, DevOps, Sec, Mob) |
-+-----------------------------------------------------------------------------------+
-                                      |
-                                      v Candidate Record (Iteration i)
-+-----------------------------------------------------------------------------------+
-| 3. DATA QUALITY HARNESS & GUARDRAILS LAYER (Lớp Kiểm định Chất lượng Đa tầng)     |
-|    - GR-01-SCHEMA: Draft 2020-12 JSON Schema Validation                          |
-|    - GR-02-RUBRIC-SUM: Tổng trọng số rubric_criteria == 100%                     |
-|    - GR-03-SCORE-STATUS: PASSED (70-100), FAILED (30-69), ERROR/TIMEOUT (0-29)   |
-|    - GR-04-ANTI-LEAK: Cấm placeholder [TODO], [LEAK], undefined, NaN             |
-|    - GR-05-MIN-LENGTH: Yêu cầu độ dài ngữ cảnh tối thiểu                          |
-|    - GR-06-TRACK-ENUM: Kiểm chuẩn 5 chuyên ngành đào tạo                          |
-|    - GR-07-CHECKSUM: Xác thực mã băm SHA-256 bất biến                            |
-+-----------------------------------------------------------------------------------+
-         |                                                 |
-  [CRITICAL VIOLATION]                              [ALL PASSED 100%]
-         |                                                 |
-         v                                                 v
-+---------------------------------------+      +------------------------------------+
-| 4. LOOP & FALLBACK LAYER              |      | 5. PERSISTENCE & AUDIT LAYER       |
-|    - Attempt < MAX_RETRIES (3):       |      |    - synthetic_dataset.json (100)  |
-|      Generate Error Feedback          |      |    - synthetic_dataset.csv (100)   |
-|      Feed corrective prompt into loop |      |    - error_correction_loop.log     |
-|    - Attempt == MAX_RETRIES:          |      |    - correction_summary.json       |
-|      Activate Deterministic Fallback  |      +------------------------------------+
-+---------------------------------------+
-```
+![Sơ đồ Kiến trúc Tổng thể Pipeline Sinh Dữ liệu Có Kiểm soát bằng AI](./Picture_09-Detail.png)
 
----
+### Mô tả 5 Phân lớp Kỹ thuật trong Kiến trúc Pipeline:
+1. **Lớp 1 — Seed Engine & Context Generator (Khởi tạo Tất định)**:
+   - Tiếp nhận và quản lý hạt giống toàn cục (`seed=42`) với cơ chế trượt sub-seed lũy tiến theo từng index bản ghi.
+   - Tích hợp thư viện Faker (`vi_VN`) tạo lập danh tính học viên (Họ tên tiếng Việt chuẩn hóa, Email, Mã học viên `HV-[0-9]{4}`).
+2. **Lớp 2 — Controlled LLM Synthesis (Điều phối Sinh Dữ liệu)**:
+   - Áp dụng bộ chỉ dẫn hệ thống `system_instructions.md` nghiêm ngặt (chống rò rỉ token cấm, ép khuôn cấu trúc JSON).
+   - Truyền tải Prompt template Few-Shot v2.1 với ma trận tri thức 5 chuyên ngành CyberSoft (`WEB`, `DATA`, `DEVOPS`, `SEC`, `MOB`), ràng buộc các điều kiện số học bất biến (`invariants`).
+3. **Lớp 3 — Data Quality Harness & 7 Guardrails (Kiểm định Đa tầng)**:
+   - Độc lập rà soát ứng viên bản ghi qua 7 chốt chặn: `GR-01-SCHEMA`, `GR-02-RUBRIC-SUM`, `GR-03-SCORE-STATUS`, `GR-04-ANTI-LEAK`, `GR-05-MIN-LENGTH`, `GR-06-TRACK-ENUM`, `GR-07-CHECKSUM`.
+   - Phân luồng: Bản ghi đạt $100\%$ tiêu chuẩn được chuyển thẳng sang Lớp 5; bản ghi vi phạm được bóc tách mã lỗi chi tiết.
+4. **Lớp 4 — Self-Correction Loop & Fallback Engine (Tự Phục hồi & Dự phòng)**:
+   - Vòng lặp phản hồi: Đóng gói thông điệp chẩn đoán lỗi theo `error_feedback_schema.json` để yêu cầu AI tự sửa đổi với giới hạn dừng cứng `MAX_RETRIES = 3`.
+   - Cơ chế Fallback an toàn: Kích hoạt tự động bộ sinh dự phòng tất định **Deterministic Fallback Generator** gắn nhãn `FALLBACK_APPLIED` khi chạm ngưỡng retries, loại trừ tuyệt đối nguy cơ sập hoặc treo vô hạn.
+5. **Lớp 5 — Storage & Serialization Layer (Lưu trữ & Niêm phong Bất biến)**:
+   - Xuất dữ liệu đồng bộ ra 2 định dạng: `synthetic_learning_eval_dataset.json` (cấu trúc phân cấp) và `synthetic_learning_eval_dataset.csv` (dạng bảng trích xuất).
+   - Ghi nhận đầy đủ audit log tại `data/logs/error_correction_loop.log` và thống kê tổng hợp `correction_summary.json`.
+   - Tính toán mã băm SHA-256 toàn vẹn cho tập dữ liệu phục vụ xác thực bảo mật.
 
 ## 3. ĐẶC TẢ CƠ SỞ TRI THỨC 5 CHUYÊN NGÀNH ĐÀO TẠO
 
