@@ -8,43 +8,16 @@
 
 ## 1. Sơ đồ Nguyên lý Vận hành Vòng lặp (Self-Correction Loop)
 
-```text
-               +----------------------------------+
-               |        Generator Engine          |
-               |  (Faker vi_VN + Prompt Template) |
-               +-----------------+----------------+
-                                 |
-                                 | Record Candidate (Iteration i)
-                                 v
-               +-----------------+----------------+
-               |      Data Quality Harness        |
-               | (Schema + Guardrails Validation) |
-               +--------+----------------+--------+
-                        |                |
-             [VALID]    |                | [INVALID]
-                        |                v
-                        |   +------------+-------------+
-                        |   |  Error Feedback Builder  |
-                        |   | (Structured Diagnostics) |
-                        |   +------------+-------------+
-                        |                |
-                        |                | Iteration < MAX_RETRIES (3)?
-                        |         +------+------+
-                        |         |             |
-                        |    [YES]|             |[NO - Max Exceeded]
-                        |         v             v
-                        |  +------+------+ +----+------------------+
-                        |  | Corrective  | | Deterministic         |
-                        |  | Loop Prompt | | Fallback Generator    |
-                        |  +------+------+ +----+------------------+
-                        |         |             |
-                        |         +--->(Loop)   | Fallback Record
-                        v                       v
-               +--------+-----------------------+--------+
-               |        Persisted Valid Dataset          |
-               | (JSON, CSV, Hash SHA256 & Audit Logs)   |
-               +-----------------------------------------+
-```
+![Sơ đồ Nguyên lý Vận hành Vòng lặp Self-Correction Loop](../Picture_09-Loop-Detail.png)
+
+### Diễn giải Luồng Vận hành:
+1. **Generator Engine**: Tiếp nhận hạt giống ngẫu nhiên và cấu hình prompt để sinh bản ghi ứng viên `Record Candidate` ở vòng lặp `Iteration i`.
+2. **Data Quality Harness**: Kiểm định nghiêm ngặt 7 chốt chặn bảo vệ (Guardrails):
+   - Nếu **[VALID]** (100% Passed): Chuyển thẳng tới **Persisted Valid Dataset** để lưu trữ và niêm phong mã băm SHA-256.
+   - Nếu **[INVALID]** (Có vi phạm): Chuyển thông tin lỗi sang **Error Feedback Builder**.
+3. **Error Feedback Builder**: Đóng gói thông điệp chẩn đoán có cấu trúc (`error_feedback_schema.json`) và kiểm tra điều kiện số lần thử `Iteration < MAX_RETRIES (3)?`:
+   - Nếu **[YES]** (`Attempt < 3`): Kích hoạt **Corrective Loop Prompt**, chuyển ngữ cảnh sửa lỗi quay trở lại **Generator Engine** cho lần thử kế tiếp `Attempt i+1`.
+   - Nếu **[NO]** (`Max Retries Exceeded`): Tự động kích hoạt **Deterministic Fallback Generator** để lấy bản ghi an toàn dự phòng tất định, gắn nhãn `FALLBACK_APPLIED` và chuyển vào **Persisted Valid Dataset**.
 
 ---
 

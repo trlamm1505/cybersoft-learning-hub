@@ -105,6 +105,8 @@ $$\text{Score}(status) \in \begin{cases} [70, 100] & \text{khi } status = \text{
 
 ## 5. THIẾT KẾ VÒNG LẶP SỬA LỖI & CƠ CHẾ DỰ PHÒNG TẤT ĐỊNH (LOOP ENGINEERING)
 
+![Sơ đồ Nguyên lý Vận hành Vòng lặp Sửa lỗi Tự động và Cơ chế Fallback](./Picture_09-Loop-Detail.png)
+
 ### 5.1. Cấu trúc Thông điệp Phản hồi Lỗi (Error Feedback Loop)
 Khi phát hiện bản ghi không đạt chuẩn, Data Quality Harness đóng gói đối tượng `HarnessResult` tuân thủ `error_feedback_schema.json`:
 ```json
