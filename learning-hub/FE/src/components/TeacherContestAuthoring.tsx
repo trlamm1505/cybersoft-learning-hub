@@ -37,6 +37,7 @@ export const TeacherContestAuthoring: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
@@ -203,13 +204,45 @@ export const TeacherContestAuthoring: React.FC = () => {
           </h2>
         </div>
 
-        <button
-          type="button"
-          onClick={handleOpenCreateModal}
-          className="px-4 py-2.5 text-xs font-black rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer shadow-sm border-none flex items-center gap-1.5"
-        >
-          ➕ Tạo Cuộc Thi Mới
-        </button>
+        <div className="flex items-center gap-2.5">
+          {/* Grid / List View Toggle */}
+          <div className="flex items-center gap-1 bg-[var(--bg-main)] p-1 rounded-xl border border-[var(--border-color)]">
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              aria-label="Chế độ xem lưới"
+              title="Chế độ xem lưới"
+              className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                viewMode === 'grid'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+              }`}
+            >
+              ▦
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              aria-label="Chế độ xem hàng"
+              title="Chế độ xem hàng"
+              className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                viewMode === 'list'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+              }`}
+            >
+              ☰
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleOpenCreateModal}
+            className="px-4 py-2.5 text-xs font-black rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer shadow-sm border-none flex items-center gap-1.5"
+          >
+            ➕ Tạo Cuộc Thi Mới
+          </button>
+        </div>
       </div>
 
       {/* Contests Cards Grid */}
@@ -221,7 +254,7 @@ export const TeacherContestAuthoring: React.FC = () => {
         <div className="text-center py-12 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl">
           <p className="text-xs text-[var(--text-muted)] italic">Chưa có cuộc thi nào. Hãy bấm "Tạo Cuộc Thi Mới" để tạo.</p>
         </div>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {contests.map((c) => (
             <div
@@ -274,6 +307,65 @@ export const TeacherContestAuthoring: React.FC = () => {
                   className="px-3 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer flex items-center gap-1"
                 >
                   🗑️ Xóa
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Row / List View — compact single-line-per-item layout */
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl divide-y divide-[var(--border-color)] overflow-hidden">
+          {contests.map((c) => (
+            <div
+              key={c._id || c.slug}
+              className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-4 hover:bg-[var(--bg-main)] transition-colors"
+            >
+              {/* Duration badge */}
+              <span className="shrink-0 w-fit text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200">
+                ⏱️ {c.durationMinutes || 90} Phút
+              </span>
+
+              {/* Title + description */}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-sm text-[var(--text-main)] tracking-tight truncate">
+                  {c.title}
+                </h3>
+                <p className="text-[11px] text-[var(--text-muted)] truncate">
+                  {c.description || 'Chưa có mô tả chi tiết.'}
+                </p>
+              </div>
+
+              {/* Status */}
+              <span
+                className={`shrink-0 w-fit px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                  c.status === 'published'
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                    : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                }`}
+              >
+                {c.status === 'published' ? '🟢 Published' : '🟡 Draft'}
+              </span>
+
+              {/* Schedule + problems count */}
+              <div className="shrink-0 text-[11px] text-[var(--text-muted)] font-mono whitespace-nowrap">
+                📅 {new Date(c.startTime).toLocaleDateString('vi-VN')} · 📚 {c.problems?.length || 0} bài
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => handleOpenEditModal(c)}
+                  className="px-3 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all border-none cursor-pointer flex items-center gap-1 shadow-xs"
+                >
+                  ✏️ Sửa
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteContest(c._id || c.slug, c.title)}
+                  className="px-3 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer flex items-center gap-1"
+                >
+                  🗑️
                 </button>
               </div>
             </div>

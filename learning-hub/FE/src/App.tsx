@@ -10,8 +10,11 @@ import { QuizTakingPage } from './pages/QuizTakingPage';
 import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
 import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
 import { ContestListPage } from './pages/ContestListPage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 import type { Lesson } from './types/course';
 import type { LessonAuthoring } from './types/authoring';
+import type { AuthUser, AuthResponse } from './types/auth';
 import { authoringApi } from './axios/authoringApi';
 import './styles/main.css';
 
@@ -59,10 +62,18 @@ export function App() {
     const saved = localStorage.getItem('app_is_light_theme');
     return saved !== null ? JSON.parse(saved) : true;
   });
-  const [userRole, setUserRole] = useState<'student' | 'teacher'>(() => {
-    const savedRole = localStorage.getItem('app_user_role');
-    return savedRole === 'teacher' ? 'teacher' : 'student';
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
+    const saved = localStorage.getItem('app_auth_user');
+    if (!saved) return null;
+    try {
+      return JSON.parse(saved) as AuthUser;
+    } catch {
+      return null;
+    }
   });
+  // Role hiện được suy ra từ tài khoản đã đăng nhập; mặc định 'student' khi chưa đăng nhập
+  // (giữ trải nghiệm xem trước hiện có cho khách chưa có tài khoản).
+  const userRole: 'student' | 'teacher' = authUser?.role === 'TEACHER' ? 'teacher' : 'student';
   const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
 
   // Fetch teacher lessons from BE on load
@@ -120,11 +131,6 @@ export function App() {
     }
   }, [isLightTheme]);
 
-  // Sync user role preference
-  useEffect(() => {
-    localStorage.setItem('app_user_role', userRole);
-  }, [userRole]);
-
   // Save selected lesson ID to localStorage
   useEffect(() => {
     if (selectedLessonId) {
@@ -140,8 +146,17 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleToggleRole = () => {
-    setUserRole((prev) => (prev === 'student' ? 'teacher' : 'student'));
+  const handleAuthSuccess = (auth: AuthResponse) => {
+    localStorage.setItem('token', auth.accessToken);
+    localStorage.setItem('app_auth_user', JSON.stringify(auth.user));
+    setAuthUser(auth.user);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('app_auth_user');
+    setAuthUser(null);
+    navigate('/catalog');
   };
 
   const handleLessonSaved = (savedLesson: LessonAuthoring) => {
@@ -171,7 +186,8 @@ export function App() {
         onToggleTheme={() => setIsLightTheme(!isLightTheme)}
         onOpenGuide={() => setIsGuideOpen(true)}
         userRole={userRole}
-        onToggleRole={handleToggleRole}
+        authUser={authUser}
+        onLogout={handleLogout}
       />
 
       {/* Main Routes Container */}
@@ -229,6 +245,8 @@ export function App() {
           />
           <Route path="/playground" element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} />} />
           <Route path="/contests" element={<ContestListPage />} />
+          <Route path="/login" element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />
+          <Route path="/register" element={<RegisterPage onAuthSuccess={handleAuthSuccess} />} />
           <Route
             path="/authoring"
             element={

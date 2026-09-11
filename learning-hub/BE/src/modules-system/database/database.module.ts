@@ -9,6 +9,7 @@ import { Hint, HintSchema } from './schemas/hint.schema';
 import { HintUsage, HintUsageSchema } from './schemas/hint-usage.schema';
 import { Lesson, LessonSchema } from './schemas/lesson.schema';
 import { Contest, ContestSchema } from './schemas/contest.schema';
+import { User, UserSchema } from './schemas/user.schema';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { Contest, ContestSchema } from './schemas/contest.schema';
       { name: HintUsage.name, schema: HintUsageSchema },
       { name: Lesson.name, schema: LessonSchema },
       { name: Contest.name, schema: ContestSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   exports: [MongooseModule],

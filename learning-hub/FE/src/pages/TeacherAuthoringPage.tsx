@@ -51,6 +51,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [libraryViewMode, setLibraryViewMode] = useState<'grid' | 'list'>('grid');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -520,6 +521,36 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                   🟡 Draft ({draftCount})
                 </button>
               </div>
+
+              {/* Grid / List View Toggle */}
+              <div className="flex items-center gap-1 bg-[var(--bg-main)] p-1 rounded-xl border border-[var(--border-color)]">
+                <button
+                  type="button"
+                  onClick={() => setLibraryViewMode('grid')}
+                  aria-label="Chế độ xem lưới"
+                  title="Chế độ xem lưới"
+                  className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    libraryViewMode === 'grid'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  ▦
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLibraryViewMode('list')}
+                  aria-label="Chế độ xem hàng"
+                  title="Chế độ xem hàng"
+                  className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    libraryViewMode === 'list'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  ☰
+                </button>
+              </div>
             </div>
           </div>
 
@@ -545,7 +576,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                 Đặt lại bộ lọc
               </button>
             </div>
-          ) : (
+          ) : libraryViewMode === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {libraryLessons.map((lesson) => {
                 const isQuiz = lesson.type === 'quiz';
@@ -638,6 +669,100 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                           🗑️ Xóa
                         </button>
                       </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Row / List View — compact single-line-per-item layout */
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl divide-y divide-[var(--border-color)] overflow-hidden">
+              {libraryLessons.map((lesson) => {
+                const isQuiz = lesson.type === 'quiz';
+                return (
+                  <div
+                    key={lesson._id || lesson.slug}
+                    className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-4 hover:bg-[var(--bg-main)] transition-colors group"
+                  >
+                    {/* Type badge */}
+                    <span
+                      className={`shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 w-fit ${
+                        isQuiz
+                          ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300 border border-purple-300 dark:border-purple-700'
+                          : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700'
+                      }`}
+                    >
+                      {isQuiz ? '📝 Trắc nghiệm' : '🧑‍💻 Lập trình'}
+                    </span>
+
+                    {/* Title + slug */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-bold text-[var(--text-main)] group-hover:text-indigo-600 dark:group-hover:text-cyan-400 transition-colors truncate">
+                        {lesson.title}
+                      </h3>
+                      <p className="text-[11px] font-mono text-[var(--text-muted)] truncate opacity-70">
+                        {lesson.slug}
+                      </p>
+                    </div>
+
+                    {/* Status + difficulty */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span
+                        className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
+                          lesson.status === 'published'
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                            : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                        }`}
+                      >
+                        {lesson.status === 'published' ? '🟢 Published' : '🟡 Draft'}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-[var(--text-muted)]">
+                        {lesson.difficulty || 'EASY'}
+                      </span>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex items-center gap-3 text-[11px] text-[var(--text-muted)] shrink-0 whitespace-nowrap">
+                      <span>
+                        {isQuiz
+                          ? `❓ ${lesson.quizQuestions?.length || 0} câu hỏi`
+                          : `🎯 ${lesson.testCases?.length || 0} test cases`}
+                      </span>
+                      <span>⭐ {lesson.points || 10} điểm</span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleSelectLessonToEdit(lesson);
+                          setSearchParams({});
+                        }}
+                        className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all border-none cursor-pointer text-center shadow-xs"
+                        title="Nạp vào Form và mở giao diện chỉnh sửa"
+                      >
+                        ✏️ Sửa
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(lesson);
+                          setIsPreviewOpen(true);
+                        }}
+                        className="px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer text-center"
+                        title="Xem trước giao diện của học viên"
+                      >
+                        👁️
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteLesson(lesson._id, lesson.title)}
+                        className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer text-center"
+                        title="Xóa bài thi này"
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </div>
                 );
