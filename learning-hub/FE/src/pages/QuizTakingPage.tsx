@@ -54,7 +54,9 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
         l.quizQuestions.length > 0,
     )
     .map((l) => ({
-      id: l.slug || l._id || '',
+      // Prefixed so a teacher quiz slug (e.g. "standard-web") can never collide
+      // with a SYSTEM_QUIZZES id of the same name — each stays independently selectable.
+      id: `teacher-${l.slug || l._id || ''}`,
       title: l.title.replace(/^[🧑‍💻📝👨‍🏫\s]+/, '').trim(),
       description: l.description || l.learningOutcome || 'Bài trắc nghiệm tạo bởi Giảng viên',
       questionCount: l.quizQuestions.length,
@@ -64,11 +66,11 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       teacherData: l,
     }));
 
+  // Show both sources side by side — teacher-authored quizzes don't replace the
+  // real backend-graded system quizzes (seeded via `npm run seed:quiz`), since a
+  // teacher quiz with just 1-2 sample questions would otherwise hide all 20 real ones.
   const availableQuizzes = useMemo(() => {
-    if (teacherQuizzes.length > 0) {
-      return teacherQuizzes;
-    }
-    return SYSTEM_QUIZZES;
+    return [...SYSTEM_QUIZZES, ...teacherQuizzes];
   }, [teacherQuizzes]);
 
   const [selectedQuizId, setSelectedQuizId] = useState<string>(() => availableQuizzes[0]?.id || 'standard-web');

@@ -4,4 +4,5 @@ export * from './exercise.schema';
 export * from './submission.schema';
 export * from './lesson.schema';
 export * from './contest.schema';
+export * from './user.schema';
 
