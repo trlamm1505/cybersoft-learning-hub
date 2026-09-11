@@ -90,7 +90,7 @@ python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task09/scripts/validate_ta
   -> Track distribution: {'Fullstack Web': 25, 'Data & AI Resource Engineer': 25, 'DevOps Cloud': 20, 'Cybersecurity SOC': 15, 'Mobile React Native': 15}
 
 [STAGE 4] Validating Bit-Exact Reproducibility (Seed=42)...
-  -> Bit-Exact Reproducibility VERIFIED! Dataset SHA-256: 09d3b417c884b2c0... (100% match)
+  -> Bit-Exact Reproducibility VERIFIED! Dataset SHA-256: b92c16e91b284c6e... (100% match)
 
 [STAGE 5] Checking Self-Correction Loop Logs & Summary...
   -> Initial pass rate (iter 0): 94/100
@@ -124,20 +124,21 @@ pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task09/tests/ -v
 ============================= test session starts =============================
 platform win32 -- Python 3.10.11, pytest-9.1.1, pluggy-1.6.0
 rootdir: D:\Cybersoft\Kien
-collected 10 items
+collected 11 items
 
-tests/test_synthetic_pipeline.py::test_schema_valid_record PASSED        [ 10%]
-tests/test_synthetic_pipeline.py::test_rubric_sum_guardrail_violation PASSED [ 20%]
-tests/test_synthetic_pipeline.py::test_score_status_consistency_guardrail PASSED [ 30%]
-tests/test_synthetic_pipeline.py::test_anti_leak_prohibited_tokens PASSED [ 40%]
-tests/test_checksum_tampering_detection PASSED                          [ 50%]
-tests/test_synthetic_pipeline.py::test_reproducibility_bit_exact PASSED [ 60%]
-tests/test_synthetic_pipeline.py::test_deterministic_variance_with_different_seeds PASSED [ 70%]
-tests/test_synthetic_pipeline.py::test_self_correction_loop_recovery PASSED [ 80%]
-tests/test_synthetic_pipeline.py::test_fallback_mechanism_activation PASSED [ 90%]
+tests/test_synthetic_pipeline.py::test_schema_valid_record PASSED        [  9%]
+tests/test_synthetic_pipeline.py::test_rubric_sum_guardrail_violation PASSED [ 18%]
+tests/test_synthetic_pipeline.py::test_score_status_consistency_guardrail PASSED [ 27%]
+tests/test_synthetic_pipeline.py::test_anti_leak_prohibited_tokens PASSED [ 36%]
+tests/test_synthetic_pipeline.py::test_checksum_tampering_detection PASSED [ 45%]
+tests/test_synthetic_pipeline.py::test_reproducibility_bit_exact PASSED [ 54%]
+tests/test_synthetic_pipeline.py::test_deterministic_variance_with_different_seeds PASSED [ 63%]
+tests/test_synthetic_pipeline.py::test_self_correction_loop_recovery PASSED [ 72%]
+tests/test_synthetic_pipeline.py::test_fallback_mechanism_activation PASSED [ 81%]
+tests/test_synthetic_pipeline.py::test_dataset_size_and_track_coverage PASSED [ 90%]
 tests/test_synthetic_pipeline.py::test_cli_validator_exit_code_zero PASSED [100%]
 
-============================== 10 passed in 0.48s ==============================
+============================= 11 passed in 2.05s ==============================
 ```
 
 ---
@@ -147,7 +148,7 @@ tests/test_synthetic_pipeline.py::test_cli_validator_exit_code_zero PASSED [100%
 * **Tầng 1 — Hiểu việc (Task Comprehension)**: Nắm vững bản chất kỹ thuật của bài toán sinh dữ liệu có kiểm soát: Structured Output, Loop Engineering, và Guardrails. Xác định rõ các giới hạn vật lý của mô hình AI (ảo giác số học, mâu thuẫn nghiệp vụ) để thiết lập bài toán chốt chặn chất lượng độc lập trước khi tiến hành sinh dữ liệu.
 * **Tầng 2 — Điều phối AI (AI Orchestration)**: Phân công nhiệm vụ mạch lạc cho trợ lý AI: thiết kế song song kiến trúc JSON Schema Draft 2020-12, tối ưu hóa các phiên bản Prompt (từ Zero-Shot v1 sang Few-Shot v2.1 có ràng buộc bất biến), điều phối thư viện Faker (`vi_VN`) và xây dựng Data Quality Harness tự động hóa với 7 chốt chặn.
 * **Tầng 3 — Thẩm định (Critical Evaluation)**: Độc lập phát hiện và xử lý ngay các lỗi tiềm ẩn do AI sinh ra: phát hiện regex `[A-Z]{3,4}` làm chặn oan 20 bản ghi chuyên ngành DevOps Cloud và mở rộng kịp thời lên `[A-Z]{3,6}`; kiên quyết bác bỏ đề xuất nới lỏng dung sai tổng rubric $\pm 5\%$; thiết lập chặn cứng `MAX_RETRIES = 3` ngăn ngừa nguy cơ vòng lặp vô hạn.
-* **Tầng 4 — Làm chủ (Technical Ownership)**: Tự tay thiết kế và lập trình hoàn thiện Data Quality Harness, cơ chế Fallback dự phòng tất định, CLI Validator tuân thủ mã thoát POSIX (0/1/2) và bộ kiểm thử tự động 10 Pytest test cases đạt 100% PASS tuyệt đối. Toàn bộ mã nguồn, dữ liệu, schema và tài liệu được làm chủ và bàn giao an toàn phục vụ vận hành thực tế tại CyberSoft Academy.
+* **Tầng 4 — Làm chủ (Technical Ownership)**: Tự tay thiết kế và lập trình hoàn thiện Data Quality Harness, cơ chế Fallback dự phòng tất định, CLI Validator tuân thủ mã thoát POSIX (0/1/2) và bộ kiểm thử tự động 11 Pytest test cases đạt 100% PASS tuyệt đối. Toàn bộ mã nguồn, dữ liệu, schema và tài liệu được làm chủ và bàn giao an toàn phục vụ vận hành thực tế tại CyberSoft Academy.
 
 ---
 
@@ -164,4 +165,4 @@ tests/test_synthetic_pipeline.py::test_cli_validator_exit_code_zero PASSED [100%
 > 3. **Kết quả kiểm chứng độc lập**: 
 >    - Pipeline đã sinh thành công 100 bản ghi chuẩn hóa phủ đều 5 chuyên ngành CyberSoft, đạt 100% tính tái lập theo seed (`seed=42`).
 >    - Vòng lặp sửa lỗi đã tự động nhận diện và phục hồi thành công 6 bản ghi có lỗi cố ý thử nghiệm mà không cần con người can thiệp.
->    - Toàn bộ hệ thống vượt qua 6 chặng kiểm định của CLI Validator (Exit Code 0) và 10/10 unit tests của Pytest trong 0.48 giây. Em xin hoàn thành và sẵn sàng trả lời các câu hỏi chuyên sâu từ Hội đồng.
+>    - Toàn bộ hệ thống vượt qua 6 chặng kiểm định của CLI Validator (Exit Code 0) và 11/11 unit tests của Pytest trong 2.05 giây. Em xin hoàn thành và sẵn sàng trả lời các câu hỏi chuyên sâu từ Hội đồng.
