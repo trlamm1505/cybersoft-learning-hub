@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -30,8 +31,8 @@ export class AuthoringController {
   }
 
   @Get()
-  async findAll() {
-    return this.authoringService.findAll();
+  async findAll(@Query('forStudent') forStudent?: string) {
+    return this.authoringService.findAll(forStudent === 'true');
   }
 
   @Get('export/:id')

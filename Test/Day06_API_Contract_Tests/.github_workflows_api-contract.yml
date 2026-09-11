@@ -1,0 +1,22 @@
+name: API Contract Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  contract-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: mkdir -p reports
+      - run: python -m pytest -v --junitxml=reports/junit.xml
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-contract-report
+          path: reports/
