@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSoft Dataset Registry & Publishing Portal</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --border: #334155;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; padding: 32px 16px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 40px; }
+        header h1 { font-size: 2.4rem; color: #60a5fa; margin-bottom: 12px; }
+        header p { color: var(--text-muted); font-size: 1.1rem; }
+        .search-bar-wrap { margin: 24px 0; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .search-input { width: 100%; max-width: 500px; padding: 12px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
+        .dataset-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; }
+        .dataset-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); border-color: #3b82f6; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-right: 6px; }
+        .domain-badge { background: #0284c7; color: white; }
+        .level-badge { background: #475569; color: white; }
+        .quality-badge { background: var(--accent-green); color: white; }
+        .skill-badge { background: #334155; color: #cbd5e1; margin: 3px; font-size: 0.72rem; }
+        .version-tag { font-size: 0.85rem; color: #38bdf8; font-family: monospace; }
+        .dataset-card h3 { font-size: 1.3rem; margin-bottom: 8px; color: #f1f5f9; }
+        .dataset-id { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
+        .dataset-id code { color: #a5b4fc; }
+        .description { color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px; flex-grow: 1; }
+        .skills-wrap { margin-bottom: 20px; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 16px; font-size: 0.85rem; color: var(--text-muted); }
+        .btn-detail { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background 0.2s; }
+        .btn-detail:hover { background: var(--primary-dark); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏛️ CyberSoft Dataset Registry & Portal</h1>
+            <p>Cổng Xuất Bản & Tra Cứu Tài Nguyên Dữ Liệu Thực Hành AI & Phân Tích Dữ Liệu</p>
+            <div class="search-bar-wrap">
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Tìm kiếm dataset theo tên, kỹ năng, domain..." onkeyup="filterCards()">
+            </div>
+        </header>
+
+        <main class="grid" id="datasetGrid">
+            
+            <div class="dataset-card" data-domain="retail_ecommerce" data-level="beginner">
+                <div class="card-header">
+                    <div>
+                        <span class="badge domain-badge">RETAIL_ECOMMERCE</span>
+                        <span class="badge level-badge">BEGINNER</span>
+                        <span class="badge quality-badge">✓ Quality 100.0%</span>
+                    </div>
+                    <span class="version-tag">v1.0.0</span>
+                </div>
+                <h3>CyberSoft Retail E-Commerce Multi-Table Sales Benchmark</h3>
+                <p class="dataset-id">ID: <code>ds-retail-ecommerce-sales-v1</code></p>
+                <p class="description">Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.</p>
+                <div class="skills-wrap">
+                    <span class="badge skill-badge">Star Schema Data Modeling</span><span class="badge skill-badge">SQL Multi-table JOINs and Aggregations</span><span class="badge skill-badge">Window Functions (RANK, DENSE_RANK, LEAD, LAG)</span><span class="badge skill-badge">RFM (Recency, Frequency, Monetary) Customer Segmentation</span><span class="badge skill-badge">Power BI Interactive Executive Dashboarding</span>
+                </div>
+                <div class="card-footer">
+                    <span class="license">License: CC-BY-4.0</span>
+                    <button class="btn-detail" onclick="alert('Dataset ID: ds-retail-ecommerce-sales-v1\nManifest: registry_store\manifests\ds-retail-ecommerce-sales-v1_v1.0.0.json')">Xem Chi Tiết</button>
+                </div>
+            </div>
+            
+            <div class="dataset-card" data-domain="hr_operations" data-level="intermediate">
+                <div class="card-header">
+                    <div>
+                        <span class="badge domain-badge">HR_OPERATIONS</span>
+                        <span class="badge level-badge">INTERMEDIATE</span>
+                        <span class="badge quality-badge">✓ Quality 100.0%</span>
+                    </div>
+                    <span class="version-tag">v1.1.0</span>
+                </div>
+                <h3>CyberSoft Enterprise HR Workforce & Attendance Benchmark</h3>
+                <p class="dataset-id">ID: <code>ds-hr-operations-attendance-v1</code></p>
+                <p class="description">Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.</p>
+                <div class="skills-wrap">
+                    <span class="badge skill-badge">Time-Series and Date-Time SQL Manipulation</span><span class="badge skill-badge">Complex Multi-condition CASE WHEN logic</span><span class="badge skill-badge">Attrition / Turnover Rate Calculation</span><span class="badge skill-badge">Overtime & Punctuality Variance Analysis</span><span class="badge skill-badge">HR Talent Retention Modeling</span>
+                </div>
+                <div class="card-footer">
+                    <span class="license">License: CyberSoft-Educational-Proprietary-v1</span>
+                    <button class="btn-detail" onclick="alert('Dataset ID: ds-hr-operations-attendance-v1\nManifest: registry_store\manifests\ds-hr-operations-attendance-v1_v1.1.0.json')">Xem Chi Tiết</button>
+                </div>
+            </div>
+            
+            <div class="dataset-card" data-domain="nlp_genai" data-level="advanced">
+                <div class="card-header">
+                    <div>
+                        <span class="badge domain-badge">NLP_GENAI</span>
+                        <span class="badge level-badge">ADVANCED</span>
+                        <span class="badge quality-badge">✓ Quality 100.0%</span>
+                    </div>
+                    <span class="version-tag">v1.0.0</span>
+                </div>
+                <h3>CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark</h3>
+                <p class="dataset-id">ID: <code>ds-nlp-rag-tutor-knowledgebase-v1</code></p>
+                <p class="description">Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.</p>
+                <div class="skills-wrap">
+                    <span class="badge skill-badge">Document Ingestion & Chunking Strategy Optimization</span><span class="badge skill-badge">Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)</span><span class="badge skill-badge">Vector Database Indexing (Qdrant, ChromaDB, FAISS)</span><span class="badge skill-badge">RAG Triad Evaluation: Context Precision, Faithfulness, Answer Relevance</span><span class="badge skill-badge">Handling Out-of-Scope Queries (Refusal Guardrails)</span>
+                </div>
+                <div class="card-footer">
+                    <span class="license">License: CyberSoft-Internal-Educational-v1</span>
+                    <button class="btn-detail" onclick="alert('Dataset ID: ds-nlp-rag-tutor-knowledgebase-v1\nManifest: registry_store\manifests\ds-nlp-rag-tutor-knowledgebase-v1_v1.0.0.json')">Xem Chi Tiết</button>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script>
+        function filterCards() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.dataset-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
