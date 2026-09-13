@@ -116,34 +116,7 @@ Registry v0.1 đã đăng ký và xuất bản thành công 3 bộ dữ liệu m
 
 ---
 
-## 5. HƯỚNG DẪN TÍCH HỢP CHO ĐỒNG ĐỘI (TTS 02 & TTS 03)
-
-### 5.1. Dành cho TTS 02 (Learning & Contest Platform)
-- Để hiển thị danh mục bài tập cho giảng viên chọn dataset giao bài, TTS 02 đọc trực tiếp tệp manifest JSON:
-  `Data-AI-Resource/BaoCao_Task10/catalog/catalog.json`
-- Mẫu tham chiếu `resource_id` vào bài học:
-  ```json
-  {
-    "lesson_id": "LES-SQL-001",
-    "dataset_ref": {
-      "resource_id": "ds-retail-ecommerce-sales-v1",
-      "pinned_version": "1.0.0",
-      "manifest_url": "Data-AI-Resource/BaoCao_Task10/registry_store/manifests/ds-retail-ecommerce-sales-v1_v1.0.0.json"
-    }
-  }
-  ```
-
-### 5.2. Dành cho TTS 03 (QA Automation & AI Evaluation)
-- TTS 03 có thể viết test tự động kiểm tra tính sẵn sàng của Catalog qua CLI:
-  ```powershell
-  python scripts/registry_cli.py list --all
-  python scripts/registry_cli.py search --role "data_analyst"
-  ```
-- Bộ kiểm thử đảm bảo: Không có dataset nào có trạng thái `PUBLISHED` mà `quality_score < 95.0%`.
-
----
-
-## 6. KẾT QUẢ KIỂM THỬ TỰ ĐỘNG (TEST VERIFICATION)
+## 5. KẾT QUẢ KIỂM THỬ TỰ ĐỘNG (TEST VERIFICATION)
 
 Bộ kiểm thử tự động gồm **11 test cases** bao phủ toàn diện:
 - `test_register_dataset_initial_state_is_draft`: Đảm bảo dataset mới luôn ở trạng thái DRAFT.
