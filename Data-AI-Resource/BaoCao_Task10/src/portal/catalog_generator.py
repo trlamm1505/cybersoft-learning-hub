@@ -583,8 +583,8 @@ class CatalogGenerator:
             const lo = m.learning_outcomes || {{}};
             document.getElementById('tab-pedagogy').innerHTML = `
                 <div class="section-title" style="margin-top: 0;">Định Hướng Nghề Nghiệp (Target Roles)</div>
-                <div style="margin-bottom: 16px;">
-                    ${{(lo.target_roles || []).map(r => `<span class="badge domain-badge" style="padding: 6px 14px; font-size: 0.85rem;">${{r.replace('_', ' ').toUpperCase()}}</span>`).join('')}}
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;">
+                    ${{(lo.target_roles || []).map(r => `<span class="badge domain-badge" style="padding: 6px 16px; font-size: 0.85rem;">${{r.replace(/_/g, ' ').toUpperCase()}}</span>`).join('')}}
                 </div>
                 <div class="section-title">Năng Lực Cốt Lõi (Core Competencies)</div>
                 <ul class="styled-list" style="margin-bottom: 18px;">
