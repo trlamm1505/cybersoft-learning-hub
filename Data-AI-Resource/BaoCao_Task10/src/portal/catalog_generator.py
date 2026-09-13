@@ -176,28 +176,52 @@ class CatalogGenerator:
             q_score = (
                 f"{v_entry.quality_gate.score:.1f}%" if v_entry.quality_gate else "N/A"
             )
-            skills_pills = "".join(
-                f'<span class="badge skill-badge">{s}</span>' for s in d.skills[:5]
+
+            domain_label = d.domain.replace("_", " ").title() if d.domain else "General"
+            level_label = (
+                d.difficulty_level.capitalize() if d.difficulty_level else "Beginner"
             )
+
+            short_license = d.license
+            if "Educational-Proprietary" in d.license:
+                short_license = "CyberSoft Edu"
+            elif "Internal-Educational" in d.license:
+                short_license = "CyberSoft Internal"
+            elif len(d.license) > 16:
+                short_license = d.license[:14] + "..."
+
+            displayed_skills = d.skills[:3]
+            remaining_count = max(0, len(d.skills) - 3)
+            skills_tags = "".join(
+                f'<span class="skill-tag" title="{s}">{s}</span>'
+                for s in displayed_skills
+            )
+            if remaining_count > 0:
+                skills_tags += (
+                    f'<span class="skill-tag-more">+{remaining_count} khác</span>'
+                )
+
             cards_html.append(f"""
             <div class="dataset-card" data-domain="{d.domain}" data-level="{d.difficulty_level}">
-                <div class="card-header">
-                    <div>
-                        <span class="badge domain-badge">{d.domain.upper()}</span>
-                        <span class="badge level-badge">{d.difficulty_level.upper()}</span>
-                        <span class="badge quality-badge">✓ Quality {q_score}</span>
+                <div class="card-top">
+                    <div class="card-badges">
+                        <span class="badge domain-badge">{domain_label}</span>
+                        <span class="badge level-badge">{level_label}</span>
                     </div>
                     <span class="version-tag">v{d.latest_published_version}</span>
                 </div>
-                <h3>{d.name}</h3>
+                <div class="card-quality-row">
+                    <span class="quality-pill">🛡️ Quality Gate: <b>{q_score}</b></span>
+                </div>
+                <h3 class="card-title" title="{d.name}">{d.name}</h3>
                 <p class="dataset-id">ID: <code>{d.id}</code></p>
-                <p class="description">{d.description}</p>
+                <p class="description" title="{d.description}">{d.description}</p>
                 <div class="skills-wrap">
-                    {skills_pills}
+                    {skills_tags}
                 </div>
                 <div class="card-footer">
-                    <span class="license">License: {d.license}</span>
-                    <button class="btn-detail" onclick="openDetailModal('{d.id}')">Xem Chi Tiết</button>
+                    <span class="license" title="{d.license}">📜 {short_license}</span>
+                    <button class="btn-detail" onclick="openDetailModal('{d.id}')">Xem Chi Tiết →</button>
                 </div>
             </div>
             """)
@@ -250,7 +274,7 @@ class CatalogGenerator:
         }}
         * {{ box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
         body {{ background-color: var(--bg); color: var(--text-main); line-height: 1.6; padding: 32px 16px; min-height: 100vh; }}
-        .container {{ max-width: 1200px; margin: 0 auto; }}
+        .container {{ max-width: 1240px; margin: 0 auto; }}
         header {{ text-align: center; margin-bottom: 40px; }}
         header h1 {{ font-size: 2.4rem; color: #60a5fa; margin-bottom: 12px; }}
         header p {{ color: var(--text-muted); font-size: 1.1rem; }}
@@ -258,23 +282,37 @@ class CatalogGenerator:
         .search-input {{ width: 100%; max-width: 550px; padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 1rem; outline: none; transition: border-color 0.2s; }}
         .search-input:focus {{ border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }}
         .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; }}
-        .dataset-card {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }}
-        .dataset-card:hover {{ transform: translateY(-4px); box-shadow: 0 12px 30px -5px rgba(0,0,0,0.45); border-color: #3b82f6; background: var(--card-hover); }}
-        .card-header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }}
-        .badge {{ display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-right: 6px; }}
-        .domain-badge {{ background: #0284c7; color: white; }}
-        .level-badge {{ background: #475569; color: white; }}
-        .quality-badge {{ background: var(--accent-green); color: white; }}
-        .skill-badge {{ background: #334155; color: #cbd5e1; margin: 3px; font-size: 0.72rem; }}
-        .version-tag {{ font-size: 0.85rem; color: #38bdf8; font-family: monospace; font-weight: 600; }}
-        .dataset-card h3 {{ font-size: 1.3rem; margin-bottom: 8px; color: #f1f5f9; }}
-        .dataset-id {{ font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }}
-        .dataset-id code {{ color: #a5b4fc; background: rgba(99,102,241,0.15); padding: 2px 6px; border-radius: 4px; }}
-        .description {{ color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px; flex-grow: 1; }}
-        .skills-wrap {{ margin-bottom: 20px; }}
-        .card-footer {{ display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 16px; font-size: 0.85rem; color: var(--text-muted); }}
-        .btn-detail {{ background: var(--primary); color: white; border: none; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s, transform 0.1s; }}
-        .btn-detail:hover {{ background: var(--primary-dark); transform: scale(1.02); }}
+        
+        /* Redesigned Balanced Dataset Card */
+        .dataset-card {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; position: relative; overflow: hidden; }}
+        .dataset-card::before {{ content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2563eb, #06b6d4); opacity: 0.8; }}
+        .dataset-card:hover {{ transform: translateY(-4px); box-shadow: 0 16px 36px -8px rgba(0,0,0,0.5); border-color: #3b82f6; background: var(--card-hover); }}
+        
+        .card-top {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }}
+        .card-badges {{ display: flex; gap: 6px; align-items: center; }}
+        .badge {{ display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; }}
+        .domain-badge {{ background: rgba(2, 132, 199, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }}
+        .level-badge {{ background: rgba(71, 85, 105, 0.3); color: #cbd5e1; border: 1px solid #475569; }}
+        .version-tag {{ font-size: 0.82rem; color: #94a3b8; font-family: monospace; background: #0f172a; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); font-weight: 600; }}
+        
+        .card-quality-row {{ margin-bottom: 12px; }}
+        .quality-pill {{ display: inline-flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 10px; border-radius: 6px; font-size: 0.76rem; font-weight: 500; }}
+        .quality-pill b {{ color: #10b981; font-weight: 700; }}
+
+        .card-title {{ font-size: 1.18rem; font-weight: 700; line-height: 1.4; color: #f1f5f9; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 3.3rem; }}
+        .dataset-id {{ font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px; }}
+        .dataset-id code {{ color: #a5b4fc; background: rgba(99,102,241,0.12); padding: 2px 7px; border-radius: 4px; font-size: 0.8rem; }}
+        
+        .description {{ color: #94a3b8; font-size: 0.88rem; line-height: 1.55; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 4.1rem; }}
+        
+        .skills-wrap {{ display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; min-height: 2.2rem; align-items: center; }}
+        .skill-tag {{ background: rgba(30, 41, 59, 0.9); color: #cbd5e1; border: 1px solid #334155; font-size: 0.74rem; padding: 3px 9px; border-radius: 6px; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }}
+        .skill-tag-more {{ background: #0f172a; color: #60a5fa; border: 1px dashed #3b82f6; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; }}
+
+        .card-footer {{ display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; margin-top: auto; }}
+        .license {{ font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }}
+        .btn-detail {{ background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: 1px solid #3b82f6; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; }}
+        .btn-detail:hover {{ background: linear-gradient(135deg, #1d4ed8, #1e40af); box-shadow: 0 4px 12px rgba(37,99,235,0.4); transform: translateX(2px); }}
 
         /* Modal Styles */
         .modal-overlay {{ position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 24px; overflow: hidden; }}

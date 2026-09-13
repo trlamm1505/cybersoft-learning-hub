@@ -20,7 +20,7 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; padding: 32px 16px; min-height: 100vh; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1240px; margin: 0 auto; }
         header { text-align: center; margin-bottom: 40px; }
         header h1 { font-size: 2.4rem; color: #60a5fa; margin-bottom: 12px; }
         header p { color: var(--text-muted); font-size: 1.1rem; }
@@ -28,23 +28,37 @@
         .search-input { width: 100%; max-width: 550px; padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 1rem; outline: none; transition: border-color 0.2s; }
         .search-input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; }
-        .dataset-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
-        .dataset-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px -5px rgba(0,0,0,0.45); border-color: #3b82f6; background: var(--card-hover); }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-right: 6px; }
-        .domain-badge { background: #0284c7; color: white; }
-        .level-badge { background: #475569; color: white; }
-        .quality-badge { background: var(--accent-green); color: white; }
-        .skill-badge { background: #334155; color: #cbd5e1; margin: 3px; font-size: 0.72rem; }
-        .version-tag { font-size: 0.85rem; color: #38bdf8; font-family: monospace; font-weight: 600; }
-        .dataset-card h3 { font-size: 1.3rem; margin-bottom: 8px; color: #f1f5f9; }
-        .dataset-id { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
-        .dataset-id code { color: #a5b4fc; background: rgba(99,102,241,0.15); padding: 2px 6px; border-radius: 4px; }
-        .description { color: #cbd5e1; font-size: 0.95rem; margin-bottom: 16px; flex-grow: 1; }
-        .skills-wrap { margin-bottom: 20px; }
-        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 16px; font-size: 0.85rem; color: var(--text-muted); }
-        .btn-detail { background: var(--primary); color: white; border: none; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s, transform 0.1s; }
-        .btn-detail:hover { background: var(--primary-dark); transform: scale(1.02); }
+        
+        /* Redesigned Balanced Dataset Card */
+        .dataset-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; position: relative; overflow: hidden; }
+        .dataset-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2563eb, #06b6d4); opacity: 0.8; }
+        .dataset-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px -8px rgba(0,0,0,0.5); border-color: #3b82f6; background: var(--card-hover); }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .card-badges { display: flex; gap: 6px; align-items: center; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; }
+        .domain-badge { background: rgba(2, 132, 199, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .level-badge { background: rgba(71, 85, 105, 0.3); color: #cbd5e1; border: 1px solid #475569; }
+        .version-tag { font-size: 0.82rem; color: #94a3b8; font-family: monospace; background: #0f172a; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); font-weight: 600; }
+        
+        .card-quality-row { margin-bottom: 12px; }
+        .quality-pill { display: inline-flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 10px; border-radius: 6px; font-size: 0.76rem; font-weight: 500; }
+        .quality-pill b { color: #10b981; font-weight: 700; }
+
+        .card-title { font-size: 1.18rem; font-weight: 700; line-height: 1.4; color: #f1f5f9; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 3.3rem; }
+        .dataset-id { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px; }
+        .dataset-id code { color: #a5b4fc; background: rgba(99,102,241,0.12); padding: 2px 7px; border-radius: 4px; font-size: 0.8rem; }
+        
+        .description { color: #94a3b8; font-size: 0.88rem; line-height: 1.55; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 4.1rem; }
+        
+        .skills-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; min-height: 2.2rem; align-items: center; }
+        .skill-tag { background: rgba(30, 41, 59, 0.9); color: #cbd5e1; border: 1px solid #334155; font-size: 0.74rem; padding: 3px 9px; border-radius: 6px; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+        .skill-tag-more { background: #0f172a; color: #60a5fa; border: 1px dashed #3b82f6; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
+
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; margin-top: auto; }
+        .license { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+        .btn-detail { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: 1px solid #3b82f6; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-detail:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); box-shadow: 0 4px 12px rgba(37,99,235,0.4); transform: translateX(2px); }
 
         /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 24px; overflow: hidden; }
@@ -102,65 +116,71 @@
         <main class="grid" id="datasetGrid">
             
             <div class="dataset-card" data-domain="retail_ecommerce" data-level="beginner">
-                <div class="card-header">
-                    <div>
-                        <span class="badge domain-badge">RETAIL_ECOMMERCE</span>
-                        <span class="badge level-badge">BEGINNER</span>
-                        <span class="badge quality-badge">✓ Quality 100.0%</span>
+                <div class="card-top">
+                    <div class="card-badges">
+                        <span class="badge domain-badge">Retail Ecommerce</span>
+                        <span class="badge level-badge">Beginner</span>
                     </div>
                     <span class="version-tag">v1.0.0</span>
                 </div>
-                <h3>CyberSoft Retail E-Commerce Multi-Table Sales Benchmark</h3>
+                <div class="card-quality-row">
+                    <span class="quality-pill">🛡️ Quality Gate: <b>100.0%</b></span>
+                </div>
+                <h3 class="card-title" title="CyberSoft Retail E-Commerce Multi-Table Sales Benchmark">CyberSoft Retail E-Commerce Multi-Table Sales Benchmark</h3>
                 <p class="dataset-id">ID: <code>ds-retail-ecommerce-sales-v1</code></p>
-                <p class="description">Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.</p>
+                <p class="description" title="Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.">Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.</p>
                 <div class="skills-wrap">
-                    <span class="badge skill-badge">Star Schema Data Modeling</span><span class="badge skill-badge">SQL Multi-table JOINs and Aggregations</span><span class="badge skill-badge">Window Functions (RANK, DENSE_RANK, LEAD, LAG)</span><span class="badge skill-badge">RFM (Recency, Frequency, Monetary) Customer Segmentation</span><span class="badge skill-badge">Power BI Interactive Executive Dashboarding</span>
+                    <span class="skill-tag" title="Star Schema Data Modeling">Star Schema Data Modeling</span><span class="skill-tag" title="SQL Multi-table JOINs and Aggregations">SQL Multi-table JOINs and Aggregations</span><span class="skill-tag" title="Window Functions (RANK, DENSE_RANK, LEAD, LAG)">Window Functions (RANK, DENSE_RANK, LEAD, LAG)</span><span class="skill-tag-more">+2 khác</span>
                 </div>
                 <div class="card-footer">
-                    <span class="license">License: CC-BY-4.0</span>
-                    <button class="btn-detail" onclick="openDetailModal('ds-retail-ecommerce-sales-v1')">Xem Chi Tiết</button>
+                    <span class="license" title="CC-BY-4.0">📜 CC-BY-4.0</span>
+                    <button class="btn-detail" onclick="openDetailModal('ds-retail-ecommerce-sales-v1')">Xem Chi Tiết →</button>
                 </div>
             </div>
             
             <div class="dataset-card" data-domain="hr_operations" data-level="intermediate">
-                <div class="card-header">
-                    <div>
-                        <span class="badge domain-badge">HR_OPERATIONS</span>
-                        <span class="badge level-badge">INTERMEDIATE</span>
-                        <span class="badge quality-badge">✓ Quality 100.0%</span>
+                <div class="card-top">
+                    <div class="card-badges">
+                        <span class="badge domain-badge">Hr Operations</span>
+                        <span class="badge level-badge">Intermediate</span>
                     </div>
                     <span class="version-tag">v1.1.0</span>
                 </div>
-                <h3>CyberSoft Enterprise HR Workforce & Attendance Benchmark</h3>
+                <div class="card-quality-row">
+                    <span class="quality-pill">🛡️ Quality Gate: <b>100.0%</b></span>
+                </div>
+                <h3 class="card-title" title="CyberSoft Enterprise HR Workforce & Attendance Benchmark">CyberSoft Enterprise HR Workforce & Attendance Benchmark</h3>
                 <p class="dataset-id">ID: <code>ds-hr-operations-attendance-v1</code></p>
-                <p class="description">Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.</p>
+                <p class="description" title="Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.">Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.</p>
                 <div class="skills-wrap">
-                    <span class="badge skill-badge">Time-Series and Date-Time SQL Manipulation</span><span class="badge skill-badge">Complex Multi-condition CASE WHEN logic</span><span class="badge skill-badge">Attrition / Turnover Rate Calculation</span><span class="badge skill-badge">Overtime & Punctuality Variance Analysis</span><span class="badge skill-badge">HR Talent Retention Modeling</span>
+                    <span class="skill-tag" title="Time-Series and Date-Time SQL Manipulation">Time-Series and Date-Time SQL Manipulation</span><span class="skill-tag" title="Complex Multi-condition CASE WHEN logic">Complex Multi-condition CASE WHEN logic</span><span class="skill-tag" title="Attrition / Turnover Rate Calculation">Attrition / Turnover Rate Calculation</span><span class="skill-tag-more">+2 khác</span>
                 </div>
                 <div class="card-footer">
-                    <span class="license">License: CyberSoft-Educational-Proprietary-v1</span>
-                    <button class="btn-detail" onclick="openDetailModal('ds-hr-operations-attendance-v1')">Xem Chi Tiết</button>
+                    <span class="license" title="CyberSoft-Educational-Proprietary-v1">📜 CyberSoft Edu</span>
+                    <button class="btn-detail" onclick="openDetailModal('ds-hr-operations-attendance-v1')">Xem Chi Tiết →</button>
                 </div>
             </div>
             
             <div class="dataset-card" data-domain="nlp_genai" data-level="advanced">
-                <div class="card-header">
-                    <div>
-                        <span class="badge domain-badge">NLP_GENAI</span>
-                        <span class="badge level-badge">ADVANCED</span>
-                        <span class="badge quality-badge">✓ Quality 100.0%</span>
+                <div class="card-top">
+                    <div class="card-badges">
+                        <span class="badge domain-badge">Nlp Genai</span>
+                        <span class="badge level-badge">Advanced</span>
                     </div>
                     <span class="version-tag">v1.0.0</span>
                 </div>
-                <h3>CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark</h3>
+                <div class="card-quality-row">
+                    <span class="quality-pill">🛡️ Quality Gate: <b>100.0%</b></span>
+                </div>
+                <h3 class="card-title" title="CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark">CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark</h3>
                 <p class="dataset-id">ID: <code>ds-nlp-rag-tutor-knowledgebase-v1</code></p>
-                <p class="description">Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.</p>
+                <p class="description" title="Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.">Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.</p>
                 <div class="skills-wrap">
-                    <span class="badge skill-badge">Document Ingestion & Chunking Strategy Optimization</span><span class="badge skill-badge">Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)</span><span class="badge skill-badge">Vector Database Indexing (Qdrant, ChromaDB, FAISS)</span><span class="badge skill-badge">RAG Triad Evaluation: Context Precision, Faithfulness, Answer Relevance</span><span class="badge skill-badge">Handling Out-of-Scope Queries (Refusal Guardrails)</span>
+                    <span class="skill-tag" title="Document Ingestion & Chunking Strategy Optimization">Document Ingestion & Chunking Strategy Optimization</span><span class="skill-tag" title="Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)">Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)</span><span class="skill-tag" title="Vector Database Indexing (Qdrant, ChromaDB, FAISS)">Vector Database Indexing (Qdrant, ChromaDB, FAISS)</span><span class="skill-tag-more">+2 khác</span>
                 </div>
                 <div class="card-footer">
-                    <span class="license">License: CyberSoft-Internal-Educational-v1</span>
-                    <button class="btn-detail" onclick="openDetailModal('ds-nlp-rag-tutor-knowledgebase-v1')">Xem Chi Tiết</button>
+                    <span class="license" title="CyberSoft-Internal-Educational-v1">📜 CyberSoft Internal</span>
+                    <button class="btn-detail" onclick="openDetailModal('ds-nlp-rag-tutor-knowledgebase-v1')">Xem Chi Tiết →</button>
                 </div>
             </div>
             
