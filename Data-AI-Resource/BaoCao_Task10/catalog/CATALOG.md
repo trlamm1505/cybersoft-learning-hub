@@ -1,7 +1,7 @@
 # 🏛️ CyberSoft Dataset Registry & Resource Catalog
 
 > **Hệ thống Quản lý và Xuất bản Tài nguyên Dữ liệu Thực hành AI-Native**  
-> *Phiên bản Registry: 1.0.0 | Cập nhật lần cuối: 2026-09-13 18:48:05Z*
+> *Phiên bản Registry: 1.0.0 | Cập nhật lần cuối: 2026-09-13 18:54:43Z*
 
 ---
 
