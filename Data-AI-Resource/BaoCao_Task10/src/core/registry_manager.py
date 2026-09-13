@@ -39,6 +39,7 @@ class RegistryManager:
 
     def __init__(self, store_dir: Optional[Path] = None):
         self.base_dir = Path(__file__).resolve().parent.parent.parent
+        self.repo_root = self._detect_repo_root()
         self.store_dir = store_dir or (self.base_dir / "registry_store")
         self.db_file = self.store_dir / "registry_db.json"
         self.manifests_dir = self.store_dir / "manifests"
@@ -49,6 +50,53 @@ class RegistryManager:
 
         self.checker = QualityGateChecker()
         self.db = self._load_db()
+
+    def _detect_repo_root(self) -> Path:
+        """Dynamically detects repository root (where .git or Data-AI-Resource lives)."""
+        curr = self.base_dir.resolve()
+        for p in [curr] + list(curr.parents):
+            if (p / ".git").exists() or (p / "Data-AI-Resource").exists():
+                return p
+        return curr.parents[1] if len(curr.parents) >= 2 else curr
+
+    def to_portable_path(self, path: Path | str) -> str:
+        """Converts an absolute filesystem path into a portable, repo-relative POSIX path.
+        Eliminates machine-specific hardcoded paths (e.g. D:/Cybersoft/Kien/...) so it works
+        on any other machine, operating system (Windows/Linux/Mac), or CI/CD runner.
+        """
+        p = Path(path).resolve()
+        try:
+            return p.relative_to(self.repo_root).as_posix()
+        except ValueError:
+            pass
+        try:
+            return p.relative_to(self.base_dir).as_posix()
+        except ValueError:
+            pass
+        return p.as_posix()
+
+    def resolve_path(self, path_str: str) -> Path:
+        """Resolves a portable stored path into a concrete Path on the current host machine."""
+        p = Path(path_str)
+        if p.is_absolute() and p.exists():
+            return p
+
+        # Check candidate 1: Relative to Data-AI-Resource
+        cand_ai = (self.base_dir.parent / p).resolve()
+        if cand_ai.exists():
+            return cand_ai
+
+        # Check candidate 2: Relative to Monorepo root
+        cand_repo = (self.repo_root / p).resolve()
+        if cand_repo.exists():
+            return cand_repo
+
+        # Check candidate 3: Relative to BaoCao_Task10
+        cand_base = (self.base_dir / p).resolve()
+        if cand_base.exists():
+            return cand_base
+
+        return cand_ai
 
     def _load_db(self) -> RegistryDatabase:
         if self.db_file.exists():
@@ -93,12 +141,8 @@ class RegistryManager:
         dest_manifest_path = self.manifests_dir / dest_manifest_name
         shutil.copy2(manifest_path, dest_manifest_path)
 
-        data_paths_str = [str(p) for p in (data_files or [])]
-
-        try:
-            rel_manifest = str(dest_manifest_path.relative_to(self.base_dir))
-        except ValueError:
-            rel_manifest = str(dest_manifest_path)
+        data_paths_str = [self.to_portable_path(p) for p in (data_files or [])]
+        rel_manifest = self.to_portable_path(dest_manifest_path)
 
         new_version = DatasetVersionEntry(
             version=version_str,
@@ -156,13 +200,12 @@ class RegistryManager:
             )
 
         v_entry = record.versions[version]
-        mp = Path(v_entry.manifest_path)
-        manifest_full_path = mp if mp.is_absolute() else (self.base_dir / mp)
+        manifest_full_path = self.resolve_path(v_entry.manifest_path)
 
         with open(manifest_full_path, "r", encoding="utf-8") as f:
             manifest_data = json.load(f)
 
-        data_files = [Path(p) for p in v_entry.data_paths]
+        data_files = [self.resolve_path(p) for p in v_entry.data_paths]
         result = self.checker.evaluate(
             manifest_data=manifest_data, data_files=data_files
         )

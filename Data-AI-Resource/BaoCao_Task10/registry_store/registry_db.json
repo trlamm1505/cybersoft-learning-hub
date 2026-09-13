@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "last_updated": "2026-09-13T16:38:11.513773Z",
+  "last_updated": "2026-09-13T17:59:54.626478Z",
   "datasets": {
     "ds-retail-ecommerce-sales-v1": {
       "id": "ds-retail-ecommerce-sales-v1",
@@ -27,11 +27,11 @@
         "1.0.0": {
           "version": "1.0.0",
           "state": "published",
-          "manifest_path": "registry_store\\manifests\\ds-retail-ecommerce-sales-v1_v1.0.0.json",
+          "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-retail-ecommerce-sales-v1_v1.0.0.json",
           "data_paths": [
-            "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task06\\data\\clean\\customers.csv",
-            "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task06\\data\\clean\\products.csv",
-            "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task06\\data\\clean\\orders.csv"
+            "BaoCao_Task06/data/clean/customers.csv",
+            "BaoCao_Task06/data/clean/products.csv",
+            "BaoCao_Task06/data/clean/orders.csv"
           ],
           "quality_gate": {
             "passed": true,
@@ -42,7 +42,7 @@
             "failed_checks": 0,
             "violations": [],
             "warnings": [],
-            "evaluated_at": "2026-09-13T16:38:11.038919Z",
+            "evaluated_at": "2026-09-13T17:59:54.204855Z",
             "details": {
               "dataset_id": "ds-retail-ecommerce-sales-v1",
               "version": "1.0.0",
@@ -50,8 +50,8 @@
             }
           },
           "changelog": "Release 1.0.0 - Clean star schema relational sales data",
-          "created_at": "2026-09-13T16:38:10.907518Z",
-          "published_at": "2026-09-13T16:38:11.039922Z"
+          "created_at": "2026-09-13T17:59:54.080856Z",
+          "published_at": "2026-09-13T17:59:54.205855Z"
         }
       }
     },
@@ -80,11 +80,11 @@
         "1.1.0": {
           "version": "1.1.0",
           "state": "published",
-          "manifest_path": "registry_store\\manifests\\ds-hr-operations-attendance-v1_v1.1.0.json",
+          "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-hr-operations-attendance-v1_v1.1.0.json",
           "data_paths": [
-            "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task07\\data\\clean\\employees.csv",
-            "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task07\\data\\clean\\attendance.csv",
-            "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task07\\data\\clean\\kpi_evaluations.csv"
+            "BaoCao_Task07/data/clean/employees.csv",
+            "BaoCao_Task07/data/clean/attendance.csv",
+            "BaoCao_Task07/data/clean/kpi_evaluations.csv"
           ],
           "quality_gate": {
             "passed": true,
@@ -95,7 +95,7 @@
             "failed_checks": 0,
             "violations": [],
             "warnings": [],
-            "evaluated_at": "2026-09-13T16:38:11.134611Z",
+            "evaluated_at": "2026-09-13T17:59:54.342683Z",
             "details": {
               "dataset_id": "ds-hr-operations-attendance-v1",
               "version": "1.1.0",
@@ -103,8 +103,8 @@
             }
           },
           "changelog": "Release 1.1.0 - 5 relational tables >5,000 records for HR analytics",
-          "created_at": "2026-09-13T16:38:11.044920Z",
-          "published_at": "2026-09-13T16:38:11.136613Z"
+          "created_at": "2026-09-13T17:59:54.220623Z",
+          "published_at": "2026-09-13T17:59:54.343685Z"
         }
       }
     },
@@ -132,9 +132,9 @@
         "1.0.0": {
           "version": "1.0.0",
           "state": "published",
-          "manifest_path": "registry_store\\manifests\\ds-nlp-rag-tutor-knowledgebase-v1_v1.0.0.json",
+          "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-nlp-rag-tutor-knowledgebase-v1_v1.0.0.json",
           "data_paths": [
-            "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task08\\data\\eval_qa\\rag_eval_questions.json"
+            "BaoCao_Task08/data/eval_qa/rag_eval_questions.json"
           ],
           "quality_gate": {
             "passed": true,
@@ -145,7 +145,7 @@
             "failed_checks": 0,
             "violations": [],
             "warnings": [],
-            "evaluated_at": "2026-09-13T16:38:11.403398Z",
+            "evaluated_at": "2026-09-13T17:59:54.467802Z",
             "details": {
               "dataset_id": "ds-nlp-rag-tutor-knowledgebase-v1",
               "version": "1.0.0",
@@ -153,8 +153,8 @@
             }
           },
           "changelog": "Release 1.0.0 - 24 corpus documents and 60 QA eval pairs",
-          "created_at": "2026-09-13T16:38:11.234742Z",
-          "published_at": "2026-09-13T16:38:11.405399Z"
+          "created_at": "2026-09-13T17:59:54.349616Z",
+          "published_at": "2026-09-13T17:59:54.467802Z"
         }
       }
     },
@@ -178,9 +178,9 @@
         "1.0.0": {
           "version": "1.0.0",
           "state": "rejected",
-          "manifest_path": "registry_store\\manifests\\ds-dirty-test-quarantine_v1.0.0.json",
+          "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-dirty-test-quarantine_v1.0.0.json",
           "data_paths": [
-            "D:\\Cybersoft\\Kien\\cybersoft-learning-hub\\Data-AI-Resource\\BaoCao_Task06\\data\\dirty\\orders.csv"
+            "BaoCao_Task06/data/dirty/orders.csv"
           ],
           "quality_gate": {
             "passed": false,
@@ -193,7 +193,7 @@
               "Schema validation error at [root]: 'lineage' is a required property"
             ],
             "warnings": [],
-            "evaluated_at": "2026-09-13T16:38:11.513773Z",
+            "evaluated_at": "2026-09-13T17:59:54.625476Z",
             "details": {
               "dataset_id": "ds-dirty-test-quarantine",
               "version": "1.0.0",
@@ -201,7 +201,7 @@
             }
           },
           "changelog": "Intentional dirty test",
-          "created_at": "2026-09-13T16:38:11.426774Z",
+          "created_at": "2026-09-13T17:59:54.562468Z",
           "published_at": null
         }
       }
