@@ -10,19 +10,19 @@
 ## 1. Bài toán và Giả định trước khi gọi AI (Pre-AI Baseline)
 
 ### Giả định & Yêu cầu Kỹ thuật Ban đầu
-* **Mục tiêu**: Xây dựng toàn diện **Dataset Registry v0.1 & Publishing Portal** làm trung tâm quản trị và xuất bản tài nguyên dữ liệu, đánh dấu mốc hoàn thành toàn bộ **Tuần 2 (Tạo tài nguyên dữ liệu)**.
+* **Mục tiêu**: Xây dựng toàn diện **Dataset Registry v0.1 & Publishing Portal** làm trung tâm quản trị và xuất bản tài nguyên dữ liệu tập trung, phục vụ việc tích hợp đa phòng ban giữa Data & AI (TTS 01), LMS Platform (TTS 02) và QA Automation (TTS 03).
 * **Tiêu chí nghiệm thu (Acceptance Criteria / DoD)**:
   1. **Registry Engine & SemVer**: Thiết lập cơ chế đăng ký và quản lý phiên bản chuẩn Semantic Versioning (`MAJOR.MINOR.PATCH`).
   2. **Automated Quality Gate Integration**: Tích hợp chặt chẽ với Schema Validator (Task 04) và Data Quality Harness (Task 05). Dữ liệu chỉ được chuyển sang trạng thái `PUBLISHED` khi điểm chất lượng $\ge 95.0\%$ và có $0$ lỗi chặn.
   3. **State Machine chặt chẽ**: Vòng đời `DRAFT` $\rightarrow$ `UNDER_REVIEW` $\rightarrow$ `PUBLISHED` / `REJECTED`. Ngăn chặn dữ liệu bẩn rò rỉ và bảo đảm tính bất biến (Immutability) cho các phiên bản đã xuất bản.
-  4. **Multi-channel Catalog**: Tự động sinh `CATALOG.md` (cho giảng viên), `catalog.json` (API cho nền tảng học tập TTS 02), và `index.html` (Web portal cho học viên).
+  4. **Multi-channel Catalog**: Tự động sinh `CATALOG.md` (cho giảng viên), `catalog.json` (API cho nền tảng học tập TTS 02), và `index.html` (Web portal trực quan cho học viên và ban cố vấn).
   5. **Bàn giao tối thiểu 3 benchmark datasets**: Đăng ký và xuất bản thành công `sales_v1`, `HR_ops_v1`, `rag_corpus_qa_v1`.
   6. **Kiểm thử độc lập**: Pytest đạt 100% PASS và có kịch bản kiểm thử chặn lỗi (Negative Testing).
 
 ### Rủi ro dự kiến & Bẫy AI thường gặp
 * **Bẫy Cho Phép Sửa Dữ Liệu Đã Xuất Bản (Mutation of Published Assets)**: AI thường thiết kế CRUD đơn giản cho phép cập nhật đè lên bản ghi đang có. Điều này phá vỡ tính tái lập của đề thi và bài tập học viên. *Khắc phục: Cài chốt chặn bất biến (WORM pattern) trong State Machine.*
 * **Bẫy Bypass Quality Gate Âm Thầm**: AI có thể tự động bỏ qua kiểm tra khi tệp dữ liệu lớn hoặc thiếu cấu hình. *Khắc phục: Ép kiểm tra bắt buộc, nếu thiếu Quality Gate Report thì State Machine từ chối chuyển sang `PUBLISHED`.*
-* **Bẫy Đường dẫn Tuyệt đối Cố định (Hard-coded Paths)**: AI thường hard-code đường dẫn tuyệt đối dạng `C:\...` hoặc `D:\...`, gây lỗi khi chạy trên máy khác hoặc môi trường CI. *Khắc phục: Sử dụng `pathlib.Path` và xử lý an toàn đường dẫn tương đối/tuyệt đối giữa các phân vùng ổ đĩa.*
+* **Bẫy Đường dẫn Tuyệt đối Cố định (Hard-coded Paths)**: AI thường hard-code đường dẫn tuyệt đối dạng `C:\...` hoặc `D:\...`, gây lỗi khi chạy trên máy khác hoặc môi trường CI. *Khắc phục: Sử dụng `pathlib.Path` và cơ chế `resolve_path()` linh hoạt phát hiện thư mục gốc repository.*
 
 ---
 
@@ -49,9 +49,15 @@ kết nối chặt chẽ với Data Quality Harness để chặn đứng dữ li
 2. **Quyết định 2 — Khóa Bất Biến (Immutability Enforcement)**:
    - *AI đề xuất*: Cho phép lệnh `register` ghi đè lên version đã có nếu truyền cờ `--force`.
    - *Quyết định của tôi*: Loại bỏ hoàn toàn cờ `--force` đối với phiên bản `PUBLISHED`. Bất kỳ thay đổi nào dù nhỏ cũng phải tạo phiên bản mới theo quy tắc Semantic Versioning để bảo vệ dữ liệu cho các khóa học đang chạy.
-3. **Quyết định 3 — Xử lý Đường dẫn An toàn Đa Ổ Đĩa (Cross-drive Path Safety)**:
-   - *Lỗi phát sinh*: Khi chạy test trên môi trường Windows, thư mục tạm `tmp_path` nằm ở ổ `C:\Users\...` trong khi repo nằm ở `D:\Cybersoft\...`, khiến hàm `Path.relative_to()` ném ngoại lệ `ValueError`.
-   - *Quyết định của tôi*: Bổ sung khối xử lý ngoại lệ an toàn cho phép lưu trữ đường dẫn tương đối khi cùng ổ đĩa và chuyển sang đường dẫn tuyệt đối chuẩn hóa khi khác ổ đĩa.
+3. **Quyết định 3 — Chuẩn hóa Đường dẫn Di động Đa Môi Trường (Cross-Machine Path Safety)**:
+   - *Lỗi phát sinh*: AI lưu trữ đường dẫn tuyệt đối chứa tên ổ đĩa máy dev, gây gãy liên kết khi clone sang máy khác hoặc môi trường CI.
+   - *Quyết định của tôi*: Chuẩn hóa 100% đường dẫn lưu trong Registry DB thành đường dẫn tương đối POSIX (`BaoCao_Task06/data/...`), bổ sung cơ chế tự động tìm gốc repo để đảm bảo chạy xuyên suốt trên mọi hệ điều hành.
+4. **Quyết định 4 — Nâng cấp Web Portal với Interactive Modal Dialog thay thế Popup alert()**:
+   - *AI đề xuất ban đầu*: Gán `onclick="alert(...)"` thô sơ chỉ hiện đường dẫn tệp manifest khi nhấn nút "Xem Chi Tiết".
+   - *Quyết định của tôi*: Từ chối giải pháp này vì không đáp ứng yêu cầu thẩm mỹ và tra cứu trực quan. Thiết kế cửa sổ Modal Dialog chuyên nghiệp với 5 tab (Tổng quan, Cấu trúc Schema & Bảng, Quản trị & PII, Mục tiêu Đào tạo, Manifest JSON).
+5. **Quyết định 5 — Khống chế Viewport Modal và Xử lý Cuộn Chuyên Biệt (Scroll Isolation)**:
+   - *Vấn đề phát sinh*: Bảng schema dài hàng nghìn pixel làm bung nở khung popup, khiến tiêu đề và thanh Tab bị đẩy trôi ra khỏi màn hình.
+   - *Quyết định của tôi*: Ghim cố định Header và thanh Tab (`flex-shrink: 0`), khống chế chiều cao Modal chuẩn (`height: 86vh`), chỉ cho phép vùng thân bảng cuộn dữ liệu (`modal-body { overflow-y: auto; min-height: 0; }`), và đồng bộ phong cách thẩm mỹ giữa các thẻ Card và Modal.
 
 ---
 

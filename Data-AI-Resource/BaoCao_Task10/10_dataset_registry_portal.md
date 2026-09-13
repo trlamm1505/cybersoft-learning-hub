@@ -2,7 +2,6 @@
 
 **Dự án**: CyberSoft Data & AI Lab  
 **Đầu việc**: NGÀY 10 — Cổng xuất bản Dataset Registry (`dataset_registry_portal` & `quality_gate_enforcement`)  
-**Giai đoạn**: Tuần 2 — Tạo tài nguyên dữ liệu (Mốc tổng kết Tuần 2)  
 **Vai trò phụ trách**: Data & AI Resource Engineer (Đào Trung Kiên)  
 **Phiên bản**: v1.0.0  
 **Ngày hoàn thiện**: 2026-09-13  
@@ -12,14 +11,14 @@
 ## 1. TỔNG QUAN VÀ BỐI CẢNH KỸ THUẬT
 
 ### 1.1. Bước Chuyển Dịch từ Tạo Dữ Liệu Rời Rạc sang Quản Trị Tài Nguyên Tập Trung
-* **Tuần 1 & Đầu Tuần 2 (Task 04 - 09)**: Nhóm Data & AI đã lần lượt hoàn thành các khối nền móng quan trọng:
+* **Các nhiệm vụ tiền đề (Task 04 - 09)**: Nhóm Data & AI đã lần lượt hoàn thành các khối nền móng quan trọng:
   - *Task 04*: Bộ chuẩn hóa `dataset.schema.json` quản trị metadata và data dictionary.
   - *Task 05*: `Data Quality Harness v0` với 7 quy tắc thẩm định tính toàn vẹn dữ liệu.
   - *Task 06*: Bộ dữ liệu bán hàng đa bảng `sales_v1` (Star Schema, Clean & Dirty).
   - *Task 07*: Bộ dữ liệu nhân sự và vận hành `HR_ops_v1` (5 bảng, >5.000 dòng).
   - *Task 08*: Ngữ liệu chuyên sâu và benchmark đánh giá RAG `rag_corpus_qa_v1`.
   - *Task 09*: Pipeline sinh dữ liệu có kiểm soát bằng AI với vòng lặp tự sửa lỗi (Self-Correction Loop).
-* **Task 10 (Mốc kết thúc Tuần 2)**: Chuyển dịch toàn bộ các tài nguyên dữ liệu đơn lẻ thành một **Hệ sinh thái Quản lý & Xuất bản Tài nguyên Dữ liệu Tập trung (Dataset Registry & Catalog Portal)**.
+* **Task 10 (Cổng xuất bản Dataset Registry)**: Chuyển dịch toàn bộ các tài nguyên dữ liệu đơn lẻ thành một **Hệ sinh thái Quản lý & Xuất bản Tài nguyên Dữ liệu Tập trung (Dataset Registry & Catalog Portal)**.
 * **Ba Vấn đề Nghiệp vụ Cốt lõi được Giải quyết**:
   1. **Chặn Đứng Dữ Liệu Bẩn Rò Rỉ Ra Ngoài (Quality Gate Zero-Tolerance)**: Không cho phép bất kỳ bộ dữ liệu nào có lỗi (null bất thường, trùng khóa chính, vi phạm schema) được xuất bản sang hệ sinh thái học tập.
   2. **Tính Bất Biến và Khả Năng Tái Lập (Immutability & SemVer)**: Đóng băng các phiên bản đã xuất bản (`PUBLISHED`), đảm bảo bài thi và bài tập của học viên luôn chạy trên phiên bản dữ liệu chuẩn xác, không bị biến động âm thầm.

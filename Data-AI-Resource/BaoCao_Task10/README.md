@@ -2,7 +2,7 @@
 
 > **Module quản lý vòng đời và xuất bản tài nguyên dữ liệu tập trung cho CyberSoft Learning Hub.**  
 > **Tác giả:** Đào Trung Kiên — Data & AI Resource Engineer  
-> **Nhiệm vụ:** Task 10 — Cổng xuất bản Dataset Registry (Tổng kết Tuần 2)
+> **Nhiệm vụ:** Task 10 — Cổng xuất bản Dataset Registry & Resource Portal
 
 ---
 
