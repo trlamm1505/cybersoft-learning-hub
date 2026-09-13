@@ -421,13 +421,16 @@ class CatalogGenerator:
 
             const m = item.manifest || {{}};
 
-            // Header Title & Badges
+            // Header Title & Badges (Matching outside card design)
+            const domainLabel = (item.domain || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const levelLabel = (item.difficulty_level || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
             document.getElementById('modalTitle').innerText = item.name;
             document.getElementById('modalBadges').innerHTML = `
-                <span class="badge domain-badge">${{(item.domain || '').toUpperCase()}}</span>
-                <span class="badge level-badge">${{(item.difficulty_level || '').toUpperCase()}}</span>
-                <span class="badge quality-badge">✓ Quality ${{item.quality_score}}</span>
-                <span class="version-tag">Version ${{item.version}}</span>
+                <span class="badge domain-badge">${{domainLabel}}</span>
+                <span class="badge level-badge">${{levelLabel}}</span>
+                <span class="quality-pill">🛡️ Quality Gate: <b>${{item.quality_score}}</b></span>
+                <span class="version-tag">v${{item.version}}</span>
             `;
 
             // Tab 1: Overview
@@ -453,8 +456,8 @@ class CatalogGenerator:
                 <div class="section-title">Mô tả tổng quát</div>
                 <p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 16px;">${{item.description}}</p>
                 <div class="section-title">Kỹ năng áp dụng</div>
-                <div style="margin-top: 8px;">
-                    ${{(item.skills || []).map(s => `<span class="badge skill-badge" style="padding: 6px 12px; font-size: 0.8rem;">${{s}}</span>`).join('')}}
+                <div class="skills-wrap" style="margin-top: 10px; min-height: auto; gap: 8px;">
+                    ${{(item.skills || []).map(s => `<span class="skill-tag" style="font-size: 0.8rem; padding: 5px 12px;">${{s}}</span>`).join('')}}
                 </div>
                 <div class="section-title">Đường dẫn Manifest</div>
                 <div class="code-box" style="padding: 10px 14px;">${{item.manifest_path}}</div>
