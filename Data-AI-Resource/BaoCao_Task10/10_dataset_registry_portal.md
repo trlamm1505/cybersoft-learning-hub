@@ -22,7 +22,7 @@
 * **Ba Vấn đề Nghiệp vụ Cốt lõi được Giải quyết**:
   1. **Chặn Đứng Dữ Liệu Bẩn Rò Rỉ Ra Ngoài (Quality Gate Zero-Tolerance)**: Không cho phép bất kỳ bộ dữ liệu nào có lỗi (null bất thường, trùng khóa chính, vi phạm schema) được xuất bản sang hệ sinh thái học tập.
   2. **Tính Bất Biến và Khả Năng Tái Lập (Immutability & SemVer)**: Đóng băng các phiên bản đã xuất bản (`PUBLISHED`), đảm bảo bài thi và bài tập của học viên luôn chạy trên phiên bản dữ liệu chuẩn xác, không bị biến động âm thầm.
-  3. **Tích hợp Đa kênh Liên phòng ban (Cross-Role Integration)**: Cung cấp đồng thời tài liệu Markdown cho Giảng viên (`CATALOG.md`), JSON API cho bạn TTS 02 (`catalog.json`), và Web Portal trực quan cho học viên tra cứu.
+  3. **Tích hợp Đa kênh Liên phòng ban (Cross-Role Integration)**: Cung cấp đồng thời tài liệu Markdown cho Giảng viên (`CATALOG.md`), JSON API cho TTS 02 (`catalog.json`), và Web Portal trực quan cho học viên tra cứu.
 
 ---
 
