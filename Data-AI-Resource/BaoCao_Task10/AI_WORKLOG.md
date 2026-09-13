@@ -1,4 +1,4 @@
-﻿# AI WORK LOG — NGÀY 10: CỔNG XUẤT BẢN DATASET REGISTRY & CATALOG PORTAL
+# AI WORK LOG — NGÀY 10: CỔNG XUẤT BẢN DATASET REGISTRY & CATALOG PORTAL
 
 **Dự án**: CyberSoft Data & AI Lab  
 **Thực tập sinh**: Đào Trung Kiên — Data & AI Resource Engineer  
@@ -143,22 +143,3 @@ tests/test_registry_core.py::test_immutability_re_registering_published_version_
   4. Bác bỏ popup `alert()` sơ sài, tự thiết kế Modal Dialog chuyên nghiệp 5 tab.
   5. Xử lý triệt để lỗi CSS Flexbox Overflow để ghim cố định Header/Tabs, cô lập vùng cuộn bảng dữ liệu.
 * **Tầng 4 — Làm chủ (Technical Ownership)**: Tự tay hoàn thiện toàn bộ mã nguồn hệ thống, bộ công cụ CLI (`registry_cli.py`), kịch bản thực hành mẫu (`demo_practice`), bộ kiểm thử tự động 11 unit tests đạt $100\%$ PASS, và cổng thông tin Web Portal thẩm mỹ, đạt chuẩn doanh nghiệp phục vụ vận hành thực tế tại CyberSoft Academy.
-
----
-
-## 6. Kịch bản Thuyết trình 3 phút Bảo vệ Kỹ thuật (3-Minute Defense Pitch)
-
-> **Kính thưa Hội đồng Chuyên môn và Tech Lead CyberSoft:**  
-> Hôm nay, em xin trình bày kết quả triển khai **Task 10: Cổng xuất bản Dataset Registry & Publishing Portal** với 3 luận điểm cốt lõi thể hiện rõ năng lực làm chủ kiến trúc dữ liệu và tư duy quản trị hệ thống:
->
-> 1. **Vấn đề AI đề xuất chưa đạt**: Trong thiết kế ban đầu, AI có xu hướng xây dựng một hệ thống CRUD thông thường: cho phép ghi đè version đã xuất bản bằng cờ `--force`, nới lỏng cổng kiểm tra để dữ liệu lỗi vẫn được xuất bản với cảnh báo mềm, sử dụng đường dẫn tuyệt đối gắn chặt với máy dev (`D:\...`), và dùng popup `alert()` sơ sài trên giao diện Web.
-> 2. **Phát hiện và Quyết định kỹ thuật của em**: 
->    - *Thứ nhất*, em thiết lập nguyên tắc bất biến (WORM): Một khi dataset đã `PUBLISHED`, nó bị đóng băng vĩnh viễn để bảo vệ tính tái lập của bài thi và bài tập học viên; mọi sửa đổi đều bắt buộc tạo phiên bản mới theo Semantic Versioning.
->    - *Thứ hai*, em cài đặt chốt chặn cứng tại Quality Gate: Ngưỡng điểm $\ge 95.0\%$ và $0$ lỗi chặn (Zero-Tolerance với trùng khóa chính và vi phạm schema), kiên quyết từ chối xuất bản dữ liệu bẩn.
->    - *Thứ ba*, em chuẩn hóa $100\%$ đường dẫn thành dạng tương đối POSIX, giúp hệ thống hoạt động trơn tru trên mọi máy tính và môi trường CI/CD.
->    - *Thứ tư*, em trực tiếp thiết kế và lập trình giao diện Web Portal với Modal Dialog 5 tab chuyên nghiệp, khắc phục triệt để lỗi cuộn giao diện flexbox để mang lại trải nghiệm tra cứu tối ưu.
-> 3. **Kết quả kiểm chứng độc lập**: 
->    - Hệ thống đã đăng ký và xuất bản thành công 3 bộ benchmark chuẩn (`sales_v1`, `HR_ops_v1`, `rag_corpus_qa_v1`) đạt $100.0\%$ điểm chất lượng.
->    - Kịch bản Negative Testing đã chứng minh hệ thống chặn đứng thành công dataset bẩn `ds-dirty-test-quarantine`.
->    - Cổng xuất bản đa kênh phục vụ hiệu quả cho cả 3 đối tượng: Markdown cho Giảng viên, JSON API cho TTS 02, và Web Portal cho Học viên.
->    - Toàn bộ 11/11 tests Pytest đạt $100\%$ PASS trong 1.16 giây. Em xin hoàn thành và sẵn sàng trả lời các câu hỏi chuyên sâu từ Hội đồng.
