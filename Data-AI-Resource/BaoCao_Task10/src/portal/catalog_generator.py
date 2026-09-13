@@ -241,7 +241,9 @@ class CatalogGenerator:
                 "name": d.name,
                 "version": d.latest_published_version,
                 "domain": d.domain,
+                "domain_label": domain_label,
                 "difficulty_level": d.difficulty_level,
+                "level_label": level_label,
                 "description": d.description,
                 "license": d.license,
                 "skills": d.skills,
@@ -308,6 +310,9 @@ class CatalogGenerator:
         .skills-wrap {{ display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; min-height: 2.2rem; align-items: center; }}
         .skill-tag {{ background: rgba(30, 41, 59, 0.9); color: #cbd5e1; border: 1px solid #334155; font-size: 0.74rem; padding: 3px 9px; border-radius: 6px; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }}
         .skill-tag-more {{ background: #0f172a; color: #60a5fa; border: 1px dashed #3b82f6; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; }}
+
+        .modal-skill-tag {{ background: rgba(30, 41, 59, 0.9); color: #f1f5f9; border: 1px solid #334155; font-size: 0.82rem; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; line-height: 1.4; transition: all 0.2s; }}
+        .modal-skill-tag:hover {{ border-color: #3b82f6; background: rgba(37, 99, 235, 0.15); color: #60a5fa; }}
 
         .card-footer {{ display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; margin-top: auto; }}
         .license {{ font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }}
@@ -421,14 +426,11 @@ class CatalogGenerator:
 
             const m = item.manifest || {{}};
 
-            // Header Title & Badges (Matching outside card design)
-            const domainLabel = (item.domain || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            const levelLabel = (item.difficulty_level || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
+            // Header Title & Badges (100% Identical to outside cards)
             document.getElementById('modalTitle').innerText = item.name;
             document.getElementById('modalBadges').innerHTML = `
-                <span class="badge domain-badge">${{domainLabel}}</span>
-                <span class="badge level-badge">${{levelLabel}}</span>
+                <span class="badge domain-badge">${{item.domain_label}}</span>
+                <span class="badge level-badge">${{item.level_label}}</span>
                 <span class="quality-pill">🛡️ Quality Gate: <b>${{item.quality_score}}</b></span>
                 <span class="version-tag">v${{item.version}}</span>
             `;
@@ -457,7 +459,7 @@ class CatalogGenerator:
                 <p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 16px;">${{item.description}}</p>
                 <div class="section-title">Kỹ năng áp dụng</div>
                 <div class="skills-wrap" style="margin-top: 10px; min-height: auto; gap: 8px;">
-                    ${{(item.skills || []).map(s => `<span class="skill-tag" style="font-size: 0.8rem; padding: 5px 12px;">${{s}}</span>`).join('')}}
+                    ${{(item.skills || []).map(s => `<span class="modal-skill-tag">${{s}}</span>`).join('')}}
                 </div>
                 <div class="section-title">Đường dẫn Manifest</div>
                 <div class="code-box" style="padding: 10px 14px;">${{item.manifest_path}}</div>
