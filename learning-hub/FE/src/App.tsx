@@ -153,6 +153,17 @@ export function App() {
   };
 
   const handleLogout = () => {
+    // Dọn sạch toàn bộ dữ liệu phòng thi/kỳ thi gắn với đúng tài khoản vừa đăng xuất
+    // (namespace theo authUser.id) — tránh session/kết quả cũ còn sờ sờ khi tài khoản
+    // khác đăng nhập lại trên cùng máy.
+    if (authUser?.id) {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes(authUser.id)) keysToRemove.push(key);
+      }
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('app_auth_user');
     setAuthUser(null);
@@ -206,54 +217,75 @@ export function App() {
           <Route
             path="/detail"
             element={
-              <LessonDetailPage
-                currentLesson={currentLesson}
-                allLessons={allLessons}
-                onSelectLesson={(id) => {
-                  setSelectedLessonId(id);
-                  navigate(`/detail/${id}`);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onBackToCatalog={() => {
-                  navigate('/catalog');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
+              authUser ? (
+                <LessonDetailPage
+                  currentLesson={currentLesson}
+                  allLessons={allLessons}
+                  onSelectLesson={(id) => {
+                    setSelectedLessonId(id);
+                    navigate(`/detail/${id}`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onBackToCatalog={() => {
+                    navigate('/catalog');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
           <Route
             path="/detail/:lessonId"
             element={
-              <LessonDetailPage
-                currentLesson={currentLesson}
-                allLessons={allLessons}
-                onSelectLesson={(id) => {
-                  setSelectedLessonId(id);
-                  navigate(`/detail/${id}`);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onBackToCatalog={() => {
-                  navigate('/catalog');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
+              authUser ? (
+                <LessonDetailPage
+                  currentLesson={currentLesson}
+                  allLessons={allLessons}
+                  onSelectLesson={(id) => {
+                    setSelectedLessonId(id);
+                    navigate(`/detail/${id}`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onBackToCatalog={() => {
+                    navigate('/catalog');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
           <Route
             path="/quiz"
-            element={<QuizTakingPage teacherLessons={publishedTeacherLessons} />}
+            element={
+              authUser ? (
+                <QuizTakingPage teacherLessons={publishedTeacherLessons} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
           />
-          <Route path="/playground" element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} />} />
-          <Route path="/contests" element={<ContestListPage />} />
+          <Route
+            path="/playground"
+            element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} authUser={authUser} />}
+          />
+          <Route path="/contests" element={<ContestListPage authUser={authUser} />} />
           <Route path="/login" element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />
           <Route path="/register" element={<RegisterPage onAuthSuccess={handleAuthSuccess} />} />
           <Route
             path="/authoring"
             element={
-              <TeacherAuthoringPage
-                onLessonSaved={handleLessonSaved}
-                onLessonDeleted={handleLessonDeleted}
-              />
+              authUser?.role === 'TEACHER' ? (
+                <TeacherAuthoringPage
+                  onLessonSaved={handleLessonSaved}
+                  onLessonDeleted={handleLessonDeleted}
+                />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
             }
           />
           <Route path="*" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />

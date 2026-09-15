@@ -71,6 +71,11 @@ export class Contest {
 
   @Prop({ type: String, default: 'teacher-1' })
   authorId: string;
+
+  // Optional override for the leaderboard freeze window; when unset the leaderboard
+  // computes it from durationMinutes (see LeaderboardService.getConfig).
+  @Prop({ type: Number })
+  freezeMinutes?: number;
 }
 
 export const ContestSchema = SchemaFactory.createForClass(Contest);
