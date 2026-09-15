@@ -1,0 +1,210 @@
+{
+  "schema_version": "1.0.0",
+  "last_updated": "2026-09-13T17:59:54.626478Z",
+  "datasets": {
+    "ds-retail-ecommerce-sales-v1": {
+      "id": "ds-retail-ecommerce-sales-v1",
+      "name": "CyberSoft Retail E-Commerce Multi-Table Sales Benchmark",
+      "description": "Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.",
+      "domain": "retail_ecommerce",
+      "difficulty_level": "beginner",
+      "target_roles": [
+        "data_analyst",
+        "bi_analyst"
+      ],
+      "skills": [
+        "Star Schema Data Modeling",
+        "SQL Multi-table JOINs and Aggregations",
+        "Window Functions (RANK, DENSE_RANK, LEAD, LAG)",
+        "RFM (Recency, Frequency, Monetary) Customer Segmentation",
+        "Power BI Interactive Executive Dashboarding"
+      ],
+      "license": "CC-BY-4.0",
+      "pii_safe": false,
+      "author": "CyberSoft Data & AI Team",
+      "latest_published_version": "1.0.0",
+      "versions": {
+        "1.0.0": {
+          "version": "1.0.0",
+          "state": "published",
+          "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-retail-ecommerce-sales-v1_v1.0.0.json",
+          "data_paths": [
+            "BaoCao_Task06/data/clean/customers.csv",
+            "BaoCao_Task06/data/clean/products.csv",
+            "BaoCao_Task06/data/clean/orders.csv"
+          ],
+          "quality_gate": {
+            "passed": true,
+            "score": 100.0,
+            "schema_valid": true,
+            "total_checks": 23,
+            "passed_checks": 23,
+            "failed_checks": 0,
+            "violations": [],
+            "warnings": [],
+            "evaluated_at": "2026-09-13T17:59:54.204855Z",
+            "details": {
+              "dataset_id": "ds-retail-ecommerce-sales-v1",
+              "version": "1.0.0",
+              "data_files_evaluated": 3
+            }
+          },
+          "changelog": "Release 1.0.0 - Clean star schema relational sales data",
+          "created_at": "2026-09-13T17:59:54.080856Z",
+          "published_at": "2026-09-13T17:59:54.205855Z"
+        }
+      }
+    },
+    "ds-hr-operations-attendance-v1": {
+      "id": "ds-hr-operations-attendance-v1",
+      "name": "CyberSoft Enterprise HR Workforce & Attendance Benchmark",
+      "description": "Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.",
+      "domain": "hr_operations",
+      "difficulty_level": "intermediate",
+      "target_roles": [
+        "data_analyst",
+        "bi_analyst"
+      ],
+      "skills": [
+        "Time-Series and Date-Time SQL Manipulation",
+        "Complex Multi-condition CASE WHEN logic",
+        "Attrition / Turnover Rate Calculation",
+        "Overtime & Punctuality Variance Analysis",
+        "HR Talent Retention Modeling"
+      ],
+      "license": "CyberSoft-Educational-Proprietary-v1",
+      "pii_safe": false,
+      "author": "CyberSoft Data & AI Team",
+      "latest_published_version": "1.1.0",
+      "versions": {
+        "1.1.0": {
+          "version": "1.1.0",
+          "state": "published",
+          "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-hr-operations-attendance-v1_v1.1.0.json",
+          "data_paths": [
+            "BaoCao_Task07/data/clean/employees.csv",
+            "BaoCao_Task07/data/clean/attendance.csv",
+            "BaoCao_Task07/data/clean/kpi_evaluations.csv"
+          ],
+          "quality_gate": {
+            "passed": true,
+            "score": 100.0,
+            "schema_valid": true,
+            "total_checks": 23,
+            "passed_checks": 23,
+            "failed_checks": 0,
+            "violations": [],
+            "warnings": [],
+            "evaluated_at": "2026-09-13T17:59:54.342683Z",
+            "details": {
+              "dataset_id": "ds-hr-operations-attendance-v1",
+              "version": "1.1.0",
+              "data_files_evaluated": 3
+            }
+          },
+          "changelog": "Release 1.1.0 - 5 relational tables >5,000 records for HR analytics",
+          "created_at": "2026-09-13T17:59:54.220623Z",
+          "published_at": "2026-09-13T17:59:54.343685Z"
+        }
+      }
+    },
+    "ds-nlp-rag-tutor-knowledgebase-v1": {
+      "id": "ds-nlp-rag-tutor-knowledgebase-v1",
+      "name": "CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark",
+      "description": "Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.",
+      "domain": "nlp_genai",
+      "difficulty_level": "advanced",
+      "target_roles": [
+        "ai_engineer"
+      ],
+      "skills": [
+        "Document Ingestion & Chunking Strategy Optimization",
+        "Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)",
+        "Vector Database Indexing (Qdrant, ChromaDB, FAISS)",
+        "RAG Triad Evaluation: Context Precision, Faithfulness, Answer Relevance",
+        "Handling Out-of-Scope Queries (Refusal Guardrails)"
+      ],
+      "license": "CyberSoft-Internal-Educational-v1",
+      "pii_safe": true,
+      "author": "CyberSoft Data & AI Team",
+      "latest_published_version": "1.0.0",
+      "versions": {
+        "1.0.0": {
+          "version": "1.0.0",
+          "state": "published",
+          "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-nlp-rag-tutor-knowledgebase-v1_v1.0.0.json",
+          "data_paths": [
+            "BaoCao_Task08/data/eval_qa/rag_eval_questions.json"
+          ],
+          "quality_gate": {
+            "passed": true,
+            "score": 100.0,
+            "schema_valid": true,
+            "total_checks": 11,
+            "passed_checks": 11,
+            "failed_checks": 0,
+            "violations": [],
+            "warnings": [],
+            "evaluated_at": "2026-09-13T17:59:54.467802Z",
+            "details": {
+              "dataset_id": "ds-nlp-rag-tutor-knowledgebase-v1",
+              "version": "1.0.0",
+              "data_files_evaluated": 1
+            }
+          },
+          "changelog": "Release 1.0.0 - 24 corpus documents and 60 QA eval pairs",
+          "created_at": "2026-09-13T17:59:54.349616Z",
+          "published_at": "2026-09-13T17:59:54.467802Z"
+        }
+      }
+    },
+    "ds-dirty-test-quarantine": {
+      "id": "ds-dirty-test-quarantine",
+      "name": "Quarantine Dirty Sales Test Dataset",
+      "description": "Intentionally flawed dataset containing orphaned keys, duplicates, and missing columns.",
+      "domain": "retail_ecommerce",
+      "difficulty_level": "beginner",
+      "target_roles": [
+        "qa_engineer"
+      ],
+      "skills": [
+        "Data Cleaning"
+      ],
+      "license": "CC-BY-4.0",
+      "pii_safe": false,
+      "author": "CyberSoft Data & AI Team",
+      "latest_published_version": null,
+      "versions": {
+        "1.0.0": {
+          "version": "1.0.0",
+          "state": "rejected",
+          "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-dirty-test-quarantine_v1.0.0.json",
+          "data_paths": [
+            "BaoCao_Task06/data/dirty/orders.csv"
+          ],
+          "quality_gate": {
+            "passed": false,
+            "score": 92.31,
+            "schema_valid": false,
+            "total_checks": 13,
+            "passed_checks": 12,
+            "failed_checks": 1,
+            "violations": [
+              "Schema validation error at [root]: 'lineage' is a required property"
+            ],
+            "warnings": [],
+            "evaluated_at": "2026-09-13T17:59:54.625476Z",
+            "details": {
+              "dataset_id": "ds-dirty-test-quarantine",
+              "version": "1.0.0",
+              "data_files_evaluated": 1
+            }
+          },
+          "changelog": "Intentional dirty test",
+          "created_at": "2026-09-13T17:59:54.562468Z",
+          "published_at": null
+        }
+      }
+    }
+  }
+}
