@@ -29,43 +29,11 @@
 ## 2. KIẾN TRÚC TỔNG THỂ DATASET REGISTRY
 
 ![Sơ đồ Kiến trúc Dataset Registry v1 & Automated Quality Gate](./Picture_10_01_Detail.png)
-![Sơ đồ Phân tầng Luồng Dữ liệu Kiến trúc 3 Swimlanes](./Picture_10_02_Detail.png)
+
 
 Hệ thống được thiết kế theo mẫu kiến trúc **Registry Pattern** với máy trạng thái hữu hạn (**Finite State Machine - FSM**):
 
-```text
-                           ┌────────────────────────────────────────┐
-                           │      Data Producers (TTS 01)           │
-                           │  (Task 06, 07, 08 Clean & Gen Data)    │
-                           └──────────────────┬─────────────────────┘
-                                              │
-                                              ▼ register
-                                    ┌──────────────────┐
-                                    │    [ DRAFT ]     │
-                                    └─────────┬────────┘
-                                              │
-                                              ▼ validate
-                                  ┌───────────────────────┐
-                                  │   [ UNDER_REVIEW ]    │
-                                  └───────────┬───────────┘
-                                              │
-                          ┌───────────────────┴───────────────────┐
-                          │                                       │
-                Quality Gate PASS                       Quality Gate FAIL
-            (Score >= 95% & 0 Viols)                  (Score < 95% or Error)
-                          │                                       │
-                          ▼ publish                               ▼
-                 ┌──────────────────┐                    ┌──────────────────┐
-                 │  [ PUBLISHED ]   │                    │   [ REJECTED ]   │
-                 │ (Khóa Bất biến)  │                    │ (Chặn Xuất bản)  │
-                 └────────┬─────────┘                    └────────┬─────────┘
-                          │                                       │ Sửa chữa
-                          │ Multi-channel Delivery                ▼
-                          │                              ┌──────────────────┐
-                          ├─► CATALOG.md (Giảng viên)    │ Quay lại [DRAFT] │
-                          ├─► catalog.json (TTS 02 API)  └──────────────────┘
-                          └─► index.html (Học viên Web)
-```
+![Sơ đồ Finite State Machine - FSM](./Picture_10_02_Detail.png)
 
 ---
 

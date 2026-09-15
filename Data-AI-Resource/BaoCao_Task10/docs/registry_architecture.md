@@ -9,6 +9,8 @@ Nếu không có một **Dataset Registry chuẩn hóa**:
 
 ## 2. Mô hình Dataset Registry Pattern
 
+![Sơ đồ Phân tầng Luồng Dữ liệu Kiến trúc 3 Swimlanes](../Picture_10_registry_architecture.png)
+
 ```mermaid
 graph TD
     subgraph DataProducers["Data Producers (TTS 01)"]

@@ -7,7 +7,8 @@
 ---
 
 ![Sơ đồ Kiến trúc Dataset Registry v1 & Automated Quality Gate](./Picture_10_01_Detail.png)
-![Sơ đồ Phân tầng Luồng Dữ liệu Kiến trúc 3 Swimlanes](./Picture_10_02_Detail.png)
+![Sơ đồ Finite State Machine - FSM](./Picture_10_02_Detail.png)
+![Sơ đồ Phân tầng Luồng Dữ liệu Kiến trúc 3 Swimlanes](./Picture_10_registry_architecture.png)
 
 ## 🌟 Tính Năng Cốt Lõi
 1. **Registry Pattern & SemVer:** Đăng ký và quản lý phiên bản dữ liệu chuẩn Semantic Versioning (`1.0.0`, `1.1.0`).
