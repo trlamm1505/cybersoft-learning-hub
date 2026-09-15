@@ -128,9 +128,10 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       return;
     }
 
-    // Otherwise start Backend System Quiz
+    // Otherwise start Backend System Quiz — pass the topic's category so the backend
+    // filters its question bank correctly (multiple topics share the same demo testId).
     try {
-      const response = await quizApi.startQuiz(userId, testId);
+      const response = await quizApi.startQuiz(userId, testId, activeTopic.category);
       setQuizData(response);
       setCurrentIndex(0);
       setAnswersMap({});

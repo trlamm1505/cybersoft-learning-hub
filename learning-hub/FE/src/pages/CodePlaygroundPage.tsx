@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CodeEditor } from '../components/CodeEditor';
 import { OutputPanel } from '../components/OutputPanel';
 import { TestResultsPanel } from '../components/TestResultsPanel';
@@ -6,14 +7,20 @@ import { HintPanel } from '../components/HintPanel';
 import exerciseApi from '../axios/exerciseApi';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
 import type { LessonAuthoring } from '../types/authoring';
+import type { AuthUser } from '../types/auth';
 import { TERMINAL_SUBMISSION_STATUSES } from '../types/exercise';
 
 const POLL_INTERVAL_MS = 700;
 const POLL_TIMEOUT_MS = 15000;
 
+// Bài duy nhất khách vãng lai (chưa đăng nhập) được làm thử thật — 9 bài còn lại yêu cầu
+// đăng nhập khi bấm chọn, dù danh sách vẫn hiển thị đầy đủ 10 bài để xem trước.
+const FREE_GUEST_EXERCISE_SLUG = 'tinh-tong-hai-so-nguyen';
+
 interface CodePlaygroundPageProps {
   isDark?: boolean;
   teacherLessons?: LessonAuthoring[];
+  authUser?: AuthUser | null;
 }
 
 const DIFFICULTY_BADGE: Record<string, string> = {
@@ -22,7 +29,8 @@ const DIFFICULTY_BADGE: Record<string, string> = {
   HARD: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
 };
 
-export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, teacherLessons = [] }) => {
+export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, teacherLessons = [], authUser }) => {
+  const navigate = useNavigate();
   const [exercises, setExercises] = useState<ExerciseListItem[]>([]);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [exercise, setExercise] = useState<ExerciseDetail | null>(null);
@@ -86,7 +94,12 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
       .then((list) => {
         setExercises(list);
         if (list.length > 0 && !selectedSlug) {
-          setSelectedSlug(list[0].slug);
+          // Khách vãng lai mặc định vào đúng bài được phép làm thử, không phải bài đầu
+          // tiên trả về từ BE (thứ tự đó không đảm bảo luôn là bài "tính tổng").
+          const defaultSlug = !authUser
+            ? list.find((ex) => ex.slug === FREE_GUEST_EXERCISE_SLUG)?.slug ?? list[0].slug
+            : list[0].slug;
+          setSelectedSlug(defaultSlug);
         }
       })
       .catch(() => {
@@ -145,6 +158,10 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
 
   const handleRun = async () => {
     if (!selectedSlug) return;
+    if (!authUser && selectedSlug !== FREE_GUEST_EXERCISE_SLUG) {
+      navigate('/login');
+      return;
+    }
     setIsRunning(true);
     setActiveResultTab('run');
     try {
@@ -178,6 +195,10 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
 
   const handleSubmit = async () => {
     if (!selectedSlug) return;
+    if (!authUser && selectedSlug !== FREE_GUEST_EXERCISE_SLUG) {
+      navigate('/login');
+      return;
+    }
     stopPolling();
     setIsSubmitting(true);
     setActiveResultTab('submit');
@@ -325,7 +346,14 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
         <div className="w-full sm:w-auto">
           <select
             value={selectedSlug ?? ''}
-            onChange={(e) => setSelectedSlug(e.target.value)}
+            onChange={(e) => {
+              const slug = e.target.value;
+              if (!authUser && slug !== FREE_GUEST_EXERCISE_SLUG) {
+                navigate('/login');
+                return;
+              }
+              setSelectedSlug(slug);
+            }}
             disabled={isRunning || isSubmitting}
             className="w-full sm:w-72 px-3.5 py-2 text-xs font-bold rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500 shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >

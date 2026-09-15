@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { ContestItem, ContestProblem } from '../types/contest';
-import type { LessonAuthoring, TestCase, QuizQuestion } from '../types/authoring';
 import { CodeEditor } from './CodeEditor';
 import { exerciseApi } from '../axios/exerciseApi';
-import { authoringApi } from '../axios/authoringApi';
+import { contestSubmissionApi } from '../axios/contestSubmissionApi';
+import type { ContestProblemForStudent } from '../axios/contestSubmissionApi';
+import { leaderboardApi } from '../axios/leaderboardApi';
 
 export interface ContestProblemResult {
   problemId: string;
@@ -37,58 +38,16 @@ interface ContestExamWorkspaceProps {
   onExit: () => void;
 }
 
-export const getProblemMaxPoints = (idx: number, totalCount: number): number => {
+// Điểm tối đa của 1 problem: dùng đúng `points` thật khai báo trên contest (ví dụ 1 problem
+// 50đ thì maxPoints phải là 50, không tự đôn lên 100). Chỉ chia đều 100 cho N problem làm
+// fallback khi dữ liệu cũ không có `points` khai báo (tương thích ngược, không phá dữ liệu cũ).
+export const getProblemMaxPoints = (idx: number, totalCount: number, problem?: ContestProblem): number => {
+  if (problem?.points !== undefined && problem.points !== null) return problem.points;
   const n = Math.max(1, totalCount);
   const base = Math.floor(100 / n);
   const remainder = 100 - base * n;
   return base + (idx < remainder ? 1 : 0);
 };
-
-export function normalizeAttemptResult(
-  result: ContestAttemptResult | null | undefined,
-  contest: ContestItem
-): ContestAttemptResult | null {
-  if (!result) return null;
-
-  const problems = contest.problems || [];
-  const totalCount = Math.max(1, problems.length || result.problemResults?.length || 1);
-
-  const normalizedProblemResults: ContestProblemResult[] = (result.problemResults || []).map((pr, idx) => {
-    const targetMaxPts = getProblemMaxPoints(idx, totalCount);
-    const origMaxPts = pr.maxPoints || 100;
-    const origScore = pr.score || 0;
-
-    let newScore = origScore;
-    if (origMaxPts !== targetMaxPts) {
-      newScore = Math.min(targetMaxPts, Math.round((origScore / origMaxPts) * targetMaxPts));
-    }
-
-    let updatedDetails = pr.details || '';
-    if (updatedDetails.includes('đ)')) {
-      updatedDetails = updatedDetails.replace(/\(\d+\/\d+đ\)/g, `(${newScore}/${targetMaxPts}đ)`);
-      updatedDetails = updatedDetails.replace(/\(\d+đ\)/g, `(${newScore}/${targetMaxPts}đ)`);
-    }
-
-    return {
-      ...pr,
-      score: newScore,
-      maxPoints: targetMaxPts,
-      details: updatedDetails,
-    };
-  });
-
-  const newTotalScore = normalizedProblemResults.reduce((sum, r) => sum + r.score, 0);
-  const newMaxScore = 100;
-  const newPercentage = Math.min(100, Math.round((newTotalScore / newMaxScore) * 100));
-
-  return {
-    ...result,
-    totalScore: newTotalScore,
-    maxScore: newMaxScore,
-    percentage: newPercentage,
-    problemResults: normalizedProblemResults,
-  };
-}
 
 export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   contest,
@@ -99,25 +58,17 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   const contestId = contest._id || contest.slug;
   const storageKey = `app_contest_results_${studentId}_${contestId}`;
 
-  // Check existing result for single attempt rule
+  // Check existing result for single attempt rule. Đọc nguyên trạng — không tự "chuẩn hoá" lại
+  // maxScore về 100, vì từ nay maxScore phản ánh đúng tổng điểm thật của contest (có thể khác 100).
   const existingResult: ContestAttemptResult | null = useMemo(() => {
     try {
       const saved = localStorage.getItem(storageKey);
       if (!saved) return null;
-      const parsed = JSON.parse(saved);
-      const normalized = normalizeAttemptResult(parsed, contest);
-      if (normalized && (parsed.maxScore !== 100 || JSON.stringify(parsed) !== JSON.stringify(normalized))) {
-        try {
-          localStorage.setItem(storageKey, JSON.stringify(normalized));
-        } catch {
-          /* ignore */
-        }
-      }
-      return normalized;
+      return JSON.parse(saved) as ContestAttemptResult;
     } catch {
       return null;
     }
-  }, [storageKey, contest]);
+  }, [storageKey]);
 
   // LocalStorage keys for ongoing exam state persistence
   const viewModeKey = `app_contest_viewmode_${studentId}_${contestId}`;
@@ -161,7 +112,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     }
   };
 
-  const [detailedLessons, setDetailedLessons] = useState<Record<string, LessonAuthoring>>({});
+  const [problemDetails, setProblemDetails] = useState<Record<string, ContestProblemForStudent>>({});
 
   // States per problem (persisted)
   const [userCodes, setUserCodesState] = useState<Record<number, string>>(() => {
@@ -249,6 +200,27 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   const [now, setNow] = useState<Date>(new Date());
   const [finalResult, setFinalResult] = useState<ContestAttemptResult | null>(existingResult);
 
+  // Hạng thật trên bảng xếp hạng (thay cho nhãn suy diễn theo % điểm cũ) — lấy từ cùng
+  // nguồn dữ liệu leaderboard công khai, không tự tính lại ở client.
+  const [myRank, setMyRank] = useState<{ rank: number; total: number } | null>(null);
+  useEffect(() => {
+    if (!finalResult) return;
+    let cancelled = false;
+    leaderboardApi
+      .getLeaderboard(contestId)
+      .then((res) => {
+        if (cancelled) return;
+        const row = res.rows.find((r) => r.studentId === studentId);
+        if (row) setMyRank({ rank: row.rank, total: res.rows.length });
+      })
+      .catch(() => {
+        /* leaderboard chưa sẵn sàng hoặc lỗi mạng — giữ nguyên UI không hiện hạng */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [finalResult, contestId, studentId]);
+
   // Toast notification state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
@@ -262,98 +234,32 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch full lesson data for problem testcases & quiz questions
-  useEffect(() => {
-    const fetchLessonDetails = async () => {
-      try {
-        const allLessons = await authoringApi.getLessons();
-        const map: Record<string, LessonAuthoring> = {};
-        allLessons.forEach((l) => {
-          if (l._id) map[l._id] = l;
-          if (l.slug) map[l.slug] = l;
-        });
-
-        // Also check localStorage fallbacks
-        try {
-          const localSaved = localStorage.getItem('app_saved_lessons');
-          if (localSaved) {
-            const list: LessonAuthoring[] = JSON.parse(localSaved);
-            list.forEach((l) => {
-              if (l._id && !map[l._id]) map[l._id] = l;
-              if (l.slug && !map[l.slug]) map[l.slug] = l;
-            });
-          }
-        } catch {
-          /* ignore */
-        }
-
-        setDetailedLessons(map);
-      } catch (err) {
-        console.warn('Cannot fetch remote lessons, using local cache', err);
-      }
-    };
-
-    fetchLessonDetails();
-  }, []);
-
   const problems: ContestProblem[] = useMemo(() => contest.problems || [], [contest]);
   const currentProblem: ContestProblem | undefined = problems[activeProblemIdx];
 
-  // Resolve detailed lesson info for current problem
-  const currentLessonDetail: Partial<LessonAuthoring> = useMemo(() => {
-    if (!currentProblem) return {};
-    const found =
-      (currentProblem.lessonId && detailedLessons[currentProblem.lessonId]) ||
-      (currentProblem.slug && detailedLessons[currentProblem.slug]) ||
-      Object.values(detailedLessons).find(
-        (l) => l.title?.toLowerCase() === currentProblem.title?.toLowerCase(),
-      );
+  // Fetch sanitized problem content (no correct answers / hidden test outputs) for the
+  // active problem — server is the only source of truth for what the student may see.
+  useEffect(() => {
+    if (!currentProblem?.slug) return;
+    if (problemDetails[currentProblem.slug]) return;
 
-    if (found) return found;
+    const fetchProblemDetail = async () => {
+      try {
+        const detail = await contestSubmissionApi.getProblem(contestId, currentProblem.slug!);
+        setProblemDetails((prev) => ({ ...prev, [currentProblem.slug!]: detail }));
+      } catch (err) {
+        console.warn('Cannot fetch contest problem detail', err);
+      }
+    };
 
-    const fallbackPoints = getProblemMaxPoints(activeProblemIdx, problems.length);
+    fetchProblemDetail();
+  }, [contestId, currentProblem, problemDetails]);
 
-    // Default fallback templates
-    if (currentProblem.type === 'coding') {
-      return {
-        title: currentProblem.title,
-        type: 'coding',
-        starterCode: `# Write Python code for contest problem here\nimport sys\n\nline = sys.stdin.read().strip()\nif line:\n    # Process input\n    values = list(map(int, line.split()))\n    print(sum(values))\nelse:\n    print(0)\n`,
-        testCases: [
-          { input: '3\n5\n', expectedOutput: '8' },
-          { input: '10\n20\n30\n', expectedOutput: '60' },
-        ],
-        content: `### Đề Bài: ${currentProblem.title}\n\nViết chương trình Python nhận dữ liệu từ STDIN và in ra kết quả tương ứng.`,
-      };
-    } else {
-      return {
-        title: currentProblem.title,
-        type: 'quiz',
-        quizQuestions: [
-          {
-            content: `Câu 1 (${currentProblem.title}): Từ khóa nào trong Python được dùng để định nghĩa hàm?`,
-            options: [
-              { key: 'A', text: 'function', isCorrect: false },
-              { key: 'B', text: 'def', isCorrect: true },
-              { key: 'C', text: 'define', isCorrect: false },
-              { key: 'D', text: 'func', isCorrect: false },
-            ],
-            points: Math.round(fallbackPoints / 2),
-          },
-          {
-            content: `Câu 2 (${currentProblem.title}): Kiểu dữ liệu nào trong Python là danh sách có thể thay đổi (mutable)?`,
-            options: [
-              { key: 'A', text: 'tuple', isCorrect: false },
-              { key: 'B', text: 'str', isCorrect: false },
-              { key: 'C', text: 'list', isCorrect: true },
-              { key: 'D', text: 'int', isCorrect: false },
-            ],
-            points: Math.round(fallbackPoints / 2),
-          },
-        ],
-      };
-    }
-  }, [currentProblem, detailedLessons, activeProblemIdx, problems.length]);
+  // Resolve sanitized detail info for current problem
+  const currentLessonDetail: Partial<ContestProblemForStudent> = useMemo(() => {
+    if (!currentProblem?.slug) return {};
+    return problemDetails[currentProblem.slug] || {};
+  }, [currentProblem, problemDetails]);
 
   // Initial code & stdin populate for current active problem
   useEffect(() => {
@@ -454,115 +360,111 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     }
   };
 
-  // Grade current Coding problem against Test Cases (NO HINTS!)
+  // Submit current Coding problem — graded server-side (never trust client-side scoring).
   const handleSubmitCodingProblem = async () => {
-    if (!currentProblem || currentProblem.type !== 'coding') return;
+    if (!currentProblem?.slug || currentProblem.type !== 'coding') return;
     const code = userCodes[activeProblemIdx] || '';
-    const testCases: TestCase[] = currentLessonDetail.testCases || [
-      { input: '3\n5\n', expectedOutput: '8' },
-    ];
-    const maxPoints = getProblemMaxPoints(activeProblemIdx, problems.length);
-    const slug = currentProblem.slug || 'contest-problem';
 
     setIsEvaluating(true);
-    let passedCount = 0;
-    const testResultsDetails: string[] = [];
+    try {
+      const graded = await contestSubmissionApi.submit(contestId, {
+        studentId,
+        studentName,
+        problemSlug: currentProblem.slug,
+        code,
+      });
 
-    for (let i = 0; i < testCases.length; i++) {
-      const tc = testCases[i];
-      try {
-        const res = await exerciseApi.runCode(slug, code, tc.input);
-        const actual = (res.stdout || '').trim();
-        const expected = (tc.expectedOutput || '').trim();
-        if (actual === expected) {
-          passedCount++;
-          testResultsDetails.push(`Test #${i + 1}: Passed ✅`);
-        } else {
-          testResultsDetails.push(
-            `Test #${i + 1}: Failed ❌ (Nhận '${actual}', mong đợi '${expected}')`,
-          );
-        }
-      } catch {
-        testResultsDetails.push(`Test #${i + 1}: Lỗi thực thi ❌`);
+      if (graded.isLate) {
+        showToast('⛔ Cuộc thi đã kết thúc. Bài nộp không được tính điểm.', 'error');
+        setIsEvaluating(false);
+        return;
       }
-    }
 
-    const pointsPerTestCase = testCases.length > 0 ? maxPoints / testCases.length : maxPoints;
-    const earnedScore = testCases.length > 0 ? Math.round(passedCount * pointsPerTestCase) : 0;
-    const resObj: ContestProblemResult = {
-      problemId: currentProblem.lessonId || currentProblem.slug || `prob-${activeProblemIdx}`,
-      slug: currentProblem.slug,
-      title: currentProblem.title,
-      type: 'coding',
-      score: earnedScore,
-      maxPoints,
-      details: `Đạt ${passedCount}/${testCases.length} Test cases (${earnedScore}/${maxPoints}đ)`,
-      submittedAt: new Date().toISOString(),
-      userCode: code,
-    };
+      const resObj: ContestProblemResult = {
+        problemId: currentProblem.lessonId || currentProblem.slug,
+        slug: currentProblem.slug,
+        title: currentProblem.title,
+        type: 'coding',
+        score: graded.score,
+        maxPoints: graded.maxPoints,
+        details: `Đạt ${graded.passedCount}/${graded.totalCount} Test cases (${graded.score}/${graded.maxPoints}đ) — ${graded.verdict}`,
+        submittedAt: new Date().toISOString(),
+        userCode: code,
+      };
 
-    const updatedResults = { ...problemResults, [activeProblemIdx]: resObj };
-    setProblemResults(updatedResults);
-    setIsEvaluating(false);
+      const updatedResults = { ...problemResults, [activeProblemIdx]: resObj };
+      setProblemResults(updatedResults);
 
-    const completedCount = Object.keys(updatedResults).length;
-    if (completedCount >= problems.length) {
-      showToast('🎉 Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
-      setTimeout(() => {
-        handleFinalSubmitContestWithResults(updatedResults);
-      }, 1000);
-    } else {
-      showToast(`✅ Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
-      setTimeout(() => {
-        setViewMode('select');
-      }, 900);
+      const completedCount = Object.keys(updatedResults).length;
+      if (completedCount >= problems.length) {
+        showToast('🎉 Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
+        setTimeout(() => {
+          handleFinalSubmitContestWithResults(updatedResults);
+        }, 1000);
+      } else {
+        showToast(`✅ Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
+        setTimeout(() => {
+          setViewMode('select');
+        }, 900);
+      }
+    } catch (err: any) {
+      showToast(err?.response?.data?.message || 'Nộp bài thất bại. Vui lòng thử lại.', 'error');
+    } finally {
+      setIsEvaluating(false);
     }
   };
 
-  // Grade Quiz problem
-  const handleSubmitQuizProblem = () => {
-    if (!currentProblem || currentProblem.type !== 'quiz') return;
-    const questions: QuizQuestion[] = currentLessonDetail.quizQuestions || [];
+  // Submit Quiz problem — graded server-side; correct answers are never sent to the client.
+  const handleSubmitQuizProblem = async () => {
+    if (!currentProblem?.slug || currentProblem.type !== 'quiz') return;
     const userAns = quizAnswers[activeProblemIdx] || {};
-    const maxPoints = getProblemMaxPoints(activeProblemIdx, problems.length);
 
-    let correctCount = 0;
-    questions.forEach((q, qIdx) => {
-      const selectedKey = userAns[qIdx];
-      const correctOpt = q.options.find((o) => o.isCorrect);
-      if (selectedKey && correctOpt && selectedKey === correctOpt.key) {
-        correctCount++;
+    setIsEvaluating(true);
+    try {
+      const graded = await contestSubmissionApi.submit(contestId, {
+        studentId,
+        studentName,
+        problemSlug: currentProblem.slug,
+        quizAnswers: userAns,
+      });
+
+      if (graded.isLate) {
+        showToast('⛔ Cuộc thi đã kết thúc. Bài nộp không được tính điểm.', 'error');
+        setIsEvaluating(false);
+        return;
       }
-    });
 
-    const pointsPerQuestion = questions.length > 0 ? maxPoints / questions.length : maxPoints;
-    const earnedScore = questions.length > 0 ? Math.round(correctCount * pointsPerQuestion) : 0;
-    const resObj: ContestProblemResult = {
-      problemId: currentProblem.lessonId || currentProblem.slug || `prob-${activeProblemIdx}`,
-      slug: currentProblem.slug,
-      title: currentProblem.title,
-      type: 'quiz',
-      score: earnedScore,
-      maxPoints,
-      details: `Đúng ${correctCount}/${questions.length} câu trắc nghiệm (${earnedScore}/${maxPoints}đ)`,
-      submittedAt: new Date().toISOString(),
-      quizAnswers: userAns,
-    };
+      const resObj: ContestProblemResult = {
+        problemId: currentProblem.lessonId || currentProblem.slug,
+        slug: currentProblem.slug,
+        title: currentProblem.title,
+        type: 'quiz',
+        score: graded.score,
+        maxPoints: graded.maxPoints,
+        details: `Đúng ${graded.passedCount}/${graded.totalCount} câu trắc nghiệm (${graded.score}/${graded.maxPoints}đ)`,
+        submittedAt: new Date().toISOString(),
+        quizAnswers: userAns,
+      };
 
-    const updatedResults = { ...problemResults, [activeProblemIdx]: resObj };
-    setProblemResults(updatedResults);
+      const updatedResults = { ...problemResults, [activeProblemIdx]: resObj };
+      setProblemResults(updatedResults);
 
-    const completedCount = Object.keys(updatedResults).length;
-    if (completedCount >= problems.length) {
-      showToast('🎉 Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
-      setTimeout(() => {
-        handleFinalSubmitContestWithResults(updatedResults);
-      }, 1000);
-    } else {
-      showToast(`✅ Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
-      setTimeout(() => {
-        setViewMode('select');
-      }, 900);
+      const completedCount = Object.keys(updatedResults).length;
+      if (completedCount >= problems.length) {
+        showToast('🎉 Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
+        setTimeout(() => {
+          handleFinalSubmitContestWithResults(updatedResults);
+        }, 1000);
+      } else {
+        showToast(`✅ Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
+        setTimeout(() => {
+          setViewMode('select');
+        }, 900);
+      }
+    } catch (err: any) {
+      showToast(err?.response?.data?.message || 'Nộp bài thất bại. Vui lòng thử lại.', 'error');
+    } finally {
+      setIsEvaluating(false);
     }
   };
 
@@ -570,12 +472,10 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   const handleFinalSubmitContestWithResults = (overrideResults?: Record<number, ContestProblemResult>) => {
     const activeDict = overrideResults || problemResults;
     const resultsList: ContestProblemResult[] = problems.map((p, idx) => {
-      const maxPts = getProblemMaxPoints(idx, problems.length);
       if (activeDict[idx]) {
-        return {
-          ...activeDict[idx],
-          maxPoints: maxPts,
-        };
+        // Đã nộp bài này rồi — activeDict[idx].maxPoints đến từ điểm chấm thật của server
+        // (contestSubmissionApi.submit), giữ nguyên, không tính lại đè lên giá trị đúng.
+        return activeDict[idx];
       }
       return {
         problemId: p.lessonId || p.slug || `prob-${idx}`,
@@ -583,15 +483,15 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         title: p.title,
         type: (p.type || 'coding') as 'coding' | 'quiz',
         score: 0,
-        maxPoints: maxPts,
+        maxPoints: getProblemMaxPoints(idx, problems.length, p),
         details: 'Chưa nộp bài thi',
         submittedAt: new Date().toISOString(),
       };
     });
 
     const totalScore = resultsList.reduce((sum, r) => sum + r.score, 0);
-    const maxScore = 100;
-    const percentage = Math.min(100, Math.round((totalScore / maxScore) * 100));
+    const maxScore = resultsList.reduce((sum, r) => sum + r.maxPoints, 0);
+    const percentage = maxScore > 0 ? Math.min(100, Math.round((totalScore / maxScore) * 100)) : 0;
 
     const attemptResult: ContestAttemptResult = {
       contestId,
@@ -675,16 +575,12 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
           {/* Rank / Grade */}
           <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 shadow-md flex flex-col justify-center space-y-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-              🎖️ Xếp Loại Kết Quả
+              🎖️ Hạng Trên Bảng Xếp Hạng
             </span>
             <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
-              {finalResult.percentage >= 90
-                ? '🌟 XUẤT SẮC'
-                : finalResult.percentage >= 75
-                ? '🥇 GIỎI'
-                : finalResult.percentage >= 50
-                ? '🥈 ĐẠT'
-                : '🥉 CẦN CỐ GẮNG'}
+              {myRank
+                ? `${myRank.rank === 1 ? '🥇' : myRank.rank === 2 ? '🥈' : myRank.rank === 3 ? '🥉' : '🏅'} Hạng ${myRank.rank}/${myRank.total}`
+                : 'Đang tải hạng...'}
             </div>
             <p className="text-xs text-[var(--text-muted)]">Tự động chấm bởi Server Auto-Judge</p>
           </div>
@@ -846,7 +742,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                           : 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-300'
                       }`}
                     >
-                      {p.type === 'quiz' ? '📝 Trắc Nghiệm' : '💻 Lập Trình Python'} ({getProblemMaxPoints(idx, problems.length)}đ)
+                      {p.type === 'quiz' ? '📝 Trắc Nghiệm' : '💻 Lập Trình Python'} ({getProblemMaxPoints(idx, problems.length, p)}đ)
                     </span>
                   </div>
 
@@ -993,7 +889,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
                 <span className="px-3 py-1 rounded-full text-xs font-black bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-300">
-                  💻 BÀI THI LẬP TRÌNH PYTHON ({getProblemMaxPoints(activeProblemIdx, problems.length)} ĐIỂM)
+                  💻 BÀI THI LẬP TRÌNH PYTHON ({getProblemMaxPoints(activeProblemIdx, problems.length, currentProblem)} ĐIỂM)
                 </span>
                 <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
                   🚫 Không gợi ý trong bài thi
@@ -1008,7 +904,6 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
               <div className="prose dark:prose-invert text-xs text-[var(--text-muted)] leading-relaxed space-y-2 max-h-96 overflow-y-auto pr-2">
                 <p>
                   {currentLessonDetail.content ||
-                    currentLessonDetail.description ||
                     `Viết mã nguồn Python nhận dữ liệu từ STDIN, xử lý bài toán và in kết quả ra STDOUT.`}
                 </p>
 
@@ -1125,7 +1020,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
           <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
             <div>
               <span className="px-3 py-1 rounded-full text-xs font-black bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-300">
-                📝 BÀI THI TRẮC NGHIỆM ({getProblemMaxPoints(activeProblemIdx, problems.length)} ĐIỂM)
+                📝 BÀI THI TRẮC NGHIỆM ({getProblemMaxPoints(activeProblemIdx, problems.length, currentProblem)} ĐIỂM)
               </span>
               <h3 className="text-xl font-black text-[var(--text-main)] mt-2">{currentProblem.title}</h3>
             </div>
@@ -1133,9 +1028,10 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
             <button
               type="button"
               onClick={handleSubmitQuizProblem}
-              className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all shadow-md cursor-pointer border-none"
+              disabled={isEvaluating}
+              className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all shadow-md cursor-pointer border-none disabled:opacity-60"
             >
-              🚀 Nộp Bài Trắc Nghiệm Này
+              {isEvaluating ? '⏳ Đang chấm...' : '🚀 Nộp Bài Trắc Nghiệm Này'}
             </button>
           </div>
 

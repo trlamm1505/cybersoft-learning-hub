@@ -1,21 +1,30 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { ContestItem, ContestStatusResponse } from '../types/contest';
+import type { AuthUser } from '../types/auth';
 import { contestApi } from '../axios/contestApi';
-import { ContestExamWorkspace, normalizeAttemptResult } from '../components/ContestExamWorkspace';
+import { ContestExamWorkspace } from '../components/ContestExamWorkspace';
+import { ContestLeaderboard } from '../components/ContestLeaderboard';
 
 interface ContestListPageProps {
   userRole?: 'student' | 'teacher';
+  authUser?: AuthUser | null;
 }
 
-export const ContestListPage: React.FC<ContestListPageProps> = () => {
+export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) => {
+  const navigate = useNavigate();
   const [contests, setContests] = useState<ContestItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'all' | 'ongoing' | 'upcoming' | 'ended'>('all');
-  const [studentId] = useState<string>(() => localStorage.getItem('app_student_id') || 'student-demo');
-  const [studentName, setStudentName] = useState<string>(() => localStorage.getItem('app_student_name') || 'Học viên Demo');
+  // Đăng nhập rồi thì dùng đúng ID/tên tài khoản thật — không còn dùng chung ID 'student-demo'
+  // cho mọi người trên cùng máy. Chưa đăng nhập vẫn cho xem thử ở chế độ khách (fallback demo).
+  const studentId = authUser?.id || 'student-demo';
+  const [guestName, setGuestName] = useState<string>(() => localStorage.getItem('app_student_name') || 'Học viên Demo');
+  const studentName = authUser?.fullName || guestName;
 
   // Active Contest Exam state (Embedded Exam Mode)
   const [activeExamContest, setActiveExamContest] = useState<ContestItem | null>(null);
+  const [activeLeaderboardContest, setActiveLeaderboardContest] = useState<ContestItem | null>(null);
 
   // Modal states for Server Time Guard check
   const [selectedContestGuard, setSelectedContestGuard] = useState<ContestStatusResponse | null>(null);
@@ -81,6 +90,10 @@ export const ContestListPage: React.FC<ContestListPageProps> = () => {
   };
 
   const handleRegister = async (contestId: string, contestTitle: string) => {
+    if (!authUser) {
+      navigate('/login');
+      return;
+    }
     try {
       const res = await contestApi.registerContest(contestId, studentId, studentName);
       showToast(res.message || `Đăng ký cuộc thi '${contestTitle}' thành công!`, 'success');
@@ -92,6 +105,10 @@ export const ContestListPage: React.FC<ContestListPageProps> = () => {
   };
 
   const handleCheckAndEnter = async (contest: ContestItem) => {
+    if (!authUser) {
+      navigate('/login');
+      return;
+    }
     if (!contest._id && !contest.slug) return;
     const contestId = contest._id || contest.slug;
     const attemptKey = `app_contest_results_${studentId}_${contestId}`;
@@ -194,6 +211,16 @@ export const ContestListPage: React.FC<ContestListPageProps> = () => {
     );
   }
 
+  if (activeLeaderboardContest) {
+    return (
+      <ContestLeaderboard
+        contestId={activeLeaderboardContest._id || activeLeaderboardContest.slug || ''}
+        contestTitle={activeLeaderboardContest.title}
+        onExit={() => setActiveLeaderboardContest(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-8 pb-16">
       {/* Toast Notification */}
@@ -228,16 +255,22 @@ export const ContestListPage: React.FC<ContestListPageProps> = () => {
           <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-indigo-200 border-t border-indigo-700/50">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-white">👤 Học viên:</span>
-              <input
-                type="text"
-                value={studentName}
-                onChange={(e) => {
-                  setStudentName(e.target.value);
-                  localStorage.setItem('app_student_name', e.target.value);
-                }}
-                className="bg-indigo-950/70 text-white border border-indigo-500/40 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-cyan-400 font-semibold"
-                placeholder="Nhập tên học viên"
-              />
+              {authUser ? (
+                <span className="bg-indigo-950/70 text-white border border-indigo-500/40 rounded-lg px-2.5 py-1 text-xs font-semibold">
+                  {studentName}
+                </span>
+              ) : (
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={(e) => {
+                    setGuestName(e.target.value);
+                    localStorage.setItem('app_student_name', e.target.value);
+                  }}
+                  className="bg-indigo-950/70 text-white border border-indigo-500/40 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-cyan-400 font-semibold"
+                  placeholder="Nhập tên học viên (chế độ khách)"
+                />
+              )}
             </div>
             <div className="flex items-center gap-1.5 bg-indigo-950/60 px-3 py-1 rounded-lg border border-indigo-500/30">
               <span>🆔 Mã SV:</span>
@@ -377,14 +410,11 @@ export const ContestListPage: React.FC<ContestListPageProps> = () => {
                     if (saved) {
                       try {
                         const parsed = JSON.parse(saved);
-                        const norm = normalizeAttemptResult(parsed, c);
-                        if (norm) {
-                          return (
-                            <span className="px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-xs shrink-0">
-                              🎯 Đã Hoàn Thành ({norm.totalScore}/{norm.maxScore}đ)
-                            </span>
-                          );
-                        }
+                        return (
+                          <span className="px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-xs shrink-0">
+                            🎯 Đã Hoàn Thành ({parsed.totalScore}/{parsed.maxScore}đ)
+                          </span>
+                        );
                       } catch {
                         /* ignore */
                       }
@@ -451,7 +481,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = () => {
                 </div>
 
                 {/* Action Buttons Footer */}
-                <div className="pt-2 grid grid-cols-2 gap-3">
+                <div className="pt-2 grid grid-cols-3 gap-3">
                   {!isRegistered && !isEnded ? (
                     <button
                       type="button"
@@ -488,6 +518,14 @@ export const ContestListPage: React.FC<ContestListPageProps> = () => {
                       if (isUpcoming) return '🔒 Kiểm Tra Lịch Thi';
                       return '👁️ Xem Chi Tiết';
                     })()}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveLeaderboardContest(c)}
+                    className="w-full px-3 py-2.5 text-xs font-bold rounded-2xl bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 transition-all cursor-pointer shadow-xs border-none text-center"
+                  >
+                    🏆 Xem Bảng Xếp Hạng
                   </button>
                 </div>
               </div>

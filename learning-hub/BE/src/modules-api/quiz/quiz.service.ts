@@ -28,16 +28,19 @@ export class QuizService {
    * Khởi tạo lượt thi, xáo trộn phương án ngầm bằng SEED, ẩn đáp án đúng & giải thích
    */
   async startAttempt(dto: StartAttemptDto) {
-    const { userId, testId } = dto;
+    const { userId, testId, category } = dto;
 
     if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(testId)) {
       throw new BadRequestException('ID người dùng hoặc bài thi không hợp lệ.');
     }
 
-    // Check existing in-progress attempt
+    // Check existing in-progress attempt. Matched on `category` too — multiple quiz topics
+    // (e.g. "Fullstack Web" vs "Python") share the same demo testId, so without this an
+    // in-progress attempt from one topic would incorrectly be reused for the other.
     const existingAttempt = await this.quizAttemptModel.findOne({
       userId: new Types.ObjectId(userId),
       testId: new Types.ObjectId(testId),
+      category: category ?? { $exists: false },
       status: 'IN_PROGRESS',
     });
 
@@ -46,8 +49,17 @@ export class QuizService {
       return this.formatSanitizedQuestions(existingAttempt);
     }
 
-    // Fetch all active questions for the quiz
-    const questions = await this.questionModel.find({}).exec();
+    // Fetch questions for this quiz topic. "Fullstack Web" is a single SYSTEM_QUIZZES topic
+    // spanning several underlying Question.category values (HTML5/CSS3/JavaScript/React/
+    // NestJS/Database/Quiz Engine) — matched here as "everything that isn't Python" rather
+    // than one exact category string, since no question is tagged "Fullstack Web" itself.
+    // Falls back to the full bank when no category is given (backward compatibility).
+    const questionFilter = !category
+      ? {}
+      : category === 'Fullstack Web'
+        ? { category: { $ne: 'Python' } }
+        : { category };
+    const questions = await this.questionModel.find(questionFilter).exec();
     if (!questions || questions.length === 0) {
       throw new NotFoundException('Không tìm thấy câu hỏi nào trong hệ thống bài thi.');
     }
@@ -74,6 +86,7 @@ export class QuizService {
     const newAttempt = await this.quizAttemptModel.create({
       userId: new Types.ObjectId(userId),
       testId: new Types.ObjectId(testId),
+      category,
       seed,
       shuffledQuestions: shuffledQuestionItems,
       startedAt: new Date(),

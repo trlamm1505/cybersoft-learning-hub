@@ -11,13 +11,18 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ContestService } from './contest.service';
+import { ContestSubmissionService } from './contest-submission.service';
 import { CreateContestDto } from './dto/create-contest.dto';
 import { UpdateContestDto } from './dto/update-contest.dto';
 import { RegisterContestDto } from './dto/register-contest.dto';
+import { SubmitContestProblemDto } from './dto/submit-contest-problem.dto';
 
 @Controller('contests')
 export class ContestController {
-  constructor(private readonly contestService: ContestService) {}
+  constructor(
+    private readonly contestService: ContestService,
+    private readonly contestSubmissionService: ContestSubmissionService,
+  ) {}
 
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
@@ -60,5 +65,16 @@ export class ContestController {
   @Delete(':id')
   async deleteContest(@Param('id') id: string) {
     return this.contestService.deleteContest(id);
+  }
+
+  @Get(':id/problems/:slug')
+  async getProblemForStudent(@Param('id') id: string, @Param('slug') slug: string) {
+    return this.contestSubmissionService.getProblemForStudent(id, slug);
+  }
+
+  @Post(':id/submissions')
+  @HttpCode(HttpStatus.OK)
+  async submitProblem(@Param('id') id: string, @Body() dto: SubmitContestProblemDto) {
+    return this.contestSubmissionService.submit(id, dto);
   }
 }
