@@ -28,7 +28,8 @@
 
 ## 2. KIẾN TRÚC TỔNG THỂ DATASET REGISTRY
 
-![Sơ đồ Kiến trúc Dataset Registry v0.1 & Automated Quality Gate](./Picture_10-Detail.png)
+![Sơ đồ Kiến trúc Dataset Registry v1 & Automated Quality Gate](./Picture_10_01_Detail.png)
+![Sơ đồ Phân tầng Luồng Dữ liệu Kiến trúc 3 Swimlanes](./Picture_10_02_Detail.png)
 
 Hệ thống được thiết kế theo mẫu kiến trúc **Registry Pattern** với máy trạng thái hữu hạn (**Finite State Machine - FSM**):
 
