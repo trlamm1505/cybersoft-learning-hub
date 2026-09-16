@@ -1,0 +1,101 @@
+customer_id,full_name,email,city,registration_date,loyalty_tier
+CUST-0001,Customer 1,user1@example.com,Ho Chi Minh,2025-02-28,Gold
+CUST-0002,Customer 2,user2@example.com,Da Nang,2025-02-27,Gold
+CUST-0003,Customer 3,user3@example.com,Can Tho,2025-03-22,Platinum
+CUST-0004,Customer 4,user4@example.com,Ho Chi Minh,2025-05-15,Silver
+CUST-0005,Customer 5,user5@example.com,Hai Phong,2025-02-24,Gold
+CUST-0006,Customer 6,user6@example.com,Hai Phong,2025-04-12,Silver
+CUST-0007,Customer 7,user7@example.com,Da Nang,2025-03-24,Bronze
+CUST-0008,Customer 8,user8@example.com,Hai Phong,2025-06-15,Platinum
+CUST-0009,Customer 9,user9@example.com,Ho Chi Minh,2025-02-27,Gold
+CUST-0010,Customer 10,user10@example.com,Da Nang,2025-05-03,Bronze
+CUST-0011,Customer 11,user11@example.com,Ha Noi,2025-10-18,Bronze
+CUST-0012,Customer 12,user12@example.com,Ho Chi Minh,2025-09-06,Bronze
+CUST-0013,Customer 13,user13@example.com,Hai Phong,2025-03-06,Silver
+CUST-0014,Customer 14,user14@example.com,Can Tho,2025-10-09,Silver
+CUST-0015,Customer 15,user15@example.com,Da Nang,2025-09-28,Platinum
+CUST-0016,Customer 16,user16@example.com,Ha Noi,2025-10-04,Silver
+CUST-0017,Customer 17,user17@example.com,Da Nang,2025-07-24,Gold
+CUST-0018,Customer 18,user18@example.com,Can Tho,2025-09-22,Platinum
+CUST-0019,Customer 19,user19@example.com,Ho Chi Minh,2025-05-07,Silver
+CUST-0020,Customer 20,user20@example.com,Ho Chi Minh,2025-06-23,Bronze
+CUST-0021,Customer 21,user21@example.com,Hai Phong,2025-10-11,Silver
+CUST-0022,Customer 22,user22@example.com,Hai Phong,2025-04-23,Bronze
+CUST-0023,Customer 23,user23@example.com,Ho Chi Minh,2025-01-31,Silver
+CUST-0024,Customer 24,user24@example.com,Ho Chi Minh,2025-01-17,Gold
+CUST-0025,Customer 25,user25@example.com,Ho Chi Minh,2025-09-21,Silver
+CUST-0026,Customer 26,user26@example.com,Da Nang,2025-09-06,Silver
+CUST-0027,Customer 27,user27@example.com,Hai Phong,2025-03-09,Platinum
+CUST-0028,Customer 28,user28@example.com,Ha Noi,2025-08-31,Platinum
+CUST-0029,Customer 29,user29@example.com,Ha Noi,2025-02-18,Bronze
+CUST-0030,Customer 30,user30@example.com,Can Tho,2025-07-01,Platinum
+CUST-0031,Customer 31,user31@example.com,Can Tho,2025-08-28,Bronze
+CUST-0032,Customer 32,user32@example.com,Ho Chi Minh,2025-02-01,Platinum
+CUST-0033,Customer 33,user33@example.com,Da Nang,2025-02-25,Silver
+CUST-0034,Customer 34,user34@example.com,Ha Noi,2025-04-08,Platinum
+CUST-0035,Customer 35,user35@example.com,Ha Noi,2025-08-05,Silver
+CUST-0036,Customer 36,user36@example.com,Da Nang,2025-08-25,Silver
+CUST-0037,Customer 37,user37@example.com,Ho Chi Minh,2025-08-15,Bronze
+CUST-0038,Customer 38,user38@example.com,Ho Chi Minh,2025-10-04,Bronze
+CUST-0039,Customer 39,user39@example.com,Ho Chi Minh,2025-05-02,Silver
+CUST-0040,Customer 40,user40@example.com,Can Tho,2025-09-06,Platinum
+CUST-0041,Customer 41,user41@example.com,Ha Noi,2025-07-25,Bronze
+CUST-0042,Customer 42,user42@example.com,Ha Noi,2025-07-14,Bronze
+CUST-0043,Customer 43,user43@example.com,Can Tho,2025-05-16,Platinum
+CUST-0044,Customer 44,user44@example.com,Da Nang,2025-08-05,Platinum
+CUST-0045,Customer 45,user45@example.com,Ha Noi,2025-04-08,Gold
+CUST-0046,Customer 46,user46@example.com,Ha Noi,2025-01-30,Bronze
+CUST-0047,Customer 47,user47@example.com,Da Nang,2025-01-30,Bronze
+CUST-0048,Customer 48,user48@example.com,Hai Phong,2025-09-02,Silver
+CUST-0049,Customer 49,user49@example.com,Ho Chi Minh,2025-09-18,Bronze
+CUST-0050,Customer 50,user50@example.com,Ha Noi,2025-02-05,Bronze
+CUST-0051,Customer 51,user51@example.com,Ha Noi,2025-07-26,Bronze
+CUST-0052,Customer 52,user52@example.com,Hai Phong,2025-05-07,Bronze
+CUST-0053,Customer 53,user53@example.com,Hai Phong,2025-02-11,Platinum
+CUST-0054,Customer 54,user54@example.com,Hai Phong,2025-10-17,Gold
+CUST-0055,Customer 55,user55@example.com,Da Nang,2025-04-15,Gold
+CUST-0056,Customer 56,user56@example.com,Ha Noi,2025-05-16,Platinum
+CUST-0057,Customer 57,user57@example.com,Ha Noi,2025-06-03,Platinum
+CUST-0058,Customer 58,user58@example.com,Da Nang,2025-02-07,Bronze
+CUST-0059,Customer 59,user59@example.com,Can Tho,2025-10-16,Bronze
+CUST-0060,Customer 60,user60@example.com,Ho Chi Minh,2025-10-03,Silver
+CUST-0061,Customer 61,user61@example.com,Hai Phong,2025-05-16,Silver
+CUST-0062,Customer 62,user62@example.com,Da Nang,2025-02-05,Silver
+CUST-0063,Customer 63,user63@example.com,Da Nang,2025-05-26,Silver
+CUST-0064,Customer 64,user64@example.com,Can Tho,2025-10-06,Gold
+CUST-0065,Customer 65,user65@example.com,Hai Phong,2025-09-28,Bronze
+CUST-0066,Customer 66,user66@example.com,Hai Phong,2025-06-03,Bronze
+CUST-0067,Customer 67,user67@example.com,Ha Noi,2025-05-16,Bronze
+CUST-0068,Customer 68,user68@example.com,Ho Chi Minh,2025-10-11,Silver
+CUST-0069,Customer 69,user69@example.com,Da Nang,2025-05-25,Silver
+CUST-0070,Customer 70,user70@example.com,Da Nang,2025-04-15,Gold
+CUST-0071,Customer 71,user71@example.com,Hai Phong,2025-09-08,Gold
+CUST-0072,Customer 72,user72@example.com,Ho Chi Minh,2025-02-17,Platinum
+CUST-0073,Customer 73,user73@example.com,Da Nang,2025-01-23,Bronze
+CUST-0074,Customer 74,user74@example.com,Da Nang,2025-03-08,Gold
+CUST-0075,Customer 75,user75@example.com,Ha Noi,2025-08-15,Platinum
+CUST-0076,Customer 76,user76@example.com,Hai Phong,2025-01-05,Bronze
+CUST-0077,Customer 77,user77@example.com,Ho Chi Minh,2025-03-18,Bronze
+CUST-0078,Customer 78,user78@example.com,Da Nang,2025-10-26,Silver
+CUST-0079,Customer 79,user79@example.com,Can Tho,2025-03-07,Bronze
+CUST-0080,Customer 80,user80@example.com,Da Nang,2025-07-06,Bronze
+CUST-0081,Customer 81,user81@example.com,Da Nang,2025-04-18,Silver
+CUST-0082,Customer 82,user82@example.com,Ho Chi Minh,2025-07-01,Platinum
+CUST-0083,Customer 83,user83@example.com,Hai Phong,2025-03-21,Silver
+CUST-0084,Customer 84,user84@example.com,Ha Noi,2025-04-01,Platinum
+CUST-0085,Customer 85,user85@example.com,Ho Chi Minh,2025-04-02,Gold
+CUST-0086,Customer 86,user86@example.com,Can Tho,2025-05-08,Gold
+CUST-0087,Customer 87,user87@example.com,Ha Noi,2025-02-25,Platinum
+CUST-0088,Customer 88,user88@example.com,Ho Chi Minh,2025-08-29,Silver
+CUST-0089,Customer 89,user89@example.com,Ha Noi,2025-08-24,Gold
+CUST-0090,Customer 90,user90@example.com,Da Nang,2025-04-27,Silver
+CUST-0091,Customer 91,user91@example.com,Ho Chi Minh,2025-04-09,Platinum
+CUST-0092,Customer 92,user92@example.com,Da Nang,2025-05-23,Bronze
+CUST-0093,Customer 93,user93@example.com,Da Nang,2025-06-29,Platinum
+CUST-0094,Customer 94,user94@example.com,Hai Phong,2025-06-19,Bronze
+CUST-0095,Customer 95,user95@example.com,Ho Chi Minh,2025-05-14,Silver
+CUST-0096,Customer 96,user96@example.com,Hai Phong,2025-05-16,Bronze
+CUST-0097,Customer 97,user97@example.com,Ho Chi Minh,2025-08-11,Gold
+CUST-0098,Customer 98,user98@example.com,Da Nang,2025-08-12,Bronze
+CUST-0099,Customer 99,user99@example.com,Can Tho,2025-10-23,Silver
+CUST-0100,Customer 100,user100@example.com,Da Nang,2025-01-23,Platinum
