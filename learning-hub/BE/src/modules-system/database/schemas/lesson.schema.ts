@@ -65,6 +65,77 @@ export class LessonHints {
 
 export const LessonHintsSchema = SchemaFactory.createForClass(LessonHints);
 
+@Schema({ _id: false })
+export class BlockCommand {
+  @Prop({ required: true, type: String })
+  key: string; // 'MOVE_FORWARD' | 'TURN_LEFT' | 'TURN_RIGHT' | 'REPEAT' | 'IF_OBSTACLE'
+
+  @Prop({ required: true, type: String })
+  label: string;
+
+  @Prop({ type: String })
+  icon?: string;
+}
+
+export const BlockCommandSchema = SchemaFactory.createForClass(BlockCommand);
+
+@Schema({ _id: false })
+export class BlockPosition {
+  @Prop({ required: true, type: Number })
+  x: number;
+
+  @Prop({ required: true, type: Number })
+  y: number;
+}
+
+export const BlockPositionSchema = SchemaFactory.createForClass(BlockPosition);
+
+@Schema({ _id: false })
+export class BlockStartPosition extends BlockPosition {
+  @Prop({ required: true, type: String, enum: ['UP', 'DOWN', 'LEFT', 'RIGHT'] })
+  direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
+}
+
+export const BlockStartPositionSchema = SchemaFactory.createForClass(BlockStartPosition);
+
+@Schema({ _id: false })
+export class BlockPuzzleConfig {
+  @Prop({ type: String, default: '' })
+  storyText: string;
+
+  @Prop({ required: true, type: Number })
+  gridWidth: number;
+
+  @Prop({ required: true, type: Number })
+  gridHeight: number;
+
+  @Prop({ required: true, type: BlockStartPositionSchema })
+  startPosition: BlockStartPosition;
+
+  @Prop({ required: true, type: BlockPositionSchema })
+  goalPosition: BlockPosition;
+
+  @Prop({ type: [BlockPositionSchema], default: [] })
+  obstacles: BlockPosition[];
+
+  @Prop({ type: [BlockCommandSchema], default: [] })
+  availableBlocks: BlockCommand[];
+
+  @Prop({ type: Number, default: 10 })
+  maxBlocks: number;
+
+  @Prop({ required: true, type: String, enum: ['sequence', 'loop', 'condition'] })
+  concept: 'sequence' | 'loop' | 'condition';
+
+  @Prop({ type: String, default: '' })
+  successMessage: string;
+
+  @Prop({ required: true, type: Number })
+  order: number;
+}
+
+export const BlockPuzzleConfigSchema = SchemaFactory.createForClass(BlockPuzzleConfig);
+
 @Schema({ timestamps: true, collection: 'lessons' })
 export class Lesson {
   @Prop({ required: true, type: String, trim: true })
@@ -76,8 +147,8 @@ export class Lesson {
   @Prop({ type: String, default: '' })
   description: string;
 
-  @Prop({ required: true, type: String, enum: ['coding', 'quiz'], default: 'coding' })
-  type: 'coding' | 'quiz';
+  @Prop({ required: true, type: String, enum: ['coding', 'quiz', 'block'], default: 'coding' })
+  type: 'coding' | 'quiz' | 'block';
 
   @Prop({ required: true, type: String, enum: ['draft', 'published'], default: 'draft' })
   status: 'draft' | 'published';
@@ -111,6 +182,9 @@ export class Lesson {
 
   @Prop({ type: LessonHintsSchema, default: {} })
   hints?: LessonHints;
+
+  @Prop({ type: BlockPuzzleConfigSchema })
+  blockPuzzle?: BlockPuzzleConfig;
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);

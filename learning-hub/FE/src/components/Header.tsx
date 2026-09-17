@@ -33,6 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
     }
     if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
+    if (path.startsWith('/block-puzzle')) return 'block-puzzle';
     if (path.startsWith('/quiz')) return 'quiz';
     if (path.startsWith('/detail')) return 'detail';
     return 'catalog';
@@ -88,6 +89,7 @@ export const Header: React.FC<HeaderProps> = ({
                 { key: 'detail', label: 'Chi tiết bài học', icon: '📖', path: '/detail' },
                 { key: 'quiz', label: 'Thi Trắc Nghiệm', icon: '📝', path: '/quiz' },
                 { key: 'playground', label: 'Code Playground', icon: '🧑‍💻', path: '/playground' },
+                { key: 'block-puzzle', label: 'Block Puzzle', icon: '🧩', path: '/block-puzzle' },
                 { key: 'contests', label: 'Cuộc Thi & Lịch Thi', icon: '🏆', path: '/contests' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
@@ -257,6 +259,19 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
               >
                 🧑‍💻 Code Playground
+              </button>
+              <button
+                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'block-puzzle'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/block-puzzle');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                🧩 Block Puzzle
               </button>
               <button
                 className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
