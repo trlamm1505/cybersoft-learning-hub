@@ -8,6 +8,7 @@ import { CourseCatalogPage } from './pages/CourseCatalogPage';
 import { LessonDetailPage } from './pages/LessonDetailPage';
 import { QuizTakingPage } from './pages/QuizTakingPage';
 import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
+import { BlockPuzzlePage } from './pages/BlockPuzzlePage';
 import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
 import { ContestListPage } from './pages/ContestListPage';
 import { LoginPage } from './pages/LoginPage';
@@ -114,7 +115,7 @@ export function App() {
     ...convertedTeacherLessons.filter(
       (_, idx) => {
         const orig = publishedTeacherLessons[idx];
-        return orig && orig.type !== 'coding' && orig.type !== 'quiz';
+        return orig && orig.type !== 'coding' && orig.type !== 'quiz' && orig.type !== 'block';
       }
     ),
   ];
@@ -271,6 +272,10 @@ export function App() {
           <Route
             path="/playground"
             element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} authUser={authUser} />}
+          />
+          <Route
+            path="/block-puzzle"
+            element={<BlockPuzzlePage teacherLessons={publishedTeacherLessons} />}
           />
           <Route path="/contests" element={<ContestListPage authUser={authUser} />} />
           <Route path="/login" element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />
