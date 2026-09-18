@@ -1,0 +1,29 @@
+[
+  {
+    "content": "Câu hỏi mẫu hợp lệ dùng để kiểm tra rule.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "useEffect",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "useMemo",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "useState",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

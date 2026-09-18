@@ -1,0 +1,36 @@
+[
+  {
+    "content": "Decorator nào trong NestJS được dùng để đánh dấu một lớp (Class) là một Service có thể tiêm phụ thuộc (Dependency Injection)?",
+    "category": "NestJS",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "@Controller()",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "@Injectable()",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "@Module()",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "@Entity()",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "`@Injectable()` đánh dấu một class là Provider trong hệ thống IoC Container của NestJS, cho phép tiêm qua constructor.",
+    "tags": [
+      "NestJS",
+      "Dependency Injection",
+      "Backend"
+    ]
+  }
+]
