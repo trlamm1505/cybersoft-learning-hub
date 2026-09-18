@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { FileEdit, CheckCircle2, HelpCircle, Clock, Download } from 'lucide-react';
 import quizApi from '../axios/quizApi';
 import type { QuizStartResponse, QuizReviewResponse, QuestionItem } from '../types/quiz';
 import type { LessonAuthoring } from '../types/authoring';
@@ -6,6 +7,7 @@ import QuizTimer from '../components/QuizTimer';
 import QuestionNavigator from '../components/QuestionNavigator';
 import QuestionCard from '../components/QuestionCard';
 import QuizResultView from '../components/QuizResultView';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface QuizTakingPageProps {
   teacherLessons?: LessonAuthoring[];
@@ -97,6 +99,7 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
   const [reviewData, setReviewData] = useState<QuizReviewResponse | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const confirmModalRef = useFocusTrap(showConfirmModal, () => setShowConfirmModal(false));
 
   // 1. Handle Start Quiz API
   const handleStartQuiz = async () => {
@@ -261,8 +264,8 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
           <div className="space-y-8 my-6">
             {/* Header Title Banner */}
             <div className="text-center max-w-3xl mx-auto space-y-2">
-              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 uppercase">
-                📝 Thi Trắc Nghiệm Trực Tuyến
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 uppercase">
+                <FileEdit size={12} strokeWidth={2.5} /> Thi Trắc Nghiệm Trực Tuyến
               </span>
               <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
                 Chọn Bài Thi Trắc Nghiệm Để Bắt Đầu
@@ -292,7 +295,9 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
                           {quiz.category === 'Giảng viên' ? 'Trắc nghiệm' : quiz.category || 'Trắc nghiệm'}
                         </span>
                         {isSelected && (
-                          <span className="text-xs font-bold text-indigo-600 dark:text-cyan-400">✓ Đang chọn</span>
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-cyan-400">
+                            <CheckCircle2 size={13} /> Đang chọn
+                          </span>
                         )}
                       </div>
 
@@ -305,8 +310,8 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 pt-3 border-t border-slate-100 dark:border-slate-800">
-                      <span>❓ {quiz.questionCount} câu hỏi</span>
-                      <span>⏱️ {quiz.timeLimitMinutes} phút</span>
+                      <span className="inline-flex items-center gap-1"><HelpCircle size={13} /> {quiz.questionCount} câu hỏi</span>
+                      <span className="inline-flex items-center gap-1"><Clock size={13} /> {quiz.timeLimitMinutes} phút</span>
                     </div>
                   </div>
                 );
@@ -315,8 +320,8 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
 
             {/* Selected Quiz Confirmation Banner */}
             <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-lg text-center">
-              <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-xs">
-                📝
+              <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+                <FileEdit size={28} strokeWidth={2} />
               </div>
               <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
                 {activeTopic.title}
@@ -421,9 +426,16 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       {/* Confirmation Modal before Submit */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl">
-            <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
-              📥
+          <div
+            ref={confirmModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Xác nhận nộp bài"
+            tabIndex={-1}
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl"
+          >
+            <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Download size={26} strokeWidth={2} />
             </div>
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Xác nhận nộp bài thi?</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">

@@ -20,14 +20,18 @@ export class ExerciseService {
   async findAll() {
     return this.exerciseModel
       .find()
-      .select('title slug description type difficulty points starterCode timeLimitMs')
+      .select(
+        'title slug description type difficulty points starterCode timeLimitMs tags prerequisiteSlug gradeBand topic orderInTopic',
+      )
       .lean();
   }
 
   async findBySlug(slug: string) {
     const exercise = await this.exerciseModel
       .findOne({ slug })
-      .select('title slug description type difficulty points starterCode timeLimitMs testCases')
+      .select(
+        'title slug description type difficulty points starterCode timeLimitMs testCases tags prerequisiteSlug gradeBand topic orderInTopic hints',
+      )
       .lean();
     if (!exercise) throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
 

@@ -8,6 +8,11 @@ export interface ExerciseListItem {
   points: number;
   starterCode: string;
   timeLimitMs: number;
+  tags?: string[];
+  prerequisiteSlug?: string;
+  gradeBand?: string;
+  topic?: string;
+  orderInTopic?: number;
 }
 
 export interface ExerciseTestCase {
@@ -19,6 +24,11 @@ export interface ExerciseTestCase {
 export interface ExerciseDetail extends ExerciseListItem {
   testCases: ExerciseTestCase[];
   hiddenTestCount: number;
+  hints?: {
+    hint1?: string;
+    hint2?: string;
+    hint3?: string;
+  };
 }
 
 export interface RunCodeResponse {

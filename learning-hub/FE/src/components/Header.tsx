@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  BookOpen,
+  FileText,
+  ClipboardList,
+  Code2,
+  Puzzle,
+  Trophy,
+  Wrench,
+  Moon,
+  Sun,
+  Menu,
+  GraduationCap,
+} from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 
 interface HeaderProps {
   isLightTheme: boolean;
   onToggleTheme: () => void;
-  onOpenGuide: () => void;
   userRole: 'student' | 'teacher';
   authUser: AuthUser | null;
   onLogout: () => void;
@@ -14,7 +26,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   isLightTheme,
   onToggleTheme,
-  onOpenGuide,
   userRole,
   authUser,
   onLogout,
@@ -58,15 +69,15 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center gap-3 text-[var(--text-main)] font-extrabold text-lg tracking-tight bg-transparent border-none cursor-pointer text-left shrink-0"
           aria-label="Trang chủ CyberSoft Learning Hub"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-lg shadow-md shadow-indigo-500/20">
-            ⚡
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+            <GraduationCap size={18} strokeWidth={2.25} />
           </div>
           <div className="flex items-center">
             <span>CyberSoft</span>
             <span className="text-cyan-600 dark:text-cyan-400 ml-1">Hub</span>
             {userRole === 'teacher' ? (
               <span className="text-[10px] bg-amber-600 text-white font-bold px-2 py-0.5 rounded-full ml-2 uppercase tracking-wide flex items-center gap-1 shadow-xs">
-                👨‍🏫 Teacher Studio
+                Teacher Studio
               </span>
             ) : (
               <span className="text-[10px] bg-indigo-600 text-white font-semibold px-1.5 py-0.5 rounded ml-2 uppercase">
@@ -85,12 +96,12 @@ export const Header: React.FC<HeaderProps> = ({
               aria-label="Điều hướng Học viên"
             >
               {[
-                { key: 'catalog', label: 'Danh mục khóa học', icon: '📚', path: '/catalog' },
-                { key: 'detail', label: 'Chi tiết bài học', icon: '📖', path: '/detail' },
-                { key: 'quiz', label: 'Thi Trắc Nghiệm', icon: '📝', path: '/quiz' },
-                { key: 'playground', label: 'Code Playground', icon: '🧑‍💻', path: '/playground' },
-                { key: 'block-puzzle', label: 'Block Puzzle', icon: '🧩', path: '/block-puzzle' },
-                { key: 'contests', label: 'Cuộc Thi & Lịch Thi', icon: '🏆', path: '/contests' },
+                { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
+                { key: 'detail', label: 'Chi tiết bài học', Icon: FileText, path: '/detail' },
+                { key: 'quiz', label: 'Thi Trắc Nghiệm', Icon: ClipboardList, path: '/quiz' },
+                { key: 'playground', label: 'Code Playground', Icon: Code2, path: '/playground' },
+                { key: 'block-puzzle', label: 'Block Puzzle', Icon: Puzzle, path: '/block-puzzle' },
+                { key: 'contests', label: 'Cuộc Thi & Lịch Thi', Icon: Trophy, path: '/contests' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -103,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
                       }`}
                       onClick={() => handleNavigate(item.path)}
                     >
-                      <span aria-hidden="true">{item.icon}</span>
+                      <item.Icon size={15} strokeWidth={2} aria-hidden="true" />
                       <span>{item.label}</span>
                     </button>
                   </li>
@@ -117,9 +128,9 @@ export const Header: React.FC<HeaderProps> = ({
               aria-label="Điều hướng Giảng viên"
             >
               {[
-                { key: 'authoring', label: 'Soạn Thảo Bài Thi', icon: '🛠️', path: '/authoring' },
-                { key: 'teacher-library', label: 'Xem Các Bài Thi', icon: '📋', path: '/authoring?view=library' },
-                { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', icon: '🏆', path: '/authoring?view=contests' },
+                { key: 'authoring', label: 'Soạn Thảo Bài Thi', Icon: Wrench, path: '/authoring' },
+                { key: 'teacher-library', label: 'Xem Các Bài Thi', Icon: ClipboardList, path: '/authoring?view=library' },
+                { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -132,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
                       }`}
                       onClick={() => handleNavigate(item.path)}
                     >
-                      <span aria-hidden="true">{item.icon}</span>
+                      <item.Icon size={15} strokeWidth={2} aria-hidden="true" />
                       <span>{item.label}</span>
                     </button>
                   </li>
@@ -145,21 +156,12 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Header Actions & Auth — single row, compact pill controls, consistent height */}
         <div className="flex items-center gap-2 shrink-0">
           <button
-            onClick={onOpenGuide}
-            className="hidden sm:inline-flex items-center h-8 px-3.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-[10px] transition-all cursor-pointer whitespace-nowrap"
-            aria-label="Mở hướng dẫn chụp ảnh responsive"
-            title="Hướng dẫn nghiệm thu Responsive"
-          >
-            📸 HD Responsive
-          </button>
-
-          <button
             onClick={onToggleTheme}
-            className="inline-flex items-center justify-center h-8 w-8 text-sm text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-[10px] transition-all cursor-pointer"
+            className="inline-flex items-center justify-center h-8 w-8 text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-[10px] transition-all cursor-pointer"
             aria-label={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
             title={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
           >
-            {isLightTheme ? '🌙' : '☀️'}
+            {isLightTheme ? <Moon size={16} strokeWidth={2} /> : <Sun size={16} strokeWidth={2} />}
           </button>
 
           {/* Separator between utility controls and auth actions */}
@@ -195,7 +197,7 @@ export const Header: React.FC<HeaderProps> = ({
             aria-expanded={mobileMenuOpen}
             aria-label="Toggle Mobile Menu"
           >
-            ☰
+            <Menu size={18} strokeWidth={2} />
           </button>
         </div>
       </div>
@@ -209,7 +211,7 @@ export const Header: React.FC<HeaderProps> = ({
           {userRole === 'student' ? (
             <>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'catalog'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -219,10 +221,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                📚 Danh mục khóa học
+                <BookOpen size={16} strokeWidth={2} /> Danh mục khóa học
               </button>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'detail'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -232,10 +234,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                📖 Chi tiết bài học
+                <FileText size={16} strokeWidth={2} /> Chi tiết bài học
               </button>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'quiz'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -245,10 +247,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                📝 Thi Trắc Nghiệm
+                <ClipboardList size={16} strokeWidth={2} /> Thi Trắc Nghiệm
               </button>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'playground'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -258,10 +260,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                🧑‍💻 Code Playground
+                <Code2 size={16} strokeWidth={2} /> Code Playground
               </button>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'block-puzzle'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -271,10 +273,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                🧩 Block Puzzle
+                <Puzzle size={16} strokeWidth={2} /> Block Puzzle
               </button>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'contests'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -284,13 +286,13 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                🏆 Cuộc Thi & Lịch Thi
+                <Trophy size={16} strokeWidth={2} /> Cuộc Thi & Lịch Thi
               </button>
             </>
           ) : (
             <>
               <button
-                className={`text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'authoring'
                     ? 'text-indigo-600 dark:text-cyan-400 font-bold'
                     : 'text-[var(--text-main)]'
@@ -300,10 +302,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                🛠️ Soạn Thảo Bài Thi
+                <Wrench size={16} strokeWidth={2} /> Soạn Thảo Bài Thi
               </button>
               <button
-                className={`text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'teacher-library'
                     ? 'text-cyan-600 dark:text-cyan-400 font-bold'
                     : 'text-[var(--text-main)]'
@@ -313,10 +315,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                📋 Xem Các Bài Thi
+                <ClipboardList size={16} strokeWidth={2} /> Xem Các Bài Thi
               </button>
               <button
-                className={`text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'teacher-contests'
                     ? 'text-amber-600 dark:text-amber-400 font-bold'
                     : 'text-[var(--text-main)]'
@@ -326,7 +328,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                🏆 Quản Lý Cuộc Thi
+                <Trophy size={16} strokeWidth={2} /> Quản Lý Cuộc Thi
               </button>
             </>
           )}
@@ -335,8 +337,9 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="pt-3 mt-1 border-t border-[var(--border-color)] flex flex-col gap-2">
             {authUser ? (
               <>
-                <span className="text-xs font-semibold text-[var(--text-muted)]">
-                  {userRole === 'teacher' ? '👨‍🏫' : '🎓'} {authUser.fullName} ({authUser.email})
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)]">
+                  {userRole === 'teacher' ? <Wrench size={13} strokeWidth={2} /> : <GraduationCap size={13} strokeWidth={2} />}
+                  {authUser.fullName} ({authUser.email})
                 </span>
                 <button
                   onClick={() => {

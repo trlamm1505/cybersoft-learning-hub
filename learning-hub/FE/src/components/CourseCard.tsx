@@ -1,4 +1,5 @@
 import React from 'react';
+import { Clock, Target, ClipboardList, ArrowRight } from 'lucide-react';
 import type { Lesson } from '../types/course';
 import { DifficultyBadge } from './DifficultyBadge';
 
@@ -31,15 +32,15 @@ export const CourseCard: React.FC<CourseCardProps> = ({ lesson, onSelect }) => {
       {/* Key Stats Panel */}
       <div className="flex flex-col gap-2 mb-5 text-xs bg-[var(--bg-main)] p-3 rounded-xl border border-[var(--border-color)]">
         <div className="flex items-center justify-between text-[var(--text-muted)]">
-          <span>⏱ Thời lượng:</span>
+          <span className="flex items-center gap-1.5"><Clock size={13} /> Thời lượng:</span>
           <strong className="text-[var(--text-main)]">{lesson.durationText}</strong>
         </div>
         <div className="flex items-center justify-between text-[var(--text-muted)]">
-          <span>🎯 Mục tiêu:</span>
+          <span className="flex items-center gap-1.5"><Target size={13} /> Mục tiêu:</span>
           <strong className="text-[var(--text-main)]">{lesson.objectives.length} kết quả đầu ra</strong>
         </div>
         <div className="flex items-center justify-between text-[var(--text-muted)]">
-          <span>📋 Tiên quyết:</span>
+          <span className="flex items-center gap-1.5"><ClipboardList size={13} /> Tiên quyết:</span>
           <strong className="text-[var(--text-main)]">{lesson.prerequisites.length} yêu cầu</strong>
         </div>
       </div>
@@ -62,7 +63,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({ lesson, onSelect }) => {
           className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-gradient-to-r dark:from-indigo-600 dark:to-cyan-500 dark:hover:from-indigo-500 dark:hover:to-cyan-400 rounded-xl shadow-md hover:shadow-indigo-500/25 transition-all cursor-pointer"
           aria-label={`Vào xem bài học ${lesson.title}`}
         >
-          Học ngay →
+          Học ngay <ArrowRight size={14} />
         </button>
       </div>
     </article>

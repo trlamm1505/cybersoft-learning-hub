@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Snowflake, Flag, Radio, ScrollText, ArrowLeft, Medal } from 'lucide-react';
 import { leaderboardApi } from '../axios/leaderboardApi';
 import type { LeaderboardResponse } from '../axios/leaderboardApi';
 import { ContestRulesModal } from './ContestRulesModal';
@@ -40,7 +41,7 @@ export const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestI
           <div className="flex items-center gap-2">
             {data && (
               <span
-                className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
+                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
                   data.isFrozen
                     ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border-cyan-300'
                     : data.computedStatus === 'ENDED'
@@ -48,7 +49,19 @@ export const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestI
                     : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300'
                 }`}
               >
-                {data.isFrozen ? '🥶 FROZEN' : data.computedStatus === 'ENDED' ? '🏁 FINAL' : '🔴 LIVE'}
+                {data.isFrozen ? (
+                  <>
+                    <Snowflake size={11} /> FROZEN
+                  </>
+                ) : data.computedStatus === 'ENDED' ? (
+                  <>
+                    <Flag size={11} /> FINAL
+                  </>
+                ) : (
+                  <>
+                    <Radio size={11} /> LIVE
+                  </>
+                )}
               </span>
             )}
             <span className="text-xs text-[var(--text-muted)] font-semibold">Bảng Xếp Hạng</span>
@@ -62,16 +75,16 @@ export const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestI
           <button
             type="button"
             onClick={() => setShowRules(true)}
-            className="px-4 py-2 rounded-2xl bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 text-xs font-bold cursor-pointer border-none"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 text-xs font-bold cursor-pointer border-none"
           >
-            📜 Quy chế xếp hạng
+            <ScrollText size={14} /> Quy chế xếp hạng
           </button>
           <button
             type="button"
             onClick={onExit}
-            className="px-4 py-2 rounded-2xl bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] hover:text-[var(--text-main)] border border-[var(--border-color)] text-xs font-bold cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] hover:text-[var(--text-main)] border border-[var(--border-color)] text-xs font-bold cursor-pointer"
           >
-            ⬅️ Quay Lại
+            <ArrowLeft size={14} /> Quay Lại
           </button>
         </div>
       </div>
@@ -98,7 +111,15 @@ export const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestI
             {(data?.rows ?? []).map((row) => (
               <tr key={row.studentId} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
                 <td className="px-4 py-3.5 font-black font-mono text-[var(--text-main)]">
-                  {row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : row.rank}
+                  {row.rank === 1 ? (
+                    <Medal size={16} className="text-amber-500" />
+                  ) : row.rank === 2 ? (
+                    <Medal size={16} className="text-slate-400" />
+                  ) : row.rank === 3 ? (
+                    <Medal size={16} className="text-orange-700" />
+                  ) : (
+                    row.rank
+                  )}
                 </td>
                 <td className="px-4 py-3.5 font-bold text-[var(--text-main)]">
                   {row.studentName} <span className="text-[var(--text-muted)] font-mono">({row.studentId})</span>

@@ -5,19 +5,48 @@ import {
   useDroppable,
   type DragEndEvent,
 } from '@dnd-kit/core';
+import { useFocusTrap } from '../hooks/useFocusTrap';
+import {
+  Hash,
+  Repeat,
+  HelpCircle,
+  ArrowUp,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  Puzzle,
+  X,
+  Wrench,
+  ClipboardList,
+  Lightbulb,
+  Bot,
+  Play,
+  RotateCcw,
+  Lock,
+  Unlock,
+  CheckCircle2,
+  Trophy,
+  BookOpen,
+  Home,
+  TreeDeciduous,
+  Rocket,
+  PartyPopper,
+  Bomb,
+  type LucideIcon,
+} from 'lucide-react';
 import type { LessonAuthoring, BlockCommand } from '../types/authoring';
 
 interface BlockPuzzlePageProps {
   teacherLessons?: LessonAuthoring[];
 }
 
-const CONCEPT_META: Record<string, { label: string; color: string }> = {
-  sequence: { label: '🔢 Tuần tự', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-300' },
-  loop: { label: '🔁 Vòng lặp', color: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border-cyan-300' },
-  condition: { label: '❓ Điều kiện', color: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border-purple-300' },
+const CONCEPT_META: Record<string, { label: string; Icon: LucideIcon; color: string }> = {
+  sequence: { label: 'Tuần tự', Icon: Hash, color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-300' },
+  loop: { label: 'Vòng lặp', Icon: Repeat, color: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border-cyan-300' },
+  condition: { label: 'Điều kiện', Icon: HelpCircle, color: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border-purple-300' },
 };
 
-const DIRECTION_ARROW: Record<string, string> = { UP: '⬆️', DOWN: '⬇️', LEFT: '⬅️', RIGHT: '➡️' };
+const DIRECTION_ARROW: Record<string, LucideIcon> = { UP: ArrowUp, DOWN: ArrowDown, LEFT: ArrowLeft, RIGHT: ArrowRight };
 const DIRECTION_ORDER: Array<'UP' | 'RIGHT' | 'DOWN' | 'LEFT'> = ['UP', 'RIGHT', 'DOWN', 'LEFT'];
 
 interface PlacedBlock {
@@ -51,45 +80,60 @@ const PaletteBlock: React.FC<{ command: BlockCommand }> = ({ command }) => {
 
 const HOW_TO_PLAY_SEEN_KEY = 'app_block_puzzle_seen_guide';
 
-// Simple step-by-step visual guide for 7-10 year olds — big emoji + short sentences,
-// shown automatically the first time a child opens this page, reopenable via a "❓" button.
+// Simple step-by-step visual guide for 7-10 year olds — big icon + short sentences,
+// shown automatically the first time a child opens this page, reopenable via a help button.
 const HowToPlayModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const steps = [
-    { icon: '🧰➡️🖐️', text: 'Kéo 1 khối lệnh từ ô "Khối lệnh" bên trái.' },
-    { icon: '🖐️➡️📋', text: 'Thả khối vào khung "Xếp khối lệnh" — thả đúng thứ tự con muốn Robot làm.' },
-    { icon: '▶️🤖', text: 'Bấm nút "Chạy Thử" — xem Robot đi từng bước trên bản đồ.' },
-    { icon: '🏠🎉', text: 'Robot tới đúng ngôi nhà 🏠 là con thắng! Đâm cây 🪵 hay đâm tường thì thử lại nhé.' },
-    { icon: '💡', text: 'Bí quá thì bấm "Gợi ý" — xem gợi ý 1 trước, chưa được thì mới xem gợi ý tiếp theo.' },
-    { icon: '🔒➡️🔓', text: 'Thắng xong 1 bài thì bài tiếp theo mới mở khoá — con chơi lần lượt từ Bài 1 nhé!' },
+  const modalRef = useFocusTrap(true, onClose);
+  const steps: Array<{ Icon: LucideIcon; text: string }> = [
+    { Icon: Wrench, text: 'Kéo 1 khối lệnh từ ô "Khối lệnh" bên trái.' },
+    { Icon: ClipboardList, text: 'Thả khối vào khung "Xếp khối lệnh" — thả đúng thứ tự con muốn Robot làm.' },
+    { Icon: Bot, text: 'Bấm nút "Chạy Thử" — xem Robot đi từng bước trên bản đồ.' },
+    { Icon: Home, text: 'Robot tới đúng ngôi nhà là con thắng! Đâm cây hay đâm tường thì thử lại nhé.' },
+    { Icon: Lightbulb, text: 'Bí quá thì bấm "Gợi ý" — xem gợi ý 1 trước, chưa được thì mới xem gợi ý tiếp theo.' },
+    { Icon: Unlock, text: 'Thắng xong 1 bài thì bài tiếp theo mới mở khoá — con chơi lần lượt từ Bài 1 nhé!' },
   ];
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Cách chơi"
+        tabIndex={-1}
+        className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl"
+      >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-black text-[var(--text-main)]">🧩 Cách chơi</h2>
+          <h2 className="text-lg font-black text-[var(--text-main)] flex items-center gap-2">
+            <Puzzle size={20} strokeWidth={2.5} />
+            Cách chơi
+          </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="w-8 h-8 rounded-full bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] border-none cursor-pointer text-lg font-black"
+            className="w-8 h-8 rounded-full bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] border-none cursor-pointer flex items-center justify-center"
           >
-            ✕
+            <X size={18} strokeWidth={2.5} />
           </button>
         </div>
         <div className="space-y-3">
-          {steps.map((s, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-color)]">
-              <span className="text-2xl shrink-0">{s.icon}</span>
-              <p className="text-sm font-bold text-[var(--text-main)] leading-snug">{s.text}</p>
-            </div>
-          ))}
+          {steps.map((s, i) => {
+            const StepIcon = s.Icon;
+            return (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-color)]">
+                <StepIcon size={26} strokeWidth={2} className="shrink-0 text-orange-500" />
+                <p className="text-sm font-bold text-[var(--text-main)] leading-snug">{s.text}</p>
+              </div>
+            );
+          })}
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-black cursor-pointer border-none"
+          className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-black cursor-pointer border-none flex items-center justify-center gap-2"
         >
-          Con hiểu rồi, bắt đầu chơi! 🚀
+          Con hiểu rồi, bắt đầu chơi!
+          <Rocket size={16} strokeWidth={2.5} />
         </button>
       </div>
     </div>
@@ -174,10 +218,10 @@ const PlacedBlockItem: React.FC<{
         <button
           type="button"
           onClick={() => onRemove(b.instanceId)}
-          className="text-red-500 hover:text-red-700 cursor-pointer border-none bg-transparent font-black ml-auto"
+          className="text-red-500 hover:text-red-700 cursor-pointer border-none bg-transparent font-black ml-auto flex items-center"
           aria-label="Xóa khối"
         >
-          ✕
+          <X size={14} strokeWidth={2.5} />
         </button>
       </div>
       {isContainer && (
@@ -264,7 +308,7 @@ function simulateRun(
       if (isBlocked(n.x, n.y)) {
         // Crashing into an obstacle: show the robot right on that tile. Crashing into the grid
         // edge: `n` would be off-grid and unrenderable, so keep the robot at its current tile
-        // (the edge) instead — the shake/💥 effect still plays there.
+        // (the edge) instead — the shake/crash effect still plays there.
         const isOffGrid = n.x < 0 || n.y < 0 || n.x >= puzzle.gridWidth || n.y >= puzzle.gridHeight;
         steps.push({ x: isOffGrid ? x : n.x, y: isOffGrid ? y : n.y, direction, hitWall: true });
         return false;
@@ -315,16 +359,16 @@ function simulateRun(
     return true;
   };
 
-  const crashMessage = 'Ối! Robot đâm vào chướng ngại vật rồi. Thử lại nhé! 💥';
+  const crashMessage = 'Ối! Robot đâm vào chướng ngại vật rồi. Thử lại nhé!';
 
   if (!runBlocks(placed)) {
     return { steps, success: false, message: crashMessage };
   }
 
   if (x === puzzle.goalPosition.x && y === puzzle.goalPosition.y) {
-    return { steps, success: true, message: puzzle.successMessage || 'Chúc mừng! Robot đã tới đích! 🎉' };
+    return { steps, success: true, message: puzzle.successMessage || 'Chúc mừng! Robot đã tới đích!' };
   }
-  return { steps, success: false, message: 'Chưa tới đích rồi, thử xếp lại các khối lệnh nhé! 🤔' };
+  return { steps, success: false, message: 'Chưa tới đích rồi, thử xếp lại các khối lệnh nhé!' };
 }
 
 export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons = [] }) => {
@@ -574,7 +618,8 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
         <div className="flex items-start justify-between gap-3">
           <div>
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-white/10 border border-white/20">
-              🧩 Block Puzzle — Lập Trình Không Cần Gõ Code
+              <Puzzle size={14} strokeWidth={2.5} />
+              Block Puzzle — Lập Trình Không Cần Gõ Code
             </span>
             <h1 className="text-2xl md:text-3xl font-black tracking-tight mt-2">
               Dẫn Robot Về Nhà
@@ -586,11 +631,11 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
           <button
             type="button"
             onClick={() => setShowHowToPlay(true)}
-            className="shrink-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-lg font-black cursor-pointer"
+            className="shrink-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white cursor-pointer flex items-center justify-center"
             aria-label="Xem hướng dẫn cách chơi"
             title="Cách chơi"
           >
-            ❓
+            <HelpCircle size={20} strokeWidth={2.5} />
           </button>
         </div>
       </div>
@@ -618,7 +663,13 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                   : `border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-muted)] hover:border-indigo-300 cursor-pointer ${meta.color}`
               }`}
             >
-              {!isUnlocked ? '🔒' : isCompleted ? '✅' : idx + 1}
+              {!isUnlocked ? (
+                <Lock size={14} strokeWidth={2.5} />
+              ) : isCompleted ? (
+                <CheckCircle2 size={16} strokeWidth={2.5} />
+              ) : (
+                idx + 1
+              )}
             </button>
           );
         })}
@@ -630,11 +681,20 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
           <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-5 space-y-3">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <h2 className="text-sm font-black text-[var(--text-main)]">{activeLesson.title}</h2>
-              <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${CONCEPT_META[puzzle.concept].color}`}>
-                {CONCEPT_META[puzzle.concept].label}
-              </span>
+              {(() => {
+                const ConceptIcon = CONCEPT_META[puzzle.concept].Icon;
+                return (
+                  <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border flex items-center gap-1 ${CONCEPT_META[puzzle.concept].color}`}>
+                    <ConceptIcon size={12} strokeWidth={2.5} />
+                    {CONCEPT_META[puzzle.concept].label}
+                  </span>
+                );
+              })()}
             </div>
-              <p className="text-sm text-[var(--text-main)] leading-relaxed">📖 {puzzle.storyText}</p>
+              <p className="text-sm text-[var(--text-main)] leading-relaxed flex items-start gap-1.5">
+                <BookOpen size={16} strokeWidth={2} className="shrink-0 mt-0.5 text-indigo-500" />
+                {puzzle.storyText}
+              </p>
 
               {/* Grid */}
               {(() => {
@@ -653,6 +713,7 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                         const isRobot = col === robotX && row === robotY;
                         const isGoal = col === puzzle.goalPosition.x && row === puzzle.goalPosition.y;
                         const isObstacle = puzzle.obstacles.some((o) => o.x === col && o.y === row);
+                        const RobotDirIcon = DIRECTION_ARROW[robotDir];
                         return (
                           <div
                             key={`${row}-${col}`}
@@ -664,15 +725,19 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                                 : 'border-[var(--border-color)] bg-[var(--bg-card)]'
                             }`}
                           >
-                            {isRobot
-                              ? robotCrashedHere
-                                ? '💥'
-                                : DIRECTION_ARROW[robotDir]
-                              : isGoal
-                              ? '🏠'
-                              : isObstacle
-                              ? '🪵'
-                              : ''}
+                            {isRobot ? (
+                              robotCrashedHere ? (
+                                <Bomb size={18} strokeWidth={2.5} className="text-red-600 dark:text-red-400" />
+                              ) : (
+                                <RobotDirIcon size={18} strokeWidth={2.5} className="text-indigo-600 dark:text-indigo-400" />
+                              )
+                            ) : isGoal ? (
+                              <Home size={18} strokeWidth={2.5} className="text-orange-500" />
+                            ) : isObstacle ? (
+                              <TreeDeciduous size={18} strokeWidth={2.5} className="text-amber-700 dark:text-amber-500" />
+                            ) : (
+                              ''
+                            )}
                           </div>
                         );
                       }),
@@ -686,7 +751,10 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Palette */}
                 <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 space-y-2">
-                  <span className="text-xs font-black text-[var(--text-muted)] block mb-1">🧰 Khối lệnh</span>
+                  <span className="text-xs font-black text-[var(--text-muted)] flex items-center gap-1.5 mb-1">
+                    <Wrench size={14} strokeWidth={2.5} />
+                    Khối lệnh
+                  </span>
                   {puzzle.availableBlocks.map((cmd) => (
                     <PaletteBlock key={cmd.key} command={cmd} />
                   ))}
@@ -694,8 +762,9 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
 
                 {/* Sequence area */}
                 <div className="md:col-span-2 space-y-3">
-                  <span className="text-xs font-black text-[var(--text-muted)] block">
-                    📋 Xếp khối lệnh theo thứ tự ({countBlocks(placed)}/{puzzle.maxBlocks})
+                  <span className="text-xs font-black text-[var(--text-muted)] flex items-center gap-1.5">
+                    <ClipboardList size={14} strokeWidth={2.5} />
+                    Xếp khối lệnh theo thứ tự ({countBlocks(placed)}/{puzzle.maxBlocks})
                   </span>
                   <SequenceDropZone>
                     {placed.length === 0 && (
@@ -722,9 +791,19 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                       type="button"
                       onClick={handleRun}
                       disabled={placed.length === 0 || isAnimating}
-                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md cursor-pointer border-none disabled:opacity-50"
+                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md cursor-pointer border-none disabled:opacity-50 flex items-center gap-1.5"
                     >
-                      {isAnimating ? '🤖 Đang chạy...' : '▶️ Chạy Thử'}
+                      {isAnimating ? (
+                        <>
+                          <Bot size={14} strokeWidth={2.5} />
+                          Đang chạy...
+                        </>
+                      ) : (
+                        <>
+                          <Play size={14} strokeWidth={2.5} />
+                          Chạy Thử
+                        </>
+                      )}
                     </button>
                     <button
                       type="button"
@@ -735,9 +814,10 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                         setSimSteps(null);
                         setRobotStepIndex(0);
                       }}
-                      className="px-4 py-2 rounded-xl bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] text-xs font-bold border border-[var(--border-color)] cursor-pointer disabled:opacity-50"
+                      className="px-4 py-2 rounded-xl bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] text-xs font-bold border border-[var(--border-color)] cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
                     >
-                      🔄 Làm Lại
+                      <RotateCcw size={14} strokeWidth={2.5} />
+                      Làm Lại
                     </button>
                   </div>
 
@@ -750,30 +830,38 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                       }`}
                     >
                       <p
-                        className={`text-sm font-black ${
+                        className={`text-sm font-black flex items-center gap-2 ${
                           result.success
                             ? 'text-emerald-800 dark:text-emerald-300'
                             : 'text-red-800 dark:text-red-300'
                         }`}
                       >
+                        {result.success ? (
+                          <PartyPopper size={18} strokeWidth={2.5} className="shrink-0" />
+                        ) : (
+                          <Bomb size={18} strokeWidth={2.5} className="shrink-0" />
+                        )}
                         {result.message}
                       </p>
                       {result.success && (
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                            🔓 Đã mở khoá bài tiếp theo!
+                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                            <Unlock size={14} strokeWidth={2.5} />
+                            Đã mở khoá bài tiếp theo!
                           </span>
                           {nextLesson ? (
                             <button
                               type="button"
                               onClick={goToNextLesson}
-                              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md cursor-pointer border-none animate-pulse"
+                              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md cursor-pointer border-none animate-pulse flex items-center gap-1.5"
                             >
-                              Bài Tiếp Theo ➡️
+                              Bài Tiếp Theo
+                              <ArrowRight size={14} strokeWidth={2.5} />
                             </button>
                           ) : (
-                            <span className="text-xs font-black text-emerald-700 dark:text-emerald-400">
-                              🏆 Con đã hoàn thành tất cả 15 bài!
+                            <span className="text-xs font-black text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                              <Trophy size={14} strokeWidth={2.5} />
+                              Con đã hoàn thành tất cả 15 bài!
                             </span>
                           )}
                         </div>
@@ -787,7 +875,10 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
             {/* Hints — simple sequential reveal, no cooldown, appropriate for young learners */}
             {activeLesson.hints && (
               <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 space-y-2">
-                <span className="text-xs font-black text-[var(--text-muted)] block">💡 Gợi ý</span>
+                <span className="text-xs font-black text-[var(--text-muted)] flex items-center gap-1.5">
+                  <Lightbulb size={14} strokeWidth={2.5} />
+                  Gợi ý
+                </span>
                 <div className="flex gap-2">
                   {([1, 2, 3] as const).map((lvl) => (
                     <button
