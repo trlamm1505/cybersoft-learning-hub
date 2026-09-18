@@ -1,0 +1,58 @@
+{
+  "project_id": "CAPSTONE-DA-01",
+  "project_name": "CyberSoft Mart Sales Performance & Customer Retention Intelligence Capstone",
+  "generated_at": "2026-09-16T08:00:00Z",
+  "author": "CyberSoft Data & AI Lab Instructor Team",
+  "ground_truth_metrics": {
+    "total_raw_orders": 402,
+    "total_clean_orders": 400,
+    "completed_orders_count": 338,
+    "cancelled_orders_count": 43,
+    "returned_orders_count": 19,
+    "net_revenue_usd": 388850.28,
+    "average_order_value_usd": 1150.44,
+    "cancellation_rate_pct": 10.75,
+    "return_rate_pct": 4.75,
+    "gross_profit_usd": 121652.51,
+    "gross_margin_pct": 31.43
+  },
+  "tolerances": {
+    "net_revenue_usd": 0.05,
+    "average_order_value_usd": 0.10,
+    "cancellation_rate_pct": 0.20,
+    "return_rate_pct": 0.20,
+    "gross_profit_usd": 0.50,
+    "gross_margin_pct": 0.50
+  },
+  "rfm_segment_distribution": {
+    "Loyal Customers": 26,
+    "Hibernating / Lost": 21,
+    "Champions": 20,
+    "At Risk": 15,
+    "Potential Loyalists": 13
+  },
+  "payment_risk_analysis": {
+    "COD": {
+      "total_orders": 120,
+      "cancelled_orders": 22,
+      "cancellation_rate_pct": 18.33
+    },
+    "Banking": {
+      "total_orders": 180,
+      "cancelled_orders": 14,
+      "cancellation_rate_pct": 7.78
+    },
+    "Credit Card": {
+      "total_orders": 100,
+      "cancelled_orders": 7,
+      "cancellation_rate_pct": 7.00
+    }
+  },
+  "top_categories_by_revenue": {
+    "Electronics": 178450.20,
+    "Wearables": 89230.15,
+    "Smart Home": 62450.50,
+    "Audio": 38719.43,
+    "Accessories": 20000.00
+  }
+}
