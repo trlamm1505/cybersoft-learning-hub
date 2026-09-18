@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Lightbulb, Target, Code2, Lock, Unlock, ShieldCheck, Timer, Loader2, AlertTriangle, CheckCircle2, ClipboardCopy } from 'lucide-react';
 import hintApi from '../axios/hintApi';
 import type { HintItem } from '../types/hint';
 
@@ -19,21 +20,21 @@ const TIER_META = [
     level: 1,
     name: 'Khái niệm',
     subTitle: 'Định hướng tư duy',
-    icon: '💡',
+    Icon: Lightbulb,
     badgeColor: 'border-amber-500/40 text-amber-600 dark:text-amber-300 bg-amber-500/10',
   },
   {
     level: 2,
     name: 'Chiến lược',
     subTitle: 'Các bước thuật toán',
-    icon: '🎯',
+    Icon: Target,
     badgeColor: 'border-blue-500/40 text-blue-600 dark:text-cyan-300 bg-blue-500/10',
   },
   {
     level: 3,
     name: 'Code mẫu',
     subTitle: 'Python',
-    icon: '💻',
+    Icon: Code2,
     badgeColor: 'border-purple-500/40 text-purple-600 dark:text-purple-300 bg-purple-500/10',
   },
 ];
@@ -216,7 +217,7 @@ export const HintPanel: React.FC<HintPanelProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-[var(--border-color)]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xl">💡</span>
+            <Lightbulb size={20} className="text-amber-500" />
             <h3 className="font-extrabold text-base sm:text-lg text-[var(--text-main)]">
               Hint Engine — Bảng Gợi Ý
             </h3>
@@ -244,7 +245,7 @@ export const HintPanel: React.FC<HintPanelProps> = ({
       {cooldownSeconds > 0 && (
         <div className="mb-4 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-3 text-xs sm:text-sm flex items-center justify-between gap-2 animate-pulse">
           <div className="flex items-center gap-2 font-medium">
-            <span>⏱️</span>
+            <Timer size={14} />
             <span>
               Thời gian đếm ngược hồi chiêu (Cooldown): <strong>{cooldownSeconds}s</strong>
             </span>
@@ -255,13 +256,13 @@ export const HintPanel: React.FC<HintPanelProps> = ({
 
       {/* Error & Success Messages */}
       {errorMsg && (
-        <div className="mb-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 p-3 text-xs sm:text-sm">
-          ⚠️ {errorMsg}
+        <div className="mb-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 p-3 text-xs sm:text-sm flex items-center gap-1.5">
+          <AlertTriangle size={14} className="shrink-0" /> {errorMsg}
         </div>
       )}
       {successMsg && (
-        <div className="mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 p-3 text-xs sm:text-sm">
-          ✅ {successMsg}
+        <div className="mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 p-3 text-xs sm:text-sm flex items-center gap-1.5">
+          <CheckCircle2 size={14} className="shrink-0" /> {successMsg}
         </div>
       )}
 
@@ -284,7 +285,7 @@ export const HintPanel: React.FC<HintPanelProps> = ({
             >
               {/* Row 1: Icon + Full Title */}
               <div className="flex items-center gap-1.5 font-bold text-xs text-[var(--text-main)]">
-                <span className="text-base shrink-0">{meta.icon}</span>
+                <meta.Icon size={16} strokeWidth={2} className="shrink-0" />
                 <span className="leading-tight">
                   Tầng {meta.level}: {meta.name}
                 </span>
@@ -296,13 +297,14 @@ export const HintPanel: React.FC<HintPanelProps> = ({
                   {meta.subTitle}
                 </span>
                 <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${
+                  className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${
                     isUnlocked
                       ? 'border-emerald-500/40 text-emerald-600 dark:text-emerald-300 bg-emerald-500/10'
                       : 'border-[var(--border-color)] text-[var(--text-muted)] bg-[var(--bg-card)]'
                   }`}
                 >
-                  {isUnlocked ? '🔓 Đã mở' : '🔒 Chưa mở'}
+                  {isUnlocked ? <Unlock size={11} /> : <Lock size={11} />}
+                  {isUnlocked ? 'Đã mở' : 'Chưa mở'}
                 </span>
               </div>
             </button>
@@ -312,14 +314,17 @@ export const HintPanel: React.FC<HintPanelProps> = ({
 
       {/* Active Hint Content Card */}
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-[var(--text-muted)] animate-pulse">
-          ⏳ Đang tải dữ liệu gợi ý...
+        <div className="py-12 text-center text-sm text-[var(--text-muted)] flex items-center justify-center gap-2">
+          <Loader2 size={16} className="animate-spin" /> Đang tải dữ liệu gợi ý...
         </div>
       ) : activeHint ? (
         <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] p-4 sm:p-5 text-[var(--text-main)]">
           <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
             <h4 className="font-bold text-sm sm:text-base flex items-center gap-2 text-[var(--text-main)]">
-              <span>{TIER_META[activeLevel - 1].icon}</span>
+              {(() => {
+                const ActiveTierIcon = TIER_META[activeLevel - 1].Icon;
+                return <ActiveTierIcon size={17} strokeWidth={2} />;
+              })()}
               <span>{activeHint.title || `Gợi ý Tầng ${activeLevel}`}</span>
             </h4>
             <span
@@ -335,8 +340,9 @@ export const HintPanel: React.FC<HintPanelProps> = ({
             <div className="mt-2 text-sm leading-relaxed text-[var(--text-main)] space-y-3">
               {activeLevel === 1 && (
                 <div className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[var(--text-main)]">
-                  <div className="text-xs font-semibold text-amber-600 dark:text-amber-300 mb-1 flex items-center gap-1">
-                    <span>🛡️ Kiểm duyệt Khái niệm (Không chứa code)</span>
+                  <div className="text-xs font-semibold text-amber-600 dark:text-amber-300 mb-1 flex items-center gap-1.5">
+                    <ShieldCheck size={13} />
+                    <span>Kiểm duyệt Khái niệm (Không chứa code)</span>
                   </div>
                   <p className="whitespace-pre-wrap">{activeHint.content}</p>
                 </div>
@@ -344,8 +350,9 @@ export const HintPanel: React.FC<HintPanelProps> = ({
 
               {activeLevel === 2 && (
                 <div className="p-3.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[var(--text-main)]">
-                  <div className="text-xs font-semibold text-blue-600 dark:text-cyan-300 mb-1">
-                    🎯 Các bước chiến lược logic
+                  <div className="text-xs font-semibold text-blue-600 dark:text-cyan-300 mb-1 flex items-center gap-1.5">
+                    <Target size={13} />
+                    Các bước chiến lược logic
                   </div>
                   <p className="whitespace-pre-wrap">{activeHint.content}</p>
                 </div>
@@ -354,8 +361,9 @@ export const HintPanel: React.FC<HintPanelProps> = ({
               {activeLevel === 3 && (
                 <div className="p-3.5 rounded-lg bg-purple-500/10 border border-purple-500/20 space-y-3">
                   <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="text-xs font-semibold text-purple-600 dark:text-purple-300 flex items-center gap-1">
-                      <span>💻 Mã nguồn Lời giải hoàn chỉnh (Python)</span>
+                    <div className="text-xs font-semibold text-purple-600 dark:text-purple-300 flex items-center gap-1.5">
+                      <Code2 size={13} />
+                      <span>Mã nguồn Lời giải hoàn chỉnh (Python)</span>
                     </div>
                   </div>
 
@@ -369,7 +377,7 @@ export const HintPanel: React.FC<HintPanelProps> = ({
                       onClick={() => onApplySolution?.(activeHint.content!)}
                       className="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-semibold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      <span>📋</span>
+                      <ClipboardCopy size={14} />
                       <span>Nạp lại code mẫu Python vào Editor (bên trái)</span>
                     </button>
                   </div>
@@ -379,8 +387,8 @@ export const HintPanel: React.FC<HintPanelProps> = ({
           ) : (
             /* Locked State Card */
             <div className="py-8 px-4 text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-2xl shadow-xs">
-                🔒
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-muted)] shadow-xs">
+                <Lock size={20} strokeWidth={2} />
               </div>
               <p className="text-sm text-[var(--text-muted)] max-w-md mx-auto">
                 Gợi ý <strong className="text-[var(--text-main)]">Tầng {activeLevel} ({TIER_META[activeLevel - 1].name})</strong> đang bị khóa. Hãy bấm mở khóa để xem hướng dẫn chi tiết.
@@ -392,11 +400,11 @@ export const HintPanel: React.FC<HintPanelProps> = ({
                 className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-sm shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 cursor-pointer"
               >
                 {isUnlocking ? (
-                  <span>⏳ Đang xử lý...</span>
+                  <span className="flex items-center gap-1.5"><Loader2 size={15} className="animate-spin" /> Đang xử lý...</span>
                 ) : cooldownSeconds > 0 ? (
-                  <span>⏱️ Cooldown active ({cooldownSeconds}s)</span>
+                  <span className="flex items-center gap-1.5"><Timer size={15} /> Cooldown active ({cooldownSeconds}s)</span>
                 ) : (
-                  <span>🔓 Mở khóa Tầng {activeLevel}</span>
+                  <span className="flex items-center gap-1.5"><Unlock size={15} /> Mở khóa Tầng {activeLevel}</span>
                 )}
               </button>
             </div>

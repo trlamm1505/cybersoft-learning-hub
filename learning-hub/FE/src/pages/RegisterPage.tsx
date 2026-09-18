@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Zap, Loader2, GraduationCap, Wrench } from 'lucide-react';
 import authApi from '../axios/authApi';
 import type { AuthResponse } from '../types/auth';
 
@@ -36,8 +37,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onAuthSuccess }) => 
     <div className="min-h-[70vh] flex items-center justify-center py-8 px-4">
       <div className="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 sm:p-8 shadow-md space-y-5">
         <div className="text-center space-y-1.5">
-          <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-xl shadow-md">
-            ⚡
+          <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md">
+            <Zap size={22} strokeWidth={2.25} />
           </div>
           <h1 className="text-xl font-black text-[var(--text-main)]">Tạo tài khoản mới</h1>
           <p className="text-xs text-[var(--text-muted)]">Tham gia CyberSoft Hub để học tập và thi đấu.</p>
@@ -99,7 +100,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onAuthSuccess }) => 
                     : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent'
                 }`}
               >
-                🎓 Học viên (Student)
+                <span className="inline-flex items-center gap-1.5"><GraduationCap size={14} /> Học viên (Student)</span>
               </button>
               <button
                 type="button"
@@ -110,7 +111,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onAuthSuccess }) => 
                     : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent'
                 }`}
               >
-                👨‍🏫 Giảng viên (Teacher)
+                <span className="inline-flex items-center gap-1.5"><Wrench size={14} /> Giảng viên (Teacher)</span>
               </button>
             </div>
           </div>
@@ -120,7 +121,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onAuthSuccess }) => 
             disabled={isSubmitting}
             className="w-full py-3 text-sm font-extrabold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md cursor-pointer disabled:opacity-50"
           >
-            {isSubmitting ? '⏳ Đang tạo tài khoản...' : 'Đăng ký'}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-1.5">
+                <Loader2 size={14} className="animate-spin" /> Đang tạo tài khoản...
+              </span>
+            ) : (
+              'Đăng ký'
+            )}
           </button>
         </form>
 

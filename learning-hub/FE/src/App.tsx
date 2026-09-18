@@ -3,7 +3,6 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { MOCK_LESSONS } from './data/mockLessons';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { ResponsiveGuideModal } from './components/ResponsiveGuideModal';
 import { CourseCatalogPage } from './pages/CourseCatalogPage';
 import { LessonDetailPage } from './pages/LessonDetailPage';
 import { QuizTakingPage } from './pages/QuizTakingPage';
@@ -75,7 +74,6 @@ export function App() {
   // Role hiện được suy ra từ tài khoản đã đăng nhập; mặc định 'student' khi chưa đăng nhập
   // (giữ trải nghiệm xem trước hiện có cho khách chưa có tài khoản).
   const userRole: 'student' | 'teacher' = authUser?.role === 'TEACHER' ? 'teacher' : 'student';
-  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
 
   // Fetch teacher lessons from BE on load
   const fetchTeacherLessons = useCallback(async () => {
@@ -196,7 +194,6 @@ export function App() {
       <Header
         isLightTheme={isLightTheme}
         onToggleTheme={() => setIsLightTheme(!isLightTheme)}
-        onOpenGuide={() => setIsGuideOpen(true)}
         userRole={userRole}
         authUser={authUser}
         onLogout={handleLogout}
@@ -299,12 +296,6 @@ export function App() {
 
       {/* Footer */}
       <Footer />
-
-      {/* Responsive Screenshot Guide Modal */}
-      <ResponsiveGuideModal
-        isOpen={isGuideOpen}
-        onClose={() => setIsGuideOpen(false)}
-      />
     </div>
   );
 }

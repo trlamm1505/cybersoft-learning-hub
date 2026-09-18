@@ -1,8 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Trophy,
+  Plus,
+  Grid3x3,
+  List,
+  Clock,
+  Pencil,
+  Trash2,
+  X,
+  CalendarDays,
+  FlagTriangleRight,
+  BookOpen,
+  Zap,
+  CheckCircle2,
+  Loader2,
+  Rocket,
+  Save,
+} from 'lucide-react';
 import type { ContestItem, ContestProblem } from '../types/contest';
 import type { LessonAuthoring } from '../types/authoring';
 import { contestApi } from '../axios/contestApi';
 import { authoringApi } from '../axios/authoringApi';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 const DEFAULT_CONTEST: Partial<ContestItem> = {
   title: '',
@@ -34,6 +53,7 @@ export const TeacherContestAuthoring: React.FC = () => {
 
   const [selectedContestId, setSelectedContestId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const contestModalRef = useFocusTrap(isModalOpen, () => setIsModalOpen(false));
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
@@ -199,8 +219,8 @@ export const TeacherContestAuthoring: React.FC = () => {
       {/* Main Bar: Contest List Title & Create New Button */}
       <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-sm flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-black text-[var(--text-main)] tracking-tight">
-            🏆 Danh Sách Cuộc Thi Đã Tạo ({contests.length})
+          <h2 className="text-xl font-black text-[var(--text-main)] tracking-tight flex items-center gap-2">
+            <Trophy size={20} /> Danh Sách Cuộc Thi Đã Tạo ({contests.length})
           </h2>
         </div>
 
@@ -218,7 +238,7 @@ export const TeacherContestAuthoring: React.FC = () => {
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
               }`}
             >
-              ▦
+              <Grid3x3 size={14} />
             </button>
             <button
               type="button"
@@ -231,7 +251,7 @@ export const TeacherContestAuthoring: React.FC = () => {
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
               }`}
             >
-              ☰
+              <List size={14} />
             </button>
           </div>
 
@@ -240,7 +260,7 @@ export const TeacherContestAuthoring: React.FC = () => {
             onClick={handleOpenCreateModal}
             className="px-4 py-2.5 text-xs font-black rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer shadow-sm border-none flex items-center gap-1.5"
           >
-            ➕ Tạo Cuộc Thi Mới
+            <Plus size={14} /> Tạo Cuộc Thi Mới
           </button>
         </div>
       </div>
@@ -263,17 +283,25 @@ export const TeacherContestAuthoring: React.FC = () => {
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200">
-                    ⏱️ {c.durationMinutes || 90} Phút
+                  <span className="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 flex items-center gap-1">
+                    <Clock size={11} /> {c.durationMinutes || 90} Phút
                   </span>
                   <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase flex items-center gap-1 ${
                       c.status === 'published'
                         ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                         : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
                     }`}
                   >
-                    {c.status === 'published' ? '🟢 Published' : '🟡 Draft'}
+                    {c.status === 'published' ? (
+                      <>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Published
+                      </>
+                    ) : (
+                      <>
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" /> Draft
+                      </>
+                    )}
                   </span>
                 </div>
 
@@ -286,9 +314,9 @@ export const TeacherContestAuthoring: React.FC = () => {
                 </p>
 
                 <div className="pt-2 text-[11px] text-[var(--text-muted)] space-y-1 font-mono border-t border-[var(--border-color)]">
-                  <div>📅 Khai mạc: {new Date(c.startTime).toLocaleString('vi-VN')}</div>
-                  <div>🏁 Kết thúc: {new Date(c.endTime).toLocaleString('vi-VN')}</div>
-                  <div>📚 Đề thi: {c.problems?.length || 0} bài tập thành phần</div>
+                  <div className="flex items-center gap-1"><CalendarDays size={11} /> Khai mạc: {new Date(c.startTime).toLocaleString('vi-VN')}</div>
+                  <div className="flex items-center gap-1"><FlagTriangleRight size={11} /> Kết thúc: {new Date(c.endTime).toLocaleString('vi-VN')}</div>
+                  <div className="flex items-center gap-1"><BookOpen size={11} /> Đề thi: {c.problems?.length || 0} bài tập thành phần</div>
                 </div>
               </div>
 
@@ -299,14 +327,14 @@ export const TeacherContestAuthoring: React.FC = () => {
                   onClick={() => handleOpenEditModal(c)}
                   className="px-3 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all border-none cursor-pointer flex items-center gap-1 shadow-xs"
                 >
-                  ✏️ Sửa
+                  <Pencil size={12} /> Sửa
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDeleteContest(c._id || c.slug, c.title)}
                   className="px-3 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer flex items-center gap-1"
                 >
-                  🗑️ Xóa
+                  <Trash2 size={12} /> Xóa
                 </button>
               </div>
             </div>
@@ -321,8 +349,8 @@ export const TeacherContestAuthoring: React.FC = () => {
               className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-4 hover:bg-[var(--bg-main)] transition-colors"
             >
               {/* Duration badge */}
-              <span className="shrink-0 w-fit text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200">
-                ⏱️ {c.durationMinutes || 90} Phút
+              <span className="shrink-0 w-fit text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 flex items-center gap-1">
+                <Clock size={11} /> {c.durationMinutes || 90} Phút
               </span>
 
               {/* Title + description */}
@@ -337,18 +365,26 @@ export const TeacherContestAuthoring: React.FC = () => {
 
               {/* Status */}
               <span
-                className={`shrink-0 w-fit px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                className={`shrink-0 w-fit px-2 py-0.5 rounded text-[10px] font-bold uppercase flex items-center gap-1 ${
                   c.status === 'published'
                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                     : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
                 }`}
               >
-                {c.status === 'published' ? '🟢 Published' : '🟡 Draft'}
+                {c.status === 'published' ? (
+                  <>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Published
+                  </>
+                ) : (
+                  <>
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" /> Draft
+                  </>
+                )}
               </span>
 
               {/* Schedule + problems count */}
-              <div className="shrink-0 text-[11px] text-[var(--text-muted)] font-mono whitespace-nowrap">
-                📅 {new Date(c.startTime).toLocaleDateString('vi-VN')} · 📚 {c.problems?.length || 0} bài
+              <div className="shrink-0 text-[11px] text-[var(--text-muted)] font-mono whitespace-nowrap flex items-center gap-1">
+                <CalendarDays size={11} /> {new Date(c.startTime).toLocaleDateString('vi-VN')} <span className="mx-0.5">·</span> <BookOpen size={11} /> {c.problems?.length || 0} bài
               </div>
 
               {/* Action Buttons */}
@@ -358,14 +394,14 @@ export const TeacherContestAuthoring: React.FC = () => {
                   onClick={() => handleOpenEditModal(c)}
                   className="px-3 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all border-none cursor-pointer flex items-center gap-1 shadow-xs"
                 >
-                  ✏️ Sửa
+                  <Pencil size={12} /> Sửa
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDeleteContest(c._id || c.slug, c.title)}
                   className="px-3 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 text-red-600 hover:bg-red-600 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer flex items-center gap-1"
                 >
-                  🗑️
+                  <Trash2 size={12} />
                 </button>
               </div>
             </div>
@@ -376,12 +412,27 @@ export const TeacherContestAuthoring: React.FC = () => {
       {/* Edit / Create Contest Modal Overlay */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-6">
+          <div
+            ref={contestModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={selectedContestId ? 'Chỉnh sửa cuộc thi' : 'Tạo cuộc thi mới'}
+            tabIndex={-1}
+            className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-6"
+          >
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
               <div>
-                <span className="px-3 py-0.5 rounded-full text-xs font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200">
-                  {selectedContestId ? '✏️ CHỈNH SỬA CUỘC THI' : '➕ TẠO CUỘC THI MỚI'}
+                <span className="px-3 py-0.5 rounded-full text-xs font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 inline-flex items-center gap-1">
+                  {selectedContestId ? (
+                    <>
+                      <Pencil size={12} /> CHỈNH SỬA CUỘC THI
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={12} /> TẠO CUỘC THI MỚI
+                    </>
+                  )}
                 </span>
                 <h3 className="text-xl font-black text-[var(--text-main)] tracking-tight mt-1">
                   {selectedContestId ? formData.title || 'Chỉnh sửa cuộc thi' : 'Thiết Kế Đề Thi Cuộc Thi Mới'}
@@ -392,7 +443,7 @@ export const TeacherContestAuthoring: React.FC = () => {
                 onClick={() => setIsModalOpen(false)}
                 className="text-[var(--text-muted)] hover:text-[var(--text-main)] text-xl font-bold bg-transparent border-none cursor-pointer p-1"
               >
-                ✕
+                <X size={18} />
               </button>
             </div>
 
@@ -430,8 +481,8 @@ export const TeacherContestAuthoring: React.FC = () => {
 
               {/* Presets */}
               <div className="space-y-2">
-                <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider">
-                  ⚡ Chọn nhanh thời lượng cuộc thi:
+                <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider flex items-center gap-1">
+                  <Zap size={13} /> Chọn nhanh thời lượng cuộc thi:
                 </label>
                 <div className="flex flex-wrap items-center gap-2">
                   {[30, 60, 90, 120, 1440].map((mins) => (
@@ -439,13 +490,21 @@ export const TeacherContestAuthoring: React.FC = () => {
                       key={mins}
                       type="button"
                       onClick={() => handleApplyPresetDuration(mins)}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                      className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer inline-flex items-center gap-1 ${
                         formData.durationMinutes === mins
                           ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
                           : 'bg-[var(--bg-main)] text-[var(--text-main)] border-[var(--border-color)] hover:border-indigo-400'
                       }`}
                     >
-                      {mins === 1440 ? '📅 24 Giờ' : `⏱️ ${mins} Phút`}
+                      {mins === 1440 ? (
+                        <>
+                          <CalendarDays size={12} /> 24 Giờ
+                        </>
+                      ) : (
+                        <>
+                          <Clock size={12} /> {mins} Phút
+                        </>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -454,8 +513,8 @@ export const TeacherContestAuthoring: React.FC = () => {
               {/* Start & End Times */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider mb-1">
-                    📅 Thời gian Bắt đầu (Start Time) *
+                  <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <CalendarDays size={12} /> Thời gian Bắt đầu (Start Time) *
                   </label>
                   <input
                     type="datetime-local"
@@ -467,8 +526,8 @@ export const TeacherContestAuthoring: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider mb-1">
-                    🏁 Thời gian Kết thúc (End Time) *
+                  <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <FlagTriangleRight size={12} /> Thời gian Kết thúc (End Time) *
                   </label>
                   <input
                     type="datetime-local"
@@ -482,8 +541,8 @@ export const TeacherContestAuthoring: React.FC = () => {
 
               {/* Duration Minutes */}
               <div>
-                <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider mb-1">
-                  ⏱️ Thời lượng làm bài cá nhân (Duration Minutes) *
+                <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <Clock size={12} /> Thời lượng làm bài cá nhân (Duration Minutes) *
                 </label>
                 <div className="flex items-center gap-3">
                   <input
@@ -516,7 +575,7 @@ export const TeacherContestAuthoring: React.FC = () => {
                         : 'bg-[var(--bg-main)] text-[var(--text-main)] border-[var(--border-color)]'
                     }`}
                   >
-                    🟢 Published (Công khai)
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 inline-block mr-1" /> Published (Công khai)
                   </button>
                   <button
                     type="button"
@@ -527,7 +586,7 @@ export const TeacherContestAuthoring: React.FC = () => {
                         : 'bg-[var(--bg-main)] text-[var(--text-main)] border-[var(--border-color)]'
                     }`}
                   >
-                    🟡 Draft (Bản nháp)
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-300 inline-block mr-1" /> Draft (Bản nháp)
                   </button>
                 </div>
               </div>
@@ -535,8 +594,8 @@ export const TeacherContestAuthoring: React.FC = () => {
               {/* Problem Selection */}
               <div className="space-y-2 pt-2 border-t border-[var(--border-color)]">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider">
-                    📚 Chọn bài tập thành phần ({formData.problems?.length || 0} bài đã chọn)
+                  <label className="block text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wider flex items-center gap-1">
+                    <BookOpen size={13} /> Chọn bài tập thành phần ({formData.problems?.length || 0} bài đã chọn)
                   </label>
                   <span className="text-xs text-[var(--text-muted)]">Tích chọn bài nạp vào cuộc thi</span>
                 </div>
@@ -575,8 +634,16 @@ export const TeacherContestAuthoring: React.FC = () => {
                             </div>
                           </div>
 
-                          <span className="text-xs font-semibold">
-                            {isSelected ? '✅ Đã chọn' : '➕ Chọn'}
+                          <span className="text-xs font-semibold flex items-center gap-1">
+                            {isSelected ? (
+                              <>
+                                <CheckCircle2 size={13} /> Đã chọn
+                              </>
+                            ) : (
+                              <>
+                                <Plus size={13} /> Chọn
+                              </>
+                            )}
                           </span>
                         </div>
                       );
@@ -599,7 +666,19 @@ export const TeacherContestAuthoring: React.FC = () => {
                   disabled={isSubmitting}
                   className="px-6 py-2.5 text-xs font-black rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md border-none cursor-pointer flex items-center gap-2"
                 >
-                  {isSubmitting ? '⌛ Đang lưu...' : selectedContestId ? '💾 Cập Nhật Cuộc Thi' : '🚀 Lưu Cuộc Thi'}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" /> Đang lưu...
+                    </>
+                  ) : selectedContestId ? (
+                    <>
+                      <Save size={14} /> Cập Nhật Cuộc Thi
+                    </>
+                  ) : (
+                    <>
+                      <Rocket size={14} /> Lưu Cuộc Thi
+                    </>
+                  )}
                 </button>
               </div>
             </form>

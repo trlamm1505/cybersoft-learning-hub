@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { BookOpen, Clock, Target, Search } from 'lucide-react';
 import type { Lesson } from '../types/course';
 import { CourseCard } from '../components/CourseCard';
 
@@ -47,25 +48,28 @@ export const CourseCatalogPage: React.FC<CourseCatalogPageProps> = ({
 
         {/* Quick Stats Pill */}
         <div className="inline-flex flex-wrap items-center justify-center gap-3 bg-[var(--bg-main)] px-4 py-2 rounded-full border border-[var(--border-color)] text-xs text-[var(--text-muted)] shadow-xs">
-          <div>📚 Bài học: <strong className="text-indigo-600 dark:text-cyan-400 font-bold">{lessons.length} bài</strong></div>
+          <div className="flex items-center gap-1.5"><BookOpen size={14} /> Bài học: <strong className="text-indigo-600 dark:text-cyan-400 font-bold">{lessons.length} bài</strong></div>
           <div aria-hidden="true" className="opacity-40">•</div>
-          <div>⏱ Tổng thời lượng: <strong className="text-indigo-600 dark:text-cyan-400 font-bold">{totalMinutes} phút</strong></div>
+          <div className="flex items-center gap-1.5"><Clock size={14} /> Tổng thời lượng: <strong className="text-indigo-600 dark:text-cyan-400 font-bold">{totalMinutes} phút</strong></div>
           <div aria-hidden="true" className="opacity-40">•</div>
-          <div>🎯 Chuẩn đầu ra: <strong className="text-indigo-600 dark:text-cyan-400 font-bold">100% Thực chiến</strong></div>
+          <div className="flex items-center gap-1.5"><Target size={14} /> Chuẩn đầu ra: <strong className="text-indigo-600 dark:text-cyan-400 font-bold">100% Thực chiến</strong></div>
         </div>
       </section>
 
       {/* Search & Filter Bar */}
       <section className="flex flex-col md:flex-row items-center justify-between gap-4" aria-label="Bộ lọc và tìm kiếm bài học">
         <div className="w-full md:max-w-md">
-          <input
-            type="search"
-            placeholder="🔍 Tìm kiếm bài học (HTML, React, Tailwind)..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2.5 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl text-[var(--text-main)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-indigo-500 shadow-xs transition-colors"
-            aria-label="Tìm kiếm bài học"
-          />
+          <div className="relative">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+            <input
+              type="search"
+              placeholder="Tìm kiếm bài học (HTML, React, Tailwind)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-xl text-[var(--text-main)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-indigo-500 shadow-xs transition-colors"
+              aria-label="Tìm kiếm bài học"
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1" role="tablist" aria-label="Lọc theo độ khó">
@@ -100,7 +104,7 @@ export const CourseCatalogPage: React.FC<CourseCatalogPageProps> = ({
       <main id="catalog-content">
         {filteredLessons.length === 0 ? (
           <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl text-center p-12 text-[var(--text-muted)]">
-            <div className="text-4xl mb-2">🔍</div>
+            <Search size={36} className="mx-auto mb-2 opacity-60" />
             <h3 className="text-lg font-bold text-[var(--text-main)]">Không tìm thấy bài học phù hợp</h3>
             <p className="text-sm mt-1">Hãy thử thay đổi từ khóa tìm kiếm hoặc chọn lại độ khó.</p>
             <button

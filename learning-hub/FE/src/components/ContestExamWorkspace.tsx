@@ -1,4 +1,25 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Trophy,
+  Clock,
+  Award,
+  Medal,
+  BarChart3,
+  ArrowLeft,
+  Lock,
+  Pin,
+  ClipboardList,
+  Code2,
+  FileEdit,
+  CheckCircle2,
+  Rocket,
+  Ban,
+  PartyPopper,
+  Loader2,
+  Flag,
+  Download,
+  Play,
+} from 'lucide-react';
 import type { ContestItem, ContestProblem } from '../types/contest';
 import { CodeEditor } from './CodeEditor';
 import { exerciseApi } from '../axios/exerciseApi';
@@ -375,7 +396,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
       });
 
       if (graded.isLate) {
-        showToast('⛔ Cuộc thi đã kết thúc. Bài nộp không được tính điểm.', 'error');
+        showToast('Cuộc thi đã kết thúc. Bài nộp không được tính điểm.', 'error');
         setIsEvaluating(false);
         return;
       }
@@ -397,12 +418,12 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
       const completedCount = Object.keys(updatedResults).length;
       if (completedCount >= problems.length) {
-        showToast('🎉 Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
+        showToast('Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
         setTimeout(() => {
           handleFinalSubmitContestWithResults(updatedResults);
         }, 1000);
       } else {
-        showToast(`✅ Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
+        showToast(`Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
         setTimeout(() => {
           setViewMode('select');
         }, 900);
@@ -429,7 +450,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
       });
 
       if (graded.isLate) {
-        showToast('⛔ Cuộc thi đã kết thúc. Bài nộp không được tính điểm.', 'error');
+        showToast('Cuộc thi đã kết thúc. Bài nộp không được tính điểm.', 'error');
         setIsEvaluating(false);
         return;
       }
@@ -451,12 +472,12 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
       const completedCount = Object.keys(updatedResults).length;
       if (completedCount >= problems.length) {
-        showToast('🎉 Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
+        showToast('Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
         setTimeout(() => {
           handleFinalSubmitContestWithResults(updatedResults);
         }, 1000);
       } else {
-        showToast(`✅ Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
+        showToast(`Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
         setTimeout(() => {
           setViewMode('select');
         }, 900);
@@ -531,7 +552,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
           <div className="relative z-10 space-y-4 text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 backdrop-blur-sm">
-              <span>🔒 KẾT QUẢ CHÍNH THỨC — MỖI SINH VIÊN CHỈ LÀM 1 LẦN</span>
+              <Lock size={12} strokeWidth={2.5} />
+              <span>KẾT QUẢ CHÍNH THỨC — MỖI SINH VIÊN CHỈ LÀM 1 LẦN</span>
             </div>
 
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
@@ -550,8 +572,9 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main score pill */}
           <div className="bg-[var(--bg-card)] border border-emerald-500/40 rounded-3xl p-6 shadow-xl text-center flex flex-col justify-center space-y-2 relative overflow-hidden">
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-              🏆 Tổng Điểm Đạt Được
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center justify-center gap-1.5">
+              <Trophy size={14} strokeWidth={2.5} />
+              Tổng Điểm Đạt Được
             </span>
             <div className="text-5xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
               {finalResult.totalScore} <span className="text-xl font-bold text-[var(--text-muted)]">/ {finalResult.maxScore}</span>
@@ -563,8 +586,9 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
           {/* Time completed */}
           <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 shadow-md flex flex-col justify-center space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-              🕒 Thời Gian Hoàn Thành
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center justify-center gap-1.5">
+              <Clock size={14} strokeWidth={2.5} />
+              Thời Gian Hoàn Thành
             </span>
             <div className="text-lg font-bold text-[var(--text-main)] font-mono">
               {new Date(finalResult.completedAt).toLocaleString('vi-VN')}
@@ -574,13 +598,31 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
           {/* Rank / Grade */}
           <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 shadow-md flex flex-col justify-center space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-              🎖️ Hạng Trên Bảng Xếp Hạng
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center justify-center gap-1.5">
+              <Award size={14} strokeWidth={2.5} />
+              Hạng Trên Bảng Xếp Hạng
             </span>
-            <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
-              {myRank
-                ? `${myRank.rank === 1 ? '🥇' : myRank.rank === 2 ? '🥈' : myRank.rank === 3 ? '🥉' : '🏅'} Hạng ${myRank.rank}/${myRank.total}`
-                : 'Đang tải hạng...'}
+            <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 flex items-center justify-center gap-1.5">
+              {myRank ? (
+                <>
+                  <Medal
+                    size={20}
+                    strokeWidth={2.5}
+                    className={
+                      myRank.rank === 1
+                        ? 'text-amber-500'
+                        : myRank.rank === 2
+                        ? 'text-slate-400'
+                        : myRank.rank === 3
+                        ? 'text-orange-600'
+                        : 'text-indigo-500'
+                    }
+                  />
+                  Hạng {myRank.rank}/{myRank.total}
+                </>
+              ) : (
+                'Đang tải hạng...'
+              )}
             </div>
             <p className="text-xs text-[var(--text-muted)]">Tự động chấm bởi Server Auto-Judge</p>
           </div>
@@ -589,7 +631,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         {/* Detailed problem score breakdown table */}
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 md:p-8 shadow-xl space-y-4">
           <h3 className="text-lg font-extrabold text-[var(--text-main)] flex items-center gap-2">
-            <span>📊 Danh Sách Bài Thi & Chi Tiết Chấm Điểm</span>
+            <BarChart3 size={18} strokeWidth={2.5} />
+            <span>Danh Sách Bài Thi & Chi Tiết Chấm Điểm</span>
           </h3>
 
           <div className="overflow-x-auto border border-[var(--border-color)] rounded-2xl">
@@ -610,13 +653,23 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                     <td className="px-4 py-3.5 font-bold text-[var(--text-main)]">{pr.title}</td>
                     <td className="px-4 py-3.5">
                       <span
-                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold ${
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold inline-flex items-center gap-1 ${
                           pr.type === 'coding'
                             ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
                             : 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300'
                         }`}
                       >
-                        {pr.type === 'coding' ? '💻 Lập Trình' : '📝 Trắc Nghiệm'}
+                        {pr.type === 'coding' ? (
+                          <>
+                            <Code2 size={12} strokeWidth={2.5} />
+                            Lập Trình
+                          </>
+                        ) : (
+                          <>
+                            <FileEdit size={12} strokeWidth={2.5} />
+                            Trắc Nghiệm
+                          </>
+                        )}
                       </span>
                     </td>
                     <td className="px-4 py-3.5 text-[var(--text-muted)] font-medium">{pr.details}</td>
@@ -637,7 +690,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
             onClick={onExit}
             className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-xl transition-all cursor-pointer border-none flex items-center gap-2"
           >
-            ⬅️ Quay Lại Danh Sách Cuộc Thi
+            <ArrowLeft size={16} strokeWidth={2.5} />
+            Quay Lại Danh Sách Cuộc Thi
           </button>
         </div>
       </div>
@@ -659,6 +713,13 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                 : 'bg-emerald-600 text-white border-emerald-500'
             }`}
           >
+            {toast.type === 'error' ? (
+              <Ban size={16} strokeWidth={2.5} className="shrink-0" />
+            ) : toast.type === 'info' ? (
+              <CheckCircle2 size={16} strokeWidth={2.5} className="shrink-0" />
+            ) : (
+              <PartyPopper size={16} strokeWidth={2.5} className="shrink-0" />
+            )}
             {toast.message}
           </div>
         )}
@@ -668,8 +729,9 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-0.5 rounded-full text-xs font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300">
-                  🏆 PHÒNG THI CHÍNH THỨC
+                <span className="px-3 py-0.5 rounded-full text-xs font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300 inline-flex items-center gap-1.5">
+                  <Trophy size={12} strokeWidth={2.5} />
+                  PHÒNG THI CHÍNH THỨC
                 </span>
                 <span className="text-xs text-[var(--text-muted)] font-semibold">
                   Thí sinh: <strong>{studentName}</strong> ({studentId})
@@ -682,22 +744,26 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
             <div className="flex items-center gap-3">
               <div className="bg-slate-900 text-cyan-400 px-4 py-2 rounded-2xl border border-indigo-500/40 font-mono text-sm font-black shadow-inner flex items-center gap-2">
-                <span>⏱️</span>
+                <Clock size={16} strokeWidth={2.5} />
                 <span>{timeRemainingText}</span>
               </div>
               <button
                 type="button"
                 onClick={onExit}
-                className="px-4 py-2 rounded-2xl bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all cursor-pointer border border-[var(--border-color)] text-xs font-bold"
+                className="px-4 py-2 rounded-2xl bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all cursor-pointer border border-[var(--border-color)] text-xs font-bold flex items-center gap-1.5"
               >
-                ⬅️ Thoát Phòng Thi
+                <ArrowLeft size={14} strokeWidth={2.5} />
+                Thoát Phòng Thi
               </button>
             </div>
           </div>
 
           <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 text-xs flex items-center justify-between gap-4">
             <div className="space-y-1">
-              <span className="font-extrabold text-sm block">📌 Hướng dẫn chọn bài thi:</span>
+              <span className="font-extrabold text-sm flex items-center gap-1.5">
+                <Pin size={14} strokeWidth={2.5} />
+                Hướng dẫn chọn bài thi:
+              </span>
               <p className="leading-relaxed">
                 Kỳ thi gồm <strong>{problems.length} bài thi/chủ đề</strong>. Vui lòng chọn bài thi bạn muốn làm trước từ danh sách bên dưới. Bạn có thể tự do chỉnh sửa và nộp lại từng bài trước khi chốt nộp toàn bộ kỳ thi.
               </p>
@@ -708,7 +774,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         {/* Problem Selection Grid Title */}
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-black text-[var(--text-main)] flex items-center gap-2">
-            <span>📋 Danh Sách Bài Thi — Chọn Bài Làm Trước:</span>
+            <ClipboardList size={18} strokeWidth={2.5} />
+            <span>Danh Sách Bài Thi — Chọn Bài Làm Trước:</span>
           </h3>
           <span className="text-xs text-[var(--text-muted)] font-semibold">
             Đã hoàn thành {Object.keys(problemResults).length} / {problems.length} bài
@@ -736,13 +803,14 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                       Bài {p.order || idx + 1}
                     </span>
                     <span
-                      className={`px-2.5 py-1 rounded-xl text-xs font-bold ${
+                      className={`px-2.5 py-1 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 ${
                         p.type === 'quiz'
                           ? 'bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-300'
                           : 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-300'
                       }`}
                     >
-                      {p.type === 'quiz' ? '📝 Trắc Nghiệm' : '💻 Lập Trình Python'} ({getProblemMaxPoints(idx, problems.length, p)}đ)
+                      {p.type === 'quiz' ? <FileEdit size={13} strokeWidth={2.5} /> : <Code2 size={13} strokeWidth={2.5} />}
+                      {p.type === 'quiz' ? 'Trắc Nghiệm' : 'Lập Trình Python'} ({getProblemMaxPoints(idx, problems.length, p)}đ)
                     </span>
                   </div>
 
@@ -762,12 +830,14 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-[var(--text-muted)] font-semibold">Trạng thái bài làm:</span>
                     {isSubmitted ? (
-                      <span className="font-black text-emerald-600 dark:text-emerald-400">
-                        🟢 Đã nộp ({result.score} / {result.maxPoints}đ)
+                      <span className="font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                        Đã nộp ({result.score} / {result.maxPoints}đ)
                       </span>
                     ) : (
-                      <span className="font-bold text-amber-600 dark:text-amber-400">
-                        🔴 Chưa làm
+                      <span className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+                        Chưa làm
                       </span>
                     )}
                   </div>
@@ -787,7 +857,17 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                         : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer shadow-md'
                     }`}
                   >
-                    {isSubmitted ? '✅ Đã Nộp Bài Thi Này' : '🚀 Chọn Bài Này Để Làm'}
+                    {isSubmitted ? (
+                      <>
+                        <CheckCircle2 size={14} strokeWidth={2.5} />
+                        Đã Nộp Bài Thi Này
+                      </>
+                    ) : (
+                      <>
+                        <Rocket size={14} strokeWidth={2.5} />
+                        Chọn Bài Này Để Làm
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -809,7 +889,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
             onClick={handleFinalSubmitContest}
             className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-xl transition-all cursor-pointer border-none flex items-center gap-2 animate-pulse"
           >
-            🏁 Nộp Bài & Kết Thúc Kỳ Thi
+            <Flag size={14} strokeWidth={2.5} />
+            Nộp Bài & Kết Thúc Kỳ Thi
           </button>
         </div>
       </div>
@@ -830,6 +911,13 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
               : 'bg-emerald-600 text-white border-emerald-500'
           }`}
         >
+          {toast.type === 'error' ? (
+            <Ban size={16} strokeWidth={2.5} className="shrink-0" />
+          ) : toast.type === 'info' ? (
+            <CheckCircle2 size={16} strokeWidth={2.5} className="shrink-0" />
+          ) : (
+            <PartyPopper size={16} strokeWidth={2.5} className="shrink-0" />
+          )}
           {toast.message}
         </div>
       )}
@@ -839,15 +927,17 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onExit}
-            className="p-2 rounded-xl bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all cursor-pointer border border-[var(--border-color)] text-xs font-bold"
+            className="p-2 rounded-xl bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all cursor-pointer border border-[var(--border-color)] text-xs font-bold flex items-center gap-1.5"
             title="Thoát khỏi phòng thi"
           >
-            ⬅️ Thoát
+            <ArrowLeft size={14} strokeWidth={2.5} />
+            Thoát
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300">
-                🔴 ĐANG THI THỰC CHIẾN
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 inline-flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block animate-pulse" />
+                ĐANG THI THỰC CHIẾN
               </span>
               <span className="text-xs text-[var(--text-muted)] font-semibold">
                 Thí sinh: <strong>{studentName}</strong> ({studentId})
@@ -862,7 +952,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         {/* Live Countdown Timer & Final Submit Button */}
         <div className="flex items-center gap-4 ml-auto">
           <div className="bg-slate-900 text-cyan-400 px-4 py-2 rounded-2xl border border-indigo-500/40 font-mono text-sm font-black shadow-inner flex items-center gap-2">
-            <span>⏱️</span>
+            <Clock size={16} strokeWidth={2.5} />
             <span>{timeRemainingText}</span>
           </div>
 
@@ -871,7 +961,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
             onClick={handleFinalSubmitContest}
             className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-lg transition-all cursor-pointer border-none flex items-center gap-1.5 animate-pulse"
           >
-            🏁 Nộp Bài & Kết Thúc Kỳ Thi
+            <Flag size={14} strokeWidth={2.5} />
+            Nộp Bài & Kết Thúc Kỳ Thi
           </button>
         </div>
       </div>
@@ -888,11 +979,13 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
           <div className="lg:col-span-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 shadow-lg space-y-5 flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
-                <span className="px-3 py-1 rounded-full text-xs font-black bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-300">
-                  💻 BÀI THI LẬP TRÌNH PYTHON ({getProblemMaxPoints(activeProblemIdx, problems.length, currentProblem)} ĐIỂM)
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-300 inline-flex items-center gap-1.5">
+                  <Code2 size={13} strokeWidth={2.5} />
+                  BÀI THI LẬP TRÌNH PYTHON ({getProblemMaxPoints(activeProblemIdx, problems.length, currentProblem)} ĐIỂM)
                 </span>
-                <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
-                  🚫 Không gợi ý trong bài thi
+                <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                  <Ban size={13} strokeWidth={2.5} />
+                  Không gợi ý trong bài thi
                 </span>
               </div>
 
@@ -928,7 +1021,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
             {problemResults[activeProblemIdx] && (
               <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 text-xs space-y-1">
                 <div className="font-black text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                  ✅ Đã nộp bài tập này!
+                  <CheckCircle2 size={14} strokeWidth={2.5} />
+                  Đã nộp bài tập này!
                 </div>
                 <div className="text-emerald-700 dark:text-emerald-400 font-semibold">
                   {problemResults[activeProblemIdx].details}
@@ -942,7 +1036,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
             <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-5 shadow-lg space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
                 <span className="text-xs font-bold text-[var(--text-main)] flex items-center gap-1.5">
-                  <span>💻 Trình Soạn Thảo Python (Python 3.x)</span>
+                  <Code2 size={14} strokeWidth={2.5} />
+                  Trình Soạn Thảo Python (Python 3.x)
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -952,7 +1047,17 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                     disabled={isRunningCode}
                     className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer border-none shadow-sm flex items-center gap-1"
                   >
-                    {isRunningCode ? '⏳ Đang chạy...' : '▶️ Chạy Thử Code'}
+                    {isRunningCode ? (
+                      <>
+                        <Loader2 size={14} strokeWidth={2.5} className="animate-spin" />
+                        Đang chạy...
+                      </>
+                    ) : (
+                      <>
+                        <Play size={14} strokeWidth={2.5} />
+                        Chạy Thử Code
+                      </>
+                    )}
                   </button>
 
                   <button
@@ -961,7 +1066,17 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                     disabled={isEvaluating}
                     className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer border-none shadow-md flex items-center gap-1"
                   >
-                    {isEvaluating ? '⏳ Đang chấm...' : '🚀 Nộp Bài Code Này'}
+                    {isEvaluating ? (
+                      <>
+                        <Loader2 size={14} strokeWidth={2.5} className="animate-spin" />
+                        Đang chấm...
+                      </>
+                    ) : (
+                      <>
+                        <Rocket size={14} strokeWidth={2.5} />
+                        Nộp Bài Code Này
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -976,8 +1091,9 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
               {/* Custom STDIN Box */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-[var(--text-muted)] block">
-                  📥 STDIN (Dữ liệu đầu vào cho lệnh 'Chạy Thử'):
+                <label className="text-[11px] font-bold text-[var(--text-muted)] flex items-center gap-1">
+                  <Download size={12} strokeWidth={2.5} />
+                  STDIN (Dữ liệu đầu vào cho lệnh 'Chạy Thử'):
                 </label>
                 <textarea
                   rows={2}
@@ -991,8 +1107,9 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
               {/* Execution Console Output Box */}
               {runOutputs[activeProblemIdx] && (
                 <div className="space-y-1.5 pt-2 border-t border-[var(--border-color)]">
-                  <span className="text-[11px] font-bold text-[var(--text-muted)] block">
-                    💻 Kết quả chạy thử (Console Output):
+                  <span className="text-[11px] font-bold text-[var(--text-muted)] flex items-center gap-1">
+                    <Code2 size={12} strokeWidth={2.5} />
+                    Kết quả chạy thử (Console Output):
                   </span>
                   <div
                     className={`p-3 rounded-2xl font-mono text-xs max-h-40 overflow-y-auto border ${
@@ -1019,8 +1136,9 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 md:p-8 shadow-lg space-y-6 max-w-4xl mx-auto">
           <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
             <div>
-              <span className="px-3 py-1 rounded-full text-xs font-black bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-300">
-                📝 BÀI THI TRẮC NGHIỆM ({getProblemMaxPoints(activeProblemIdx, problems.length, currentProblem)} ĐIỂM)
+              <span className="px-3 py-1 rounded-full text-xs font-black bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-300 inline-flex items-center gap-1.5">
+                <FileEdit size={13} strokeWidth={2.5} />
+                BÀI THI TRẮC NGHIỆM ({getProblemMaxPoints(activeProblemIdx, problems.length, currentProblem)} ĐIỂM)
               </span>
               <h3 className="text-xl font-black text-[var(--text-main)] mt-2">{currentProblem.title}</h3>
             </div>
@@ -1029,9 +1147,19 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
               type="button"
               onClick={handleSubmitQuizProblem}
               disabled={isEvaluating}
-              className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all shadow-md cursor-pointer border-none disabled:opacity-60"
+              className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all shadow-md cursor-pointer border-none disabled:opacity-60 flex items-center justify-center gap-1.5"
             >
-              {isEvaluating ? '⏳ Đang chấm...' : '🚀 Nộp Bài Trắc Nghiệm Này'}
+              {isEvaluating ? (
+                <>
+                  <Loader2 size={14} strokeWidth={2.5} className="animate-spin" />
+                  Đang chấm...
+                </>
+              ) : (
+                <>
+                  <Rocket size={14} strokeWidth={2.5} />
+                  Nộp Bài Trắc Nghiệm Này
+                </>
+              )}
             </button>
           </div>
 

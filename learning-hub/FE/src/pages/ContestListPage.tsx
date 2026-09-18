@@ -1,10 +1,34 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Trophy,
+  User,
+  Hash,
+  Clock,
+  Zap,
+  Flame,
+  Timer,
+  FlagTriangleRight,
+  RefreshCw,
+  CalendarDays,
+  Users,
+  Lock,
+  FileEdit,
+  CheckCircle2,
+  Rocket,
+  Eye,
+  Target,
+  BarChart3,
+  ShieldCheck,
+  X,
+  Ban,
+} from 'lucide-react';
 import type { ContestItem, ContestStatusResponse } from '../types/contest';
 import type { AuthUser } from '../types/auth';
 import { contestApi } from '../axios/contestApi';
 import { ContestExamWorkspace } from '../components/ContestExamWorkspace';
 import { ContestLeaderboard } from '../components/ContestLeaderboard';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface ContestListPageProps {
   userRole?: 'student' | 'teacher';
@@ -29,6 +53,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
   // Modal states for Server Time Guard check
   const [selectedContestGuard, setSelectedContestGuard] = useState<ContestStatusResponse | null>(null);
   const [isGuardModalOpen, setIsGuardModalOpen] = useState<boolean>(false);
+  const guardModalRef = useFocusTrap(isGuardModalOpen, () => setIsGuardModalOpen(false));
   const [guardLoading, setGuardLoading] = useState<boolean>(false);
   const [targetContest, setTargetContest] = useState<ContestItem | null>(null);
 
@@ -241,7 +266,8 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 backdrop-blur-sm">
-            <span>🏆 Ngày 11 — Contest & Lịch Thi Server Time Guard</span>
+            <Trophy size={14} />
+            <span>Ngày 11 — Contest & Lịch Thi Server Time Guard</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
             Đấu Trường Lập Trình & Kỳ Thi Cuộc Thi CyberSoft
@@ -254,7 +280,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
           {/* Student Info Bar */}
           <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-indigo-200 border-t border-indigo-700/50">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-white">👤 Học viên:</span>
+              <span className="font-semibold text-white flex items-center gap-1"><User size={13} /> Học viên:</span>
               {authUser ? (
                 <span className="bg-indigo-950/70 text-white border border-indigo-500/40 rounded-lg px-2.5 py-1 text-xs font-semibold">
                   {studentName}
@@ -273,11 +299,11 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
               )}
             </div>
             <div className="flex items-center gap-1.5 bg-indigo-950/60 px-3 py-1 rounded-lg border border-indigo-500/30">
-              <span>🆔 Mã SV:</span>
+              <span className="flex items-center gap-1"><Hash size={12} /> Mã SV:</span>
               <span className="font-mono text-cyan-300 font-bold">{studentId}</span>
             </div>
             <div className="flex items-center gap-1 text-amber-300 font-semibold ml-auto">
-              <span>🕒 Giờ máy chủ:</span>
+              <span className="flex items-center gap-1"><Clock size={13} /> Giờ máy chủ:</span>
               <span className="font-mono bg-black/40 px-2 py-0.5 rounded text-cyan-300">
                 {now.toLocaleTimeString('vi-VN')}
               </span>
@@ -297,7 +323,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                 : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-indigo-400'
             }`}
           >
-            ⚡ Tất Cả ({counts.all})
+            <Zap size={13} className="inline mr-1" /> Tất Cả ({counts.all})
           </button>
           <button
             onClick={() => setActiveTab('ongoing')}
@@ -307,7 +333,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                 : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-emerald-400'
             }`}
           >
-            🔥 Đang Diễn Ra ({counts.ongoing})
+            <Flame size={13} className="inline mr-1" /> Đang Diễn Ra ({counts.ongoing})
           </button>
           <button
             onClick={() => setActiveTab('upcoming')}
@@ -317,7 +343,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                 : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-amber-400'
             }`}
           >
-            ⏰ Sắp Diễn Ra ({counts.upcoming})
+            <Timer size={13} className="inline mr-1" /> Sắp Diễn Ra ({counts.upcoming})
           </button>
           <button
             onClick={() => setActiveTab('ended')}
@@ -327,7 +353,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                 : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-slate-400'
             }`}
           >
-            🏁 Đã Kết Thúc ({counts.ended})
+            <FlagTriangleRight size={13} className="inline mr-1" /> Đã Kết Thúc ({counts.ended})
           </button>
         </div>
 
@@ -336,7 +362,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
           className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-color)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1.5"
           title="Làm mới danh sách cuộc thi"
         >
-          🔄 Làm mới dữ liệu
+          <RefreshCw size={13} /> Làm mới dữ liệu
         </button>
       </div>
 
@@ -348,7 +374,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
         </div>
       ) : filteredContests.length === 0 ? (
         <div className="text-center py-16 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-8">
-          <span className="text-4xl block mb-2">🏆</span>
+          <Trophy size={40} className="mx-auto mb-2 text-[var(--text-muted)]" />
           <h3 className="text-lg font-bold text-[var(--text-main)]">Chưa có cuộc thi nào phù hợp</h3>
           <p className="text-sm text-[var(--text-muted)] mt-1">
             Không tìm thấy cuộc thi trong mục này. Vui lòng chuyển tab lọc khác hoặc liên hệ Giảng viên.
@@ -380,21 +406,22 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                       {isOngoing && (
                         <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5 animate-pulse">
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                          🟢 ĐANG DIỄN RA
+                          ĐANG DIỄN RA
                         </span>
                       )}
                       {isUpcoming && (
                         <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1.5">
-                          🟡 SẮP DIỄN RA
+                          <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+                          SẮP DIỄN RA
                         </span>
                       )}
                       {isEnded && (
                         <span className="px-3 py-1 rounded-full text-xs font-black bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
-                          🔴 ĐÃ KẾT THÚC
+                          ĐÃ KẾT THÚC
                         </span>
                       )}
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                        ⏱️ {c.durationMinutes || 90} phút
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
+                        <Clock size={11} /> {c.durationMinutes || 90} phút
                       </span>
                     </div>
 
@@ -411,8 +438,8 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                       try {
                         const parsed = JSON.parse(saved);
                         return (
-                          <span className="px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-xs shrink-0">
-                            🎯 Đã Hoàn Thành ({parsed.totalScore}/{parsed.maxScore}đ)
+                          <span className="px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-xs shrink-0 flex items-center gap-1">
+                            <Target size={13} /> Đã Hoàn Thành ({parsed.totalScore}/{parsed.maxScore}đ)
                           </span>
                         );
                       } catch {
@@ -421,8 +448,8 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                     }
                     if (isRegistered) {
                       return (
-                        <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800 shrink-0">
-                          ✓ Đã Đăng Ký
+                        <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800 shrink-0 flex items-center gap-1">
+                          <CheckCircle2 size={13} /> Đã Đăng Ký
                         </span>
                       );
                     }
@@ -446,11 +473,11 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                   }`}
                 >
                   <div className="space-y-0.5">
-                    <span className="text-[11px] block font-medium opacity-80">
-                      📅 Mở đề: {formatDateTime(c.startTime)}
+                    <span className="text-[11px] block font-medium opacity-80 flex items-center gap-1">
+                      <CalendarDays size={12} /> Mở đề: {formatDateTime(c.startTime)}
                     </span>
-                    <span className="text-[11px] block font-medium opacity-80">
-                      🏁 Đóng đề: {formatDateTime(c.endTime)}
+                    <span className="text-[11px] block font-medium opacity-80 flex items-center gap-1">
+                      <FlagTriangleRight size={12} /> Đóng đề: {formatDateTime(c.endTime)}
                     </span>
                   </div>
                   <div className="text-right shrink-0">
@@ -464,18 +491,18 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                 {/* Contest Structure Summary (Secured: No problem title leak) */}
                 <div className="space-y-2 pt-2 border-t border-[var(--border-color)]">
                   <div className="flex items-center justify-between text-xs font-bold text-[var(--text-main)]">
-                    <span>📚 Cấu trúc đề thi ({c.problems?.length || 0} bài thi)</span>
-                    <span className="text-[var(--text-muted)] font-normal">
-                      👥 {c.registrations?.length || 0} thí sinh
+                    <span className="flex items-center gap-1"><FileEdit size={13} /> Cấu trúc đề thi ({c.problems?.length || 0} bài thi)</span>
+                    <span className="text-[var(--text-muted)] font-normal flex items-center gap-1">
+                      <Users size={13} /> {c.registrations?.length || 0} thí sinh
                     </span>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                      🏆 Tổng điểm: 100 điểm
+                    <span className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
+                      <Trophy size={12} /> Tổng điểm: 100 điểm
                     </span>
                     <span className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-[var(--bg-main)] text-[var(--text-muted)] border border-[var(--border-color)] flex items-center gap-1">
-                      🔒 Bảo mật thông tin đề thi cho đến khi vào phòng thi
+                      <Lock size={12} /> Bảo mật thông tin đề thi cho đến khi vào phòng thi
                     </span>
                   </div>
                 </div>
@@ -486,13 +513,21 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                     <button
                       type="button"
                       onClick={() => handleRegister(c._id!, c.title)}
-                      className="w-full px-3 py-2.5 text-xs font-bold rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white transition-all cursor-pointer shadow-xs border-none text-center"
+                      className="w-full px-3 py-2.5 text-xs font-bold rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white transition-all cursor-pointer shadow-xs border-none text-center flex items-center justify-center gap-1.5"
                     >
-                      📝 Đăng ký tham gia
+                      <FileEdit size={13} /> Đăng ký tham gia
                     </button>
                   ) : (
-                    <div className="px-3 py-2.5 text-xs font-bold rounded-2xl bg-slate-200 dark:bg-slate-800 text-[var(--text-muted)] text-center flex items-center justify-center border border-[var(--border-color)]">
-                      {isEnded ? '🏁 Đã đóng đăng ký' : '✅ Đã đăng ký thành công'}
+                    <div className="px-3 py-2.5 text-xs font-bold rounded-2xl bg-slate-200 dark:bg-slate-800 text-[var(--text-muted)] text-center flex items-center justify-center gap-1.5 border border-[var(--border-color)]">
+                      {isEnded ? (
+                        <>
+                          <FlagTriangleRight size={13} /> Đã đóng đăng ký
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 size={13} /> Đã đăng ký thành công
+                        </>
+                      )}
                     </div>
                   )}
 
@@ -513,19 +548,19 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                     {(() => {
                       const cId = c._id || c.slug;
                       const hasResult = localStorage.getItem(`app_contest_results_${studentId}_${cId}`);
-                      if (hasResult) return '📊 Xem Bảng Điểm';
-                      if (isOngoing) return isRegistered ? '🚀 Vào Thi Ngay' : '🔒 Đăng Ký Trước Để Vào Thi';
-                      if (isUpcoming) return '🔒 Kiểm Tra Lịch Thi';
-                      return '👁️ Xem Chi Tiết';
+                      if (hasResult) return <><BarChart3 size={14} /> Xem Bảng Điểm</>;
+                      if (isOngoing) return isRegistered ? <><Rocket size={14} /> Vào Thi Ngay</> : <><Lock size={14} /> Đăng Ký Trước Để Vào Thi</>;
+                      if (isUpcoming) return <><Lock size={14} /> Kiểm Tra Lịch Thi</>;
+                      return <><Eye size={14} /> Xem Chi Tiết</>;
                     })()}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setActiveLeaderboardContest(c)}
-                    className="w-full px-3 py-2.5 text-xs font-bold rounded-2xl bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 transition-all cursor-pointer shadow-xs border-none text-center"
+                    className="w-full px-3 py-2.5 text-xs font-bold rounded-2xl bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 transition-all cursor-pointer shadow-xs border-none text-center flex items-center justify-center gap-1.5"
                   >
-                    🏆 Xem Bảng Xếp Hạng
+                    <Trophy size={13} /> Xem Bảng Xếp Hạng
                   </button>
                 </div>
               </div>
@@ -537,7 +572,14 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
       {/* Server Time Guard Status Modal */}
       {isGuardModalOpen && selectedContestGuard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl space-y-6 animate-scale-up">
+          <div
+            ref={guardModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Trạng thái cuộc thi"
+            tabIndex={-1}
+            className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl space-y-6 animate-scale-up"
+          >
             {/* Modal Header */}
             <div className="flex items-start justify-between gap-3 border-b border-[var(--border-color)] pb-4">
               <div>
@@ -550,7 +592,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                       : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300 border border-red-300'
                   }`}
                 >
-                  🛡️ Server Time Guard Check: {selectedContestGuard.statusText}
+                  <ShieldCheck size={13} className="inline mr-1" /> Server Time Guard Check: {selectedContestGuard.statusText}
                 </span>
                 <h3 className="text-xl font-black text-[var(--text-main)] tracking-tight">
                   {selectedContestGuard.title}
@@ -560,7 +602,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                 onClick={() => setIsGuardModalOpen(false)}
                 className="text-[var(--text-muted)] hover:text-[var(--text-main)] text-xl font-bold bg-transparent border-none cursor-pointer p-1"
               >
-                ✕
+                <X size={18} />
               </button>
             </div>
 
@@ -574,7 +616,15 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                 }`}
               >
                 <div className="font-bold text-sm mb-1 flex items-center gap-1.5">
-                  {selectedContestGuard.isAllowedToJoin ? '✅ Cho phép truy cập bài thi' : '⛔ Quyền truy cập bị khóa'}
+                  {selectedContestGuard.isAllowedToJoin ? (
+                    <>
+                      <CheckCircle2 size={15} /> Cho phép truy cập bài thi
+                    </>
+                  ) : (
+                    <>
+                      <Ban size={15} /> Quyền truy cập bị khóa
+                    </>
+                  )}
                 </div>
                 <p className="leading-relaxed">{selectedContestGuard.message}</p>
               </div>
@@ -582,19 +632,19 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
               {/* Exact Server Timestamps */}
               <div className="bg-[var(--bg-main)] p-4 rounded-2xl border border-[var(--border-color)] space-y-2 font-mono">
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">🕒 Giờ máy chủ Server:</span>
+                  <span className="text-[var(--text-muted)] flex items-center gap-1"><Clock size={12} /> Giờ máy chủ Server:</span>
                   <span className="font-bold text-cyan-600 dark:text-cyan-400">
                     {new Date(selectedContestGuard.serverTime).toLocaleString('vi-VN')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">📅 Thời gian khai mạc:</span>
+                  <span className="text-[var(--text-muted)] flex items-center gap-1"><CalendarDays size={12} /> Thời gian khai mạc:</span>
                   <span className="font-bold">
                     {new Date(selectedContestGuard.startTime).toLocaleString('vi-VN')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">🏁 Thời gian bế mạc:</span>
+                  <span className="text-[var(--text-muted)] flex items-center gap-1"><FlagTriangleRight size={12} /> Thời gian bế mạc:</span>
                   <span className="font-bold">
                     {new Date(selectedContestGuard.endTime).toLocaleString('vi-VN')}
                   </span>
@@ -621,17 +671,17 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                       startExamSession(targetContest);
                     }
                   }}
-                  className="px-5 py-2.5 text-xs font-black rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer shadow-md border-none"
+                  className="px-5 py-2.5 text-xs font-black rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer shadow-md border-none flex items-center gap-1.5"
                 >
-                  🚀 Vào Làm Bài Thi Trực Tiếp
+                  <Rocket size={14} /> Vào Làm Bài Thi Trực Tiếp
                 </button>
               ) : (
                 <button
                   type="button"
                   disabled
-                  className="px-5 py-2.5 text-xs font-bold rounded-xl bg-slate-400 text-white cursor-not-allowed border-none opacity-60"
+                  className="px-5 py-2.5 text-xs font-bold rounded-xl bg-slate-400 text-white cursor-not-allowed border-none opacity-60 flex items-center gap-1.5"
                 >
-                  🔒 Bị Khóa Truy Cập
+                  <Lock size={14} /> Bị Khóa Truy Cập
                 </button>
               )}
             </div>
