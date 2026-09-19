@@ -1,0 +1,473 @@
+{
+  "problem": "sap-xep-tang-dan",
+  "suite": "hardened",
+  "timeLimitMs": 2000,
+  "tests": {
+    "total": 10,
+    "hidden": 8,
+    "addedByQA": 6
+  },
+  "reference": {
+    "status": "AC",
+    "passedCount": 10,
+    "totalCount": 10,
+    "hiddenPassed": 8,
+    "hiddenTotal": 8,
+    "maxTimeMs": 72
+  },
+  "summary": {
+    "total": 12,
+    "valid": 11,
+    "killed": 11,
+    "survived": 0,
+    "equivalent": 1,
+    "invalid": 0,
+    "mutationScore": 100,
+    "threshold": 80,
+    "pass": true,
+    "byType": {
+      "Wrong condition": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Missing logic": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Duplicate handling error": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Off-by-one": {
+        "total": 2,
+        "killed": 2,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Wrong comparison": {
+        "total": 2,
+        "killed": 2,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Hard-code sample": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Wrong output format": {
+        "total": 3,
+        "killed": 2,
+        "survived": 0,
+        "equivalent": 1,
+        "invalid": 0
+      },
+      "Slow algorithm": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      }
+    },
+    "killedBy": {
+      "SAMPLE": 8,
+      "HIDDEN": 2,
+      "TIMEOUT": 1
+    },
+    "survivors": [],
+    "unexpected": [],
+    "flags": []
+  },
+  "mutants": [
+    {
+      "id": "SRT-01",
+      "type": "Wrong condition",
+      "description": "Sắp xếp giảm dần (`reverse=True`)",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1,
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "2/8",
+      "hiddenFailed": [
+        2,
+        3,
+        5,
+        6,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 36,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "nums.sort()",
+          "replace": "nums.sort(reverse=True)"
+        }
+      ]
+    },
+    {
+      "id": "SRT-02",
+      "type": "Missing logic",
+      "description": "Bỏ lệnh sắp xếp, in nguyên danh sách",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1,
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "3/8",
+      "hiddenFailed": [
+        2,
+        3,
+        5,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 35,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "nums.sort()\n",
+          "replace": ""
+        }
+      ]
+    },
+    {
+      "id": "SRT-03",
+      "type": "Duplicate handling error",
+      "description": "Dùng `sorted(set(nums))` - làm mất phần tử trùng",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "4/8",
+      "hiddenFailed": [
+        2,
+        3,
+        4,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 34,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "nums.sort()",
+          "replace": "nums = sorted(set(nums))"
+        }
+      ]
+    },
+    {
+      "id": "SRT-04",
+      "type": "Off-by-one",
+      "description": "Bỏ mất phần tử cuối khi in (`nums[:-1]`)",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1,
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "0/8",
+      "hiddenFailed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 42,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "print(' '.join(map(str, nums)))",
+          "replace": "print(' '.join(map(str, nums[:-1])))"
+        }
+      ]
+    },
+    {
+      "id": "SRT-05",
+      "type": "Wrong comparison",
+      "description": "Sắp theo thứ tự chuỗi (`key=str`) thay vì theo giá trị số",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "6/8",
+      "hiddenFailed": [
+        6,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 42,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "nums.sort()",
+          "replace": "nums.sort(key=str)"
+        }
+      ]
+    },
+    {
+      "id": "SRT-06",
+      "type": "Wrong comparison",
+      "description": "Sắp theo giá trị tuyệt đối (`key=abs`)",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "5/8",
+      "hiddenFailed": [
+        2,
+        6,
+        7
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 35,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "nums.sort()",
+          "replace": "nums.sort(key=abs)"
+        }
+      ]
+    },
+    {
+      "id": "SRT-07",
+      "type": "Hard-code sample",
+      "description": "Chỉ in đúng kết quả cho 2 sample (n=5 và n=3), còn lại in nguyên input",
+      "expected": "KILLED",
+      "gapHint": "Hidden test quá ít để lộ hard-code.",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "2/8",
+      "hiddenFailed": [
+        2,
+        3,
+        5,
+        6,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 36,
+      "expectedMatch": true
+    },
+    {
+      "id": "SRT-08",
+      "type": "Wrong output format",
+      "description": "Nối bằng dấu phẩy thay vì dấu cách",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1,
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "1/8",
+      "hiddenFailed": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 34,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "' '.join",
+          "replace": "','.join"
+        }
+      ]
+    },
+    {
+      "id": "SRT-09",
+      "type": "Wrong output format",
+      "description": "Mỗi số một dòng (`sep='\\n'`)",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1,
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "1/8",
+      "hiddenFailed": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 38,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "print(' '.join(map(str, nums)))",
+          "replace": "print(*nums, sep='\\n')"
+        }
+      ]
+    },
+    {
+      "id": "SRT-10",
+      "type": "Slow algorithm",
+      "description": "Bubble sort O(n^2) thay vì sort() O(n log n)",
+      "expected": "TIMEOUT",
+      "gapHint": "Không có test N rất lớn nên thuật toán O(n^2) vẫn AC; đề chưa có constraints cho N.",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "7/8",
+      "hiddenFailed": [
+        8
+      ],
+      "hasTimeout": true,
+      "judgeStatus": "TLE",
+      "killed": true,
+      "killedBy": "TIMEOUT",
+      "maxTimeMs": 2011,
+      "expectedMatch": true
+    },
+    {
+      "id": "SRT-11",
+      "type": "Off-by-one",
+      "description": "Chỉ sắp xếp nửa đầu của danh sách",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1,
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "3/8",
+      "hiddenFailed": [
+        2,
+        3,
+        5,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 71,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "nums.sort()",
+          "replace": "nums[:n // 2] = sorted(nums[:n // 2])"
+        }
+      ]
+    },
+    {
+      "id": "SRT-12",
+      "type": "Wrong output format",
+      "description": "Thừa khoảng trắng và dòng trống Ở CUỐI output",
+      "expected": "EQUIVALENT",
+      "gapHint": "",
+      "status": "EQUIVALENT",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "PASS",
+      "hiddenPassed": "8/8",
+      "hiddenFailed": [],
+      "hasTimeout": false,
+      "judgeStatus": "AC",
+      "killed": false,
+      "killedBy": null,
+      "maxTimeMs": 35,
+      "expectedMatch": true,
+      "equivalentReason": "Judge trim stdout trước khi so sánh (judge-queue.service.ts dòng 123) - khoảng trắng/xuống dòng thừa Ở CUỐI được bỏ qua theo thiết kế.",
+      "patch": [
+        {
+          "find": "print(' '.join(map(str, nums)))",
+          "replace": "print(' '.join(map(str, nums)), end='  \\n\\n')"
+        }
+      ]
+    }
+  ]
+}
