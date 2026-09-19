@@ -1,0 +1,39 @@
+# Cấu hình tham số hệ thống RAG Capstone AI-01
+project:
+  name: "CyberSoft Enterprise RAG System"
+  version: "1.0.0"
+
+# Cấu hình Ingestion & Chunking
+chunking:
+  baseline:
+    strategy: "fixed"
+    chunk_size: 500
+    chunk_overlap: 50
+  advanced:
+    strategy: "section_markdown"
+    preserve_metadata: true
+    min_chunk_length: 50
+    max_chunk_length: 1200
+
+# Cấu hình Retrieval
+retrieval:
+  top_k: 5
+  baseline:
+    method: "dense_only" # hoặc "bm25_only"
+  advanced:
+    method: "hybrid_rrf"
+    rrf_k: 60
+    bm25_weight: 0.5
+    dense_weight: 0.5
+
+# Cấu hình Guardrails (Abstention & Citation)
+guardrails:
+  abstain_threshold: 0.35
+  abstain_message: "OUT_OF_SCOPE: Không tìm thấy thông tin phù hợp trong tài liệu quy chế nội bộ CyberSoft."
+  require_citation_format: true
+  citation_regex: "\\[(CS-[A-Z]+-\\d{3})#(SEC-[A-Z]+-\\d{3}-\\d{2})\\]"
+
+# Ngưỡng ngân sách hiệu năng & chi phí
+performance_budget:
+  max_p95_latency_ms: 1500
+  max_cost_per_1k_usd: 0.050
