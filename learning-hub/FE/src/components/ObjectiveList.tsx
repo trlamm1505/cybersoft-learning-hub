@@ -1,4 +1,5 @@
 import React from 'react';
+import { CheckCircle2 } from 'lucide-react';
 
 interface ObjectiveListProps {
   objectives: string[];
@@ -13,7 +14,7 @@ export const ObjectiveList: React.FC<ObjectiveListProps> = ({ objectives }) => {
     <ul className="flex flex-col gap-2.5" aria-label="Danh sách mục tiêu bài học">
       {objectives.map((obj, index) => (
         <li key={index} className="flex items-start gap-3 text-sm leading-relaxed text-[var(--text-main)]">
-          <span className="text-indigo-600 dark:text-cyan-400 font-bold shrink-0 mt-0.5" aria-hidden="true">✓</span>
+          <CheckCircle2 size={16} className="text-indigo-600 dark:text-cyan-400 shrink-0 mt-0.5" aria-hidden="true" />
           <span>{obj}</span>
         </li>
       ))}

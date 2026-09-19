@@ -118,8 +118,10 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
           break;
         }
 
-        const actualOutput = run.stdout.trim();
-        const expectedOutput = tc.expectedOutput.trim();
+        // Normalize CRLF -> LF before comparing: on Windows, Python's stdout uses \r\n
+        // per line, which would otherwise fail multi-line test cases authored with \n.
+        const actualOutput = run.stdout.replace(/\r\n/g, '\n').trim();
+        const expectedOutput = tc.expectedOutput.replace(/\r\n/g, '\n').trim();
         const passed = !run.timedOut && run.exitCode === 0 && actualOutput === expectedOutput;
 
         if (run.peakMemoryMb !== undefined) {

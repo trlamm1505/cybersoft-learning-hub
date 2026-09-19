@@ -32,6 +32,14 @@ export class ExerciseController {
   }
 
   /**
+   * POST /api/exercises/check-syntax — standalone syntax check (CE), no exercise/DB lookup needed.
+   */
+  @Post('check-syntax')
+  async checkSyntax(@Body() dto: RunCodeDto) {
+    return this.exerciseService.checkSyntax(dto.code);
+  }
+
+  /**
    * POST /api/exercises/:slug/submit
    */
   @Post(':slug/submit')

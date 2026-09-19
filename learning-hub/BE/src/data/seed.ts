@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import * as bcrypt from 'bcrypt';
 import { INITIAL_USERS, INITIAL_COURSES } from './initial-data';
+import { getInitialContests } from './initial-contests';
 
 dotenv.config();
 
@@ -97,6 +98,33 @@ const scoreSchema = new mongoose.Schema({
   lastGradedAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
+const contestSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  slug: { type: String, required: true, unique: true },
+  description: String,
+  startTime: { type: Date, required: true },
+  endTime: { type: Date, required: true },
+  durationMinutes: { type: Number, default: 90 },
+  problems: [
+    {
+      title: String,
+      slug: String,
+      type: { type: String, enum: ['coding', 'quiz'], default: 'coding' },
+      points: Number,
+      order: Number,
+    },
+  ],
+  registrations: [
+    {
+      studentId: String,
+      studentName: String,
+      registeredAt: Date,
+    },
+  ],
+  status: { type: String, enum: ['draft', 'published'], default: 'published' },
+  authorId: { type: String, default: 'teacher-1' },
+}, { timestamps: true });
+
 async function seed() {
   console.log('🌱 Connecting to MongoDB:', MONGO_URI);
 
@@ -112,8 +140,9 @@ async function seed() {
     const Attempt = mongoose.model('Attempt', attemptSchema);
     const Submission = mongoose.model('Submission', submissionSchema);
     const Score = mongoose.model('Score', scoreSchema);
+    const Contest = mongoose.model('Contest', contestSchema);
 
-    // 1. Clean existing 8 collections
+    // 1. Clean existing collections
     await User.deleteMany({});
     await Course.deleteMany({});
     await Lesson.deleteMany({});
@@ -122,7 +151,13 @@ async function seed() {
     await Attempt.deleteMany({});
     await Submission.deleteMany({});
     await Score.deleteMany({});
-    console.log('🧹 Cleaned all 8 MongoDB collections');
+    await Contest.deleteMany({});
+    console.log('🧹 Cleaned MongoDB collections including Contests');
+
+    // Seed Contests
+    const sampleContests = getInitialContests();
+    await Contest.insertMany(sampleContests);
+    console.log(`✅ Seeded ${sampleContests.length} Contests into MongoDB`);
 
     // 2. Create Users
     const userMap = new Map<string, mongoose.Types.ObjectId>();

@@ -3,14 +3,18 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { MOCK_LESSONS } from './data/mockLessons';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { ResponsiveGuideModal } from './components/ResponsiveGuideModal';
 import { CourseCatalogPage } from './pages/CourseCatalogPage';
 import { LessonDetailPage } from './pages/LessonDetailPage';
 import { QuizTakingPage } from './pages/QuizTakingPage';
 import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
+import { BlockPuzzlePage } from './pages/BlockPuzzlePage';
 import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
+import { ContestListPage } from './pages/ContestListPage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 import type { Lesson } from './types/course';
 import type { LessonAuthoring } from './types/authoring';
+import type { AuthUser, AuthResponse } from './types/auth';
 import { authoringApi } from './axios/authoringApi';
 import './styles/main.css';
 
@@ -58,11 +62,18 @@ export function App() {
     const saved = localStorage.getItem('app_is_light_theme');
     return saved !== null ? JSON.parse(saved) : true;
   });
-  const [userRole, setUserRole] = useState<'student' | 'teacher'>(() => {
-    const savedRole = localStorage.getItem('app_user_role');
-    return savedRole === 'teacher' ? 'teacher' : 'student';
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
+    const saved = localStorage.getItem('app_auth_user');
+    if (!saved) return null;
+    try {
+      return JSON.parse(saved) as AuthUser;
+    } catch {
+      return null;
+    }
   });
-  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
+  // Role hiện được suy ra từ tài khoản đã đăng nhập; mặc định 'student' khi chưa đăng nhập
+  // (giữ trải nghiệm xem trước hiện có cho khách chưa có tài khoản).
+  const userRole: 'student' | 'teacher' = authUser?.role === 'TEACHER' ? 'teacher' : 'student';
 
   // Fetch teacher lessons from BE on load
   const fetchTeacherLessons = useCallback(async () => {
@@ -88,16 +99,21 @@ export function App() {
     fetchTeacherLessons();
   }, [fetchTeacherLessons]);
 
-  // Combine Mock lessons with Teacher created lessons
-  const convertedTeacherLessons = teacherLessons.map(mapAuthoringToCourseLesson);
+  // Filter published lessons for student views (Draft lessons are hidden from users)
+  const publishedTeacherLessons = teacherLessons.filter(
+    (l) => l.status === 'published' || l.status === undefined
+  );
+
+  // Combine Mock lessons with Published Teacher created lessons
+  const convertedTeacherLessons = publishedTeacherLessons.map(mapAuthoringToCourseLesson);
   
   // Catalog lessons for Homepage (only core course curriculum, excluding standalone coding & quiz exercises)
   const catalogLessons: Lesson[] = [
     ...MOCK_LESSONS,
     ...convertedTeacherLessons.filter(
       (_, idx) => {
-        const orig = teacherLessons[idx];
-        return orig && orig.type !== 'coding' && orig.type !== 'quiz';
+        const orig = publishedTeacherLessons[idx];
+        return orig && orig.type !== 'coding' && orig.type !== 'quiz' && orig.type !== 'block';
       }
     ),
   ];
@@ -114,11 +130,6 @@ export function App() {
     }
   }, [isLightTheme]);
 
-  // Sync user role preference
-  useEffect(() => {
-    localStorage.setItem('app_user_role', userRole);
-  }, [userRole]);
-
   // Save selected lesson ID to localStorage
   useEffect(() => {
     if (selectedLessonId) {
@@ -134,8 +145,28 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleToggleRole = () => {
-    setUserRole((prev) => (prev === 'student' ? 'teacher' : 'student'));
+  const handleAuthSuccess = (auth: AuthResponse) => {
+    localStorage.setItem('token', auth.accessToken);
+    localStorage.setItem('app_auth_user', JSON.stringify(auth.user));
+    setAuthUser(auth.user);
+  };
+
+  const handleLogout = () => {
+    // Dọn sạch toàn bộ dữ liệu phòng thi/kỳ thi gắn với đúng tài khoản vừa đăng xuất
+    // (namespace theo authUser.id) — tránh session/kết quả cũ còn sờ sờ khi tài khoản
+    // khác đăng nhập lại trên cùng máy.
+    if (authUser?.id) {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes(authUser.id)) keysToRemove.push(key);
+      }
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+    }
+    localStorage.removeItem('token');
+    localStorage.removeItem('app_auth_user');
+    setAuthUser(null);
+    navigate('/catalog');
   };
 
   const handleLessonSaved = (savedLesson: LessonAuthoring) => {
@@ -163,15 +194,15 @@ export function App() {
       <Header
         isLightTheme={isLightTheme}
         onToggleTheme={() => setIsLightTheme(!isLightTheme)}
-        onOpenGuide={() => setIsGuideOpen(true)}
         userRole={userRole}
-        onToggleRole={handleToggleRole}
+        authUser={authUser}
+        onLogout={handleLogout}
       />
 
       {/* Main Routes Container */}
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
         <Routes>
-          <Route path="/" element={<Navigate to="/catalog" replace />} />
+          <Route path="/" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
           <Route
             path="/catalog"
             element={
@@ -184,65 +215,87 @@ export function App() {
           <Route
             path="/detail"
             element={
-              <LessonDetailPage
-                currentLesson={currentLesson}
-                allLessons={allLessons}
-                onSelectLesson={(id) => {
-                  setSelectedLessonId(id);
-                  navigate(`/detail/${id}`);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onBackToCatalog={() => {
-                  navigate('/catalog');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
+              authUser ? (
+                <LessonDetailPage
+                  currentLesson={currentLesson}
+                  allLessons={allLessons}
+                  onSelectLesson={(id) => {
+                    setSelectedLessonId(id);
+                    navigate(`/detail/${id}`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onBackToCatalog={() => {
+                    navigate('/catalog');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
           <Route
             path="/detail/:lessonId"
             element={
-              <LessonDetailPage
-                currentLesson={currentLesson}
-                allLessons={allLessons}
-                onSelectLesson={(id) => {
-                  setSelectedLessonId(id);
-                  navigate(`/detail/${id}`);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onBackToCatalog={() => {
-                  navigate('/catalog');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
+              authUser ? (
+                <LessonDetailPage
+                  currentLesson={currentLesson}
+                  allLessons={allLessons}
+                  onSelectLesson={(id) => {
+                    setSelectedLessonId(id);
+                    navigate(`/detail/${id}`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onBackToCatalog={() => {
+                    navigate('/catalog');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
           <Route
             path="/quiz"
-            element={<QuizTakingPage teacherLessons={teacherLessons} />}
+            element={
+              authUser ? (
+                <QuizTakingPage teacherLessons={publishedTeacherLessons} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
           />
-          <Route path="/playground" element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={teacherLessons} />} />
+          <Route
+            path="/playground"
+            element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} authUser={authUser} />}
+          />
+          <Route
+            path="/block-puzzle"
+            element={<BlockPuzzlePage teacherLessons={publishedTeacherLessons} />}
+          />
+          <Route path="/contests" element={<ContestListPage authUser={authUser} />} />
+          <Route path="/login" element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />
+          <Route path="/register" element={<RegisterPage onAuthSuccess={handleAuthSuccess} />} />
           <Route
             path="/authoring"
             element={
-              <TeacherAuthoringPage
-                onLessonSaved={handleLessonSaved}
-                onLessonDeleted={handleLessonDeleted}
-              />
+              authUser?.role === 'TEACHER' ? (
+                <TeacherAuthoringPage
+                  onLessonSaved={handleLessonSaved}
+                  onLessonDeleted={handleLessonDeleted}
+                />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
             }
           />
-          <Route path="*" element={<Navigate to="/catalog" replace />} />
+          <Route path="*" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
         </Routes>
       </div>
 
       {/* Footer */}
       <Footer />
-
-      {/* Responsive Screenshot Guide Modal */}
-      <ResponsiveGuideModal
-        isOpen={isGuideOpen}
-        onClose={() => setIsGuideOpen(false)}
-      />
     </div>
   );
 }

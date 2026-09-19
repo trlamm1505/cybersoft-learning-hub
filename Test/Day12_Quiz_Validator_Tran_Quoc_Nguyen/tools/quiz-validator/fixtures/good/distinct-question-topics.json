@@ -1,0 +1,56 @@
+[
+  {
+    "content": "Thẻ HTML5 nào dùng để bọc thanh điều hướng chính của trang web?",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Phương án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Phương án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Phương án sai 2",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  },
+  {
+    "content": "Trong Python, từ khóa nào dùng để định nghĩa một hàm?",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Phương án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Phương án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Phương án sai 2",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

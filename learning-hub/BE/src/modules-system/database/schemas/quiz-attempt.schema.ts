@@ -31,6 +31,11 @@ export class QuizAttempt {
   @Prop({ type: Types.ObjectId, ref: 'Test', required: true })
   testId: Types.ObjectId;
 
+  // Distinguishes concurrent quiz topics sharing the same testId (e.g. "Fullstack Web" vs
+  // "Python") so an in-progress attempt for one topic is never reused for another.
+  @Prop({ type: String })
+  category?: string;
+
   @Prop({ type: String, required: true })
   seed: string; // Seed string/number used for deterministic shuffle of questions & options
 

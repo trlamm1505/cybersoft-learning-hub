@@ -1,0 +1,13 @@
+problem,suite,mutantId,type,description,expected,sampleResult,hiddenResult,hiddenPassed,failedHiddenTests,status,killedBy,judgeStatus,expectedMatch,gapHint,humanVerification
+sap-xep-tang-dan,hardened,SRT-01,Wrong condition,Sắp xếp giảm dần (`reverse=True`),KILLED,FAIL,FAIL,2/8,#02 #03 #05 #06 #07 #08,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-02,Missing logic,"Bỏ lệnh sắp xếp, in nguyên danh sách",KILLED,FAIL,FAIL,3/8,#02 #03 #05 #07 #08,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-03,Duplicate handling error,Dùng `sorted(set(nums))` - làm mất phần tử trùng,KILLED,PASS,FAIL,4/8,#02 #03 #04 #08,KILLED,HIDDEN,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-04,Off-by-one,Bỏ mất phần tử cuối khi in (`nums[:-1]`),KILLED,FAIL,FAIL,0/8,#01 #02 #03 #04 #05 #06 #07 #08,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-05,Wrong comparison,Sắp theo thứ tự chuỗi (`key=str`) thay vì theo giá trị số,KILLED,FAIL,FAIL,6/8,#06 #08,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-06,Wrong comparison,Sắp theo giá trị tuyệt đối (`key=abs`),KILLED,FAIL,FAIL,5/8,#02 #06 #07,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-07,Hard-code sample,"Chỉ in đúng kết quả cho 2 sample (n=5 và n=3), còn lại in nguyên input",KILLED,PASS,FAIL,2/8,#02 #03 #05 #06 #07 #08,KILLED,HIDDEN,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-08,Wrong output format,Nối bằng dấu phẩy thay vì dấu cách,KILLED,FAIL,FAIL,1/8,#02 #03 #04 #05 #06 #07 #08,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-09,Wrong output format,Mỗi số một dòng (`sep='\n'`),KILLED,FAIL,FAIL,1/8,#02 #03 #04 #05 #06 #07 #08,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-10,Slow algorithm,Bubble sort O(n^2) thay vì sort() O(n log n),TIMEOUT,PASS,FAIL,7/8,#08,KILLED,TIMEOUT,TLE,yes,,
+sap-xep-tang-dan,hardened,SRT-11,Off-by-one,Chỉ sắp xếp nửa đầu của danh sách,KILLED,FAIL,FAIL,3/8,#02 #03 #05 #07 #08,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,hardened,SRT-12,Wrong output format,Thừa khoảng trắng và dòng trống Ở CUỐI output,EQUIVALENT,PASS,PASS,8/8,,EQUIVALENT,,AC,yes,,

@@ -7,6 +7,7 @@ import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { ImportLessonDto } from './dto/import-lesson.dto';
 import { INITIAL_EXERCISES } from '../../data/initial-exercises';
 import { INITIAL_HINTS } from '../../data/initial-hints';
+import { INITIAL_BLOCK_LESSONS } from '../../data/initial-block-lessons';
 
 @Injectable()
 export class AuthoringService implements OnModuleInit {
@@ -138,6 +139,18 @@ export class AuthoringService implements OnModuleInit {
           );
         }
       }
+
+      // 3. Seed Block Puzzle lessons (Ngày 13 — computational thinking cho lớp 3-5)
+      for (const b of INITIAL_BLOCK_LESSONS) {
+        const existing = await this.lessonModel.findOne({ slug: b.slug }).exec();
+        if (!existing) {
+          await this.lessonModel.create({
+            ...b,
+            type: 'block',
+            status: 'published',
+          } as any);
+        }
+      }
     } catch (e) {
       console.error('Error seeding system lessons into Mongo:', e);
     }
@@ -185,6 +198,18 @@ export class AuthoringService implements OnModuleInit {
           'Không thể xuất bản bài học trắc nghiệm: Mỗi câu hỏi phải chứa ít nhất 1 đáp án đúng.',
         );
       }
+    } else if (type === 'block') {
+      const puzzle = lessonData.blockPuzzle;
+      if (!puzzle || !puzzle.availableBlocks || puzzle.availableBlocks.length === 0) {
+        throw new BadRequestException(
+          'Không thể xuất bản bài học Block Puzzle: Cần cấu hình blockPuzzle với ít nhất 1 khối lệnh (availableBlocks).',
+        );
+      }
+      if (!puzzle.goalPosition) {
+        throw new BadRequestException(
+          'Không thể xuất bản bài học Block Puzzle: Cần khai báo vị trí đích (goalPosition).',
+        );
+      }
     }
   }
 
@@ -192,23 +217,33 @@ export class AuthoringService implements OnModuleInit {
    * Helper to sanitize payload strictly according to lesson type (coding vs quiz)
    */
   private sanitizePayloadByType(data: any): any {
-    const isQuiz = data.type === 'quiz';
-    if (isQuiz) {
+    if (data.type === 'quiz') {
       return {
         ...data,
         content: '',
         starterCode: '',
         solutionCode: '',
         testCases: [],
+        blockPuzzle: undefined,
         hints: { hint1: '', hint2: '', hint3: '' },
       };
-    } else {
+    }
+    if (data.type === 'block') {
       return {
         ...data,
-        type: 'coding',
+        content: '',
+        starterCode: '',
+        solutionCode: '',
+        testCases: [],
         quizQuestions: [],
       };
     }
+    return {
+      ...data,
+      type: 'coding',
+      quizQuestions: [],
+      blockPuzzle: undefined,
+    };
   }
 
   async createLesson(dto: CreateLessonDto): Promise<LessonDocument> {
@@ -256,8 +291,9 @@ export class AuthoringService implements OnModuleInit {
     return updated;
   }
 
-  async findAll(): Promise<LessonDocument[]> {
-    return this.lessonModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(forStudent?: boolean): Promise<LessonDocument[]> {
+    const filter: any = forStudent ? { status: { $ne: 'draft' } } : {};
+    return this.lessonModel.find(filter).sort({ createdAt: -1 }).exec();
   }
 
   async findOne(id: string): Promise<LessonDocument> {
@@ -274,6 +310,7 @@ export class AuthoringService implements OnModuleInit {
 
     const isCoding = lessonObj.type === 'coding';
     const isQuiz = lessonObj.type === 'quiz';
+    const isBlock = lessonObj.type === 'block';
 
     const lessonData: any = {
       title: lessonObj.title,
@@ -296,6 +333,11 @@ export class AuthoringService implements OnModuleInit {
       }
     } else if (isQuiz) {
       lessonData.quizQuestions = lessonObj.quizQuestions || [];
+    } else if (isBlock) {
+      lessonData.blockPuzzle = lessonObj.blockPuzzle || null;
+      if (lessonObj.hints) {
+        lessonData.hints = lessonObj.hints;
+      }
     }
 
     return {

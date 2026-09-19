@@ -15,8 +15,8 @@ export const quizApi = {
    * 1. Start Attempt (Khởi tạo bài thi trắc nghiệm)
    * POST /api/quiz/start
    */
-  startQuiz: async (userId: string, testId: string): Promise<QuizStartResponse> => {
-    return await axiosClient.post('/quiz/start', { userId, testId });
+  startQuiz: async (userId: string, testId: string, category?: string): Promise<QuizStartResponse> => {
+    return await axiosClient.post('/quiz/start', { userId, testId, category });
   },
 
   /**

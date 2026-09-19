@@ -1,0 +1,36 @@
+[
+  {
+    "content": "Phương thức mảng nào trong JavaScript ES6 tạo ra một mảng mới bằng cách lọc các phần tử thỏa mãn điều kiện kiểm tra?",
+    "category": "JavaScript",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Array.prototype.map()",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Array.prototype.filter()",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "Array.prototype.reduce()",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "Array.prototype.find()",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "`filter()` duyệt qua mảng và trả về một mảng mới chứa các phần tử mà callback trả về giá trị `true`.",
+    "tags": [
+      "JavaScript",
+      "ES6",
+      "Array Methods"
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "content": "Câu hỏi mẫu hợp lệ dùng để kiểm tra rule.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "aria-expanded",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "aria-hidden",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "aria-controls",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

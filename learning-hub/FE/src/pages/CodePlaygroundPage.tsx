@@ -1,4 +1,18 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Code2,
+  ArrowLeft,
+  Lock,
+  Unlock,
+  CheckCircle2,
+  Lightbulb,
+  BookOpen,
+  Baby,
+  Gamepad2,
+  Rocket,
+  Loader2,
+} from 'lucide-react';
 import { CodeEditor } from '../components/CodeEditor';
 import { OutputPanel } from '../components/OutputPanel';
 import { TestResultsPanel } from '../components/TestResultsPanel';
@@ -6,14 +20,20 @@ import { HintPanel } from '../components/HintPanel';
 import exerciseApi from '../axios/exerciseApi';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
 import type { LessonAuthoring } from '../types/authoring';
+import type { AuthUser } from '../types/auth';
 import { TERMINAL_SUBMISSION_STATUSES } from '../types/exercise';
 
 const POLL_INTERVAL_MS = 700;
 const POLL_TIMEOUT_MS = 15000;
 
+// Bài duy nhất khách vãng lai (chưa đăng nhập) được làm thử thật — 9 bài còn lại yêu cầu
+// đăng nhập khi bấm chọn, dù danh sách vẫn hiển thị đầy đủ 10 bài để xem trước.
+const FREE_GUEST_EXERCISE_SLUG = 'tinh-tong-hai-so-nguyen';
+
 interface CodePlaygroundPageProps {
   isDark?: boolean;
   teacherLessons?: LessonAuthoring[];
+  authUser?: AuthUser | null;
 }
 
 const DIFFICULTY_BADGE: Record<string, string> = {
@@ -22,7 +42,8 @@ const DIFFICULTY_BADGE: Record<string, string> = {
   HARD: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
 };
 
-export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, teacherLessons = [] }) => {
+export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, teacherLessons = [], authUser }) => {
+  const navigate = useNavigate();
   const [exercises, setExercises] = useState<ExerciseListItem[]>([]);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [exercise, setExercise] = useState<ExerciseDetail | null>(null);
@@ -39,8 +60,47 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
   const [loadError, setLoadError] = useState<string | null>(null);
   const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit' | 'hint'>('run');
 
-  // Teacher coding lessons
-  const teacherCodingLessons = teacherLessons.filter((l) => l.type === 'coding');
+  // Grade/topic filters — narrow the exercise dropdown by class level and by
+  // game/topic pack within that level, instead of one flat list mixing everything.
+  const UNGRADED = '__ungraded__';
+  const [selectedGradeBand, setSelectedGradeBand] = useState<string | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<string>('all');
+
+  // Navigation: Code Playground opens on a grade-picker screen, then a card grid of
+  // exercises for that grade/topic, and only opens the code editor once a specific
+  // exercise card is clicked — instead of dropping straight into an editor.
+  const [view, setView] = useState<'grade' | 'exercises' | 'editor'>('grade');
+
+  // Sequential unlock within a topic: exercise N+1 only opens once exercise N has
+  // been solved correctly (AC), same rule and localStorage-based persistence as the
+  // Block Puzzle track (Day 13) — no server-side account tracking yet.
+  const COMPLETED_EXERCISES_KEY = 'app_code_playground_completed';
+  const [completedSlugs, setCompletedSlugs] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem(COMPLETED_EXERCISES_KEY);
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const markCompleted = (slug: string) => {
+    setCompletedSlugs((prev) => {
+      if (prev.has(slug)) return prev;
+      const next = new Set(prev).add(slug);
+      try {
+        localStorage.setItem(COMPLETED_EXERCISES_KEY, JSON.stringify(Array.from(next)));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  };
+
+  // Teacher coding lessons (Only Published)
+  const teacherCodingLessons = teacherLessons.filter(
+    (l) => (l.status === 'published' || !l.status) && l.type === 'coding',
+  );
 
   const teacherCodingItems: ExerciseListItem[] = teacherCodingLessons.map((l, index) => ({
     _id: l._id || `teacher-ex-${index}`,
@@ -54,20 +114,88 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     timeLimitMs: 2000,
   }));
 
-  // Deduplicate exercises by slug so each exercise appears only ONCE in clean format
+  // Deduplicate exercises by slug so each exercise appears only ONCE in clean format.
+  // Combine both sources (system Exercise API + Teacher Authoring lessons) instead of
+  // letting one fully replace the other — otherwise any teacher-created coding lesson
+  // would hide the entire system exercise catalog from the dropdown.
   const combinedExercises = useMemo(() => {
-    if (teacherCodingItems.length > 0) {
-      return teacherCodingItems;
-    }
-
     const map = new Map<string, ExerciseListItem>();
     exercises.forEach((ex) => {
       const cleanedTitle = ex.title.replace(/^[🧑‍💻📝👨‍🏫\s]+/, '').trim();
       map.set(ex.slug, { ...ex, title: cleanedTitle });
     });
+    teacherCodingItems.forEach((ex) => {
+      map.set(ex.slug, ex);
+    });
 
     return Array.from(map.values());
   }, [exercises, teacherCodingItems]);
+
+  // Grade bands actually present in the catalog, in a fixed pedagogical order
+  // (ungraded/legacy first, then 3-5 -> 6-9 -> 9-12), not alphabetical.
+  const GRADE_BAND_ORDER = [UNGRADED, '3-5', '6-9', '9-12'];
+  const GRADE_BAND_LABEL: Record<string, string> = {
+    [UNGRADED]: 'Bài cũ (chưa phân lớp)',
+    '3-5': 'Lớp 3-5',
+    '6-9': 'Lớp 6-9',
+    '9-12': 'Lớp 9-12',
+  };
+  // Icon + accent gradient per grade band — younger bands get warmer, more playful
+  // color to match the age group; older bands read calmer/more "serious tool".
+  const GRADE_BAND_ICON: Record<string, typeof BookOpen> = {
+    [UNGRADED]: BookOpen,
+    '3-5': Baby,
+    '6-9': Gamepad2,
+    '9-12': Rocket,
+  };
+  const GRADE_BAND_GRADIENT: Record<string, string> = {
+    [UNGRADED]: 'from-slate-500 to-slate-600',
+    '3-5': 'from-orange-400 to-pink-500',
+    '6-9': 'from-indigo-600 to-cyan-500',
+    '9-12': 'from-slate-700 to-slate-900',
+  };
+  const availableGradeBands = useMemo(() => {
+    const present = new Set(combinedExercises.map((ex) => ex.gradeBand || UNGRADED));
+    return GRADE_BAND_ORDER.filter((band) => present.has(band));
+  }, [combinedExercises]);
+
+  // Topics (game/chủ đề packs) available within the selected grade band.
+  const availableTopics = useMemo(() => {
+    if (selectedGradeBand === null) return [];
+    const inBand = combinedExercises.filter((ex) => (ex.gradeBand || UNGRADED) === selectedGradeBand);
+    const topics = new Set(inBand.map((ex) => ex.topic).filter((t): t is string => Boolean(t)));
+    return Array.from(topics).sort();
+  }, [combinedExercises, selectedGradeBand]);
+
+  const filteredExercises = useMemo(() => {
+    if (selectedGradeBand === null) return [];
+    let list = combinedExercises.filter((ex) => (ex.gradeBand || UNGRADED) === selectedGradeBand);
+    if (selectedTopic !== 'all') {
+      list = list.filter((ex) => ex.topic === selectedTopic);
+    }
+    return list.sort((a, b) => (a.orderInTopic ?? 0) - (b.orderInTopic ?? 0));
+  }, [combinedExercises, selectedGradeBand, selectedTopic]);
+
+  // Sequential unlock only applies when the visible list is a single, specific
+  // topic's progression — either because the person picked one topic explicitly,
+  // or because the grade band only has one topic to begin with (no topic picker
+  // shown, but the list is still exactly that one progression). Mixing several
+  // topics together, or a grade band with none at all, would make "position in
+  // the list" meaningless as a lock gate.
+  const isSequentialUnlockActive =
+    selectedGradeBand !== null && (selectedTopic !== 'all' || availableTopics.length === 1);
+  const isExerciseUnlocked = (idx: number) => {
+    if (!isSequentialUnlockActive) return true;
+    if (idx === 0) return true;
+    const prevExercise = filteredExercises[idx - 1];
+    return !!prevExercise && completedSlugs.has(prevExercise.slug);
+  };
+
+  // Reset the topic filter whenever the grade band changes — a topic picked
+  // under one grade band has no meaning under another.
+  useEffect(() => {
+    setSelectedTopic('all');
+  }, [selectedGradeBand]);
 
   const activeTeacherLesson = teacherCodingLessons.find((l) => l.slug === selectedSlug || l._id === selectedSlug);
 
@@ -78,20 +206,25 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     }
   };
 
+  // Clicking an exercise card is the only way into the editor screen.
+  const openExercise = (slug: string) => {
+    if (!authUser && slug !== FREE_GUEST_EXERCISE_SLUG) {
+      navigate('/login');
+      return;
+    }
+    setSelectedSlug(slug);
+    setView('editor');
+  };
+
   useEffect(() => {
+    // Just load the catalog for the grade/exercise picker screens — no auto-selecting
+    // a slug or jumping into the editor. The editor only opens once the person clicks
+    // a specific exercise card.
     exerciseApi
       .listExercises()
-      .then((list) => {
-        setExercises(list);
-        if (list.length > 0 && !selectedSlug) {
-          setSelectedSlug(list[0].slug);
-        }
-      })
+      .then((list) => setExercises(list))
       .catch(() => {
         setLoadError('Không thể kết nối Backend exercise API, đang hiển thị bài tập của Giảng viên.');
-        if (teacherCodingItems.length > 0 && !selectedSlug) {
-          setSelectedSlug(teacherCodingItems[0].slug);
-        }
       });
   }, []);
 
@@ -143,10 +276,26 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
 
   const handleRun = async () => {
     if (!selectedSlug) return;
+    if (!authUser && selectedSlug !== FREE_GUEST_EXERCISE_SLUG) {
+      navigate('/login');
+      return;
+    }
     setIsRunning(true);
     setActiveResultTab('run');
     try {
       const result = await exerciseApi.runCode(selectedSlug, code, stdin);
+
+      // If STDIN matches a known sample test case's input, show a real pass/fail
+      // hint here too — instead of only "ran without error" (Run has no grading
+      // authority of its own; Submit remains the source of truth).
+      const matchingTestCase = exercise?.testCases.find((tc) => !tc.isHidden && (tc.input ?? '') === stdin);
+      if (matchingTestCase?.expectedOutput !== undefined) {
+        const actualOutput = (result.stdout ?? '').trim();
+        const expectedOutput = matchingTestCase.expectedOutput.trim();
+        const passed = !result.timedOut && result.exitCode === 0 && actualOutput === expectedOutput;
+        result.matchedTestCase = { expectedOutput: matchingTestCase.expectedOutput, passed };
+      }
+
       setRunResult(result);
     } catch {
       setRunResult({
@@ -164,33 +313,106 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
 
   const handleSubmit = async () => {
     if (!selectedSlug) return;
+    if (!authUser && selectedSlug !== FREE_GUEST_EXERCISE_SLUG) {
+      navigate('/login');
+      return;
+    }
     stopPolling();
     setIsSubmitting(true);
     setActiveResultTab('submit');
 
-    // Handle Teacher Created Exercise Simulation if Judge server is offline
+    // Teacher Authoring lessons have no matching row in the backend Exercise
+    // collection, so the queued judge pipeline (/exercises/:slug/submit) can't
+    // resolve them. Grade for real here instead: actually run the student's code
+    // against each test case via the sandboxed /run endpoint and compare output.
     if (activeTeacherLesson) {
-      setTimeout(() => {
-        const simulatedResult: SubmitCodeResponse = {
+      try {
+        const testCases = activeTeacherLesson.testCases;
+
+        const syntaxCheck = await exerciseApi.checkSyntax(code);
+        if (!syntaxCheck.ok) {
+          setSubmission({
+            _id: `sub-${Date.now()}`,
+            exerciseId: activeTeacherLesson._id || activeTeacherLesson.slug,
+            code,
+            status: 'CE',
+            passedCount: 0,
+            totalCount: testCases.length,
+            results: [],
+            errorMessage: syntaxCheck.errorMessage,
+          });
+          return;
+        }
+
+        // Mirrors judge-queue.service.ts's gradeOne(): status is overwritten by whichever
+        // test case failed LAST in test-case order (not a fixed severity ranking), so a
+        // teacher-authored lesson reports the same AC/WA/RE/TLE granularity system
+        // exercises get, instead of a flat AC/WA.
+        const outcomes = await Promise.all(
+          testCases.map(async (tc, idx) => {
+            try {
+              const run = await exerciseApi.runCode(selectedSlug, code, tc.input ?? '');
+              const actualOutput = (run.stdout ?? '').trim();
+              const expectedOutput = (tc.expectedOutput ?? '').trim();
+              const passed = !run.timedOut && run.exitCode === 0 && actualOutput === expectedOutput;
+
+              let failureKind: 'TLE' | 'RE' | 'WA' | null = null;
+              if (!passed) {
+                failureKind = run.timedOut ? 'TLE' : run.exitCode !== 0 ? 'RE' : 'WA';
+              }
+
+              return {
+                failureKind,
+                result: {
+                  index: idx,
+                  passed,
+                  isHidden: tc.isHidden ?? false,
+                  input: tc.input,
+                  expectedOutput: tc.expectedOutput,
+                  actualOutput,
+                  stderr: run.stderr || undefined,
+                  executionTimeMs: run.executionTimeMs ?? 0,
+                },
+              };
+            } catch {
+              return {
+                failureKind: 'RE' as const,
+                result: {
+                  index: idx,
+                  passed: false,
+                  isHidden: tc.isHidden ?? false,
+                  input: tc.input,
+                  expectedOutput: tc.expectedOutput,
+                  actualOutput: 'Không thể kết nối tới máy chủ chạy code.',
+                  executionTimeMs: 0,
+                },
+              };
+            }
+          }),
+        );
+
+        const results = outcomes.map((o) => o.result);
+        const passedCount = results.filter((r) => r.passed).length;
+
+        let status: SubmitCodeResponse['status'] = 'AC';
+        for (const o of outcomes) {
+          if (o.failureKind) status = o.failureKind;
+        }
+
+        const realResult: SubmitCodeResponse = {
           _id: `sub-${Date.now()}`,
           exerciseId: activeTeacherLesson._id || activeTeacherLesson.slug,
           code,
-          status: 'AC',
-          passedCount: activeTeacherLesson.testCases.length,
-          totalCount: activeTeacherLesson.testCases.length,
-          results: activeTeacherLesson.testCases.map((tc, idx) => ({
-            index: idx + 1,
-            passed: true,
-            isHidden: tc.isHidden ?? false,
-            input: tc.input,
-            expectedOutput: tc.expectedOutput,
-            actualOutput: tc.expectedOutput,
-            executionTimeMs: 15,
-          })),
+          status,
+          passedCount,
+          totalCount: testCases.length,
+          results,
         };
-        setSubmission(simulatedResult);
+        setSubmission(realResult);
+        if (status === 'AC') markCompleted(activeTeacherLesson.slug);
+      } finally {
         setIsSubmitting(false);
-      }, 800);
+      }
       return;
     }
 
@@ -213,6 +435,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
           if (TERMINAL_SUBMISSION_STATUSES.includes(pollRes.status)) {
             stopPolling();
             setIsSubmitting(false);
+            if (pollRes.status === 'AC') markCompleted(selectedSlug);
           }
         } catch {
           stopPolling();
@@ -225,33 +448,165 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     }
   };
 
-  return (
-    <div className="flex flex-col gap-4">
-      {/* Top Bar: Selector & Meta */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-xl shadow-md">
-            🧑‍💻
+  // ============ Screen 1: pick a grade band ============
+  if (view === 'grade') {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md">
+            <Code2 size={20} strokeWidth={2.25} />
           </div>
           <div>
             <h1 className="text-lg font-black text-[var(--text-main)] tracking-tight">Code Playground</h1>
-            <p className="text-xs text-[var(--text-muted)]">Viết code Python, chạy thử và chấm điểm tự động.</p>
+            <p className="text-xs text-[var(--text-muted)]">Chọn khối lớp để bắt đầu.</p>
           </div>
         </div>
 
-        {/* Exercise Selector */}
-        <div className="w-full sm:w-auto">
-          <select
-            value={selectedSlug ?? ''}
-            onChange={(e) => setSelectedSlug(e.target.value)}
-            className="w-full sm:w-72 px-3.5 py-2 text-xs font-bold rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500 shadow-xs cursor-pointer"
-          >
-            {combinedExercises.map((item) => (
-              <option key={item.slug} value={item.slug}>
-                {item.title} ({item.difficulty})
-              </option>
-            ))}
-          </select>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {availableGradeBands.map((band) => {
+            const count = combinedExercises.filter((ex) => (ex.gradeBand || UNGRADED) === band).length;
+            const BandIcon = GRADE_BAND_ICON[band] ?? BookOpen;
+            return (
+              <button
+                key={band}
+                onClick={() => {
+                  setSelectedGradeBand(band);
+                  setView('exercises');
+                }}
+                className="p-6 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md transition-all text-left cursor-pointer flex items-center gap-4"
+              >
+                <div
+                  className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${GRADE_BAND_GRADIENT[band] ?? GRADE_BAND_GRADIENT[UNGRADED]} flex items-center justify-center text-white shadow-md shrink-0`}
+                >
+                  <BandIcon size={26} strokeWidth={2} />
+                </div>
+                <div>
+                  <div className="font-extrabold text-base text-[var(--text-main)]">{GRADE_BAND_LABEL[band] ?? band}</div>
+                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{count} bài</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {loadError && (
+          <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300">
+            {loadError}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ============ Screen 2: pick a topic (if more than one), then an exercise card ============
+  if (view === 'exercises') {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setView('grade');
+                setSelectedGradeBand(null);
+              }}
+              aria-label="Quay lại chọn lớp"
+              className="w-9 h-9 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] flex items-center justify-center text-[var(--text-main)] cursor-pointer shrink-0"
+            >
+              <ArrowLeft size={16} strokeWidth={2} />
+            </button>
+            <div>
+              <h1 className="text-base font-extrabold text-[var(--text-main)] tracking-tight">
+                {GRADE_BAND_LABEL[selectedGradeBand ?? ''] ?? ''}
+              </h1>
+              <p className="text-xs text-[var(--text-muted)]">Chọn 1 bài để bắt đầu làm.</p>
+            </div>
+          </div>
+
+          {availableTopics.length > 1 && (
+            <select
+              value={selectedTopic}
+              onChange={(e) => setSelectedTopic(e.target.value)}
+              className="px-3 py-2 text-xs font-bold rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500 shadow-xs cursor-pointer"
+            >
+              <option value="all">Tất cả chủ đề</option>
+              {availableTopics.map((topic) => (
+                <option key={topic} value={topic}>
+                  {topic}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {isSequentialUnlockActive && completedSlugs.size > 0 && (
+          <div className="text-xs font-semibold text-[var(--text-muted)] px-1">
+            Tiến độ: {filteredExercises.filter((e) => completedSlugs.has(e.slug)).length}/{filteredExercises.length} bài đã hoàn thành
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredExercises.map((item, idx) => {
+            const unlocked = isExerciseUnlocked(idx);
+            const completed = completedSlugs.has(item.slug);
+            return (
+              <button
+                key={item.slug}
+                disabled={!unlocked}
+                onClick={() => unlocked && openExercise(item.slug)}
+                className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 ${
+                  unlocked
+                    ? 'border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md cursor-pointer'
+                    : 'border-[var(--border-color)] bg-[var(--bg-card)] opacity-50 cursor-not-allowed'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-[var(--text-muted)]">
+                    #{item.orderInTopic ?? idx + 1}
+                  </span>
+                  {completed ? (
+                    <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                  ) : unlocked ? (
+                    <Unlock size={18} className="text-[var(--text-muted)]" strokeWidth={2} />
+                  ) : (
+                    <Lock size={18} className="text-[var(--text-muted)]" strokeWidth={2} />
+                  )}
+                </div>
+                <div className="font-bold text-sm text-[var(--text-main)] leading-snug">{item.title}</div>
+                <span className={`self-start text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${DIFFICULTY_BADGE[item.difficulty] || ''}`}>
+                  {item.difficulty}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {loadError && (
+          <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300">
+            {loadError}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ============ Screen 3: the actual code editor for the chosen exercise ============
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Top Bar: Back button & Meta */}
+      <div className="flex items-center gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-xs">
+        <button
+          onClick={() => setView('exercises')}
+          aria-label="Quay lại danh sách bài"
+          className="w-9 h-9 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] flex items-center justify-center text-[var(--text-main)] cursor-pointer shrink-0"
+        >
+          <ArrowLeft size={16} strokeWidth={2} />
+        </button>
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shrink-0">
+          <Code2 size={18} strokeWidth={2.25} />
+        </div>
+        <div className="min-w-0">
+          <h1 className="text-lg font-black text-[var(--text-main)] tracking-tight truncate">Code Playground</h1>
+          <p className="text-xs text-[var(--text-muted)]">Viết code Python, chạy thử và chấm điểm tự động.</p>
         </div>
       </div>
 
@@ -278,16 +633,18 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
                 <button
                   onClick={handleRun}
                   disabled={isRunning || isSubmitting}
-                  className="px-4 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  {isRunning ? '⏳ Đang chạy...' : '▶ Run'}
+                  {isRunning ? <Loader2 size={14} className="animate-spin" /> : <Code2 size={14} />}
+                  {isRunning ? 'Đang chạy...' : 'Run'}
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={isRunning || isSubmitting}
-                  className="px-4 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  {isSubmitting ? '⏳ Đang chấm...' : '✓ Submit'}
+                  {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                  {isSubmitting ? 'Đang chấm...' : 'Submit'}
                 </button>
               </div>
             </div>
@@ -340,13 +697,13 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
             </button>
             <button
               onClick={() => setActiveResultTab('hint')}
-              className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeResultTab === 'hint'
                   ? 'bg-amber-600 text-white shadow-xs font-bold'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              💡 Gợi ý (Hint Engine)
+              <Lightbulb size={14} /> Gợi ý
             </button>
           </div>
 
@@ -360,7 +717,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
           {activeResultTab === 'hint' && selectedSlug && (
             <HintPanel
               exerciseSlug={selectedSlug}
-              customHints={activeTeacherLesson?.hints}
+              customHints={activeTeacherLesson?.hints ?? exercise?.hints}
               onApplySolution={(solution) => {
                 setCode(solution);
               }}

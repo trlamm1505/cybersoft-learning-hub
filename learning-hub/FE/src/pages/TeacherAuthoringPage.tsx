@@ -1,6 +1,36 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useFocusTrap } from '../hooks/useFocusTrap';
+import {
+  Search,
+  X,
+  Code2,
+  FileEdit,
+  Grid3x3,
+  List,
+  Pencil,
+  Eye,
+  Trash2,
+  Wrench,
+  Upload,
+  Download,
+  FolderOpen,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Target,
+  Bookmark,
+  Lightbulb,
+  ClipboardList,
+  Plus,
+  Save,
+  Rocket,
+  ClipboardCheck,
+} from 'lucide-react';
 import type { LessonAuthoring, TestCase, QuizQuestion, QuizOption } from '../types/authoring';
 import { authoringApi } from '../axios/authoringApi';
+import { TeacherContestAuthoring } from '../components/TeacherContestAuthoring';
+
 
 const DEFAULT_LESSON: LessonAuthoring = {
   title: 'Bài tập Python: Tính diện tích hình chữ nhật',
@@ -40,6 +70,16 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const previewModalRef = useFocusTrap(isPreviewOpen, () => setIsPreviewOpen(false));
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isLibraryView = searchParams.get('view') === 'library';
+  const isContestsView = searchParams.get('view') === 'contests';
+
+
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [libraryViewMode, setLibraryViewMode] = useState<'grid' | 'list'>('grid');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,13 +90,20 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
 
   const [typeFilter, setTypeFilter] = useState<'all' | 'coding' | 'quiz'>('coding');
 
-  const filteredLessonsBySelectedType = useMemo(() => {
-    if (typeFilter === 'all') return existingLessons;
-    return existingLessons.filter((l) => l.type === typeFilter);
-  }, [existingLessons, typeFilter]);
+  const libraryLessons = useMemo(() => {
+    return existingLessons.filter((l) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch = !q || l.title.toLowerCase().includes(q) || l.slug.toLowerCase().includes(q);
+      const matchesType = typeFilter === 'all' || l.type === typeFilter;
+      const matchesStatus = statusFilter === 'all' || l.status === statusFilter;
+      return matchesSearch && matchesType && matchesStatus;
+    });
+  }, [existingLessons, searchQuery, typeFilter, statusFilter]);
 
   const codingCount = existingLessons.filter((l) => l.type === 'coding').length;
   const quizCount = existingLessons.filter((l) => l.type === 'quiz').length;
+  const publishedCount = existingLessons.filter((l) => l.status === 'published').length;
+  const draftCount = existingLessons.filter((l) => l.status === 'draft').length;
 
   // Fetch list of existing lessons created by teacher
   const loadExistingLessons = useCallback(async () => {
@@ -97,7 +144,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
         : lesson.hints || { hint1: '', hint2: '', hint3: lesson.solutionCode || '' },
       quizQuestions: isQuiz ? lesson.quizQuestions || [] : [],
     });
-    showToast(`✏️ Đã nạp bài ${isQuiz ? 'Trắc nghiệm' : 'Lập trình'} "${lesson.title}" vào Form để chỉnh sửa!`);
+    showToast(`Đã nạp bài ${isQuiz ? 'Trắc nghiệm' : 'Lập trình'} "${lesson.title}" vào Form để chỉnh sửa!`);
   };
 
   // Handle Creating New Blank Lesson
@@ -113,7 +160,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
       quizQuestions: [],
       hints: { hint1: '', hint2: '', hint3: '' },
     });
-    showToast('➕ Đã tạo Form bài tập mới!');
+    showToast('Đã tạo Form bài tập mới!');
   };
 
   // Handle Delete Lesson
@@ -126,15 +173,15 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
       return;
     }
 
-    if (!window.confirm(`⚠️ Bạn có chắc chắn muốn xóa bài học "${targetTitle}"?`)) {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa bài học "${targetTitle}"?`)) {
       return;
     }
 
     try {
       await authoringApi.deleteLesson(targetId);
-      showToast(`🗑️ Đã xóa bài học "${targetTitle}" thành công!`);
+      showToast(`Đã xóa bài học "${targetTitle}" thành công!`);
     } catch {
-      showToast(`🗑️ Đã xóa bài học (Lưu cục bộ)!`);
+      showToast(`Đã xóa bài học (Lưu cục bộ)!`);
     }
 
     setExistingLessons((prev) => prev.filter((l) => l._id !== targetId && l.slug !== targetId));
@@ -287,8 +334,8 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
       if (onLessonSaved) onLessonSaved(result);
       showToast(
         targetStatus === 'published'
-          ? '🎉 Đã xuất bản bài học thành công lên MongoDB!'
-          : '💾 Đã lưu bản nháp bài học thành công!',
+          ? 'Đã xuất bản bài học thành công lên MongoDB!'
+          : 'Đã lưu bản nháp bài học thành công!',
       );
     } catch (err: any) {
       console.warn('API save fallback to local state:', err);
@@ -302,8 +349,8 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
       if (onLessonSaved) onLessonSaved(localResult);
       showToast(
         targetStatus === 'published'
-          ? '🎉 Đã xuất bản bài học (Lưu cục bộ)!'
-          : '💾 Đã lưu bản nháp bài học thành công (Lưu cục bộ)!',
+          ? 'Đã xuất bản bài học (Lưu cục bộ)!'
+          : 'Đã lưu bản nháp bài học thành công (Lưu cục bộ)!',
       );
     } finally {
       setIsSubmitting(false);
@@ -353,7 +400,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    showToast(`📤 Đã xuất file JSON riêng biệt cho bài ${isCoding ? 'Lập trình' : 'Trắc nghiệm'}!`);
+    showToast(`Đã xuất file JSON riêng biệt cho bài ${isCoding ? 'Lập trình' : 'Trắc nghiệm'}!`);
   };
 
   // Import JSON file (Strictly separated per lesson type)
@@ -395,100 +442,466 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
         };
 
         setFormData(cleanData);
-        showToast(`📥 Đã nạp gói dữ liệu JSON bài ${isQuiz ? 'Trắc nghiệm' : 'Lập trình'} riêng biệt!`);
+        showToast(`Đã nạp gói dữ liệu JSON bài ${isQuiz ? 'Trắc nghiệm' : 'Lập trình'} riêng biệt!`);
       } catch (err: any) {
-        showToast(`❌ Lỗi đọc file JSON: ${err.message}`, 'error');
+        showToast(`Lỗi đọc file JSON: ${err.message}`, 'error');
       }
     };
     reader.readAsText(file);
     if (e.target) e.target.value = '';
   };
 
-  return (
-    <div className="space-y-6 pb-12">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl border text-sm font-semibold flex items-center gap-2 animate-bounce ${
-            toastMessage.type === 'error'
-              ? 'bg-red-600 text-white border-red-500'
-              : 'bg-emerald-600 text-white border-emerald-500'
-          }`}
-        >
-          {toastMessage.text}
-        </div>
-      )}
+  const renderLibraryView = () => (
+    <div className="space-y-6">
+      {/* Filter Bar & Search */}
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
+                <Search size={14} />
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm kiếm bài thi theo tên hoặc slug..."
+                className="w-full pl-9 pr-8 py-2 text-xs font-medium rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 border-none bg-transparent cursor-pointer flex items-center"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
 
-      {/* Header Banner */}
-      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-              👨‍🏫 Teacher Authoring Tool v0
-            </span>
-            <span
-              className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
-                formData.status === 'published'
-                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                  : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-              }`}
-            >
-              Trạng thái: {formData.status === 'published' ? '🟢 Published' : '🟡 Draft (Nháp)'}
-            </span>
+            {/* Type Filters */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1 bg-[var(--bg-main)] p-1 rounded-xl border border-[var(--border-color)]">
+                <button
+                  type="button"
+                  onClick={() => setTypeFilter('all')}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    typeFilter === 'all'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  Tất cả ({existingLessons.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTypeFilter('coding')}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    typeFilter === 'coding'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  <span className="inline-flex items-center gap-1"><Code2 size={13} /> Lập trình ({codingCount})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTypeFilter('quiz')}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    typeFilter === 'quiz'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  <span className="inline-flex items-center gap-1"><FileEdit size={13} /> Trắc nghiệm ({quizCount})</span>
+                </button>
+              </div>
+
+              {/* Status Filters */}
+              <div className="flex items-center gap-1 bg-[var(--bg-main)] p-1 rounded-xl border border-[var(--border-color)]">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    statusFilter === 'all'
+                      ? 'bg-slate-700 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  Tất cả trạng thái
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('published')}
+                  className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    statusFilter === 'published'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> Published ({publishedCount})
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('draft')}
+                  className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    statusFilter === 'draft'
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" /> Draft ({draftCount})
+                  </span>
+                </button>
+              </div>
+
+              {/* Grid / List View Toggle */}
+              <div className="flex items-center gap-1 bg-[var(--bg-main)] p-1 rounded-xl border border-[var(--border-color)]">
+                <button
+                  type="button"
+                  onClick={() => setLibraryViewMode('grid')}
+                  aria-label="Chế độ xem lưới"
+                  title="Chế độ xem lưới"
+                  className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center ${
+                    libraryViewMode === 'grid'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  <Grid3x3 size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLibraryViewMode('list')}
+                  aria-label="Chế độ xem hàng"
+                  title="Chế độ xem hàng"
+                  className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center ${
+                    libraryViewMode === 'list'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
+                  }`}
+                >
+                  <List size={14} />
+                </button>
+              </div>
+            </div>
           </div>
-          <h1 className="text-2xl font-black text-[var(--text-main)] tracking-tight">
-            Quản trị & Thiết kế Nội dung Bài học
-          </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-0.5">
-            Tạo hoặc chỉnh sửa bài học trắc nghiệm/lập trình, thiết lập chuẩn đầu ra và 3 tầng gợi ý.
-          </p>
-        </div>
 
-        {/* Action Buttons Header */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={handleCreateNewBlank}
-            className="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all cursor-pointer shadow-xs flex items-center gap-1.5 border-none"
-          >
-            ➕ Bài tập mới
-          </button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImportJson}
-            accept=".json"
-            className="hidden"
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
-            title="Import cấu hình bài học từ file JSON"
-          >
-            📥 Import
-          </button>
-          <button
-            onClick={handleExportJson}
-            className="px-3 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
-            title="Xuất gói dữ liệu JSON bài học"
-          >
-            📤 Export
-          </button>
-          <button
-            onClick={() => setIsPreviewOpen(true)}
-            className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-indigo-500/30 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
-            title="Xem giao diện hiển thị cho Học viên"
-          >
-            👁️ Preview
-          </button>
-        </div>
-      </div>
+          {/* Lessons Grid */}
+          {libraryLessons.length === 0 ? (
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-12 text-center">
+              <div className="flex items-center justify-center mb-3 text-slate-400">
+                <Search size={40} />
+              </div>
+              <h3 className="text-base font-bold text-[var(--text-main)] mb-1">
+                Không tìm thấy bài thi nào phù hợp
+              </h3>
+              <p className="text-xs text-[var(--text-muted)] mb-4">
+                Thử thay đổi từ khóa tìm kiếm hoặc bỏ chọn bộ lọc.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setTypeFilter('all');
+                  setStatusFilter('all');
+                }}
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all border-none cursor-pointer"
+              >
+                Đặt lại bộ lọc
+              </button>
+            </div>
+          ) : libraryViewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {libraryLessons.map((lesson) => {
+                const isQuiz = lesson.type === 'quiz';
+                return (
+                  <div
+                    key={lesson._id || lesson.slug}
+                    className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 shadow-xs hover:shadow-md transition-all hover:border-indigo-500/50 flex flex-col justify-between group"
+                  >
+                    <div>
+                      {/* Card Header Badges */}
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <span
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 ${
+                            isQuiz
+                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300 border border-purple-300 dark:border-purple-700'
+                              : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700'
+                          }`}
+                        >
+                          {isQuiz ? (
+                            <span className="inline-flex items-center gap-1"><FileEdit size={12} /> Bài Trắc nghiệm</span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1"><Code2 size={12} /> Bài Lập trình</span>
+                          )}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 ${
+                              lesson.status === 'published'
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                            }`}
+                          >
+                            {lesson.status === 'published' ? (
+                              <><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Published</>
+                            ) : (
+                              <><span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" /> Draft</>
+                            )}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-[var(--text-muted)]">
+                            {lesson.difficulty || 'EASY'}
+                          </span>
+                        </div>
+                      </div>
 
-      {/* Lesson Selector & Management Bar */}
+                      {/* Card Body */}
+                      <h3 className="text-base font-bold text-[var(--text-main)] group-hover:text-indigo-600 dark:group-hover:text-cyan-400 transition-colors line-clamp-2 mb-1">
+                        {lesson.title}
+                      </h3>
+                      <p className="text-xs font-mono text-[var(--text-muted)] mb-2 truncate opacity-70">
+                        {lesson.slug}
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)] line-clamp-2 mb-4">
+                        {lesson.description || lesson.learningOutcome || 'Không có mô tả chi tiết.'}
+                      </p>
+                    </div>
+
+                    <div>
+                      {/* Details / Stats */}
+                      <div className="flex items-center justify-between text-[11px] text-[var(--text-muted)] pt-3 border-t border-[var(--border-color)] mb-4">
+                        <span className="inline-flex items-center gap-1">
+                          {isQuiz ? (
+                            <><ClipboardList size={12} /> {lesson.quizQuestions?.length || 0} câu hỏi</>
+                          ) : (
+                            <><Target size={12} /> {lesson.testCases?.length || 0} test cases</>
+                          )}
+                        </span>
+                        <span className="inline-flex items-center gap-1"><Bookmark size={12} /> {lesson.points || 10} điểm</span>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleSelectLessonToEdit(lesson);
+                            setSearchParams({});
+                          }}
+                          className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all border-none cursor-pointer text-center shadow-xs flex items-center justify-center gap-1"
+                          title="Nạp vào Form và mở giao diện chỉnh sửa"
+                        >
+                          <Pencil size={13} /> Sửa
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(lesson);
+                            setIsPreviewOpen(true);
+                          }}
+                          className="px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer text-center flex items-center justify-center gap-1"
+                          title="Xem trước giao diện của học viên"
+                        >
+                          <Eye size={13} /> Xem
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLesson(lesson._id, lesson.title)}
+                          className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer text-center flex items-center justify-center gap-1"
+                          title="Xóa bài thi này"
+                        >
+                          <Trash2 size={13} /> Xóa
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Row / List View — compact single-line-per-item layout */
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl divide-y divide-[var(--border-color)] overflow-hidden">
+              {libraryLessons.map((lesson) => {
+                const isQuiz = lesson.type === 'quiz';
+                return (
+                  <div
+                    key={lesson._id || lesson.slug}
+                    className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-4 hover:bg-[var(--bg-main)] transition-colors group"
+                  >
+                    {/* Type badge */}
+                    <span
+                      className={`shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 w-fit ${
+                        isQuiz
+                          ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300 border border-purple-300 dark:border-purple-700'
+                          : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700'
+                      }`}
+                    >
+                      {isQuiz ? (
+                        <span className="inline-flex items-center gap-1"><FileEdit size={12} /> Trắc nghiệm</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1"><Code2 size={12} /> Lập trình</span>
+                      )}
+                    </span>
+
+                    {/* Title + slug */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-bold text-[var(--text-main)] group-hover:text-indigo-600 dark:group-hover:text-cyan-400 transition-colors truncate">
+                        {lesson.title}
+                      </h3>
+                      <p className="text-[11px] font-mono text-[var(--text-muted)] truncate opacity-70">
+                        {lesson.slug}
+                      </p>
+                    </div>
+
+                    {/* Status + difficulty */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span
+                        className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase flex items-center gap-1 ${
+                          lesson.status === 'published'
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                            : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                        }`}
+                      >
+                        {lesson.status === 'published' ? (
+                          <><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Published</>
+                        ) : (
+                          <><span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" /> Draft</>
+                        )}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-[var(--text-muted)]">
+                        {lesson.difficulty || 'EASY'}
+                      </span>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex items-center gap-3 text-[11px] text-[var(--text-muted)] shrink-0 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1">
+                        {isQuiz ? (
+                          <><ClipboardList size={12} /> {lesson.quizQuestions?.length || 0} câu hỏi</>
+                        ) : (
+                          <><Target size={12} /> {lesson.testCases?.length || 0} test cases</>
+                        )}
+                      </span>
+                      <span className="inline-flex items-center gap-1"><Bookmark size={12} /> {lesson.points || 10} điểm</span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleSelectLessonToEdit(lesson);
+                          setSearchParams({});
+                        }}
+                        className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all border-none cursor-pointer text-center shadow-xs flex items-center gap-1"
+                        title="Nạp vào Form và mở giao diện chỉnh sửa"
+                      >
+                        <Pencil size={13} /> Sửa
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(lesson);
+                          setIsPreviewOpen(true);
+                        }}
+                        className="px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer text-center flex items-center"
+                        title="Xem trước giao diện của học viên"
+                      >
+                        <Eye size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteLesson(lesson._id, lesson.title)}
+                        className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer text-center flex items-center"
+                        title="Xóa bài thi này"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+  );
+
+  const renderEditorView = () => (
+    <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300 dark:border-amber-700 inline-flex items-center gap-1">
+                  <Wrench size={13} /> Teacher Authoring Tool v0
+                </span>
+                <span
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase inline-flex items-center gap-1 ${
+                    formData.status === 'published'
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                      : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                  }`}
+                >
+                  Trạng thái:{' '}
+                  {formData.status === 'published' ? (
+                    <><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Published</>
+                  ) : (
+                    <><span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" /> Draft (Nháp)</>
+                  )}
+                </span>
+              </div>
+              <h1 className="text-2xl font-black text-[var(--text-main)] tracking-tight">
+                Quản trị & Thiết kế Nội dung Bài học
+              </h1>
+              <p className="text-sm text-[var(--text-muted)] mt-0.5">
+                Tạo hoặc chỉnh sửa bài học trắc nghiệm/lập trình, thiết lập chuẩn đầu ra và 3 tầng gợi ý.
+              </p>
+            </div>
+
+            {/* Action Buttons Header */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImportJson}
+                accept=".json"
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                title="Import cấu hình bài học từ file JSON"
+              >
+                <Upload size={14} /> Import
+              </button>
+              <button
+                type="button"
+                onClick={handleExportJson}
+                className="px-3 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                title="Xuất gói dữ liệu JSON bài học"
+              >
+                <Download size={14} /> Export
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsPreviewOpen(true)}
+                className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-indigo-500/30 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                title="Xem giao diện hiển thị cho Học viên"
+              >
+                <Eye size={14} /> Preview
+              </button>
+            </div>
+          </div>
+
+      {/* Lesson Selector Bar */}
       <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-sm flex flex-col gap-3">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[var(--border-color)] pb-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">
-              📂 Bước 1: Chọn loại bài học trước:
+            <span className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider inline-flex items-center gap-1.5">
+              <FolderOpen size={14} /> Chọn loại bài học cần tạo:
             </span>
           </div>
 
@@ -503,13 +916,13 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                   quizQuestions: [],
                 }));
               }}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 typeFilter === 'coding'
                   ? 'bg-indigo-600 text-white shadow-xs'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              🧑‍💻 Bài Lập trình ({codingCount})
+              <span className="inline-flex items-center gap-1"><Code2 size={13} /> Bài Lập trình ({codingCount})</span>
             </button>
             <button
               type="button"
@@ -525,70 +938,14 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                   hints: { hint1: '', hint2: '', hint3: '' },
                 }));
               }}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 typeFilter === 'quiz'
                   ? 'bg-indigo-600 text-white shadow-xs'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
-              📝 Bài Trắc nghiệm ({quizCount})
+              <span className="inline-flex items-center gap-1"><FileEdit size={13} /> Bài Trắc nghiệm ({quizCount})</span>
             </button>
-            <button
-              type="button"
-              onClick={() => setTypeFilter('all')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                typeFilter === 'all'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
-              }`}
-            >
-              Tất cả ({existingLessons.length})
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <span className="text-xs font-bold text-[var(--text-main)] uppercase tracking-wider">
-            📋 Bước 2: Chọn bài học để chỉnh sửa / xóa:
-          </span>
-
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <select
-              value={formData._id || formData.slug || ''}
-              onChange={(e) => {
-                if (e.target.value === '__NEW__') {
-                  handleCreateNewBlank();
-                  return;
-                }
-                const selected = existingLessons.find(
-                  (l) => l._id === e.target.value || l.slug === e.target.value,
-                );
-                if (selected) handleSelectLessonToEdit(selected);
-              }}
-              className="flex-1 sm:w-80 px-3 py-1.5 text-xs font-semibold rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="" disabled>
-                -- Danh sách bài {typeFilter === 'coding' ? 'Lập trình' : typeFilter === 'quiz' ? 'Trắc nghiệm' : 'tất cả'} ({filteredLessonsBySelectedType.length} bài) --
-              </option>
-              <option value="__NEW__">Tạo bài học mới</option>
-              {filteredLessonsBySelectedType.map((l) => (
-                <option key={l._id || l.slug} value={l._id || l.slug}>
-                  [{l.type === 'coding' ? 'Coding' : 'Quiz'}] {l.title.replace(/^[🧑‍💻📝👨‍🏫\s]+/, '').trim()} (
-                  {l.status === 'published' ? 'Published' : 'Draft'})
-                </option>
-              ))}
-            </select>
-
-            {formData._id && (
-              <button
-                type="button"
-                onClick={() => handleDeleteLesson()}
-                className="px-3 py-1.5 text-xs font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white transition-all border-none cursor-pointer shadow-xs"
-                title="Xóa bài học đang chọn"
-              >
-                🗑️ Xóa bài này
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -603,20 +960,24 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
       >
         <div className="flex items-center justify-between font-bold text-sm mb-1.5">
           <span className="flex items-center gap-2">
-            {canPublish ? '✅ Chuẩn đầu ra & Bài test ĐẠT YÊU CẦU' : '⚠️ CHƯA ĐỦ ĐIỀU KIỆN XUẤT BẢN (PUBLISH)'}
+            {canPublish ? (
+              <><CheckCircle2 size={16} /> Chuẩn đầu ra & Bài test ĐẠT YÊU CẦU</>
+            ) : (
+              <><AlertTriangle size={16} /> CHƯA ĐỦ ĐIỀU KIỆN XUẤT BẢN (PUBLISH)</>
+            )}
           </span>
           <span className="text-xs px-2 py-0.5 rounded bg-black/10">Validation Guard</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
           <div className="flex items-center gap-2">
-            {isOutcomeValid ? '✅' : '❌'}
+            {isOutcomeValid ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
             <span>
               <strong>Chuẩn đầu ra (learningOutcome):</strong>{' '}
               {isOutcomeValid ? 'Đã nhập chuẩn đầu ra bài học' : 'Bắt buộc nhập để xuất bản bài học'}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            {isTestValid ? '✅' : '❌'}
+            {isTestValid ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
             <span>
               <strong>Bộ bài test ({formData.type === 'coding' ? 'TestCases' : 'Quiz Questions'}):</strong>{' '}
               {isTestValid
@@ -636,7 +997,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
         {/* Section 1: Basic Information */}
         <div>
           <h2 className="text-base font-bold text-[var(--text-main)] mb-4 flex items-center gap-2 border-b border-[var(--border-color)] pb-2">
-            📌 Phần 1: Thông tin cơ bản bài học
+            <Bookmark size={16} /> Phần 1: Thông tin cơ bản bài học
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -669,8 +1030,12 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                 Loại bài học
               </label>
               <div className="w-full px-3.5 py-2 text-xs font-extrabold rounded-xl bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center justify-between">
-                <span>
-                  {formData.type === 'coding' ? '🧑‍💻 Bài Lập trình (Coding)' : '📝 Bài Trắc nghiệm (Quiz)'}
+                <span className="inline-flex items-center gap-1.5">
+                  {formData.type === 'coding' ? (
+                    <><Code2 size={14} /> Bài Lập trình (Coding)</>
+                  ) : (
+                    <><FileEdit size={14} /> Bài Trắc nghiệm (Quiz)</>
+                  )}
                 </span>
                 <span className="text-[10px] font-semibold text-[var(--text-muted)] italic">
                   (Đã chọn theo Bước 1)
@@ -686,9 +1051,9 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                   onChange={(e) => handleChange('difficulty', e.target.value)}
                   className="w-full px-3 py-2 text-xs rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
                 >
-                  <option value="EASY">🟢 Dễ (EASY)</option>
-                  <option value="MEDIUM">🟡 Trung bình (MEDIUM)</option>
-                  <option value="HARD">🔴 Khó (HARD)</option>
+                  <option value="EASY">Dễ (EASY)</option>
+                  <option value="MEDIUM">Trung bình (MEDIUM)</option>
+                  <option value="HARD">Khó (HARD)</option>
                 </select>
               </div>
               <div>
@@ -718,15 +1083,15 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
         {/* Section 2: Learning Outcome */}
         <div>
           <h2 className="text-base font-bold text-[var(--text-main)] mb-2 flex items-center justify-between border-b border-[var(--border-color)] pb-2">
-            <span>🎯 Phần 2: Chuẩn đầu ra bài học (Learning Outcome)</span>
+            <span className="inline-flex items-center gap-1.5"><Target size={15} /> Phần 2: Chuẩn đầu ra bài học (Learning Outcome)</span>
             <span
-              className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+              className={`text-xs px-2.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1 ${
                 isOutcomeValid
                   ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                   : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
               }`}
             >
-              {isOutcomeValid ? '✅ Đã điền' : '❌ Bắt buộc để Publish'}
+              {isOutcomeValid ? (<><CheckCircle2 size={13} /> Đã điền</>) : (<><XCircle size={13} /> Bắt buộc để Publish</>)}
             </span>
           </h2>
           <textarea
@@ -742,15 +1107,15 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
         {formData.type === 'coding' ? (
           <div className="space-y-6">
             <h2 className="text-base font-bold text-[var(--text-main)] border-b border-[var(--border-color)] pb-2 flex items-center justify-between">
-              <span>💻 Phần 3: Nội dung Lập trình & Test Cases</span>
+              <span className="inline-flex items-center gap-1.5"><Code2 size={15} /> Phần 3: Nội dung Lập trình & Test Cases</span>
               <span
-                className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                className={`text-xs px-2.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1 ${
                   isTestValid
                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                     : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
                 }`}
               >
-                {isTestValid ? `✅ ${formData.testCases.length} Test Cases` : '❌ Cần ít nhất 1 Test Case'}
+                {isTestValid ? (<><CheckCircle2 size={13} /> {formData.testCases.length} Test Cases</>) : (<><XCircle size={13} /> Cần ít nhất 1 Test Case</>)}
               </span>
             </h2>
 
@@ -802,9 +1167,9 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                 <button
                   type="button"
                   onClick={handleAddTestCase}
-                  className="px-3 py-1 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all cursor-pointer border-none shadow-xs"
+                  className="px-3 py-1 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all cursor-pointer border-none shadow-xs flex items-center gap-1"
                 >
-                  ➕ Thêm TestCase
+                  <Plus size={13} /> Thêm TestCase
                 </button>
               </div>
 
@@ -854,9 +1219,9 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                       <button
                         type="button"
                         onClick={() => handleRemoveTestCase(index)}
-                        className="px-2.5 py-1 text-xs text-red-600 hover:text-white hover:bg-red-600 rounded-lg transition-all border border-red-300 dark:border-red-800 cursor-pointer"
+                        className="px-2.5 py-1 text-xs text-red-600 hover:text-white hover:bg-red-600 rounded-lg transition-all border border-red-300 dark:border-red-800 cursor-pointer flex items-center gap-1"
                       >
-                        🗑️ Xóa
+                        <Trash2 size={13} /> Xóa
                       </button>
                     </div>
                   </div>
@@ -868,7 +1233,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
             <div className="pt-4 border-t border-[var(--border-color)] space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
                 <h3 className="text-base font-bold text-[var(--text-main)] flex items-center gap-2">
-                  <span>💡 Phần 4: Thiết lập 3 Tầng Gợi Ý (Hint Engine)</span>
+                  <span className="inline-flex items-center gap-1.5"><Lightbulb size={16} /> Phần 4: Thiết lập 3 Tầng Gợi Ý (Hint Engine)</span>
                 </h3>
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
                   3 Tầng Hỗ Trợ Học Viên
@@ -879,8 +1244,8 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                 {/* Tier 1 */}
                 <div className="p-4 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/40 dark:bg-indigo-950/30">
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-indigo-700 dark:text-indigo-300">
-                      💡 Tầng 1: Khái niệm & Định hướng tư duy (Concept & Mindset)
+                    <label className="text-xs font-bold text-indigo-700 dark:text-indigo-300 inline-flex items-center gap-1.5">
+                      <Lightbulb size={14} /> Tầng 1: Khái niệm & Định hướng tư duy (Concept & Mindset)
                     </label>
                     <span className="text-[10px] text-[var(--text-muted)] font-semibold">
                       Chỉ chứa khái niệm, tuyệt đối KHÔNG chứa code hoàn chỉnh
@@ -903,8 +1268,8 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                 {/* Tier 2 */}
                 <div className="p-4 rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50/40 dark:bg-sky-950/30">
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-sky-700 dark:text-sky-300">
-                      🎯 Tầng 2: Chiến lược thuật toán (Algorithm Strategy)
+                    <label className="text-xs font-bold text-sky-700 dark:text-sky-300 inline-flex items-center gap-1.5">
+                      <Target size={14} /> Tầng 2: Chiến lược thuật toán (Algorithm Strategy)
                     </label>
                     <span className="text-[10px] text-[var(--text-muted)] font-semibold">
                       Các bước tiến hành giải bài toán (Pseudocode / Các bước logic)
@@ -927,8 +1292,8 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                 {/* Tier 3 */}
                 <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/40 dark:bg-emerald-950/30">
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                      💻 Tầng 3: Code Mẫu Lời Giải Hoàn Chỉnh (Python Solution Code)
+                    <label className="text-xs font-bold text-emerald-700 dark:text-emerald-300 inline-flex items-center gap-1.5">
+                      <Code2 size={14} /> Tầng 3: Code Mẫu Lời Giải Hoàn Chỉnh (Python Solution Code)
                     </label>
                     <button
                       type="button"
@@ -938,9 +1303,9 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                           hints: { ...prev.hints, hint3: prev.solutionCode || '' },
                         }))
                       }
-                      className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-all border-none cursor-pointer"
+                      className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-all border-none cursor-pointer flex items-center gap-1"
                     >
-                      📋 Nạp từ Solution Code
+                      <ClipboardCheck size={11} /> Nạp từ Solution Code
                     </button>
                   </div>
                   <textarea
@@ -963,15 +1328,15 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
           /* Quiz Section */
           <div className="space-y-6">
             <h2 className="text-base font-bold text-[var(--text-main)] border-b border-[var(--border-color)] pb-2 flex items-center justify-between">
-              <span>📝 Phần 3: Nội dung Bài Trắc Nghiệm (Quiz Questions)</span>
+              <span className="inline-flex items-center gap-1.5"><FileEdit size={15} /> Phần 3: Nội dung Bài Trắc Nghiệm (Quiz Questions)</span>
               <span
-                className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                className={`text-xs px-2.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1 ${
                   isTestValid
                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                     : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
                 }`}
               >
-                {isTestValid ? `✅ ${formData.quizQuestions.length} Câu hỏi Quiz` : '❌ Cần ít nhất 1 câu hỏi có đáp án'}
+                {isTestValid ? (<><CheckCircle2 size={13} /> {formData.quizQuestions.length} Câu hỏi Quiz</>) : (<><XCircle size={13} /> Cần ít nhất 1 câu hỏi có đáp án</>)}
               </span>
             </h2>
 
@@ -979,9 +1344,9 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
               <button
                 type="button"
                 onClick={handleAddQuizQuestion}
-                className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all cursor-pointer border-none shadow-xs"
+                className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all cursor-pointer border-none shadow-xs flex items-center gap-1"
               >
-                ➕ Thêm câu hỏi trắc nghiệm
+                <Plus size={14} /> Thêm câu hỏi trắc nghiệm
               </button>
             </div>
 
@@ -998,9 +1363,9 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                     <button
                       type="button"
                       onClick={() => handleRemoveQuizQuestion(qIndex)}
-                      className="px-2.5 py-1 text-xs text-red-600 hover:bg-red-600 hover:text-white rounded-lg border border-red-300 dark:border-red-800 cursor-pointer"
+                      className="px-2.5 py-1 text-xs text-red-600 hover:bg-red-600 hover:text-white rounded-lg border border-red-300 dark:border-red-800 cursor-pointer flex items-center gap-1"
                     >
-                      🗑️ Xóa câu hỏi
+                      <Trash2 size={13} /> Xóa câu hỏi
                     </button>
                   </div>
 
@@ -1073,11 +1438,11 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
           <div className="text-xs text-[var(--text-muted)] flex items-center gap-2">
             {canPublish ? (
               <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                ✅ Bài học đủ chuẩn để xuất bản công khai.
+                <CheckCircle2 size={14} /> Bài học đủ chuẩn để xuất bản công khai.
               </span>
             ) : (
               <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
-                ⚠️ Cần nhập Chuẩn đầu ra và ít nhất 1 Bài test để mở nút Publish.
+                <AlertTriangle size={14} /> Cần nhập Chuẩn đầu ra và ít nhất 1 Bài test để mở nút Publish.
               </span>
             )}
           </div>
@@ -1088,9 +1453,9 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
               <button
                 type="button"
                 onClick={() => handleDeleteLesson()}
-                className="px-4 py-2.5 text-xs font-bold rounded-xl bg-red-600 text-white hover:bg-red-700 transition-all border-none cursor-pointer shadow-xs"
+                className="px-4 py-2.5 text-xs font-bold rounded-xl bg-red-600 text-white hover:bg-red-700 transition-all border-none cursor-pointer shadow-xs flex items-center gap-1.5"
               >
-                🗑️ Xóa bài học
+                <Trash2 size={14} /> Xóa bài học
               </button>
             )}
 
@@ -1099,9 +1464,9 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
               type="button"
               disabled={isSubmitting}
               onClick={() => handleSubmit('draft')}
-              className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-bold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs"
+              className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-bold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
             >
-              💾 Lưu bản nháp (Draft)
+              <Save size={14} /> Lưu bản nháp (Draft)
             </button>
 
             {/* Publish Button with Guard */}
@@ -1116,35 +1481,67 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
               }`}
               title={canPublish ? 'Xuất bản bài học' : 'Vui lòng bổ sung Chuẩn đầu ra và Bài test để xuất bản'}
             >
-              🚀 Xuất bản bài học (Publish)
+              <Rocket size={14} /> Xuất bản bài học (Publish)
             </button>
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6 pb-12">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl border text-sm font-semibold flex items-center gap-2 animate-bounce ${
+            toastMessage.type === 'error'
+              ? 'bg-red-600 text-white border-red-500'
+              : 'bg-emerald-600 text-white border-emerald-500'
+          }`}
+        >
+          {toastMessage.text}
+        </div>
+      )}
+
+      {isContestsView ? (
+        <TeacherContestAuthoring />
+      ) : isLibraryView ? (
+        renderLibraryView()
+      ) : (
+        renderEditorView()
+      )}
 
       {/* Section 6: Preview Learner View Modal */}
       {isPreviewOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+          <div
+            ref={previewModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Xem trước giao diện học viên"
+            tabIndex={-1}
+            className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4"
+          >
             <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
               <div>
-                <span className="text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 uppercase">
-                  👁️ Live Learner Preview
+                <span className="text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 uppercase inline-flex items-center gap-1">
+                  <Eye size={12} /> Live Learner Preview
                 </span>
                 <h3 className="text-lg font-black text-[var(--text-main)] mt-1">{formData.title}</h3>
               </div>
               <button
                 onClick={() => setIsPreviewOpen(false)}
-                className="p-1.5 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] bg-[var(--bg-main)] rounded-lg cursor-pointer border border-[var(--border-color)]"
+                className="p-1.5 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] bg-[var(--bg-main)] rounded-lg cursor-pointer border border-[var(--border-color)] flex items-center gap-1"
               >
-                ✕ Đóng xem trước
+                <X size={13} /> Đóng xem trước
               </button>
             </div>
 
             {/* Learning Outcome Box */}
             <div className="p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-xs">
-              <span className="font-bold text-indigo-700 dark:text-indigo-300 block mb-1">
-                🎯 Chuẩn đầu ra học viên sẽ đạt được:
+              <span className="font-bold text-indigo-700 dark:text-indigo-300 block mb-1 inline-flex items-center gap-1.5">
+                <Target size={13} /> Chuẩn đầu ra học viên sẽ đạt được:
               </span>
               <p className="text-[var(--text-main)]">{formData.learningOutcome || 'Chưa cập nhật'}</p>
             </div>
