@@ -36,16 +36,35 @@ st.markdown(
     <style>
     /* Clean Top Spacing */
     .block-container {
-        padding-top: 2.0rem !important;
+        padding-top: 1.8rem !important;
         padding-bottom: 2.0rem !important;
         padding-left: 2.0rem !important;
         padding-right: 2.0rem !important;
     }
     [data-testid="stSidebarContent"] {
-        padding-top: 1.5rem !important;
+        padding-top: 1.0rem !important;
     }
-    [data-testid="stSidebarHeader"] {
-        padding-bottom: 0 !important;
+    
+    /* Eliminate empty gap at top of sidebar when opened (removes 60px box) */
+    [data-testid="stSidebarHeader"], .e16xr0mu4 {
+        height: 0px !important;
+        min-height: 0px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+    }
+    [data-testid="stSidebarHeader"] > *:not([data-testid="stSidebarCollapseButton"]) {
+        display: none !important;
+        height: 0px !important;
+        min-height: 0px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    [data-testid="stSidebarCollapseButton"] {
+        position: absolute !important;
+        top: 0.8rem !important;
+        right: 0.8rem !important;
+        z-index: 100 !important;
     }
     
     /* Hide ONLY the Deploy button */
@@ -53,24 +72,29 @@ st.markdown(
         display: none !important;
     }
     
-    /* Native 3-dots styling: keep at top-right, clean and visible */
+    /* Native 3-dots styling: keep at top-right (Image 1 collapsed bar preserved) */
     #MainMenu {
         visibility: visible !important;
     }
     #MainMenu button {
-        color: var(--text-color) !important;
+        color: inherit !important;
     }
     
     /* Retain native Streamlit collapsed sidebar control button (the >> rectangle) */
     [data-testid="stSidebarCollapsedControl"] {
         visibility: visible !important;
         z-index: 99 !important;
+        display: block !important;
     }
 
-    /* Core Theme Colors (Adapts dynamically to Light / Dark mode) */
+    /* Core Theme System: Dynamic contrast inheritance across Light & Dark themes */
+    :root, .stApp {
+        --text-color: currentColor;
+        --background-color: transparent;
+        --secondary-background-color: rgba(128, 128, 128, 0.08);
+    }
     .stApp {
-        background-color: var(--background-color);
-        color: var(--text-color);
+        color: inherit;
     }
     
     /* Top Hero Banner */
@@ -109,7 +133,7 @@ st.markdown(
 
     /* KPI Metric Cards (Adaptive Background & Text) */
     .kpi-card {
-        background: var(--secondary-background-color) !important;
+        background: rgba(128, 128, 128, 0.08) !important;
         border: 1px solid rgba(128, 128, 128, 0.22) !important;
         border-radius: 12px;
         padding: 16px;
@@ -124,7 +148,7 @@ st.markdown(
     .kpi-label {
         font-size: 0.78rem;
         font-weight: 700;
-        color: var(--text-color) !important;
+        color: inherit !important;
         opacity: 0.75;
         letter-spacing: 0.8px;
         text-transform: uppercase;
@@ -132,7 +156,7 @@ st.markdown(
     .kpi-value {
         font-size: 1.85rem;
         font-weight: 800;
-        color: var(--text-color) !important;
+        color: inherit !important;
         margin: 4px 0 2px 0;
     }
     .kpi-sub {
@@ -143,7 +167,7 @@ st.markdown(
 
     /* Sub KPI highlight boxes */
     .sub-kpi-card {
-        background: var(--secondary-background-color) !important;
+        background: rgba(128, 128, 128, 0.08) !important;
         border: 1px solid rgba(128, 128, 128, 0.22) !important;
         border-radius: 10px;
         padding: 14px 18px;
@@ -153,7 +177,7 @@ st.markdown(
     .sub-kpi-title {
         font-size: 0.78rem;
         font-weight: 700;
-        color: var(--text-color) !important;
+        color: inherit !important;
         opacity: 0.75;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -161,13 +185,13 @@ st.markdown(
     .sub-kpi-content {
         font-size: 1.05rem;
         font-weight: 700;
-        color: var(--text-color) !important;
+        color: inherit !important;
         margin-top: 3px;
     }
 
     /* Progress Bar */
     .progress-box {
-        background: var(--secondary-background-color) !important;
+        background: rgba(128, 128, 128, 0.08) !important;
         border: 1px solid rgba(128, 128, 128, 0.22) !important;
         border-radius: 10px;
         padding: 14px 18px;
@@ -183,7 +207,7 @@ st.markdown(
     }
     .stTabs [data-baseweb="tab"] {
         background-color: transparent;
-        color: var(--text-color) !important;
+        color: inherit !important;
         opacity: 0.75;
         border-radius: 6px 6px 0 0;
         padding: 10px 20px;
@@ -201,25 +225,37 @@ st.markdown(
     .section-title {
         font-size: 1.35rem;
         font-weight: 800;
-        color: var(--text-color) !important;
+        color: inherit !important;
         margin-bottom: 4px;
     }
     .section-subtitle {
         font-size: 0.92rem;
-        color: var(--text-color) !important;
+        color: inherit !important;
         opacity: 0.75;
         margin-bottom: 20px;
     }
 
-    /* Ensure Plotly chart text and grid adapt cleanly to active theme */
-    .js-plotly-plot .plotly text {
-        fill: var(--text-color) !important;
+    /* Ensure Plotly chart text and grid adapt cleanly to active theme (Dark & Light) */
+    .js-plotly-plot {
+        color: inherit !important;
+    }
+    .js-plotly-plot .plotly text,
+    .js-plotly-plot .plotly .gtitle,
+    .js-plotly-plot .plotly .g-gtitle text,
+    .js-plotly-plot .plotly .xtick text,
+    .js-plotly-plot .plotly .ytick text,
+    .js-plotly-plot .plotly .g-xtitle text,
+    .js-plotly-plot .plotly .g-ytitle text,
+    .js-plotly-plot .plotly .legendtext,
+    .js-plotly-plot .plotly .bartext text,
+    .js-plotly-plot .plotly .pielayer text {
+        fill: currentColor !important;
     }
     .js-plotly-plot .plotly .gridpath {
-        stroke: rgba(128, 128, 128, 0.2) !important;
+        stroke: rgba(128, 128, 128, 0.22) !important;
     }
     .js-plotly-plot .plotly .zeroline {
-        stroke: rgba(128, 128, 128, 0.3) !important;
+        stroke: rgba(128, 128, 128, 0.32) !important;
     }
     </style>
     """,
@@ -653,8 +689,8 @@ def main():
                 )
                 fig_track.update_traces(
                     texttemplate="%{text:.1f}%",
-                    textposition="inside",
-                    textfont=dict(color="#FFFFFF", size=12, family="Arial Black"),
+                    textposition="outside",
+                    textfont=dict(size=12),
                     marker_line_width=0,
                 )
                 fig_track.update_layout(
@@ -662,9 +698,9 @@ def main():
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     height=300,
-                    margin=dict(l=15, r=15, t=45, b=40),
+                    margin=dict(l=15, r=15, t=45, b=45),
                     yaxis=dict(
-                        range=[70, 105],
+                        range=[70, 108],
                         title="Avg Quality (%)",
                         title_font=dict(size=12),
                         tickfont=dict(size=11),
