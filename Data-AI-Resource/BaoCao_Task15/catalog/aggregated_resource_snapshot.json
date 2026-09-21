@@ -1,0 +1,425 @@
+{
+  "framework": "CyberSoft Resource Quality & Observability Framework (CRQOF)",
+  "version": "v0.1.0",
+  "generated_at": "2026-09-19T08:00:00Z",
+  "kpis": {
+    "total_resources": 8,
+    "total_records": 14854,
+    "avg_rqi": 97.69,
+    "overall_test_pass_rate": 99.04,
+    "zero_leakage_compliance": 100.0,
+    "gold_tier_count": 7,
+    "silver_tier_count": 0,
+    "bronze_tier_count": 0,
+    "quarantined_count": 1,
+    "total_violations": 1
+  },
+  "breakdown": {
+    "by_track": {
+      "Data Analyst": {
+        "count": 5,
+        "records": 11504,
+        "quarantined": 1,
+        "avg_rqi": 96.31
+      },
+      "AI Engineer": {
+        "count": 2,
+        "records": 200,
+        "quarantined": 0,
+        "avg_rqi": 100.0
+      },
+      "Shared / Foundation": {
+        "count": 1,
+        "records": 3150,
+        "quarantined": 0,
+        "avg_rqi": 100.0
+      }
+    },
+    "by_tier": {
+      "Gold": 7,
+      "Silver": 0,
+      "Bronze": 0,
+      "Quarantined": 1
+    }
+  },
+  "resources_count": 8,
+  "resources": [
+    {
+      "id": "ds-retail-ecommerce-sales-v1",
+      "name": "CyberSoft Retail E-Commerce Multi-Table Sales Benchmark",
+      "resource_type": "dataset",
+      "track": "Data Analyst",
+      "domain": "Retail E-Commerce",
+      "difficulty_level": "Beginner",
+      "state": "published",
+      "quality_tier": "Gold",
+      "quality_gate_score": 100.0,
+      "schema_valid": true,
+      "completeness_score": 100.0,
+      "anti_leakage_score": 100.0,
+      "test_pass_rate": 100.0,
+      "rubric_objectivity_score": 100.0,
+      "business_integrity_score": 100.0,
+      "rqi": 100.0,
+      "total_records": 3150,
+      "data_files_count": 3,
+      "total_checks": 23,
+      "passed_checks": 23,
+      "failed_checks": 0,
+      "violations_count": 0,
+      "violations": [],
+      "warnings": [],
+      "author": "CyberSoft Data & AI Team",
+      "version": "1.0.0",
+      "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-retail-ecommerce-sales-v1_v1.0.0.json",
+      "relative_source_dir": "Data-AI-Resource/BaoCao_Task10",
+      "description": "Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.",
+      "skills": [
+        "Star Schema Data Modeling",
+        "SQL Multi-table JOINs and Aggregations",
+        "Window Functions (RANK, DENSE_RANK, LEAD, LAG)",
+        "RFM (Recency, Frequency, Monetary) Customer Segmentation",
+        "Power BI Interactive Executive Dashboarding"
+      ],
+      "metadata_details": {
+        "license": "CC-BY-4.0",
+        "pii_safe": false,
+        "target_roles": [
+          "data_analyst",
+          "bi_analyst"
+        ],
+        "data_paths": [
+          "BaoCao_Task06/data/clean/customers.csv",
+          "BaoCao_Task06/data/clean/products.csv",
+          "BaoCao_Task06/data/clean/orders.csv"
+        ]
+      }
+    },
+    {
+      "id": "ds-hr-operations-attendance-v1",
+      "name": "CyberSoft Enterprise HR Workforce & Attendance Benchmark",
+      "resource_type": "dataset",
+      "track": "Data Analyst",
+      "domain": "HR Workforce & Operations",
+      "difficulty_level": "Intermediate",
+      "state": "published",
+      "quality_tier": "Gold",
+      "quality_gate_score": 100.0,
+      "schema_valid": true,
+      "completeness_score": 100.0,
+      "anti_leakage_score": 100.0,
+      "test_pass_rate": 100.0,
+      "rubric_objectivity_score": 100.0,
+      "business_integrity_score": 100.0,
+      "rqi": 100.0,
+      "total_records": 2400,
+      "data_files_count": 3,
+      "total_checks": 23,
+      "passed_checks": 23,
+      "failed_checks": 0,
+      "violations_count": 0,
+      "violations": [],
+      "warnings": [],
+      "author": "CyberSoft Data & AI Team",
+      "version": "1.1.0",
+      "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-hr-operations-attendance-v1_v1.1.0.json",
+      "relative_source_dir": "Data-AI-Resource/BaoCao_Task10",
+      "description": "Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.",
+      "skills": [
+        "Time-Series and Date-Time SQL Manipulation",
+        "Complex Multi-condition CASE WHEN logic",
+        "Attrition / Turnover Rate Calculation",
+        "Overtime & Punctuality Variance Analysis",
+        "HR Talent Retention Modeling"
+      ],
+      "metadata_details": {
+        "license": "CyberSoft-Educational-Proprietary-v1",
+        "pii_safe": false,
+        "target_roles": [
+          "data_analyst",
+          "bi_analyst"
+        ],
+        "data_paths": [
+          "BaoCao_Task07/data/clean/employees.csv",
+          "BaoCao_Task07/data/clean/attendance.csv",
+          "BaoCao_Task07/data/clean/kpi_evaluations.csv"
+        ]
+      }
+    },
+    {
+      "id": "ds-nlp-rag-tutor-knowledgebase-v1",
+      "name": "CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark",
+      "resource_type": "dataset",
+      "track": "AI Engineer",
+      "domain": "NLP & Knowledge Systems",
+      "difficulty_level": "Advanced",
+      "state": "published",
+      "quality_tier": "Gold",
+      "quality_gate_score": 100.0,
+      "schema_valid": true,
+      "completeness_score": 100.0,
+      "anti_leakage_score": 100.0,
+      "test_pass_rate": 100.0,
+      "rubric_objectivity_score": 100.0,
+      "business_integrity_score": 100.0,
+      "rqi": 100.0,
+      "total_records": 100,
+      "data_files_count": 1,
+      "total_checks": 11,
+      "passed_checks": 11,
+      "failed_checks": 0,
+      "violations_count": 0,
+      "violations": [],
+      "warnings": [],
+      "author": "CyberSoft Data & AI Team",
+      "version": "1.0.0",
+      "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-nlp-rag-tutor-knowledgebase-v1_v1.0.0.json",
+      "relative_source_dir": "Data-AI-Resource/BaoCao_Task10",
+      "description": "Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.",
+      "skills": [
+        "Document Ingestion & Chunking Strategy Optimization",
+        "Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)",
+        "Vector Database Indexing (Qdrant, ChromaDB, FAISS)",
+        "RAG Triad Evaluation: Context Precision, Faithfulness, Answer Relevance",
+        "Handling Out-of-Scope Queries (Refusal Guardrails)"
+      ],
+      "metadata_details": {
+        "license": "CyberSoft-Internal-Educational-v1",
+        "pii_safe": true,
+        "target_roles": [
+          "ai_engineer"
+        ],
+        "data_paths": [
+          "BaoCao_Task08/data/eval_qa/rag_eval_questions.json"
+        ]
+      }
+    },
+    {
+      "id": "ds-dirty-test-quarantine",
+      "name": "Quarantine Dirty Sales Test Dataset",
+      "resource_type": "dataset",
+      "track": "Data Analyst",
+      "domain": "Retail E-Commerce",
+      "difficulty_level": "Beginner",
+      "state": "quarantined",
+      "quality_tier": "Quarantined",
+      "quality_gate_score": 92.31,
+      "schema_valid": false,
+      "completeness_score": 100.0,
+      "anti_leakage_score": 100.0,
+      "test_pass_rate": 92.3,
+      "rubric_objectivity_score": 100.0,
+      "business_integrity_score": 92.3,
+      "rqi": 81.54,
+      "total_records": 120,
+      "data_files_count": 1,
+      "total_checks": 13,
+      "passed_checks": 12,
+      "failed_checks": 1,
+      "violations_count": 1,
+      "violations": [
+        "Schema validation error at [root]: 'lineage' is a required property"
+      ],
+      "warnings": [],
+      "author": "CyberSoft Data & AI Team",
+      "version": "1.0.0",
+      "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-dirty-test-quarantine_v1.0.0.json",
+      "relative_source_dir": "Data-AI-Resource/BaoCao_Task10",
+      "description": "Intentionally flawed dataset containing orphaned keys, duplicates, and missing columns.",
+      "skills": [
+        "Data Cleaning"
+      ],
+      "metadata_details": {
+        "license": "CC-BY-4.0",
+        "pii_safe": false,
+        "target_roles": [
+          "qa_engineer"
+        ],
+        "data_paths": [
+          "BaoCao_Task06/data/dirty/orders.csv"
+        ]
+      }
+    },
+    {
+      "id": "PRJ-STD-01",
+      "name": "Standardized Sales Performance Analytics Project",
+      "resource_type": "capstone_project",
+      "track": "Shared / Foundation",
+      "domain": "Retail E-Commerce",
+      "difficulty_level": "Beginner",
+      "state": "published",
+      "quality_tier": "Gold",
+      "quality_gate_score": 100.0,
+      "schema_valid": true,
+      "completeness_score": 100.0,
+      "anti_leakage_score": 100.0,
+      "test_pass_rate": 100.0,
+      "rubric_objectivity_score": 100.0,
+      "business_integrity_score": 100.0,
+      "rqi": 100.0,
+      "total_records": 3150,
+      "data_files_count": 4,
+      "total_checks": 10,
+      "passed_checks": 10,
+      "failed_checks": 0,
+      "violations_count": 0,
+      "violations": [],
+      "warnings": [],
+      "author": "CyberSoft Curriculum Board & Đào Trung Kiên",
+      "version": "1.0.0",
+      "manifest_path": "Data-AI-Resource/BaoCao_Task11/projects/",
+      "relative_source_dir": "Data-AI-Resource/BaoCao_Task11",
+      "description": "Bài tập mẫu chuẩn hóa kiến trúc 7 khối chức năng, tách biệt miền student/instructor, barem rubric 100đ và checklist nghiệm thu.",
+      "skills": [
+        "Data Modeling",
+        "Star Schema",
+        "SQL Analytics",
+        "Rubric Engineering",
+        "Auto-grading"
+      ],
+      "metadata_details": {
+        "triangulation_detail": "Contract verification & schema validator 100% PASS",
+        "capstone_duration_hours": "8 - 12 hours",
+        "rubric_points": 100,
+        "auto_grading_enabled": true,
+        "pytest_suite": "Data-AI-Resource/BaoCao_Task11/tests/"
+      }
+    },
+    {
+      "id": "PRJ-DA-01",
+      "name": "Capstone DA-01: Omni-channel Retail Sales & Customer Churn Analytics",
+      "resource_type": "capstone_project",
+      "track": "Data Analyst",
+      "domain": "Retail E-Commerce",
+      "difficulty_level": "Intermediate",
+      "state": "published",
+      "quality_tier": "Gold",
+      "quality_gate_score": 100.0,
+      "schema_valid": true,
+      "completeness_score": 100.0,
+      "anti_leakage_score": 100.0,
+      "test_pass_rate": 100.0,
+      "rubric_objectivity_score": 100.0,
+      "business_integrity_score": 100.0,
+      "rqi": 100.0,
+      "total_records": 3150,
+      "data_files_count": 6,
+      "total_checks": 22,
+      "passed_checks": 22,
+      "failed_checks": 0,
+      "violations_count": 0,
+      "violations": [],
+      "warnings": [],
+      "author": "CyberSoft Curriculum Board & Đào Trung Kiên",
+      "version": "1.0.0",
+      "manifest_path": "Data-AI-Resource/BaoCao_Task12/projects/",
+      "relative_source_dir": "Data-AI-Resource/BaoCao_Task12",
+      "description": "Capstone số 1 chuyên ngành Data Analyst: 10 câu hỏi C-level, 12 nhiệm vụ kỹ thuật SQL/Pandas/Power BI, phân tích RFM và Churn Rate.",
+      "skills": [
+        "SQL Window Functions",
+        "Cohort Retention",
+        "RFM Segmentation",
+        "Churn Prediction",
+        "Power BI Executive Dashboard"
+      ],
+      "metadata_details": {
+        "triangulation_detail": "RFM & Cohort retention reconciliation Delta = $0.00",
+        "capstone_duration_hours": "8 - 12 hours",
+        "rubric_points": 100,
+        "auto_grading_enabled": true,
+        "pytest_suite": "Data-AI-Resource/BaoCao_Task12/tests/"
+      }
+    },
+    {
+      "id": "PRJ-DA-02",
+      "name": "Capstone DA-02: Multi-Warehouse Inventory Operations & Supply Chain",
+      "resource_type": "capstone_project",
+      "track": "Data Analyst",
+      "domain": "Logistics & Operations",
+      "difficulty_level": "Intermediate",
+      "state": "published",
+      "quality_tier": "Gold",
+      "quality_gate_score": 100.0,
+      "schema_valid": true,
+      "completeness_score": 100.0,
+      "anti_leakage_score": 100.0,
+      "test_pass_rate": 100.0,
+      "rubric_objectivity_score": 100.0,
+      "business_integrity_score": 100.0,
+      "rqi": 100.0,
+      "total_records": 2684,
+      "data_files_count": 12,
+      "total_checks": 18,
+      "passed_checks": 18,
+      "failed_checks": 0,
+      "violations_count": 0,
+      "violations": [],
+      "warnings": [],
+      "author": "CyberSoft Curriculum Board & Đào Trung Kiên",
+      "version": "1.0.0",
+      "manifest_path": "Data-AI-Resource/BaoCao_Task13/projects/",
+      "relative_source_dir": "Data-AI-Resource/BaoCao_Task13",
+      "description": "Capstone số 2 chuyên ngành Data Analyst: Quản trị kho vận, 8 ngoại lệ nghiệp vụ (tồn âm ERP, in-transit, hàng hỏng), đối soát 3 chiều, Inventory Turnover 1.22x.",
+      "skills": [
+        "Inventory Accounting",
+        "3-Way Triangulation",
+        "Supply Chain Edge Cases",
+        "COGS Valuation",
+        "Stockout Risk Modeling"
+      ],
+      "metadata_details": {
+        "triangulation_detail": "3-Way Triangulation Engine (SQL vs Pandas vs Matrix) Delta = $0.00, 0 units error",
+        "capstone_duration_hours": "8 - 12 hours",
+        "rubric_points": 100,
+        "auto_grading_enabled": true,
+        "pytest_suite": "Data-AI-Resource/BaoCao_Task13/tests/"
+      }
+    },
+    {
+      "id": "PRJ-AI-01",
+      "name": "Capstone AI-01: Enterprise RAG Knowledge Retrieval & Policy Q&A",
+      "resource_type": "capstone_project",
+      "track": "AI Engineer",
+      "domain": "NLP & Knowledge Systems",
+      "difficulty_level": "Advanced",
+      "state": "published",
+      "quality_tier": "Gold",
+      "quality_gate_score": 100.0,
+      "schema_valid": true,
+      "completeness_score": 100.0,
+      "anti_leakage_score": 100.0,
+      "test_pass_rate": 100.0,
+      "rubric_objectivity_score": 100.0,
+      "business_integrity_score": 100.0,
+      "rqi": 100.0,
+      "total_records": 100,
+      "data_files_count": 22,
+      "total_checks": 26,
+      "passed_checks": 26,
+      "failed_checks": 0,
+      "violations_count": 0,
+      "violations": [],
+      "warnings": [],
+      "author": "CyberSoft Curriculum Board & Đào Trung Kiên",
+      "version": "1.0.0",
+      "manifest_path": "Data-AI-Resource/BaoCao_Task14/projects/",
+      "relative_source_dir": "Data-AI-Resource/BaoCao_Task14",
+      "description": "Capstone số 1 chuyên ngành AI Engineer: Hệ thống hỏi đáp quy chế RAG 6 chặng, Section-aware chunking, BM25 + Dense Hybrid RRF, Guardrails trích dẫn và từ chối, máy chấm 100đ.",
+      "skills": [
+        "RAG Architecture",
+        "Section-aware Chunking",
+        "BM25 & Dense Hybrid Search",
+        "Reciprocal Rank Fusion",
+        "Guardrail Engineering",
+        "LLM Evaluation"
+      ],
+      "metadata_details": {
+        "triangulation_detail": "Recall@5 100%, MRR 1.0, Faithfulness 97.3%, Abstain 100%, P95 114.3ms, Cost 0.035 USD/1k",
+        "capstone_duration_hours": "8 - 12 hours",
+        "rubric_points": 100,
+        "auto_grading_enabled": true,
+        "pytest_suite": "Data-AI-Resource/BaoCao_Task14/tests/"
+      }
+    }
+  ]
+}
