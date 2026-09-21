@@ -226,14 +226,3 @@ context_precisions.append(prec)
 * **Kiểm chứng độc lập**: Sau khi sửa đổi, giá trị Context Precision được chuẩn hóa chính xác về `0.9948` (99.5%), bảo đảm tính khoa học và toàn vẹn của barem Rubric 100 điểm.
 
 ---
-
-## 6. Kịch bản Thuyết trình 3 phút (3-Minute Executive Pitch)
-
-* **Phút 1 — Đặt vấn đề & Khái quát Kiến trúc**:  
-  "Kính thưa Ban Giám đốc CyberSoft và Hội đồng Đào tạo, hôm nay tôi xin trân trọng bàn giao Capstone AI-01 — Hệ thống Hỏi Đáp Tri thức & Quy chế Nội bộ bằng RAG. Dự án mô phỏng trọn vẹn quy mô phục vụ của CyberSoft với 20 văn bản quy chế chính thức và tập kiểm thử 100 câu hỏi đa tầng. Chúng tôi giải quyết triệt để 3 bài toán nan giải nhất của Generative AI doanh nghiệp: Hiện tượng ảo giác (Hallucination), Trích dẫn nguồn ma (Phantom Citation) và Sự thiếu hụt cơ chế từ chối (No Abstention)."
-
-* **Phút 2 — Đột phá Kỹ thuật & Bằng chứng Thực nghiệm**:  
-  "Hệ thống đã triển khai so sánh đối chứng trực tiếp giữa Baseline và Advanced. Trong khi giải pháp Baseline thô sơ chỉ đạt 68.3% Recall và bị trừ điểm nặng do bịa thông tin trên 20 câu hỏi ngoài phạm vi (chỉ đạt 45/100đ - FAIL), thì giải pháp Advanced Hybrid RAG phối hợp BM25 Inverted Index, Section-aware Chunking và Reciprocal Rank Fusion (RRF $k=60$) đã xác lập kỷ lục thực nghiệm: Recall@5 đạt 100%, MRR đạt 1.0, Faithfulness đạt 97.3%, chặn đứng 100% câu hỏi ngoài phạm vi với thời gian phản hồi P95 siêu tốc chỉ 114.3 ms và chi phí tối ưu 0.035 USD / 1,000 lượt hỏi."
-
-* **Phút 3 — Hệ sinh thái Bàn giao & Sẵn sàng Vận hành**:  
-  "Toàn bộ tài nguyên đã được đóng gói hoàn hảo: Miền học viên được bảo mật tuyệt đối theo chuẩn Zero Answer Leakage; miền giảng viên có đầy đủ cẩm nang 8 bẫy lỗi và hướng dẫn giải pháp; máy chấm tự động `auto_grader.py` đạt 100/100 điểm tuyệt đối và bộ kiểm thử tự động 13/13 Pytest cases PASS 100% trong 5.72 giây. Toàn bộ gói đồ án Capstone AI-01 đã sẵn sàng để tích hợp vào LMS và đưa vào giảng dạy ngay từ tuần tới."
