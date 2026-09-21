@@ -12,6 +12,8 @@ import {
   Gamepad2,
   Rocket,
   Loader2,
+  ArrowRight,
+  PartyPopper,
 } from 'lucide-react';
 import { CodeEditor } from '../components/CodeEditor';
 import { OutputPanel } from '../components/OutputPanel';
@@ -97,6 +99,15 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     });
   };
 
+  // Celebration modal + auto-redirect countdown, shown exactly once, right when
+  // the LAST exercise of a sequential-unlock topic just turned AC — not on every
+  // later visit to an already-finished topic. "Already celebrated" is tracked
+  // per topic in its own localStorage key so re-opening a finished topic later
+  // stays quiet.
+  const CELEBRATED_TOPICS_KEY = 'app_code_playground_celebrated_topics';
+  const [celebrationTopicKey, setCelebrationTopicKey] = useState<string | null>(null);
+  const [celebrationCountdown, setCelebrationCountdown] = useState(10);
+
   // Teacher coding lessons (Only Published)
   const teacherCodingLessons = teacherLessons.filter(
     (l) => (l.status === 'published' || !l.status) && l.type === 'coding',
@@ -138,7 +149,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     [UNGRADED]: 'Bài cũ (chưa phân lớp)',
     '3-5': 'Lớp 3-5',
     '6-9': 'Lớp 6-9',
-    '9-12': 'Lớp 9-12',
+    '9-12': 'Lớp 10-12',
   };
   // Icon + accent gradient per grade band — younger bands get warmer, more playful
   // color to match the age group; older bands read calmer/more "serious tool".
@@ -191,11 +202,60 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     return !!prevExercise && completedSlugs.has(prevExercise.slug);
   };
 
+  // Detect "just finished the whole topic": every exercise in the current
+  // sequential-unlock list is completed, and this topic hasn't been celebrated
+  // before (tracked in its own localStorage set, keyed by gradeBand+topic so it
+  // survives reloads without re-firing on a topic already finished earlier).
+  useEffect(() => {
+    if (!isSequentialUnlockActive || filteredExercises.length === 0) return;
+    const allCompleted = filteredExercises.every((ex) => completedSlugs.has(ex.slug));
+    if (!allCompleted) return;
+
+    const topicKey = `${selectedGradeBand}::${selectedTopic !== 'all' ? selectedTopic : (filteredExercises[0].topic ?? 'default')}`;
+    let alreadyCelebrated: string[] = [];
+    try {
+      const saved = localStorage.getItem(CELEBRATED_TOPICS_KEY);
+      alreadyCelebrated = saved ? JSON.parse(saved) : [];
+    } catch {
+      /* ignore */
+    }
+    if (alreadyCelebrated.includes(topicKey)) return;
+
+    try {
+      localStorage.setItem(CELEBRATED_TOPICS_KEY, JSON.stringify([...alreadyCelebrated, topicKey]));
+    } catch {
+      /* ignore */
+    }
+    setCelebrationCountdown(10);
+    setCelebrationTopicKey(topicKey);
+  }, [completedSlugs, filteredExercises, isSequentialUnlockActive, selectedGradeBand, selectedTopic]);
+
+  // Countdown that auto-redirects to the home route once it reaches 0.
+  useEffect(() => {
+    if (!celebrationTopicKey) return;
+    if (celebrationCountdown <= 0) {
+      navigate('/');
+      return;
+    }
+    const timer = setTimeout(() => setCelebrationCountdown((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [celebrationTopicKey, celebrationCountdown, navigate]);
+
   // Reset the topic filter whenever the grade band changes — a topic picked
   // under one grade band has no meaning under another.
   useEffect(() => {
     setSelectedTopic('all');
   }, [selectedGradeBand]);
+
+  // The exercise right after the current one in the same filtered/ordered list —
+  // used to offer a "Next exercise" shortcut once the current one is solved (AC),
+  // instead of forcing a trip back to the grid every time.
+  const nextExercise = useMemo(() => {
+    if (!selectedSlug) return null;
+    const idx = filteredExercises.findIndex((ex) => ex.slug === selectedSlug);
+    if (idx === -1) return null;
+    return filteredExercises[idx + 1] ?? null;
+  }, [filteredExercises, selectedSlug]);
 
   const activeTeacherLesson = teacherCodingLessons.find((l) => l.slug === selectedSlug || l._id === selectedSlug);
 
@@ -447,6 +507,34 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
       setLoadError('Không thể gửi bài nộp. Vui lòng kiểm tra lại kết nối.');
     }
   };
+
+  // ============ Celebration overlay: shown once, right after finishing the last exercise of a topic ============
+  if (celebrationTopicKey) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="w-full max-w-md rounded-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-2xl p-8 text-center flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-pink-500 flex items-center justify-center text-white shadow-lg">
+            <PartyPopper size={32} strokeWidth={2} />
+          </div>
+          <h2 className="text-xl font-extrabold text-[var(--text-main)]">Chúc mừng bạn đã hoàn thành khóa!</h2>
+          <p className="text-sm text-[var(--text-muted)]">
+            Bạn đã giải đúng toàn bộ {filteredExercises.length} bài trong{' '}
+            {selectedTopic !== 'all' ? `chủ đề "${selectedTopic}"` : (GRADE_BAND_LABEL[selectedGradeBand ?? ''] ?? 'khóa học này')}. Làm tốt lắm!
+          </p>
+          <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400 tabular-nums">
+            {celebrationCountdown}
+          </div>
+          <p className="text-xs text-[var(--text-muted)]">Tự động chuyển về trang chính sau {celebrationCountdown} giây...</p>
+          <button
+            onClick={() => navigate('/')}
+            className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-xs cursor-pointer transition-colors"
+          >
+            Về trang chính ngay
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ============ Screen 1: pick a grade band ============
   if (view === 'grade') {
@@ -711,7 +799,18 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
           {activeResultTab === 'run' && <OutputPanel result={runResult} isRunning={isRunning} />}
 
           {activeResultTab === 'submit' && (
-            <TestResultsPanel submission={submission} isSubmitting={isSubmitting} />
+            <>
+              <TestResultsPanel submission={submission} isSubmitting={isSubmitting} />
+              {submission?.status === 'AC' && nextExercise && (
+                <button
+                  onClick={() => openExercise(nextExercise.slug)}
+                  className="w-full mt-3 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-xs cursor-pointer flex items-center justify-center gap-2 transition-colors"
+                >
+                  Bài tiếp theo: {nextExercise.title}
+                  <ArrowRight size={16} />
+                </button>
+              )}
+            </>
           )}
 
           {activeResultTab === 'hint' && selectedSlug && (
