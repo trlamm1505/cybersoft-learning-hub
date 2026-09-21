@@ -176,7 +176,7 @@ def main():
             st.image(
                 str(diagram_path),
                 caption="CyberSoft Data & AI Lab — Kiến Trúc Hệ Thống Giám Sát & Đo Lường Chất Lượng CRQOF v0.1 (Độ Phân Giải 300 DPI)",
-                use_column_width=True,
+                use_container_width=True,
             )
 
     st.markdown("---")
