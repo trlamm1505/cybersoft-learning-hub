@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import { INITIAL_EXERCISES } from './initial-exercises';
 import { INITIAL_EXERCISES_DAY14 } from './initial-exercises-day14';
+import { INITIAL_EXERCISES_DAY15 } from './initial-exercises-day15';
 import { ExerciseSchema } from '../modules-system/database/schemas/exercise.schema';
 import { SubmissionSchema } from '../modules-system/database/schemas/submission.schema';
 
@@ -28,6 +29,9 @@ async function seedExercises() {
 
     const createdDay14 = await ExerciseModel.insertMany(INITIAL_EXERCISES_DAY14);
     console.log(`✅ Seeded ${createdDay14.length} Day 14 exercises (grades 6-9) for Code Playground`);
+
+    const createdDay15 = await ExerciseModel.insertMany(INITIAL_EXERCISES_DAY15);
+    console.log(`✅ Seeded ${createdDay15.length} Day 15 exercises (grades 10-12) for Code Playground`);
   } catch (error) {
     console.error('❌ Seeding Error:', error);
   } finally {

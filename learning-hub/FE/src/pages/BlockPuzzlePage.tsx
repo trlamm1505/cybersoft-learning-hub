@@ -3,6 +3,9 @@ import {
   DndContext,
   useDraggable,
   useDroppable,
+  pointerWithin,
+  rectIntersection,
+  type CollisionDetection,
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { useFocusTrap } from '../hooks/useFocusTrap';
@@ -180,9 +183,22 @@ const InsertGap: React.FC<{ zoneId: string }> = ({ zoneId }) => {
 
 const CONTAINER_KEYS = new Set(['REPEAT', 'IF_OBSTACLE']);
 
+// Nested drop zones (a container's own zone sits fully inside its parent's) need
+// pointerWithin so the innermost zone under the cursor wins instead of the outer one.
+// But the thin InsertGap slots (a few px wide) are easy to miss with a pointer-exact
+// check, so fall back to rectIntersection (geometry-overlap based, more forgiving)
+// whenever pointerWithin finds nothing — standard dnd-kit pattern for mixing nested
+// containers with slim insertion gaps in the same tree.
+const collisionDetectionStrategy: CollisionDetection = (args) => {
+  const pointerCollisions = pointerWithin(args);
+  if (pointerCollisions.length > 0) return pointerCollisions;
+  return rectIntersection(args);
+};
+
 // Renders one placed block. REPEAT/IF_OBSTACLE render as a container with their own nested
-// drop zone (1 level deep only — the children drop zone does not accept another REPEAT/IF
-// from the palette, enforced in handleDragEnd) so kids can build "lặp lại {...}" bodies.
+// drop zone (1 level deep only). A container's child zone accepts a DIFFERENT container type
+// (REPEAT can hold IF_OBSTACLE and vice versa, to combine loop + condition) but not the same
+// type again and not a second level of nesting — enforced in handleDragEnd.
 const PlacedBlockItem: React.FC<{
   block: PlacedBlock;
   index: number;
@@ -517,16 +533,31 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
     const childGapMatch = overId.match(/^child-gap-(.+)-(\d+)$/);
     const childZoneMatch = overId.match(/^child-zone-(.+)$/);
     if (childGapMatch || childZoneMatch) {
-      if (isContainerCommand) return; // enforce max 1 level of nesting
       const parentId = childGapMatch ? childGapMatch[1] : childZoneMatch![1];
-      setPlaced((prev) =>
-        prev.map((b) => {
-          if (b.instanceId !== parentId) return b;
-          const children = b.children ?? [];
-          const childIdx = childGapMatch ? parseInt(childGapMatch[2], 10) : children.length;
-          return { ...b, children: [...children.slice(0, childIdx), newBlock, ...children.slice(childIdx)] };
-        }),
-      );
+      if (isContainerCommand) {
+        // Allow nesting a DIFFERENT container type one level deep (REPEAT inside
+        // IF_OBSTACLE, or IF_OBSTACLE inside REPEAT) — this is the intended way
+        // to combine loop + condition (e.g. "Lặp lại N lần { Nếu... }"). Still
+        // block same-type nesting (REPEAT-in-REPEAT, IF-in-IF) and any nesting
+        // past 1 level (parent already sitting inside another container).
+        const parent = placed.find((b) => b.instanceId === parentId);
+        const parentIsTopLevel = !!parent;
+        if (!parentIsTopLevel || parent.command.key === command.key) return;
+      }
+      // The parent container may itself be nested one level inside another container
+      // (e.g. dropping a plain move/turn block into an IF_OBSTACLE that lives inside a
+      // REPEAT) — walk the whole tree, not just the top level, to find it.
+      const insertIntoParent = (blocks: PlacedBlock[]): PlacedBlock[] =>
+        blocks.map((b) => {
+          if (b.instanceId === parentId) {
+            const children = b.children ?? [];
+            const childIdx = childGapMatch ? parseInt(childGapMatch[2], 10) : children.length;
+            return { ...b, children: [...children.slice(0, childIdx), newBlock, ...children.slice(childIdx)] };
+          }
+          if (b.children) return { ...b, children: insertIntoParent(b.children) };
+          return b;
+        });
+      setPlaced((prev) => insertIntoParent(prev));
     } else {
       const gapMatch = overId.match(/^gap-(\d+)$/);
       const insertIndex = gapMatch ? parseInt(gapMatch[1], 10) : placed.length;
@@ -747,7 +778,7 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
               })()}
             </div>
 
-            <DndContext onDragEnd={handleDragEnd}>
+            <DndContext onDragEnd={handleDragEnd} collisionDetection={collisionDetectionStrategy}>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Palette */}
                 <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 space-y-2">
