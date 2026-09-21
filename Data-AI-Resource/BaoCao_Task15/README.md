@@ -32,6 +32,10 @@ cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/
 │   ├── metric_definitions.md              # Văn bản đặc tả công thức toán học và ngưỡng phân cấp chất lượng
 │   ├── aggregated_resource_snapshot.json  # Dữ liệu JSON snapshot tổng hợp 8 tài nguyên (14,854 bản ghi)
 │   └── dashboard_preview.html             # Bản xem trước HTML tĩnh cho phép đánh giá không cần web server
+├── docs/
+│   ├── dashboard_architecture.md          # Bản đặc tả kiến trúc 4 tầng và nguyên tắc Zero-Hardcoded Paths
+│   ├── metric_definitions.md              # Văn bản đặc tả công thức toán học và ngưỡng phân cấp chất lượng
+│   └── quality_audit_and_quarantine_guide.md # Hướng dẫn kiểm toán lỗi và quy trình cách ly Quarantined
 ├── src/
 │   ├── __init__.py                        # Khởi tạo package Python
 │   ├── collector.py                       # Động cơ quét & nạp siêu dữ liệu (Zero Hardcoded Paths)

@@ -15,9 +15,10 @@
   1. **Số liệu dashboard khớp Registry 100%**: Đồng bộ trực tiếp với `registry_db.json` (Task 10) và Project Bank (Tasks 11-14). Không được sai lệch số lượng dataset hay capstone.
   2. **Bộ lọc hoạt động mượt mà, đa chiều**: Hỗ trợ cắt lát theo Chuyên ngành (Track: Data Analyst, AI Engineer, Shared), Lĩnh vực (Domain: Retail, Logistics, HR, NLP/RAG), Cấp độ (Level: Beginner, Intermediate, Advanced) và Phân cấp chất lượng (Tier: Gold, Silver, Bronze, Quarantined).
   3. **Tuyệt đối không hard-code đường dẫn cá nhân**: Hệ thống phải vận hành linh hoạt trên bất kỳ máy trạm hay môi trường CI/CD nào thông qua đường dẫn tương đối (`repo-relative paths`).
-  4. **Tính năng Drill-Down tới metadata & lỗi vi phạm**: Xem chi tiết siêu dữ liệu, phân rã 7 trụ cột đo lường, và bóc tách chính xác nguyên nhân gốc của các tài nguyên bị cách ly.
-  5. **Bộ chỉ số đo lường chuẩn hóa**: Soạn thảo đầy đủ từ điển chỉ số `metric_definitions.json` và công thức tính Chỉ số Chất lượng Tài nguyên Tổng hợp (Resource Quality Index - RQI).
-  6. **Đầy đủ bằng chứng kiểm thử & báo cáo**: Hoàn thiện kịch bản kiểm chứng CLI 4 giai đoạn đạt Exit Code 0, bộ kiểm thử tự động Pytest 16/16 tests PASS 100%, sơ đồ kiến trúc 300 DPI và báo cáo Word chính thức.
+  4. **Có tính năng Drill-Down tới metadata & lỗi vi phạm**: Xem chi tiết siêu dữ liệu, phân rã 7 trụ cột đo lường, và bóc tách chính xác nguyên nhân gốc của các tài nguyên bị cách ly.
+  5. **Đầy đủ định nghĩa bộ chỉ số (Metric definitions)**: Soạn thảo đầy đủ từ điển chỉ số `metric_definitions.json` và văn bản đặc tả `metric_definitions.md` cùng công thức RQI 7 trụ cột.
+  6. **Có ảnh/sơ đồ demo và báo cáo Word chuẩn**: Sinh ảnh kiến trúc `Picture_15_Detail.png` (300 DPI) và xây dựng báo cáo Word chính thức `DaoTrungKien_Bao_cao_Data_AI_Resource_Engineer_CyberSoft_Ngay_15.docx`.
+  7. **Bộ kiểm thử tự động Pytest đạt 100% PASS**: Hoàn thiện kịch bản kiểm chứng CLI 4 giai đoạn đạt Exit Code 0 và bộ kiểm thử Pytest 16/16 tests PASS 100% trong 0.80 giây.
 
 ### 1.2. Rủi Ro Dự Kiến & Bẫy AI Thường Gặp (Pre-Emptive Trap Analysis)
 Trước khi sử dụng AI hỗ trợ sinh mã nguồn, kỹ sư con người đã chủ động nhận diện 6 cạm bẫy kỹ thuật điển hình:
@@ -55,11 +56,15 @@ Yêu cầu kỹ thuật chi tiết:
    - 5 thẻ KPI tổng quan: Tổng tài nguyên, Tổng bản ghi, Điểm RQI bình quân, Tỷ lệ Test Pass, Zero-Leakage.
    - Bảng danh mục tài nguyên tương tác, phân cấp huy hiệu Gold/Quarantined.
    - Tab Drill-Down bóc tách siêu dữ liệu, 7 trụ cột đo lường, kiểm toán vi phạm chất lượng và kỹ năng.
-4. Động cơ Xuất Dữ liệu & Công cụ Kiểm tra (scripts/):
+4. Danh Mục Chỉ Số & Snapshot (catalog/ & docs/):
+   - catalog/ (metric_definitions.json, metric_definitions.md, aggregated_resource_snapshot.json, dashboard_preview.html).
+   - docs/ (dashboard_architecture.md, metric_definitions.md, quality_audit_and_quarantine_guide.md).
+5. Động cơ Xuất Dữ liệu & Công cụ Kiểm tra (scripts/ & requirements.txt):
    - export_static_snapshot.py: Xuất snapshot JSON và HTML tĩnh phục vụ kiểm tra headless.
    - demo_dashboard_workflow.py: Kịch bản kiểm chứng tự động 4 giai đoạn với mã thoát POSIX Exit Code 0.
+   - run_dashboard.py: Launcher CLI cho Streamlit hỗ trợ tham số --port và --headless.
    - generate_task15_diagram.py: Sinh sơ đồ đồ họa chất lượng cao Picture_15_Detail.png (300 DPI).
-5. Bộ Kiểm thử Tự động Pytest (tests/):
+6. Bộ Kiểm thử Tự động Pytest (tests/):
    - Bao phủ 100% các góc cạnh: Tính toàn vẹn tệp, không hardcode path, sync với Registry, filter đa chiều, drill-down và công thức RQI.
 ```
 

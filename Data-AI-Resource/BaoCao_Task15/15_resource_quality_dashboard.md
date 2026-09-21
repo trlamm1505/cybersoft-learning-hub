@@ -81,6 +81,44 @@ Kiến trúc hệ thống giám sát chất lượng tài nguyên được thi�
 * Sử dụng module `pathlib.Path(__file__).resolve()` để tự động định vị gốc repository và truy cập chéo giữa các Task thông qua đường dẫn tương đối chuẩn POSIX (`Data-AI-Resource/BaoCao_Task10`, `Data-AI-Resource/BaoCao_Task14`).
 * Kiểm thử tự động `test_zero_hardcoded_personal_paths()` trong Pytest suite quét toàn bộ mã nguồn để đảm bảo tính di động 100% trên môi trường CI/CD (GitHub Actions) và máy tính của các thành viên khác trong nhóm.
 
+### 2.2. Cấu Trúc Cây Thư Mục Bàn Giao Toàn Diện
+```
+cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/
+├── 15_resource_quality_dashboard.md       # Bản đặc tả kỹ thuật chi tiết toàn diện (>20KB)
+├── README.md                              # Báo cáo tổng quan bàn giao, hướng dẫn CLI và bảng DoD
+├── AI_WORKLOG.md                          # Nhật ký phối hợp AI minh bạch, thẩm định 6 bẫy AI & kịch bản 3 phút
+├── Picture_15_Detail.png                  # Sơ đồ kiến trúc Dashboard, Metric Engine & Layout giao diện
+├── Picture_15-Detail.png                  # Bản sao sơ đồ đồng bộ liên kết tài liệu
+├── requirements.txt                       # Danh mục thư viện phụ thuộc (Streamlit, Pandas, Pytest...)
+├── catalog/
+│   ├── metric_definitions.json            # Từ điển 10 chỉ số chất lượng tài nguyên chuẩn hóa
+│   ├── metric_definitions.md              # Văn bản đặc tả công thức toán học và ngưỡng phân cấp chất lượng
+│   ├── aggregated_resource_snapshot.json  # Dữ liệu JSON snapshot tổng hợp 8 tài nguyên (14,854 bản ghi)
+│   └── dashboard_preview.html             # Bản xem trước HTML tĩnh cho phép đánh giá không cần web server
+├── docs/
+│   ├── dashboard_architecture.md          # Bản đặc tả kiến trúc 4 tầng và nguyên tắc Zero-Hardcoded Paths
+│   ├── metric_definitions.md              # Văn bản đặc tả công thức toán học và ngưỡng phân cấp chất lượng
+│   └── quality_audit_and_quarantine_guide.md # Hướng dẫn kiểm toán lỗi và quy trình cách ly Quarantined
+├── src/
+│   ├── __init__.py                        # Khởi tạo package Python
+│   ├── collector.py                       # Động cơ quét & nạp siêu dữ liệu (Zero Hardcoded Paths)
+│   ├── metrics_engine.py                  # Động cơ tính toán chỉ số thành phần & Composite RQI
+│   ├── filter_engine.py                   # Động cơ lọc đa chiều (Track, Domain, Level, Tier, Search)
+│   └── app.py                             # Ứng dụng Streamlit Dashboard v0.1 (KPIs, Slicing, Drill-Down)
+├── scripts/
+│   ├── generate_task15_diagram.py         # Script sinh sơ đồ đồ họa Picture_15_Detail.png (300 DPI)
+│   ├── run_dashboard.py                   # CLI khởi chạy Streamlit Dashboard (hỗ trợ --headless)
+│   ├── export_static_snapshot.py          # Script xuất báo cáo JSON và HTML snapshot độc lập
+│   └── demo_dashboard_workflow.py         # Kịch bản kiểm chứng toàn diện 4 giai đoạn đạt Exit Code 0
+└── tests/
+    ├── __init__.py
+    ├── test_dashboard_integrity.py        # Kiểm tra tính toàn vẹn tệp và bảo đảm ZERO hardcoded personal paths
+    ├── test_registry_sync.py              # Kiểm tra số liệu dashboard khớp 100% với Registry Task 10 & 11-14
+    ├── test_filter_engine.py              # Kiểm tra bộ lọc đa chiều (Chuyên ngành, Lĩnh vực, Cấp độ, Tier)
+    ├── test_drilldown_engine.py           # Kiểm tra bóc tách metadata và lỗi vi phạm của tài nguyên bị cách ly
+    └── test_metrics_calculation.py        # Kiểm tra tính toán số học RQI và 5 thẻ chỉ số KPI
+```
+
 ---
 
 ## 3. BẢNG ĐẶC TẢ 10 CHỈ SỐ ĐO LƯỜNG CHẤT LƯỢNG (CRQOF SPECIFICATION)
