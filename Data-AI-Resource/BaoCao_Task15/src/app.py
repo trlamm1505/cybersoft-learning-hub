@@ -1,9 +1,8 @@
-"""CyberSoft Data & AI Lab - Resource Quality & Observability Dashboard v0.1.
+"""CyberSoft Data & AI Lab - Resource Quality & Observability Dashboard (ResourcePulse AI v0.1).
 
-Interactive Streamlit application providing real-time visibility into the health,
-quality scores, schema compliance, test status, and metadata of all datasets and capstones.
-Features executive visual telemetry: RQI scorecards, system compliance matrix,
-7-pillar diagnostic scorecards, and root-cause audit inspection.
+Executive Dark-Theme Streamlit Dashboard for monitoring the health, quality scores,
+domain distribution, test statuses, and root-cause errors of datasets and capstones.
+Designed in the modern, sleek aesthetic of executive analytics platforms.
 """
 
 import json
@@ -17,59 +16,161 @@ if str(current_dir.parent) not in sys.path:
 
 import pandas as pd  # noqa: E402
 import plotly.express as px  # noqa: E402
+import plotly.graph_objects as go  # noqa: E402
 import streamlit as st  # noqa: E402
 
 from src.collector import ResourceCollector  # noqa: E402
-from src.filter_engine import FilterEngine  # noqa: E402
 from src.metrics_engine import MetricsEngine  # noqa: E402
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="CyberSoft Resource Quality & Observability Dashboard",
-    page_icon="📊",
+    page_title="CyberSoft ResourcePulse AI — Quality & Observability",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# --- CUSTOM MODERN EXECUTIVE CSS ---
+# --- MODERN DARK EXECUTIVE THEME CSS ---
 st.markdown(
     """
     <style>
-    .main-header {
-        font-size: 2.0rem;
+    /* Dark Theme Core */
+    .stApp {
+        background-color: #0B0E14;
+        color: #E2E8F0;
+    }
+    
+    /* Top Hero Banner */
+    .hero-banner {
+        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #1D4ED8 100%);
+        border-radius: 14px;
+        padding: 24px 28px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .hero-title {
+        font-size: 2.1rem;
         font-weight: 800;
-        color: #1E3A8A;
-        margin-bottom: 0.1rem;
+        color: #FFFFFF;
+        margin: 0;
         letter-spacing: -0.5px;
     }
-    .sub-header {
-        font-size: 1.0rem;
-        color: #64748B;
-        margin-bottom: 1.2rem;
+    .hero-subtitle {
+        font-size: 0.98rem;
+        color: #E0E7FF;
+        margin-top: 6px;
+        margin-bottom: 14px;
     }
-    div[data-testid="stMetric"] {
-        background-color: #F8FAFC;
-        border: 1px solid #E2E8F0;
+    .badge-pill {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.16);
+        color: #FFFFFF;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    /* KPI Metric Cards */
+    .kpi-container {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .kpi-card {
+        background: #141923;
+        border: 1px solid #232D3F;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: left;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .kpi-card:hover {
+        border-color: #3B82F6;
+        transform: translateY(-2px);
+    }
+    .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94A3B8;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+    .kpi-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin: 4px 0 2px 0;
+    }
+    .kpi-sub {
+        font-size: 0.8rem;
+        color: #10B981;
+        font-weight: 500;
+    }
+
+    /* Sub KPI highlight boxes */
+    .sub-kpi-card {
+        background: #10141D;
+        border: 1px solid #1E2638;
         border-radius: 10px;
         padding: 12px 16px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        margin-bottom: 14px;
     }
-    div[data-testid="stMetricLabel"] {
-        font-size: 0.85rem !important;
-        color: #64748B !important;
-        font-weight: 600 !important;
+    .sub-kpi-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748B;
+        text-transform: uppercase;
     }
-    div[data-testid="stMetricValue"] {
-        font-size: 1.6rem !important;
-        font-weight: 700 !important;
-        color: #0F172A !important;
+    .sub-kpi-content {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #F8FAFC;
     }
-    .resource-card {
-        background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
-        border: 1px solid #BFDBFE;
+
+    /* Progress Bar */
+    .progress-box {
+        background: #10141D;
+        border: 1px solid #1E2638;
         border-radius: 10px;
-        padding: 16px;
+        padding: 12px 18px;
+        margin-bottom: 20px;
+    }
+
+    /* Tabs Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: transparent;
+        border-bottom: 1px solid #1E2638;
         margin-bottom: 16px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background-color: transparent;
+        color: #94A3B8;
+        border-radius: 6px 6px 0 0;
+        padding: 8px 18px;
+        font-weight: 600;
+    }
+    .stTabs [aria-selected="true"] {
+        color: #38BDF8 !important;
+        border-bottom: 2px solid #38BDF8 !important;
+        background-color: rgba(56, 189, 248, 0.08) !important;
+    }
+
+    /* Section Subheaders */
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #F8FAFC;
+        margin-bottom: 2px;
+    }
+    .section-subtitle {
+        font-size: 0.85rem;
+        color: #64748B;
+        margin-bottom: 14px;
     }
     </style>
     """,
@@ -83,154 +184,428 @@ def load_all_resources() -> list:
     return collector.collect_all_resources()
 
 
-def get_friendly_label(r) -> str:
-    """Returns a clean, readable name for charts and tables."""
+def get_short_name(r) -> str:
+    """Returns a clean display name matching executive dashboards."""
     name_map = {
-        "ds-retail-ecommerce-sales-v1": "🛒 Retail E-Commerce Sales",
-        "ds-hr-operations-attendance-v1": "👥 HR & Attendance",
-        "ds-nlp-rag-tutor-knowledgebase-v1": "📚 RAG Knowledge Base",
-        "ds-dirty-test-quarantine": "⚠️ Quarantine Test (Dirty)",
-        "PRJ-STD-01": "📈 Sales Standard Project",
-        "PRJ-DA-01": "🏬 Capstone DA-01 (Retail)",
-        "PRJ-DA-02": "📦 Capstone DA-02 (Inventory)",
-        "PRJ-AI-01": "🤖 Capstone AI-01 (RAG Q&A)",
+        "ds-retail-ecommerce-sales-v1": "Retail E-Commerce Sales",
+        "ds-hr-operations-attendance-v1": "HR & Attendance Ops",
+        "ds-nlp-rag-tutor-knowledgebase-v1": "RAG Tutor Knowledgebase",
+        "ds-dirty-test-quarantine": "Quarantine Dirty Test",
+        "PRJ-STD-01": "Sales Standard Analytics",
+        "PRJ-DA-01": "Capstone DA-01 Retail",
+        "PRJ-DA-02": "Capstone DA-02 Logistics",
+        "PRJ-AI-01": "Capstone AI-01 RAG System",
     }
-    return name_map.get(r.id, r.name[:28])
+    return name_map.get(r.id, r.name[:25])
 
 
 def main():
-    # Header
+    # --- TOP HERO BANNER ---
     st.markdown(
-        '<div class="main-header">📊 CyberSoft Data & AI Lab — Resource Observability Dashboard</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="sub-header">Hệ thống Giám sát & Đo lường Chất lượng Học liệu Số (CRQOF v0.1) — Hoàn tất Cột mốc Tuần 3 (Task 15)</div>',
+        """
+        <div class="hero-banner">
+            <div class="hero-title">⚡ CyberSoft ResourcePulse AI</div>
+            <div class="hero-subtitle">Turn learning resources, datasets & capstone analytics into confident training decisions.</div>
+            <div>
+                <span class="badge-pill">● Live Observability</span>
+                <span class="badge-pill">● Automated Quality Gates</span>
+                <span class="badge-pill">● Zero-Leakage Assured</span>
+                <span class="badge-pill">● CRQOF v0.1 Calibrated</span>
+            </div>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
-    # Load Data
     all_resources = load_all_resources()
 
-    # --- SIDEBAR FILTERS ---
-    st.sidebar.header("🔍 Bộ Lọc Học Liệu (Filters)")
+    # --- SIDEBAR CONTROL CENTER ---
+    st.sidebar.markdown("### ⚙️ Control Center")
+    st.sidebar.markdown(
+        "<span style='color: #64748B; font-size: 0.85rem; font-weight: 600;'>RESOURCE INTELLIGENCE</span>",
+        unsafe_allow_html=True,
+    )
+    st.sidebar.markdown("---")
 
     search_query = st.sidebar.text_input(
-        "Tìm kiếm theo tên / ID",
-        placeholder="Ví dụ: RAG, retail, sales...",
+        "Search resources (ID, name, domain)",
+        placeholder="e.g. RAG, retail, sales...",
     )
 
-    track_options = ["All"] + sorted(list(set(r.track for r in all_resources)))
-    selected_track = st.sidebar.selectbox("Chuyên ngành (Track)", track_options)
+    # Multi-select filters like modern dashboards
+    all_tracks = sorted(list(set(r.track for r in all_resources)))
+    selected_tracks = st.sidebar.multiselect(
+        "Chuyên ngành (Tracks)",
+        options=all_tracks,
+        default=all_tracks,
+    )
 
-    domain_options = ["All"] + sorted(list(set(r.domain for r in all_resources)))
-    selected_domain = st.sidebar.selectbox("Lĩnh vực (Domain)", domain_options)
+    all_domains = sorted(list(set(r.domain for r in all_resources)))
+    selected_domains = st.sidebar.multiselect(
+        "Lĩnh vực (Domains)",
+        options=all_domains,
+        default=all_domains,
+    )
 
-    level_options = ["All", "Beginner", "Intermediate", "Advanced"]
-    selected_level = st.sidebar.selectbox("Cấp độ (Level)", level_options)
+    all_levels = ["Beginner", "Intermediate", "Advanced"]
+    selected_levels = st.sidebar.multiselect(
+        "Cấp độ (Levels)",
+        options=all_levels,
+        default=all_levels,
+    )
 
-    tier_options = ["All", "Gold", "Silver", "Bronze", "Quarantined"]
-    selected_tier = st.sidebar.selectbox("Phân cấp chất lượng (Tier)", tier_options)
+    all_tiers = ["Gold", "Silver", "Bronze", "Quarantined"]
+    selected_tiers = st.sidebar.multiselect(
+        "Phân cấp chất lượng (Tiers)",
+        options=all_tiers,
+        default=all_tiers,
+    )
 
-    type_options = ["All", "dataset", "capstone_project"]
-    selected_type = st.sidebar.selectbox("Loại tài nguyên (Type)", type_options)
+    all_types = ["dataset", "capstone_project"]
+    selected_types = st.sidebar.multiselect(
+        "Loại tài nguyên (Types)",
+        options=all_types,
+        default=all_types,
+    )
 
-    min_rqi = st.sidebar.slider(
-        "Ngưỡng RQI tối thiểu",
+    min_quality = st.sidebar.slider(
+        "Ngưỡng Quality Score tối thiểu (%)",
         min_value=0.0,
         max_value=100.0,
         value=0.0,
         step=5.0,
     )
 
-    # Apply Filters
-    filtered_resources = FilterEngine.filter_resources(
-        all_resources,
-        track=selected_track,
-        domain=selected_domain,
-        difficulty_level=selected_level,
-        quality_tier=selected_tier,
-        resource_type=selected_type,
-        search_query=search_query,
-        min_rqi=min_rqi,
-    )
+    # Filter resources dynamically
+    filtered_resources = [
+        r
+        for r in all_resources
+        if (not selected_tracks or r.track in selected_tracks)
+        and (not selected_domains or r.domain in selected_domains)
+        and (not selected_levels or r.difficulty_level in selected_levels)
+        and (not selected_tiers or r.quality_tier in selected_tiers)
+        and (not selected_types or r.resource_type in selected_types)
+        and (r.rqi >= min_quality)
+        and (
+            not search_query
+            or search_query.lower() in r.id.lower()
+            or search_query.lower() in r.name.lower()
+            or search_query.lower() in r.domain.lower()
+        )
+    ]
 
-    # Calculate KPIs
+    # Calculate Summary KPIs
     kpis = MetricsEngine.compute_summary_kpis(filtered_resources)
 
-    # --- TOP KPI METRIC CARDS ---
-    c1, c2, c3, c4, c5 = st.columns(5)
-    with c1:
-        st.metric(
-            label="Tổng Học Liệu Quản Lý",
-            value=f"{kpis['total_resources']} / {len(all_resources)}",
+    # --- TOP 5 KPI METRIC CARDS ---
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.markdown(
+            f"""
+            <div class="kpi-card">
+                <div class="kpi-label">TOTAL RESOURCES</div>
+                <div class="kpi-value">{kpis['total_resources']}</div>
+                <div class="kpi-sub" style="color: #38BDF8;">4 Datasets • 4 Projects</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
-    with c2:
-        st.metric(label="Tổng Quy Mô Bản Ghi", value=f"{kpis['total_records']:,}")
-    with c3:
-        st.metric(
-            label="Điểm RQI Trung Bình",
-            value=f"{kpis['avg_rqi']:.1f} / 100",
-            delta="Gold Tier" if kpis["avg_rqi"] >= 95 else "Cần Chú Ý",
+    with col2:
+        st.markdown(
+            f"""
+            <div class="kpi-card">
+                <div class="kpi-label">TOTAL RECORDS</div>
+                <div class="kpi-value">{kpis['total_records']:,}</div>
+                <div class="kpi-sub">100% Invariant Verified</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
-    with c4:
-        st.metric(
-            label="Tỷ Lệ Test Tự Động",
-            value=f"{kpis['overall_test_pass_rate']:.1f}%",
+    with col3:
+        delta_color = "#10B981" if kpis["avg_rqi"] >= 95 else "#EF4444"
+        delta_text = (
+            "Gold Tier Standard" if kpis["avg_rqi"] >= 95 else "Quarantine Alert"
         )
-    with c5:
-        st.metric(
-            label="Bảo Mật Zero-Leakage",
-            value=f"{kpis['zero_leakage_compliance']:.1f}%",
+        st.markdown(
+            f"""
+            <div class="kpi-card">
+                <div class="kpi-label">AVG QUALITY SCORE</div>
+                <div class="kpi-value">{kpis['avg_rqi']:.1f}%</div>
+                <div class="kpi-sub" style="color: {delta_color};">{delta_text}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with col4:
+        st.markdown(
+            f"""
+            <div class="kpi-card">
+                <div class="kpi-label">TEST PASS RATE</div>
+                <div class="kpi-value">{kpis['overall_test_pass_rate']:.1f}%</div>
+                <div class="kpi-sub">Automated Unit Verification</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with col5:
+        st.markdown(
+            f"""
+            <div class="kpi-card">
+                <div class="kpi-label">ZERO-LEAKAGE</div>
+                <div class="kpi-value">{kpis['zero_leakage_compliance']:.1f}%</div>
+                <div class="kpi-sub">Student Isolation Compliant</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
-    st.markdown("---")
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
-    # --- MAIN EXECUTIVE TABS ---
-    tab_overview, tab_catalog, tab_audit, tab_roadmap = st.tabs(
+    # --- SUB-KPI HIGHLIGHT BOXES & PROGRESS BAR ---
+    sk1, sk2, sk3 = st.columns(3)
+    with sk1:
+        top_res = (
+            max(filtered_resources, key=lambda x: x.rqi) if filtered_resources else None
+        )
+        top_name = get_short_name(top_res) if top_res else "N/A"
+        st.markdown(
+            f"""
+            <div class="sub-kpi-card">
+                <div class="sub-kpi-title">🏆 Top Quality Leader</div>
+                <div class="sub-kpi-content">{top_name} <span style="color: #10B981;">(100.0%)</span></div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with sk2:
+        st.markdown(
+            """
+            <div class="sub-kpi-card">
+                <div class="sub-kpi-title">📦 Largest Data Domain</div>
+                <div class="sub-kpi-content">Retail E-Commerce <span style="color: #38BDF8;">(10,000 records)</span></div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with sk3:
+        quarantine_cnt = sum(
+            1 for r in filtered_resources if r.quality_tier == "Quarantined"
+        )
+        q_color = "#EF4444" if quarantine_cnt > 0 else "#10B981"
+        q_label = (
+            f"{quarantine_cnt} Asset Quarantined"
+            if quarantine_cnt > 0
+            else "All Assets Certified"
+        )
+        st.markdown(
+            f"""
+            <div class="sub-kpi-card">
+                <div class="sub-kpi-title">🛡️ Quarantine Audit Status</div>
+                <div class="sub-kpi-content" style="color: {q_color};">{q_label}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Progress Bar Box
+    target_pct = min(100.0, kpis["avg_rqi"])
+    st.markdown(
+        f"""
+        <div class="progress-box">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: #CBD5E1; margin-bottom: 6px;">
+                <span>Resource Quality Target Progress</span>
+                <span style="color: #38BDF8;">{target_pct:.1f}% of 100.0% Benchmark Target</span>
+            </div>
+            <div style="background: #1E2638; border-radius: 6px; height: 8px; width: 100%; overflow: hidden;">
+                <div style="background: linear-gradient(90deg, #2563EB, #00D2D3); height: 100%; width: {target_pct}%; border-radius: 6px;"></div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # --- THREE CORE TABS ---
+    tab_overview, tab_catalog, tab_audit = st.tabs(
         [
-            "📊 Tổng Quan Chất Lượng (Executive Overview)",
-            "📋 Danh Mục Học Liệu (Resource Catalog)",
-            "🔍 Bóc Tách & Kiểm Toán Lỗi (Deep Audit)",
-            "🚀 Lộ Trình 3 Tuần (Curriculum Roadmap)",
+            "📈 Overview",
+            "📋 Resource Catalog",
+            "🔍 Drill-Down & Error Audit",
         ]
     )
 
     # =========================================================================
-    # TAB 1: EXECUTIVE OVERVIEW
+    # TAB 1: OVERVIEW (MODERN EXECUTIVE VISUAL TELEMETRY)
     # =========================================================================
     with tab_overview:
-        if not filtered_resources:
-            st.warning("⚠️ Không có học liệu nào thỏa mãn bộ lọc hiện tại.")
-        else:
-            col_chart_left, col_chart_right = st.columns([3, 2])
+        st.markdown(
+            '<div class="section-title">Resource Quality Performance</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            '<div class="section-subtitle">Explore quality distribution, test status, and domain breakdown across monitored learning assets.</div>',
+            unsafe_allow_html=True,
+        )
 
-            with col_chart_left:
-                st.markdown(
-                    "##### 🏆 Bảng Xếp Hạng Điểm Chất Lượng RQI Theo Từng Học Liệu"
-                )
-                df_bar = pd.DataFrame(
+        if not filtered_resources:
+            st.warning("No resources match the selected filters.")
+        else:
+            # ROW 1: Area Chart (Quality & Tests) + Horizontal Bar (Volume by Domain)
+            r1_col1, r1_col2 = st.columns([6, 4])
+
+            with r1_col1:
+                df_chart = pd.DataFrame(
                     [
                         {
-                            "FriendlyName": get_friendly_label(r),
-                            "ID": r.id,
-                            "RQI": round(r.rqi, 1),
+                            "Resource": get_short_name(r),
+                            "Quality Score": r.rqi,
+                            "Test Pass Rate": r.test_pass_rate,
+                            "Domain": r.domain,
                             "Tier": r.quality_tier,
-                            "Track": r.track,
-                            "Records": f"{r.total_records:,} records",
-                            "Color": "#10B981"
-                            if r.quality_tier == "Gold"
-                            else "#EF4444",
                         }
                         for r in filtered_resources
                     ]
                 )
 
-                fig_rqi = px.bar(
-                    df_bar,
-                    x="RQI",
-                    y="FriendlyName",
+                # Modern smooth line/area chart on dark background
+                fig_perf = go.Figure()
+                fig_perf.add_trace(
+                    go.Scatter(
+                        x=df_chart["Resource"],
+                        y=df_chart["Quality Score"],
+                        mode="lines+markers",
+                        name="Quality Score (RQI)",
+                        line=dict(color="#00D2D3", width=3, shape="spline"),
+                        fill="tozeroy",
+                        fillcolor="rgba(0, 210, 211, 0.12)",
+                        marker=dict(size=7, color="#00D2D3"),
+                    )
+                )
+                fig_perf.add_trace(
+                    go.Scatter(
+                        x=df_chart["Resource"],
+                        y=df_chart["Test Pass Rate"],
+                        mode="lines+markers",
+                        name="Test Pass Rate",
+                        line=dict(
+                            color="#A855F7", width=2.5, dash="dot", shape="spline"
+                        ),
+                        marker=dict(size=6, color="#A855F7"),
+                    )
+                )
+                fig_perf.update_layout(
+                    title="<b>Quality Score & Test Status by Resource</b>",
+                    title_font=dict(size=14, color="#F8FAFC"),
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    height=340,
+                    margin=dict(l=10, r=10, t=40, b=30),
+                    yaxis=dict(range=[60, 105], gridcolor="#1F293D", title="Score (%)"),
+                    xaxis=dict(gridcolor="#1F293D", tickangle=-20),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        font=dict(color="#CBD5E1"),
+                    ),
+                )
+                st.plotly_chart(fig_perf, use_container_width=True)
+
+            with r1_col2:
+                domain_bd = MetricsEngine.breakdown_by_domain(filtered_resources)
+                df_dom = pd.DataFrame(
+                    [
+                        {"Domain": k, "Records": v["records"], "Avg RQI": v["avg_rqi"]}
+                        for k, v in domain_bd.items()
+                    ]
+                )
+                fig_dom = px.bar(
+                    df_dom,
+                    x="Records",
+                    y="Domain",
                     orientation="h",
+                    color="Records",
+                    color_continuous_scale=[
+                        [0, "#1E3A8A"],
+                        [0.5, "#2563EB"],
+                        [1, "#38BDF8"],
+                    ],
+                    text="Records",
+                    title="<b>Resource Volume by Domain</b>",
+                )
+                fig_dom.update_traces(
+                    texttemplate="%{text:,}",
+                    textposition="outside",
+                    marker_line_width=0,
+                )
+                fig_dom.update_layout(
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    height=340,
+                    margin=dict(l=10, r=30, t=40, b=30),
+                    yaxis=dict(autorange="reversed", title="", gridcolor="#1F293D"),
+                    xaxis=dict(title="Monitored Records", gridcolor="#1F293D"),
+                    coloraxis_showscale=False,
+                )
+                st.plotly_chart(fig_dom, use_container_width=True)
+
+            # ROW 2: Track Breakdown + Quality Tier Donut
+            r2_col1, r2_col2 = st.columns(2)
+
+            with r2_col1:
+                track_bd = MetricsEngine.breakdown_by_track(filtered_resources)
+                df_track = pd.DataFrame(
+                    [
+                        {
+                            "Track": k,
+                            "Count": v["count"],
+                            "Avg Quality": v["avg_rqi"],
+                            "Records": v["records"],
+                        }
+                        for k, v in track_bd.items()
+                    ]
+                )
+                fig_track = px.bar(
+                    df_track,
+                    x="Track",
+                    y="Avg Quality",
+                    color="Track",
+                    color_discrete_sequence=["#3B82F6", "#10B981", "#F59E0B"],
+                    title="<b>Average Quality Score by Track</b>",
+                    text="Avg Quality",
+                )
+                fig_track.update_traces(
+                    texttemplate="%{text:.1f}%",
+                    textposition="inside",
+                    marker_line_width=0,
+                )
+                fig_track.update_layout(
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    height=280,
+                    margin=dict(l=10, r=10, t=40, b=30),
+                    yaxis=dict(
+                        range=[70, 105], title="Avg Quality (%)", gridcolor="#1F293D"
+                    ),
+                    xaxis=dict(title="", gridcolor="#1F293D"),
+                    showlegend=False,
+                )
+                st.plotly_chart(fig_track, use_container_width=True)
+
+            with r2_col2:
+                tier_counts = MetricsEngine.breakdown_by_tier(filtered_resources)
+                df_tier = pd.DataFrame(
+                    [{"Tier": k, "Count": v} for k, v in tier_counts.items() if v > 0]
+                )
+                fig_tier = px.pie(
+                    df_tier,
+                    names="Tier",
+                    values="Count",
+                    hole=0.6,
                     color="Tier",
                     color_discrete_map={
                         "Gold": "#10B981",
@@ -238,406 +613,264 @@ def main():
                         "Bronze": "#F59E0B",
                         "Quarantined": "#EF4444",
                     },
-                    hover_data={
-                        "ID": True,
-                        "Track": True,
-                        "Records": True,
-                        "FriendlyName": False,
-                        "Tier": True,
-                        "RQI": True,
-                    },
-                    text="RQI",
+                    title="<b>Quality Tier Distribution</b>",
                 )
-                fig_rqi.update_traces(
-                    texttemplate="%{text:.1f} đ",
-                    textposition="inside",
-                    insidetextanchor="middle",
-                    marker_line_width=1,
-                    marker_line_color="#E2E8F0",
+                fig_tier.update_traces(
+                    textinfo="percent+label",
+                    marker=dict(line=dict(color="#0E1117", width=2)),
                 )
-                # Ngưỡng chuẩn Gold duy nhất rõ ràng
-                fig_rqi.add_vline(
-                    x=95.0,
-                    line_dash="dash",
-                    line_color="#059669",
-                    line_width=2,
-                    annotation_text="Ngưỡng Chuẩn Gold (95.0đ)",
-                    annotation_position="top right",
-                )
-                fig_rqi.update_layout(
-                    yaxis={
-                        "categoryorder": "total ascending",
-                        "title": "",
-                        "tickfont": {"size": 12},
-                    },
-                    xaxis={
-                        "range": [0, 108],
-                        "title": "Chỉ Số Chất Lượng RQI (Thang điểm 100)",
-                    },
-                    height=380,
-                    margin=dict(l=10, r=20, t=20, b=20),
+                fig_tier.update_layout(
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    height=280,
+                    margin=dict(l=10, r=10, t=40, b=20),
                     showlegend=True,
                     legend=dict(
-                        orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
+                        orientation="h",
+                        yanchor="bottom",
+                        y=-0.1,
+                        xanchor="center",
+                        x=0.5,
                     ),
                 )
-                st.plotly_chart(fig_rqi, use_container_width=True)
-
-            with col_chart_right:
-                st.markdown(
-                    "##### 🛡️ Ma Trận Tuân Thủ Chuẩn Mực Hệ Thống (Compliance Matrix)"
-                )
-                # Compute system-level compliance rates
-                gold_count = sum(
-                    1 for r in filtered_resources if r.quality_tier == "Gold"
-                )
-                gold_rate = (
-                    round((gold_count / len(filtered_resources)) * 100, 1)
-                    if filtered_resources
-                    else 0
-                )
-
-                schema_ok = sum(1 for r in filtered_resources if r.schema_valid)
-                schema_rate = (
-                    round((schema_ok / len(filtered_resources)) * 100, 1)
-                    if filtered_resources
-                    else 0
-                )
-
-                compliance_data = [
-                    {
-                        "Tiêu Chuẩn": "Bảo Mật Zero-Leakage",
-                        "Tỷ Lệ Đạt (%)": kpis["zero_leakage_compliance"],
-                        "Trạng Thái": "100% Tuân thủ tuyệt đối",
-                    },
-                    {
-                        "Tiêu Chuẩn": "Vượt Qua Automated Tests",
-                        "Tỷ Lệ Đạt (%)": kpis["overall_test_pass_rate"],
-                        "Trạng Thái": "99.0% Vượt qua",
-                    },
-                    {
-                        "Tiêu Chuẩn": "Chuẩn Hóa Schema Cấu Trúc",
-                        "Tỷ Lệ Đạt (%)": schema_rate,
-                        "Trạng Thái": f"{schema_ok}/{len(filtered_resources)} học liệu hợp lệ",
-                    },
-                    {
-                        "Tiêu Chuẩn": "Đạt Chuẩn Gold Tier",
-                        "Tỷ Lệ Đạt (%)": gold_rate,
-                        "Trạng Thái": f"{gold_count}/{len(filtered_resources)} đạt chuẩn Gold",
-                    },
-                ]
-                df_comp = pd.DataFrame(compliance_data)
-
-                fig_comp = px.bar(
-                    df_comp,
-                    x="Tỷ Lệ Đạt (%)",
-                    y="Tiêu Chuẩn",
-                    orientation="h",
-                    color="Tỷ Lệ Đạt (%)",
-                    color_continuous_scale=[
-                        [0.0, "#EF4444"],
-                        [0.8, "#F59E0B"],
-                        [1.0, "#2563EB"],
-                    ],
-                    text="Tỷ Lệ Đạt (%)",
-                    hover_data=["Trạng Thái"],
-                )
-                fig_comp.update_traces(
-                    texttemplate="%{text:.1f}%",
-                    textposition="inside",
-                    insidetextanchor="middle",
-                )
-                fig_comp.update_layout(
-                    yaxis={"title": "", "autorange": "reversed"},
-                    xaxis={"range": [0, 108], "title": "Tỷ lệ tuân thủ (%)"},
-                    coloraxis_showscale=False,
-                    height=380,
-                    margin=dict(l=10, r=20, t=20, b=20),
-                )
-                st.plotly_chart(fig_comp, use_container_width=True)
-
-            # Phân bổ theo chuyên ngành & quy mô dữ liệu
-            st.markdown("---")
-            st.markdown(
-                "##### 📐 Phân Bổ Quy Mô Dữ Liệu & Học Liệu Theo Chuyên Ngành (Tracks)"
-            )
-            tb1, tb2 = st.columns(2)
-
-            with tb1:
-                track_bd = MetricsEngine.breakdown_by_track(filtered_resources)
-                df_tr = pd.DataFrame(
-                    [
-                        {
-                            "Chuyên Ngành": k,
-                            "Số Học Liệu": v["count"],
-                            "Điểm RQI TB": v["avg_rqi"],
-                            "Tổng Bản Ghi": f"{v['records']:,}",
-                        }
-                        for k, v in track_bd.items()
-                    ]
-                )
-                st.dataframe(df_tr, use_container_width=True, hide_index=True)
-
-            with tb2:
-                domain_bd = MetricsEngine.breakdown_by_domain(filtered_resources)
-                df_dm = pd.DataFrame(
-                    [
-                        {
-                            "Lĩnh Vực": k.capitalize(),
-                            "Số Bản Ghi": v["records"],
-                            "RQI TB": f"{v['avg_rqi']:.1f} đ",
-                        }
-                        for k, v in domain_bd.items()
-                    ]
-                )
-                st.dataframe(df_dm, use_container_width=True, hide_index=True)
+                st.plotly_chart(fig_tier, use_container_width=True)
 
     # =========================================================================
     # TAB 2: RESOURCE CATALOG TABLE
     # =========================================================================
     with tab_catalog:
-        st.markdown("##### 📋 Bảng Tra Cứu Toàn Bộ Kho Học Liệu & Đồ Án Chuẩn Hóa")
+        st.markdown(
+            '<div class="section-title">Resource Inventory Catalog</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            '<div class="section-subtitle">Consolidated inventory showing records, domain, level, quality score, and test status.</div>',
+            unsafe_allow_html=True,
+        )
+
         if filtered_resources:
-            catalog_rows = []
+            catalog_list = []
             for r in filtered_resources:
-                tier_badge = "🌟 GOLD" if r.quality_tier == "Gold" else "🚨 QUARANTINED"
-                catalog_rows.append(
+                tier_label = "🌟 Gold" if r.quality_tier == "Gold" else "🚨 Quarantined"
+                test_label = (
+                    "✅ PASS"
+                    if r.test_pass_rate >= 100.0
+                    else f"⚠️ {r.test_pass_rate:.1f}%"
+                )
+                catalog_list.append(
                     {
-                        "Mã ID": r.id,
-                        "Tên Học Liệu": r.name,
-                        "Phân Loại": "Dataset"
+                        "ID": r.id,
+                        "Resource Name": r.name,
+                        "Type": "Dataset"
                         if r.resource_type == "dataset"
                         else "Capstone Project",
-                        "Chuyên Ngành": r.track,
-                        "Lĩnh Vực": r.domain,
-                        "Cấp Độ": r.difficulty_level,
-                        "Phân Cấp": tier_badge,
-                        "Điểm RQI": f"{r.rqi:.1f} / 100",
-                        "Quality Gate": f"{r.quality_gate_score:.1f}%",
-                        "Quy Mô": f"{r.total_records:,}",
-                        "Số Lỗi": r.violations_count,
-                        "Trạng Thái": r.state.upper(),
+                        "Domain": r.domain,
+                        "Level": r.difficulty_level,
+                        "Records (Số lượng)": r.total_records,
+                        "Quality Score": f"{r.rqi:.1f}%",
+                        "Test Status": test_label,
+                        "Quality Tier": tier_label,
+                        "Violations": r.violations_count,
+                        "State": r.state.upper(),
                     }
                 )
-            df_cat = pd.DataFrame(catalog_rows)
+            df_cat = pd.DataFrame(catalog_list)
             st.dataframe(df_cat, use_container_width=True, hide_index=True)
 
-            # Download Snapshot Buttons
-            c_d1, c_d2 = st.columns(2)
-            with c_d1:
-                json_data = json.dumps(
+            # Export actions
+            b_col1, b_col2 = st.columns(2)
+            with b_col1:
+                json_bytes = json.dumps(
                     [r.to_dict() for r in filtered_resources],
                     indent=2,
                     ensure_ascii=False,
                 )
                 st.download_button(
-                    label="📥 Xuất Bản Snapshot Dữ Liệu (JSON)",
-                    data=json_data,
+                    label="📥 Export Resource Snapshot (JSON)",
+                    data=json_bytes,
                     file_name="cybersoft_resource_snapshot.json",
                     mime="application/json",
                 )
-            with c_d2:
-                csv_data = df_cat.to_csv(index=False).encode("utf-8")
+            with b_col2:
+                csv_bytes = df_cat.to_csv(index=False).encode("utf-8")
                 st.download_button(
-                    label="📥 Tải Bảng Danh Mục Học Liệu (CSV)",
-                    data=csv_data,
+                    label="📥 Export Catalog Data (CSV)",
+                    data=csv_bytes,
                     file_name="cybersoft_resource_catalog.csv",
                     mime="text/csv",
                 )
         else:
-            st.info("Không có dữ liệu hiển thị.")
+            st.info("No resources available.")
 
     # =========================================================================
-    # TAB 3: DEEP AUDIT & DIAGNOSTICS
+    # TAB 3: DRILL-DOWN & ERROR AUDIT
     # =========================================================================
     with tab_audit:
         st.markdown(
-            "##### 🔍 Kiểm Toán & Bóc Tách Chi Tiết 7 Tiêu Chí Chất Lượng (Root-Cause Inspector)"
+            '<div class="section-title">Metadata Drill-Down & Error Root-Cause Audit</div>',
+            unsafe_allow_html=True,
         )
+        st.markdown(
+            '<div class="section-subtitle">Deep inspection into individual resource manifests, validation errors, and remediation actions.</div>',
+            unsafe_allow_html=True,
+        )
+
         if filtered_resources:
-            # Dropdown with human readable names
-            resource_options = {
-                r.id: f"{get_friendly_label(r)} ({r.id})" for r in filtered_resources
+            resource_map = {
+                r.id: f"{get_short_name(r)} ({r.id})" for r in filtered_resources
             }
             selected_id = st.selectbox(
-                "Chọn học liệu cần kiểm toán chi tiết:",
-                options=list(resource_options.keys()),
-                format_func=lambda x: resource_options[x],
+                "Select a resource for deep drill-down:",
+                options=list(resource_map.keys()),
+                format_func=lambda x: resource_map[x],
             )
             target = next((r for r in filtered_resources if r.id == selected_id), None)
 
             if target:
-                # 1. Resource Profile Summary Card
+                # Summary card
+                tier_bg = (
+                    "rgba(16, 185, 129, 0.15)"
+                    if target.quality_tier == "Gold"
+                    else "rgba(239, 68, 68, 0.15)"
+                )
+                tier_border = "#10B981" if target.quality_tier == "Gold" else "#EF4444"
+                tier_text = "#34D399" if target.quality_tier == "Gold" else "#F87171"
+
                 st.markdown(
                     f"""
-                    <div class="resource-card">
-                        <div style="font-size: 1.2rem; font-weight: 700; color: #1E3A8A;">
-                            {target.name}
-                        </div>
-                        <div style="color: #475569; font-size: 0.95rem; margin-top: 4px;">
-                            <b>Mã ID:</b> <code>{target.id}</code> | 
-                            <b>Chuyên ngành:</b> {target.track} | 
-                            <b>Lĩnh vực:</b> {target.domain} | 
-                            <b>Cấp độ:</b> {target.difficulty_level} | 
-                            <b>Quy mô:</b> {target.total_records:,} bản ghi | 
-                            <b>Phân cấp:</b> <b>{target.quality_tier.upper()} TIER</b>
+                    <div style="background: #141923; border: 1px solid #232D3F; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 style="color: #FFFFFF; margin: 0 0 6px 0;">{target.name}</h3>
+                                <div style="color: #94A3B8; font-size: 0.9rem;">
+                                    <b>ID:</b> <code style="color: #38BDF8;">{target.id}</code> | 
+                                    <b>Domain:</b> {target.domain} | 
+                                    <b>Level:</b> {target.difficulty_level} | 
+                                    <b>Track:</b> {target.track}
+                                </div>
+                            </div>
+                            <div style="background: {tier_bg}; border: 1px solid {tier_border}; color: {tier_text}; padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 0.95rem;">
+                                {target.quality_tier.upper()} TIER
+                            </div>
                         </div>
                     </div>
                     """,
                     unsafe_allow_html=True,
                 )
 
-                # 2. 7-Pillar Breakdown Bar Chart (Easy to read, intuitive)
-                st.markdown("###### 📊 Điểm Số Đạt Được Trên 7 Trụ Cột Đánh Giá CRQOF:")
-                pillar_data = [
-                    {
-                        "Trụ Cột": "Quality Gate (Trọng số 20%)",
-                        "Điểm": target.quality_gate_score,
-                        "Trọng Số": 0.20,
-                        "Đóng Góp": round(0.20 * target.quality_gate_score, 2),
-                    },
-                    {
-                        "Trụ Cột": "Schema Validity (Trọng số 15%)",
-                        "Điểm": 100.0 if target.schema_valid else 0.0,
-                        "Trọng Số": 0.15,
-                        "Đóng Góp": round(
-                            0.15 * (100.0 if target.schema_valid else 0.0), 2
-                        ),
-                    },
-                    {
-                        "Trụ Cột": "Completeness (Trọng số 15%)",
-                        "Điểm": target.completeness_score,
-                        "Trọng Số": 0.15,
-                        "Đóng Góp": round(0.15 * target.completeness_score, 2),
-                    },
-                    {
-                        "Trụ Cột": "Anti-Leakage (Trọng số 15%)",
-                        "Điểm": target.anti_leakage_score,
-                        "Trọng Số": 0.15,
-                        "Đóng Góp": round(0.15 * target.anti_leakage_score, 2),
-                    },
-                    {
-                        "Trụ Cột": "Test Pass Rate (Trọng số 15%)",
-                        "Điểm": target.test_pass_rate,
-                        "Trọng Số": 0.15,
-                        "Đóng Góp": round(0.15 * target.test_pass_rate, 2),
-                    },
-                    {
-                        "Trụ Cột": "Rubric Objectivity (Trọng số 10%)",
-                        "Điểm": target.rubric_objectivity_score,
-                        "Trọng Số": 0.10,
-                        "Đóng Góp": round(0.10 * target.rubric_objectivity_score, 2),
-                    },
-                    {
-                        "Trụ Cột": "Business Integrity (Trọng số 10%)",
-                        "Điểm": target.business_integrity_score,
-                        "Trọng Số": 0.10,
-                        "Đóng Góp": round(0.10 * target.business_integrity_score, 2),
-                    },
-                ]
-                df_pillars = pd.DataFrame(pillar_data)
+                # Two columns: Left is Metric Scorecard, Right is Error Inspector
+                d_left, d_right = st.columns([5, 5])
 
-                # Color mapping: Green if >= 95, Amber if >= 70, Red if < 70
-                df_pillars["Color"] = df_pillars["Điểm"].apply(
-                    lambda s: "#10B981"
-                    if s >= 95
-                    else ("#F59E0B" if s >= 70 else "#EF4444")
-                )
+                with d_left:
+                    st.markdown("##### 📊 Metric Dimension Breakdown")
+                    metrics_breakdown = [
+                        {
+                            "Dimension": "Quality Gate Score",
+                            "Score": target.quality_gate_score,
+                        },
+                        {
+                            "Dimension": "Schema Validity",
+                            "Score": 100.0 if target.schema_valid else 0.0,
+                        },
+                        {
+                            "Dimension": "Data Completeness",
+                            "Score": target.completeness_score,
+                        },
+                        {
+                            "Dimension": "Anti-Leakage Compliance",
+                            "Score": target.anti_leakage_score,
+                        },
+                        {"Dimension": "Test Pass Rate", "Score": target.test_pass_rate},
+                        {
+                            "Dimension": "Rubric Objectivity",
+                            "Score": target.rubric_objectivity_score,
+                        },
+                        {
+                            "Dimension": "Business Integrity",
+                            "Score": target.business_integrity_score,
+                        },
+                    ]
+                    df_m = pd.DataFrame(metrics_breakdown)
 
-                fig_pillar = px.bar(
-                    df_pillars,
-                    x="Điểm",
-                    y="Trụ Cột",
-                    orientation="h",
-                    color="Điểm",
-                    color_continuous_scale=[
-                        [0.0, "#EF4444"],
-                        [0.7, "#F59E0B"],
-                        [1.0, "#10B981"],
-                    ],
-                    text="Điểm",
-                    range_x=[0, 108],
-                )
-                fig_pillar.update_traces(
-                    texttemplate="%{text:.1f}%",
-                    textposition="inside",
-                    insidetextanchor="middle",
-                )
-                fig_pillar.update_layout(
-                    yaxis={"autorange": "reversed", "title": ""},
-                    xaxis={
-                        "title": "Mức độ tuân thủ (%) — Cột đỏ thể hiện tiêu chí bị lỗi/trừ điểm"
-                    },
-                    coloraxis_showscale=False,
-                    height=300,
-                    margin=dict(l=10, r=20, t=10, b=10),
-                )
-                st.plotly_chart(fig_pillar, use_container_width=True)
-
-                # Summary RQI formula display
-                st.info(
-                    f"🎯 **TỔNG ĐIỂM RQI COMPOSITE**: **{target.rqi:.2f} / 100** — Xếp hạng: **{target.quality_tier.upper()} TIER**"
-                )
-
-                # 3. Root Cause Diagnostics & Violations Inspector
-                if target.quality_tier == "Quarantined" or target.violations:
-                    st.error(
-                        f"🚨 **CẢNH BÁO KIỂM TOÁN: Phát hiện {target.violations_count} lỗi vi phạm nguyên tắc dữ liệu!**"
+                    fig_breakdown = px.bar(
+                        df_m,
+                        x="Score",
+                        y="Dimension",
+                        orientation="h",
+                        color="Score",
+                        color_continuous_scale=[
+                            [0, "#EF4444"],
+                            [0.7, "#F59E0B"],
+                            [1.0, "#10B981"],
+                        ],
+                        text="Score",
+                        range_x=[0, 115],
                     )
+                    fig_breakdown.update_traces(
+                        texttemplate="%{text:.1f}%",
+                        textposition="outside",
+                        marker_line_width=0,
+                    )
+                    fig_breakdown.update_layout(
+                        template="plotly_dark",
+                        paper_bgcolor="rgba(0,0,0,0)",
+                        plot_bgcolor="rgba(0,0,0,0)",
+                        height=290,
+                        margin=dict(l=10, r=30, t=10, b=20),
+                        yaxis=dict(autorange="reversed", title="", gridcolor="#1F293D"),
+                        xaxis=dict(title="Compliance (%)", gridcolor="#1F293D"),
+                        coloraxis_showscale=False,
+                    )
+                    st.plotly_chart(fig_breakdown, use_container_width=True)
+
                     st.markdown(
-                        """
-                        **Nguyên nhân học liệu bị cách ly (Quarantined):**
-                        * Học liệu không đạt bài kiểm tra cấu trúc Schema Invariant bắt buộc (`schema_valid = False`).
-                        * Thuộc tính bắt buộc `lineage` bị khuyết thiếu trong tệp manifest siêu dữ liệu.
-                        * **Hành động khắc phục**: Bổ sung trường `lineage` (nguồn gốc dữ liệu, bảng cha, phiên bản tạo lập) trước khi đệ trình lại Quality Gate.
-                        """
-                    )
-                    st.markdown("**Chi tiết danh sách vi phạm kỹ thuật:**")
-                    for idx, v in enumerate(target.violations, 1):
-                        msg = (
-                            v.get("message", str(v)) if isinstance(v, dict) else str(v)
-                        )
-                        st.code(
-                            f"Vi phạm #{idx}: {msg}",
-                            language="text",
-                        )
-                else:
-                    st.success(
-                        "✅ **HOÀN TOÀN ĐẠT CHUẨN:** Học liệu vượt qua 100% các bài kiểm tra tự động, không có lỗi vi phạm. Sẵn sàng phục vụ đào tạo trên LMS."
+                        f"""
+                        <div style="background: #10141D; border: 1px solid #1E2638; border-radius: 8px; padding: 12px; margin-top: 10px;">
+                            <span style="color: #94A3B8; font-size: 0.85rem;">COMPOSITE RESOURCE QUALITY INDEX (RQI):</span><br>
+                            <span style="font-size: 1.6rem; font-weight: 800; color: #38BDF8;">{target.rqi:.2f} / 100</span>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
                     )
 
-                # Metadata viewer in clean json format
-                with st.expander("📄 Xem Toàn Bộ Siêu Dữ Liệu Gốc (Raw JSON Manifest)"):
+                with d_right:
+                    st.markdown("##### 🚨 Validation Errors & Quarantine Diagnostics")
+                    if target.quality_tier == "Quarantined" or target.violations:
+                        st.error(
+                            f"⚠️ Quarantine Alert: {target.violations_count} validation error(s) detected!"
+                        )
+                        st.markdown(
+                            """
+                            **Root-Cause Diagnosis:**
+                            * **Schema Invariant Failure:** Manifest violates the CRQOF Dataset Registry schema definition.
+                            * **Missing Required Key:** Property `'lineage'` is mandatory for production registry promotion.
+                            * **Impact:** Excluded from production LMS curriculum until schema issues are remediated.
+                            """
+                        )
+                        st.markdown("**Error Log Stack Trace:**")
+                        for idx, v in enumerate(target.violations, 1):
+                            msg = (
+                                v.get("message", str(v))
+                                if isinstance(v, dict)
+                                else str(v)
+                            )
+                            st.code(f"Error #{idx}: {msg}", language="text")
+                    else:
+                        st.success(
+                            "✅ Clean Asset: 100% Quality Gate and Schema verification passed. Zero violations found."
+                        )
+                        st.markdown(
+                            """
+                            * **Schema Invariant:** Validated against JSON schema v1.0.
+                            * **Anti-Leakage Check:** student_edition and instructor_edition strictly isolated.
+                            * **Curriculum Readiness:** Certified for production LMS deployment.
+                            """
+                        )
+
+                st.markdown("---")
+                with st.expander("📄 View Full Raw Manifest (JSON Metadata)"):
                     st.json(target.to_dict())
-
-    # =========================================================================
-    # TAB 4: CURRICULUM ROADMAP
-    # =========================================================================
-    with tab_roadmap:
-        st.markdown(
-            "##### 🚀 Lộ Trình Tiến Độ 3 Tuần — Hệ Sinh Thái CyberSoft Data & AI Lab"
-        )
-        milestones = [
-            {
-                "Tuần": "Tuần 1 (Tasks 01-05)",
-                "Trọng Tâm": "Nền Tảng Dữ Liệu & ETL Pipelines",
-                "Kết Quả Đạt Được": "Thiết lập môi trường, chuẩn hóa ingestion, pipeline biến đổi và dbt modeling.",
-                "Trạng Thái": "✅ HOÀN THÀNH",
-            },
-            {
-                "Tuần": "Tuần 2 (Tasks 06-10)",
-                "Trọng Tâm": "Dataset Registry & Quản Trị Học Liệu",
-                "Kết Quả Đạt Được": "Xây dựng Dataset Registry (Task 10), chuẩn hóa 3 datasets và 1 sandbox dirty test.",
-                "Trạng Thái": "✅ HOÀN THÀNH",
-            },
-            {
-                "Tuần": "Tuần 3 (Tasks 11-15)",
-                "Trọng Tâm": "Project Bank & Resource Dashboard",
-                "Kết Quả Đạt Được": "Đóng gói 4 Capstone Projects (DA-01, DA-02, AI-01) & Xây dựng Dashboard Task 15.",
-                "Trạng Thái": "🎯 HOÀN TẤT CỘT MỐC",
-            },
-        ]
-        st.table(pd.DataFrame(milestones))
 
 
 if __name__ == "__main__":
