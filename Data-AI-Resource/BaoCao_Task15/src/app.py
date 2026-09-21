@@ -137,6 +137,7 @@ st.markdown(
         border: 1px solid rgba(128, 128, 128, 0.22) !important;
         border-radius: 12px;
         padding: 16px;
+        margin-bottom: 12px;
         text-align: left;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         transition: transform 0.2s ease, border-color 0.2s ease;
@@ -256,6 +257,10 @@ st.markdown(
     }
     .js-plotly-plot .plotly .zeroline {
         stroke: rgba(128, 128, 128, 0.32) !important;
+    }
+    /* Hide floating Plotly modebar (pan, zoom, autoscale) for clean executive dashboard */
+    .js-plotly-plot .plotly .modebar {
+        display: none !important;
     }
     </style>
     """,
@@ -580,13 +585,20 @@ def main():
                     )
                 )
                 fig_perf.update_layout(
-                    title="<b>Quality Score & Test Status by Resource</b>",
-                    title_font=dict(size=15),
+                    title=dict(
+                        text="<b>Quality Score & Test Status by Resource</b>",
+                        font=dict(size=15),
+                        x=0,
+                        y=0.98,
+                        xanchor="left",
+                        yanchor="top",
+                    ),
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
-                    height=370,
+                    height=380,
                     margin=dict(l=15, r=15, t=45, b=90),
                     yaxis=dict(
+                        domain=[0, 0.78],
                         range=[60, 105],
                         title="Score (%)",
                         title_font=dict(size=12),
@@ -598,14 +610,18 @@ def main():
                     ),
                     legend=dict(
                         orientation="h",
-                        yanchor="bottom",
-                        y=1.02,
-                        xanchor="right",
-                        x=1,
-                        font=dict(size=12),
+                        yanchor="top",
+                        y=0.88,
+                        xanchor="left",
+                        x=0,
+                        font=dict(size=11),
                     ),
                 )
-                st.plotly_chart(fig_perf, use_container_width=True)
+                st.plotly_chart(
+                    fig_perf,
+                    use_container_width=True,
+                    config={"displayModeBar": False},
+                )
 
             with r1_col2:
                 domain_bd = MetricsEngine.breakdown_by_domain(filtered_resources)
@@ -636,12 +652,20 @@ def main():
                     marker_line_width=0,
                 )
                 fig_dom.update_layout(
-                    title_font=dict(size=15),
+                    title=dict(
+                        text="<b>Resource Volume by Domain</b>",
+                        font=dict(size=15),
+                        x=0,
+                        y=0.98,
+                        xanchor="left",
+                        yanchor="top",
+                    ),
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
-                    height=370,
+                    height=380,
                     margin=dict(l=15, r=45, t=45, b=90),
                     yaxis=dict(
+                        domain=[0, 0.78],
                         autorange="reversed",
                         title="",
                         tickfont=dict(size=11),
@@ -654,7 +678,11 @@ def main():
                     ),
                     coloraxis_showscale=False,
                 )
-                st.plotly_chart(fig_dom, use_container_width=True)
+                st.plotly_chart(
+                    fig_dom,
+                    use_container_width=True,
+                    config={"displayModeBar": False},
+                )
 
             # SPACING SEPARATOR BETWEEN ROW 1 AND ROW 2
             st.markdown(
@@ -711,7 +739,11 @@ def main():
                     ),
                     showlegend=False,
                 )
-                st.plotly_chart(fig_track, use_container_width=True)
+                st.plotly_chart(
+                    fig_track,
+                    use_container_width=True,
+                    config={"displayModeBar": False},
+                )
 
             with r2_col2:
                 tier_counts = MetricsEngine.breakdown_by_tier(filtered_resources)
@@ -753,7 +785,11 @@ def main():
                         font=dict(size=12),
                     ),
                 )
-                st.plotly_chart(fig_tier, use_container_width=True)
+                st.plotly_chart(
+                    fig_tier,
+                    use_container_width=True,
+                    config={"displayModeBar": False},
+                )
 
     # =========================================================================
     # TAB 2: RESOURCE CATALOG TABLE
@@ -952,7 +988,11 @@ def main():
                         ),
                         coloraxis_showscale=False,
                     )
-                    st.plotly_chart(fig_breakdown, use_container_width=True)
+                    st.plotly_chart(
+                        fig_breakdown,
+                        use_container_width=True,
+                        config={"displayModeBar": False},
+                    )
 
                     st.markdown(
                         f"""
