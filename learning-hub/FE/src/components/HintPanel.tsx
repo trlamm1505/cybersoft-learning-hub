@@ -147,6 +147,17 @@ export const HintPanel: React.FC<HintPanelProps> = ({
   const unlockedCount = hints.filter((h) => h.isUnlocked).length;
 
   const handleUnlock = async (level: 1 | 2 | 3) => {
+    // Bắt buộc mở lần lượt: Tầng N chỉ mở được khi Tầng N-1 đã mở trước đó,
+    // không cho "nhảy cóc" thẳng lên Tầng 2/3 dù đây là luồng gợi ý tĩnh
+    // (customHints) hay gọi API thật — cùng 1 quy tắc cho cả 2 luồng.
+    if (level > 1) {
+      const previousTier = hints.find((h) => h.level === level - 1);
+      if (!previousTier?.isUnlocked) {
+        setErrorMsg(`Bạn cần mở Tầng ${level - 1} trước khi mở Tầng ${level}.`);
+        return;
+      }
+    }
+
     setIsUnlocking(true);
     setErrorMsg(null);
     setSuccessMsg(null);
@@ -272,15 +283,22 @@ export const HintPanel: React.FC<HintPanelProps> = ({
           const item = hints.find((h) => h.level === meta.level);
           const isUnlocked = item?.isUnlocked ?? false;
           const isActive = activeLevel === meta.level;
+          // Tầng N chỉ được chuyển tới khi Tầng N-1 đã mở (hoặc chính nó đã mở
+          // rồi) — ngăn học viên "nhảy cóc" xem trước Tầng 3 khi chưa mở Tầng 2.
+          const previousTier = hints.find((h) => h.level === meta.level - 1);
+          const isReachable = meta.level === 1 || isUnlocked || (previousTier?.isUnlocked ?? false);
 
           return (
             <button
               key={meta.level}
-              onClick={() => setActiveLevel(meta.level as 1 | 2 | 3)}
-              className={`p-3 rounded-xl border text-left transition-all duration-150 flex flex-col justify-between gap-2.5 cursor-pointer ${
-                isActive
-                  ? 'border-indigo-500 bg-indigo-500/10 shadow-xs ring-1 ring-indigo-500/30'
-                  : 'border-[var(--border-color)] bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)]'
+              disabled={!isReachable}
+              onClick={() => isReachable && setActiveLevel(meta.level as 1 | 2 | 3)}
+              className={`p-3 rounded-xl border text-left transition-all duration-150 flex flex-col justify-between gap-2.5 ${
+                !isReachable
+                  ? 'opacity-50 cursor-not-allowed border-[var(--border-color)] bg-[var(--bg-main)]'
+                  : isActive
+                    ? 'border-indigo-500 bg-indigo-500/10 shadow-xs ring-1 ring-indigo-500/30 cursor-pointer'
+                    : 'border-[var(--border-color)] bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] cursor-pointer'
               }`}
             >
               {/* Row 1: Icon + Full Title */}

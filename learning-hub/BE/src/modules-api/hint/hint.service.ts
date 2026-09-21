@@ -127,7 +127,22 @@ export class HintService implements OnModuleInit {
       };
     }
 
-    // 2. Kiểm tra Cooldown kể từ lần mở gợi ý gần nhất của bài tập này
+    // 2. Bắt buộc mở lần lượt theo thứ tự: Tầng N chỉ mở được khi Tầng N-1
+    // đã được mở trước đó (không cho "nhảy cóc" thẳng lên Tầng 2/3).
+    if (level > 1) {
+      const previousLevelUsage = await this.hintUsageModel
+        .findOne({ userId, exerciseSlug, level: level - 1 })
+        .exec();
+      if (!previousLevelUsage) {
+        throw new BadRequestException({
+          statusCode: 400,
+          error: 'PreviousTierLocked',
+          message: `Bạn cần mở Tầng ${level - 1} trước khi mở Tầng ${level}.`,
+        });
+      }
+    }
+
+    // 3. Kiểm tra Cooldown kể từ lần mở gợi ý gần nhất của bài tập này
     const lastUsage = await this.hintUsageModel
       .findOne({ userId, exerciseSlug })
       .sort({ unlockedAt: -1 })
@@ -146,7 +161,7 @@ export class HintService implements OnModuleInit {
       }
     }
 
-    // 3. Đăng ký mở gợi ý mới và trừ điểm (simulated points cost)
+    // 4. Đăng ký mở gợi ý mới và trừ điểm (simulated points cost)
     const newUsage = await this.hintUsageModel.create({
       userId,
       exerciseSlug,
