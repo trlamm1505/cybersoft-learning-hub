@@ -34,19 +34,18 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Remove empty top spacing on both main container and sidebar */
+    /* Clean Top Spacing */
     .block-container {
-        padding-top: 1.0rem !important;
+        padding-top: 2.0rem !important;
         padding-bottom: 2.0rem !important;
         padding-left: 2.0rem !important;
         padding-right: 2.0rem !important;
     }
     [data-testid="stSidebarContent"] {
-        padding-top: 1.0rem !important;
+        padding-top: 1.5rem !important;
     }
-    header[data-testid="stHeader"] {
-        height: 0px !important;
-        background: transparent !important;
+    [data-testid="stSidebarHeader"] {
+        padding-bottom: 0 !important;
     }
     
     /* Hide ONLY the Deploy button */
@@ -54,22 +53,18 @@ st.markdown(
         display: none !important;
     }
     
-    /* Position 3-dots menu directly on the right side of sidebar Control Center header */
+    /* Native 3-dots styling: keep at top-right, clean and visible */
     #MainMenu {
-        position: fixed !important;
-        top: 0.85rem !important;
-        left: 17.5rem !important;
-        right: auto !important;
-        z-index: 999999 !important;
+        visibility: visible !important;
     }
     #MainMenu button {
         color: var(--text-color) !important;
-        background: transparent !important;
-        border: none !important;
     }
-    /* When sidebar is collapsed, position near the expand button */
-    section[data-testid="stSidebar"][aria-expanded="false"] ~ * #MainMenu {
-        left: 3.8rem !important;
+    
+    /* Retain native Streamlit collapsed sidebar control button (the >> rectangle) */
+    [data-testid="stSidebarCollapsedControl"] {
+        visibility: visible !important;
+        z-index: 99 !important;
     }
 
     /* Core Theme Colors (Adapts dynamically to Light / Dark mode) */
@@ -275,14 +270,14 @@ def main():
 
     # --- SIDEBAR CONTROL CENTER ---
     st.sidebar.markdown(
-        "<h3 style='color: var(--text-color); margin-bottom: 2px;'>⚙️ Control Center</h3>",
+        """
+        <div style="margin: 0 0 12px 0; padding: 0 0 8px 0; border-bottom: 1px solid rgba(128, 128, 128, 0.2);">
+            <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-color); line-height: 1.2;">⚙️ Control Center</div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-color); opacity: 0.65; letter-spacing: 0.8px; margin-top: 3px;">RESOURCE INTELLIGENCE</div>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
-    st.sidebar.markdown(
-        "<span style='color: var(--text-color); opacity: 0.75; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.8px;'>RESOURCE INTELLIGENCE</span>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.markdown("---")
 
     search_query = st.sidebar.text_input(
         "Search resources (ID, name, domain)",
