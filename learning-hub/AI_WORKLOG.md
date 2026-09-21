@@ -1,12 +1,12 @@
-# AI Work Log — Ngày 14: Bộ 20 bài Python/game logic cho lớp 6-9
+# AI Work Log — Ngày 15: Bộ 15 bài luyện thi thuật toán lớp 10-12
 
 | | |
 |---|---|
 | **Người thực hiện** | Dương Chí Việt |
-| **Ngày** | 2026-09-18 |
-| **Nhánh** | `feature/learning-hub-day14` |
+| **Ngày** | 2026-09-21 |
+| **Nhánh** | `feature/learning-hub-day15` |
 | **Công cụ** | Claude Code (CLI, VSCode extension), model Claude Sonnet 5 |
-| **Phạm vi quyền** | Đọc/ghi trong `learning-hub/`; tạo branch mới từ `feature/learning-hub-day13` + merge `main` (loại trừ `Test/`, `Data-AI-Resource/` vì là công việc của nhóm khác); chạy build/typecheck/seed/dev server thật; gọi API thật qua judge pipeline để kiểm chứng. Không đụng `Test/`, `Data-AI-Resource/` |
+| **Phạm vi quyền** | Đọc/ghi trong `learning-hub/`; tạo branch mới từ `main`; chạy build/typecheck/seed/dev server thật; gọi API thật qua judge pipeline để kiểm chứng; seed dữ liệu vào MongoDB local (`localhost:27017/cybersoft`, đã xác nhận với người dùng trước khi chạy vì có bước xóa collection cũ). |
 
 ---
 
@@ -14,242 +14,231 @@
 
 | # | Việc | Trạng thái |
 |---|---|---|
-| 1 | Tạo branch `feature/learning-hub-day14`, merge `main` loại trừ `Test/`, `Data-AI-Resource/` | ✅ Xong |
-| 2 | Khảo sát kiến trúc hiện có (Lesson vs Exercise) để chọn đúng nơi tích hợp 20 bài | ✅ Xong |
-| 3 | Thiết kế 20 bài Python (5 nhóm x 4 bài), 92 test case | ✅ Xong |
-| 4 | Kiểm chứng độc lập bằng script Python — tự bắt 4 lỗi thiết kế bài/test | ✅ Xong |
-| 5 | Thêm `tags`, `prerequisiteSlug` vào `Exercise` schema; sửa 1 lỗi schema có sẵn (`expectedOutput` không cho chuỗi rỗng) | ✅ Xong |
-| 6 | Chạy qua đúng judge pipeline thật — phát hiện và vá lỗi hạ tầng CRLF/LF có sẵn | ✅ Xong |
-| 7 | Viết Editorials + Teacher Guide cho 20 bài | ✅ Xong |
-| 8 | Sửa bug FE: 20 bài mới bị ẩn khỏi Code Playground do logic gộp danh sách sai | ✅ Xong |
-| 9 | Tái cấu trúc theo phản hồi: thêm `gradeBand`/`topic`/`orderInTopic`, giảm độ khó 3 bài HARD cho đúng lứa tuổi | ✅ Xong |
-| 10 | Giao diện danh sách bài kiểu HackerRank + khóa tuần tự (AC mới mở bài sau) + gợi ý 3 cấp | ✅ Xong |
-| 11 | Đổi flow điều hướng: box chọn Lớp → grid chọn Bài → mới mở Code Editor | ✅ Xong |
-| 12 | Sửa bug khóa tuần tự không hoạt động ở lớp 6-9; chuẩn hóa trạng thái WA/TLE/RE/CE/AC; đồng bộ icon `lucide-react` (Batch 1); focus-trap 6 modal; xóa Responsive Guide | ✅ Xong |
-| 13 | Đồng bộ icon `lucide-react` Batch 2 (các trang/component còn lại) qua 4 sub-agent song song; khắc phục sự cố `git stash` giữa lúc chạy song song làm mất tạm các thay đổi | ✅ Xong |
+| 1 | Tạo branch `feature/learning-hub-day15`, kéo `main` xuống, đổi tên nhánh cho đúng convention | Xong |
+| 2 | Thiết kế 15 bài thuật toán (5 nhóm x 3 bài: Complexity, Sorting, Binary Search, Greedy, Graph/DP cơ bản), 73 test case | Xong |
+| 3 | Kiểm chứng độc lập bằng script Python — xác nhận naive O(N^2) thực sự TLE, không chỉ suy luận lý thuyết | Xong |
+| 4 | Viết Editorials, Teacher Guide, Complexity Rubric cho 15 bài | Xong |
+| 5 | Sửa lỗi hiển thị: đổi label "Lớp 9-12" thành "Lớp 10-12" cho khớp giá trị gradeBand FE đang dùng | Xong |
+| 6 | Chạy qua đúng judge pipeline thật — phát hiện và sửa bug runtime `import sys` bị chặn ở bài Đếm nghịch thế | Xong |
+| 7 | Phát hiện và sửa bug thiết kế test case: hidden test bài Gộp khoảng thời gian vượt giới hạn 64KB output của judge | Xong |
+| 8 | Viết file đáp án riêng cho bộ 15 bài (`docs/day15/answers.md`) | Xong |
+| 9 | Rà soát lại bộ 20 bài lớp 6-9 (ngày 14): thêm import còn thiếu vào starterCode, sửa hint2 bị vỡ định dạng, viết lại hint3 từ lộ nguyên đáp án thành khung code có TODO | Xong |
+| 10 | Viết file đáp án cho bộ 20 bài ngày 14 (`docs/day14/answers.md`) | Xong |
+| 11 | Phát hiện và sửa bug khóa tầng gợi ý: bấm thẳng được Tầng 3 mà không cần mở Tầng 1, Tầng 2 trước | Xong |
+| 12 | Thêm hiệu ứng hoàn thành khóa (modal chúc mừng, đếm ngược, tự chuyển trang) và nút Bài tiếp theo | Xong |
+| 13 | Thêm scrollbar mỏng theo theme, thay cho thanh cuộn mặc định của hệ điều hành | Xong |
+| 14 | Phát hiện và sửa bug Block Puzzle (lớp 3-5, ngày 13): khối Lặp lại và Nếu...thì không lồng được vào nhau dù khác loại | Xong |
+| 15 | Viết file đáp án cho Block Puzzle (`docs/day13/answers.md`), kiểm chứng lại 15 màn chơi bằng mô phỏng độc lập | Xong |
+| 16 | Chia 5 commit theo chủ đề, push lên `feature/learning-hub-day15` | Xong |
 
 ---
 
-## Việc 1 — Tạo branch, merge main loại trừ Test/ và Data-AI-Resource/
+## Việc 1 — Tạo branch, kéo main, đổi tên cho đúng convention
 
 ### Prompt gốc của người dùng
-> "tương tự như này ngày 13 giờ tạo branch day14 sau đó kéo main xuống (trừ folder test và data vì là của người khác)"
+Yêu cầu tạo nhánh làm việc cho ngày 15 và cập nhật từ nhánh `main` mới nhất, tương tự cách đã làm ở ngày 14.
 
 ### Đã làm
-Tạo `feature/learning-hub-day14` từ `feature/learning-hub-day13`. Merge `main` vào, kiểm tra diff xác nhận toàn bộ thay đổi từ merge chỉ nằm trong `Test/` và `Data-AI-Resource/` (việc của nhóm khác); không có thay đổi nào trong `learning-hub/`. Loại các file thuộc 2 thư mục trên khỏi working tree trước khi commit merge.
+Tạo branch từ `origin/main` mới nhất. Khi người dùng chỉ ra tên nhánh không khớp convention (phải là `feature/learning-hub-day15` như ngày 14), đổi tên lại bằng `git branch -m`.
 
 ---
 
-## Việc 2 — Khảo sát kiến trúc, chọn nơi tích hợp 20 bài
-
-### Phát hiện
-Hệ thống có 2 nơi lưu "bài tập" dễ nhầm: `Lesson` (trang "Bài học" chính thống, không có judge pipeline) và `Exercise` (Code Playground, có judge chạy Python thật). Nhiệm vụ ngày 14 khớp với `Exercise`.
-
-### Quyết định của người dùng (qua câu hỏi lựa chọn)
-- Tích hợp vào `Exercise` (không tạo loại `Lesson` mới).
-- 20 bài chia 5 nhóm, độ khó tăng dần **trong từng nhóm**.
-- Mỗi bài 5-6 test case (2 sample công khai + 3-4 hidden bắt edge case).
-
----
-
-## Việc 3 — Thiết kế 20 bài + 92 test case
-
-Viết `BE/src/data/initial-exercises-day14.ts` — 20 bài (input/output, list, loop, function, simulation), mỗi bài có `title`, `description`, `starterCode`, `solutionCode`, `testCases`, `tags`, `prerequisiteSlug` nối thành 1 chuỗi tiến trình 1→20.
-
-Với mỗi bài, tự đặt câu hỏi "học sinh có né được khái niệm cần học mà vẫn ra đúng kết quả không" trước khi chốt test case — ví dụ bài "loại bỏ trùng lặp" cố ý thêm hidden test thứ tự giảm dần để bắt lỗi dùng `list(set(nums))`.
-
----
-
-## Việc 4 — Kiểm chứng độc lập bằng script, tự bắt 4 lỗi trước khi động vào hệ thống thật
-
-Viết script Python (`verify_day14.py`) tự chạy `solutionCode` qua toàn bộ 92 test case bằng `subprocess`, so sánh output thật với `expectedOutput` — không dựa vào đọc lại bằng mắt.
-
-### 4 lỗi tự phát hiện
-
-| # | Bài | Lỗi | Nguyên nhân | Cách sửa |
-|---|---|---|---|---|
-| 1 | Trộn 2 danh sách đã sắp xếp | Lỗi runtime khi N=0/M=0 | Code đọc dòng có điều kiện, nhưng test input vẫn có dòng trống → lệch dòng đọc | Luôn đọc đúng số dòng cố định, không đọc có điều kiện |
-| 2 | Mô phỏng thang máy | Sai kỳ vọng khi 12 lệnh UP liên tiếp | Tính nhẩm sai giới hạn chặn biên | Chạy code thật thay vì tính tay, sửa expected theo kết quả thật |
-| 3 | Mô phỏng trận đấu | Sai người thắng | Nhầm thứ tự ai đánh trước thắng | Chạy code thật, sửa expected |
-| 4 | Mô phỏng thang máy (case khác) | Sai kỳ vọng | Tương tự #2, có cả DOWN và UP chặn biên trong 1 chuỗi | Chạy code thật |
-
-Sau khi sửa: 92/92 test case pass qua Python thuần — nhưng đây chỉ là kiểm chứng tầng 1 (xem Việc 6).
-
----
-
-## Việc 5 — Thêm field mới vào schema, phát hiện + sửa 1 lỗi schema có sẵn
-
-Thêm `tags: string[]`, `prerequisiteSlug?: string` vào `Exercise` schema, cập nhật `exercise.service.ts` và FE type.
-
-### Lỗi có sẵn trong hệ thống, tự phát hiện khi seed thật vào MongoDB
-`npm run seed:exercises` thật bị chặn: field `expectedOutput` khai `required: true` nhưng 1 bài cần `expectedOutput: ''` hợp lệ (túi rỗng thì không in gì) — Mongoose coi chuỗi rỗng là "thiếu" (truthy-check, không phải presence-check). Thử 4 cách sửa khác (validator function, `checkRequired` override, `required` dạng function) đều không hoạt động đúng như tài liệu khi tự viết script kiểm tra riêng. Cách cuối: bỏ hẳn `required: true` khỏi field này.
-
----
-
-## Việc 6 — Chạy qua đúng judge pipeline thật, phát hiện lỗi hạ tầng CRLF/LF có sẵn
-
-Không dừng ở script Python thuần (Việc 4) — khởi động thật NestJS backend, gọi đúng API `POST /exercises/:slug/submit` (hàng đợi judge thật) cho cả 20 bài, poll qua `GET /exercises/submissions/:id`.
-
-### Phát hiện quan trọng nhất của ngày 14
-Lần chạy đầu qua API thật: 6/20 bài bị `WA` dù đã pass 100% ở Việc 4. `actualOutput` có `\r\n` (CRLF) trong khi `expectedOutput` chỉ có `\n` (LF) — judge chạy Python trực tiếp trên Windows host nên `print()` sinh dòng mới kiểu Windows. Đây là **lỗi hạ tầng có sẵn**, ảnh hưởng mọi bài có output nhiều dòng trong toàn Code Playground, chỉ chưa lộ ra vì 10 bài mẫu cũ hầu hết có 1 dòng output.
-
-### Cách sửa
-Vá ở `judge-queue.service.ts`: chuẩn hóa `\r\n` → `\n` cho cả `actualOutput` và `expectedOutput` trước khi so sánh.
-
-### Kiểm chứng cuối cùng
-Chạy lại 20 bài qua API thật lần 2: 20/20 `AC`, 92/92 test case pass. Submit thêm 1 bản giải cố ý sai (bug off-by-one bài "Số hoàn thiện") để xác nhận hidden test bắt được đúng lỗi phổ biến — kết quả `WA 1/5` như kỳ vọng.
-
----
-
-## Việc 7 — Tài liệu bàn giao
-
-- **Editorials** (`docs/day14/editorials.md`): ý tưởng giải, edge case, lỗi phổ biến cho từng bài trong 20 bài.
-- **Teacher Guide** (`docs/day14/teacher-guide.md`): mục tiêu sư phạm theo 5 nhóm, rubric, bản đồ tiến trình 20 bài.
-
----
-
-## Việc 8 — Sửa bug FE: 20 bài mới bị ẩn khỏi Code Playground
+## Việc 2 — Thiết kế 15 bài thuật toán, 73 test case
 
 ### Prompt gốc của người dùng
-> "run len cho toi test cái" — sau đó: "không thấy"
+Yêu cầu triển khai nhiệm vụ ngày 15 theo đề bài đã cho: soạn 15 bài luyện thi thuật toán cho lớp 10-12, thuộc các chủ đề complexity, sorting, binary search, greedy và graph/DP cơ bản; viết constraint buộc đúng độ phức tạp; xây dựng editorial nhiều hướng giải; bàn giao gói bài kèm official solutions và complexity rubric.
 
-### Nguyên nhân (bug có sẵn trong FE, không do ngày 14 tạo ra)
-`combinedExercises` có logic: nếu có ít nhất 1 bài "Teacher Authoring" thì bỏ hoàn toàn danh sách từ Exercise API. Vì hệ thống đã có sẵn 10 bài Teacher Authoring trùng, toàn bộ 20 bài day14 (chỉ nằm trong `Exercise`) bị ẩn khỏi dropdown.
+### Đã làm
+Viết `BE/src/data/initial-exercises-day15.ts`: 15 bài chia 5 nhóm (Complexity, Sorting, Binary Search, Greedy, Graph/DP cơ bản), mỗi bài có `starterCode`, `solutionCode`, `testCases`, `tags`, `prerequisiteSlug` nối thành 1 chuỗi tiến trình.
+
+Với mỗi bài, thiết kế ít nhất 1 hidden test case có N/S nằm ở biên constraint, để lời giải sai độ phức tạp mục tiêu bị chặn bởi `timeLimitMs`.
+
+---
+
+## Việc 3 — Kiểm chứng độc lập, xác nhận TLE thật chứ không chỉ suy luận
+
+### Prompt gốc của người dùng
+Điều kiện nghiệm thu của đề bài yêu cầu có test phân biệt được lời giải chậm, chạy test/checklist độc lập với kết luận của AI, đính kèm lệnh chạy và kết quả — không chấp nhận chỉ suy luận độ phức tạp trên giấy.
+
+### Đã làm
+Viết script Python tự chạy `solutionCode` qua toàn bộ 73 test case bằng `subprocess`, so sánh output thật với `expectedOutput`. Phát hiện và tự sửa 2 lỗi trong lúc soạn test (một lỗi tính tay expectedOutput sai ở bài trộn dãy, một lỗi kỳ vọng khoảng cách sai ở bài BFS lưới) trước khi seed vào hệ thống.
+
+Với 4 bài có bẫy độ phức tạp thuần túy (naive vẫn ra đúng đáp số, chỉ chậm), viết thêm script riêng chạy naive solution qua `subprocess.run(..., timeout=timeLimitMs/1000)` trên đúng input của hidden test lớn nhất, xác nhận `TimeoutExpired` được raise thật sự, không dừng lại ở việc tính Big-O trên giấy.
+
+---
+
+## Việc 4 — Editorials, Teacher Guide, Complexity Rubric
+
+### Prompt gốc của người dùng
+Đề bài ngày 15 yêu cầu bàn giao editorials, teacher guide và complexity rubric là các sản phẩm bắt buộc, tương tự cấu trúc tài liệu đã dùng ở ngày 14.
+
+### Đã làm
+Viết `docs/day15/editorials.md` (nhiều hướng giải mỗi bài, từ naive đến tối ưu, phân biệt rõ bẫy tốc độ và bẫy logic), `docs/day15/teacher-guide.md` (mục tiêu sư phạm, rubric chấm điểm, mapping mục tiêu kỳ thi kèm giới hạn tránh đặt kỳ vọng sai), và `docs/day15/complexity-rubric.md` (bảng ánh xạ độ phức tạp mục tiêu và ràng buộc constraint cho từng bài).
+
+---
+
+## Việc 5 — Sửa lỗi hiển thị nhãn lớp
+
+### Phát hiện của người dùng
+Sau khi seed xong, vào Code Playground không thấy mục lớp 10-12.
+
+### Nguyên nhân
+File dữ liệu ban đầu dùng `gradeBand: '10-12'`, nhưng FE `CodePlaygroundPage.tsx` chỉ định nghĩa sẵn nhãn/icon/gradient cho giá trị `'9-12'`, không có `'10-12'` — bài bị lọc rơi mất, không hiện mục nào.
 
 ### Đã sửa
-Gộp cả 2 nguồn vào `combinedExercises` bằng `Map` theo `slug` (bài giáo viên đè lên bài hệ thống nếu trùng) thay vì để 1 nguồn thay thế hoàn toàn nguồn khác.
+Đổi toàn bộ 15 bài sang `gradeBand: '9-12'` để khớp giá trị FE đã dùng sẵn, chỉ đổi label hiển thị thành "Lớp 10-12" cho đúng tên gọi thực tế mà không cần sửa nhiều nơi trong FE.
 
 ---
 
-## Việc 9 — Tái cấu trúc theo phản hồi: phân lớp/chủ đề + giảm độ khó cho đúng lứa tuổi
+## Việc 6 — Chạy qua đúng judge pipeline thật, phát hiện bug runtime `import sys`
 
-### Prompt gốc của người dùng
-> "hay nên làm tách ra đi tại bữa sau làm 9-12 [...] h tách lộ trình kiểu như 3-5 chung 1 chủ đề nhưng chia cấp độ làm tương tự lần lượt á, như hackerank với leetcode" — làm rõ thêm: "kiểu chủ đề cho 3-5 tìm đường cho robot về nhà á gồm 10 câu, sau này thêm chủ đề mới [...] mỗi cấp độ lại phân game, nên làm kỹ 1 xíu"
+### Phát hiện của người dùng
+Nộp bài Đếm nghịch thế báo lỗi runtime: "Không được phép import module sys".
 
-### Quyết định của người dùng (qua câu hỏi lựa chọn)
-- 1 collection duy nhất, thêm `gradeBand` + `topic` (mỗi khối lớp chứa nhiều topic song song, mỗi topic tự có tiến trình riêng) — không tách nhiều collection theo lớp.
-- 20 bài ngày 14 giữ nguyên 1 gói (`topic: 'python-fundamentals'`), không tách 5 game riêng ngay — nhưng sửa lại độ khó cho đúng lứa tuổi.
-- Xác nhận 4 bài HARD (xoắn ốc ma trận, Fibonacci memo, trộn list two-pointer, trận đấu turn-based) vượt tầm lớp 6-9, thay 3 bài đầu bằng bài dễ hơn.
-
-### Đã làm
-- Thêm `gradeBand?: string`, `topic?: string`, `orderInTopic?: number` vào `Exercise` schema.
-- Thay 3 bài HARD: "Xoắn ốc lưới vuông" → "Kiểm tra ma trận đối xứng"; "Fibonacci memoization" → "Đệ quy đếm số lần xuất hiện trong danh sách"; "Trộn 2 danh sách" bỏ yêu cầu two-pointer, chỉ cần `sorted(a+b)`. Bài Simulation cuối giữ nguyên logic, viết lại mô tả đơn giản hơn.
-- Gán `gradeBand: '6-9'`, `topic: 'python-fundamentals'`, `orderInTopic: 1..20` bằng script.
-- Cập nhật `exercise.service.ts`, FE type, `docs/day14/*.md`.
-
-### Kiểm chứng độc lập
-Chạy lại cả 2 tầng cho toàn bộ 20 bài (kể cả 17 bài không đổi): (1) script Python thuần — 93/93 pass; (2) qua đúng judge pipeline thật — 20/20 AC.
-
----
-
-## Việc 10 — Giao diện danh sách bài kiểu HackerRank + khóa tuần tự + gợi ý 3 cấp
-
-### Prompt gốc của người dùng
-> "oke kiểu giao diện làm kiểu lộ trình hackerank á, xong bài này mới được chuyển qua bài sau với làm gợi ý 3 cấp độ luôn"
-
-### Quyết định của người dùng (qua câu hỏi lựa chọn)
-- Giao diện progression: danh sách dạng list (giống tab "Problems" HackerRank).
-- Khóa tuần tự: phải nộp đúng (AC) bài trước mới mở bài kế, lưu localStorage — đúng quy tắc đã dùng ở Block Puzzle ngày 13.
-- Nội dung gợi ý 3 cấp: Claude soạn sẵn cho cả 20 bài (Tầng 1 Khái niệm, Tầng 2 Chiến lược, Tầng 3 = `solutionCode`).
-
-### Đã làm
-- Thêm field `hints?: LessonHints` vào `Exercise` schema, tái dùng class có sẵn từ `lesson.schema.ts`.
-- Soạn 3 cấp gợi ý cho 20 bài, dùng script chèn vào đúng vị trí trong file TS (tránh sửa tay 20 lần dễ gõ sai cú pháp).
-- FE: state `completedSlugs` (localStorage), `markCompleted(slug)` khi Submit trả `AC`; `isExerciseUnlocked(idx)` chỉ khóa khi đang xem đúng 1 topic cụ thể; danh sách bài dạng modal có icon trạng thái (đã xong/đang mở/còn khóa); truyền `exercise?.hints` vào `HintPanel` qua prop có sẵn.
-
-### Kiểm chứng độc lập
-So khớp script: `hint3` của cả 20 bài bằng đúng 100% `solutionCode` thật. Chạy lại toàn bộ pipeline: TypeScript compile sạch, script Python 93/93 pass, judge pipeline thật 20/20 AC, API trả đúng field mới.
-
----
-
-## Việc 11 — Đổi flow điều hướng: box chọn Lớp → grid chọn Bài → mới mở Code Editor
-
-### Prompt gốc của người dùng
-> "kiểu muốn vào Code Playground chia thành từng box r mới mở code editor theo từng box chứ k mở code eđitor sẵn á"
-
-### Quyết định của người dùng (qua câu hỏi lựa chọn)
-3 màn hình tuần tự: Box chọn Lớp (màn 1) → Grid thẻ chọn Bài (màn 2) → Code Editor (màn 3, chỉ mở khi bấm 1 thẻ bài cụ thể).
-
-### Đã làm
-Thêm state điều hướng `view: 'grade' | 'exercises' | 'editor'`, bỏ hành vi tự chọn bài đầu tiên khi vào trang. Viết lại JSX theo 3 nhánh render, xóa Modal "Danh sách bài" cũ (màn 2 thay thế vai trò đó bằng grid). Hàm `openExercise(slug)` gộp logic kiểm tra đăng nhập + chuyển `view('editor')` vào 1 chỗ.
-
-### Kiểm chứng
-`npx tsc --noEmit` sạch, `vite build` thành công — vì đây là thay đổi cấu trúc lớn (xóa hẳn 1 nhánh JSX, viết 3 nhánh mới), rủi ro cao nhất là tham chiếu biến/state đã xóa mà quên dọn.
-
----
-
-## Việc 12 — Sửa bug khóa tuần tự, chuẩn hóa WA/TLE/RE/CE/AC, đồng bộ icon (Batch 1), focus-trap, xóa Responsive Guide
-
-### Prompt gốc của người dùng
-> "chưa ràng buộc từng bước kìa, hiện tại ấn vào bài nào cũng được hết, thứ 2 làm kỹ xác định WA/TLE/RE/CE/AC. vào cho người ta thấy chuyên nghiệp và bổ sung kiến thức về các lỗi, thứ 2 toàn bộ web bị lạm dụng icon ticker khác nhau nên nhìn rất là AI, nên đồng bộ Icon, chuyên nghiệp mỗi cấp độ vd 3-5 thì tiểu học nên cần màu sắc 1 tí, thứ 3 là tester vừa bảo khi test phím (không chuột thì nó nhảy button ko theo trình tự), thứ 4 xóa cái 📸 Hướng dẫn chụp ảnh Responsive (v0.1) đi"
-
-4 vấn đề riêng biệt trong 1 lượt. Với mỗi điểm mơ hồ về phạm vi, dùng AskUserQuestion để người dùng tự chọn thay vì tự đoán.
-
-### 1. Bug khóa tuần tự không hoạt động
-**Vị trí (người dùng xác nhận):** Lớp 6-9, chủ đề Python Fundamentals.
-
-**Nguyên nhân:** `isSequentialUnlockActive = selectedTopic !== 'all'`. Dropdown chủ đề chỉ render khi có >1 topic — lớp 6-9 chỉ có 1 topic nên dropdown không hiện, `selectedTopic` mãi là `'all'`, khóa tuần tự luôn tắt.
-
-**Đã sửa:**
-```ts
-const isSequentialUnlockActive =
-  selectedGradeBand !== null && (selectedTopic !== 'all' || availableTopics.length === 1);
-```
-
-**Kiểm chứng:** `curl http://localhost:3000/api/exercises` xác nhận lớp 6-9 có đúng 20 bài, cùng 1 topic — đúng điều kiện bản sửa nhắm tới. Build lại sạch.
-
-### 2. Chuẩn hóa trạng thái chấm bài WA/TLE/RE/CE/AC
-**Lựa chọn người dùng:** "Thêm giải thích rõ từng loại lỗi + màu/badge chuẩn".
-
-**Đã làm:** `TestResultsPanel.tsx`/`OutputPanel.tsx` — thêm field `explanation` cho từng trạng thái, icon `lucide-react` riêng, màu badge chuẩn theo tone (emerald=AC, amber=WA/TLE, red=RE/CE/FAILED, slate=QUEUED/RUNNING).
-
-### 3. Đồng bộ icon, thêm màu theo cấp lớp (Batch 1)
-**Lựa chọn người dùng:** phạm vi "toàn bộ web" (không chỉ Code Playground); thư viện `lucide-react`; triển khai theo đợt — Header + Code Playground trước.
-
-**Đã làm:** dùng agent Explore rà soát emoji toàn FE trước khi hỏi lựa chọn. Cài `lucide-react`. Sửa `Header.tsx`, `CodePlaygroundPage.tsx` (thêm `GRADE_BAND_GRADIENT` — 3-5 cam-hồng ấm, 6-9 indigo-cyan, 9-12 slate tối), `TestResultsPanel.tsx`, `OutputPanel.tsx`, `HintPanel.tsx`.
-
-**Kiểm chứng:** `tsc --noEmit` + `vite build` sạch (lưu ý `tsc` không bắt được 1 lỗi JSX thiếu dấu `>` phát sinh sau, chỉ `vite build` bắt được).
-
-### 4. Bug accessibility: Tab bàn phím nhảy lộn xộn qua modal
-**Chẩn đoán:** không phải do `tabIndex` sai, mà do toàn bộ 6 modal chưa có focus-trap.
-
-**Lựa chọn người dùng:** vị trí "toàn web nói chung"; sửa cả 6 modal ngay.
-
-**Đã làm:** viết hook `useFocusTrap(active, onClose)` (`FE/src/hooks/useFocusTrap.ts`), áp dụng cho `ContestRulesModal.tsx`, `BlockPuzzlePage.tsx`, `TeacherContestAuthoring.tsx`, `ContestListPage.tsx`, `TeacherAuthoringPage.tsx`, `QuizTakingPage.tsx`.
-
-### 5. Xóa "📸 Hướng dẫn chụp ảnh Responsive"
-Xóa hẳn `ResponsiveGuideModal.tsx` và toàn bộ wiring ở `Header.tsx`/`App.tsx`.
-
-**Kiểm chứng tổng thể:** `tsc --noEmit` + `vite build` sạch sau mỗi bước; khởi động lại BE/FE, xác nhận API vẫn trả đúng data.
-
----
-
-## Việc 13 — Đồng bộ icon Batch 2 qua nhiều agent song song + khắc phục sự cố git stash
-
-### Bối cảnh
-Batch 2 (phần icon còn lại: BlockPuzzlePage, các trang Contest, TeacherAuthoringPage, TeacherContestAuthoring, Quiz/Course/Login/Register/Footer...) có khối lượng lớn — dùng 1 agent điều phối, tự tách thành 4 sub-agent chạy song song, mỗi agent phụ trách 1-2 file.
-
-### Sự cố phát sinh và cách phát hiện
-Một sub-agent chạy `git stash` giữa lúc các agent khác đang sửa file trên đĩa — lệnh này gom toàn bộ thay đổi chưa commit của cả phiên (không riêng phần việc của nó) vào 1 stash. Agent đó chỉ tự khôi phục đúng 2 file mình phụ trách, phần còn lại (khoảng 25 file, bao gồm AI_WORKLOG.md, Header.tsx, việc xóa ResponsiveGuideModal, CodePlaygroundPage.tsx...) bị kẹt trong stash, không còn trên working tree — phát hiện qua chính người dùng báo "sao giờ ít file/web như ban đầu vậy".
+### Nguyên nhân
+`solutionCode` dùng merge sort đệ quy, cần `sys.setrecursionlimit(300000)` để tránh tràn ngăn xếp trên mảng 100000 phần tử. Judge chặn hẳn module `sys` vì lý do bảo mật.
 
 ### Đã sửa
-- Đối chiếu từng file trong stash với file hiện có trên đĩa: các file đã bị 4 sub-agent Batch 2 viết lại (mới hơn, đã qua kiểm chứng riêng) giữ nguyên bản trên đĩa; toàn bộ file còn lại phục hồi từ stash bằng `git checkout stash@{0} -- <file>` (làm từng file một, vì chạy gộp nhiều đường dẫn cùng lúc bị dừng giữa chừng do 1 đường dẫn không hợp lệ, khiến tưởng đã phục hồi nhưng thực ra chưa chạy gì).
-- Phát hiện thêm: 2 trong số 6 modal (`BlockPuzzlePage.tsx`, `TeacherAuthoringPage.tsx`) bị mất phần `useFocusTrap` đã làm ở Việc 12, vì bị 1 sub-agent viết lại từ bản gốc (sau khi bị stash cuốn mất) mà không biết đến fix đó — thêm lại `useFocusTrap` cho cả 2 file.
-- Xóa lại `ResponsiveGuideModal.tsx` (bị hồi sinh do stash).
-- Drop stash sau khi xác nhận mọi nội dung đã có đầy đủ trên working tree.
+Viết lại thuật toán theo kiểu bottom-up merge sort (dùng vòng lặp ghép các đoạn độ dài tăng dần, không đệ quy), không cần `sys` nữa. Kiểm chứng bằng Python thuần (khớp 100% kết quả với bản đệ quy cũ trên 200 test ngẫu nhiên), sau đó nộp thật qua API judge: kết quả AC, 5/5 test pass, kể cả test N=100000 chạy trong giới hạn thời gian.
+
+---
+
+## Việc 7 — Phát hiện bug thiết kế test case vượt giới hạn output của judge
+
+### Phát hiện của người dùng
+Bài Gộp khoảng thời gian báo Sai kết quả (4/5 test) dù thuật toán đúng.
+
+### Nguyên nhân
+Hidden test lớn nhất dùng N=100000 khoảng, sinh ra output khoảng 1.29MB. Hệ thống chấm bài giới hạn stdout tối đa 64KB mỗi lần chạy (`MAX_OUTPUT_BYTES` trong `code-runner.helper.ts`), output vượt giới hạn bị cắt cụt, khiến bài đúng thuật toán vẫn bị chấm sai vì phần bị cắt không khớp đáp án đầy đủ.
+
+### Đã sửa
+Rà soát lại toàn bộ 73 test case của 15 bài, chỉ duy nhất bài này vi phạm giới hạn 64KB. Giảm N của test đó xuống 3000 (output khoảng 29KB, an toàn dưới giới hạn) mà vẫn đủ lớn để không thể giải bằng cách liệt kê thủ công. Ghi lại bài học này vào `complexity-rubric.md` để tránh lặp lại ở các bộ bài sau.
+
+---
+
+## Việc 8 — Viết file đáp án riêng cho bộ 15 bài
+
+### Prompt gốc của người dùng
+Yêu cầu soạn file đáp án cho học viên tự đối chiếu, có code đáp án đầy đủ kèm giải thích từng bước và lý do vì sao không dùng cách giải đơn giản hơn, ghi vào `docs/day15`.
+
+### Đã làm
+Viết `docs/day15/answers.md`: mỗi bài gồm đề tóm tắt, code đáp án đầy đủ (đúng bằng `solutionCode` trong hệ thống), giải thích từng dòng, và lý do vì sao cách giải naive không phù hợp. Đối chiếu tự động toàn bộ 15 bài để đảm bảo code trong tài liệu khớp chính xác với dữ liệu trong hệ thống tại thời điểm bàn giao, tránh lệch nội dung khi solutionCode được cập nhật về sau.
+
+---
+
+## Việc 9 — Rà soát lại bộ 20 bài ngày 14
+
+### Prompt gốc của người dùng
+Yêu cầu áp dụng tương tự các cải tiến của ngày 15 cho bộ bài ngày 14: thêm import sẵn cho học viên, sửa gợi ý bị vỡ định dạng, và đảm bảo Tầng 3 không lộ nguyên đáp án mà chỉ là khung sườn.
+
+### Đã làm
+Kiểm tra thấy bộ 20 bài không có bài nào thiếu import (chỉ dùng cú pháp Python cơ bản). Sửa `hint2` của cả 20 bài, thêm xuống dòng giữa các bước cho đúng định dạng. Viết lại `hint3` của cả 20 bài từ "giống hệt solutionCode" thành khung code có phần đọc input/cấu trúc sẵn nhưng để trống phần logic cốt lõi bằng comment TODO.
 
 ### Kiểm chứng
-`npx tsc --noEmit` sạch; `npx vite build` sạch (2011 module) sau khi phục hồi; grep xác nhận cả 6 modal đều có `useFocusTrap`; `git status` khớp đúng danh sách file đã thay đổi trong toàn phiên.
+93/93 test case vẫn khớp đúng solutionCode sau khi sửa (không đụng vào solutionCode/testCases). hint3 của cả 20 bài không còn trùng solutionCode, đều có TODO, không dùng module bị chặn trong sandbox chấm bài.
+
+---
+
+## Việc 10 — Viết file đáp án cho bộ 20 bài ngày 14
+
+### Prompt gốc của người dùng
+Yêu cầu bổ sung file đáp án tương tự ngày 15 cho bộ bài ngày 14, ghi vào `docs/day14`.
+
+### Đã làm
+Viết `docs/day14/answers.md` theo đúng cấu trúc đã dùng ở ngày 15: đề tóm tắt, code đáp án đầy đủ, giải thích từng bước, lỗi hay gặp cho cả 20 bài. Đối chiếu tự động với dữ liệu mới nhất trong hệ thống sau khi hint3 được viết lại ở việc 9, đảm bảo tài liệu không còn tham chiếu tới bản code cũ đã lộ đáp án.
+
+---
+
+## Việc 11 — Phát hiện và sửa bug khóa tầng gợi ý
+
+### Prompt gốc của người dùng
+Báo cáo lỗi: chưa từng nộp bài 3 nhưng vẫn bấm mở khóa được Tầng 3 (gợi ý gần đáp án nhất), yêu cầu quy tắc phải là chỉ những bài đã từng làm/nộp mới được xem như đã mở, các bài chưa làm phải mở tuần tự theo từng tầng.
+
+### Phát hiện của người dùng
+Chưa từng mở Tầng 1, Tầng 2 nhưng vẫn bấm mở được Tầng 3 (code mẫu).
+
+### Điều tra
+Ban đầu nghi ngờ là dữ liệu localStorage cũ từ lần test trước, nhưng người dùng xác nhận chưa từng submit bài trước đó. Kiểm tra lại code phát hiện bug thật ở cả 2 luồng: luồng gọi API thật (`hint.service.ts`) chỉ kiểm tra "đã mở tầng này chưa" và cooldown, không kiểm tra tầng liền trước đã mở chưa; luồng gợi ý tĩnh (`HintPanel.tsx`, dùng cho bộ bài day14/day15) set `isUnlocked` trực tiếp ở client mà không kiểm tra thứ tự tầng.
+
+### Đã sửa
+Thêm điều kiện bắt buộc ở cả 2 luồng: mở tầng N phải có bằng chứng tầng N-1 đã mở trước đó. Đồng thời disable việc chuyển tab sang tầng chưa đủ điều kiện mở trên giao diện.
+
+### Kiểm chứng
+Qua API thật: bỏ qua tầng 2 để mở thẳng tầng 3 bị chặn đúng, mở tuần tự 1 rồi 2 rồi 3 vẫn hoạt động bình thường không bị chặn oan.
+
+---
+
+## Việc 12 — Hiệu ứng hoàn thành khóa và nút Bài tiếp theo
+
+### Prompt gốc của người dùng
+Yêu cầu khi học viên hoàn thành hết các bài trong 1 khóa, hiển thị hiệu ứng chúc mừng đã hoàn thành khóa, đếm ngược rồi tự động chuyển về trang chính sau 10 giây. Trước đó cũng có yêu cầu riêng thêm nút chuyển sang bài tiếp theo ngay sau khi nộp bài đúng, thay vì phải quay lại danh sách chọn bài.
+
+### Đã làm
+Thêm nút "Bài tiếp theo" hiển thị ngay dưới kết quả nộp bài khi trạng thái là đúng (AC) và còn bài kế tiếp trong danh sách. Thêm modal chúc mừng toàn màn hình khi hoàn thành bài cuối cùng trong 1 chuỗi tiến trình, đếm ngược 10 giây kèm nút bỏ qua đếm ngược, tự động điều hướng về trang chính khi hết giờ. Dùng khóa lưu trữ cục bộ riêng để đảm bảo hiệu ứng chỉ hiện đúng 1 lần cho mỗi khóa, không lặp lại khi học viên mở lại một khóa đã hoàn thành từ trước.
+
+### Kiểm chứng
+Mô phỏng lại logic phát hiện hoàn thành khóa qua 4 trường hợp: chưa hoàn thành hết, vừa hoàn thành lần đầu, đã từng hiện hiệu ứng trước đó, và trường hợp không thuộc một chuỗi tiến trình duy nhất — cả 4 đều cho kết quả đúng.
+
+---
+
+## Việc 13 — Đồng bộ nhãn hiển thị lớp học và thanh cuộn
+
+### Prompt gốc của người dùng
+Yêu cầu sửa gộp 3 vấn đề giao diện được báo lại sau khi test thực tế: nhãn hiển thị chưa đúng "Lớp 10-12", phần gợi ý bị vỡ định dạng khi hiển thị (đã xử lý ở Việc 9), và thanh cuộn mặc định của trình duyệt không đẹp mắt, cần thay bằng thanh cuộn tùy chỉnh.
+
+### Đã làm
+Xác nhận lại việc đổi nhãn lớp đã xử lý đúng ở Việc 5. Thêm scrollbar mỏng, theo màu giao diện sáng/tối, áp dụng cho toàn bộ hệ thống thay cho thanh cuộn mặc định của hệ điều hành.
+
+---
+
+## Việc 14 — Phát hiện và sửa bug Block Puzzle không lồng được khối
+
+### Prompt gốc của người dùng
+Yêu cầu áp dụng tương tự các cải tiến của bộ bài Python cho Block Puzzle (lớp 3-5): kiểm tra và soạn file đáp án, đồng thời lưu ý ràng buộc khối vòng lặp không lồng được khối điều kiện và ngược lại.
+
+### Phát hiện của người dùng
+Kéo khối "Nếu phía trước có chướng ngại vật" vào bên trong khối "Lặp lại N lần" không thực hiện được, dù đáp án gốc của các bài 12 đến 15 yêu cầu đúng cấu trúc này.
+
+### Điều tra
+Kiểm tra code phát hiện điều kiện chặn `if (isContainerCommand) return` áp dụng cho mọi trường hợp container lồng vào container khác, không phân biệt cùng loại hay khác loại — khiến Lặp lại không thể chứa Nếu...thì dù khác loại khối.
+
+Sau khi sửa lần đầu, người dùng báo tiếp: lồng được khối Nếu vào Lặp lại, nhưng khối di chuyển đơn (Rẽ trái, Đi tới) lại bị đẩy ra ngoài thay vì vào đúng vị trí bên trong. Điều tra tiếp phát hiện nguyên nhân gốc: `DndContext` không chỉ định chiến lược phát hiện va chạm (`collisionDetection`), dùng mặc định `rectIntersection`, không đảm bảo chọn đúng vùng thả trong cùng khi các vùng lồng nhau chồng lấn về mặt hình học.
+
+### Đã sửa
+Sửa điều kiện chặn để chỉ cấm cùng loại lồng nhau, cho phép khác loại lồng 1 cấp. Thêm hàm chèn khối đệ quy thay vì chỉ tìm ở cấp ngoài cùng. Đổi chiến lược phát hiện va chạm sang kết hợp `pointerWithin` ưu tiên trước (chọn đúng vùng trong cùng khi lồng nhau) và `rectIntersection` dự phòng (giữ đúng hành vi cũ cho các khe chèn hẹp giữa các khối).
+
+### Kiểm chứng
+Mô phỏng lại đúng logic chạy khối và cách đếm khối của trang chơi bằng Python, xác nhận cả 15/15 bài đều đưa robot tới đích đúng và số khối nằm trong giới hạn cho phép của từng bài.
+
+---
+
+## Việc 15 — Viết file đáp án cho Block Puzzle
+
+### Prompt gốc của người dùng
+Yêu cầu soạn file đáp án cho Block Puzzle tương tự các bộ bài viết code, nhưng đơn giản hơn vì đây là trò chơi xếp khối lệnh, ghi vào `docs/day13`.
+
+### Đã làm
+Kiểm tra rubric đáp án đã có sẵn từ trước (`docs/day13/block-puzzle-answer-rubric.md`) để tránh soạn trùng lặp. Viết thêm `docs/day13/answers.md` dạng bảng liệt kê nhanh thứ tự đặt khối cho cả 15 bài, kèm ghi chú về quy tắc lồng khối tối đa 1 cấp đã xác nhận đúng theo mã nguồn.
+
+### Kiểm chứng
+Mô phỏng độc lập bằng Python cho cả 15 bài dựa trên dữ liệu level thật, xác nhận robot tới đích và số khối nằm trong giới hạn cho phép, trước khi đối chiếu với nội dung rubric cũ.
+
+---
+
+## Việc 16 — Chia commit theo chủ đề và đẩy lên nhánh
+
+### Prompt gốc của người dùng
+Yêu cầu tạo commit dễ hiểu, đầy đủ, chi tiết, có tính logic rồi đẩy lên nhánh `feature/learning-hub-day15`, không thêm dòng ghi công cụ AI vào nội dung commit.
+
+### Đã làm
+Chia toàn bộ thay đổi trong buổi làm việc thành 5 commit theo từng chủ đề độc lập: bộ 15 bài ngày 15 và tài liệu đi kèm; cải thiện bộ 20 bài ngày 14 và tài liệu đi kèm; sửa lỗi khóa tầng gợi ý; hiệu ứng hoàn thành khóa cùng các cải tiến giao diện Code Playground; sửa lỗi lồng khối Block Puzzle và tài liệu đi kèm. Đẩy cả 5 commit lên nhánh từ xa `feature/learning-hub-day15`.
 
 ---
 
 ## Đánh giá độ tin cậy của AI trong buổi làm việc
 
-Phần thiết kế nội dung ban đầu (đề bài, starter code, solution code) đúng phần lớn ngay từ đầu vì là bài toán lập trình cơ bản, suy luận logic đáng tin cậy.
+Phần thiết kế nội dung ban đầu (đề bài, test case, editorial) đúng phần lớn ngay từ đầu vì dựa trên kiến thức thuật toán chuẩn, nhưng có nhiều lớp lỗi chỉ lộ ra khi kiểm chứng qua đúng môi trường thật hoặc qua phản hồi trực tiếp từ người dùng khi thao tác trên giao diện, không phải chỉ đọc lại code hay suy luận trên giấy.
 
-Nhưng có nhiều lớp lỗi chỉ phát hiện được nhờ kiểm chứng độc lập nhiều tầng, không phải chỉ đọc lại code:
-1. **Lỗi thiết kế test/tính tay** (Việc 4) — 4 lỗi chỉ lộ ra khi chạy script Python thật so khớp từng test case.
-2. **Lỗi hạ tầng ẩn** (Việc 6) — lỗi CRLF/LF không thể phát hiện nếu chỉ kiểm chứng bằng Python thuần trên máy cá nhân, vì lỗi nằm ở sự khác biệt giữa môi trường local và judge pipeline thật. Đây là lỗi có sẵn trong hệ thống, chỉ bị 20 bài mới "phơi bày" vì là bộ đầu tiên có nhiều output nhiều dòng.
-3. **Sự cố vận hành khi chạy nhiều agent song song** (Việc 13) — thao tác `git stash` của 1 agent ảnh hưởng toàn bộ working tree dùng chung bởi các agent khác đang chạy đồng thời; không phải lỗi logic code mà là rủi ro khi song song hóa các tác vụ ghi file/git trên cùng 1 thư mục làm việc. Phát hiện qua báo cáo trực tiếp của người dùng, không phải tự phát hiện trước.
+Bốn lỗi quan trọng nhất trong buổi làm việc (import sys bị chặn, output vượt giới hạn 64KB, khóa tầng gợi ý không hoạt động, Block Puzzle không lồng được khối) đều không được phát hiện ở bước kiểm chứng ban đầu bằng script độc lập, mà chỉ lộ ra khi người dùng tự tay thao tác trên giao diện thật và báo lại cụ thể. Điều này cho thấy kiểm chứng bằng script (chạy solutionCode qua Python thuần) là điều kiện cần nhưng chưa đủ — vẫn cần chạy qua đúng pipeline sản xuất thật (judge pipeline, giao diện kéo-thả, luồng unlock gợi ý) để bắt được các lớp lỗi hạ tầng hoặc lỗi UI không thể hiện ra khi chỉ kiểm tra logic thuần túy.
 
-Bài học rút ra: kiểm chứng "đủ" cho loại công việc này cần ít nhất 2 tầng — (1) chạy logic thuần xác nhận thuật toán đúng, và (2) chạy qua đúng pipeline sản xuất thật để xác nhận không có sai khác hạ tầng. Riêng với việc chạy nhiều agent song song trên cùng 1 working tree: cần tránh để agent tự ý chạy các lệnh git ảnh hưởng toàn bộ trạng thái chung (như `stash`, `reset`, `checkout .`) khi biết có tác vụ khác đang chạy đồng thời, và luôn đối chiếu `git status`/`git stash list` ngay khi có dấu hiệu bất thường (số file thay đổi giảm đột ngột) thay vì giả định code vẫn đúng.
+Với bug Block Puzzle, lần sửa đầu tiên chỉ giải quyết đúng phần người dùng mô tả (không lồng được khối chứa), nhưng chưa lường trước được tác động phụ của việc đổi chiến lược phát hiện va chạm tới các vùng thả khác (khe chèn hẹp giữa các khối) — phải sửa thêm 1 lần nữa sau khi người dùng test lại và báo lỗi mới phát sinh. Bài học rút ra: khi sửa 1 hành vi chia sẻ chung 1 cơ chế nền tảng (ở đây là toàn bộ hệ thống kéo-thả), cần rà soát lại mọi luồng khác cùng dùng chung cơ chế đó, không chỉ kiểm tra đúng trường hợp cụ thể vừa được báo lỗi.
