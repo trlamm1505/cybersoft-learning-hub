@@ -1,8 +1,8 @@
 """CyberSoft Data & AI Lab - Resource Quality & Observability Dashboard (ResourcePulse AI v0.1).
 
-Executive Dark-Theme Streamlit Dashboard for monitoring the health, quality scores,
+Executive Adaptive Streamlit Dashboard for monitoring the health, quality scores,
 domain distribution, test statuses, and root-cause errors of datasets and capstones.
-Designed in the modern, sleek aesthetic of executive analytics platforms.
+Supports seamless Light & Dark theme switching with zero text collisions and optimal layout.
 """
 
 import json
@@ -30,32 +30,62 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- MODERN DARK EXECUTIVE THEME CSS (HIGH CONTRAST & POLISHED) ---
+# --- MODERN EXECUTIVE THEME CSS (THEME-ADAPTIVE LIGHT & DARK) ---
 st.markdown(
     """
     <style>
-    /* Dark Theme Core */
-    .stApp {
-        background-color: #0B0E14;
-        color: #F1F5F9;
+    /* Remove empty top spacing on both main container and sidebar */
+    .block-container {
+        padding-top: 1.0rem !important;
+        padding-bottom: 2.0rem !important;
+        padding-left: 2.0rem !important;
+        padding-right: 2.0rem !important;
+    }
+    [data-testid="stSidebarContent"] {
+        padding-top: 1.0rem !important;
+    }
+    header[data-testid="stHeader"] {
+        height: 0px !important;
+        background: transparent !important;
     }
     
-    /* Hide ONLY the Deploy button, keep 3-dots menu (#MainMenu) visible */
+    /* Hide ONLY the Deploy button */
     .stAppDeployButton, [data-testid="stDeployButton"] {
         display: none !important;
     }
-    header[data-testid="stHeader"] {
-        background-color: transparent !important;
+    
+    /* Position 3-dots menu directly on the right side of sidebar Control Center header */
+    #MainMenu {
+        position: fixed !important;
+        top: 0.85rem !important;
+        left: 17.5rem !important;
+        right: auto !important;
+        z-index: 999999 !important;
+    }
+    #MainMenu button {
+        color: var(--text-color) !important;
+        background: transparent !important;
+        border: none !important;
+    }
+    /* When sidebar is collapsed, position near the expand button */
+    section[data-testid="stSidebar"][aria-expanded="false"] ~ * #MainMenu {
+        left: 3.8rem !important;
+    }
+
+    /* Core Theme Colors (Adapts dynamically to Light / Dark mode) */
+    .stApp {
+        background-color: var(--background-color);
+        color: var(--text-color);
     }
     
     /* Top Hero Banner */
     .hero-banner {
         background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #1D4ED8 100%);
         border-radius: 14px;
-        padding: 24px 28px;
+        padding: 22px 28px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.25);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     .hero-title {
         font-size: 2.1rem;
@@ -82,101 +112,119 @@ st.markdown(
         border: 1px solid rgba(255, 255, 255, 0.28);
     }
 
-    /* KPI Metric Cards */
+    /* KPI Metric Cards (Adaptive Background & Text) */
     .kpi-card {
-        background: #141923;
-        border: 1px solid #232D3F;
+        background: var(--secondary-background-color) !important;
+        border: 1px solid rgba(128, 128, 128, 0.22) !important;
         border-radius: 12px;
         padding: 16px;
         text-align: left;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         transition: transform 0.2s ease, border-color 0.2s ease;
     }
     .kpi-card:hover {
-        border-color: #3B82F6;
+        border-color: #2563EB !important;
         transform: translateY(-2px);
     }
     .kpi-label {
         font-size: 0.78rem;
         font-weight: 700;
-        color: #CBD5E1 !important;
+        color: var(--text-color) !important;
+        opacity: 0.75;
         letter-spacing: 0.8px;
         text-transform: uppercase;
     }
     .kpi-value {
         font-size: 1.85rem;
         font-weight: 800;
-        color: #FFFFFF !important;
+        color: var(--text-color) !important;
         margin: 4px 0 2px 0;
     }
     .kpi-sub {
         font-size: 0.82rem;
-        color: #34D399 !important;
+        color: #10B981 !important;
         font-weight: 600;
     }
 
     /* Sub KPI highlight boxes */
     .sub-kpi-card {
-        background: #10141D;
-        border: 1px solid #1E2638;
+        background: var(--secondary-background-color) !important;
+        border: 1px solid rgba(128, 128, 128, 0.22) !important;
         border-radius: 10px;
         padding: 14px 18px;
         margin-bottom: 14px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     .sub-kpi-title {
         font-size: 0.78rem;
         font-weight: 700;
-        color: #CBD5E1 !important;
+        color: var(--text-color) !important;
+        opacity: 0.75;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     .sub-kpi-content {
         font-size: 1.05rem;
         font-weight: 700;
-        color: #FFFFFF !important;
+        color: var(--text-color) !important;
         margin-top: 3px;
     }
 
     /* Progress Bar */
     .progress-box {
-        background: #10141D;
-        border: 1px solid #1E2638;
+        background: var(--secondary-background-color) !important;
+        border: 1px solid rgba(128, 128, 128, 0.22) !important;
         border-radius: 10px;
         padding: 14px 18px;
         margin-bottom: 22px;
     }
 
-    /* Tabs Styling with High Contrast */
+    /* Tabs Styling with Adaptive Contrast */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         background-color: transparent;
-        border-bottom: 1px solid #1E2638;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
         margin-bottom: 20px;
     }
     .stTabs [data-baseweb="tab"] {
         background-color: transparent;
-        color: #CBD5E1 !important;
+        color: var(--text-color) !important;
+        opacity: 0.75;
         border-radius: 6px 6px 0 0;
         padding: 10px 20px;
         font-size: 0.95rem !important;
         font-weight: 600 !important;
     }
     .stTabs [aria-selected="true"] {
-        color: #38BDF8 !important;
-        border-bottom: 2px solid #38BDF8 !important;
-        background-color: rgba(56, 189, 248, 0.12) !important;
+        color: #2563EB !important;
+        opacity: 1 !important;
+        border-bottom: 2px solid #2563EB !important;
+        background-color: rgba(37, 99, 235, 0.08) !important;
     }
 
     /* Section Subheaders */
     .section-title {
         font-size: 1.35rem;
         font-weight: 800;
-        color: #FFFFFF !important;
+        color: var(--text-color) !important;
         margin-bottom: 4px;
     }
     .section-subtitle {
         font-size: 0.92rem;
-        color: #CBD5E1 !important;
+        color: var(--text-color) !important;
+        opacity: 0.75;
         margin-bottom: 20px;
+    }
+
+    /* Ensure Plotly chart text and grid adapt cleanly to active theme */
+    .js-plotly-plot .plotly text {
+        fill: var(--text-color) !important;
+    }
+    .js-plotly-plot .plotly .gridpath {
+        stroke: rgba(128, 128, 128, 0.2) !important;
+    }
+    .js-plotly-plot .plotly .zeroline {
+        stroke: rgba(128, 128, 128, 0.3) !important;
     }
     </style>
     """,
@@ -227,11 +275,11 @@ def main():
 
     # --- SIDEBAR CONTROL CENTER ---
     st.sidebar.markdown(
-        "<h3 style='color: #FFFFFF; margin-bottom: 2px;'>⚙️ Control Center</h3>",
+        "<h3 style='color: var(--text-color); margin-bottom: 2px;'>⚙️ Control Center</h3>",
         unsafe_allow_html=True,
     )
     st.sidebar.markdown(
-        "<span style='color: #94A3B8; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.8px;'>RESOURCE INTELLIGENCE</span>",
+        "<span style='color: var(--text-color); opacity: 0.75; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.8px;'>RESOURCE INTELLIGENCE</span>",
         unsafe_allow_html=True,
     )
     st.sidebar.markdown("---")
@@ -303,32 +351,6 @@ def main():
         )
     ]
 
-    # --- SIDEBAR SYSTEM ACTIONS (Replaces 3-dots menu) ---
-    st.sidebar.markdown("---")
-    st.sidebar.markdown(
-        "<span style='color: #94A3B8; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;'>🛠️ System Controls</span>",
-        unsafe_allow_html=True,
-    )
-    col_s1, col_s2 = st.sidebar.columns(2)
-    with col_s1:
-        if st.button("🔄 Rerun", use_container_width=True):
-            st.rerun()
-    with col_s2:
-        if st.button("🧹 Cache", use_container_width=True):
-            st.cache_data.clear()
-            st.rerun()
-
-    with st.sidebar.expander("ℹ️ System Information"):
-        st.markdown(
-            """
-            * **Application:** ResourcePulse AI v0.1
-            * **Framework:** Streamlit + Plotly
-            * **Observability:** CRQOF v0.1
-            * **Monitored Assets:** 8 Learning Resources
-            * **Branch:** `feature/data-ai-day15`
-            """
-        )
-
     # Calculate Summary KPIs
     kpis = MetricsEngine.compute_summary_kpis(filtered_resources)
 
@@ -340,7 +362,7 @@ def main():
             <div class="kpi-card">
                 <div class="kpi-label">TOTAL RESOURCES</div>
                 <div class="kpi-value">{kpis['total_resources']}</div>
-                <div class="kpi-sub" style="color: #38BDF8 !important;">4 Datasets • 4 Projects</div>
+                <div class="kpi-sub" style="color: #2563EB !important;">4 Datasets • 4 Projects</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -357,7 +379,7 @@ def main():
             unsafe_allow_html=True,
         )
     with col3:
-        delta_color = "#34D399" if kpis["avg_rqi"] >= 95 else "#F87171"
+        delta_color = "#10B981" if kpis["avg_rqi"] >= 95 else "#EF4444"
         delta_text = (
             "Gold Tier Standard" if kpis["avg_rqi"] >= 95 else "Quarantine Alert"
         )
@@ -407,7 +429,7 @@ def main():
             f"""
             <div class="sub-kpi-card">
                 <div class="sub-kpi-title">🏆 Top Quality Leader</div>
-                <div class="sub-kpi-content">{top_name} <span style="color: #34D399;">(100.0%)</span></div>
+                <div class="sub-kpi-content">{top_name} <span style="color: #10B981;">(100.0%)</span></div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -417,7 +439,7 @@ def main():
             """
             <div class="sub-kpi-card">
                 <div class="sub-kpi-title">📦 Largest Data Domain</div>
-                <div class="sub-kpi-content">Retail E-Commerce <span style="color: #38BDF8;">(10,000 records)</span></div>
+                <div class="sub-kpi-content">Retail E-Commerce <span style="color: #2563EB;">(10,000 records)</span></div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -426,7 +448,7 @@ def main():
         quarantine_cnt = sum(
             1 for r in filtered_resources if r.quality_tier == "Quarantined"
         )
-        q_color = "#F87171" if quarantine_cnt > 0 else "#34D399"
+        q_color = "#EF4444" if quarantine_cnt > 0 else "#10B981"
         q_label = (
             f"{quarantine_cnt} Asset Quarantined"
             if quarantine_cnt > 0
@@ -447,11 +469,11 @@ def main():
     st.markdown(
         f"""
         <div class="progress-box">
-            <div style="display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 700; color: #E2E8F0; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.88rem; font-weight: 700; color: var(--text-color); margin-bottom: 8px;">
                 <span>Resource Quality Target Progress</span>
-                <span style="color: #38BDF8;">{target_pct:.1f}% of 100.0% Benchmark Target</span>
+                <span style="color: #2563EB;">{target_pct:.1f}% of 100.0% Benchmark Target</span>
             </div>
-            <div style="background: #1E2638; border-radius: 6px; height: 9px; width: 100%; overflow: hidden;">
+            <div style="background: rgba(128, 128, 128, 0.25); border-radius: 6px; height: 9px; width: 100%; overflow: hidden;">
                 <div style="background: linear-gradient(90deg, #2563EB, #00D2D3); height: 100%; width: {target_pct}%; border-radius: 6px;"></div>
             </div>
         </div>
@@ -501,7 +523,6 @@ def main():
                     ]
                 )
 
-                # Modern smooth line/area chart on dark background
                 fig_perf = go.Figure()
                 fig_perf.add_trace(
                     go.Scatter(
@@ -522,30 +543,27 @@ def main():
                         mode="lines+markers",
                         name="Test Pass Rate",
                         line=dict(
-                            color="#C084FC", width=2.5, dash="dot", shape="spline"
+                            color="#9333EA", width=2.5, dash="dot", shape="spline"
                         ),
-                        marker=dict(size=7, color="#C084FC"),
+                        marker=dict(size=7, color="#9333EA"),
                     )
                 )
                 fig_perf.update_layout(
                     title="<b>Quality Score & Test Status by Resource</b>",
-                    title_font=dict(size=15, color="#FFFFFF"),
-                    template="plotly_dark",
+                    title_font=dict(size=15),
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     height=370,
                     margin=dict(l=15, r=15, t=45, b=90),
                     yaxis=dict(
                         range=[60, 105],
-                        gridcolor="#1E293B",
                         title="Score (%)",
-                        title_font=dict(color="#E2E8F0", size=12),
-                        tickfont=dict(color="#E2E8F0", size=11),
+                        title_font=dict(size=12),
+                        tickfont=dict(size=11),
                     ),
                     xaxis=dict(
-                        gridcolor="#1E293B",
                         tickangle=-25,
-                        tickfont=dict(color="#E2E8F0", size=11),
+                        tickfont=dict(size=11),
                     ),
                     legend=dict(
                         orientation="h",
@@ -553,7 +571,7 @@ def main():
                         y=1.02,
                         xanchor="right",
                         x=1,
-                        font=dict(color="#FFFFFF", size=12),
+                        font=dict(size=12),
                     ),
                 )
                 st.plotly_chart(fig_perf, use_container_width=True)
@@ -575,7 +593,7 @@ def main():
                     color_continuous_scale=[
                         [0, "#1E3A8A"],
                         [0.5, "#2563EB"],
-                        [1, "#38BDF8"],
+                        [1, "#00D2D3"],
                     ],
                     text="Records",
                     title="<b>Resource Volume by Domain</b>",
@@ -583,12 +601,11 @@ def main():
                 fig_dom.update_traces(
                     texttemplate="%{text:,}",
                     textposition="outside",
-                    textfont=dict(color="#FFFFFF", size=11),
+                    textfont=dict(size=11),
                     marker_line_width=0,
                 )
                 fig_dom.update_layout(
-                    title_font=dict(size=15, color="#FFFFFF"),
-                    template="plotly_dark",
+                    title_font=dict(size=15),
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     height=370,
@@ -596,14 +613,12 @@ def main():
                     yaxis=dict(
                         autorange="reversed",
                         title="",
-                        gridcolor="#1E293B",
-                        tickfont=dict(color="#E2E8F0", size=11),
+                        tickfont=dict(size=11),
                     ),
                     xaxis=dict(
                         title="Monitored Records",
-                        title_font=dict(color="#E2E8F0", size=12),
-                        tickfont=dict(color="#E2E8F0", size=11),
-                        gridcolor="#1E293B",
+                        title_font=dict(size=12),
+                        tickfont=dict(size=11),
                         range=[0, 11800],
                     ),
                     coloraxis_showscale=False,
@@ -612,7 +627,7 @@ def main():
 
             # SPACING SEPARATOR BETWEEN ROW 1 AND ROW 2
             st.markdown(
-                "<div style='height: 20px; border-bottom: 1px solid #1E2638; margin: 15px 0 25px 0;'></div>",
+                "<div style='height: 20px; border-bottom: 1px solid rgba(128, 128, 128, 0.2); margin: 15px 0 25px 0;'></div>",
                 unsafe_allow_html=True,
             )
 
@@ -637,7 +652,7 @@ def main():
                     x="Track",
                     y="Avg Quality",
                     color="Track",
-                    color_discrete_sequence=["#3B82F6", "#10B981", "#F59E0B"],
+                    color_discrete_sequence=["#2563EB", "#10B981", "#F59E0B"],
                     title="<b>Average Quality Score by Track</b>",
                     text="Avg Quality",
                 )
@@ -648,8 +663,7 @@ def main():
                     marker_line_width=0,
                 )
                 fig_track.update_layout(
-                    title_font=dict(size=15, color="#FFFFFF"),
-                    template="plotly_dark",
+                    title_font=dict(size=15),
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     height=300,
@@ -657,14 +671,12 @@ def main():
                     yaxis=dict(
                         range=[70, 105],
                         title="Avg Quality (%)",
-                        title_font=dict(color="#E2E8F0", size=12),
-                        tickfont=dict(color="#E2E8F0", size=11),
-                        gridcolor="#1E293B",
+                        title_font=dict(size=12),
+                        tickfont=dict(size=11),
                     ),
                     xaxis=dict(
                         title="",
-                        tickfont=dict(color="#E2E8F0", size=12),
-                        gridcolor="#1E293B",
+                        tickfont=dict(size=12),
                     ),
                     showlegend=False,
                 )
@@ -683,7 +695,7 @@ def main():
                     color="Tier",
                     color_discrete_map={
                         "Gold": "#10B981",
-                        "Silver": "#3B82F6",
+                        "Silver": "#2563EB",
                         "Bronze": "#F59E0B",
                         "Quarantined": "#EF4444",
                     },
@@ -691,12 +703,11 @@ def main():
                 )
                 fig_tier.update_traces(
                     textinfo="percent+label",
-                    textfont=dict(color="#FFFFFF", size=12),
-                    marker=dict(line=dict(color="#0B0E14", width=2)),
+                    textfont=dict(size=12),
+                    marker=dict(line=dict(color="rgba(128, 128, 128, 0.3)", width=1.5)),
                 )
                 fig_tier.update_layout(
-                    title_font=dict(size=15, color="#FFFFFF"),
-                    template="plotly_dark",
+                    title_font=dict(size=15),
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     height=300,
@@ -708,7 +719,7 @@ def main():
                         y=-0.15,
                         xanchor="center",
                         x=0.5,
-                        font=dict(color="#FFFFFF", size=12),
+                        font=dict(size=12),
                     ),
                 )
                 st.plotly_chart(fig_tier, use_container_width=True)
@@ -812,16 +823,16 @@ def main():
                     else "rgba(239, 68, 68, 0.15)"
                 )
                 tier_border = "#10B981" if target.quality_tier == "Gold" else "#EF4444"
-                tier_text = "#34D399" if target.quality_tier == "Gold" else "#F87171"
+                tier_text = "#10B981" if target.quality_tier == "Gold" else "#EF4444"
 
                 st.markdown(
                     f"""
-                    <div style="background: #141923; border: 1px solid #232D3F; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <div style="background: var(--secondary-background-color); border: 1px solid rgba(128, 128, 128, 0.22); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <h3 style="color: #FFFFFF; margin: 0 0 6px 0;">{target.name}</h3>
-                                <div style="color: #CBD5E1; font-size: 0.92rem;">
-                                    <b>ID:</b> <code style="color: #38BDF8;">{target.id}</code> | 
+                                <h3 style="color: var(--text-color); margin: 0 0 6px 0;">{target.name}</h3>
+                                <div style="color: var(--text-color); opacity: 0.8; font-size: 0.92rem;">
+                                    <b>ID:</b> <code style="color: #2563EB;">{target.id}</code> | 
                                     <b>Domain:</b> {target.domain} | 
                                     <b>Level:</b> {target.difficulty_level} | 
                                     <b>Track:</b> {target.track}
@@ -841,7 +852,7 @@ def main():
 
                 with d_left:
                     st.markdown(
-                        "<h5 style='color: #FFFFFF;'>📊 Metric Dimension Breakdown</h5>",
+                        "<h5 style='color: var(--text-color);'>📊 Metric Dimension Breakdown</h5>",
                         unsafe_allow_html=True,
                     )
                     metrics_breakdown = [
@@ -890,11 +901,10 @@ def main():
                     fig_breakdown.update_traces(
                         texttemplate="%{text:.1f}%",
                         textposition="outside",
-                        textfont=dict(color="#FFFFFF", size=11),
+                        textfont=dict(size=11),
                         marker_line_width=0,
                     )
                     fig_breakdown.update_layout(
-                        template="plotly_dark",
                         paper_bgcolor="rgba(0,0,0,0)",
                         plot_bgcolor="rgba(0,0,0,0)",
                         height=310,
@@ -902,14 +912,12 @@ def main():
                         yaxis=dict(
                             autorange="reversed",
                             title="",
-                            gridcolor="#1E293B",
-                            tickfont=dict(color="#E2E8F0", size=11),
+                            tickfont=dict(size=11),
                         ),
                         xaxis=dict(
                             title="Compliance (%)",
-                            title_font=dict(color="#E2E8F0", size=12),
-                            tickfont=dict(color="#E2E8F0", size=11),
-                            gridcolor="#1E293B",
+                            title_font=dict(size=12),
+                            tickfont=dict(size=11),
                         ),
                         coloraxis_showscale=False,
                     )
@@ -917,9 +925,9 @@ def main():
 
                     st.markdown(
                         f"""
-                        <div style="background: #10141D; border: 1px solid #1E2638; border-radius: 8px; padding: 14px; margin-top: 10px;">
-                            <span style="color: #CBD5E1; font-size: 0.85rem; font-weight: 600;">COMPOSITE RESOURCE QUALITY INDEX (RQI):</span><br>
-                            <span style="font-size: 1.7rem; font-weight: 800; color: #38BDF8;">{target.rqi:.2f} / 100</span>
+                        <div style="background: var(--secondary-background-color); border: 1px solid rgba(128, 128, 128, 0.22); border-radius: 8px; padding: 14px; margin-top: 10px;">
+                            <span style="color: var(--text-color); opacity: 0.75; font-size: 0.85rem; font-weight: 600;">COMPOSITE RESOURCE QUALITY INDEX (RQI):</span><br>
+                            <span style="font-size: 1.7rem; font-weight: 800; color: #2563EB;">{target.rqi:.2f} / 100</span>
                         </div>
                         """,
                         unsafe_allow_html=True,
@@ -927,7 +935,7 @@ def main():
 
                 with d_right:
                     st.markdown(
-                        "<h5 style='color: #FFFFFF;'>🚨 Validation Errors & Quarantine Diagnostics</h5>",
+                        "<h5 style='color: var(--text-color);'>🚨 Validation Errors & Quarantine Diagnostics</h5>",
                         unsafe_allow_html=True,
                     )
                     if target.quality_tier == "Quarantined" or target.violations:
@@ -936,7 +944,7 @@ def main():
                         )
                         st.markdown(
                             """
-                            <div style="color: #E2E8F0; font-size: 0.92rem; line-height: 1.6;">
+                            <div style="color: var(--text-color); font-size: 0.92rem; line-height: 1.6;">
                             <b>Root-Cause Diagnosis:</b><br>
                             • <b>Schema Invariant Failure:</b> Manifest violates the CRQOF Dataset Registry schema definition.<br>
                             • <b>Missing Required Key:</b> Property <code>'lineage'</code> is mandatory for production registry promotion.<br>
@@ -949,7 +957,7 @@ def main():
                             "<div style='height: 8px;'></div>", unsafe_allow_html=True
                         )
                         st.markdown(
-                            "<b style='color: #F8FAFC;'>Error Log Stack Trace:</b>",
+                            "<b style='color: var(--text-color);'>Error Log Stack Trace:</b>",
                             unsafe_allow_html=True,
                         )
                         for idx, v in enumerate(target.violations, 1):
@@ -965,7 +973,7 @@ def main():
                         )
                         st.markdown(
                             """
-                            <div style="color: #E2E8F0; font-size: 0.92rem; line-height: 1.6;">
+                            <div style="color: var(--text-color); font-size: 0.92rem; line-height: 1.6;">
                             • <b>Schema Invariant:</b> Validated against JSON schema v1.0.<br>
                             • <b>Anti-Leakage Check:</b> student_edition and instructor_edition strictly isolated.<br>
                             • <b>Curriculum Readiness:</b> Certified for production LMS deployment.
