@@ -258,14 +258,31 @@ st.markdown(
     .js-plotly-plot .plotly .zeroline {
         stroke: rgba(128, 128, 128, 0.32) !important;
     }
-    /* Hide floating Plotly modebar (pan, zoom, autoscale) for clean executive dashboard */
-    .js-plotly-plot .plotly .modebar {
+    /* Hide specifically Pan and Zoom buttons from Plotly modebar */
+    .js-plotly-plot .plotly .modebar-btn[data-val="pan"],
+    .js-plotly-plot .plotly .modebar-btn[data-val="zoom"],
+    .js-plotly-plot .plotly .modebar-btn[data-val="pan2d"],
+    .js-plotly-plot .plotly .modebar-btn[data-val="zoom2d"] {
         display: none !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+# Standard Plotly Modebar Config: Retains camera download & reset, removes Pan & Zoom
+PLOTLY_CONFIG = {
+    "displayModeBar": "hover",
+    "displaylogo": False,
+    "modeBarButtonsToRemove": [
+        "pan2d",
+        "zoom2d",
+        "select2d",
+        "lasso2d",
+        "zoomIn2d",
+        "zoomOut2d",
+    ],
+}
 
 
 @st.cache_data(ttl=300)
@@ -612,15 +629,15 @@ def main():
                         orientation="h",
                         yanchor="top",
                         y=0.88,
-                        xanchor="left",
-                        x=0,
+                        xanchor="right",
+                        x=1.0,
                         font=dict(size=11),
                     ),
                 )
                 st.plotly_chart(
                     fig_perf,
                     use_container_width=True,
-                    config={"displayModeBar": False},
+                    config=PLOTLY_CONFIG,
                 )
 
             with r1_col2:
@@ -681,7 +698,7 @@ def main():
                 st.plotly_chart(
                     fig_dom,
                     use_container_width=True,
-                    config={"displayModeBar": False},
+                    config=PLOTLY_CONFIG,
                 )
 
             # SPACING SEPARATOR BETWEEN ROW 1 AND ROW 2
@@ -742,7 +759,7 @@ def main():
                 st.plotly_chart(
                     fig_track,
                     use_container_width=True,
-                    config={"displayModeBar": False},
+                    config=PLOTLY_CONFIG,
                 )
 
             with r2_col2:
@@ -765,8 +782,8 @@ def main():
                     title="<b>Quality Tier Distribution</b>",
                 )
                 fig_tier.update_traces(
-                    textinfo="percent+label",
-                    textfont=dict(size=12),
+                    textinfo="percent",
+                    textfont=dict(size=13),
                     marker=dict(line=dict(color="rgba(128, 128, 128, 0.3)", width=1.5)),
                 )
                 fig_tier.update_layout(
@@ -788,7 +805,7 @@ def main():
                 st.plotly_chart(
                     fig_tier,
                     use_container_width=True,
-                    config={"displayModeBar": False},
+                    config=PLOTLY_CONFIG,
                 )
 
     # =========================================================================
@@ -991,7 +1008,7 @@ def main():
                     st.plotly_chart(
                         fig_breakdown,
                         use_container_width=True,
-                        config={"displayModeBar": False},
+                        config=PLOTLY_CONFIG,
                     )
 
                     st.markdown(
