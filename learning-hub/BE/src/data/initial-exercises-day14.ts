@@ -28,8 +28,12 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Đề bài chỉ cần nối chuỗi lại với nhau theo đúng khuôn mẫu "Xin chao, <ten>!". Không cần tính toán gì, chỉ cần đọc đúng 1 dòng dữ liệu và ghép chuỗi.',
-      hint2: 'Bước 1: đọc tên bằng input(). Bước 2: dùng f-string (f"...") hoặc phép nối chuỗi bằng dấu + để chèn tên vào đúng vị trí trong câu chào, nhớ giữ đúng dấu phẩy và dấu chấm than.',
-      hint3: 'ten = input()\nprint(f"Xin chao, {ten}!")',
+      hint2:
+        'Bước 1: đọc tên bằng input().\n\n' +
+        'Bước 2: dùng f-string (f"...") hoặc phép nối chuỗi bằng dấu + để chèn tên vào đúng vị trí trong câu chào, nhớ giữ đúng dấu phẩy và dấu chấm than.',
+      hint3:
+        'ten = input()\n' +
+        '# TODO: in ra đúng câu "Xin chao, <ten>!" (nhớ giữ đúng dấu phẩy và dấu chấm than)\n',
     },
   },
   {
@@ -57,8 +61,14 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Thuế 10% nghĩa là tổng tiền = giá gốc + 10% giá gốc = giá gốc x 1.1. Đề yêu cầu làm tròn đúng 2 chữ số thập phân khi in ra, không phải làm tròn giá trị số.',
-      hint2: 'Bước 1: đọc giá gốc bằng float(input()). Bước 2: nhân với 1.1. Bước 3: khi in ra, dùng định dạng chuỗi kiểu f"{gia_tri:.2f}" để luôn hiện đúng 2 chữ số sau dấu chấm, tránh dùng round() vì round() có thể không hiện đủ số 0 ở cuối.',
-      hint3: 'gia = float(input())\ntong = gia * 1.1\nprint(f"{tong:.2f}")',
+      hint2:
+        'Bước 1: đọc giá gốc bằng float(input()).\n\n' +
+        'Bước 2: nhân với 1.1.\n\n' +
+        'Bước 3: khi in ra, dùng định dạng chuỗi kiểu f"{gia_tri:.2f}" để luôn hiện đúng 2 chữ số sau dấu chấm, tránh dùng round() vì round() có thể không hiện đủ số 0 ở cuối.',
+      hint3:
+        'gia = float(input())\n' +
+        '# TODO: tính tổng tiền = giá gốc + 10% thuế (nhân giá gốc với 1.1)\n' +
+        '# TODO: in ra tổng tiền, dùng định dạng f"{...:.2f}" để luôn có đúng 2 chữ số thập phân\n',
     },
   },
   {
@@ -86,8 +96,16 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: '1 giờ có 60 phút. Muốn biết N phút là bao nhiêu giờ, hãy nghĩ tới phép chia lấy phần nguyên; muốn biết còn dư mấy phút, hãy nghĩ tới phép chia lấy số dư.',
-      hint2: 'Bước 1: đọc N. Bước 2: tính giờ = N // 60 (chia lấy nguyên). Bước 3: tính phút còn lại = N % 60 (chia lấy dư). Bước 4: in theo đúng khuôn "Xh Ym", nhớ in cả trường hợp giờ = 0 hoặc phút = 0 (không được bỏ qua).',
-      hint3: 'n = int(input())\ngio = n // 60\nphut = n % 60\nprint(f"{gio}h {phut}m")',
+      hint2:
+        'Bước 1: đọc N.\n\n' +
+        'Bước 2: tính giờ = N // 60 (chia lấy nguyên).\n\n' +
+        'Bước 3: tính phút còn lại = N % 60 (chia lấy dư).\n\n' +
+        'Bước 4: in theo đúng khuôn "Xh Ym", nhớ in cả trường hợp giờ = 0 hoặc phút = 0 (không được bỏ qua).',
+      hint3:
+        'n = int(input())\n' +
+        '# TODO: tính số giờ (chia lấy nguyên cho 60)\n' +
+        '# TODO: tính số phút còn lại (chia lấy dư cho 60)\n' +
+        '# TODO: in ra theo đúng khuôn "Xh Ym"\n',
     },
   },
   {
@@ -136,8 +154,19 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Bài này không khó về thuật toán, chỉ cần đọc đúng thứ tự 3 dòng dữ liệu (tên là chuỗi, số lượng là số nguyên, đơn giá là số thực) và in ra đúng thứ tự 3 dòng theo khuôn mẫu cho trước.',
-      hint2: 'Bước 1: đọc tên bằng input() (giữ nguyên chuỗi, không ép kiểu số). Bước 2: đọc số lượng bằng int(input()). Bước 3: đọc đơn giá bằng float(input()) — dù input có thể là số nguyên như "5000", vẫn phải đọc bằng float() vì đơn giá về bản chất là số thực. Bước 4: tính thành tiền = số lượng x đơn giá, in theo khuôn "Thanh tien: <gia_tri:.2f>".',
-      hint3: 'ten = input()\nn = int(input())\ngia = float(input())\nprint(f"San pham: {ten}")\nprint(f"So luong: {n}")\nprint(f"Thanh tien: {n * gia:.2f}")',
+      hint2:
+        'Bước 1: đọc tên bằng input() (giữ nguyên chuỗi, không ép kiểu số).\n\n' +
+        'Bước 2: đọc số lượng bằng int(input()).\n\n' +
+        'Bước 3: đọc đơn giá bằng float(input()) — dù input có thể là số nguyên như "5000", vẫn phải đọc bằng float() vì đơn giá về bản chất là số thực.\n\n' +
+        'Bước 4: tính thành tiền = số lượng x đơn giá, in theo khuôn "Thanh tien: <gia_tri:.2f>".',
+      hint3:
+        'ten = input()\n' +
+        'n = int(input())\n' +
+        'gia = float(input())\n' +
+        '# TODO: in 3 dòng theo đúng khuôn:\n' +
+        '# "San pham: <ten>"\n' +
+        '# "So luong: <n>"\n' +
+        '# "Thanh tien: <n * gia, làm tròn 2 chữ số thập phân>"\n',
     },
   },
 
@@ -172,8 +201,16 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Python có sẵn hàm sum() để tính tổng cả danh sách, không cần tự viết vòng lặp cộng dồn. Trung bình cộng = tổng chia cho số lượng phần tử.',
-      hint2: 'Bước 1: đọc N và danh sách N số nguyên (dùng list(map(int, input().split()))). Bước 2: tính tong = sum(nums). Bước 3: in tong trên 1 dòng. Bước 4: tính trung bình = tong / n (chia thực, không phải chia nguyên //), in ra với định dạng 2 chữ số thập phân.',
-      hint3: 'n = int(input())\nnums = list(map(int, input().split()))\ntong = sum(nums)\nprint(tong)\nprint(f"{tong / n:.2f}")',
+      hint2:
+        'Bước 1: đọc N và danh sách N số nguyên (dùng list(map(int, input().split()))).\n\n' +
+        'Bước 2: tính tong = sum(nums).\n\n' +
+        'Bước 3: in tong trên 1 dòng.\n\n' +
+        'Bước 4: tính trung bình = tong / n (chia thực, không phải chia nguyên //), in ra với định dạng 2 chữ số thập phân.',
+      hint3:
+        'n = int(input())\n' +
+        'nums = list(map(int, input().split()))\n' +
+        '# TODO: tính tổng các phần tử (gợi ý: hàm có sẵn sum())\n' +
+        '# TODO: in tổng, rồi in trung bình cộng (tổng / n) với 2 chữ số thập phân\n',
     },
   },
   {
@@ -204,8 +241,14 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Python có sẵn phương thức .count() trên danh sách để đếm số lần 1 giá trị xuất hiện — không cần tự viết vòng lặp so sánh từng phần tử.',
-      hint2: 'Bước 1: đọc N, danh sách N số, và giá trị X cần đếm (đọc theo đúng 3 dòng, đúng thứ tự). Bước 2: gọi nums.count(x) và in kết quả ra.',
-      hint3: 'n = int(input())\nnums = list(map(int, input().split()))\nx = int(input())\nprint(nums.count(x))',
+      hint2:
+        'Bước 1: đọc N, danh sách N số, và giá trị X cần đếm (đọc theo đúng 3 dòng, đúng thứ tự).\n\n' +
+        'Bước 2: gọi nums.count(x) và in kết quả ra.',
+      hint3:
+        'n = int(input())\n' +
+        'nums = list(map(int, input().split()))\n' +
+        'x = int(input())\n' +
+        '# TODO: đếm số lần x xuất hiện trong nums và in ra (gợi ý: phương thức .count())\n',
     },
   },
   {
@@ -241,8 +284,20 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Không thể dùng set() trực tiếp để loại trùng lặp vì set() không giữ đúng thứ tự xuất hiện ban đầu — đề bài yêu cầu giữ nguyên thứ tự. Cần một cách khác để \'ghi nhớ\' đã gặp giá trị nào rồi.',
-      hint2: 'Bước 1: tạo 1 set rỗng để ghi nhớ các giá trị đã gặp, và 1 list rỗng để chứa kết quả. Bước 2: duyệt từng số trong danh sách gốc theo đúng thứ tự ban đầu — nếu số đó CHƯA có trong set \'đã gặp\', thêm nó vào cả set và vào list kết quả; nếu đã có trong set rồi thì bỏ qua (không thêm lại vào kết quả). Bước 3: in list kết quả, các số cách nhau bởi dấu cách.',
-      hint3: 'n = int(input())\nnums = list(map(int, input().split()))\nda_thay = set()\nket_qua = []\nfor x in nums:\n    if x not in da_thay:\n        da_thay.add(x)\n        ket_qua.append(x)\nprint(\' \'.join(map(str, ket_qua)))',
+      hint2:
+        'Bước 1: tạo 1 set rỗng để ghi nhớ các giá trị đã gặp, và 1 list rỗng để chứa kết quả.\n\n' +
+        'Bước 2: duyệt từng số trong danh sách gốc theo đúng thứ tự ban đầu — nếu số đó CHƯA có trong set \'đã gặp\', thêm nó vào cả set và vào list kết quả; nếu đã có trong set rồi thì bỏ qua (không thêm lại vào kết quả).\n\n' +
+        'Bước 3: in list kết quả, các số cách nhau bởi dấu cách.',
+      hint3:
+        'n = int(input())\n' +
+        'nums = list(map(int, input().split()))\n' +
+        'da_thay = set()\n' +
+        'ket_qua = []\n' +
+        'for x in nums:\n' +
+        '    # TODO: nếu x CHƯA có trong da_thay -> thêm x vào da_thay VÀ vào ket_qua\n' +
+        '    # (nếu x đã có trong da_thay rồi thì bỏ qua, không làm gì)\n' +
+        '    pass\n' +
+        "print(' '.join(map(str, ket_qua)))",
     },
   },
   {
@@ -281,8 +336,18 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Vì kết quả cuối cùng chỉ cần đúng thứ tự tăng dần (không yêu cầu tối ưu tốc độ), cách đơn giản nhất là: nối 2 danh sách A và B lại thành 1 danh sách lớn, rồi sắp xếp lại toàn bộ. Thử thách thật của bài này nằm ở việc đọc đúng input khi 1 trong 2 danh sách rỗng (N=0 hoặc M=0), không nằm ở thuật toán trộn.',
-      hint2: 'Bước 1: đọc N, danh sách A (N số, dùng input().split() dù N=0 vẫn phải đọc dòng đó — nó sẽ là chuỗi rỗng, split() trả về list rỗng, không gây lỗi). Bước 2: đọc M, danh sách B tương tự. Bước 3: nối a + b thành 1 list, dùng sorted() để sắp xếp tăng dần. Bước 4: in ra, các số cách nhau bởi dấu cách (nếu list rỗng, join sẽ tự cho ra chuỗi rỗng, in ra đúng là 1 dòng trống).',
-      hint3: 'n = int(input())\na = list(map(int, input().split()))\nm = int(input())\nb = list(map(int, input().split()))\nket_qua = sorted(a + b)\nprint(\' \'.join(map(str, ket_qua)))',
+      hint2:
+        'Bước 1: đọc N, danh sách A (N số, dùng input().split() dù N=0 vẫn phải đọc dòng đó — nó sẽ là chuỗi rỗng, split() trả về list rỗng, không gây lỗi).\n\n' +
+        'Bước 2: đọc M, danh sách B tương tự.\n\n' +
+        'Bước 3: nối a + b thành 1 list, dùng sorted() để sắp xếp tăng dần.\n\n' +
+        'Bước 4: in ra, các số cách nhau bởi dấu cách (nếu list rỗng, join sẽ tự cho ra chuỗi rỗng, in ra đúng là 1 dòng trống).',
+      hint3:
+        'n = int(input())\n' +
+        'a = list(map(int, input().split()))\n' +
+        'm = int(input())\n' +
+        'b = list(map(int, input().split()))\n' +
+        '# TODO: nối 2 danh sách a và b lại, sắp xếp tăng dần (gợi ý: sorted())\n' +
+        '# TODO: in kết quả, các số cách nhau bởi dấu cách\n',
     },
   },
 
@@ -317,8 +382,15 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Bảng cửu chương N có đúng 10 dòng, dòng thứ i có dạng "N x i = N*i" với i chạy từ 1 đến 10 (không phải từ 0).',
-      hint2: 'Bước 1: đọc N. Bước 2: dùng vòng lặp for i in range(1, 11) để i lần lượt nhận giá trị 1, 2, ..., 10. Bước 3: trong mỗi lần lặp, in ra đúng dòng theo khuôn f"{n} x {i} = {n * i}".',
-      hint3: 'n = int(input())\nfor i in range(1, 11):\n    print(f"{n} x {i} = {n * i}")',
+      hint2:
+        'Bước 1: đọc N.\n\n' +
+        'Bước 2: dùng vòng lặp for i in range(1, 11) để i lần lượt nhận giá trị 1, 2, ..., 10.\n\n' +
+        'Bước 3: trong mỗi lần lặp, in ra đúng dòng theo khuôn f"{n} x {i} = {n * i}".',
+      hint3:
+        'n = int(input())\n' +
+        'for i in range(1, 11):\n' +
+        '    # TODO: in ra dòng "N x i = KetQua" (dùng f-string, nhớ tính đúng KetQua = n * i)\n' +
+        '    pass\n',
     },
   },
   {
@@ -355,8 +427,19 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Có thể lấy từng chữ số cuối cùng của 1 số bằng phép chia lấy dư cho 10 (% 10), rồi \'bỏ\' chữ số đó đi bằng phép chia lấy nguyên cho 10 (// 10), lặp lại cho tới khi số về 0. Số 0 là trường hợp đặc biệt cần chú ý riêng — số 0 vẫn có đúng 1 chữ số.',
-      hint2: 'Bước 1: đọc N, lấy trị tuyệt đối bằng abs() để không bị ảnh hưởng bởi dấu âm. Bước 2: nếu N sau khi lấy trị tuyệt đối bằng 0, in ra 1 ngay (không chạy vòng lặp vì vòng lặp \'while n > 0\' sẽ không chạy lần nào với n=0). Bước 3: với N khác 0, dùng vòng lặp while n > 0: chia n cho 10 (n //= 10) và tăng biến đếm lên 1 mỗi lần, dừng khi n về 0.',
-      hint3: 'n = abs(int(input()))\nif n == 0:\n    print(1)\nelse:\n    dem = 0\n    while n > 0:\n        n //= 10\n        dem += 1\n    print(dem)',
+      hint2:
+        'Bước 1: đọc N, lấy trị tuyệt đối bằng abs() để không bị ảnh hưởng bởi dấu âm.\n\n' +
+        'Bước 2: nếu N sau khi lấy trị tuyệt đối bằng 0, in ra 1 ngay (không chạy vòng lặp vì vòng lặp \'while n > 0\' sẽ không chạy lần nào với n=0).\n\n' +
+        'Bước 3: với N khác 0, dùng vòng lặp while n > 0: chia n cho 10 (n //= 10) và tăng biến đếm lên 1 mỗi lần, dừng khi n về 0.',
+      hint3:
+        'n = abs(int(input()))\n' +
+        'if n == 0:\n' +
+        '    # TODO: số 0 vẫn có đúng 1 chữ số\n' +
+        '    pass\n' +
+        'else:\n' +
+        '    dem = 0\n' +
+        '    # TODO: lặp while n > 0, mỗi lần chia n cho 10 (n //= 10) và tăng dem lên 1\n' +
+        '    print(dem)',
     },
   },
   {
@@ -390,8 +473,17 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Ước số dương của N là những số từ 1 đến N-1 (không tính N) mà N chia hết cho nó. Chú ý kỹ: đề bài nói \'không tính chính nó\' — nghĩa là vòng lặp kiểm tra ước số CHỈ chạy tới N-1, không chạy tới N.',
-      hint2: 'Bước 1: đọc N. Bước 2: dùng vòng lặp for i in range(1, n) (dừng ở n-1, không tính n) để kiểm tra từng số i có phải ước của N không (n % i == 0), nếu có thì cộng vào tổng. Bước 3: so sánh tổng ước số với N — nếu bằng nhau, in "YES", ngược lại in "NO". Lưu ý: nếu lỡ viết range(1, n+1) (tính cả N), kết quả sẽ sai vì N luôn chia hết cho chính nó.',
-      hint3: 'n = int(input())\ntong = 0\nfor i in range(1, n):\n    if n % i == 0:\n        tong += i\nprint("YES" if tong == n else "NO")',
+      hint2:
+        'Bước 1: đọc N.\n\n' +
+        'Bước 2: dùng vòng lặp for i in range(1, n) (dừng ở n-1, không tính n) để kiểm tra từng số i có phải ước của N không (n % i == 0), nếu có thì cộng vào tổng.\n\n' +
+        'Bước 3: so sánh tổng ước số với N — nếu bằng nhau, in "YES", ngược lại in "NO". Lưu ý: nếu lỡ viết range(1, n+1) (tính cả N), kết quả sẽ sai vì N luôn chia hết cho chính nó.',
+      hint3:
+        'n = int(input())\n' +
+        'tong = 0\n' +
+        'for i in range(1, n):\n' +
+        '    # TODO: nếu i là ước của n (n % i == 0), cộng i vào tong\n' +
+        '    pass\n' +
+        '# TODO: in "YES" nếu tong == n, ngược lại in "NO"\n',
     },
   },
   {
@@ -430,8 +522,20 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Ma trận đối xứng nghĩa là nếu lật ma trận qua đường chéo chính (đổi hàng thành cột), ma trận không đổi. Nói cách khác: phần tử ở hàng i cột j phải luôn bằng phần tử ở hàng j cột i, với MỌI cặp i, j — không chỉ 1 vài cặp.',
-      hint2: 'Bước 1: đọc N và đọc N dòng, mỗi dòng là 1 hàng của ma trận (dùng list comprehension hoặc vòng lặp để tạo list-trong-list). Bước 2: dùng 2 vòng lặp lồng nhau (i chạy 0..N-1, j chạy 0..N-1) để so sánh matrix[i][j] với matrix[j][i] cho MỌI cặp i, j. Bước 3: nếu tìm thấy bất kỳ cặp nào khác nhau, đánh dấu \'không đối xứng\'. Bước 4: in kết quả cuối cùng sau khi đã kiểm tra hết.',
-      hint3: 'n = int(input())\nmatrix = [list(map(int, input().split())) for _ in range(n)]\ndoi_xung = True\nfor i in range(n):\n    for j in range(n):\n        if matrix[i][j] != matrix[j][i]:\n            doi_xung = False\nprint("YES" if doi_xung else "NO")',
+      hint2:
+        'Bước 1: đọc N và đọc N dòng, mỗi dòng là 1 hàng của ma trận (dùng list comprehension hoặc vòng lặp để tạo list-trong-list).\n\n' +
+        'Bước 2: dùng 2 vòng lặp lồng nhau (i chạy 0..N-1, j chạy 0..N-1) để so sánh matrix[i][j] với matrix[j][i] cho MỌI cặp i, j.\n\n' +
+        'Bước 3: nếu tìm thấy bất kỳ cặp nào khác nhau, đánh dấu \'không đối xứng\'.\n\n' +
+        'Bước 4: in kết quả cuối cùng sau khi đã kiểm tra hết.',
+      hint3:
+        'n = int(input())\n' +
+        'matrix = [list(map(int, input().split())) for _ in range(n)]\n' +
+        'doi_xung = True\n' +
+        'for i in range(n):\n' +
+        '    for j in range(n):\n' +
+        '        # TODO: nếu matrix[i][j] khác matrix[j][i], đánh dấu doi_xung = False\n' +
+        '        pass\n' +
+        'print("YES" if doi_xung else "NO")',
     },
   },
 
@@ -475,8 +579,18 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Số nguyên tố là số lớn hơn 1 và chỉ chia hết cho 1 và chính nó. Vì vậy, số 0, số 1, và số âm KHÔNG phải số nguyên tố — cần loại trừ các trường hợp này trước khi kiểm tra ước số.',
-      hint2: 'Bước 1: trong hàm is_prime(n), nếu n nhỏ hơn 2 thì trả về False ngay. Bước 2: dùng vòng lặp kiểm tra xem n có chia hết cho bất kỳ số nào từ 2 đến căn bậc hai của n không (chỉ cần kiểm tra tới căn bậc hai là đủ, không cần kiểm tra tới n). Bước 3: nếu tìm thấy 1 ước số như vậy, trả về False; nếu không tìm thấy ước nào, trả về True.',
-      hint3: 'def is_prime(n):\n    if n < 2:\n        return False\n    for i in range(2, int(n ** 0.5) + 1):\n        if n % i == 0:\n            return False\n    return True\n\nn = int(input())\nprint("YES" if is_prime(n) else "NO")',
+      hint2:
+        'Bước 1: trong hàm is_prime(n), nếu n nhỏ hơn 2 thì trả về False ngay.\n\n' +
+        'Bước 2: dùng vòng lặp kiểm tra xem n có chia hết cho bất kỳ số nào từ 2 đến căn bậc hai của n không (chỉ cần kiểm tra tới căn bậc hai là đủ, không cần kiểm tra tới n).\n\n' +
+        'Bước 3: nếu tìm thấy 1 ước số như vậy, trả về False; nếu không tìm thấy ước nào, trả về True.',
+      hint3:
+        'def is_prime(n):\n' +
+        '    # TODO: nếu n < 2, trả về False ngay (0, 1, số âm không phải số nguyên tố)\n' +
+        '    # TODO: kiểm tra n có chia hết cho số nào từ 2 đến căn bậc hai của n không\n' +
+        '    # (gợi ý: range(2, int(n ** 0.5) + 1)) — nếu có, trả về False; nếu không, trả về True\n' +
+        '    pass\n\n' +
+        'n = int(input())\n' +
+        'print("YES" if is_prime(n) else "NO")',
     },
   },
   {
@@ -518,8 +632,19 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Giai thừa của n (n!) là tích của tất cả số nguyên từ 1 đến n. Có 2 quy ước đặc biệt cần nhớ: 0! = 1 (không phải 0), và số âm không có giai thừa hợp lệ nên hàm phải trả về -1 để báo lỗi.',
-      hint2: 'Bước 1: trong hàm factorial(n), nếu n âm thì trả về -1 ngay. Bước 2: nếu n không âm, khởi tạo kết quả = 1 (đúng cho cả trường hợp n=0). Bước 3: dùng vòng lặp for i in range(2, n+1) để nhân dồn kết quả với từng số từ 2 đến n (nếu n=0 hoặc n=1, vòng lặp này sẽ không chạy lần nào — kết quả giữ đúng là 1). Bước 4: trả về kết quả.',
-      hint3: 'def factorial(n):\n    if n < 0:\n        return -1\n    ket_qua = 1\n    for i in range(2, n + 1):\n        ket_qua *= i\n    return ket_qua\n\nn = int(input())\nprint(factorial(n))',
+      hint2:
+        'Bước 1: trong hàm factorial(n), nếu n âm thì trả về -1 ngay.\n\n' +
+        'Bước 2: nếu n không âm, khởi tạo kết quả = 1 (đúng cho cả trường hợp n=0).\n\n' +
+        'Bước 3: dùng vòng lặp for i in range(2, n+1) để nhân dồn kết quả với từng số từ 2 đến n (nếu n=0 hoặc n=1, vòng lặp này sẽ không chạy lần nào — kết quả giữ đúng là 1).\n\n' +
+        'Bước 4: trả về kết quả.',
+      hint3:
+        'def factorial(n):\n' +
+        '    # TODO: nếu n âm, trả về -1 ngay\n' +
+        '    ket_qua = 1\n' +
+        '    # TODO: dùng vòng lặp for để nhân dồn ket_qua với từng số từ 2 đến n\n' +
+        '    return ket_qua\n\n' +
+        'n = int(input())\n' +
+        'print(factorial(n))',
     },
   },
   {
@@ -568,8 +693,19 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Khi có nhiều điều kiện xếp hạng theo mức (A, B, C, D, F), cách viết an toàn nhất là kiểm tra từ ngưỡng CAO NHẤT xuống THẤP NHẤT, dùng return ngay khi tìm thấy đúng mức — không cần lo lồng nhiều else-if phức tạp.',
-      hint2: 'Bước 1: trong hàm xep_loai(diem), kiểm tra lần lượt: nếu diem >= 9 trả về "A" ngay; nếu không, kiểm tra diem >= 8 trả về "B"; tiếp tục hạ dần ngưỡng (6.5 cho "C", 5 cho "D"); cuối cùng nếu không khớp ngưỡng nào, trả về "F". Chú ý dùng đúng dấu >= (không phải >) vì ngưỡng là bao gồm cả giá trị biên. Bước 2: đọc N điểm, gọi hàm cho từng điểm và in kết quả từng dòng.',
-      hint3: 'def xep_loai(diem):\n    if diem >= 9:\n        return "A"\n    if diem >= 8:\n        return "B"\n    if diem >= 6.5:\n        return "C"\n    if diem >= 5:\n        return "D"\n    return "F"\n\nn = int(input())\ndiems = list(map(float, input().split()))\nfor d in diems:\n    print(xep_loai(d))',
+      hint2:
+        'Bước 1: trong hàm xep_loai(diem), kiểm tra lần lượt: nếu diem >= 9 trả về "A" ngay; nếu không, kiểm tra diem >= 8 trả về "B"; tiếp tục hạ dần ngưỡng (6.5 cho "C", 5 cho "D"); cuối cùng nếu không khớp ngưỡng nào, trả về "F". Chú ý dùng đúng dấu >= (không phải >) vì ngưỡng là bao gồm cả giá trị biên.\n\n' +
+        'Bước 2: đọc N điểm, gọi hàm cho từng điểm và in kết quả từng dòng.',
+      hint3:
+        'def xep_loai(diem):\n' +
+        '    # TODO: kiểm tra lần lượt từ ngưỡng CAO xuống THẤP (9, 8, 6.5, 5),\n' +
+        '    # dùng dấu >= (không phải >), return ngay khi khớp ngưỡng nào đó\n' +
+        '    # Nếu không khớp ngưỡng nào -> return "F"\n' +
+        '    pass\n\n' +
+        'n = int(input())\n' +
+        'diems = list(map(float, input().split()))\n' +
+        'for d in diems:\n' +
+        '    print(xep_loai(d))',
     },
   },
   {
@@ -613,8 +749,20 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Đệ quy là khi 1 hàm tự gọi lại chính nó với dữ liệu nhỏ hơn, cho tới khi gặp 1 trường hợp đơn giản nhất (gọi là \'trường hợp dừng\'/base case) thì trả về kết quả trực tiếp, không gọi lại nữa. Với danh sách, trường hợp dừng tự nhiên nhất là \'danh sách rỗng\'.',
-      hint2: 'Bước 1: trường hợp dừng — nếu danh sách rỗng (len(nums) == 0), trả về 0 ngay (không còn gì để đếm). Bước 2: trường hợp còn phần tử — kiểm tra phần tử ĐẦU TIÊN (nums[0]) có bằng x không, được 1 điểm nếu đúng, 0 điểm nếu sai. Bước 3: cộng điểm đó với kết quả của việc gọi lại chính hàm dem() nhưng cho PHẦN CÒN LẠI của danh sách (nums[1:], bỏ phần tử đầu). Đừng dùng for/while — chỉ dùng chính hàm tự gọi lại.',
-      hint3: 'def dem(nums, x):\n    if len(nums) == 0:\n        return 0\n    dau = 1 if nums[0] == x else 0\n    return dau + dem(nums[1:], x)\n\nn = int(input())\nnums = list(map(int, input().split()))\nx = int(input())\nprint(dem(nums, x))',
+      hint2:
+        'Bước 1: trường hợp dừng — nếu danh sách rỗng (len(nums) == 0), trả về 0 ngay (không còn gì để đếm).\n\n' +
+        'Bước 2: trường hợp còn phần tử — kiểm tra phần tử ĐẦU TIÊN (nums[0]) có bằng x không, được 1 điểm nếu đúng, 0 điểm nếu sai.\n\n' +
+        'Bước 3: cộng điểm đó với kết quả của việc gọi lại chính hàm dem() nhưng cho PHẦN CÒN LẠI của danh sách (nums[1:], bỏ phần tử đầu). Đừng dùng for/while — chỉ dùng chính hàm tự gọi lại.',
+      hint3:
+        'def dem(nums, x):\n' +
+        '    # TODO: trường hợp dừng — nếu danh sách rỗng, trả về 0\n' +
+        '    # TODO: kiểm tra phần tử đầu tiên (nums[0]) có bằng x không (1 điểm nếu đúng, 0 nếu sai)\n' +
+        '    # TODO: cộng điểm đó với dem(phần còn lại của danh sách, x) — gọi lại chính hàm dem\n' +
+        '    pass\n\n' +
+        'n = int(input())\n' +
+        'nums = list(map(int, input().split()))\n' +
+        'x = int(input())\n' +
+        'print(dem(nums, x))',
     },
   },
 
@@ -653,8 +801,19 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Chỉ có 3 lựa chọn (keo, bua, bao) và 1 quy tắc thắng-thua cố định. Thay vì viết nhiều câu if/elif rắc rối cho từng cặp, hãy nghĩ tới việc dùng 1 \'bảng tra\' (dictionary trong Python) ghi rõ \'<lựa chọn này> thắng <lựa chọn nào>\'.',
-      hint2: 'Bước 1: đọc lựa chọn của cả 2 người chơi. Bước 2: nếu 2 lựa chọn giống nhau, in "HOA" ngay. Bước 3: tạo 1 dict tên là \'thang\' với 3 cặp key-value: "keo" thắng "bao", "bua" thắng "keo", "bao" thắng "bua". Bước 4: kiểm tra xem thang[p1] có bằng p2 không — nếu đúng, người 1 thắng ("P1"); nếu không, người 2 thắng ("P2").',
-      hint3: 'p1 = input()\np2 = input()\nthang = {"keo": "bao", "bua": "keo", "bao": "bua"}\nif p1 == p2:\n    print("HOA")\nelif thang[p1] == p2:\n    print("P1")\nelse:\n    print("P2")',
+      hint2:
+        'Bước 1: đọc lựa chọn của cả 2 người chơi.\n\n' +
+        'Bước 2: nếu 2 lựa chọn giống nhau, in "HOA" ngay.\n\n' +
+        'Bước 3: tạo 1 dict tên là \'thang\' với 3 cặp key-value: "keo" thắng "bao", "bua" thắng "keo", "bao" thắng "bua".\n\n' +
+        'Bước 4: kiểm tra xem thang[p1] có bằng p2 không — nếu đúng, người 1 thắng ("P1"); nếu không, người 2 thắng ("P2").',
+      hint3:
+        'p1 = input()\n' +
+        'p2 = input()\n' +
+        '# TODO: tạo dict "thang" ghi rõ lựa chọn nào thắng lựa chọn nào\n' +
+        '# ("keo" thắng gì? "bua" thắng gì? "bao" thắng gì?)\n' +
+        'if p1 == p2:\n' +
+        '    print("HOA")\n' +
+        '# TODO: nếu thang[p1] == p2 thì người 1 thắng ("P1"), ngược lại người 2 thắng ("P2")\n',
     },
   },
   {
@@ -694,8 +853,21 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Đây là bài mô phỏng từng bước: xử lý lệnh này rồi mới xử lý lệnh tiếp theo, y hệt thang máy thật. Điểm khó nhất không phải là di chuyển, mà là nhớ \'chặn biên\' — không cho tầng vượt quá 10 hoặc xuống dưới 1.',
-      hint2: 'Bước 1: đọc N và danh sách N lệnh (nếu N=0, vẫn phải đọc dòng đó dù nó rỗng). Bước 2: khởi tạo tầng = 1. Bước 3: với mỗi lệnh trong danh sách: nếu lệnh là "UP" VÀ tầng hiện tại nhỏ hơn 10, tăng tầng lên 1; nếu lệnh là "DOWN" VÀ tầng hiện tại lớn hơn 1, giảm tầng đi 1 (các trường hợp khác — vượt biên — thì bỏ qua, không làm gì). Bước 4: in tầng cuối cùng sau khi xử lý hết lệnh.',
-      hint3: 'n = int(input())\nlenh = input().split() if n > 0 else []\ntang = 1\nfor l in lenh:\n    if l == "UP" and tang < 10:\n        tang += 1\n    elif l == "DOWN" and tang > 1:\n        tang -= 1\nprint(tang)',
+      hint2:
+        'Bước 1: đọc N và danh sách N lệnh (nếu N=0, vẫn phải đọc dòng đó dù nó rỗng).\n\n' +
+        'Bước 2: khởi tạo tầng = 1.\n\n' +
+        'Bước 3: với mỗi lệnh trong danh sách: nếu lệnh là "UP" VÀ tầng hiện tại nhỏ hơn 10, tăng tầng lên 1; nếu lệnh là "DOWN" VÀ tầng hiện tại lớn hơn 1, giảm tầng đi 1 (các trường hợp khác — vượt biên — thì bỏ qua, không làm gì).\n\n' +
+        'Bước 4: in tầng cuối cùng sau khi xử lý hết lệnh.',
+      hint3:
+        'n = int(input())\n' +
+        'lenh = input().split() if n > 0 else []\n' +
+        'tang = 1\n' +
+        'for l in lenh:\n' +
+        '    # TODO: nếu l == "UP" VÀ tang < 10 -> tang += 1\n' +
+        '    # TODO: nếu l == "DOWN" VÀ tang > 1 -> tang -= 1\n' +
+        '    # (các trường hợp vượt biên khác thì bỏ qua)\n' +
+        '    pass\n' +
+        'print(tang)',
     },
   },
   {
@@ -757,8 +929,25 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Túi đồ ở đây chính là 1 list Python bình thường, chỉ có thêm 1 quy tắc: không được thêm vào nếu túi đã đầy (số phần tử đạt tới sức chứa tối đa C). Lệnh REMOVE 1 vật không có trong túi thì chỉ cần bỏ qua, không báo lỗi.',
-      hint2: 'Bước 1: đọc C, N và khởi tạo túi = list rỗng. Bước 2: với mỗi lệnh trong N lệnh, tách lệnh đó thành 2 phần bằng .split() (hành động và tên vật phẩm). Bước 3: nếu hành động là "ADD", chỉ thêm vào túi nếu độ dài túi hiện tại còn nhỏ hơn C. Bước 4: nếu hành động là "REMOVE", chỉ xóa nếu tên đó thật sự có trong túi (kiểm tra bằng \'if ten in tui\' trước khi gọi .remove()). Bước 5: in từng vật phẩm còn lại trong túi, mỗi tên 1 dòng, theo đúng thứ tự đã thêm vào.',
-      hint3: 'c = int(input())\nn = int(input())\ntui = []\nfor _ in range(n):\n    lenh = input().split()\n    hanh_dong = lenh[0]\n    ten = lenh[1]\n    if hanh_dong == "ADD":\n        if len(tui) < c:\n            tui.append(ten)\n    elif hanh_dong == "REMOVE":\n        if ten in tui:\n            tui.remove(ten)\nfor vat_pham in tui:\n    print(vat_pham)',
+      hint2:
+        'Bước 1: đọc C, N và khởi tạo túi = list rỗng.\n\n' +
+        'Bước 2: với mỗi lệnh trong N lệnh, tách lệnh đó thành 2 phần bằng .split() (hành động và tên vật phẩm).\n\n' +
+        'Bước 3: nếu hành động là "ADD", chỉ thêm vào túi nếu độ dài túi hiện tại còn nhỏ hơn C.\n\n' +
+        'Bước 4: nếu hành động là "REMOVE", chỉ xóa nếu tên đó thật sự có trong túi (kiểm tra bằng \'if ten in tui\' trước khi gọi .remove()).\n\n' +
+        'Bước 5: in từng vật phẩm còn lại trong túi, mỗi tên 1 dòng, theo đúng thứ tự đã thêm vào.',
+      hint3:
+        'c = int(input())\n' +
+        'n = int(input())\n' +
+        'tui = []\n' +
+        'for _ in range(n):\n' +
+        '    lenh = input().split()\n' +
+        '    hanh_dong = lenh[0]\n' +
+        '    ten = lenh[1]\n' +
+        '    # TODO: nếu hanh_dong == "ADD" VÀ túi chưa đầy (len(tui) < c) -> thêm ten vào tui\n' +
+        '    # TODO: nếu hanh_dong == "REMOVE" VÀ ten có trong tui -> xóa ten khỏi tui\n' +
+        '    pass\n' +
+        'for vat_pham in tui:\n' +
+        '    print(vat_pham)',
     },
   },
   {
@@ -804,8 +993,23 @@ export const INITIAL_EXERCISES_DAY14 = [
     ],
     hints: {
       hint1: 'Đây là bài mô phỏng lượt đánh xen kẽ: người 1 đánh, rồi người 2 đánh, rồi lại người 1... Điểm quan trọng nhất: phải kiểm tra \'đối thủ đã thua chưa\' NGAY SAU mỗi đòn đánh, không phải chờ tới khi cả 2 người đã đánh xong 1 vòng.',
-      hint2: 'Bước 1: đọc máu và sát thương của cả 2 nhân vật. Bước 2: dùng 1 biến boolean (ví dụ luot_p1 = True) để theo dõi ai đang đánh. Bước 3: dùng vòng lặp while True — nếu đang là lượt người 1, trừ máu người 2 theo sát thương của người 1, rồi kiểm tra NGAY nếu máu người 2 <= 0 thì in "P1" và dừng vòng lặp (dùng break); ngược lại làm tương tự cho người 2. Bước 4: sau mỗi lượt đánh (nếu chưa ai thua), đổi lượt bằng cách đảo giá trị luot_p1 (luot_p1 = not luot_p1).',
-      hint3: 'hp1, atk1 = map(int, input().split())\nhp2, atk2 = map(int, input().split())\nluot_p1 = True\nwhile True:\n    if luot_p1:\n        hp2 -= atk1\n        if hp2 <= 0:\n            print("P1")\n            break\n    else:\n        hp1 -= atk2\n        if hp1 <= 0:\n            print("P2")\n            break\n    luot_p1 = not luot_p1',
+      hint2:
+        'Bước 1: đọc máu và sát thương của cả 2 nhân vật.\n\n' +
+        'Bước 2: dùng 1 biến boolean (ví dụ luot_p1 = True) để theo dõi ai đang đánh.\n\n' +
+        'Bước 3: dùng vòng lặp while True — nếu đang là lượt người 1, trừ máu người 2 theo sát thương của người 1, rồi kiểm tra NGAY nếu máu người 2 <= 0 thì in "P1" và dừng vòng lặp (dùng break); ngược lại làm tương tự cho người 2.\n\n' +
+        'Bước 4: sau mỗi lượt đánh (nếu chưa ai thua), đổi lượt bằng cách đảo giá trị luot_p1 (luot_p1 = not luot_p1).',
+      hint3:
+        'hp1, atk1 = map(int, input().split())\n' +
+        'hp2, atk2 = map(int, input().split())\n' +
+        'luot_p1 = True\n' +
+        'while True:\n' +
+        '    if luot_p1:\n' +
+        '        # TODO: trừ máu người 2 theo atk1, kiểm tra NGAY nếu hp2 <= 0 -> in "P1", break\n' +
+        '        pass\n' +
+        '    else:\n' +
+        '        # TODO: trừ máu người 1 theo atk2, kiểm tra NGAY nếu hp1 <= 0 -> in "P2", break\n' +
+        '        pass\n' +
+        '    # TODO: đổi lượt (đảo giá trị luot_p1) nếu chưa ai thua\n',
     },
   },
 ];
