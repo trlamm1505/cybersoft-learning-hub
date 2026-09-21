@@ -40,11 +40,8 @@ st.markdown(
         color: #F1F5F9;
     }
     
-    /* Hide Deploy button and default hamburger toolbar */
-    .stAppDeployButton, [data-testid="stDeployButton"], button[kind="header"] {
-        display: none !important;
-    }
-    #MainMenu {
+    /* Hide ONLY the Deploy button, keep 3-dots menu (#MainMenu) visible */
+    .stAppDeployButton, [data-testid="stDeployButton"] {
         display: none !important;
     }
     header[data-testid="stHeader"] {
