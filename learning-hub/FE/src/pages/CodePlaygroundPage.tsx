@@ -14,11 +14,13 @@ import {
   Loader2,
   ArrowRight,
   PartyPopper,
+  Bot,
 } from 'lucide-react';
 import { CodeEditor } from '../components/CodeEditor';
 import { OutputPanel } from '../components/OutputPanel';
 import { TestResultsPanel } from '../components/TestResultsPanel';
 import { HintPanel } from '../components/HintPanel';
+import { CoachPanel } from '../components/CoachPanel';
 import exerciseApi from '../axios/exerciseApi';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
 import type { LessonAuthoring } from '../types/authoring';
@@ -60,7 +62,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit' | 'hint'>('run');
+  const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit' | 'hint' | 'coach'>('run');
 
   // Grade/topic filters — narrow the exercise dropdown by class level and by
   // game/topic pack within that level, instead of one flat list mixing everything.
@@ -793,6 +795,16 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
             >
               <Lightbulb size={14} /> Gợi ý
             </button>
+            <button
+              onClick={() => setActiveResultTab('coach')}
+              className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                activeResultTab === 'coach'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+              }`}
+            >
+              <Bot size={14} /> AI Coach
+            </button>
           </div>
 
           {/* Tab Content Display */}
@@ -822,6 +834,8 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
               }}
             />
           )}
+
+          {activeResultTab === 'coach' && selectedSlug && <CoachPanel exerciseSlug={selectedSlug} />}
 
           {loadError && (
             <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300">

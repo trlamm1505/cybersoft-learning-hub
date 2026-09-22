@@ -37,9 +37,11 @@ export const exerciseApi = {
   /**
    * POST /api/exercises/:slug/submit — enqueues code for grading, returns immediately.
    * Poll getSubmission() with the returned submissionId until a terminal status.
+   * userId matches the default used by hintApi/coachApi so a student's AC history
+   * is visible to features that key off it (e.g. AI Coach's attempt summary).
    */
-  submitCode: async (slug: string, code: string): Promise<SubmitAckResponse> => {
-    return await axiosClient.post(`/exercises/${slug}/submit`, { code });
+  submitCode: async (slug: string, code: string, userId: string = 'student-demo'): Promise<SubmitAckResponse> => {
+    return await axiosClient.post(`/exercises/${slug}/submit`, { code, userId });
   },
 
   /**
