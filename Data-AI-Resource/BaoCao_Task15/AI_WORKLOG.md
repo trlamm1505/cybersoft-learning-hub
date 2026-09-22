@@ -18,7 +18,7 @@
   4. **Có tính năng Drill-Down tới metadata & lỗi vi phạm**: Xem chi tiết siêu dữ liệu, phân rã 7 trụ cột đo lường, và bóc tách chính xác nguyên nhân gốc của các tài nguyên bị cách ly.
   5. **Đầy đủ định nghĩa bộ chỉ số (Metric definitions)**: Soạn thảo đầy đủ từ điển chỉ số `metric_definitions.json` và văn bản đặc tả `metric_definitions.md` cùng công thức RQI 7 trụ cột.
   6. **Có ảnh/sơ đồ demo và báo cáo Word chuẩn**: Sinh ảnh kiến trúc `Picture_15_Detail.png` (300 DPI) và xây dựng báo cáo Word chính thức `DaoTrungKien_Bao_cao_Data_AI_Resource_Engineer_CyberSoft_Ngay_15.docx`.
-  7. **Bộ kiểm thử tự động Pytest đạt 100% PASS**: Hoàn thiện kịch bản kiểm chứng CLI 4 giai đoạn đạt Exit Code 0 và bộ kiểm thử Pytest 16/16 tests PASS 100% trong 0.80 giây.
+  7. **Bộ kiểm thử tự động Pytest đạt 100% PASS**: Hoàn thiện kịch bản kiểm chứng CLI 4 giai đoạn đạt Exit Code 0 và bộ kiểm thử Pytest 16/16 tests PASS 100% trong 0.38 giây.
 
 ### 1.2. Rủi Ro Dự Kiến & Bẫy AI Thường Gặp (Pre-Emptive Trap Analysis)
 Trước khi sử dụng AI hỗ trợ sinh mã nguồn, kỹ sư con người đã chủ động nhận diện 6 cạm bẫy kỹ thuật điển hình:
@@ -82,6 +82,12 @@ Trong quá trình đồng hành cùng AI, kỹ sư con người đã chủ độ
 | **4. Truy cập trực tiếp `ds_info["latest_published_version"]` để lấy version data.** | **Bẫy Silent Null**: `ds-dirty-test-quarantine` là dataset bị cách ly nên trường `latest_published_version` là `None`, dẫn đến việc version data bị rỗng và gán nhầm thành Gold Tier. | **BỔ SUNG LOGIC FALLBACK AN TOÀN**: Nếu `latest_published_version` là `None`, tự động lấy version đầu tiên trong danh mục `versions`, nhận diện đúng trạng thái `quarantined`, trích xuất 1 vi phạm schema và phân hạng Quarantined Tier chính xác. |
 | **5. Viết test kiểm tra hardcoded path bằng cách tìm từ khóa cấm trong toàn bộ file code.** | **Lỗi Tự Bắt Lỗi Chính Mình (Self-Tripping Test)**: File test và file workflow chứa danh sách các chuỗi cấm để kiểm tra, dẫn đến việc test tự đánh trượt chính mình. | **TÁCH BIỆT LOGIC KIỂM TOÁN**: Ghép các chuỗi cấm một cách động (`"users" + "/" + "admin"`) và cấu hình bộ quét chỉ kiểm tra mã nguồn nghiệp vụ, loại trừ file test. |
 | **6. Đếm số lượng tài nguyên domain Retail chỉ bằng 3.** | **Thiếu Sót Dataset Cách Ly**: Bỏ quên `ds-dirty-test-quarantine` cũng thuộc domain bán hàng (`retail_ecommerce`). | **CẬP NHẬT CHUẨN XÁC SỐ LIỆU ĐỐI SOÁT**: Khẳng định domain Retail E-Commerce có chính xác 4 tài nguyên (2 Datasets + 2 Capstones), bảo đảm tính nhất quán số học tuyệt đối. |
+| **7. Khoảng trống 60px thừa ở đỉnh Sidebar khi mở rộng.** | **Trải Nghiệm UI Bị Thô**: Phần tử `stSidebarHeader` chiếm khoảng trống 60px vô nghĩa phía trên tiêu đề `Control Center`. | **TRIỆT TIÊU HEADER CONTAINER**: Gán `height: 0px !important; margin: 0 !important;` cho header và neo tuyệt đối nút thu gọn `<<` (`stSidebarCollapseButton`) ở góc trên bên phải sidebar. |
+| **8. Dùng `fill: var(--text-color)` cho chữ trong biểu đồ Plotly.** | **Lỗi Chữ Đen Chìm Trên Nền Tối**: Streamlit không khai báo biến `--text-color` trên `:root`, khiến SVG text fallback về màu đen (`#000000`), không đọc được trong Dark mode. | **CHUẨN HÓA KẾ THỪA ĐỘNG `currentColor`**: Áp dụng `fill: currentColor !important;` cho toàn bộ tiêu đề, nhãn trục, chú thích của Plotly. Tự động đổi sang trắng sáng trên nền Dark và xám đậm trên nền Light. |
+| **9. Đặt Tiêu đề và Chú thích biểu đồ trên cùng một hàng ngang (`y=1.02`).** | **Va Chạm Chữ Khi Co Màn Hình**: Khi độ rộng cửa sổ thu hẹp, cụm `Quality Score (RQI)` đè trực tiếp lên tiêu đề `by Resource`. | **TÁCH TẦNG & DỜI CHÚ THÍCH SANG PHẢI**: Đặt tiêu đề ở tầng trên (`y=0.98`), hạ cụm chú thích xuống tầng dưới (`y=0.88`) và căn sang lề phải (`x=1.0`), dời vùng vẽ xuống `domain=[0, 0.78]`, triệt tiêu hoàn toàn nguy cơ va chạm. |
+| **10. Thẻ KPI Metric không có khoảng cách khi hiển thị dọc.** | **Dính Liền Viền Card**: Khi mở trên màn hình nhỏ hoặc co hẹp, các thẻ chỉ số bị dính sát mép trên dưới vào nhau. | **BỔ SUNG MARGIN BOTTOM**: Thêm `margin-bottom: 12px;` vào `.kpi-card`, đảm bảo luôn có khoảng cách thở thoáng đãng và tách bạch. |
+| **11. Tắt toàn bộ ModeBar hoặc để nguyên Pan & Zoom thừa.** | **Mất Nút Tiện Ích hoặc Bị Rối Mắt**: Tắt hết ModeBar làm mất nút tải ảnh PNG; giữ Pan/Zoom thì gây vướng vì dashboard đã auto-scale. | **LỌC CHỌN LỌC NÚT MODEBAR**: Giữ lại nút chụp ảnh PNG (`toImage`), Reset Scale và Auto Scale; chỉ gỡ bỏ đúng Pan (`pan2d`) và Zoom (`zoom2d`, `zoomIn2d`, `zoomOut2d`). |
+| **12. Hiển thị cả tên và % trên từng lát cắt biểu đồ tròn Donut.** | **Trùng Lặp Thông Tin & Rối Mắt**: Chữ *"Gold"*, *"Quarantined"* đè lên số % trên lát cắt trong khi bên dưới đã có chú thích màu sắc rõ ràng. | **TINH GỌN THÀNH SỐ % THUẦN TÚY**: Chuyển `textinfo="percent"`, tăng cỡ chữ lên `size=13`, giúp các lát cắt thoáng đãng, số liệu nổi bật. |
 
 ---
 
@@ -161,7 +167,7 @@ tests/test_registry_sync.py::test_collector_matches_registry_db_exactly PASSED  
 tests/test_registry_sync.py::test_collector_contains_all_capstones PASSED          [ 93%]
 tests/test_registry_sync.py::test_zero_leakage_is_maintained_across_all_capstones PASSED [100%]
 
-============================= 16 passed in 0.80s ==============================
+============================= 16 passed in 0.38s ==============================
 ```
 
 ---
@@ -171,17 +177,4 @@ tests/test_registry_sync.py::test_zero_leakage_is_maintained_across_all_capstone
 1. **Tầng 1: Prompt & Code Generation (Tạo Mã Nhanh)**: Sử dụng mô hình AI tạo khung sườn cho ứng dụng Streamlit, giao diện CSS và các hàm lọc cơ bản.
 2. **Tầng 2: Harness & State Machine Engineering (Kỹ Nghệ Dàn Khung)**: Thiết lập cấu trúc module tách biệt hoàn toàn giữa tầng thu thập (`collector.py`), tầng tính toán (`metrics_engine.py`), tầng cắt lát (`filter_engine.py`) và tầng hiển thị (`app.py`), cho phép kiểm thử độc lập mà không cần mở trình duyệt.
 3. **Tầng 3: Observability & Quality Telemetry (Đo Lường & Giám Sát)**: Thiết lập chuẩn hóa công thức đo lường RQI 7 trụ cột, tự động trích xuất các vi phạm chất lượng và liên kết trực tiếp với các manifest thực tế trong kho lưu trữ.
-4. **Tầng 4: System Thinking & Architectural Stewardship (Tư Duy Hệ Thống)**: Làm chủ nguyên lý Zero Hardcoded Paths, kiểm soát an toàn dữ liệu, phòng chống rò rỉ đáp án và xây dựng hệ thống kiểm định tự động giúp sản phẩm đạt chuẩn chuyển giao công nghiệp.
-
----
-
-## 6. Kịch Bản Thuyết Trình 3 Phút (3-Minute Defense Script)
-
-* **Phút 1 — Vấn Đề & Bối Cảnh (Problem Statement)**:  
-  *"Kính thưa Ban Giám khảo và Mentor, sau 14 ngày xây dựng kho tài nguyên, chúng ta đã có 4 bộ dataset lớn và 4 bài tập Capstone đồ sộ cho cả Data Analyst và AI Engineer. Tuy nhiên, thách thức lớn nhất của một hệ thống đào tạo AI-Native là: Làm sao để Ban Đào tạo có thể theo dõi tức thì sức khỏe chất lượng của hàng chục ngàn bản ghi dữ liệu và hàng trăm tiêu chí rubric mà không phải đọc code thủ công từng ngày? Task 15 giải quyết triệt để bài toán này bằng việc xây dựng Dashboard Theo Dõi Chất Lượng Tài Nguyên v0.1."*
-
-* **Phút 2 — Giải Pháp & Kiến Trúc Đo Lường (Solution & Metrics Architecture)**:  
-  *"Em đã xây dựng khung đo lường CRQOF v0.1 kết tinh thành Chỉ số RQI tổng hợp 7 trụ cột có trọng số khách quan: từ Quality Gate, Schema Validity, Completeness, Anti-Leakage đến Test Pass Rate. Hệ thống không dùng dữ liệu giả lập mà kết nối trực tiếp với Registry Task 10 và Project Bank Tasks 11-14 thông qua đường dẫn tương đối, bảo đảm zero hardcoded path. Trên giao diện Streamlit, người dùng có thể cắt lát đa chiều theo Chuyên ngành, Lĩnh vực, Cấp độ, và đặc biệt là tính năng Drill-down bóc tách chính xác lỗi vi phạm của các tài nguyên bị cách ly như `ds-dirty-test-quarantine`."*
-
-* **Phút 3 — Bằng Chứng Thực Nghiệm & Kết Quả (Evidence & Results)**:  
-  *"Toàn bộ giải pháp đã được kiểm chứng độc lập và tự động hóa 100%: Kịch bản demo workflow vượt qua cả 4 giai đoạn đạt Exit Code 0; bộ kiểm thử Pytest 16/16 tests PASS tuyệt đối trong 0.80 giây; hệ thống hỗ trợ xuất snapshot JSON và HTML tĩnh không cần server. Điểm RQI bình quân toàn hệ thống đạt 97.69 điểm với 7/8 tài nguyên đạt Gold Tier chuẩn mực. Đây là bản lề hoàn hảo để chúng ta chính thức bước sang Tuần 4 — xây dựng Ingest và Chunking Pipeline cho Trợ lý RAG thông minh."*
+4. **Tầng 4: System Thinking & Architectural Stewardship (Tư Duy Hệ Thống)**: Làm chủ nguyên lý Zero Hardcoded Paths, kiểm soát an toàn dữ liệu, phòng chống rò rỉ đáp án, xử lý thích ứng giao diện đa nền tảng (Dark/Light theme) và xây dựng hệ thống kiểm định tự động giúp sản phẩm đạt chuẩn chuyển giao công nghiệp.

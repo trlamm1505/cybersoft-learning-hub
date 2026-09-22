@@ -86,7 +86,7 @@ Kiến trúc hệ thống giám sát chất lượng tài nguyên được thi�
 cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/
 ├── 15_resource_quality_dashboard.md       # Bản đặc tả kỹ thuật chi tiết toàn diện (>20KB)
 ├── README.md                              # Báo cáo tổng quan bàn giao, hướng dẫn CLI và bảng DoD
-├── AI_WORKLOG.md                          # Nhật ký phối hợp AI minh bạch, thẩm định 6 bẫy AI & kịch bản 3 phút
+├── AI_WORKLOG.md                          # Nhật ký phối hợp AI minh bạch, thẩm định bẫy AI & 4 tầng năng lực AI
 ├── Picture_15_Detail.png                  # Sơ đồ kiến trúc Dashboard, Metric Engine & Layout giao diện
 ├── Picture_15-Detail.png                  # Bản sao sơ đồ đồng bộ liên kết tài liệu
 ├── requirements.txt                       # Danh mục thư viện phụ thuộc (Streamlit, Pandas, Pytest...)
@@ -222,7 +222,7 @@ python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/scripts/demo_dashbo
 ```powershell
 pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/tests/ -v
 ```
-*Kết quả thực tế*: **16/16 test cases PASS 100% trong 0.80 giây**.
+*Kết quả thực tế*: **16/16 test cases PASS 100% trong 0.38 giây**.
 
 ---
 
