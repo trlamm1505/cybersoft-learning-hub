@@ -10,6 +10,7 @@ import { AuthoringModule } from './modules-api/authoring/authoring.module';
 import { ContestModule } from './modules-api/contest/contest.module';
 import { AuthModule } from './modules-api/auth/auth.module';
 import { LeaderboardModule } from './modules-api/leaderboard/leaderboard.module';
+import { CoachModule } from './modules-api/coach/coach.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { LeaderboardModule } from './modules-api/leaderboard/leaderboard.module'
     ContestModule,
     AuthModule,
     LeaderboardModule,
+    CoachModule,
   ],
   controllers: [AppController],
   providers: [AppService],

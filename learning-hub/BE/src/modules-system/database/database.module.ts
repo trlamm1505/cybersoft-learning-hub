@@ -11,6 +11,7 @@ import { Lesson, LessonSchema } from './schemas/lesson.schema';
 import { Contest, ContestSchema } from './schemas/contest.schema';
 import { ContestSubmission, ContestSubmissionSchema } from './schemas/contest-submission.schema';
 import { User, UserSchema } from './schemas/user.schema';
+import { CoachMessage, CoachMessageSchema } from './schemas/coach-message.schema';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { User, UserSchema } from './schemas/user.schema';
       { name: Contest.name, schema: ContestSchema },
       { name: ContestSubmission.name, schema: ContestSubmissionSchema },
       { name: User.name, schema: UserSchema },
+      { name: CoachMessage.name, schema: CoachMessageSchema },
     ]),
   ],
   exports: [MongooseModule],
