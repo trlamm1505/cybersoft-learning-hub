@@ -1,12 +1,12 @@
-# AI Work Log — Ngày 15: Bộ 15 bài luyện thi thuật toán lớp 10-12
+# AI Work Log — Ngày 16: AI Coach có context học tập
 
 | | |
 |---|---|
 | **Người thực hiện** | Dương Chí Việt |
-| **Ngày** | 2026-09-21 |
-| **Nhánh** | `feature/learning-hub-day15` |
+| **Ngày** | 2026-09-22 |
+| **Nhánh** | `feature/learning-hub-day16` |
 | **Công cụ** | Claude Code (CLI, VSCode extension), model Claude Sonnet 5 |
-| **Phạm vi quyền** | Đọc/ghi trong `learning-hub/`; tạo branch mới từ `main`; chạy build/typecheck/seed/dev server thật; gọi API thật qua judge pipeline để kiểm chứng; seed dữ liệu vào MongoDB local (`localhost:27017/cybersoft`, đã xác nhận với người dùng trước khi chạy vì có bước xóa collection cũ). |
+| **Phạm vi quyền** | Đọc/ghi trong `learning-hub/`; tạo branch mới từ `main`; chạy build/typecheck/test thật; khởi động dev server thật (BE + FE) và gọi API thật qua MongoDB local (`localhost:27017/cybersoft`) để kiểm chứng end-to-end; xóa dữ liệu smoke-test tự tạo sau khi kiểm chứng xong. |
 
 ---
 
@@ -14,231 +14,249 @@
 
 | # | Việc | Trạng thái |
 |---|---|---|
-| 1 | Tạo branch `feature/learning-hub-day15`, kéo `main` xuống, đổi tên nhánh cho đúng convention | Xong |
-| 2 | Thiết kế 15 bài thuật toán (5 nhóm x 3 bài: Complexity, Sorting, Binary Search, Greedy, Graph/DP cơ bản), 73 test case | Xong |
-| 3 | Kiểm chứng độc lập bằng script Python — xác nhận naive O(N^2) thực sự TLE, không chỉ suy luận lý thuyết | Xong |
-| 4 | Viết Editorials, Teacher Guide, Complexity Rubric cho 15 bài | Xong |
-| 5 | Sửa lỗi hiển thị: đổi label "Lớp 9-12" thành "Lớp 10-12" cho khớp giá trị gradeBand FE đang dùng | Xong |
-| 6 | Chạy qua đúng judge pipeline thật — phát hiện và sửa bug runtime `import sys` bị chặn ở bài Đếm nghịch thế | Xong |
-| 7 | Phát hiện và sửa bug thiết kế test case: hidden test bài Gộp khoảng thời gian vượt giới hạn 64KB output của judge | Xong |
-| 8 | Viết file đáp án riêng cho bộ 15 bài (`docs/day15/answers.md`) | Xong |
-| 9 | Rà soát lại bộ 20 bài lớp 6-9 (ngày 14): thêm import còn thiếu vào starterCode, sửa hint2 bị vỡ định dạng, viết lại hint3 từ lộ nguyên đáp án thành khung code có TODO | Xong |
-| 10 | Viết file đáp án cho bộ 20 bài ngày 14 (`docs/day14/answers.md`) | Xong |
-| 11 | Phát hiện và sửa bug khóa tầng gợi ý: bấm thẳng được Tầng 3 mà không cần mở Tầng 1, Tầng 2 trước | Xong |
-| 12 | Thêm hiệu ứng hoàn thành khóa (modal chúc mừng, đếm ngược, tự chuyển trang) và nút Bài tiếp theo | Xong |
-| 13 | Thêm scrollbar mỏng theo theme, thay cho thanh cuộn mặc định của hệ điều hành | Xong |
-| 14 | Phát hiện và sửa bug Block Puzzle (lớp 3-5, ngày 13): khối Lặp lại và Nếu...thì không lồng được vào nhau dù khác loại | Xong |
-| 15 | Viết file đáp án cho Block Puzzle (`docs/day13/answers.md`), kiểm chứng lại 15 màn chơi bằng mô phỏng độc lập | Xong |
-| 16 | Chia 5 commit theo chủ đề, push lên `feature/learning-hub-day15` | Xong |
+| 1 | Tạo branch `feature/learning-hub-day16`, kéo `main` mới nhất | Xong |
+| 2 | Khảo sát kiến trúc BE hiện có để thiết kế module Coach theo đúng convention của `hint`/`exercise` | Xong |
+| 3 | Thiết kế Context Schema tối thiểu, quy định rõ không chứa hidden test và không chứa solutionCode | Xong |
+| 4 | Viết Context Builder — build lại từ DB mỗi lượt: đề bài, attempt gần nhất, hint đã unlock | Xong |
+| 5 | Viết Policy Enforcement — chặn dữ liệu cấm lọt vào prompt, chặn AI trả lời full solution khi chưa đủ điều kiện | Xong |
+| 6 | Viết LLM Client dạng interface có thể thay thế, kèm implementation stub (repo chưa cài SDK AI nào) | Xong |
+| 7 | Viết Coach Service — ghép context, giới hạn token, ghi log mỗi lượt chat | Xong |
+| 8 | Viết Controller + Module, wire vào `app.module.ts` | Xong |
+| 9 | Viết Policy Tests + Context Builder Tests + Service Tests | Xong |
+| 10 | Kiểm chứng độc lập bằng typecheck, test, build, và gọi API thật qua dev server | Xong |
+| 11 | Nối AI Coach vào giao diện Code Playground (tab chat mới) theo yêu cầu của người dùng | Xong |
+| 12 | Người dùng phát hiện bug: response echo nguyên văn traceback lỗi, không bám nội dung câu hỏi | Xong |
+| 13 | Sửa stub nhận diện các loại lỗi Python phổ biến, không còn echo nguyên văn message | Xong |
+| 14 | Sửa `submitCode` ở FE gửi kèm `userId` để Coach đọc đúng trạng thái đã AC | Xong |
+| 15 | Rà soát lại toàn bộ nhiệm vụ ngày 16, ghi nhận một hạn chế đã biết chưa xử lý | Xong (có ghi chú hạn chế) |
 
 ---
 
-## Việc 1 — Tạo branch, kéo main, đổi tên cho đúng convention
+## Việc 1 — Tạo branch, kéo main
 
 ### Prompt gốc của người dùng
-Yêu cầu tạo nhánh làm việc cho ngày 15 và cập nhật từ nhánh `main` mới nhất, tương tự cách đã làm ở ngày 14.
+Yêu cầu tạo nhánh làm việc cho ngày 16 và cập nhật từ nhánh `main` mới nhất.
 
 ### Đã làm
-Tạo branch từ `origin/main` mới nhất. Khi người dùng chỉ ra tên nhánh không khớp convention (phải là `feature/learning-hub-day15` như ngày 14), đổi tên lại bằng `git branch -m`.
+Checkout `main`, `git pull` (fast-forward 4 commit mới từ `origin/main`), tạo branch `feature/learning-hub-day16` từ đó.
 
 ---
 
-## Việc 2 — Thiết kế 15 bài thuật toán, 73 test case
+## Việc 2 — Khảo sát kiến trúc để thiết kế module Coach nhất quán
+
+### Đề bài
+Nhiệm vụ ngày 16 yêu cầu AI Coach biết bài, attempt và hint đã dùng — nghĩa là phải tích hợp với dữ liệu thật của `exercise`, `submission`, `hint-usage` đã có từ các ngày trước.
+
+### Đã làm
+Đọc `hint.service.ts`, `hint.controller.ts`, `hint.module.ts`, `exercise.service.ts`, các schema Mongoose liên quan, `database.module.ts` để nắm quy ước đăng ký model, quy ước DTO (class thuần, không dùng `class-validator` vì thư viện này chưa được cài trong `package.json`), và cách `exercise.service.ts` đã lọc sẵn `isHidden` ở endpoint public — dùng làm tham chiếu cho việc lọc dữ liệu tương tự ở Context Builder.
+
+### Quyết định của bản thân
+Không cài thêm SDK AI thật vì đây là thay đổi ngoài phạm vi được giao và cần API key thật để chạy. Thiết kế `LlmClient` là một interface độc lập, có một implementation stub chạy được ngay không cần mạng ngoài — khi có API key thật, chỉ cần thêm một class implement cùng interface và đổi provider trong `coach.module.ts`.
+
+---
+
+## Việc 3 — Thiết kế Context Schema tối thiểu
+
+### Đề bài
+"Thiết kế context builder tối thiểu" và điều kiện nghiệm thu "không gửi hidden test cho model".
+
+### Đã làm
+Viết `coach-context.types.ts` định nghĩa `CoachContext` gồm: thông tin bài (title, description, difficulty, chỉ test case không ẩn), tóm tắt attempt (số lần nộp, trạng thái và số test pass lần gần nhất, đã từng AC hay chưa — không đưa code đã nộp của học viên vào context), hint đã unlock (chỉ nội dung các tầng đã mở), lịch sử hội thoại gần nhất (giới hạn 6 lượt), và một object `policy` (`allowFullSolution`, `maxHintLevelUnlocked`) để tầng service/policy quyết định dựa trên dữ liệu đã tính sẵn.
+
+---
+
+## Việc 4 — Context Builder
+
+### Đã làm
+Viết `coach-context.builder.ts`: truy vấn `Exercise` theo slug, lọc `testCases` giữ `!isHidden`, đếm `hiddenTestCount` riêng. Truy vấn `Submission` theo `exerciseId` và `userId`, chỉ lấy `status/passedCount/totalCount`, không lấy field `code`. Truy vấn `HintUsage` để biết các level đã unlock, sau đó chỉ fetch nội dung `Hint` đúng các level đó bằng `level: { $in: unlockedLevels }` — không fetch toàn bộ hint của bài rồi lọc ở tầng ứng dụng.
+
+Tính `policy.allowFullSolution = hasEverPassed || maxHintLevelUnlocked >= 3`: chỉ cho phép trình bày lời giải đầy đủ khi học viên đã tự AC, hoặc đã mở hết 3 tầng gợi ý theo đúng cơ chế cooldown/thứ tự đã có từ `hint.service.ts`.
+
+---
+
+## Việc 5 — Policy Enforcement
+
+### Đề bài
+"Cấm AI đưa full solution khi policy không cho phép" — yêu cầu bắt buộc của nhiệm vụ ngày 16.
+
+### Đã làm
+Viết `coach-policy.ts` với hai lớp kiểm tra độc lập:
+
+1. `assertContextHasNoForbiddenData(context)` — chạy trước khi gọi model, serialize context và kiểm tra không chứa chuỗi `solutionCode`. Là lớp phòng thủ thứ hai độc lập với Context Builder.
+2. `checkCoachResponsePolicy(content, context)` — chạy sau khi có response, dùng khi `policy.allowFullSolution === false`: chặn nếu response chứa khối code markdown dài từ 6 dòng trở lên, hoặc chứa các cụm từ báo hiệu đưa nguyên đáp án. Nếu bị chặn, thay response gốc bằng một câu trả lời trung tính và ghi lại lý do bị chặn.
+
+### Quyết định của bản thân
+Chọn heuristic đơn giản (đếm dòng code block, so khớp cụm từ) thay vì gọi thêm một lượt model để kiểm duyệt, vì việc đó sẽ tốn thêm token cho mỗi câu trả lời, không phù hợp với điều kiện "giới hạn token". Đây là giới hạn đã biết của bản v0.1, chưa thay được việc so khớp theo cấu trúc code (AST).
+
+---
+
+## Việc 6 — LLM Client dạng thay thế được
+
+### Đã làm
+Viết interface `LlmClient` và implementation mặc định `StubLlmClient` không gọi mạng ngoài, trả lời dựa trên dữ liệu context đã lọc sẵn. Viết `estimateTokens()` ước lượng token theo tỷ lệ 4 ký tự trên 1 token.
+
+### Quyết định của bản thân
+Kiểm tra `package.json` xác nhận repo chưa cài `@anthropic-ai/sdk` hay `openai`, không có API key nào được cấu hình. Không tự ý thêm dependency hay giả lập response trông giống như đã gọi API thật, để tránh gây hiểu lầm rằng đây là kết nối model thật. Ghi rõ trong code đây là bản v0.1 chưa gọi AI thật.
+
+---
+
+## Việc 7 — Coach Service: giới hạn token và logging
+
+### Đề bài
+Điều kiện nghiệm thu: "có logging và giới hạn token".
+
+### Đã làm
+Viết `coach.service.ts`: tính `promptTokenEstimate` từ system prompt, context serialize và message, so với `MAX_PROMPT_TOKENS = 4000` — nếu vượt, từ chối trước khi gọi model. Sau khi có response, nếu `completionTokens` vượt `MAX_COMPLETION_TOKENS = 800`, cắt bớt nội dung theo giới hạn ký tự tương ứng. Ghi log mỗi lượt (cả message của học viên và response) vào collection `coach_messages` mới, gồm `tokenCount`, `policyBlocked`, `policyReason`.
+
+---
+
+## Việc 8 — Controller, Module, wiring
+
+### Đã làm
+`POST /api/coach/chat` (body: `userId`, `exerciseSlug`, `message`) và `GET /api/coach/history/:userId/:exerciseSlug`. Đăng ký `CoachMessage` schema vào `database.module.ts`, thêm `CoachModule` vào `app.module.ts`.
+
+---
+
+## Việc 9 — Viết test
+
+### Đề bài
+Bàn giao cuối ngày yêu cầu Policy tests là sản phẩm riêng biệt.
+
+### Đã làm
+- `coach-policy.spec.ts`: chặn khối code dài khi chưa được phép, cho phép đoạn code ngắn minh họa, chặn cụm từ báo hiệu đưa nguyên đáp án, cho phép full solution khi `allowFullSolution = true`, và kiểm tra `assertContextHasNoForbiddenData` với context sạch và context có `solutionCode`.
+- `coach-context.builder.spec.ts`: xác nhận hidden test case không xuất hiện trong context dù dữ liệu gốc từ DB có chứa, xác nhận `solutionCode` không lọt vào context, xác nhận chỉ hint đã unlock mới được đưa vào, và các điều kiện `allowFullSolution = true`.
+- `coach.service.spec.ts`: validate thiếu message, xác nhận ghi log đúng số lần với đúng nội dung, response kèm giới hạn token, cắt bớt completion khi vượt giới hạn, từ chối khi context quá dài mà không gọi model, và xác nhận response bị policy chặn vẫn được log lại.
+
+---
+
+## Việc 10 — Kiểm chứng độc lập lần đầu
+
+### Đã chạy và kết quả
+
+```
+cd learning-hub/BE
+npx jest src/modules-api/coach --silent
+# Test Suites: 3 passed, 3 total
+# Tests:       18 passed, 18 total
+```
+
+```
+npx tsc --noEmit -p tsconfig.json
+# (không có output, không lỗi kiểu)
+```
+
+```
+npm run build
+# nest build — thành công, không lỗi
+```
+
+```
+npx jest --silent
+# Test Suites: 1 failed, 13 passed, 14 total
+# Tests:       1 failed, 90 passed, 91 total
+```
+
+Test suite thất bại duy nhất (`hint.service.spec.ts`, test cooldown) xác nhận không liên quan tới thay đổi ngày 16: `git status --short src/modules-api/hint/` cho kết quả rỗng, file này không bị đụng tới trong buổi làm việc.
+
+Khởi động `npm run start:dev` với MongoDB local đang chạy, gọi API thật: `POST /api/coach/chat` cho bài chưa nộp, chưa mở hint → từ chối đưa code đầy đủ đúng như kỳ vọng. Gọi thật `POST /api/hints/unlock` mở Tầng 1, gọi lại chat → xác nhận `maxHintLevelUnlocked` cập nhật đúng từ dữ liệu thật trong `hint_usages`. Phát hiện `curl -d` trên Git Bash/Windows làm sai lệch hiển thị ký tự tiếng Việt khi test qua terminal — xác minh lại bằng cách gửi request qua file JSON UTF-8 chuẩn, xác nhận dữ liệu lưu trong MongoDB đúng, không phải lỗi của hệ thống. Sau khi kiểm chứng, xóa dữ liệu smoke-test khỏi MongoDB local bằng `mongosh`.
+
+---
+
+## Việc 11 — Nối AI Coach vào giao diện
 
 ### Prompt gốc của người dùng
-Yêu cầu triển khai nhiệm vụ ngày 15 theo đề bài đã cho: soạn 15 bài luyện thi thuật toán cho lớp 10-12, thuộc các chủ đề complexity, sorting, binary search, greedy và graph/DP cơ bản; viết constraint buộc đúng độ phức tạp; xây dựng editorial nhiều hướng giải; bàn giao gói bài kèm official solutions và complexity rubric.
+Người dùng yêu cầu chạy thử dự án để xem AI Coach hoạt động. Sau khi được giải thích là backend ngày 16 chưa có giao diện tương ứng, người dùng chọn phương án làm luôn một khung chat trên giao diện thay vì chỉ gọi API qua terminal.
 
 ### Đã làm
-Viết `BE/src/data/initial-exercises-day15.ts`: 15 bài chia 5 nhóm (Complexity, Sorting, Binary Search, Greedy, Graph/DP cơ bản), mỗi bài có `starterCode`, `solutionCode`, `testCases`, `tags`, `prerequisiteSlug` nối thành 1 chuỗi tiến trình.
+Khảo sát `HintPanel.tsx` và cách nó được nhúng trong `CodePlaygroundPage.tsx` (dạng tab bên phải màn hình làm bài) để giữ đúng cấu trúc giao diện đã có. Viết `types/coach.ts`, `axios/coachApi.ts` theo đúng khuôn mẫu của `hintApi.ts`. Viết `components/CoachPanel.tsx`: khung chat có lịch sử hội thoại, ô nhập, hiển thị cảnh báo khi một câu trả lời bị policy chặn. Thêm tab "AI Coach" thứ tư vào `CodePlaygroundPage.tsx`, cạnh các tab Output, Kết quả Test mẫu, Gợi ý đã có sẵn.
 
-Với mỗi bài, thiết kế ít nhất 1 hidden test case có N/S nằm ở biên constraint, để lời giải sai độ phức tạp mục tiêu bị chặn bởi `timeLimitMs`.
+### Kiểm chứng
+Chạy đồng thời `npm run start:dev` (BE, cổng 3000) và `npm run dev` (FE, cổng 5173), xác nhận cả hai phục vụ request thành công (HTTP 200). Chạy `npx tsc -b --force` ở FE, xác nhận không có lỗi kiểu liên quan tới các file vừa thêm hoặc sửa (lỗi kiểu duy nhất còn lại nằm ở `TeacherContestAuthoring.tsx`, file không bị đụng tới trong buổi làm việc, xác nhận bằng `git status --short`).
 
 ---
 
-## Việc 3 — Kiểm chứng độc lập, xác nhận TLE thật chứ không chỉ suy luận
-
-### Prompt gốc của người dùng
-Điều kiện nghiệm thu của đề bài yêu cầu có test phân biệt được lời giải chậm, chạy test/checklist độc lập với kết luận của AI, đính kèm lệnh chạy và kết quả — không chấp nhận chỉ suy luận độ phức tạp trên giấy.
-
-### Đã làm
-Viết script Python tự chạy `solutionCode` qua toàn bộ 73 test case bằng `subprocess`, so sánh output thật với `expectedOutput`. Phát hiện và tự sửa 2 lỗi trong lúc soạn test (một lỗi tính tay expectedOutput sai ở bài trộn dãy, một lỗi kỳ vọng khoảng cách sai ở bài BFS lưới) trước khi seed vào hệ thống.
-
-Với 4 bài có bẫy độ phức tạp thuần túy (naive vẫn ra đúng đáp số, chỉ chậm), viết thêm script riêng chạy naive solution qua `subprocess.run(..., timeout=timeLimitMs/1000)` trên đúng input của hidden test lớn nhất, xác nhận `TimeoutExpired` được raise thật sự, không dừng lại ở việc tính Big-O trên giấy.
-
----
-
-## Việc 4 — Editorials, Teacher Guide, Complexity Rubric
-
-### Prompt gốc của người dùng
-Đề bài ngày 15 yêu cầu bàn giao editorials, teacher guide và complexity rubric là các sản phẩm bắt buộc, tương tự cấu trúc tài liệu đã dùng ở ngày 14.
-
-### Đã làm
-Viết `docs/day15/editorials.md` (nhiều hướng giải mỗi bài, từ naive đến tối ưu, phân biệt rõ bẫy tốc độ và bẫy logic), `docs/day15/teacher-guide.md` (mục tiêu sư phạm, rubric chấm điểm, mapping mục tiêu kỳ thi kèm giới hạn tránh đặt kỳ vọng sai), và `docs/day15/complexity-rubric.md` (bảng ánh xạ độ phức tạp mục tiêu và ràng buộc constraint cho từng bài).
-
----
-
-## Việc 5 — Sửa lỗi hiển thị nhãn lớp
+## Việc 12 — Người dùng phát hiện bug: response không bám câu hỏi
 
 ### Phát hiện của người dùng
-Sau khi seed xong, vào Code Playground không thấy mục lớp 10-12.
+Người dùng dán nguyên văn traceback lỗi Python (bao gồm đường dẫn file tạm trên máy) vào ô chat. Coach trả lời bằng cách lặp lại gần như nguyên văn đoạn traceback đó trong câu trả lời, không đưa ra được nhận xét gì về nội dung lỗi. Người dùng nhận xét đúng: câu trả lời không bám bài và không chính xác.
 
 ### Nguyên nhân
-File dữ liệu ban đầu dùng `gradeBand: '10-12'`, nhưng FE `CodePlaygroundPage.tsx` chỉ định nghĩa sẵn nhãn/icon/gradient cho giá trị `'9-12'`, không có `'10-12'` — bài bị lọc rơi mất, không hiện mục nào.
+`StubLlmClient` (bản v0.1, không gọi AI thật) ghép `userMessage.slice(0, 120)` trực tiếp vào một câu mở đầu cố định, không phân biệt được loại nội dung của message (câu hỏi bằng lời hay traceback lỗi dán nguyên văn).
 
-### Đã sửa
-Đổi toàn bộ 15 bài sang `gradeBand: '9-12'` để khớp giá trị FE đã dùng sẵn, chỉ đổi label hiển thị thành "Lớp 10-12" cho đúng tên gọi thực tế mà không cần sửa nhiều nơi trong FE.
-
----
-
-## Việc 6 — Chạy qua đúng judge pipeline thật, phát hiện bug runtime `import sys`
-
-### Phát hiện của người dùng
-Nộp bài Đếm nghịch thế báo lỗi runtime: "Không được phép import module sys".
-
-### Nguyên nhân
-`solutionCode` dùng merge sort đệ quy, cần `sys.setrecursionlimit(300000)` để tránh tràn ngăn xếp trên mảng 100000 phần tử. Judge chặn hẳn module `sys` vì lý do bảo mật.
-
-### Đã sửa
-Viết lại thuật toán theo kiểu bottom-up merge sort (dùng vòng lặp ghép các đoạn độ dài tăng dần, không đệ quy), không cần `sys` nữa. Kiểm chứng bằng Python thuần (khớp 100% kết quả với bản đệ quy cũ trên 200 test ngẫu nhiên), sau đó nộp thật qua API judge: kết quả AC, 5/5 test pass, kể cả test N=100000 chạy trong giới hạn thời gian.
+### Đánh giá của bản thân
+Đây là hạn chế thật của thiết kế stub, không phải lỗi hiển thị. Trước khi sửa, đã đối chiếu lại với điều kiện nghiệm thu ngày 16 ("câu trả lời bám bài") và xác nhận bản stub khi đó không đạt tiêu chí này ở các trường hợp người dùng dán nguyên lỗi thay vì hỏi bằng lời.
 
 ---
 
-## Việc 7 — Phát hiện bug thiết kế test case vượt giới hạn output của judge
+## Việc 13 — Sửa stub nhận diện lỗi phổ biến
 
-### Phát hiện của người dùng
-Bài Gộp khoảng thời gian báo Sai kết quả (4/5 test) dù thuật toán đúng.
-
-### Nguyên nhân
-Hidden test lớn nhất dùng N=100000 khoảng, sinh ra output khoảng 1.29MB. Hệ thống chấm bài giới hạn stdout tối đa 64KB mỗi lần chạy (`MAX_OUTPUT_BYTES` trong `code-runner.helper.ts`), output vượt giới hạn bị cắt cụt, khiến bài đúng thuật toán vẫn bị chấm sai vì phần bị cắt không khớp đáp án đầy đủ.
-
-### Đã sửa
-Rà soát lại toàn bộ 73 test case của 15 bài, chỉ duy nhất bài này vi phạm giới hạn 64KB. Giảm N của test đó xuống 3000 (output khoảng 29KB, an toàn dưới giới hạn) mà vẫn đủ lớn để không thể giải bằng cách liệt kê thủ công. Ghi lại bài học này vào `complexity-rubric.md` để tránh lặp lại ở các bộ bài sau.
-
----
-
-## Việc 8 — Viết file đáp án riêng cho bộ 15 bài
-
-### Prompt gốc của người dùng
-Yêu cầu soạn file đáp án cho học viên tự đối chiếu, có code đáp án đầy đủ kèm giải thích từng bước và lý do vì sao không dùng cách giải đơn giản hơn, ghi vào `docs/day15`.
+### Trao đổi với người dùng
+Đặt câu hỏi cho người dùng về hướng xử lý: tích hợp AI thật (cần cung cấp API key) hoặc nâng cấp stub trong giới hạn không cần AI thật. Người dùng chọn nâng cấp stub, không dùng AI thật ở ngày 16.
 
 ### Đã làm
-Viết `docs/day15/answers.md`: mỗi bài gồm đề tóm tắt, code đáp án đầy đủ (đúng bằng `solutionCode` trong hệ thống), giải thích từng dòng, và lý do vì sao cách giải naive không phù hợp. Đối chiếu tự động toàn bộ 15 bài để đảm bảo code trong tài liệu khớp chính xác với dữ liệu trong hệ thống tại thời điểm bàn giao, tránh lệch nội dung khi solutionCode được cập nhật về sau.
-
----
-
-## Việc 9 — Rà soát lại bộ 20 bài ngày 14
-
-### Prompt gốc của người dùng
-Yêu cầu áp dụng tương tự các cải tiến của ngày 15 cho bộ bài ngày 14: thêm import sẵn cho học viên, sửa gợi ý bị vỡ định dạng, và đảm bảo Tầng 3 không lộ nguyên đáp án mà chỉ là khung sườn.
-
-### Đã làm
-Kiểm tra thấy bộ 20 bài không có bài nào thiếu import (chỉ dùng cú pháp Python cơ bản). Sửa `hint2` của cả 20 bài, thêm xuống dòng giữa các bước cho đúng định dạng. Viết lại `hint3` của cả 20 bài từ "giống hệt solutionCode" thành khung code có phần đọc input/cấu trúc sẵn nhưng để trống phần logic cốt lõi bằng comment TODO.
+Sửa `coach-llm.client.ts`: thêm danh sách nhận diện các loại lỗi Python phổ biến (SyntaxError, NameError, TypeError, IndexError, IndentationError) bằng so khớp mẫu (regex) trên nội dung message, trả lời đúng loại lỗi và hướng khắc phục thay vì lặp lại nguyên văn traceback. Thêm nhận diện câu hỏi xin đáp án đầy đủ. Tách hàm `buildReply` thành ba nhánh rõ ràng theo loại nội dung nhận được, thay cho một hàm gộp chung như trước.
 
 ### Kiểm chứng
-93/93 test case vẫn khớp đúng solutionCode sau khi sửa (không đụng vào solutionCode/testCases). hint3 của cả 20 bài không còn trùng solutionCode, đều có TODO, không dùng module bị chặn trong sandbox chấm bài.
+Viết `coach-llm.client.spec.ts` với 5 test: xác nhận không còn chứa đường dẫn file tạm hay tên biến tạm của traceback gốc trong response, xác nhận nhận diện đúng SyntaxError và NameError, xác nhận vẫn giữ đúng hành vi không lộ full solution khi chưa đủ điều kiện.
+
+```
+npx jest src/modules-api/coach --silent
+# Test Suites: 4 passed, 4 total
+# Tests:       23 passed, 23 total
+```
+
+Gọi lại API thật với đúng nội dung traceback trong ảnh chụp màn hình người dùng gửi (bài "Tính tổng hai số nguyên", lỗi thiếu dấu đóng ngoặc), xác nhận response mới nêu đúng "thiếu dấu đóng ngoặc/quote" và hướng dẫn đếm lại dấu ngoặc, không còn chứa đường dẫn file tạm. Xóa dữ liệu smoke-test sau khi kiểm chứng.
+
+### Giới hạn còn lại
+Bản stub sau khi sửa chỉ nhận diện được các mẫu lỗi đã liệt kê sẵn trong code. Với câu hỏi tự nhiên ngoài các mẫu này, Coach vẫn chỉ trả lời theo template chung, không thực sự phân tích được nội dung như một model AI thật. Đây là giới hạn đã biết của bản v0.1, cần API AI thật để vượt qua.
 
 ---
 
-## Việc 10 — Viết file đáp án cho bộ 20 bài ngày 14
+## Việc 14 — Gắn userId khi submit code
 
-### Prompt gốc của người dùng
-Yêu cầu bổ sung file đáp án tương tự ngày 15 cho bộ bài ngày 14, ghi vào `docs/day14`.
-
-### Đã làm
-Viết `docs/day14/answers.md` theo đúng cấu trúc đã dùng ở ngày 15: đề tóm tắt, code đáp án đầy đủ, giải thích từng bước, lỗi hay gặp cho cả 20 bài. Đối chiếu tự động với dữ liệu mới nhất trong hệ thống sau khi hint3 được viết lại ở việc 9, đảm bảo tài liệu không còn tham chiếu tới bản code cũ đã lộ đáp án.
-
----
-
-## Việc 11 — Phát hiện và sửa bug khóa tầng gợi ý
-
-### Prompt gốc của người dùng
-Báo cáo lỗi: chưa từng nộp bài 3 nhưng vẫn bấm mở khóa được Tầng 3 (gợi ý gần đáp án nhất), yêu cầu quy tắc phải là chỉ những bài đã từng làm/nộp mới được xem như đã mở, các bài chưa làm phải mở tuần tự theo từng tầng.
-
-### Phát hiện của người dùng
-Chưa từng mở Tầng 1, Tầng 2 nhưng vẫn bấm mở được Tầng 3 (code mẫu).
-
-### Điều tra
-Ban đầu nghi ngờ là dữ liệu localStorage cũ từ lần test trước, nhưng người dùng xác nhận chưa từng submit bài trước đó. Kiểm tra lại code phát hiện bug thật ở cả 2 luồng: luồng gọi API thật (`hint.service.ts`) chỉ kiểm tra "đã mở tầng này chưa" và cooldown, không kiểm tra tầng liền trước đã mở chưa; luồng gợi ý tĩnh (`HintPanel.tsx`, dùng cho bộ bài day14/day15) set `isUnlocked` trực tiếp ở client mà không kiểm tra thứ tự tầng.
+### Phát hiện trong lúc rà soát
+Trong lúc kiểm tra vì sao `attemptSummary.hasEverPassed` có thể không phản ánh đúng thực tế, phát hiện `exerciseApi.submitCode()` ở FE không gửi `userId` khi nộp bài, trong khi `hintApi` luôn gửi. Kiểm tra trực tiếp trong MongoDB local: toàn bộ 23 submission có sẵn đều có `userId` rỗng.
 
 ### Đã sửa
-Thêm điều kiện bắt buộc ở cả 2 luồng: mở tầng N phải có bằng chứng tầng N-1 đã mở trước đó. Đồng thời disable việc chuyển tab sang tầng chưa đủ điều kiện mở trên giao diện.
+Sửa `exerciseApi.ts`: `submitCode` nhận thêm tham số `userId`, mặc định `'student-demo'` giống giá trị mặc định của `hintApi`, để cùng một học viên demo có dữ liệu nhất quán giữa nộp bài, mở hint và hỏi Coach.
 
-### Kiểm chứng
-Qua API thật: bỏ qua tầng 2 để mở thẳng tầng 3 bị chặn đúng, mở tuần tự 1 rồi 2 rồi 3 vẫn hoạt động bình thường không bị chặn oan.
-
----
-
-## Việc 12 — Hiệu ứng hoàn thành khóa và nút Bài tiếp theo
-
-### Prompt gốc của người dùng
-Yêu cầu khi học viên hoàn thành hết các bài trong 1 khóa, hiển thị hiệu ứng chúc mừng đã hoàn thành khóa, đếm ngược rồi tự động chuyển về trang chính sau 10 giây. Trước đó cũng có yêu cầu riêng thêm nút chuyển sang bài tiếp theo ngay sau khi nộp bài đúng, thay vì phải quay lại danh sách chọn bài.
-
-### Đã làm
-Thêm nút "Bài tiếp theo" hiển thị ngay dưới kết quả nộp bài khi trạng thái là đúng (AC) và còn bài kế tiếp trong danh sách. Thêm modal chúc mừng toàn màn hình khi hoàn thành bài cuối cùng trong 1 chuỗi tiến trình, đếm ngược 10 giây kèm nút bỏ qua đếm ngược, tự động điều hướng về trang chính khi hết giờ. Dùng khóa lưu trữ cục bộ riêng để đảm bảo hiệu ứng chỉ hiện đúng 1 lần cho mỗi khóa, không lặp lại khi học viên mở lại một khóa đã hoàn thành từ trước.
-
-### Kiểm chứng
-Mô phỏng lại logic phát hiện hoàn thành khóa qua 4 trường hợp: chưa hoàn thành hết, vừa hoàn thành lần đầu, đã từng hiện hiệu ứng trước đó, và trường hợp không thuộc một chuỗi tiến trình duy nhất — cả 4 đều cho kết quả đúng.
+### Giới hạn còn lại
+Chỉ sửa cho luồng nộp bài mới. 23 submission cũ trong DB local vẫn giữ `userId` rỗng, không hồi tố. Đây không phải lỗi cần sửa gấp vì là dữ liệu thử nghiệm cục bộ, không phải dữ liệu thật của học viên.
 
 ---
 
-## Việc 13 — Đồng bộ nhãn hiển thị lớp học và thanh cuộn
+## Việc 15 — Rà soát lại toàn bộ nhiệm vụ, ghi nhận hạn chế chưa xử lý
 
-### Prompt gốc của người dùng
-Yêu cầu sửa gộp 3 vấn đề giao diện được báo lại sau khi test thực tế: nhãn hiển thị chưa đúng "Lớp 10-12", phần gợi ý bị vỡ định dạng khi hiển thị (đã xử lý ở Việc 9), và thanh cuộn mặc định của trình duyệt không đẹp mắt, cần thay bằng thanh cuộn tùy chỉnh.
+### Đã rà soát
+Trong lúc kiểm tra Context Builder có phụ thuộc dữ liệu tĩnh hay không, phát hiện một khoảng trống kiến trúc có sẵn từ trước, không phải do module Coach tạo ra: giảng viên tạo bài mới qua Authoring chỉ ghi vào collection `Lesson` (`AuthoringService`), trong khi `ExerciseService`, `HintService` và `CoachContextBuilder` đều chỉ đọc từ collection `Exercise` riêng biệt. Hai bảng này không có cơ chế đồng bộ tự động.
 
-### Đã làm
-Xác nhận lại việc đổi nhãn lớp đã xử lý đúng ở Việc 5. Thêm scrollbar mỏng, theo màu giao diện sáng/tối, áp dụng cho toàn bộ hệ thống thay cho thanh cuộn mặc định của hệ điều hành.
+### Ảnh hưởng tới Coach
+Nếu giảng viên tạo một bài mới qua giao diện Authoring, Coach sẽ báo "không tìm thấy bài tập" khi học viên hỏi về bài đó, cho tới khi có người thủ công thêm bài vào collection `Exercise` (cách hiện tại: sửa file dữ liệu khởi tạo rồi seed lại, như cách đã làm ở ngày 14, ngày 15).
 
----
-
-## Việc 14 — Phát hiện và sửa bug Block Puzzle không lồng được khối
-
-### Prompt gốc của người dùng
-Yêu cầu áp dụng tương tự các cải tiến của bộ bài Python cho Block Puzzle (lớp 3-5): kiểm tra và soạn file đáp án, đồng thời lưu ý ràng buộc khối vòng lặp không lồng được khối điều kiện và ngược lại.
-
-### Phát hiện của người dùng
-Kéo khối "Nếu phía trước có chướng ngại vật" vào bên trong khối "Lặp lại N lần" không thực hiện được, dù đáp án gốc của các bài 12 đến 15 yêu cầu đúng cấu trúc này.
-
-### Điều tra
-Kiểm tra code phát hiện điều kiện chặn `if (isContainerCommand) return` áp dụng cho mọi trường hợp container lồng vào container khác, không phân biệt cùng loại hay khác loại — khiến Lặp lại không thể chứa Nếu...thì dù khác loại khối.
-
-Sau khi sửa lần đầu, người dùng báo tiếp: lồng được khối Nếu vào Lặp lại, nhưng khối di chuyển đơn (Rẽ trái, Đi tới) lại bị đẩy ra ngoài thay vì vào đúng vị trí bên trong. Điều tra tiếp phát hiện nguyên nhân gốc: `DndContext` không chỉ định chiến lược phát hiện va chạm (`collisionDetection`), dùng mặc định `rectIntersection`, không đảm bảo chọn đúng vùng thả trong cùng khi các vùng lồng nhau chồng lấn về mặt hình học.
-
-### Đã sửa
-Sửa điều kiện chặn để chỉ cấm cùng loại lồng nhau, cho phép khác loại lồng 1 cấp. Thêm hàm chèn khối đệ quy thay vì chỉ tìm ở cấp ngoài cùng. Đổi chiến lược phát hiện va chạm sang kết hợp `pointerWithin` ưu tiên trước (chọn đúng vùng trong cùng khi lồng nhau) và `rectIntersection` dự phòng (giữ đúng hành vi cũ cho các khe chèn hẹp giữa các khối).
-
-### Kiểm chứng
-Mô phỏng lại đúng logic chạy khối và cách đếm khối của trang chơi bằng Python, xác nhận cả 15/15 bài đều đưa robot tới đích đúng và số khối nằm trong giới hạn cho phép của từng bài.
+### Quyết định của bản thân
+Không tự ý sửa vấn đề này trong phạm vi ngày 16, vì nó ảnh hưởng tới cả `Judge` và `Hint`, không riêng `Coach`, và cần quyết định kiến trúc rộng hơn (đồng bộ hai chiều, hay Coach đọc dự phòng từ `Lesson`, hay gộp hai collection). Đã trình bày lại vấn đề cho người dùng, đang chờ quyết định hướng xử lý ở một nhiệm vụ khác. Ghi nhận đây là hạn chế đã biết của bản giao ngày 16, chưa phải lỗi phát sinh từ module mới.
 
 ---
 
-## Việc 15 — Viết file đáp án cho Block Puzzle
+## Đối chiếu với điều kiện nghiệm thu ngày 16
 
-### Prompt gốc của người dùng
-Yêu cầu soạn file đáp án cho Block Puzzle tương tự các bộ bài viết code, nhưng đơn giản hơn vì đây là trò chơi xếp khối lệnh, ghi vào `docs/day13`.
+| Điều kiện | Kết quả |
+|---|---|
+| Không gửi hidden test cho model | Đạt. Có test riêng xác nhận, cộng thêm lớp kiểm tra runtime độc lập với Context Builder |
+| Câu trả lời bám bài | Đạt ở mức bản stub sau khi sửa ở Việc 12-13. Vẫn còn giới hạn đã ghi rõ ở Việc 13 |
+| Có logging và giới hạn token | Đạt. Ghi log mọi lượt chat, có giới hạn cả token đầu vào và đầu ra |
+| AI Coach v0.1 | Đạt, có cả backend và giao diện chat thật, vượt yêu cầu tối thiểu của đề (đề chỉ yêu cầu backend) |
+| Context schema | Đạt |
+| Policy tests | Đạt |
 
-### Đã làm
-Kiểm tra rubric đáp án đã có sẵn từ trước (`docs/day13/block-puzzle-answer-rubric.md`) để tránh soạn trùng lặp. Viết thêm `docs/day13/answers.md` dạng bảng liệt kê nhanh thứ tự đặt khối cho cả 15 bài, kèm ghi chú về quy tắc lồng khối tối đa 1 cấp đã xác nhận đúng theo mã nguồn.
-
-### Kiểm chứng
-Mô phỏng độc lập bằng Python cho cả 15 bài dựa trên dữ liệu level thật, xác nhận robot tới đích và số khối nằm trong giới hạn cho phép, trước khi đối chiếu với nội dung rubric cũ.
-
----
-
-## Việc 16 — Chia commit theo chủ đề và đẩy lên nhánh
-
-### Prompt gốc của người dùng
-Yêu cầu tạo commit dễ hiểu, đầy đủ, chi tiết, có tính logic rồi đẩy lên nhánh `feature/learning-hub-day15`, không thêm dòng ghi công cụ AI vào nội dung commit.
-
-### Đã làm
-Chia toàn bộ thay đổi trong buổi làm việc thành 5 commit theo từng chủ đề độc lập: bộ 15 bài ngày 15 và tài liệu đi kèm; cải thiện bộ 20 bài ngày 14 và tài liệu đi kèm; sửa lỗi khóa tầng gợi ý; hiệu ứng hoàn thành khóa cùng các cải tiến giao diện Code Playground; sửa lỗi lồng khối Block Puzzle và tài liệu đi kèm. Đẩy cả 5 commit lên nhánh từ xa `feature/learning-hub-day15`.
+Hạn chế đã biết, chưa xử lý trong phạm vi ngày 16: khoảng trống đồng bộ giữa collection `Lesson` và `Exercise` (Việc 15).
 
 ---
 
 ## Đánh giá độ tin cậy của AI trong buổi làm việc
 
-Phần thiết kế nội dung ban đầu (đề bài, test case, editorial) đúng phần lớn ngay từ đầu vì dựa trên kiến thức thuật toán chuẩn, nhưng có nhiều lớp lỗi chỉ lộ ra khi kiểm chứng qua đúng môi trường thật hoặc qua phản hồi trực tiếp từ người dùng khi thao tác trên giao diện, không phải chỉ đọc lại code hay suy luận trên giấy.
+Phần thiết kế kiến trúc ban đầu (tách Context Builder, Policy, LLM Client, Service thành các file riêng, dùng interface cho LLM Client) đúng ngay từ đầu vì bám sát cấu trúc module `hint` đã có sẵn trong repo, và các test tự viết đều pass ở lần chạy đầu.
 
-Bốn lỗi quan trọng nhất trong buổi làm việc (import sys bị chặn, output vượt giới hạn 64KB, khóa tầng gợi ý không hoạt động, Block Puzzle không lồng được khối) đều không được phát hiện ở bước kiểm chứng ban đầu bằng script độc lập, mà chỉ lộ ra khi người dùng tự tay thao tác trên giao diện thật và báo lại cụ thể. Điều này cho thấy kiểm chứng bằng script (chạy solutionCode qua Python thuần) là điều kiện cần nhưng chưa đủ — vẫn cần chạy qua đúng pipeline sản xuất thật (judge pipeline, giao diện kéo-thả, luồng unlock gợi ý) để bắt được các lớp lỗi hạ tầng hoặc lỗi UI không thể hiện ra khi chỉ kiểm tra logic thuần túy.
+Tuy nhiên phần chất lượng nội dung câu trả lời của Coach có lỗi thật, chỉ được phát hiện khi người dùng tự tay thao tác trên giao diện và dán một traceback lỗi thật vào ô chat — không phải qua các test đã viết trước đó, vì các test đó chỉ kiểm tra logic policy/giới hạn token bằng dữ liệu giả lập đơn giản, không mô phỏng đúng cách người dùng thật sẽ gõ. Đây là một dạng lỗi mà việc tự viết test theo hướng suy đoán trước không đủ để bắt được — cần có người dùng thật thao tác để lộ ra.
 
-Với bug Block Puzzle, lần sửa đầu tiên chỉ giải quyết đúng phần người dùng mô tả (không lồng được khối chứa), nhưng chưa lường trước được tác động phụ của việc đổi chiến lược phát hiện va chạm tới các vùng thả khác (khe chèn hẹp giữa các khối) — phải sửa thêm 1 lần nữa sau khi người dùng test lại và báo lỗi mới phát sinh. Bài học rút ra: khi sửa 1 hành vi chia sẻ chung 1 cơ chế nền tảng (ở đây là toàn bộ hệ thống kéo-thả), cần rà soát lại mọi luồng khác cùng dùng chung cơ chế đó, không chỉ kiểm tra đúng trường hợp cụ thể vừa được báo lỗi.
+Việc kiểm tra kiến trúc dữ liệu (khoảng trống giữa `Lesson` và `Exercise`, submission không có `userId`) là hai phát hiện chủ động trong lúc rà soát lại, không phải do người dùng chỉ ra. Cả hai đều là hạn chế có sẵn trong hệ thống trước ngày 16, không phải lỗi phát sinh từ module Coach, nhưng ảnh hưởng trực tiếp tới độ chính xác của dữ liệu Coach sử dụng — đã ghi nhận rõ ràng thay vì bỏ qua.
