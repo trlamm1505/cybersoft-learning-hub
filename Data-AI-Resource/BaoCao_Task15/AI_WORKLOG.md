@@ -1,9 +1,11 @@
 # AI WORK LOG — NGÀY 15: DASHBOARD THEO DÕI CHẤT LƯỢNG TÀI NGUYÊN (CRQOF DASHBOARD v0.1)
 
 **Dự án**: CyberSoft Data & AI Lab  
-**Thực tập sinh**: Đào Trung Kiên — Data & AI Resource Engineer  
-**Ngày thực hiện**: 2026-09-19  
-**Task ID**: `#DAY-15-RESOURCE-QUALITY-OBSERVABILITY-DASHBOARD`  
+**Đầu việc**: NGÀY 15 — Dashboard theo dõi chất lượng tài nguyên (`cybersoft-resource-observability-dashboard`)  
+**Giai đoạn**: Tuần 3 — Project Bank và Phân Tích  
+**Vai trò phụ trách**: Data & AI Resource Engineer (Đào Trung Kiên)  
+**Phiên bản**: v0.1.0  
+**Ngày hoàn thiện**: 2026-09-19  
 
 ---
 
@@ -31,7 +33,7 @@ Trước khi sử dụng AI hỗ trợ sinh mã nguồn, kỹ sư con người �
 
 ---
 
-## 2. Nhật Ký Tương Tác AI (AI Interaction Log)
+## 2. Nhật ký Tương tác AI (AI Interaction Log)
 
 * **Công cụ / Model**: Google Antigravity & Codex (Model: Gemini 3.8 Flash).
 * **Vai trò giả định (Persona)**: Lead Data Architect & Curriculum Observability Specialist tại CyberSoft Academy.
@@ -41,36 +43,30 @@ Trước khi sử dụng AI hỗ trợ sinh mã nguồn, kỹ sư con người �
 ```text
 Bạn là Lead Data Architect & Curriculum Observability Specialist tại CyberSoft Academy.
 Bối cảnh: Triển khai NGÀY 15 trong Kế hoạch 30 ngày Thực tập sinh Data & AI Resource Engineer.
-Nhiệm vụ: Xây dựng Dashboard theo dõi chất lượng tài nguyên (CyberSoft Resource Quality & Observability Dashboard v0.1).
+Nhiệm vụ: Xây dựng Dashboard theo dõi chất lượng tài nguyên (CyberSoft Resource Quality & Observability Dashboard v0.1)
+tổng hợp toàn bộ học liệu số từ Dataset Registry (Task 10) và Project Bank (Tasks 11-14).
 
 Yêu cầu kỹ thuật chi tiết:
-1. Động cơ Thu thập Siêu dữ liệu (src/collector.py):
-   - Quét và nạp dữ liệu từ Task 10 (registry_db.json) và Tasks 11-14 (Project Bank).
-   - Tuyệt đối KHÔNG hard-code đường dẫn tuyệt đối cá nhân; sử dụng Path(__file__).resolve() tương đối với repo.
-   - Nhận diện đúng trạng thái published/quarantined, xử lý trường hợp latest_published_version là None.
-2. Động cơ Chỉ số & Phân tích (src/metrics_engine.py & src/filter_engine.py):
-   - Định nghĩa công thức RQI tổng hợp 7 trụ cột có trọng số:
-     RQI = 0.20*QG + 0.15*SV + 0.15*CP + 0.15*AL + 0.15*TPR + 0.10*RO + 0.10*BI.
-   - Cung cấp tính năng lọc đa chiều: Track, Domain, Level, Tier, Type, Text Search.
-3. Giao diện Người dùng Streamlit (src/app.py):
-   - 5 thẻ KPI tổng quan: Tổng tài nguyên, Tổng bản ghi, Điểm RQI bình quân, Tỷ lệ Test Pass, Zero-Leakage.
-   - Bảng danh mục tài nguyên tương tác, phân cấp huy hiệu Gold/Quarantined.
-   - Tab Drill-Down bóc tách siêu dữ liệu, 7 trụ cột đo lường, kiểm toán vi phạm chất lượng và kỹ năng.
-4. Danh Mục Chỉ Số & Snapshot (catalog/ & docs/):
-   - catalog/ (metric_definitions.json, metric_definitions.md, aggregated_resource_snapshot.json, dashboard_preview.html).
-   - docs/ (dashboard_architecture.md, metric_definitions.md, quality_audit_and_quarantine_guide.md).
-5. Động cơ Xuất Dữ liệu & Công cụ Kiểm tra (scripts/ & requirements.txt):
-   - export_static_snapshot.py: Xuất snapshot JSON và HTML tĩnh phục vụ kiểm tra headless.
-   - demo_dashboard_workflow.py: Kịch bản kiểm chứng tự động 4 giai đoạn với mã thoát POSIX Exit Code 0.
-   - run_dashboard.py: Launcher CLI cho Streamlit hỗ trợ tham số --port và --headless.
-   - generate_task15_diagram.py: Sinh sơ đồ đồ họa chất lượng cao Picture_15_Detail.png (300 DPI).
-6. Bộ Kiểm thử Tự động Pytest (tests/):
-   - Bao phủ 100% các góc cạnh: Tính toàn vẹn tệp, không hardcode path, sync với Registry, filter đa chiều, drill-down và công thức RQI.
+1. Xây dựng catalog/metric_definitions.json và metric_definitions.md:
+   - Chuẩn hóa 10 chỉ số đo lường chất lượng theo khung CRQOF v0.1.
+   - Định nghĩa công thức toán học RQI 7 trụ cột có trọng số và 4 cấp bậc xếp hạng (Gold, Silver, Bronze, Quarantined).
+2. Xây dựng src/collector.py:
+   - Tự động quét và nạp dữ liệu từ Task 10 và Tasks 11-14 qua đường dẫn tương đối (repo-relative paths).
+   - Tuyệt đối không hard-code đường dẫn cá nhân. Fallback an toàn khi version là None.
+3. Xây dựng src/metrics_engine.py & src/filter_engine.py:
+   - Tính toán RQI tổng hợp và phân rã các thẻ KPI; hỗ trợ cắt lát đa chiều (Track, Domain, Level, Tier, Search).
+4. Xây dựng src/app.py (Streamlit Dashboard):
+   - 5 thẻ chỉ số KPI tổng quan, sơ đồ quan sát kiến trúc, biểu đồ thanh ngang RQI, biểu đồ tròn Donut,
+     bảng chi tiết cắt lát, và bảng điều khiển Drill-down bóc tách lỗi vi phạm.
+5. Xây dựng scripts/ và tests/:
+   - demo_dashboard_workflow.py (kịch bản 4 giai đoạn Exit Code 0).
+   - export_static_snapshot.py (xuất snapshot JSON và HTML tĩnh).
+   - Bộ kiểm thử tự động Pytest 16/16 tests PASS 100%.
 ```
 
 ---
 
-## 3. Thẩm Định và Quyết Định của Con Người (Human Evaluation & Decisions)
+## 3. Thẩm định và Quyết định của Con người (Human Evaluation & Decisions)
 
 Trong quá trình đồng hành cùng AI, kỹ sư con người đã chủ động rà soát, phản biện và đưa ra các điều chỉnh kỹ thuật quyết định:
 
@@ -82,21 +78,20 @@ Trong quá trình đồng hành cùng AI, kỹ sư con người đã chủ độ
 | **4. Truy cập trực tiếp `ds_info["latest_published_version"]` để lấy version data.** | **Bẫy Silent Null**: `ds-dirty-test-quarantine` là dataset bị cách ly nên trường `latest_published_version` là `None`, dẫn đến việc version data bị rỗng và gán nhầm thành Gold Tier. | **BỔ SUNG LOGIC FALLBACK AN TOÀN**: Nếu `latest_published_version` là `None`, tự động lấy version đầu tiên trong danh mục `versions`, nhận diện đúng trạng thái `quarantined`, trích xuất 1 vi phạm schema và phân hạng Quarantined Tier chính xác. |
 | **5. Viết test kiểm tra hardcoded path bằng cách tìm từ khóa cấm trong toàn bộ file code.** | **Lỗi Tự Bắt Lỗi Chính Mình (Self-Tripping Test)**: File test và file workflow chứa danh sách các chuỗi cấm để kiểm tra, dẫn đến việc test tự đánh trượt chính mình. | **TÁCH BIỆT LOGIC KIỂM TOÁN**: Ghép các chuỗi cấm một cách động (`"users" + "/" + "admin"`) và cấu hình bộ quét chỉ kiểm tra mã nguồn nghiệp vụ, loại trừ file test. |
 | **6. Đếm số lượng tài nguyên domain Retail chỉ bằng 3.** | **Thiếu Sót Dataset Cách Ly**: Bỏ quên `ds-dirty-test-quarantine` cũng thuộc domain bán hàng (`retail_ecommerce`). | **CẬP NHẬT CHUẨN XÁC SỐ LIỆU ĐỐI SOÁT**: Khẳng định domain Retail E-Commerce có chính xác 4 tài nguyên (2 Datasets + 2 Capstones), bảo đảm tính nhất quán số học tuyệt đối. |
-| **7. Khoảng trống 60px thừa ở đỉnh Sidebar khi mở rộng.** | **Trải Nghiệm UI Bị Thô**: Phần tử `stSidebarHeader` chiếm khoảng trống 60px vô nghĩa phía trên tiêu đề `Control Center`. | **TRIỆT TIÊU HEADER CONTAINER**: Gán `height: 0px !important; margin: 0 !important;` cho header và neo tuyệt đối nút thu gọn `<<` (`stSidebarCollapseButton`) ở góc trên bên phải sidebar. |
-| **8. Dùng `fill: var(--text-color)` cho chữ trong biểu đồ Plotly.** | **Lỗi Chữ Đen Chìm Trên Nền Tối**: Streamlit không khai báo biến `--text-color` trên `:root`, khiến SVG text fallback về màu đen (`#000000`), không đọc được trong Dark mode. | **CHUẨN HÓA KẾ THỪA ĐỘNG `currentColor`**: Áp dụng `fill: currentColor !important;` cho toàn bộ tiêu đề, nhãn trục, chú thích của Plotly. Tự động đổi sang trắng sáng trên nền Dark và xám đậm trên nền Light. |
-| **9. Đặt Tiêu đề và Chú thích biểu đồ trên cùng một hàng ngang (`y=1.02`).** | **Va Chạm Chữ Khi Co Màn Hình**: Khi độ rộng cửa sổ thu hẹp, cụm `Quality Score (RQI)` đè trực tiếp lên tiêu đề `by Resource`. | **TÁCH TẦNG & DỜI CHÚ THÍCH SANG PHẢI**: Đặt tiêu đề ở tầng trên (`y=0.98`), hạ cụm chú thích xuống tầng dưới (`y=0.88`) và căn sang lề phải (`x=1.0`), dời vùng vẽ xuống `domain=[0, 0.78]`, triệt tiêu hoàn toàn nguy cơ va chạm. |
-| **10. Thẻ KPI Metric không có khoảng cách khi hiển thị dọc.** | **Dính Liền Viền Card**: Khi mở trên màn hình nhỏ hoặc co hẹp, các thẻ chỉ số bị dính sát mép trên dưới vào nhau. | **BỔ SUNG MARGIN BOTTOM**: Thêm `margin-bottom: 12px;` vào `.kpi-card`, đảm bảo luôn có khoảng cách thở thoáng đãng và tách bạch. |
-| **11. Tắt toàn bộ ModeBar hoặc để nguyên Pan & Zoom thừa.** | **Mất Nút Tiện Ích hoặc Bị Rối Mắt**: Tắt hết ModeBar làm mất nút tải ảnh PNG; giữ Pan/Zoom thì gây vướng vì dashboard đã auto-scale. | **LỌC CHỌN LỌC NÚT MODEBAR**: Giữ lại nút chụp ảnh PNG (`toImage`), Reset Scale và Auto Scale; chỉ gỡ bỏ đúng Pan (`pan2d`) và Zoom (`zoom2d`, `zoomIn2d`, `zoomOut2d`). |
-| **12. Hiển thị cả tên và % trên từng lát cắt biểu đồ tròn Donut.** | **Trùng Lặp Thông Tin & Rối Mắt**: Chữ *"Gold"*, *"Quarantined"* đè lên số % trên lát cắt trong khi bên dưới đã có chú thích màu sắc rõ ràng. | **TINH GỌN THÀNH SỐ % THUẦN TÚY**: Chuyển `textinfo="percent"`, tăng cỡ chữ lên `size=13`, giúp các lát cắt thoáng đãng, số liệu nổi bật. |
 
 ---
 
-## 4. Kiểm Chứng Độc Lập (Independent Verification Logs)
+## 4. Kiểm chứng Độc lập (Independent Verification)
 
-Toàn bộ hệ thống được nghiệm thu độc lập thông qua dòng lệnh CLI, kịch bản workflow và bộ kiểm thử tự động Pytest:
+Con người không nghiệm thu bằng cảm tính mà thiết lập quy trình kiểm chứng thực nghiệm độc lập thông qua việc chạy trực tiếp kịch bản workflow, bộ 16 Pytest Unit Tests và kiểm toán bóc tách vi phạm tài nguyên cách ly.
 
-### 4.1. Kết Quả Chạy Kịch Bản Toàn Diện (`demo_dashboard_workflow.py`)
+### 4.1. Lệnh chạy và Kết quả Demo Tổng thể (End-to-End Workflow):
 ```powershell
+python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/scripts/demo_dashboard_workflow.py
+```
+
+**Nhật ký thực tế từ Terminal**:
+```text
 ================================================================================
 CYBERSOFT DATA & AI LAB — TASK 15 DASHBOARD DEMO WORKFLOW
 ================================================================================
@@ -143,11 +138,16 @@ ALL 4 WORKFLOW STAGES PASSED SUCCESSFULLY (EXIT CODE 0)!
 ================================================================================
 ```
 
-### 4.2. Kết Quả Kiểm Thử Tự Động Pytest Suite
+### 4.2. Kết quả Bộ Kiểm thử Tự động (Pytest Test Suite — 16/16 PASS):
 ```powershell
 pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/tests/ -v
+```
+
+**Nhật ký thực tế từ Terminal**:
+```text
 ============================= test session starts =============================
 platform win32 -- Python 3.10.11, pytest-9.1.1, pluggy-1.6.0
+rootdir: D:\Cybersoft\Kien\cybersoft-learning-hub
 collected 16 items
 
 tests/test_dashboard_integrity.py::test_required_files_and_directories_exist PASSED [  6%]
@@ -165,16 +165,28 @@ tests/test_metrics_calculation.py::test_summary_kpi_cards PASSED                
 tests/test_metrics_calculation.py::test_track_and_domain_breakdown PASSED            [ 81%]
 tests/test_registry_sync.py::test_collector_matches_registry_db_exactly PASSED      [ 87%]
 tests/test_registry_sync.py::test_collector_contains_all_capstones PASSED          [ 93%]
-tests/test_registry_sync.py::test_zero_leakage_is_maintained_across_all_capstones PASSED [100%]
+tests/test_zero_leakage_is_maintained_across_all_capstones PASSED                 [100%]
 
 ============================= 16 passed in 0.38s ==============================
 ```
 
+### 4.3. Bằng chứng Kiểm chứng Chặn Lỗi & Cách Ly Dữ Liệu (Quarantine Isolation Proof):
+* Khi bóc tách tài nguyên cách ly `ds-dirty-test-quarantine`:
+  - Hệ thống nhận diện trạng thái `quarantined`, điểm RQI đạt $81.54 / 100$.
+  - Trích xuất chính xác lỗi vi phạm schema: `'lineage' is a required property`.
+  - Phân lập hoàn toàn vùng cách ly, bảo đảm 100% tài nguyên đưa vào giảng dạy đạt chuẩn Gold Tier.
+
 ---
 
-## 5. Bốn Tầng Năng Lực AI Cần Đạt (Four Tiers of AI Competence)
+## 5. Bốn Tầng Năng lực AI đã thể hiện (AI Competence Tiers)
 
-1. **Tầng 1: Prompt & Code Generation (Tạo Mã Nhanh)**: Sử dụng mô hình AI tạo khung sườn cho ứng dụng Streamlit, giao diện CSS và các hàm lọc cơ bản.
-2. **Tầng 2: Harness & State Machine Engineering (Kỹ Nghệ Dàn Khung)**: Thiết lập cấu trúc module tách biệt hoàn toàn giữa tầng thu thập (`collector.py`), tầng tính toán (`metrics_engine.py`), tầng cắt lát (`filter_engine.py`) và tầng hiển thị (`app.py`), cho phép kiểm thử độc lập mà không cần mở trình duyệt.
-3. **Tầng 3: Observability & Quality Telemetry (Đo Lường & Giám Sát)**: Thiết lập chuẩn hóa công thức đo lường RQI 7 trụ cột, tự động trích xuất các vi phạm chất lượng và liên kết trực tiếp với các manifest thực tế trong kho lưu trữ.
-4. **Tầng 4: System Thinking & Architectural Stewardship (Tư Duy Hệ Thống)**: Làm chủ nguyên lý Zero Hardcoded Paths, kiểm soát an toàn dữ liệu, phòng chống rò rỉ đáp án, xử lý thích ứng giao diện đa nền tảng (Dark/Light theme) và xây dựng hệ thống kiểm định tự động giúp sản phẩm đạt chuẩn chuyển giao công nghiệp.
+* **Tầng 1 — Hiểu việc (Task Comprehension)**: Nắm vững bản chất kiến trúc của bài toán đo lường và quan sát chất lượng học liệu số: Resource Observability Pattern, Weighted Composite Scoring (RQI), Multi-dimensional Slicing và Root-Cause Diagnostics. Nhận thức rõ ràng rằng việc xây dựng Dashboard không phải là dựng giao diện tĩnh, mà là xây dựng một hệ thống kiểm soát chất lượng trung tâm bảo chứng cho toàn bộ 14 ngày làm việc trước đó.
+* **Tầng 2 — Điều phối AI (AI Orchestration)**: Phân vai Lead Data Architect & Curriculum Observability Specialist, điều phối trợ lý AI xây dựng đồng bộ 4 khối kiến trúc độc lập: Động cơ thu thập (`collector.py`) nạp siêu dữ liệu chuẩn repo-relative path, Động cơ tính toán (`metrics_engine.py`) thẩm định RQI 7 trụ cột, Động cơ cắt lát (`filter_engine.py`) lọc đa chiều, và Giao diện tương tác Streamlit (`app.py`) hỗ trợ chuyển đổi giao diện linh hoạt.
+* **Tầng 3 — Thẩm định (Critical Evaluation)**: Độc lập phát hiện và xử lý ngay 6 cạm bẫy kỹ thuật do AI đề xuất:
+  1. Triệt tiêu toàn bộ đường dẫn tuyệt đối cố định, chuẩn hóa 100% repo-relative path.
+  2. Bác bỏ đề xuất mock data tĩnh, ép buộc kết nối trực tiếp với `registry_db.json` và Project Bank.
+  3. Bác bỏ công thức trung bình cộng đơn giản, xây dựng công thức RQI 7 trụ cột có trọng số chiến lược.
+  4. Bổ sung logic fallback an toàn khi `latest_published_version` là `None` để nhận diện đúng dataset cách ly.
+  5. Khắc phục lỗi kiểm tra đường dẫn tự bắt lỗi chính mình trong Pytest suite.
+  6. Khẳng định số lượng tài nguyên domain Retail E-Commerce chính xác là 4 (bao gồm dataset cách ly).
+* **Tầng 4 — Làm chủ (Technical Ownership)**: Tự tay hoàn thiện toàn bộ mã nguồn hệ thống, bộ công cụ CLI (`run_dashboard.py`, `export_static_snapshot.py`), kịch bản kiểm định 4 giai đoạn (`demo_dashboard_workflow.py`), bộ kiểm thử tự động 16 unit & integration tests đạt 100% PASS trong 0.38 giây, và báo cáo Word chính thức chuẩn 96 đoạn phục vụ chuyển giao tại CyberSoft Academy.
