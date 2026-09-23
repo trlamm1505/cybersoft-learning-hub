@@ -1,0 +1,13 @@
+[PDF_PAGE_1]
+HỌC VIỆN ĐÀO TẠO LẬP TRÌNH CYBERSOFT
+QUY CHẾ ĐÀO TẠO THỰC CHIẾN CHUẨN ĐẦU RA - PHIÊN BẢN V2.4
+
+Điều 1. Phạm vi điều chỉnh và đối tượng áp dụng
+Quy chế này quy định về chuẩn đầu ra, phương pháp giảng dạy dự án thực tế, và tiêu chuẩn đánh giá kết quả học tập áp dụng cho toàn bộ học viên tại CyberSoft Academy.
+Mục tiêu là đảm bảo 100% học viên tốt nghiệp nắm vững kiến thức chuyên môn và kỹ năng làm việc thực tế tại doanh nghiệp.
+
+[PDF_PAGE_2]
+Điều 2. Tiêu chuẩn đánh giá đồ án tốt nghiệp
+1. Đồ án tốt nghiệp phải là sản phẩm ứng dụng hoàn chỉnh có mã nguồn đẩy lên GitHub cá nhân.
+2. Sản phẩm phải tích hợp tối thiểu 03 tính năng chính, có kiểm thử tự động đạt độ phủ trên 80%.
+3. Học viên phải trình bày báo cáo trước hội đồng chuyên môn và trả lời các câu hỏi phản biện kỹ thuật độc lập.
