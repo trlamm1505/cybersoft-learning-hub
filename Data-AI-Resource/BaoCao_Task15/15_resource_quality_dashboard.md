@@ -87,7 +87,6 @@ cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/
 ├── README.md                              # Báo cáo tổng quan bàn giao & hướng dẫn thực thi
 ├── AI_WORKLOG.md                          # Nhật ký phối hợp AI & thẩm định 3 cột theo chuẩn CyberSoft
 ├── Picture_15_Detail.png                  # Sơ đồ kiến trúc Dashboard, Metric Engine & Layout giao diện
-├── Picture_15-Detail.png                  # Bản sao sơ đồ đồng bộ liên kết tài liệu
 ├── requirements.txt                       # Danh mục thư viện phụ thuộc (Streamlit, Pandas, Pytest...)
 ├── catalog/
 │   ├── metric_definitions.json            # Từ điển 10 chỉ số chất lượng tài nguyên chuẩn hóa

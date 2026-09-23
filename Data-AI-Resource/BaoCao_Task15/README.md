@@ -20,11 +20,9 @@ BaoCao_Task15/
 ├── README.md                              # Báo cáo tổng quan bàn giao & hướng dẫn thực thi
 ├── AI_WORKLOG.md                          # Nhật ký phối hợp AI & thẩm định 3 cột theo chuẩn CyberSoft
 ├── Picture_15_Detail.png                  # Sơ đồ kiến trúc Dashboard, Metric Engine & Luồng dữ liệu (High-res 300 DPI)
-├── Picture_15_Detail.drawio               # File thiết kế sơ đồ gốc dạng vector chuẩn Draw.io XML
 ├── Picture_15_Demo_Dashboard.png          # Ảnh chụp thực tế giao diện Dashboard tổng quan (Overview Tab & 5 KPI cards)
 ├── Picture_15_Demo_Catalog.png            # Ảnh chụp thực tế danh mục 8 tài nguyên giám sát (Catalog Tab & CSV/JSON export)
 ├── Picture_15_Demo_Drilldown.png          # Ảnh chụp thực tế tính năng bóc tách siêu dữ liệu & kiểm toán lỗi vi phạm
-├── Picture_15-Detail.png                  # Bản sao tương thích liên kết tài liệu
 ├── requirements.txt                       # Danh mục thư viện phụ thuộc (Streamlit, Pandas, Pytest...)
 ├── catalog/
 │   ├── metric_definitions.json            # Từ điển 10 chỉ số chất lượng tài nguyên chuẩn hóa

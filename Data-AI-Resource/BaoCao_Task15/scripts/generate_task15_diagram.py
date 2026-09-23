@@ -3,7 +3,6 @@ Picture_15_Detail.png & Picture_15-Detail.png
 """
 
 import os
-import shutil
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -18,7 +17,6 @@ if sys.stdout.encoding != "utf-8":
 def generate_diagram():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     output_path = os.path.join(base_dir, "Picture_15_Detail.png")
-    output_path_dash = os.path.join(base_dir, "Picture_15-Detail.png")
 
     fig, ax = plt.subplots(figsize=(18, 11), dpi=300)
     ax.set_facecolor("#0F172A")  # Slate 900 dark theme
@@ -276,12 +274,9 @@ def generate_diagram():
         facecolor=fig.get_facecolor(),
         edgecolor="none",
     )
-    shutil.copy2(output_path, output_path_dash)
     plt.close()
 
-    print(
-        f"[SUCCESS] Generated Task 15 diagrams:\n - {output_path}\n - {output_path_dash}"
-    )
+    print(f"[SUCCESS] Generated Task 15 diagram:\n - {output_path}")
 
 
 if __name__ == "__main__":
