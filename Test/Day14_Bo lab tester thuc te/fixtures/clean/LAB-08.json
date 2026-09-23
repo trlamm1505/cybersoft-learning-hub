@@ -1,0 +1,11 @@
+{
+  "labId": "LAB-08",
+  "mode": "clean",
+  "faultId": "F-D14-008",
+  "rule": "Tổng UI và API của cùng bộ lọc/thời điểm phải khớp.",
+  "data": {
+    "filter": "BackEnd",
+    "uiCount": 8,
+    "apiTotal": 8
+  }
+}

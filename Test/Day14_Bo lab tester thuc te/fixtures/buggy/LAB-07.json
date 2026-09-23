@@ -1,0 +1,11 @@
+{
+  "labId": "LAB-07",
+  "mode": "buggy",
+  "faultId": "F-D14-007",
+  "rule": "danhGia phải nằm trong 0..10.",
+  "data": {
+    "maPhim": 13001,
+    "tenPhim": "Fixture movie",
+    "danhGia": -8
+  }
+}

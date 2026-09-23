@@ -1,0 +1,11 @@
+{
+  "labId": "LAB-02",
+  "mode": "buggy",
+  "faultId": "F-D14-002",
+  "rule": "Mã phim không tồn tại phải trả trạng thái không tìm thấy, không phải lỗi server.",
+  "data": {
+    "movieId": 999999,
+    "status": 500,
+    "message": "Mã phim không hợp lệ!"
+  }
+}
