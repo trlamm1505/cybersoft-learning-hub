@@ -1,0 +1,91 @@
+{
+  "version": "2026-09-22",
+  "audience": "instructor-only",
+  "note": "Không phát cho học viên trước khi họ hoàn thành phân tích fixture.",
+  "faults": [
+    {
+      "faultId": "F-D14-001",
+      "labId": "LAB-01",
+      "rule": "Mọi trường bắt buộc phải được khai báo và chặn trước request.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-01",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-01"
+    },
+    {
+      "faultId": "F-D14-002",
+      "labId": "LAB-02",
+      "rule": "Mã phim không tồn tại phải trả trạng thái không tìm thấy, không phải lỗi server.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-02",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-02"
+    },
+    {
+      "faultId": "F-D14-003",
+      "labId": "LAB-03",
+      "rule": "Ngày trả phải sau ngày nhận và số khách phải lớn hơn 0.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-03",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-03"
+    },
+    {
+      "faultId": "F-D14-004",
+      "labId": "LAB-04",
+      "rule": "API bệnh viện dùng Authorization: Bearer; không dùng TokenCybersoft.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-04",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-04"
+    },
+    {
+      "faultId": "F-D14-005",
+      "labId": "LAB-05",
+      "rule": "Sửa/xóa phải kiểm quyền sở hữu tài nguyên.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-05",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-05"
+    },
+    {
+      "faultId": "F-D14-006",
+      "labId": "LAB-06",
+      "rule": "Input biên phải trả 4xx phù hợp và không lộ stack trace.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-06",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-06"
+    },
+    {
+      "faultId": "F-D14-007",
+      "labId": "LAB-07",
+      "rule": "danhGia phải nằm trong 0..10.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-07",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-07"
+    },
+    {
+      "faultId": "F-D14-008",
+      "labId": "LAB-08",
+      "rule": "Tổng UI và API của cùng bộ lọc/thời điểm phải khớp.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-08",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-08"
+    },
+    {
+      "faultId": "F-D14-009",
+      "labId": "LAB-09",
+      "rule": "Email phải duy nhất sau chuẩn hóa; mọi attempt phải có user.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-09",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-09"
+    },
+    {
+      "faultId": "F-D14-010",
+      "labId": "LAB-10",
+      "rule": "Locator phải theo role/label/name ổn định, không phụ thuộc class ngẫu nhiên.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-10",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-10"
+    },
+    {
+      "faultId": "F-D14-011",
+      "labId": "LAB-11",
+      "rule": "Ghế đã đặt không được hiển thị là có thể chọn.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-11",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-11"
+    },
+    {
+      "faultId": "F-D14-012",
+      "labId": "LAB-12",
+      "rule": "Regression case ID phải duy nhất và ca ghi dữ liệu phải có cleanup.",
+      "setup": "node fixtures/reset.mjs --mode buggy --lab LAB-12",
+      "reset": "node fixtures/reset.mjs --mode clean --lab LAB-12"
+    }
+  ]
+}

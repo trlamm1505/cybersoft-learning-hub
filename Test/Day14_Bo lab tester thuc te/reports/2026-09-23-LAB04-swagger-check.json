@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-09-23T07:53:25.1462277+07:00",
+  "openApi": "https://api-hospital.cybersoft.edu.vn/swagger/v1/swagger.json",
+  "authScheme": {
+    "type": "http",
+    "description": "Nhập token dạng: Bearer {token}",
+    "scheme": "bearer",
+    "bearerFormat": "JWT"
+  },
+  "confirmedPaths": [
+    "/api/Auth/login",
+    "/api/Auth/register",
+    "/api/MedicalService"
+  ],
+  "medicalServiceRequest": {
+    "method": "GET",
+    "url": "https://api-hospital.cybersoft.edu.vn/api/MedicalService",
+    "result": "SUCCESS",
+    "response": []
+  },
+  "authExecution": "NEEDS TEST ACCOUNT"
+}
