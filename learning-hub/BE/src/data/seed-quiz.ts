@@ -6,11 +6,15 @@ import { QuizAttemptSchema } from '../modules-system/database/schemas/quiz-attem
 
 dotenv.config();
 
-const MONGO_URI = process.env.DATABASE_URL || 'mongodb://localhost:27017/cybersoft';
+const MONGO_URI =
+  process.env.DATABASE_URL || 'mongodb://localhost:27017/cybersoft';
 
 // User and Test Schemas for seeding reference
 const userSchema = new mongoose.Schema({ email: String, fullName: String });
-const testSchema = new mongoose.Schema({ exerciseId: mongoose.Schema.Types.ObjectId, version: Number });
+const testSchema = new mongoose.Schema({
+  exerciseId: mongoose.Schema.Types.ObjectId,
+  version: Number,
+});
 
 async function seedQuizEngine() {
   console.log('🌱 [Quiz Engine Seed] Connecting to MongoDB:', MONGO_URI);
@@ -27,11 +31,17 @@ async function seedQuizEngine() {
     // 1. Clean existing questions and quiz attempts collections
     await QuestionModel.deleteMany({});
     await QuizAttemptModel.deleteMany({});
-    console.log('🧹 Cleaned existing "questions" and "quizattempts" collections');
+    console.log(
+      '🧹 Cleaned existing "questions" and "quizattempts" collections',
+    );
 
     // 2. Insert 20 Quiz Questions
-    const createdQuestions = await QuestionModel.insertMany(INITIAL_QUIZ_QUESTIONS);
-    console.log(`✅ Seeded ${createdQuestions.length} Quiz Questions with detailed explanations!`);
+    const createdQuestions = await QuestionModel.insertMany(
+      INITIAL_QUIZ_QUESTIONS,
+    );
+    console.log(
+      `✅ Seeded ${createdQuestions.length} Quiz Questions with detailed explanations!`,
+    );
 
     // 3. Find sample Student User & Test for Attempt creation
     const studentUser = await UserModel.findOne({ email: 'student@gmail.com' });
@@ -40,21 +50,29 @@ async function seedQuizEngine() {
     if (studentUser && sampleTest) {
       // 4. Generate sample QuizAttempt for Student
       const sampleSeed = 'cybersoft-seed-2026-quiz-attempt-01';
-      const shuffledQuestionItems = createdQuestions.slice(0, 10).map((q: any, idx: number) => {
-        const optionKeys = q.options.map((opt: any) => opt.key);
-        const rotatedKeys = [...optionKeys.slice(idx % 4), ...optionKeys.slice(0, idx % 4)];
-        const correctOpt = q.options.find((opt: any) => opt.isCorrect);
+      const shuffledQuestionItems = createdQuestions
+        .slice(0, 10)
+        .map((q: any, idx: number) => {
+          const optionKeys = q.options.map((opt: any) => opt.key);
+          const rotatedKeys = [
+            ...optionKeys.slice(idx % 4),
+            ...optionKeys.slice(0, idx % 4),
+          ];
+          const correctOpt = q.options.find((opt: any) => opt.isCorrect);
 
-        return {
-          questionId: q._id,
-          optionKeysOrder: rotatedKeys,
-          selectedOptionKey: correctOpt ? correctOpt.key : 'A',
-          isCorrect: true,
-          scoreEarned: q.points || 10,
-        };
-      });
+          return {
+            questionId: q._id,
+            optionKeysOrder: rotatedKeys,
+            selectedOptionKey: correctOpt ? correctOpt.key : 'A',
+            isCorrect: true,
+            scoreEarned: q.points || 10,
+          };
+        });
 
-      const totalScore = shuffledQuestionItems.reduce((acc, curr) => acc + (curr.scoreEarned || 0), 0);
+      const totalScore = shuffledQuestionItems.reduce(
+        (acc, curr) => acc + (curr.scoreEarned || 0),
+        0,
+      );
 
       const sampleAttemptPayload: any = {
         userId: studentUser._id,
@@ -69,9 +87,12 @@ async function seedQuizEngine() {
         maxScore: 100,
       };
 
-      const sampleAttempt: any = await QuizAttemptModel.create(sampleAttemptPayload);
+      const sampleAttempt: any =
+        await QuizAttemptModel.create(sampleAttemptPayload);
 
-      console.log(`✅ Created sample QuizAttempt for Student (${studentUser.email}): Score ${sampleAttempt.score}/${sampleAttempt.maxScore}`);
+      console.log(
+        `✅ Created sample QuizAttempt for Student (${studentUser.email}): Score ${sampleAttempt.score}/${sampleAttempt.maxScore}`,
+      );
     }
 
     console.log('🎉 QUIZ ENGINE SEEDING COMPLETED SUCCESSFULLY!');

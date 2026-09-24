@@ -22,12 +22,21 @@ export const INITIAL_EXERCISES_DAY14 = [
     timeLimitMs: 2000,
     testCases: [
       { input: 'An', expectedOutput: 'Xin chao, An!', isHidden: false },
-      { input: 'Nguyen Van B', expectedOutput: 'Xin chao, Nguyen Van B!', isHidden: false },
+      {
+        input: 'Nguyen Van B',
+        expectedOutput: 'Xin chao, Nguyen Van B!',
+        isHidden: false,
+      },
       { input: 'A', expectedOutput: 'Xin chao, A!', isHidden: true },
-      { input: 'Cybersoft Academy', expectedOutput: 'Xin chao, Cybersoft Academy!', isHidden: true },
+      {
+        input: 'Cybersoft Academy',
+        expectedOutput: 'Xin chao, Cybersoft Academy!',
+        isHidden: true,
+      },
     ],
     hints: {
-      hint1: 'Đề bài chỉ cần nối chuỗi lại với nhau theo đúng khuôn mẫu "Xin chao, <ten>!". Không cần tính toán gì, chỉ cần đọc đúng 1 dòng dữ liệu và ghép chuỗi.',
+      hint1:
+        'Đề bài chỉ cần nối chuỗi lại với nhau theo đúng khuôn mẫu "Xin chao, <ten>!". Không cần tính toán gì, chỉ cần đọc đúng 1 dòng dữ liệu và ghép chuỗi.',
       hint2:
         'Bước 1: đọc tên bằng input().\n\n' +
         'Bước 2: dùng f-string (f"...") hoặc phép nối chuỗi bằng dấu + để chèn tên vào đúng vị trí trong câu chào, nhớ giữ đúng dấu phẩy và dấu chấm than.',
@@ -50,7 +59,8 @@ export const INITIAL_EXERCISES_DAY14 = [
     tags: ['input-output', 'float', 'lop6-9'],
     prerequisiteSlug: 'day14-chao-hoi-theo-ten',
     starterCode: 'gia = float(input())\n# Viết code của bạn ở đây\n',
-    solutionCode: 'gia = float(input())\ntong = gia * 1.1\nprint(f"{tong:.2f}")',
+    solutionCode:
+      'gia = float(input())\ntong = gia * 1.1\nprint(f"{tong:.2f}")',
     timeLimitMs: 2000,
     testCases: [
       { input: '100', expectedOutput: '110.00', isHidden: false },
@@ -60,7 +70,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '1000000', expectedOutput: '1100000.00', isHidden: true },
     ],
     hints: {
-      hint1: 'Thuế 10% nghĩa là tổng tiền = giá gốc + 10% giá gốc = giá gốc x 1.1. Đề yêu cầu làm tròn đúng 2 chữ số thập phân khi in ra, không phải làm tròn giá trị số.',
+      hint1:
+        'Thuế 10% nghĩa là tổng tiền = giá gốc + 10% giá gốc = giá gốc x 1.1. Đề yêu cầu làm tròn đúng 2 chữ số thập phân khi in ra, không phải làm tròn giá trị số.',
       hint2:
         'Bước 1: đọc giá gốc bằng float(input()).\n\n' +
         'Bước 2: nhân với 1.1.\n\n' +
@@ -85,7 +96,8 @@ export const INITIAL_EXERCISES_DAY14 = [
     tags: ['input-output', 'so-hoc', 'lop6-9'],
     prerequisiteSlug: 'day14-tinh-tien-co-thue',
     starterCode: 'n = int(input())\n# Viết code của bạn ở đây\n',
-    solutionCode: 'n = int(input())\ngio = n // 60\nphut = n % 60\nprint(f"{gio}h {phut}m")',
+    solutionCode:
+      'n = int(input())\ngio = n // 60\nphut = n % 60\nprint(f"{gio}h {phut}m")',
     timeLimitMs: 2000,
     testCases: [
       { input: '90', expectedOutput: '1h 30m', isHidden: false },
@@ -95,7 +107,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '1439', expectedOutput: '23h 59m', isHidden: true },
     ],
     hints: {
-      hint1: '1 giờ có 60 phút. Muốn biết N phút là bao nhiêu giờ, hãy nghĩ tới phép chia lấy phần nguyên; muốn biết còn dư mấy phút, hãy nghĩ tới phép chia lấy số dư.',
+      hint1:
+        '1 giờ có 60 phút. Muốn biết N phút là bao nhiêu giờ, hãy nghĩ tới phép chia lấy phần nguyên; muốn biết còn dư mấy phút, hãy nghĩ tới phép chia lấy số dư.',
       hint2:
         'Bước 1: đọc N.\n\n' +
         'Bước 2: tính giờ = N // 60 (chia lấy nguyên).\n\n' +
@@ -121,7 +134,8 @@ export const INITIAL_EXERCISES_DAY14 = [
     points: 15,
     tags: ['input-output', 'multi-line', 'lop6-9'],
     prerequisiteSlug: 'day14-doi-phut-thanh-gio-phut',
-    starterCode: 'ten = input()\nn = int(input())\ngia = float(input())\n# Viết code của bạn ở đây\n',
+    starterCode:
+      'ten = input()\nn = int(input())\ngia = float(input())\n# Viết code của bạn ở đây\n',
     solutionCode:
       'ten = input()\n' +
       'n = int(input())\n' +
@@ -148,12 +162,14 @@ export const INITIAL_EXERCISES_DAY14 = [
       },
       {
         input: 'Balo hoc sinh\n2\n199999.99',
-        expectedOutput: 'San pham: Balo hoc sinh\nSo luong: 2\nThanh tien: 399999.98',
+        expectedOutput:
+          'San pham: Balo hoc sinh\nSo luong: 2\nThanh tien: 399999.98',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Bài này không khó về thuật toán, chỉ cần đọc đúng thứ tự 3 dòng dữ liệu (tên là chuỗi, số lượng là số nguyên, đơn giá là số thực) và in ra đúng thứ tự 3 dòng theo khuôn mẫu cho trước.',
+      hint1:
+        'Bài này không khó về thuật toán, chỉ cần đọc đúng thứ tự 3 dòng dữ liệu (tên là chuỗi, số lượng là số nguyên, đơn giá là số thực) và in ra đúng thứ tự 3 dòng theo khuôn mẫu cho trước.',
       hint2:
         'Bước 1: đọc tên bằng input() (giữ nguyên chuỗi, không ép kiểu số).\n\n' +
         'Bước 2: đọc số lượng bằng int(input()).\n\n' +
@@ -184,7 +200,8 @@ export const INITIAL_EXERCISES_DAY14 = [
     points: 10,
     tags: ['list', 'so-hoc', 'lop6-9'],
     prerequisiteSlug: 'day14-dinh-dang-hoa-don',
-    starterCode: 'n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n',
+    starterCode:
+      'n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n',
     solutionCode:
       'n = int(input())\n' +
       'nums = list(map(int, input().split()))\n' +
@@ -194,13 +211,18 @@ export const INITIAL_EXERCISES_DAY14 = [
     timeLimitMs: 2000,
     testCases: [
       { input: '3\n1 2 3', expectedOutput: '6\n2.00', isHidden: false },
-      { input: '4\n10 20 30 40', expectedOutput: '100\n25.00', isHidden: false },
+      {
+        input: '4\n10 20 30 40',
+        expectedOutput: '100\n25.00',
+        isHidden: false,
+      },
       { input: '1\n7', expectedOutput: '7\n7.00', isHidden: true },
       { input: '3\n-5 5 0', expectedOutput: '0\n0.00', isHidden: true },
       { input: '5\n1 1 1 1 2', expectedOutput: '6\n1.20', isHidden: true },
     ],
     hints: {
-      hint1: 'Python có sẵn hàm sum() để tính tổng cả danh sách, không cần tự viết vòng lặp cộng dồn. Trung bình cộng = tổng chia cho số lượng phần tử.',
+      hint1:
+        'Python có sẵn hàm sum() để tính tổng cả danh sách, không cần tự viết vòng lặp cộng dồn. Trung bình cộng = tổng chia cho số lượng phần tử.',
       hint2:
         'Bước 1: đọc N và danh sách N số nguyên (dùng list(map(int, input().split()))).\n\n' +
         'Bước 2: tính tong = sum(nums).\n\n' +
@@ -226,7 +248,8 @@ export const INITIAL_EXERCISES_DAY14 = [
     points: 10,
     tags: ['list', 'dem', 'lop6-9'],
     prerequisiteSlug: 'day14-tong-trung-binh-danh-sach',
-    starterCode: 'n = int(input())\nnums = list(map(int, input().split()))\nx = int(input())\n# Viết code của bạn ở đây\n',
+    starterCode:
+      'n = int(input())\nnums = list(map(int, input().split()))\nx = int(input())\n# Viết code của bạn ở đây\n',
     solutionCode:
       'n = int(input())\n' +
       'nums = list(map(int, input().split()))\n' +
@@ -240,7 +263,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '6\n-1 -1 0 1 -1 2\n-1', expectedOutput: '3', isHidden: true },
     ],
     hints: {
-      hint1: 'Python có sẵn phương thức .count() trên danh sách để đếm số lần 1 giá trị xuất hiện — không cần tự viết vòng lặp so sánh từng phần tử.',
+      hint1:
+        'Python có sẵn phương thức .count() trên danh sách để đếm số lần 1 giá trị xuất hiện — không cần tự viết vòng lặp so sánh từng phần tử.',
       hint2:
         'Bước 1: đọc N, danh sách N số, và giá trị X cần đếm (đọc theo đúng 3 dòng, đúng thứ tự).\n\n' +
         'Bước 2: gọi nums.count(x) và in kết quả ra.',
@@ -264,7 +288,8 @@ export const INITIAL_EXERCISES_DAY14 = [
     points: 15,
     tags: ['list', 'set', 'lop6-9'],
     prerequisiteSlug: 'day14-dem-so-lan-xuat-hien',
-    starterCode: 'n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n',
+    starterCode:
+      'n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n',
     solutionCode:
       'n = int(input())\n' +
       'nums = list(map(int, input().split()))\n' +
@@ -283,10 +308,11 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '5\n4 3 2 1 4', expectedOutput: '4 3 2 1', isHidden: true },
     ],
     hints: {
-      hint1: 'Không thể dùng set() trực tiếp để loại trùng lặp vì set() không giữ đúng thứ tự xuất hiện ban đầu — đề bài yêu cầu giữ nguyên thứ tự. Cần một cách khác để \'ghi nhớ\' đã gặp giá trị nào rồi.',
+      hint1:
+        "Không thể dùng set() trực tiếp để loại trùng lặp vì set() không giữ đúng thứ tự xuất hiện ban đầu — đề bài yêu cầu giữ nguyên thứ tự. Cần một cách khác để 'ghi nhớ' đã gặp giá trị nào rồi.",
       hint2:
         'Bước 1: tạo 1 set rỗng để ghi nhớ các giá trị đã gặp, và 1 list rỗng để chứa kết quả.\n\n' +
-        'Bước 2: duyệt từng số trong danh sách gốc theo đúng thứ tự ban đầu — nếu số đó CHƯA có trong set \'đã gặp\', thêm nó vào cả set và vào list kết quả; nếu đã có trong set rồi thì bỏ qua (không thêm lại vào kết quả).\n\n' +
+        "Bước 2: duyệt từng số trong danh sách gốc theo đúng thứ tự ban đầu — nếu số đó CHƯA có trong set 'đã gặp', thêm nó vào cả set và vào list kết quả; nếu đã có trong set rồi thì bỏ qua (không thêm lại vào kết quả).\n\n" +
         'Bước 3: in list kết quả, các số cách nhau bởi dấu cách.',
       hint3:
         'n = int(input())\n' +
@@ -328,14 +354,23 @@ export const INITIAL_EXERCISES_DAY14 = [
       "print(' '.join(map(str, ket_qua)))",
     timeLimitMs: 2000,
     testCases: [
-      { input: '3\n1 3 5\n3\n2 4 6', expectedOutput: '1 2 3 4 5 6', isHidden: false },
+      {
+        input: '3\n1 3 5\n3\n2 4 6',
+        expectedOutput: '1 2 3 4 5 6',
+        isHidden: false,
+      },
       { input: '2\n1 1\n1\n1', expectedOutput: '1 1 1', isHidden: false },
       { input: '0\n\n3\n1 2 3', expectedOutput: '1 2 3', isHidden: true },
       { input: '0\n\n0\n\n', expectedOutput: '', isHidden: true },
-      { input: '4\n-3 -1 0 2\n2\n-2 1', expectedOutput: '-3 -2 -1 0 1 2', isHidden: true },
+      {
+        input: '4\n-3 -1 0 2\n2\n-2 1',
+        expectedOutput: '-3 -2 -1 0 1 2',
+        isHidden: true,
+      },
     ],
     hints: {
-      hint1: 'Vì kết quả cuối cùng chỉ cần đúng thứ tự tăng dần (không yêu cầu tối ưu tốc độ), cách đơn giản nhất là: nối 2 danh sách A và B lại thành 1 danh sách lớn, rồi sắp xếp lại toàn bộ. Thử thách thật của bài này nằm ở việc đọc đúng input khi 1 trong 2 danh sách rỗng (N=0 hoặc M=0), không nằm ở thuật toán trộn.',
+      hint1:
+        'Vì kết quả cuối cùng chỉ cần đúng thứ tự tăng dần (không yêu cầu tối ưu tốc độ), cách đơn giản nhất là: nối 2 danh sách A và B lại thành 1 danh sách lớn, rồi sắp xếp lại toàn bộ. Thử thách thật của bài này nằm ở việc đọc đúng input khi 1 trong 2 danh sách rỗng (N=0 hoặc M=0), không nằm ở thuật toán trộn.',
       hint2:
         'Bước 1: đọc N, danh sách A (N số, dùng input().split() dù N=0 vẫn phải đọc dòng đó — nó sẽ là chuỗi rỗng, split() trả về list rỗng, không gây lỗi).\n\n' +
         'Bước 2: đọc M, danh sách B tương tự.\n\n' +
@@ -366,22 +401,26 @@ export const INITIAL_EXERCISES_DAY14 = [
     tags: ['loop', 'for', 'lop6-9'],
     prerequisiteSlug: 'day14-tron-hai-danh-sach-sap-xep',
     starterCode: 'n = int(input())\n# Viết code của bạn ở đây\n',
-    solutionCode: 'n = int(input())\nfor i in range(1, 11):\n    print(f"{n} x {i} = {n * i}")',
+    solutionCode:
+      'n = int(input())\nfor i in range(1, 11):\n    print(f"{n} x {i} = {n * i}")',
     timeLimitMs: 2000,
     testCases: [
       {
         input: '2',
-        expectedOutput: '2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18\n2 x 10 = 20',
+        expectedOutput:
+          '2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18\n2 x 10 = 20',
         isHidden: false,
       },
       {
         input: '9',
-        expectedOutput: '9 x 1 = 9\n9 x 2 = 18\n9 x 3 = 27\n9 x 4 = 36\n9 x 5 = 45\n9 x 6 = 54\n9 x 7 = 63\n9 x 8 = 72\n9 x 9 = 81\n9 x 10 = 90',
+        expectedOutput:
+          '9 x 1 = 9\n9 x 2 = 18\n9 x 3 = 27\n9 x 4 = 36\n9 x 5 = 45\n9 x 6 = 54\n9 x 7 = 63\n9 x 8 = 72\n9 x 9 = 81\n9 x 10 = 90',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Bảng cửu chương N có đúng 10 dòng, dòng thứ i có dạng "N x i = N*i" với i chạy từ 1 đến 10 (không phải từ 0).',
+      hint1:
+        'Bảng cửu chương N có đúng 10 dòng, dòng thứ i có dạng "N x i = N*i" với i chạy từ 1 đến 10 (không phải từ 0).',
       hint2:
         'Bước 1: đọc N.\n\n' +
         'Bước 2: dùng vòng lặp for i in range(1, 11) để i lần lượt nhận giá trị 1, 2, ..., 10.\n\n' +
@@ -426,10 +465,11 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '1000000', expectedOutput: '7', isHidden: true },
     ],
     hints: {
-      hint1: 'Có thể lấy từng chữ số cuối cùng của 1 số bằng phép chia lấy dư cho 10 (% 10), rồi \'bỏ\' chữ số đó đi bằng phép chia lấy nguyên cho 10 (// 10), lặp lại cho tới khi số về 0. Số 0 là trường hợp đặc biệt cần chú ý riêng — số 0 vẫn có đúng 1 chữ số.',
+      hint1:
+        "Có thể lấy từng chữ số cuối cùng của 1 số bằng phép chia lấy dư cho 10 (% 10), rồi 'bỏ' chữ số đó đi bằng phép chia lấy nguyên cho 10 (// 10), lặp lại cho tới khi số về 0. Số 0 là trường hợp đặc biệt cần chú ý riêng — số 0 vẫn có đúng 1 chữ số.",
       hint2:
         'Bước 1: đọc N, lấy trị tuyệt đối bằng abs() để không bị ảnh hưởng bởi dấu âm.\n\n' +
-        'Bước 2: nếu N sau khi lấy trị tuyệt đối bằng 0, in ra 1 ngay (không chạy vòng lặp vì vòng lặp \'while n > 0\' sẽ không chạy lần nào với n=0).\n\n' +
+        "Bước 2: nếu N sau khi lấy trị tuyệt đối bằng 0, in ra 1 ngay (không chạy vòng lặp vì vòng lặp 'while n > 0' sẽ không chạy lần nào với n=0).\n\n" +
         'Bước 3: với N khác 0, dùng vòng lặp while n > 0: chia n cho 10 (n //= 10) và tăng biến đếm lên 1 mỗi lần, dừng khi n về 0.',
       hint3:
         'n = abs(int(input()))\n' +
@@ -472,7 +512,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '496', expectedOutput: 'YES', isHidden: true },
     ],
     hints: {
-      hint1: 'Ước số dương của N là những số từ 1 đến N-1 (không tính N) mà N chia hết cho nó. Chú ý kỹ: đề bài nói \'không tính chính nó\' — nghĩa là vòng lặp kiểm tra ước số CHỈ chạy tới N-1, không chạy tới N.',
+      hint1:
+        "Ước số dương của N là những số từ 1 đến N-1 (không tính N) mà N chia hết cho nó. Chú ý kỹ: đề bài nói 'không tính chính nó' — nghĩa là vòng lặp kiểm tra ước số CHỈ chạy tới N-1, không chạy tới N.",
       hint2:
         'Bước 1: đọc N.\n\n' +
         'Bước 2: dùng vòng lặp for i in range(1, n) (dừng ở n-1, không tính n) để kiểm tra từng số i có phải ước của N không (n % i == 0), nếu có thì cộng vào tổng.\n\n' +
@@ -517,15 +558,20 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '2\n1 2\n2 1', expectedOutput: 'YES', isHidden: false },
       { input: '2\n1 2\n3 1', expectedOutput: 'NO', isHidden: false },
       { input: '1\n5', expectedOutput: 'YES', isHidden: true },
-      { input: '3\n1 2 3\n2 5 6\n3 6 9', expectedOutput: 'YES', isHidden: true },
+      {
+        input: '3\n1 2 3\n2 5 6\n3 6 9',
+        expectedOutput: 'YES',
+        isHidden: true,
+      },
       { input: '3\n1 2 3\n2 5 6\n4 6 9', expectedOutput: 'NO', isHidden: true },
     ],
     hints: {
-      hint1: 'Ma trận đối xứng nghĩa là nếu lật ma trận qua đường chéo chính (đổi hàng thành cột), ma trận không đổi. Nói cách khác: phần tử ở hàng i cột j phải luôn bằng phần tử ở hàng j cột i, với MỌI cặp i, j — không chỉ 1 vài cặp.',
+      hint1:
+        'Ma trận đối xứng nghĩa là nếu lật ma trận qua đường chéo chính (đổi hàng thành cột), ma trận không đổi. Nói cách khác: phần tử ở hàng i cột j phải luôn bằng phần tử ở hàng j cột i, với MỌI cặp i, j — không chỉ 1 vài cặp.',
       hint2:
         'Bước 1: đọc N và đọc N dòng, mỗi dòng là 1 hàng của ma trận (dùng list comprehension hoặc vòng lặp để tạo list-trong-list).\n\n' +
         'Bước 2: dùng 2 vòng lặp lồng nhau (i chạy 0..N-1, j chạy 0..N-1) để so sánh matrix[i][j] với matrix[j][i] cho MỌI cặp i, j.\n\n' +
-        'Bước 3: nếu tìm thấy bất kỳ cặp nào khác nhau, đánh dấu \'không đối xứng\'.\n\n' +
+        "Bước 3: nếu tìm thấy bất kỳ cặp nào khác nhau, đánh dấu 'không đối xứng'.\n\n" +
         'Bước 4: in kết quả cuối cùng sau khi đã kiểm tra hết.',
       hint3:
         'n = int(input())\n' +
@@ -578,7 +624,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '997', expectedOutput: 'YES', isHidden: true },
     ],
     hints: {
-      hint1: 'Số nguyên tố là số lớn hơn 1 và chỉ chia hết cho 1 và chính nó. Vì vậy, số 0, số 1, và số âm KHÔNG phải số nguyên tố — cần loại trừ các trường hợp này trước khi kiểm tra ước số.',
+      hint1:
+        'Số nguyên tố là số lớn hơn 1 và chỉ chia hết cho 1 và chính nó. Vì vậy, số 0, số 1, và số âm KHÔNG phải số nguyên tố — cần loại trừ các trường hợp này trước khi kiểm tra ước số.',
       hint2:
         'Bước 1: trong hàm is_prime(n), nếu n nhỏ hơn 2 thì trả về False ngay.\n\n' +
         'Bước 2: dùng vòng lặp kiểm tra xem n có chia hết cho bất kỳ số nào từ 2 đến căn bậc hai của n không (chỉ cần kiểm tra tới căn bậc hai là đủ, không cần kiểm tra tới n).\n\n' +
@@ -631,7 +678,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '10', expectedOutput: '3628800', isHidden: true },
     ],
     hints: {
-      hint1: 'Giai thừa của n (n!) là tích của tất cả số nguyên từ 1 đến n. Có 2 quy ước đặc biệt cần nhớ: 0! = 1 (không phải 0), và số âm không có giai thừa hợp lệ nên hàm phải trả về -1 để báo lỗi.',
+      hint1:
+        'Giai thừa của n (n!) là tích của tất cả số nguyên từ 1 đến n. Có 2 quy ước đặc biệt cần nhớ: 0! = 1 (không phải 0), và số âm không có giai thừa hợp lệ nên hàm phải trả về -1 để báo lỗi.',
       hint2:
         'Bước 1: trong hàm factorial(n), nếu n âm thì trả về -1 ngay.\n\n' +
         'Bước 2: nếu n không âm, khởi tạo kết quả = 1 (đúng cho cả trường hợp n=0).\n\n' +
@@ -692,7 +740,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '1\n4.999', expectedOutput: 'F', isHidden: true },
     ],
     hints: {
-      hint1: 'Khi có nhiều điều kiện xếp hạng theo mức (A, B, C, D, F), cách viết an toàn nhất là kiểm tra từ ngưỡng CAO NHẤT xuống THẤP NHẤT, dùng return ngay khi tìm thấy đúng mức — không cần lo lồng nhiều else-if phức tạp.',
+      hint1:
+        'Khi có nhiều điều kiện xếp hạng theo mức (A, B, C, D, F), cách viết an toàn nhất là kiểm tra từ ngưỡng CAO NHẤT xuống THẤP NHẤT, dùng return ngay khi tìm thấy đúng mức — không cần lo lồng nhiều else-if phức tạp.',
       hint2:
         'Bước 1: trong hàm xep_loai(diem), kiểm tra lần lượt: nếu diem >= 9 trả về "A" ngay; nếu không, kiểm tra diem >= 8 trả về "B"; tiếp tục hạ dần ngưỡng (6.5 cho "C", 5 cho "D"); cuối cùng nếu không khớp ngưỡng nào, trả về "F". Chú ý dùng đúng dấu >= (không phải >) vì ngưỡng là bao gồm cả giá trị biên.\n\n' +
         'Bước 2: đọc N điểm, gọi hàm cho từng điểm và in kết quả từng dòng.',
@@ -748,7 +797,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '0\n\n5', expectedOutput: '0', isHidden: true },
     ],
     hints: {
-      hint1: 'Đệ quy là khi 1 hàm tự gọi lại chính nó với dữ liệu nhỏ hơn, cho tới khi gặp 1 trường hợp đơn giản nhất (gọi là \'trường hợp dừng\'/base case) thì trả về kết quả trực tiếp, không gọi lại nữa. Với danh sách, trường hợp dừng tự nhiên nhất là \'danh sách rỗng\'.',
+      hint1:
+        "Đệ quy là khi 1 hàm tự gọi lại chính nó với dữ liệu nhỏ hơn, cho tới khi gặp 1 trường hợp đơn giản nhất (gọi là 'trường hợp dừng'/base case) thì trả về kết quả trực tiếp, không gọi lại nữa. Với danh sách, trường hợp dừng tự nhiên nhất là 'danh sách rỗng'.",
       hint2:
         'Bước 1: trường hợp dừng — nếu danh sách rỗng (len(nums) == 0), trả về 0 ngay (không còn gì để đếm).\n\n' +
         'Bước 2: trường hợp còn phần tử — kiểm tra phần tử ĐẦU TIÊN (nums[0]) có bằng x không, được 1 điểm nếu đúng, 0 điểm nếu sai.\n\n' +
@@ -800,7 +850,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: 'bao\nkeo', expectedOutput: 'P2', isHidden: true },
     ],
     hints: {
-      hint1: 'Chỉ có 3 lựa chọn (keo, bua, bao) và 1 quy tắc thắng-thua cố định. Thay vì viết nhiều câu if/elif rắc rối cho từng cặp, hãy nghĩ tới việc dùng 1 \'bảng tra\' (dictionary trong Python) ghi rõ \'<lựa chọn này> thắng <lựa chọn nào>\'.',
+      hint1:
+        "Chỉ có 3 lựa chọn (keo, bua, bao) và 1 quy tắc thắng-thua cố định. Thay vì viết nhiều câu if/elif rắc rối cho từng cặp, hãy nghĩ tới việc dùng 1 'bảng tra' (dictionary trong Python) ghi rõ '<lựa chọn này> thắng <lựa chọn nào>'.",
       hint2:
         'Bước 1: đọc lựa chọn của cả 2 người chơi.\n\n' +
         'Bước 2: nếu 2 lựa chọn giống nhau, in "HOA" ngay.\n\n' +
@@ -848,11 +899,16 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '3\nUP UP DOWN', expectedOutput: '2', isHidden: false },
       { input: '2\nDOWN DOWN', expectedOutput: '1', isHidden: false },
       { input: '0\n', expectedOutput: '1', isHidden: true },
-      { input: '15\nUP UP UP UP UP UP UP UP UP UP UP UP DOWN DOWN DOWN', expectedOutput: '7', isHidden: true },
+      {
+        input: '15\nUP UP UP UP UP UP UP UP UP UP UP UP DOWN DOWN DOWN',
+        expectedOutput: '7',
+        isHidden: true,
+      },
       { input: '4\nDOWN UP UP DOWN', expectedOutput: '2', isHidden: true },
     ],
     hints: {
-      hint1: 'Đây là bài mô phỏng từng bước: xử lý lệnh này rồi mới xử lý lệnh tiếp theo, y hệt thang máy thật. Điểm khó nhất không phải là di chuyển, mà là nhớ \'chặn biên\' — không cho tầng vượt quá 10 hoặc xuống dưới 1.',
+      hint1:
+        "Đây là bài mô phỏng từng bước: xử lý lệnh này rồi mới xử lý lệnh tiếp theo, y hệt thang máy thật. Điểm khó nhất không phải là di chuyển, mà là nhớ 'chặn biên' — không cho tầng vượt quá 10 hoặc xuống dưới 1.",
       hint2:
         'Bước 1: đọc N và danh sách N lệnh (nếu N=0, vẫn phải đọc dòng đó dù nó rỗng).\n\n' +
         'Bước 2: khởi tạo tầng = 1.\n\n' +
@@ -928,7 +984,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '5\n0', expectedOutput: '', isHidden: true },
     ],
     hints: {
-      hint1: 'Túi đồ ở đây chính là 1 list Python bình thường, chỉ có thêm 1 quy tắc: không được thêm vào nếu túi đã đầy (số phần tử đạt tới sức chứa tối đa C). Lệnh REMOVE 1 vật không có trong túi thì chỉ cần bỏ qua, không báo lỗi.',
+      hint1:
+        'Túi đồ ở đây chính là 1 list Python bình thường, chỉ có thêm 1 quy tắc: không được thêm vào nếu túi đã đầy (số phần tử đạt tới sức chứa tối đa C). Lệnh REMOVE 1 vật không có trong túi thì chỉ cần bỏ qua, không báo lỗi.',
       hint2:
         'Bước 1: đọc C, N và khởi tạo túi = list rỗng.\n\n' +
         'Bước 2: với mỗi lệnh trong N lệnh, tách lệnh đó thành 2 phần bằng .split() (hành động và tên vật phẩm).\n\n' +
@@ -992,7 +1049,8 @@ export const INITIAL_EXERCISES_DAY14 = [
       { input: '10 10\n10 1', expectedOutput: 'P1', isHidden: true },
     ],
     hints: {
-      hint1: 'Đây là bài mô phỏng lượt đánh xen kẽ: người 1 đánh, rồi người 2 đánh, rồi lại người 1... Điểm quan trọng nhất: phải kiểm tra \'đối thủ đã thua chưa\' NGAY SAU mỗi đòn đánh, không phải chờ tới khi cả 2 người đã đánh xong 1 vòng.',
+      hint1:
+        "Đây là bài mô phỏng lượt đánh xen kẽ: người 1 đánh, rồi người 2 đánh, rồi lại người 1... Điểm quan trọng nhất: phải kiểm tra 'đối thủ đã thua chưa' NGAY SAU mỗi đòn đánh, không phải chờ tới khi cả 2 người đã đánh xong 1 vòng.",
       hint2:
         'Bước 1: đọc máu và sát thương của cả 2 nhân vật.\n\n' +
         'Bước 2: dùng 1 biến boolean (ví dụ luot_p1 = True) để theo dõi ai đang đánh.\n\n' +

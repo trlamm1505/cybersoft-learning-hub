@@ -15,7 +15,8 @@ export class QuestionOption {
   isCorrect: boolean; // True if this option is correct
 }
 
-export const QuestionOptionSchema = SchemaFactory.createForClass(QuestionOption);
+export const QuestionOptionSchema =
+  SchemaFactory.createForClass(QuestionOption);
 
 @Schema({ timestamps: true, collection: 'questions' })
 export class Question {

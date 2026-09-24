@@ -21,7 +21,8 @@ export class ShuffledQuestionItem {
   scoreEarned?: number; // Score achieved for this question
 }
 
-export const ShuffledQuestionItemSchema = SchemaFactory.createForClass(ShuffledQuestionItem);
+export const ShuffledQuestionItemSchema =
+  SchemaFactory.createForClass(ShuffledQuestionItem);
 
 @Schema({ timestamps: true, collection: 'quizattempts' })
 export class QuizAttempt {
@@ -54,7 +55,7 @@ export class QuizAttempt {
   @Prop({
     type: String,
     enum: ['IN_PROGRESS', 'SUBMITTED', 'EXPIRED', 'GRADED'],
-    default: 'IN_PROGRESS'
+    default: 'IN_PROGRESS',
   })
   status: string; // Attempt state
 

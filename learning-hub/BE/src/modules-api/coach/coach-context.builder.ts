@@ -1,11 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Exercise, ExerciseDocument } from '../../modules-system/database/schemas/exercise.schema';
-import { Submission, SubmissionDocument } from '../../modules-system/database/schemas/submission.schema';
-import { HintUsage, HintUsageDocument } from '../../modules-system/database/schemas/hint-usage.schema';
-import { Hint, HintDocument } from '../../modules-system/database/schemas/hint.schema';
-import { CoachMessage, CoachMessageDocument } from '../../modules-system/database/schemas/coach-message.schema';
+import {
+  Exercise,
+  ExerciseDocument,
+} from '../../modules-system/database/schemas/exercise.schema';
+import {
+  Submission,
+  SubmissionDocument,
+} from '../../modules-system/database/schemas/submission.schema';
+import {
+  HintUsage,
+  HintUsageDocument,
+} from '../../modules-system/database/schemas/hint-usage.schema';
+import {
+  Hint,
+  HintDocument,
+} from '../../modules-system/database/schemas/hint.schema';
+import {
+  CoachMessage,
+  CoachMessageDocument,
+} from '../../modules-system/database/schemas/coach-message.schema';
 import { CoachContext } from './coach-context.types';
 
 // Số lượt hội thoại gần nhất đưa vào context, giữ prompt gọn để không vượt
@@ -16,11 +31,15 @@ const MAX_HISTORY_TURNS = 6;
 @Injectable()
 export class CoachContextBuilder {
   constructor(
-    @InjectModel(Exercise.name) private readonly exerciseModel: Model<ExerciseDocument>,
-    @InjectModel(Submission.name) private readonly submissionModel: Model<SubmissionDocument>,
-    @InjectModel(HintUsage.name) private readonly hintUsageModel: Model<HintUsageDocument>,
+    @InjectModel(Exercise.name)
+    private readonly exerciseModel: Model<ExerciseDocument>,
+    @InjectModel(Submission.name)
+    private readonly submissionModel: Model<SubmissionDocument>,
+    @InjectModel(HintUsage.name)
+    private readonly hintUsageModel: Model<HintUsageDocument>,
     @InjectModel(Hint.name) private readonly hintModel: Model<HintDocument>,
-    @InjectModel(CoachMessage.name) private readonly coachMessageModel: Model<CoachMessageDocument>,
+    @InjectModel(CoachMessage.name)
+    private readonly coachMessageModel: Model<CoachMessageDocument>,
   ) {}
 
   async build(userId: string, exerciseSlug: string): Promise<CoachContext> {
@@ -80,17 +99,21 @@ export class CoachContextBuilder {
       .select('role content')
       .lean();
 
-    const recentHistory = recentHistoryDocs
-      .reverse()
-      .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+    const recentHistory = recentHistoryDocs.reverse().map((m) => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    }));
 
-    const maxHintLevelUnlocked = unlockedLevels.length ? Math.max(...unlockedLevels) : 0;
+    const maxHintLevelUnlocked = unlockedLevels.length
+      ? Math.max(...unlockedLevels)
+      : 0;
 
     // Chính sách: chỉ cho phép trình bày lời giải đầy đủ khi học viên đã tự
     // AC bài này (đã tự làm được, hỏi để hiểu sâu hơn) HOẶC đã mở tới tầng
     // gợi ý cao nhất (tầng 3 — đã trả giá đầy đủ theo cơ chế hint hiện có).
     // Trước đó, AI chỉ được gợi ý theo hướng, không được đưa full solution.
-    const allowFullSolution = attemptSummary.hasEverPassed || maxHintLevelUnlocked >= 3;
+    const allowFullSolution =
+      attemptSummary.hasEverPassed || maxHintLevelUnlocked >= 3;
 
     return {
       userId,

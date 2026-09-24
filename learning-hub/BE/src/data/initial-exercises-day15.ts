@@ -45,13 +45,19 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '3\n5 5 5\n100', expectedOutput: '0', isHidden: true },
       { input: '1\n10\n20', expectedOutput: '0', isHidden: true },
       {
-        input: '200000\n' + Array.from({ length: 200000 }, (_, i) => (i % 2 === 0 ? 1000000000 : -1000000000)).join(' ') + '\n0',
+        input:
+          '200000\n' +
+          Array.from({ length: 200000 }, (_, i) =>
+            i % 2 === 0 ? 1000000000 : -1000000000,
+          ).join(' ') +
+          '\n0',
         expectedOutput: '10000000000',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Duyệt cặp bằng 2 vòng lặp lồng nhau sẽ đúng nhưng chạy O(N^2) — với N = 200000, đó là 4*10^10 phép tính, chắc chắn quá thời gian cho phép. Cần cách đếm cặp mà chỉ duyệt mảng đúng 1 lần.',
+      hint1:
+        'Duyệt cặp bằng 2 vòng lặp lồng nhau sẽ đúng nhưng chạy O(N^2) — với N = 200000, đó là 4*10^10 phép tính, chắc chắn quá thời gian cho phép. Cần cách đếm cặp mà chỉ duyệt mảng đúng 1 lần.',
       hint2:
         'Bước 1: dùng 1 dict (hoặc Counter) để đếm tần suất từng giá trị đã gặp.\n\n' +
         'Bước 2: duyệt mảng từ trái sang phải, với mỗi phần tử x, cộng vào kết quả số lần giá trị (target - x) đã xuất hiện TRƯỚC ĐÓ (đã lưu trong dict), rồi mới cập nhật dict thêm x vào — thứ tự này đảm bảo mỗi cặp (i, j) với i < j chỉ được đếm đúng 1 lần.',
@@ -123,13 +129,16 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '3\n1 2 3', expectedOutput: '0', isHidden: true },
       { input: '1\n7', expectedOutput: '0', isHidden: true },
       {
-        input: '100000\n' + Array.from({ length: 100000 }, (_, i) => 100000 - i).join(' '),
+        input:
+          '100000\n' +
+          Array.from({ length: 100000 }, (_, i) => 100000 - i).join(' '),
         expectedOutput: '4999950000',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Đếm nghịch thế bằng cách so sánh mọi cặp (i, j) là O(N^2), không kịp với N = 100000. Ý tưởng cải tiến: nghịch thế có thể đếm được ngay trong quá trình "trộn" (merge) của thuật toán sắp xếp trộn (merge sort). Lưu ý: import module "sys" (kể cả để tăng giới hạn đệ quy) không được phép trong hệ thống chấm bài — nên cài đặt merge sort theo kiểu KHÔNG đệ quy (dùng vòng lặp, "trộn" các đoạn có độ dài tăng dần: 1, 2, 4, 8, ...) thay vì tự gọi lại hàm.',
+      hint1:
+        'Đếm nghịch thế bằng cách so sánh mọi cặp (i, j) là O(N^2), không kịp với N = 100000. Ý tưởng cải tiến: nghịch thế có thể đếm được ngay trong quá trình "trộn" (merge) của thuật toán sắp xếp trộn (merge sort). Lưu ý: import module "sys" (kể cả để tăng giới hạn đệ quy) không được phép trong hệ thống chấm bài — nên cài đặt merge sort theo kiểu KHÔNG đệ quy (dùng vòng lặp, "trộn" các đoạn có độ dài tăng dần: 1, 2, 4, 8, ...) thay vì tự gọi lại hàm.',
       hint2:
         'Bước 1: bắt đầu với "độ rộng đoạn" (width) bằng 1 — coi mỗi phần tử là 1 đoạn đã "sắp xếp xong" (đoạn 1 phần tử luôn tự sắp xếp đúng).\n\n' +
         'Bước 2: mỗi vòng lặp lớn, trộn từng cặp đoạn liền kề có độ dài "width" lại thành 1 đoạn dài gấp đôi — trong lúc trộn, nếu phần tử bên trái LỚN HƠN phần tử bên phải đang xét, thì phần tử đó cùng với TẤT CẢ các phần tử còn lại của đoạn trái đều tạo thành nghịch thế với phần tử bên phải — cộng thêm số phần tử còn lại đó vào tổng nghịch thế.\n\n' +
@@ -189,13 +198,16 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '4\n1 2 3 4', expectedOutput: '1', isHidden: false },
       { input: '1\n0', expectedOutput: '1', isHidden: true },
       {
-        input: '500000\n' + Array.from({ length: 500000 }, (_, i) => i % 3).join(' '),
+        input:
+          '500000\n' +
+          Array.from({ length: 500000 }, (_, i) => i % 3).join(' '),
         expectedOutput: '166667',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Với mỗi phần tử, đếm số lần xuất hiện của nó bằng cách duyệt lại toàn bộ mảng là O(N^2) — với N nửa triệu, sẽ chậm rất nhiều. Cần đếm tần suất chỉ bằng 1 lượt duyệt.',
+      hint1:
+        'Với mỗi phần tử, đếm số lần xuất hiện của nó bằng cách duyệt lại toàn bộ mảng là O(N^2) — với N nửa triệu, sẽ chậm rất nhiều. Cần đếm tần suất chỉ bằng 1 lượt duyệt.',
       hint2:
         'Bước 1: dùng Counter (hoặc dict) để đếm tần suất từng giá trị, chỉ cần duyệt mảng đúng 1 lần.\n\n' +
         'Bước 2: lấy giá trị lớn nhất trong các tần suất đã đếm được (dùng max() trên .values()).',
@@ -264,13 +276,19 @@ export const INITIAL_EXERCISES_DAY15 = [
         // giới hạn 64KB.
         input:
           '3000\n' +
-          Array.from({ length: 3000 }, (_, i) => `${i * 2} ${i * 2 + 1}`).join('\n'),
-        expectedOutput: Array.from({ length: 3000 }, (_, i) => `${i * 2} ${i * 2 + 1}`).join('\n'),
+          Array.from({ length: 3000 }, (_, i) => `${i * 2} ${i * 2 + 1}`).join(
+            '\n',
+          ),
+        expectedOutput: Array.from(
+          { length: 3000 },
+          (_, i) => `${i * 2} ${i * 2 + 1}`,
+        ).join('\n'),
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Nếu không sắp xếp trước, phải so sánh mỗi khoảng với mọi khoảng khác để tìm chồng lấn — dẫn tới O(N^2). Sắp xếp theo điểm bắt đầu trước sẽ giúp các khoảng có thể chồng lấn luôn đứng CẠNH NHAU, chỉ cần so 1 lượt.',
+      hint1:
+        'Nếu không sắp xếp trước, phải so sánh mỗi khoảng với mọi khoảng khác để tìm chồng lấn — dẫn tới O(N^2). Sắp xếp theo điểm bắt đầu trước sẽ giúp các khoảng có thể chồng lấn luôn đứng CẠNH NHAU, chỉ cần so 1 lượt.',
       hint2:
         'Bước 1: sắp xếp các khoảng theo điểm bắt đầu tăng dần.\n\n' +
         'Bước 2: duyệt qua từng khoảng theo thứ tự đã sắp — nếu khoảng hiện tại có điểm bắt đầu <= điểm kết thúc của khoảng CUỐI CÙNG đã gộp trong kết quả, thì gộp 2 khoảng lại (lấy max điểm kết thúc); nếu không, thêm khoảng hiện tại như 1 khoảng mới trong kết quả.',
@@ -321,13 +339,15 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '3 3\n1 2 3', expectedOutput: '1 2 3', isHidden: true },
       { input: '5 2\n-1 -5 -3 0 2', expectedOutput: '0 2', isHidden: true },
       {
-        input: '300000 5\n' + Array.from({ length: 300000 }, (_, i) => i).join(' '),
+        input:
+          '300000 5\n' + Array.from({ length: 300000 }, (_, i) => i).join(' '),
         expectedOutput: '299995 299996 299997 299998 299999',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Sắp xếp toàn bộ N phần tử rồi lấy K phần tử cuối vẫn ĐÚNG và đủ nhanh cho bài này, nhưng cách tối ưu hơn khi K << N là dùng heap chỉ giữ K phần tử lớn nhất, tránh sắp toàn bộ mảng.',
+      hint1:
+        'Sắp xếp toàn bộ N phần tử rồi lấy K phần tử cuối vẫn ĐÚNG và đủ nhanh cho bài này, nhưng cách tối ưu hơn khi K << N là dùng heap chỉ giữ K phần tử lớn nhất, tránh sắp toàn bộ mảng.',
       hint2:
         'Bước 1: dùng heapq.nlargest(k, a) để lấy K phần tử lớn nhất — hàm này nội bộ dùng min-heap kích thước K, chạy O(N log K), hiệu quả hơn sort toàn mảng O(N log N) khi K nhỏ.\n\n' +
         'Bước 2: sắp xếp lại K phần tử đó theo thứ tự TĂNG DẦN (heapq.nlargest trả về theo thứ tự giảm dần) trước khi in.',
@@ -376,7 +396,8 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '3\n1 1 1', expectedOutput: '111', isHidden: true },
     ],
     hints: {
-      hint1: 'So sánh 2 số theo giá trị số học thông thường (ví dụ 9 > 30 nên 9 đứng trước) KHÔNG cho kết quả đúng — ví dụ "30" đứng trước "3" theo giá trị số nhưng "330" < "303"... thực ra cần so sánh 2 cách GHÉP CHUỖI khác nhau giữa 2 số để biết cách ghép nào tạo số lớn hơn.',
+      hint1:
+        'So sánh 2 số theo giá trị số học thông thường (ví dụ 9 > 30 nên 9 đứng trước) KHÔNG cho kết quả đúng — ví dụ "30" đứng trước "3" theo giá trị số nhưng "330" < "303"... thực ra cần so sánh 2 cách GHÉP CHUỖI khác nhau giữa 2 số để biết cách ghép nào tạo số lớn hơn.',
       hint2:
         'Bước 1: coi mỗi số là 1 chuỗi.\n\n' +
         'Bước 2: để so sánh 2 chuỗi số a và b, ghép thử "a nối b" và "b nối a", so sánh 2 chuỗi ghép đó — chuỗi ghép nào lớn hơn (so sánh từ điển) thì thứ tự đó (a trước b, hoặc b trước a) tốt hơn.\n\n' +
@@ -449,7 +470,8 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '3\n5 1 3\n5', expectedOutput: '0', isHidden: true },
     ],
     hints: {
-      hint1: 'Mảng đã xoay có 1 tính chất quan trọng: mọi lúc, ÍT NHẤT 1 trong 2 nửa [lo, mid] hoặc [mid, hi] vẫn còn sắp xếp tăng dần bình thường (không bị xoay). Nhận diện được nửa nào "sạch" (còn sắp xếp) là chìa khóa để quyết định thu hẹp về phía nào.',
+      hint1:
+        'Mảng đã xoay có 1 tính chất quan trọng: mọi lúc, ÍT NHẤT 1 trong 2 nửa [lo, mid] hoặc [mid, hi] vẫn còn sắp xếp tăng dần bình thường (không bị xoay). Nhận diện được nửa nào "sạch" (còn sắp xếp) là chìa khóa để quyết định thu hẹp về phía nào.',
       hint2:
         'Bước 1: tính mid như binary search thường.\n\n' +
         'Bước 2: kiểm tra a[lo] <= a[mid] — nếu đúng, nửa TRÁI [lo, mid] đang sắp xếp bình thường: nếu target nằm trong khoảng [a[lo], a[mid]), thu hẹp về nửa trái (hi = mid-1), ngược lại thu hẹp về nửa phải (lo = mid+1).\n\n' +
@@ -491,7 +513,12 @@ export const INITIAL_EXERCISES_DAY15 = [
     type: 'CODE_TEXT',
     difficulty: 'HARD',
     points: 20,
-    tags: ['binary-search', 'binary-search-on-answer', 'greedy-check', 'lop10-12'],
+    tags: [
+      'binary-search',
+      'binary-search-on-answer',
+      'greedy-check',
+      'lop10-12',
+    ],
     prerequisiteSlug: 'day15-tim-kiem-mang-da-xoay',
     starterCode:
       'n, k = map(int, input().split())\n' +
@@ -525,15 +552,22 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '5 3\n7 2 5 10 8', expectedOutput: '14', isHidden: false },
       { input: '4 2\n1 2 3 4', expectedOutput: '6', isHidden: false },
       { input: '3 3\n5 5 5', expectedOutput: '5', isHidden: true },
-      { input: '1 1\n1000000000', expectedOutput: '1000000000', isHidden: true },
       {
-        input: '100000 100\n' + Array.from({ length: 100000 }, () => 1000000000).join(' '),
+        input: '1 1\n1000000000',
+        expectedOutput: '1000000000',
+        isHidden: true,
+      },
+      {
+        input:
+          '100000 100\n' +
+          Array.from({ length: 100000 }, () => 1000000000).join(' '),
         expectedOutput: '1000000000000',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Không thể thử tất cả cách chia (quá nhiều tổ hợp). Nhưng có thể "đoán" giá trị đáp án (số trang lớn nhất 1 người phải đọc) rồi KIỂM TRA xem với giá trị đó, có chia được cho <= K người không — đây là kỹ thuật "binary search trên đáp án".',
+      hint1:
+        'Không thể thử tất cả cách chia (quá nhiều tổ hợp). Nhưng có thể "đoán" giá trị đáp án (số trang lớn nhất 1 người phải đọc) rồi KIỂM TRA xem với giá trị đó, có chia được cho <= K người không — đây là kỹ thuật "binary search trên đáp án".',
       hint2:
         'Bước 1: khoảng tìm kiếm đáp án nằm từ max(a) (ít nhất phải đủ chứa cuốn sách dày nhất) đến sum(a) (trường hợp xấu nhất, 1 người đọc hết).\n\n' +
         'Bước 2: viết hàm kiểm tra can_split(cap) — với một "trần" cap cho trước, duyệt qua sách theo thứ tự, gom nhóm liên tiếp sao cho tổng mỗi nhóm không vượt cap, đếm xem cần bao nhiêu người (nhóm); nếu số người cần <= K, cap này khả thi.\n\n' +
@@ -610,7 +644,8 @@ export const INITIAL_EXERCISES_DAY15 = [
       },
     ],
     hints: {
-      hint1: 'Vì dãy đã sắp xếp sẵn, không cần duyệt toàn bộ để đếm phần tử trong đoạn [L, R] — có thể tìm vị trí "biên trái" (phần tử đầu tiên >= L) và "biên phải" (phần tử đầu tiên > R) bằng binary search, rồi lấy hiệu 2 vị trí đó.',
+      hint1:
+        'Vì dãy đã sắp xếp sẵn, không cần duyệt toàn bộ để đếm phần tử trong đoạn [L, R] — có thể tìm vị trí "biên trái" (phần tử đầu tiên >= L) và "biên phải" (phần tử đầu tiên > R) bằng binary search, rồi lấy hiệu 2 vị trí đó.',
       hint2:
         'Bước 1: dùng bisect.bisect_left(a, L) để tìm vị trí đầu tiên mà phần tử >= L (đây là lower_bound).\n\n' +
         'Bước 2: dùng bisect.bisect_right(a, R) để tìm vị trí đầu tiên mà phần tử > R (đây là upper_bound).\n\n' +
@@ -678,13 +713,16 @@ export const INITIAL_EXERCISES_DAY15 = [
         isHidden: true,
       },
       {
-        input: '100000\n' + Array.from({ length: 100000 }, (_, i) => `${i} ${i + 1}`).join('\n'),
+        input:
+          '100000\n' +
+          Array.from({ length: 100000 }, (_, i) => `${i} ${i + 1}`).join('\n'),
         expectedOutput: '100000',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Đây là bài toán "chọn lịch tối đa" kinh điển. Trực giác sai thường gặp: chọn hoạt động có thời lượng NGẮN NHẤT trước — cách này SAI vì có thể bỏ lỡ cơ hội chọn được nhiều hoạt động hơn về sau. Ý tưởng đúng: luôn ưu tiên hoạt động kết thúc SỚM NHẤT.',
+      hint1:
+        'Đây là bài toán "chọn lịch tối đa" kinh điển. Trực giác sai thường gặp: chọn hoạt động có thời lượng NGẮN NHẤT trước — cách này SAI vì có thể bỏ lỡ cơ hội chọn được nhiều hoạt động hơn về sau. Ý tưởng đúng: luôn ưu tiên hoạt động kết thúc SỚM NHẤT.',
       hint2:
         'Bước 1: sắp xếp các hoạt động theo thời điểm KẾT THÚC tăng dần (không phải theo thời điểm bắt đầu).\n\n' +
         'Bước 2: duyệt qua các hoạt động theo thứ tự đã sắp, luôn chọn hoạt động nếu thời điểm bắt đầu của nó >= thời điểm kết thúc của hoạt động ĐÃ CHỌN gần nhất — cập nhật lại "kết thúc gần nhất" mỗi khi chọn thêm.',
@@ -748,7 +786,8 @@ export const INITIAL_EXERCISES_DAY15 = [
       },
     ],
     hints: {
-      hint1: 'Đây là bài toán BFS trên đồ thị ẩn (mỗi vị trí là 1 đỉnh, có cạnh tới mọi vị trí trong tầm nhảy), nhưng có thể giải bằng greedy nhanh hơn nhiều mà không cần dựng đồ thị tường minh: nghĩ theo "từng lượt nhảy", mỗi lượt đi được XA NHẤT có thể trong phạm vi hiện tại.',
+      hint1:
+        'Đây là bài toán BFS trên đồ thị ẩn (mỗi vị trí là 1 đỉnh, có cạnh tới mọi vị trí trong tầm nhảy), nhưng có thể giải bằng greedy nhanh hơn nhiều mà không cần dựng đồ thị tường minh: nghĩ theo "từng lượt nhảy", mỗi lượt đi được XA NHẤT có thể trong phạm vi hiện tại.',
       hint2:
         'Bước 1: duy trì 2 biến — cur_end (vị trí xa nhất có thể đạt được với SỐ LƯỢT NHẢY hiện tại) và farthest (vị trí xa nhất có thể đạt được nếu dùng thêm 1 lượt nhảy nữa từ bất kỳ vị trí nào đã duyệt qua).\n\n' +
         'Bước 2: duyệt từng vị trí i từ 0 đến N-2, cập nhật farthest = max(farthest, i + a[i]).\n\n' +
@@ -803,10 +842,15 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '3 11\n1 2 5', expectedOutput: '3', isHidden: false },
       { input: '2 3\n2 4', expectedOutput: '-1', isHidden: true },
       { input: '1 0\n5', expectedOutput: '0', isHidden: true },
-      { input: '6 999999\n1 2 5 10 20 50', expectedOutput: '20004', isHidden: true },
+      {
+        input: '6 999999\n1 2 5 10 20 50',
+        expectedOutput: '20004',
+        isHidden: true,
+      },
     ],
     hints: {
-      hint1: 'Đây là bài "bẫy kinh điển": với hệ mệnh giá VNĐ/USD thông thường (1, 2, 5, 10, 20, 50...), thuật toán tham lam (luôn lấy tờ mệnh giá lớn nhất có thể trước) cho kết quả ĐÚNG — nhưng đề bài này dùng hệ mệnh giá BẤT KỲ, ví dụ [1, 3, 4] với S=6: greedy chọn 4 trước (còn 2), rồi 2 tờ 1đ → tổng 3 tờ; nhưng cách tối ưu thật là 3+3 → chỉ 2 tờ. Vì vậy đề bài yêu cầu BẮT BUỘC dùng quy hoạch động, không được giả định hệ mệnh giá "đẹp".',
+      hint1:
+        'Đây là bài "bẫy kinh điển": với hệ mệnh giá VNĐ/USD thông thường (1, 2, 5, 10, 20, 50...), thuật toán tham lam (luôn lấy tờ mệnh giá lớn nhất có thể trước) cho kết quả ĐÚNG — nhưng đề bài này dùng hệ mệnh giá BẤT KỲ, ví dụ [1, 3, 4] với S=6: greedy chọn 4 trước (còn 2), rồi 2 tờ 1đ → tổng 3 tờ; nhưng cách tối ưu thật là 3+3 → chỉ 2 tờ. Vì vậy đề bài yêu cầu BẮT BUỘC dùng quy hoạch động, không được giả định hệ mệnh giá "đẹp".',
       hint2:
         'Bước 1: định nghĩa dp[i] = số tờ tiền ít nhất để đổi đúng số tiền i, dp[0] = 0, các dp[i] khác khởi tạo vô cực (chưa tính được).\n\n' +
         'Bước 2: với mỗi số tiền i từ 1 đến S, thử lần lượt từng mệnh giá c trong danh sách — nếu c <= i, có thể cập nhật dp[i] = min(dp[i], dp[i-c] + 1) (dùng 1 tờ mệnh giá c, cộng với cách tối ưu đổi số tiền còn lại i-c).\n\n' +
@@ -877,13 +921,16 @@ export const INITIAL_EXERCISES_DAY15 = [
       {
         input:
           '500 500\n' +
-          Array.from({ length: 500 }, () => Array.from({ length: 500 }, () => 0).join(' ')).join('\n'),
+          Array.from({ length: 500 }, () =>
+            Array.from({ length: 500 }, () => 0).join(' '),
+          ).join('\n'),
         expectedOutput: '998',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'Tìm đường đi NGẮN NHẤT (ít bước nhất) trên lưới không trọng số — đây là ứng dụng kinh điển của BFS (duyệt theo chiều rộng), KHÔNG phải DFS. DFS có thể tìm ra MỘT đường đi nhưng không đảm bảo đó là đường ngắn nhất.',
+      hint1:
+        'Tìm đường đi NGẮN NHẤT (ít bước nhất) trên lưới không trọng số — đây là ứng dụng kinh điển của BFS (duyệt theo chiều rộng), KHÔNG phải DFS. DFS có thể tìm ra MỘT đường đi nhưng không đảm bảo đó là đường ngắn nhất.',
       hint2:
         'Bước 1: dùng 1 mảng dist[R][C] để lưu khoảng cách ngắn nhất từ (0,0) tới từng ô, khởi tạo -1 (chưa thăm), riêng dist[0][0] = 0.\n\n' +
         'Bước 2: dùng hàng đợi (deque), bắt đầu với (0,0).\n\n' +
@@ -945,7 +992,11 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '5 2\n0 1\n2 3', expectedOutput: '3', isHidden: false },
       { input: '4 0', expectedOutput: '4', isHidden: false },
       { input: '1 0', expectedOutput: '1', isHidden: true },
-      { input: '6 5\n0 1\n1 2\n2 3\n3 4\n4 5', expectedOutput: '1', isHidden: true },
+      {
+        input: '6 5\n0 1\n1 2\n2 3\n3 4\n4 5',
+        expectedOutput: '1',
+        isHidden: true,
+      },
       {
         input:
           '200000 199999\n' +
@@ -955,7 +1006,8 @@ export const INITIAL_EXERCISES_DAY15 = [
       },
     ],
     hints: {
-      hint1: 'Có 2 cách chuẩn để giải: DFS/BFS từ từng đỉnh chưa thăm (mỗi lần duyệt hết 1 thành phần liên thông), hoặc Union-Find (nối các đỉnh có cạnh vào cùng 1 nhóm, đếm số nhóm khác nhau ở cuối). Với N, M lớn tới 200000, cả 2 cách đều cần cài đặt đúng để tránh vượt thời gian (DFS đệ quy thuần có thể tràn ngăn xếp với đồ thị dạng chuỗi dài).',
+      hint1:
+        'Có 2 cách chuẩn để giải: DFS/BFS từ từng đỉnh chưa thăm (mỗi lần duyệt hết 1 thành phần liên thông), hoặc Union-Find (nối các đỉnh có cạnh vào cùng 1 nhóm, đếm số nhóm khác nhau ở cuối). Với N, M lớn tới 200000, cả 2 cách đều cần cài đặt đúng để tránh vượt thời gian (DFS đệ quy thuần có thể tràn ngăn xếp với đồ thị dạng chuỗi dài).',
       hint2:
         'Cách Union-Find:\n\n' +
         'Bước 1: khởi tạo mỗi đỉnh là cha của chính nó (parent[i] = i).\n\n' +
@@ -1018,13 +1070,15 @@ export const INITIAL_EXERCISES_DAY15 = [
       { input: '4\n5 4 3 2', expectedOutput: '1', isHidden: true },
       { input: '4\n1 2 3 4', expectedOutput: '4', isHidden: true },
       {
-        input: '100000\n' + Array.from({ length: 100000 }, (_, i) => i).join(' '),
+        input:
+          '100000\n' + Array.from({ length: 100000 }, (_, i) => i).join(' '),
         expectedOutput: '100000',
         isHidden: true,
       },
     ],
     hints: {
-      hint1: 'DP cơ bản (dp[i] = độ dài LIS kết thúc tại i, xét mọi j < i để cập nhật) đúng nhưng là O(N^2), không kịp với N = 100000. Cần một cấu trúc dữ liệu giúp tìm nhanh vị trí cần cập nhật thay vì duyệt lại toàn bộ.',
+      hint1:
+        'DP cơ bản (dp[i] = độ dài LIS kết thúc tại i, xét mọi j < i để cập nhật) đúng nhưng là O(N^2), không kịp với N = 100000. Cần một cấu trúc dữ liệu giúp tìm nhanh vị trí cần cập nhật thay vì duyệt lại toàn bộ.',
       hint2:
         'Bước 1: duy trì mảng "tails" — tails[k] là giá trị NHỎ NHẤT có thể làm phần tử cuối của 1 dãy con tăng có độ dài k+1, tính đến thời điểm hiện tại (mảng tails LUÔN được giữ ở trạng thái sắp xếp tăng dần).\n\n' +
         'Bước 2: với mỗi phần tử x trong dãy gốc, tìm vị trí đầu tiên trong tails mà giá trị >= x (dùng bisect_left, vì yêu cầu tăng NGHIÊM NGẶT).\n\n' +

@@ -3,7 +3,8 @@ import { Document } from 'mongoose';
 
 export type ContestSubmissionDocument = ContestSubmission & Document;
 
-export type ContestSubmissionVerdict = 'AC' | 'WA' | 'PARTIAL' | 'CE' | 'TLE' | 'RE';
+export type ContestSubmissionVerdict =
+  'AC' | 'WA' | 'PARTIAL' | 'CE' | 'TLE' | 'RE';
 
 @Schema({ timestamps: true, collection: 'contest_submissions' })
 export class ContestSubmission {
@@ -36,7 +37,11 @@ export class ContestSubmission {
   @Prop({ required: true, type: Number })
   maxPoints: number;
 
-  @Prop({ required: true, type: String, enum: ['AC', 'WA', 'PARTIAL', 'CE', 'TLE', 'RE'] })
+  @Prop({
+    required: true,
+    type: String,
+    enum: ['AC', 'WA', 'PARTIAL', 'CE', 'TLE', 'RE'],
+  })
   verdict: ContestSubmissionVerdict;
 
   @Prop({ type: Number, default: 0 })
@@ -52,10 +57,16 @@ export class ContestSubmission {
   isLate: boolean;
 }
 
-export const ContestSubmissionSchema = SchemaFactory.createForClass(ContestSubmission);
+export const ContestSubmissionSchema =
+  SchemaFactory.createForClass(ContestSubmission);
 
 // Leaderboard's core query is "for a contest, group by (studentId, problemSlug), take the
 // max score" — this compound index supports that grouping+sort directly.
-ContestSubmissionSchema.index({ contestId: 1, studentId: 1, problemSlug: 1, score: -1 });
+ContestSubmissionSchema.index({
+  contestId: 1,
+  studentId: 1,
+  problemSlug: 1,
+  score: -1,
+});
 // Supports the frozen-leaderboard cutoff filter (`submittedAt <= freezeAt`).
 ContestSubmissionSchema.index({ contestId: 1, submittedAt: 1 });
