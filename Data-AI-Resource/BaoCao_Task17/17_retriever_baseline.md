@@ -177,6 +177,92 @@ Dịch vụ tìm kiếm được đóng gói qua FastAPI với đầy đủ Sche
 }
 ```
 
+### 6.3. Endpoint Thống Kê Chỉ Mục (`GET /api/v1/stats`)
+* **Response Payload**:
+```json
+{
+  "total_vectors": 91,
+  "dimension": 64,
+  "model_name": "TFIDF-SVD-L2",
+  "manifest_sha256": "7c157529e9e7b5d702ee4861db62627ce63bdf84e3ad9d55c8e5a052d0320ae5",
+  "categories": ["Academic Policy", "Curriculum", "FAQ", "Technical Guide"]
+}
+```
+
+### 6.4. Hướng Dẫn Thao Tác Trực Tiếp Trên Swagger UI
+FastAPI tự động sinh tài liệu chuẩn OpenAPI tương tác tại đường dẫn: `http://127.0.0.1:8000/docs` (hoặc ReDoc tại `http://127.0.0.1:8000/redoc`).
+
+**Quy trình 5 bước thử nghiệm trên Swagger UI**:
+1. Khởi động server bằng lệnh: `python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task17/scripts/run_api.py --port 8000`.
+2. Mở trình duyệt web truy cập `http://127.0.0.1:8000/docs`.
+3. Bấm vào dải màu xanh `POST /api/v1/search` để mở rộng bảng tương tác.
+4. Nhấp nút **Try it out** ở góc phải trên.
+5. Chọn một trong các **Bản mẫu Request JSON Demo** ở Mục 6.5 dán vào khung **Request body**, sau đó bấm nút **Execute**.
+6. Kiểm tra mã phản hồi (HTTP 200 OK) và dữ liệu `results` có kèm trọn vẹn `citation` DTO.
+
+### 6.5. Bộ Sưu Tập Bản Mẫu Demo Cho `POST /api/v1/search`
+
+* **Mẫu 1: Tìm kiếm ngữ nghĩa cơ bản (Top-3 kết quả)**
+```json
+{
+  "query": "Điều kiện để được xét công nhận tốt nghiệp chính thức tại CyberSoft?",
+  "top_k": 3
+}
+```
+
+* **Mẫu 2: Lọc theo Danh mục Quy chế (`Academic Policy`)**
+```json
+{
+  "query": "Chính sách bảo lưu khóa học và hoàn trả học phí như thế nào?",
+  "top_k": 5,
+  "category": "Academic Policy"
+}
+```
+
+* **Mẫu 3: Lọc theo Danh mục Lộ trình đào tạo (`Curriculum`)**
+```json
+{
+  "query": "Lộ trình học Spring Boot, Docker và microservices trong khóa Backend?",
+  "top_k": 3,
+  "category": "Curriculum"
+}
+```
+
+* **Mẫu 4: Lọc chính xác theo Mã tài liệu (`document_id`)**
+```json
+{
+  "query": "Hình thức xử lý kỷ luật khi sinh viên gian lận thi cử?",
+  "top_k": 3,
+  "document_id": "CS-POL-003"
+}
+```
+
+* **Mẫu 5: Lọc kết hợp Ngưỡng điểm tương đồng tối thiểu (`min_score`)**
+```json
+{
+  "query": "Quy định làm đồ án capstone và bảo vệ trước hội đồng tốt nghiệp",
+  "top_k": 5,
+  "min_score": 0.3
+}
+```
+
+### 6.6. Lệnh Mẫu Kiểm Thử Nhanh Qua Terminal
+
+* **cURL (Linux / macOS / Git Bash / Windows Cmd)**:
+```bash
+curl -X POST "http://127.0.0.1:8000/api/v1/search" \
+     -H "Content-Type: application/json" \
+     -d "{\"query\": \"Điều kiện xét công nhận tốt nghiệp?\", \"top_k\": 3}"
+```
+
+* **PowerShell (`Invoke-RestMethod`)**:
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/v1/search" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{"query": "Điều kiện xét công nhận tốt nghiệp?", "top_k": 3}' | ConvertTo-Json -Depth 5
+```
+
 ---
 
 ## 7. PHƯƠNG PHÁP LUẬN ĐO LƯỜNG VÀ ĐÁNH GIÁ (IR EVALUATION HARNESS)

@@ -92,6 +92,81 @@ python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task17/scripts/run_api.py 
 ```
 *Truy cập Swagger UI*: `http://127.0.0.1:8000/docs` để tra cứu và thử nghiệm API tương tác trực quan.
 
+#### 4.1. Hướng Dẫn Thử Nghiệm Nhanh Trên Swagger UI
+1. Mở trình duyệt tại địa chỉ: `http://127.0.0.1:8000/docs`.
+2. Chọn endpoint cần kiểm tra (ví dụ: `POST /api/v1/search`).
+3. Nhấp nút **Try it out** ở góc phải trên của bảng endpoint.
+4. Sao chép và dán một trong các **Bản mẫu JSON Payload Demo** dưới đây vào ô **Request body**.
+5. Nhấp **Execute** để gửi yêu cầu và kiểm tra kết quả (Response Body 200 OK kèm trọn vẹn Citation metadata DTO và Latency).
+
+#### 4.2. Các Bản Mẫu Request JSON Demo Cho `POST /api/v1/search`
+
+* **Mẫu 1: Tìm kiếm ngữ nghĩa cơ bản (Top-3 kết quả)**:
+```json
+{
+  "query": "Điều kiện để được xét công nhận tốt nghiệp chính thức tại CyberSoft?",
+  "top_k": 3
+}
+```
+
+* **Mẫu 2: Lọc theo Danh mục Quy chế đào tạo (`Academic Policy`)**:
+```json
+{
+  "query": "Chính sách bảo lưu khóa học và hoàn trả học phí như thế nào?",
+  "top_k": 5,
+  "category": "Academic Policy"
+}
+```
+
+* **Mẫu 3: Lọc theo Danh mục Lộ trình đào tạo (`Curriculum`)**:
+```json
+{
+  "query": "Lộ trình học Spring Boot, Docker và microservices trong khóa Backend?",
+  "top_k": 3,
+  "category": "Curriculum"
+}
+```
+
+* **Mẫu 4: Lọc theo Mã tài liệu cụ thể (`document_id`)**:
+```json
+{
+  "query": "Hình thức xử lý kỷ luật khi sinh viên gian lận thi cử?",
+  "top_k": 3,
+  "document_id": "CS-POL-003"
+}
+```
+
+* **Mẫu 5: Lọc kết hợp với Ngưỡng điểm tương đồng tối thiểu (`min_score`)**:
+```json
+{
+  "query": "Quy định làm đồ án capstone và bảo vệ trước hội đồng tốt nghiệp",
+  "top_k": 5,
+  "min_score": 0.3
+}
+```
+
+#### 4.3. Lệnh Mẫu Thử Nghiệm Qua Console (cURL & PowerShell)
+
+* **Thực thi qua cURL**:
+```bash
+curl -X POST "http://127.0.0.1:8000/api/v1/search" \
+     -H "Content-Type: application/json" \
+     -d "{\"query\": \"Điều kiện xét công nhận tốt nghiệp?\", \"top_k\": 3}"
+```
+
+* **Thực thi qua PowerShell**:
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/v1/search" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{"query": "Điều kiện xét công nhận tốt nghiệp?", "top_k": 3}' | ConvertTo-Json -Depth 5
+```
+
+* **Kiểm tra trạng thái hệ thống (`GET /api/v1/health`)**:
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/v1/health" -Method Get
+```
+
 ---
 
 ## 3. BẢNG CHECKLIST TIÊU CHÍ NGHIỆM THU (DEFINITION OF DONE)
