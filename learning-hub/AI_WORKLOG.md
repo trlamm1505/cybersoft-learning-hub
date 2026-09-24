@@ -1,12 +1,12 @@
-# AI Work Log — Ngày 16: AI Coach có context học tập
+# AI Work Log — Ngày 17: Debug loop cho AI Coach
 
 | | |
 |---|---|
 | **Người thực hiện** | Dương Chí Việt |
-| **Ngày** | 2026-09-22 |
-| **Nhánh** | `feature/learning-hub-day16` |
+| **Ngày** | 2026-09-23 đến 2026-09-24 |
+| **Nhánh** | `feature/learning-hub-day17` |
 | **Công cụ** | Claude Code (CLI, VSCode extension), model Claude Sonnet 5 |
-| **Phạm vi quyền** | Đọc/ghi trong `learning-hub/`; tạo branch mới từ `main`; chạy build/typecheck/test thật; khởi động dev server thật (BE + FE) và gọi API thật qua MongoDB local (`localhost:27017/cybersoft`) để kiểm chứng end-to-end; xóa dữ liệu smoke-test tự tạo sau khi kiểm chứng xong. |
+| **Phạm vi quyền** | Đọc/ghi trong `learning-hub/`; tạo branch mới từ `main`; chạy build/typecheck/test thật; khởi động dev server thật (BE + FE) và gọi API thật qua MongoDB local (`localhost:27017/cybersoft`) để kiểm chứng end-to-end; tạo và xóa dữ liệu smoke-test tự tạo sau khi kiểm chứng xong. |
 
 ---
 
@@ -14,254 +14,218 @@
 
 | # | Việc | Trạng thái |
 |---|---|---|
-| 1 | Tạo branch `feature/learning-hub-day16`, kéo `main` mới nhất | Xong |
-| 2 | Triển khai nhiệm vụ ngày 16 theo đề bài: context builder, endpoint chat, policy chặn full solution | Xong |
-| 3 | Giải thích cơ chế AI Coach đang dùng cho người dùng khi được hỏi lại | Xong |
-| 4 | Giải thích lý do vẫn cần giới hạn token dù chưa gọi model AI thật | Xong |
-| 5 | Rà soát khoảng trống dữ liệu giữa Authoring (Lesson) và Exercise theo câu hỏi của người dùng | Xong (ghi nhận hạn chế, chưa xử lý) |
-| 6 | Chạy thử dự án theo yêu cầu của người dùng | Xong |
-| 7 | Nối AI Coach vào giao diện Code Playground sau khi người dùng phản hồi chưa thấy tính năng trên UI | Xong |
-| 8 | Sửa lỗi response echo nguyên văn traceback lỗi, không bám câu hỏi — do người dùng phát hiện qua ảnh chụp màn hình | Xong |
-| 9 | Đối chiếu nhiệm vụ ngày 17-19 theo yêu cầu người dùng, đánh giá thời điểm cần API AI thật | Xong (chỉ phân tích, không code) |
-| 10 | Rà soát lại toàn bộ nhiệm vụ ngày 16 và ghi đè AI_WORKLOG theo đúng mẫu | Xong |
-| 11 | Giải thích file chứa logic sinh câu trả lời khi người dùng hỏi lại | Xong |
-| 12 | Giải thích phương án short-circuit rule-based trước khi gọi API thật để tiết kiệm quota | Xong (chỉ tư vấn, không code) |
-| 13 | Thêm nhánh xử lý lời cảm ơn theo yêu cầu người dùng, kiểm tra lại toàn bộ trước khi sửa | Xong |
-| 14 | Chia commit theo chủ đề, đẩy lên nhánh `feature/learning-hub-day16` | Xong |
+| 1 | Triển khai nhiệm vụ ngày 17 theo đề bài: phân loại lỗi từ kết quả test thật, chuẩn hóa feedback, giới hạn vòng lặp thử-sai, 20 fixtures và conversation traces | Xong |
+| 2 | Rà soát toàn bộ code 17 ngày theo yêu cầu người dùng, phát hiện lỗ hổng thiếu auth guard | Xong (phát hiện, chưa xử lý ở bước này) |
+| 3 | Xây dựng auth guard cơ bản (JWT) và vá lỗ hổng cho các module Quiz, Leaderboard, Authoring | Xong |
+| 4 | Thay Docker bằng AST-based sandbox thật cho Python code runner theo yêu cầu không dùng Docker | Xong |
+| 5 | Bổ sung luồng đăng ký/đăng nhập/quên mật khẩu thật, chọn nhóm lớp qua modal, sinh mã học viên Cxxxx, và hoàn thiện việc tồn đọng của ngày 3 (health endpoint, CI chạy test) | Xong |
+| 6 | Loại bỏ hoàn toàn khái niệm tài khoản demo/khách, đồng bộ toast thông báo toàn app | Xong |
+| 7 | Sửa Quiz và Block Puzzle: cho xem trước không cần đăng nhập, chỉ chặn khi thao tác thật (nộp bài/chơi/vào thi) | Xong |
+| 8 | Audit lại lần 2 toàn bộ nhiệm vụ 1-17, phát hiện 4 module còn lại (Contest, Exercise/Judge, Hint, AI Coach) vẫn tin `userId` do client tự khai | Xong (phát hiện, xử lý ở Việc 9) |
+| 9 | Vá đồng loạt 4 module còn lại theo đúng pattern auth guard đã dùng cho Quiz | Xong |
 
 ---
 
-## Việc 1 — Tạo branch, kéo main
+## Việc 1 — Triển khai nhiệm vụ ngày 17: Debug loop
 
 ### Prompt gốc của người dùng
-Yêu cầu tạo nhánh làm việc cho ngày 16 và kéo về nhánh `main` mới nhất.
+Người dùng dán nguyên văn đề bài ngày 17: xây dựng vòng lặp gỡ lỗi (debug loop) cho AI Coach dựa trên kết quả test THẬT của một submission đã lưu (không nhận mô tả lỗi tự do từ client, không để AI tự bịa nguyên nhân); phân loại lỗi theo các nhóm cố định (lỗi biên dịch/cú pháp, lỗi runtime, timeout, sai kết quả, đã đạt); chuẩn hóa nội dung feedback trích dẫn đúng bằng chứng từ test case thật (input/expected/actual, không lộ dữ liệu test ẩn); có bước gợi ý tiếp theo (next step); giới hạn số vòng lặp thử-sai liên tiếp chưa đạt để tránh học viên loay hoay vô hạn; bàn giao tối thiểu 20 fixture kịch bản lỗi và bộ conversation trace sinh ra từ đúng hàm production (không tự viết tay output mẫu) làm baseline cho việc chấm điểm/đánh giá ở ngày 18.
 
 ### Đã làm
-Checkout `main`, `git pull` (fast-forward 4 commit mới từ `origin/main`), tạo branch `feature/learning-hub-day16` từ đó.
+Khảo sát lại `coach.service.ts`, `coach-context.builder.ts`, `submission.schema.ts` của ngày 16 để xác định nguồn dữ liệu thật duy nhất được phép dùng: bản ghi `Submission` đã lưu trong MongoDB (trường `status`, `passedCount`, `totalCount`, `results[]`, `errorMessage`), không tạo thêm kênh nhận input tự do nào khác từ client cho tính năng này.
 
----
+Viết `coach-debug-loop.types.ts` định nghĩa `DebugLoopTestInput` (dữ liệu test thật trích từ submission: trạng thái, số test pass/tổng, lỗi runtime nếu có, test case đầu tiên bị fail kèm input/expected/actual/stderr/cờ ẩn), `DebugLoopState` (số lần loop trước đó), và `DebugErrorCategory` gồm 5 nhóm cố định: `COMPILE_SYNTAX`, `RUNTIME_EXCEPTION`, `TIMEOUT`, `WRONG_OUTPUT`, `PASSED`.
 
-## Việc 2 — Triển khai nhiệm vụ ngày 16
+Viết `coach-debug-loop.ts` chứa hàm thuần `analyzeDebugLoop(input, state)`: suy ra `errorCategory` trực tiếp từ `status` của submission thật (không đoán); dựng `evidence` chỉ từ test case không bị đánh dấu ẩn (test ẩn chỉ báo số thứ tự, không lộ input/expected/actual); soạn `feedback` trích dẫn nguyên văn giá trị thật (ví dụ so sánh expected/actual) thay vì câu chung chung; soạn `nextStep` gợi ý hướng khắc phục theo từng nhóm lỗi; tính `loopCount` bằng cách cộng dồn số submission liên tiếp chưa AC ngay trước submission hiện tại (chuỗi bị ngắt/reset khi gặp một lần AC xen giữa); đặt `MAX_DEBUG_LOOPS = 5`, trả về `loopLimitReached = true` kèm gợi ý tìm người hướng dẫn khi chạm giới hạn.
 
-### Prompt gốc của người dùng
-Người dùng dán nguyên văn đề bài ngày 16: thiết kế context builder tối thiểu, tạo endpoint chat theo exercise, cấm AI đưa full solution khi policy không cho phép; bàn giao AI Coach v0.1, context schema, policy tests; điều kiện nghiệm thu là không gửi hidden test cho model, câu trả lời bám bài, có logging và giới hạn token; yêu cầu cập nhật AI_WORKLOG kèm bằng chứng sử dụng AI theo đúng khung báo cáo của dự án.
+Viết `dto/debug-loop.dto.ts` (`userId`, `exerciseSlug`, `submissionId` — bắt buộc phải là submission thật đã lưu, không nhận kết quả test tự mô tả). Bổ sung `debugLoop()` vào `coach.service.ts`: xác thực exercise và submission thuộc đúng user/bài; truy vấn danh sách submission trước đó theo thời gian để tính `loopCount`; gọi `analyzeDebugLoop`; ghi log tóm tắt lượt phân tích vào `coach_messages` giống cơ chế logging đã có ở ngày 16. Thêm `POST /api/coach/debug-loop` vào `coach.controller.ts`.
 
-### Đã làm
-Khảo sát kiến trúc BE hiện có (`hint.service.ts`, `hint.controller.ts`, `hint.module.ts`, `exercise.service.ts`, các schema Mongoose liên quan, `database.module.ts`) để thiết kế module `coach` đúng convention đang dùng trong repo: quy ước đăng ký model, quy ước DTO dạng class thuần (không dùng `class-validator` vì thư viện này chưa được cài trong `package.json`), và cách `exercise.service.ts` đã lọc sẵn `isHidden` ở endpoint public — dùng làm tham chiếu cho Context Builder.
+Viết `coach-debug-loop.spec.ts` phủ cả 5 nhóm lỗi, trường hợp test ẩn không bị lộ, trường hợp chạm giới hạn vòng lặp, và trường hợp chuỗi loop bị reset khi có AC xen giữa.
 
-Viết `coach-context.types.ts` định nghĩa `CoachContext`: thông tin bài (title, description, difficulty, chỉ test case không ẩn), tóm tắt attempt (số lần nộp, trạng thái và số test pass lần gần nhất, đã từng AC hay chưa — không đưa code đã nộp vào context), hint đã unlock (chỉ nội dung các tầng đã mở), lịch sử hội thoại gần nhất (giới hạn 6 lượt), và object `policy` (`allowFullSolution`, `maxHintLevelUnlocked`).
+Tạo `fixtures/failure-fixtures.json` với 20 kịch bản khác nhau trải đều 5 nhóm lỗi (mỗi kịch bản có `id`, `description`, `input`, `state`). Viết `fixtures/generate-traces.ts` chạy toàn bộ 20 fixture qua đúng hàm `analyzeDebugLoop` của production (không tự soạn tay output mẫu), ghi kết quả ra `fixtures/conversation-traces.json` để làm baseline cho việc chấm điểm ở ngày 18. Viết `fixtures/README.md` mô tả mục đích từng file và lệnh chạy lại khi logic thay đổi.
 
-Viết `coach-context.builder.ts`: truy vấn `Exercise` theo slug, lọc `testCases` giữ `!isHidden`; truy vấn `Submission` theo `exerciseId` và `userId`, chỉ lấy `status/passedCount/totalCount`, không lấy field `code`; truy vấn `HintUsage` để biết các level đã unlock, chỉ fetch nội dung `Hint` đúng các level đó bằng `level: { $in: unlockedLevels }`. Tính `policy.allowFullSolution = hasEverPassed || maxHintLevelUnlocked >= 3`.
-
-Viết `coach-policy.ts` với hai lớp kiểm tra độc lập: `assertContextHasNoForbiddenData()` chạy trước khi gọi model, kiểm tra context không chứa chuỗi `solutionCode`; `checkCoachResponsePolicy()` chạy sau khi có response, chặn nếu response chứa khối code dài từ 6 dòng trở lên hoặc cụm từ báo hiệu đưa nguyên đáp án khi `allowFullSolution === false`.
-
-Viết interface `LlmClient` và implementation mặc định `StubLlmClient` không gọi mạng ngoài, trả lời dựa trên dữ liệu context đã lọc sẵn. Viết `coach.service.ts`: giới hạn `MAX_PROMPT_TOKENS = 4000` (từ chối trước khi gọi model nếu vượt), giới hạn `MAX_COMPLETION_TOKENS = 800` (cắt bớt nếu vượt), ghi log mọi lượt chat (cả câu hỏi và câu trả lời) vào collection `coach_messages` mới. Tạo `POST /api/coach/chat` và `GET /api/coach/history/:userId/:exerciseSlug`, đăng ký module vào `app.module.ts` và `database.module.ts`.
-
-Viết `coach-policy.spec.ts`, `coach-context.builder.spec.ts`, `coach.service.spec.ts` phủ các điều kiện nghiệm thu: không lộ hidden test, không lộ solutionCode, không lộ full solution khi chưa đủ điều kiện, giới hạn token, có logging.
-
-### Quyết định của bản thân
-Không cài thêm SDK AI thật vì đây là thay đổi ngoài phạm vi được giao và cần API key thật để chạy. Thiết kế `LlmClient` là một interface độc lập để khi có API key thật chỉ cần thêm một class implement cùng interface, không phải sửa Service/Controller/Policy.
+Nối tính năng vào giao diện: thêm nút "Phân tích lỗi lần nộp gần nhất" trong `CoachPanel.tsx`, chỉ hiện khi đã có submission thật, gọi `POST /api/coach/debug-loop`, hiển thị nhãn nhóm lỗi, bộ đếm vòng lặp (`loopCount/maxLoops`), feedback trích dẫn bằng chứng thật, và next step.
 
 ### Kiểm chứng
 ```
 cd learning-hub/BE
 npx jest src/modules-api/coach --silent
-# Test Suites: 3 passed, 3 total
-# Tests:       18 passed, 18 total
+# toàn bộ test debug-loop pass, không phá test ngày 16
 
 npx tsc --noEmit -p tsconfig.json
-# (không có output, không lỗi kiểu)
+# không có lỗi kiểu
 
-npm run build
-# nest build — thành công, không lỗi
-
-npx jest --silent
-# Test Suites: 1 failed, 13 passed, 14 total
-# Tests:       1 failed, 90 passed, 91 total
+npx ts-node -T src/modules-api/coach/fixtures/generate-traces.ts
+# sinh lại conversation-traces.json từ đúng hàm production
 ```
 
-Test suite thất bại duy nhất (`hint.service.spec.ts`, test cooldown) xác nhận không liên quan tới thay đổi ngày 16: `git status --short src/modules-api/hint/` cho kết quả rỗng.
-
-Khởi động `npm run start:dev` với MongoDB local đang chạy, gọi API thật: `POST /api/coach/chat` cho bài chưa nộp, chưa mở hint → từ chối đưa code đầy đủ đúng kỳ vọng. Gọi thật `POST /api/hints/unlock` mở Tầng 1, gọi lại chat → xác nhận `maxHintLevelUnlocked` cập nhật đúng từ dữ liệu thật trong `hint_usages`. Sau khi kiểm chứng, xóa dữ liệu smoke-test khỏi MongoDB local bằng `mongosh`.
+Kiểm chứng qua trình duyệt thật (Playwright, headless Chromium) với backend/frontend dev server thật: mở Code Playground, chọn bài `tinh-tong-hai-so-nguyen`, nộp code sai cố ý (`print(str(a)+str(b))` thay vì cộng số), chờ chấm xong ra kết quả WA thật, chuyển sang tab AI Coach, bấm nút phân tích lỗi — xác nhận kết quả hiển thị đúng nhãn "Sai kết quả" (WRONG_OUTPUT), bộ đếm vòng lặp, feedback trích dẫn đúng input/expected/actual của test case thật, và next step. Chụp ảnh màn hình xác nhận không có lỗi console.
 
 ---
 
-## Việc 3 — Giải thích cơ chế AI đang dùng
+## Việc 2 — Rà soát toàn bộ code 17 ngày, phát hiện thiếu auth guard
 
 ### Prompt gốc của người dùng
-Người dùng cho biết chưa hiểu rõ cơ chế AI Coach đang sử dụng loại model nào.
+Người dùng yêu cầu kiểm tra lại toàn bộ 17 ngày đã làm đúng chưa, chỉ xét phần code, bỏ qua phần tài liệu.
 
 ### Đã làm
-Giải thích rõ: phần trả lời của Coach hiện tại không gọi model AI thật nào, mà là một class stub (`StubLlmClient`) tự ghép câu trả lời từ template dựa trên dữ liệu context, do repo chưa cài SDK AI nào và chưa có API key. Giải thích lý do thiết kế theo interface `LlmClient` để dễ thay bằng model thật sau này.
-
----
-
-## Việc 4 — Giải thích lý do vẫn giới hạn token dù chưa có AI thật
-
-### Prompt gốc của người dùng
-Người dùng đặt câu hỏi: nếu hệ thống chưa thực sự gọi AI, vì sao code vẫn báo giới hạn token.
-
-### Đã làm
-Giải thích giới hạn token trong `coach.service.ts` là cơ chế hạ tầng độc lập với việc bên dưới là stub hay AI thật — dùng để giới hạn kích thước context/response, chuẩn bị sẵn cho khi cắm model thật vào (khi đó mỗi token sẽ tốn phí thật). Đây cũng là điều kiện nghiệm thu bắt buộc của đề bài ngày 16.
-
----
-
-## Việc 5 — Rà soát khoảng trống dữ liệu Lesson/Exercise
-
-### Prompt gốc của người dùng
-Người dùng đặt câu hỏi: nếu dữ liệu bài tập hiện tại đã có sẵn, thì khi sau này giảng viên tạo bài tập mới qua vai trò giảng viên, Coach có còn đủ context để hoạt động không.
-
-### Đã làm
-Kiểm tra `coach-context.builder.ts` xác nhận không hardcode dữ liệu, luôn truy vấn động theo `exerciseSlug`. Kiểm tra tiếp `authoring.service.ts` phát hiện giảng viên tạo bài mới qua Authoring chỉ ghi vào collection `Lesson`, trong khi `ExerciseService`, `HintService` và `CoachContextBuilder` đều chỉ đọc từ collection `Exercise` riêng biệt, không có cơ chế đồng bộ tự động giữa hai bảng.
+Rà soát lần lượt các module đã triển khai qua các ngày: xác nhận logic nghiệp vụ (chấm điểm, sinh câu hỏi, context builder, debug loop) đúng theo từng đề bài. Phát hiện lỗ hổng bảo mật nghiêm trọng xuyên suốt nhiều module: toàn bộ endpoint ghi dữ liệu (nộp bài, mở hint, chat AI Coach, đăng ký thi, nộp bài thi) đều nhận `userId`/`studentId` trực tiếp từ body/query do client tự khai, không có cơ chế xác thực nào — cho phép bất kỳ ai mạo danh học viên khác chỉ bằng cách sửa giá trị này trong request. Đồng thời phát hiện `GET /api/authoring/lessons?forStudent=true` (route công khai) trả về nguyên `solutionCode` và đáp án đúng của test case ẩn cho mọi bài giáo viên tạo.
 
 ### Quyết định của bản thân
-Không tự ý sửa trong phạm vi ngày 16 vì ảnh hưởng cả `Judge` và `Hint`, không riêng `Coach`, cần quyết định kiến trúc rộng hơn. Đặt câu hỏi lại cho người dùng về hướng xử lý (bỏ qua/thêm cơ chế đồng bộ/cho Coach đọc dự phòng từ Lesson) nhưng cuộc trao đổi chuyển hướng sang yêu cầu chạy thử dự án trước khi có quyết định cuối; ghi nhận đây là hạn chế đã biết, chưa xử lý.
+Không tự ý sửa ngay vì đây là thay đổi kiến trúc lớn ảnh hưởng nhiều module cùng lúc, cần thống nhất hướng xử lý với người dùng trước.
 
 ---
 
-## Việc 6 — Chạy thử dự án
+## Việc 3 — Xây dựng auth guard cơ bản và vá Quiz, Leaderboard, Authoring
 
 ### Prompt gốc của người dùng
-Người dùng yêu cầu chạy dự án lên để xem trực quan qua giao diện.
+Người dùng xác nhận cần làm auth guard chi tiết để xử lý lỗ hổng đã phát hiện ở Việc 2.
 
 ### Đã làm
-Khởi động đồng thời `npm run start:dev` (BE, cổng 3000) và `npm run dev` (FE, cổng 5173), xác nhận cả hai phục vụ request thành công.
+Xây bộ hạ tầng xác thực dùng chung tại `common/auth/`: `jwt.strategy.ts` (Passport JWT, payload gồm `sub`/`email`/`role`), `jwt-auth.guard.ts` (bắt buộc đăng nhập), `optional-jwt-auth.guard.ts` (không bắt buộc, override `handleRequest` để không ném lỗi khi thiếu token — dùng cho route công khai cần biết danh tính nếu có), `roles.guard.ts` cùng decorator `@Roles()` (phân quyền theo vai trò dùng `Reflector`), và `current-user.decorator.ts` (`@CurrentUser()` lấy user từ token đã xác thực).
 
----
-
-## Việc 7 — Nối AI Coach vào giao diện
-
-### Prompt gốc của người dùng
-Sau khi chạy thử, người dùng phản hồi không thấy tính năng AI Coach ở đâu trên giao diện. Sau khi được giải thích module ngày 16 mới chỉ có backend, người dùng chọn phương án làm luôn giao diện chat thay vì chỉ kiểm tra qua gọi API.
-
-### Đã làm
-Khảo sát `HintPanel.tsx` và cách nó được nhúng trong `CodePlaygroundPage.tsx` để giữ đúng cấu trúc giao diện đã có. Viết `types/coach.ts`, `axios/coachApi.ts` theo khuôn mẫu của `hintApi.ts`. Viết `components/CoachPanel.tsx`: khung chat có lịch sử hội thoại, ô nhập, cảnh báo khi một câu trả lời bị policy chặn. Thêm tab "AI Coach" vào `CodePlaygroundPage.tsx`, cạnh các tab Output, Kết quả Test mẫu, Gợi ý đã có sẵn. Sửa `exerciseApi.ts`: `submitCode` gửi kèm `userId` mặc định `'student-demo'` giống `hintApi`, sau khi phát hiện toàn bộ submission cũ trong MongoDB local đều thiếu `userId` khiến Coach không đọc được trạng thái đã AC thật.
+Vá `quiz.controller.ts`/`quiz.service.ts`: toàn bộ route dùng `JwtAuthGuard`, `userId` lấy từ `@CurrentUser()`, bỏ hẳn field `userId` khỏi các DTO nhận từ client. Vá `leaderboard.controller.ts` dùng `OptionalJwtAuthGuard` để cờ hiển thị điểm giáo viên chỉ tin theo token thật, không tin query string. Vá `authoring.controller.ts`/`authoring.service.ts`: thêm hàm `stripLearnerSensitiveFields()` ẩn `solutionCode`, input/output của test ẩn, và đáp án đúng của quiz trước khi trả cho route công khai; các thao tác tạo/sửa/xóa bắt buộc `JwtAuthGuard` kèm `@Roles('TEACHER')`.
 
 ### Kiểm chứng
-Chạy `npx tsc -b --force` ở FE, xác nhận không có lỗi kiểu liên quan tới các file vừa thêm hoặc sửa (lỗi kiểu duy nhất còn lại nằm ở `TeacherContestAuthoring.tsx`, file không bị đụng tới, xác nhận bằng `git status --short`). Test trực tiếp trên trình duyệt tại `localhost:5173`.
+Chạy `npx tsc --noEmit` và `npx jest --silent` toàn bộ backend sau mỗi module vá, xác nhận không hồi quy. Gọi lại API thật qua `curl` với và không có Bearer token hợp lệ để xác nhận đúng hành vi chặn/cho phép.
 
 ---
 
-## Việc 8 — Sửa lỗi response không bám câu hỏi
+## Việc 4 — Thay Docker bằng AST-based sandbox thật
 
-### Phát hiện của người dùng
-Người dùng gửi ảnh chụp màn hình: dán nguyên văn traceback lỗi Python (kèm đường dẫn file tạm trên máy) vào ô chat, Coach trả lời bằng cách lặp lại gần như nguyên văn đoạn traceback đó, không đưa ra nhận xét gì về nội dung lỗi. Người dùng nhận xét câu trả lời không bám bài và không chính xác.
-
-### Nguyên nhân
-`StubLlmClient` ghép trực tiếp một đoạn message gốc vào câu mở đầu cố định, không phân biệt được loại nội dung của message (câu hỏi bằng lời hay traceback lỗi dán nguyên văn).
-
-### Trao đổi với người dùng
-Đặt câu hỏi cho người dùng về hướng xử lý: tích hợp AI thật (cần cung cấp API key) hoặc nâng cấp stub trong giới hạn không cần AI thật. Người dùng chọn nâng cấp stub.
+### Prompt gốc của người dùng
+Người dùng cho biết không muốn dùng Docker để chạy sandbox Python, hỏi cách nào vẫn vá được lỗ hổng thực thi code nguy hiểm mà không cần Docker.
 
 ### Đã làm
-Sửa `coach-llm.client.ts`: thêm danh sách nhận diện các loại lỗi Python phổ biến (SyntaxError, NameError, TypeError, IndexError, IndentationError) bằng so khớp mẫu trên nội dung message, trả lời đúng loại lỗi và hướng khắc phục thay vì lặp lại nguyên văn traceback. Thêm nhận diện câu hỏi xin đáp án đầy đủ. Tách `buildReply` thành các nhánh rõ ràng theo loại nội dung nhận được.
+Tư vấn và thống nhất hướng dùng kiểm tra tĩnh dựa trên cây cú pháp (AST) thật của Python thay vì so khớp chuỗi từ khóa (dễ bị lách qua bằng cách viết lại cú pháp tương đương). Viết lại hoàn toàn `python-guard.helper.ts`: gọi trực tiếp Python thật qua `child_process.spawn` chạy một script dùng `ast.parse()` và `ast.walk()` để duyệt toàn bộ cây cú pháp của code học viên nộp, chặn `ast.Import`/`ast.ImportFrom` (import module nguy hiểm), `ast.Call`/`ast.Attribute` (gọi hàm hoặc truy cập thuộc tính nguy hiểm), và `ast.Name` khi code gán tham chiếu hàm nguy hiểm ra biến khác trước khi gọi (né tránh kiểm tra tên gọi trực tiếp). Kết hợp với giới hạn ở tầng hệ điều hành (timeout, không có mạng ngoài) đã có sẵn từ trước.
 
 ### Kiểm chứng
-Viết `coach-llm.client.spec.ts` với 5 test xác nhận không còn chứa đường dẫn file tạm của traceback gốc trong response, nhận diện đúng SyntaxError và NameError, vẫn giữ đúng hành vi không lộ full solution khi chưa đủ điều kiện.
-
-```
-npx jest src/modules-api/coach --silent
-# Test Suites: 4 passed, 4 total
-# Tests:       23 passed, 23 total
-```
-
-Gọi lại API thật với đúng nội dung traceback trong ảnh chụp màn hình người dùng gửi, xác nhận response mới nêu đúng "thiếu dấu đóng ngoặc/quote" và hướng dẫn đếm lại dấu ngoặc, không còn chứa đường dẫn file tạm. Xóa dữ liệu smoke-test sau khi kiểm chứng.
-
-### Giới hạn còn lại
-Bản stub sau khi sửa chỉ nhận diện được các mẫu lỗi đã liệt kê sẵn trong code. Với câu hỏi tự nhiên ngoài các mẫu này, Coach vẫn chỉ trả lời theo template chung, không phân tích được nội dung như một model AI thật.
+Viết `python-guard.helper.spec.ts` với 13 test case, bao gồm các kiểu né tránh từng khai thác được ở bản kiểm tra chuỗi cũ (`().__class__.__base__.__subclasses__()`, lấy `__builtins__` qua `f.__globals__`, gán `__import__` ra biến trước khi gọi, dùng `globals()`), xác nhận toàn bộ đều bị chặn đúng bằng AST thật.
 
 ---
 
-## Việc 9 — Đối chiếu nhiệm vụ ngày 17-19
+## Việc 5 — Luồng đăng ký/đăng nhập thật và hoàn thiện việc tồn đọng ngày 3
 
 ### Prompt gốc của người dùng
-Người dùng dán nguyên văn đề bài ngày 17, 18, 19 và yêu cầu đánh giá riêng cho ngày 16: hôm nay có cần API AI thật hay chưa, đồng thời nói rõ chỉ xem xét, không yêu cầu triển khai code cho các ngày tiếp theo.
+Người dùng yêu cầu làm chi tiết: đăng ký, đăng nhập, quên mật khẩu, bắt chọn nhóm lớp qua modal ở lần đăng nhập đầu tiên, sinh mã học viên dạng Cxxxx tự động; đồng thời làm luôn phần còn treo của ngày 3 (thiếu health endpoint, CI chỉ lint chưa chạy test).
 
 ### Đã làm
-Đối chiếu điều kiện nghiệm thu ngày 16 với hiện trạng: kết luận ngày 16 không bắt buộc cần API AI thật, các điều kiện đã đạt được ở mức bản stub. Phân tích riêng từng ngày 17-19: ngày 17 (phân loại lỗi từ kết quả test thật) vẫn có thể làm bằng rule-based mở rộng tương tự Việc 8; ngày 18 (LLM judge chấm 100 test case theo rubric) nhiều khả năng cần model thật để đúng tinh thần đề bài; ngày 19 (sinh đề bài, ví dụ, test mới) gần như chắc chắn cần model thật vì là bài toán sinh nội dung sáng tạo, rule-based không đáp ứng được. Không thực hiện thay đổi code nào ở bước này.
+Thêm `GET /health` vào `app.controller.ts` dùng `@InjectConnection()` kiểm tra kết nối MongoDB thật. Sửa `learning-hub/.github/workflows/ci.yml` bổ sung bước chạy `npm run test --prefix BE` (trước đó CI chỉ lint, không chạy test).
 
----
-
-## Việc 10 — Rà soát lại toàn bộ nhiệm vụ ngày 16 và ghi đè worklog
-
-### Prompt gốc của người dùng
-Người dùng yêu cầu kiểm tra lại nhiệm vụ ngày 16 đã hoàn thành đầy đủ chưa, xác nhận phần tài liệu có cần bổ sung gì theo yêu cầu đề bài không, và ghi đè lại AI_WORKLOG cho chính xác, đúng mẫu đã dùng ở các ngày trước, tránh dùng ngôn từ vượt quá ngữ cảnh thực tế, không dùng icon hay ký tự đặc biệt không cần thiết.
-
-### Đã làm
-Đối chiếu từng điều kiện nghiệm thu (không gửi hidden test, câu trả lời bám bài, có logging và giới hạn token) và từng sản phẩm bàn giao (AI Coach v0.1, context schema, policy tests) với thực tế đã triển khai, xác nhận đạt đầy đủ. Xác nhận đề bài ngày 16 không yêu cầu tài liệu dạng `docs/day16/*.md` như các ngày nội dung học thuật trước đó (ngày 14, 15), vì Context schema và Policy tests chính là code, không phải văn bản riêng — chỉ cần cập nhật AI_WORKLOG. Ghi đè lại toàn bộ file theo đúng cấu trúc mẫu, loại bỏ ngôn từ đánh giá quá mức, giữ nguyên các hạn chế thật đã phát hiện thay vì bỏ qua.
-
----
-
-## Việc 11 — Giải thích file chứa logic trả lời
-
-### Prompt gốc của người dùng
-Người dùng đang mở file `coach-message.schema.ts` trong IDE và hỏi file nào thực sự chứa câu trả lời của Coach.
-
-### Đã làm
-Giải thích `coach-message.schema.ts` chỉ là schema Mongoose để lưu lịch sử chat, không sinh nội dung trả lời. File thực sự chứa logic sinh câu trả lời là `coach-llm.client.ts`, cụ thể trong các hàm `buildReply`, `buildErrorTracebackReply`, `buildAskingForAnswerReply`, `buildGeneralReply` của class `StubLlmClient`.
-
----
-
-## Việc 12 — Tư vấn phương án tiết kiệm quota khi tích hợp AI thật
-
-### Prompt gốc của người dùng
-Người dùng hỏi: sau này khi gọi API AI thật, có thể giữ lại các nhánh nhận diện lỗi cố định để trả lời ngay mà không tốn quota gọi model hay không.
-
-### Đã làm
-Xác nhận đây là hướng hợp lý (short-circuit rule-based trước khi gọi model thật): giữ `ERROR_PATTERNS` làm bước kiểm tra đầu tiên trong implementation gọi API thật, chỉ gọi model khi không khớp mẫu nào. Giải thích lợi ích (giảm chi phí, giảm độ trễ, không cần sửa Service/Controller/Policy vì đã tách qua interface `LlmClient`) và rủi ro cần lưu ý (tránh bắt nhầm câu hỏi thật có lồng từ khóa trùng với mẫu lỗi). Không thực hiện thay đổi code, chỉ tư vấn vì việc tích hợp AI thật chưa được giao trong ngày 16.
-
----
-
-## Việc 13 — Thêm nhánh trả lời khi người dùng cảm ơn
-
-### Prompt gốc của người dùng
-Người dùng yêu cầu kiểm tra lại toàn bộ code một lần nữa xem có sai sót gì không, đồng thời bổ sung nhánh xử lý khi học viên nhắn lời cảm ơn để câu trả lời tự nhiên hơn.
-
-### Đã làm
-Chạy lại `npx tsc --noEmit` và `npx jest --silent` toàn bộ backend, xác nhận không có hồi quy so với lần kiểm tra trước (95/96 test pass, lỗi duy nhất là `hint.service.spec.ts` có sẵn từ trước). Sửa `coach-llm.client.ts`: thêm `looksLikeThanks()` nhận diện lời cảm ơn ngắn (dưới 60 ký tự, kiểm tra trước các nhánh khác để tránh bị hiểu nhầm là traceback hay yêu cầu đáp án), và `buildThanksReply()` trả lời khác nhau theo trạng thái attempt (đã AC, đã từng nộp nhưng chưa qua, hay chưa từng nộp).
+Thêm cơ chế sinh mã học viên tuần tự an toàn dưới tải đồng thời: schema `counter.schema.ts` dùng `findOneAndUpdate` với `$inc` nguyên tử (atomic) để tránh trùng mã khi nhiều học viên đăng ký cùng lúc. Thêm `forgotPassword()`/`resetPassword()` trong `auth.service.ts`: token đặt lại mật khẩu chỉ lưu dạng băm SHA-256 trong DB (không lưu token gốc), có thời hạn 15 phút, gửi qua `mail.service.ts` dùng Nodemailer với Gmail SMTP. Thêm `AgeGroupModal.tsx` bắt học viên chọn nhóm lớp ở lần đăng nhập đầu tiên khi tài khoản chưa có `ageGroup`. Sửa `RegisterPage.tsx` bỏ hẳn việc để người dùng tự chọn vai trò khi đăng ký, luôn tạo tài khoản với vai trò STUDENT.
 
 ### Kiểm chứng
-Thêm 3 test mới trong `coach-llm.client.spec.ts`, bao gồm trường hợp câu dài có chứa từ "cảm ơn" lồng trong một câu hỏi khác để xác nhận không bị nhận nhầm.
-
 ```
-npx jest src/modules-api/coach --silent
-# Test Suites: 4 passed, 4 total
-# Tests:       26 passed, 26 total
-```
+npx jest --silent
+# toàn bộ test pass, bao gồm test mới cho health endpoint
 
-Gọi lại API thật qua dev server đang chạy, xác nhận response đúng như thiết kế. Xóa dữ liệu smoke-test sau khi kiểm chứng.
+npx tsc --noEmit -p tsconfig.json
+```
+Gọi thật `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/forgot-password` qua `curl`, xác nhận mã học viên sinh đúng thứ tự Cxxxx và email đặt lại mật khẩu gửi thành công qua Gmail thật.
 
 ---
 
-## Việc 14 — Chia commit, đẩy lên nhánh
+## Việc 6 — Loại bỏ tài khoản demo, đồng bộ toast thông báo
 
 ### Prompt gốc của người dùng
-Yêu cầu commit ngắn gọn, dễ hiểu và đẩy lên nhánh `feature/learning-hub-day16`, không ghi dòng liên quan tới công cụ AI trong nội dung commit.
+Người dùng gửi ảnh chụp màn hình cho thấy hiển thị "Mã SV: student-demo" dù đã đăng xuất, đồng thời yêu cầu chuyển toàn bộ chỗ liên quan tới tài khoản demo/khách sang dùng tài khoản thật (vì hệ thống đã có đăng nhập thật), và làm thông báo (toast) thống nhất kiểu rơi từ trên xuống, tự ẩn sau vài giây, dùng chung một mẫu cho toàn app.
 
 ### Đã làm
-Chia thay đổi thành 3 commit theo chủ đề: module backend AI Coach (context builder, endpoint, policy, test), phần nối giao diện Code Playground, và cập nhật AI_WORKLOG. Đẩy cả 3 commit lên nhánh từ xa `feature/learning-hub-day16`.
+Xác định nguồn gốc chuỗi `student-demo`: là giá trị mặc định cứng trong `exerciseApi.ts`/`hintApi.ts` khi không truyền `userId`, và dữ liệu tiến độ Code Playground/Block Puzzle cũ trong `localStorage` được lưu theo namespace không phân biệt tài khoản nên vẫn hiển thị lại sau khi đăng xuất.
+
+Xây `components/Toast.tsx`: `ToastProvider`/`useToast()` dùng Context, animation rơi từ trên xuống, tự ẩn sau vài giây, bọc toàn app trong `main.tsx`. Thay toàn bộ lời gọi toast rải rác trước đó (4 file: `ContestListPage.tsx`, `ContestExamWorkspace.tsx`, `TeacherAuthoringPage.tsx`, `TeacherContestAuthoring.tsx`) sang dùng chung `useToast()`.
+
+Bỏ giá trị mặc định `'student-demo'` khỏi `exerciseApi.ts`/`hintApi.ts`, chuyển `userId` thành tham số bắt buộc kiểu `string`. Bỏ ô nhập "tên khách" và nhãn "Học viên Demo" trong `ContestListPage.tsx`, thay bằng mã học viên thật của tài khoản đang đăng nhập. Sửa lỗi logic trong `App.tsx`: hàm đăng xuất trước đó có đoạn tự động xóa mọi khóa `localStorage` chứa `id` của user, đoạn này vô hại trước khi có namespace theo user nhưng sau khi thêm namespace cho tiến độ Code Playground/Block Puzzle thì bắt đầu xóa nhầm tiến độ ngay khi đăng xuất — sửa lại chỉ xóa đúng `token`/`app_auth_user`.
+
+### Kiểm chứng
+Kiểm tra qua trình duyệt thật: đăng nhập, làm bài, đăng xuất, đăng nhập lại bằng tài khoản khác — xác nhận không còn hiển thị "student-demo" và tiến độ của từng tài khoản không bị lẫn hay bị xóa nhầm. Kiểm tra dữ liệu thật trong MongoDB bằng `mongosh`, xóa các bản ghi test cũ mang `userId = 'student-demo'` sau khi xác nhận không phải dữ liệu học viên thật.
 
 ---
 
-## Đối chiếu với điều kiện nghiệm thu ngày 16
+## Việc 7 — Sửa login gate cho Quiz và Block Puzzle
+
+### Prompt gốc của người dùng
+Người dùng phản hồi: 4 mục (Thi Trắc Nghiệm, Block Puzzle, và các mục liên quan) khi chưa đăng nhập vẫn xem được bài nhưng không làm được, tuy nhiên việc chặn hiện tại chặn cứng cả route (kể cả gõ thẳng URL cũng không vào được), thay vì chỉ chặn đúng lúc thao tác thật.
+
+### Đã làm
+Trao đổi làm rõ với người dùng để xác nhận đúng phạm vi từng mục: giữ nguyên chặn cứng route "Chi tiết bài học" (`/detail`) theo đúng quyết định trước đó của người dùng; Quiz và Block Puzzle chuyển từ chặn ở cấp route sang cho xem danh sách/bài trước, chỉ bắt đăng nhập ngay tại thời điểm bấm hành động thật (bắt đầu làm quiz, vào chơi game).
+
+Sửa `App.tsx` bỏ guard chặn cứng ở cấp route cho `/quiz` và `/block-puzzle`. Sửa `QuizTakingPage.tsx` thêm kiểm tra `authUser` ngay trong `handleStartQuiz`, điều hướng sang trang đăng nhập kèm thông báo nếu chưa đăng nhập. Sửa `BlockPuzzlePage.tsx` thêm cùng kiểm tra tại sự kiện bấm vào game và khi chọn bài học.
+
+### Kiểm chứng
+Kiểm tra qua trình duyệt thật ở cả hai trạng thái đăng nhập và chưa đăng nhập: xác nhận xem được danh sách/mô tả bài khi chưa đăng nhập, nhưng bị chuyển hướng kèm thông báo khi bấm hành động thật; gõ thẳng URL `/quiz` và `/block-puzzle` khi chưa đăng nhập vẫn vào xem được, đúng yêu cầu.
+
+---
+
+## Việc 8 — Audit lần 2, phát hiện 4 module còn tin userId từ client
+
+### Prompt gốc của người dùng
+Người dùng yêu cầu kiểm tra lại toàn bộ từ nhiệm vụ 1 đến 17 xem các lần sửa trước có thực sự đúng chưa.
+
+### Đã làm
+Đối chiếu lại từng thay đổi đã thực hiện ở các Việc 2-7 với trạng thái code hiện tại để xác nhận không phải chỉ sửa qua loa: xác nhận Quiz/Leaderboard/Authoring/Block Puzzle đã dùng đúng token thật, toast đã đồng bộ, login gate hoạt động đúng như mô tả ở Việc 7. Đồng thời phát hiện 4 module chưa nằm trong đợt vá đầu (Contest, Exercise/Judge, Hint, AI Coach) vẫn giữ y nguyên lỗ hổng giống Quiz trước khi vá: `contest.controller.ts` nhận `studentId` từ body khi đăng ký/nộp bài thi; `exercise.controller.ts` nhận `userId` từ body khi nộp bài; `judge.controller.ts` cho phép đọc kết quả submission bất kỳ chỉ bằng đoán ID, không kiểm tra chủ sở hữu; `hint.controller.ts` nhận `userId` qua query/body khi mở hint và xem lịch sử; `coach.controller.ts` nhận `userId` từ body khi chat/debug-loop/xem lịch sử.
+
+### Quyết định của bản thân
+Không coi đây là việc nhỏ có thể để sau, vì cùng một lớp lỗ hổng đã xác nhận là nghiêm trọng ở Việc 2-3 vẫn còn nguyên ở 4 module khác — báo cáo đầy đủ cho người dùng quyết định vá ngay hay theo đợt.
+
+---
+
+## Việc 9 — Vá đồng loạt 4 module: Contest, Exercise/Judge, Hint, AI Coach
+
+### Prompt gốc của người dùng
+Người dùng chọn phương án vá cả 4 module ngay lập tức, không tách nhỏ theo từng đợt.
+
+### Đã làm
+Áp dụng thống nhất một khuôn mẫu xử lý cho cả 4 module, đúng nguyên tắc đã dùng cho Quiz ở Việc 3: `userId`/`studentId`/`authorId` luôn lấy từ `@CurrentUser()` (token đã xác thực), không bao giờ nhận từ body/query/param client tự khai; route xem công khai (danh sách, chi tiết) giữ nguyên không cần đăng nhập nhưng dùng `OptionalJwtAuthGuard` để trường thông tin cá nhân hóa (đã đăng ký chưa, đã mở hint chưa) chỉ tính theo user thật nếu có; route ghi dữ liệu hoặc đọc dữ liệu cá nhân bắt buộc `JwtAuthGuard`.
+
+**Contest**: bỏ `studentId`/`studentName`/`authorId` khỏi các DTO nhận từ client; `createContest`, `registerContest`, `submit` đều nhận `userId` là tham số riêng do controller truyền vào từ token; `registerContest`/`submit` tự truy vấn `User` model lấy `fullName` thay vì tin client gửi tên. Viết lại toàn bộ `contest.controller.ts` với guard tương ứng cho từng nhóm route (tạo/sửa/xóa bắt buộc `TEACHER`, đăng ký/nộp bài bắt buộc đăng nhập, xem danh sách/chi tiết công khai có tùy chọn).
+
+**Exercise/Judge**: `POST /exercises/:slug/submit` bắt buộc đăng nhập, `userId` lấy từ token thay vì DTO. `GET /exercises/submissions/:id` bắt buộc đăng nhập và thêm kiểm tra quyền sở hữu — chỉ đúng chủ bài nộp hoặc vai trò `TEACHER` mới xem được, chặn kiểu tấn công đoán ID để đọc trộm kết quả/code của học viên khác.
+
+**Hint**: `POST /hints/unlock` bắt buộc đăng nhập, bỏ field `userId` khỏi DTO. `GET /hints/exercise/:slug` dùng `OptionalJwtAuthGuard` để vẫn xem được danh sách hint công khai nhưng trạng thái "đã mở" chỉ tính theo user thật. `GET /hints/history/:userId` thêm kiểm tra chỉ chủ tài khoản hoặc `TEACHER` được xem.
+
+**AI Coach**: gắn `JwtAuthGuard` cho toàn bộ controller; `chat`/`debugLoop` nhận `userId` từ token thay vì DTO; `GET /coach/history/:userId/:exerciseSlug` thêm kiểm tra chỉ chủ tài khoản hoặc `TEACHER` được xem.
+
+Cập nhật toàn bộ tầng gọi API ở frontend cho khớp: đổi `contestApi.ts` từ dùng `axios` trần (không tự gắn token, có cơ chế tự âm thầm chuyển sang lưu cục bộ khi gọi lỗi — có thể che giấu luôn cả lỗi từ chối do thiếu quyền) sang dùng `axiosClient` dùng chung của toàn app (tự gắn Bearer token, không còn fallback che lỗi); bỏ toàn bộ `userId`/`studentId`/`studentName` khỏi phần thân request ở `contestSubmissionApi.ts`, `exerciseApi.ts`, `hintApi.ts`, `coachApi.ts` và các nơi gọi chúng, vì các giá trị này giờ máy chủ tự lấy từ token, không cần và không nên gửi từ client nữa.
+
+### Kiểm chứng
+Cập nhật các bộ test backend có sẵn (`contest.service.spec.ts`, `contest-submission.service.spec.ts`, `hint.service.spec.ts`, `coach.service.spec.ts`) cho khớp chữ ký hàm mới.
+
+```
+cd learning-hub/BE
+npx tsc --noEmit -p tsconfig.json
+# không có lỗi kiểu
+
+npx jest --silent
+# Test Suites: 19 passed, 19 total
+# Tests:       145 passed, 145 total
+
+cd ../FE
+npx tsc --noEmit -p tsconfig.json
+# không có lỗi kiểu
+```
+
+Kiểm chứng bằng token JWT thật (ký bằng đúng `JWT_SECRET` đang cấu hình, gắn với một tài khoản thật trong MongoDB) gọi trực tiếp qua `curl` vào dev server thật đang chạy: xác nhận cả 5 endpoint vừa vá (`hints/unlock`, `coach/chat`, `contests/:id/register`, `exercises/:slug/submit`, `exercises/submissions/:id`) trả về 401 khi không có token, và trả về thành công khi có token hợp lệ. Ký thêm một token thứ hai gắn với danh tính khác để xác nhận `exercises/submissions/:id` trả về 403 đúng khi cố đọc submission không thuộc về mình. Sau khi kiểm chứng, xóa toàn bộ dữ liệu smoke-test tạo ra trong quá trình gọi thật (1 submission, các bản ghi `coach_messages` và `hint_usages` phát sinh) khỏi MongoDB local bằng `mongosh`, đã xin xác nhận người dùng trước khi xóa.
+
+---
+
+## Đối chiếu với điều kiện nghiệm thu ngày 17
 
 | Điều kiện | Kết quả |
 |---|---|
-| Không gửi hidden test cho model | Đạt. Có test riêng xác nhận, cộng thêm lớp kiểm tra runtime độc lập với Context Builder |
-| Câu trả lời bám bài | Đạt ở mức bản stub sau khi sửa ở Việc 8. Vẫn còn giới hạn đã ghi rõ ở Việc 8 |
-| Có logging và giới hạn token | Đạt. Ghi log mọi lượt chat, có giới hạn cả token đầu vào và đầu ra |
-| AI Coach v0.1 | Đạt, có cả backend và giao diện chat thật |
-| Context schema | Đạt |
-| Policy tests | Đạt |
-
-Hạn chế đã biết, chưa xử lý trong phạm vi ngày 16: khoảng trống đồng bộ giữa collection `Lesson` và `Exercise` (Việc 5).
+| Không nhận mô tả lỗi tự do từ client, chỉ phân tích submission thật đã lưu | Đạt |
+| Phân loại lỗi theo nhóm cố định (compile/runtime/timeout/sai kết quả/đã đạt) | Đạt |
+| Feedback trích dẫn đúng bằng chứng thật (input/expected/actual), không lộ test ẩn | Đạt, có test riêng xác nhận |
+| Có giới hạn số vòng lặp thử-sai tối đa | Đạt (`MAX_DEBUG_LOOPS = 5`) |
+| Tối thiểu 20 fixture kịch bản lỗi | Đạt |
+| Conversation trace sinh từ đúng hàm production, không tự viết tay | Đạt |
 
 ---
 
 ## Đánh giá độ tin cậy của AI trong buổi làm việc
 
-Phần thiết kế kiến trúc ban đầu (tách Context Builder, Policy, LLM Client, Service thành các file riêng, dùng interface cho LLM Client) đúng ngay từ đầu vì bám sát cấu trúc module `hint` đã có sẵn trong repo, và các test tự viết đều pass ở lần chạy đầu.
+Phần triển khai đúng nhiệm vụ ngày 17 (debug loop) bám sát cấu trúc đã có từ ngày 16 (tách hàm phân tích thuần túy khỏi Service, viết test trước khi nối vào controller) nên không phát sinh lỗi lớn ở lần đầu, các test tự viết đều pass ngay.
 
-Tuy nhiên phần chất lượng nội dung câu trả lời của Coach có lỗi thật, chỉ được phát hiện khi người dùng tự tay thao tác trên giao diện và dán một traceback lỗi thật vào ô chat — không phải qua các test đã viết trước đó, vì các test đó chỉ kiểm tra logic policy/giới hạn token bằng dữ liệu giả lập đơn giản, không mô phỏng đúng cách người dùng thật sẽ gõ.
+Phần rủi ro thật sự đến từ ngoài phạm vi nhiệm vụ ngày 17: lỗ hổng thiếu auth guard tồn tại xuyên suốt nhiều module từ trước, chỉ được phát hiện khi người dùng chủ động yêu cầu audit lại toàn bộ 17 ngày thay vì chỉ tập trung vào tính năng mới. Ở lần vá đầu (Quiz, Leaderboard, Authoring), phạm vi xử lý chưa đủ rộng — cùng một lớp lỗi (tin `userId` từ client) vẫn còn nguyên ở 4 module khác cho tới khi người dùng yêu cầu audit lần hai. Điều này cho thấy việc rà soát theo từng module riêng lẻ dễ bỏ sót các lỗ hổng có tính hệ thống, lặp lại cùng một mẫu sai ở nhiều nơi; chỉ khi được yêu cầu quét toàn bộ theo chiều ngang (cùng một loại lỗi, trên tất cả module) thì mới phát hiện đầy đủ.
 
-Việc kiểm tra kiến trúc dữ liệu (khoảng trống giữa `Lesson` và `Exercise`, submission thiếu `userId`) là hai phát hiện chủ động trong lúc trả lời câu hỏi của người dùng, không phải do người dùng chỉ ra trực tiếp. Cả hai đều là hạn chế có sẵn trong hệ thống trước ngày 16, không phải lỗi phát sinh từ module Coach, nhưng ảnh hưởng trực tiếp tới độ chính xác của dữ liệu Coach sử dụng.
+Việc kiểm chứng bằng gọi API thật với token ký thủ công và dữ liệu MongoDB thật (thay vì chỉ dựa vào unit test với mock) là bước xác nhận cần thiết, vì unit test dùng mock không thể phát hiện được các vấn đề tầng tích hợp như `axios` trần không gắn token hay hành vi fallback che giấu lỗi 401 ở `contestApi.ts` cũ.
