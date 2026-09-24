@@ -22,6 +22,7 @@ import type { LessonAuthoring } from '../types/authoring';
 import { contestApi } from '../axios/contestApi';
 import { authoringApi } from '../axios/authoringApi';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useToast } from './Toast';
 
 const DEFAULT_CONTEST: Partial<ContestItem> = {
   title: '',
@@ -54,15 +55,10 @@ export const TeacherContestAuthoring: React.FC = () => {
   const [selectedContestId, setSelectedContestId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const contestModalRef = useFocusTrap(isModalOpen, () => setIsModalOpen(false));
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
-  };
+  const { showToast } = useToast();
 
   const loadData = useCallback(async () => {
     try {
@@ -203,19 +199,6 @@ export const TeacherContestAuthoring: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-16">
-      {/* Toast Notification */}
-      {toast && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl border text-sm font-semibold flex items-center gap-2 animate-bounce ${
-            toast.type === 'error'
-              ? 'bg-red-600 text-white border-red-500'
-              : 'bg-emerald-600 text-white border-emerald-500'
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
-
       {/* Main Bar: Contest List Title & Create New Button */}
       <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-sm flex items-center justify-between gap-4">
         <div>

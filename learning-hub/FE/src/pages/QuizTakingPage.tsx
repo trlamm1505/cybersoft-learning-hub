@@ -1,16 +1,20 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FileEdit, CheckCircle2, HelpCircle, Clock, Download } from 'lucide-react';
 import quizApi from '../axios/quizApi';
 import type { QuizStartResponse, QuizReviewResponse, QuestionItem } from '../types/quiz';
 import type { LessonAuthoring } from '../types/authoring';
+import type { AuthUser } from '../types/auth';
 import QuizTimer from '../components/QuizTimer';
 import QuestionNavigator from '../components/QuestionNavigator';
 import QuestionCard from '../components/QuestionCard';
 import QuizResultView from '../components/QuizResultView';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useToast } from '../components/Toast';
 
 interface QuizTakingPageProps {
   teacherLessons?: LessonAuthoring[];
+  authUser?: AuthUser | null;
 }
 
 export interface QuizTopic {
@@ -26,26 +30,38 @@ export interface QuizTopic {
 
 const SYSTEM_QUIZZES: QuizTopic[] = [
   {
-    id: 'standard-web',
-    title: 'Bài Trắc Nghiệm Lập Trình Web Tổng Hợp',
-    description: 'Kiểm tra toàn diện kiến thức Lập trình Web (HTML5, CSS3, JavaScript ES6+, React Hooks, NestJS & MongoDB).',
-    questionCount: 20,
-    timeLimitMinutes: 30,
-    category: 'Fullstack Web',
-    source: 'SYSTEM',
-  },
-  {
     id: 'python-basic',
     title: 'Bài Trắc Nghiệm Python Căn Bản',
     description: 'Kiểm tra kiến thức cốt lõi Python: Biến, kiểu dữ liệu, hàm input(), cấu trúc lặp và xử lý chuỗi.',
-    questionCount: 10,
-    timeLimitMinutes: 15,
+    questionCount: 20,
+    timeLimitMinutes: 30,
     category: 'Python',
+    source: 'SYSTEM',
+  },
+  {
+    id: 'html5-basic',
+    title: 'Bài Trắc Nghiệm HTML5 Căn Bản',
+    description: 'Kiểm tra kiến thức cốt lõi HTML5: Thẻ Semantic, Form, Media, Accessibility và cấu trúc tài liệu.',
+    questionCount: 20,
+    timeLimitMinutes: 30,
+    category: 'HTML5',
+    source: 'SYSTEM',
+  },
+  {
+    id: 'css3-basic',
+    title: 'Bài Trắc Nghiệm CSS3 Căn Bản',
+    description: 'Kiểm tra kiến thức cốt lõi CSS3: Box Model, Flexbox, Grid, Selector, Positioning và Responsive.',
+    questionCount: 20,
+    timeLimitMinutes: 30,
+    category: 'CSS3',
     source: 'SYSTEM',
   },
 ];
 
-export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons = [] }) => {
+export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons = [], authUser }) => {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+
   // Combine System Quizzes with Teacher Created Quizzes (Only Published)
   const teacherQuizzes: QuizTopic[] = teacherLessons
     .filter(
@@ -56,14 +72,21 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
         l.quizQuestions.length > 0,
     )
     .map((l) => ({
-      // Prefixed so a teacher quiz slug (e.g. "standard-web") can never collide
+      // Prefixed so a teacher quiz slug (e.g. "python-basic") can never collide
       // with a SYSTEM_QUIZZES id of the same name — each stays independently selectable.
       id: `teacher-${l.slug || l._id || ''}`,
       title: l.title.replace(/^[🧑‍💻📝👨‍🏫\s]+/, '').trim(),
       description: l.description || l.learningOutcome || 'Bài trắc nghiệm tạo bởi Giảng viên',
       questionCount: l.quizQuestions.length,
       timeLimitMinutes: 20,
-      category: l.slug === 'python-basic' ? 'Python' : l.slug === 'standard-web' ? 'Fullstack Web' : 'Trắc nghiệm',
+      category:
+        l.slug === 'python-basic'
+          ? 'Python'
+          : l.slug === 'html5-basic'
+            ? 'HTML5'
+            : l.slug === 'css3-basic'
+              ? 'CSS3'
+              : 'Trắc nghiệm',
       source: 'TEACHER',
       teacherData: l,
     }));
@@ -87,8 +110,10 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
   // Active quiz topic details
   const activeTopic = availableQuizzes.find((q) => q.id === selectedQuizId) || availableQuizzes[0];
 
-  // State for user & test setup
-  const [userId] = useState<string>('673f11111111111111111111');
+  // testId chỉ dùng làm khóa nhóm attempt theo category (không tra cứu Test
+  // document thật) — giữ nguyên giá trị demo cố định như thiết kế ban đầu.
+  // userId KHÔNG còn được gửi lên Backend nữa: Backend lấy từ Bearer token
+  // (xem QuizController) để tránh việc client tự khai userId bất kỳ.
   const [testId] = useState<string>('673f22222222222222222222');
 
   // Quiz Engine State
@@ -103,6 +128,12 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
 
   // 1. Handle Start Quiz API
   const handleStartQuiz = async () => {
+    if (!authUser) {
+      showToast('Vui lòng đăng nhập để bắt đầu làm bài trắc nghiệm.', 'info');
+      navigate('/login');
+      return;
+    }
+
     setStage('LOADING');
     setErrorMsg(null);
 
@@ -134,7 +165,7 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
     // Otherwise start Backend System Quiz — pass the topic's category so the backend
     // filters its question bank correctly (multiple topics share the same demo testId).
     try {
-      const response = await quizApi.startQuiz(userId, testId, activeTopic.category);
+      const response = await quizApi.startQuiz(testId, activeTopic.category);
       setQuizData(response);
       setCurrentIndex(0);
       setAnswersMap({});
@@ -200,7 +231,7 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
 
       const teacherReview: QuizReviewResponse = {
         attemptId: quizData.attemptId,
-        userId,
+        userId: 'local-teacher-quiz', // chấm hoàn toàn ở FE, không gửi lên Backend
         testId: activeTopic.id,
         status: 'GRADED',
         score: totalEarned,
@@ -224,11 +255,10 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       }));
 
       await quizApi.submitQuiz(quizData.attemptId, {
-        userId,
         answers: studentAnswers,
       });
 
-      const reviewRes = await quizApi.reviewQuiz(quizData.attemptId, userId, 'AFTER_SUBMISSION');
+      const reviewRes = await quizApi.reviewQuiz(quizData.attemptId, 'AFTER_SUBMISSION');
       setReviewData(reviewRes);
       setStage('RESULT');
     } catch (err: any) {

@@ -12,6 +12,9 @@ import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
 import { ContestListPage } from './pages/ContestListPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { AgeGroupModal } from './components/AgeGroupModal';
 import type { Lesson } from './types/course';
 import type { LessonAuthoring } from './types/authoring';
 import type { AuthUser, AuthResponse } from './types/auth';
@@ -106,19 +109,19 @@ export function App() {
 
   // Combine Mock lessons with Published Teacher created lessons
   const convertedTeacherLessons = publishedTeacherLessons.map(mapAuthoringToCourseLesson);
-  
-  // Catalog lessons for Homepage (only core course curriculum, excluding standalone coding & quiz exercises)
-  const catalogLessons: Lesson[] = [
-    ...MOCK_LESSONS,
-    ...convertedTeacherLessons.filter(
-      (_, idx) => {
-        const orig = publishedTeacherLessons[idx];
-        return orig && orig.type !== 'coding' && orig.type !== 'quiz' && orig.type !== 'block';
-      }
-    ),
-  ];
 
-  const allLessons: Lesson[] = [...MOCK_LESSONS, ...convertedTeacherLessons];
+  // Only core course curriculum (theory/article lessons) belongs in "Lesson Detail" —
+  // standalone coding/quiz/block exercises live in Code Playground / Quiz / Block
+  // Puzzle instead, and must not leak into this list (used both for the Catalog
+  // grid and for Lesson Detail's sidebar + prev/next navigation).
+  const curriculumTeacherLessons = convertedTeacherLessons.filter((_, idx) => {
+    const orig = publishedTeacherLessons[idx];
+    return orig && orig.type !== 'coding' && orig.type !== 'quiz' && orig.type !== 'block';
+  });
+
+  const catalogLessons: Lesson[] = [...MOCK_LESSONS, ...curriculumTeacherLessons];
+
+  const allLessons: Lesson[] = [...MOCK_LESSONS, ...curriculumTeacherLessons];
 
   // Sync theme class with document element and save preference
   useEffect(() => {
@@ -151,18 +154,25 @@ export function App() {
     setAuthUser(auth.user);
   };
 
+  // Modal chọn nhóm tuổi bắt buộc hiện ngay khi một tài khoản STUDENT chưa
+  // có ageGroup đăng nhập (lần đầu tiên) — thay cho việc chọn lúc đăng ký.
+  const needsAgeGroup = authUser?.role === 'STUDENT' && !authUser.ageGroup;
+
+  const handleAgeGroupSelected = (ageGroup: AuthUser['ageGroup']) => {
+    setAuthUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ageGroup };
+      localStorage.setItem('app_auth_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const handleLogout = () => {
-    // Dọn sạch toàn bộ dữ liệu phòng thi/kỳ thi gắn với đúng tài khoản vừa đăng xuất
-    // (namespace theo authUser.id) — tránh session/kết quả cũ còn sờ sờ khi tài khoản
-    // khác đăng nhập lại trên cùng máy.
-    if (authUser?.id) {
-      const keysToRemove: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.includes(authUser.id)) keysToRemove.push(key);
-      }
-      keysToRemove.forEach((key) => localStorage.removeItem(key));
-    }
+    // Chỉ xoá phiên đăng nhập — KHÔNG xoá tiến độ học tập namespace theo
+    // authUser.id (app_code_playground_completed_<id>, app_block_puzzle_completed_<id>...).
+    // Tiến độ đó phải được GIỮ LẠI để lần sau đăng nhập đúng tài khoản này
+    // vẫn thấy đúng những gì đã hoàn thành; namespace theo id đã đủ để tách
+    // biệt giữa các tài khoản khác nhau trên cùng trình duyệt, không cần xoá.
     localStorage.removeItem('token');
     localStorage.removeItem('app_auth_user');
     setAuthUser(null);
@@ -190,6 +200,8 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {needsAgeGroup && <AgeGroupModal onSelected={handleAgeGroupSelected} />}
+
       {/* Navigation Header */}
       <Header
         isLightTheme={isLightTheme}
@@ -258,13 +270,7 @@ export function App() {
           />
           <Route
             path="/quiz"
-            element={
-              authUser ? (
-                <QuizTakingPage teacherLessons={publishedTeacherLessons} />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
+            element={<QuizTakingPage teacherLessons={publishedTeacherLessons} authUser={authUser} />}
           />
           <Route
             path="/playground"
@@ -272,11 +278,13 @@ export function App() {
           />
           <Route
             path="/block-puzzle"
-            element={<BlockPuzzlePage teacherLessons={publishedTeacherLessons} />}
+            element={<BlockPuzzlePage teacherLessons={publishedTeacherLessons} authUser={authUser} />}
           />
           <Route path="/contests" element={<ContestListPage authUser={authUser} />} />
           <Route path="/login" element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />
           <Route path="/register" element={<RegisterPage onAuthSuccess={handleAuthSuccess} />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/authoring"
             element={
