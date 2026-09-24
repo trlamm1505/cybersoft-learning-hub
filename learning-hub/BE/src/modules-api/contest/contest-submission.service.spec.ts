@@ -5,6 +5,7 @@ import { ContestSubmissionService } from './contest-submission.service';
 import { Contest } from '../../modules-system/database/schemas/contest.schema';
 import { Lesson } from '../../modules-system/database/schemas/lesson.schema';
 import { ContestSubmission } from '../../modules-system/database/schemas/contest-submission.schema';
+import { User } from '../../modules-system/database/schemas/user.schema';
 import * as codeRunner from '../../common/helper/code-runner.helper';
 
 describe('ContestSubmissionService', () => {
@@ -12,12 +13,25 @@ describe('ContestSubmissionService', () => {
   let mockContestModel: any;
   let mockLessonModel: any;
   let mockSubmissionModel: any;
+  let mockUserModel: any;
 
   const startTime = new Date(Date.now() - 10 * 60 * 1000);
   const endTime = new Date(Date.now() + 50 * 60 * 1000);
 
-  const quizProblem = { slug: 'quiz-1', title: 'Quiz 1', type: 'quiz', points: 100, lessonId: 'lesson-quiz-1' };
-  const codingProblem = { slug: 'code-1', title: 'Code 1', type: 'coding', points: 100, lessonId: 'lesson-code-1' };
+  const quizProblem = {
+    slug: 'quiz-1',
+    title: 'Quiz 1',
+    type: 'quiz',
+    points: 100,
+    lessonId: 'lesson-quiz-1',
+  };
+  const codingProblem = {
+    slug: 'code-1',
+    title: 'Code 1',
+    type: 'coding',
+    points: 100,
+    lessonId: 'lesson-code-1',
+  };
 
   const mockContestObj = {
     _id: '507f1f77bcf86cd799439011',
@@ -44,13 +58,24 @@ describe('ContestSubmissionService', () => {
 
   beforeEach(async () => {
     mockContestModel = {
-      findOne: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(mockContestObj) }),
+      findOne: jest
+        .fn()
+        .mockReturnValue({ exec: jest.fn().mockResolvedValue(mockContestObj) }),
     };
     mockLessonModel = {
-      findById: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(quizLesson) }),
+      findById: jest
+        .fn()
+        .mockReturnValue({ lean: jest.fn().mockResolvedValue(quizLesson) }),
     };
     mockSubmissionModel = {
       create: jest.fn().mockResolvedValue({}),
+    };
+    mockUserModel = {
+      findById: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          lean: jest.fn().mockResolvedValue({ fullName: 'Nguyen Van A' }),
+        }),
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -58,7 +83,11 @@ describe('ContestSubmissionService', () => {
         ContestSubmissionService,
         { provide: getModelToken(Contest.name), useValue: mockContestModel },
         { provide: getModelToken(Lesson.name), useValue: mockLessonModel },
-        { provide: getModelToken(ContestSubmission.name), useValue: mockSubmissionModel },
+        {
+          provide: getModelToken(ContestSubmission.name),
+          useValue: mockSubmissionModel,
+        },
+        { provide: getModelToken(User.name), useValue: mockUserModel },
       ],
     }).compile();
 
@@ -72,14 +101,17 @@ describe('ContestSubmissionService', () => {
   describe('submit — late guard', () => {
     it('marks isLate:true and still logs when submitted after contest.endTime, without trusting the client', async () => {
       mockContestModel.findOne.mockReturnValue({
-        exec: jest.fn().mockResolvedValue({ ...mockContestObj, endTime: new Date(Date.now() - 1000) }),
+        exec: jest.fn().mockResolvedValue({
+          ...mockContestObj,
+          endTime: new Date(Date.now() - 1000),
+        }),
       });
 
-      const result = await service.submit('507f1f77bcf86cd799439011', {
-        studentId: 'student-1',
-        problemSlug: 'quiz-1',
-        quizAnswers: { '0': 'B' },
-      });
+      const result = await service.submit(
+        '507f1f77bcf86cd799439011',
+        { problemSlug: 'quiz-1', quizAnswers: { '0': 'B' } },
+        'student-1',
+      );
 
       expect(result.isLate).toBe(true);
       expect(mockSubmissionModel.create).toHaveBeenCalledWith(
@@ -89,26 +121,29 @@ describe('ContestSubmissionService', () => {
 
     it('throws BadRequestException when submitted before contest.startTime', async () => {
       mockContestModel.findOne.mockReturnValue({
-        exec: jest.fn().mockResolvedValue({ ...mockContestObj, startTime: new Date(Date.now() + 60_000) }),
+        exec: jest.fn().mockResolvedValue({
+          ...mockContestObj,
+          startTime: new Date(Date.now() + 60_000),
+        }),
       });
 
       await expect(
-        service.submit('507f1f77bcf86cd799439011', {
-          studentId: 'student-1',
-          problemSlug: 'quiz-1',
-          quizAnswers: { '0': 'B' },
-        }),
+        service.submit(
+          '507f1f77bcf86cd799439011',
+          { problemSlug: 'quiz-1', quizAnswers: { '0': 'B' } },
+          'student-1',
+        ),
       ).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('submit — quiz grading', () => {
     it('grades quiz submissions server-side from Lesson.quizQuestions, ignoring any client-supplied correctness', async () => {
-      const result = await service.submit('507f1f77bcf86cd799439011', {
-        studentId: 'student-1',
-        problemSlug: 'quiz-1',
-        quizAnswers: { '0': 'B' }, // correct answer
-      });
+      const result = await service.submit(
+        '507f1f77bcf86cd799439011',
+        { problemSlug: 'quiz-1', quizAnswers: { '0': 'B' } }, // correct answer
+        'student-1',
+      );
 
       expect(result.verdict).toBe('AC');
       expect(result.score).toBe(100);
@@ -117,11 +152,11 @@ describe('ContestSubmissionService', () => {
     });
 
     it('scores 0 / WA when the selected answer is wrong', async () => {
-      const result = await service.submit('507f1f77bcf86cd799439011', {
-        studentId: 'student-1',
-        problemSlug: 'quiz-1',
-        quizAnswers: { '0': 'A' }, // wrong answer
-      });
+      const result = await service.submit(
+        '507f1f77bcf86cd799439011',
+        { problemSlug: 'quiz-1', quizAnswers: { '0': 'A' } }, // wrong answer
+        'student-1',
+      );
 
       expect(result.verdict).toBe('WA');
       expect(result.score).toBe(0);
@@ -140,7 +175,9 @@ describe('ContestSubmissionService', () => {
         }),
       });
 
-      jest.spyOn(codeRunner, 'checkPythonSyntax').mockResolvedValue({ ok: true });
+      jest
+        .spyOn(codeRunner, 'checkPythonSyntax')
+        .mockResolvedValue({ ok: true });
       jest
         .spyOn(codeRunner, 'runPythonCode')
         .mockResolvedValueOnce({
@@ -160,11 +197,11 @@ describe('ContestSubmissionService', () => {
           blocked: false,
         });
 
-      const result = await service.submit('507f1f77bcf86cd799439011', {
-        studentId: 'student-1',
-        problemSlug: 'code-1',
-        code: 'print(input())',
-      });
+      const result = await service.submit(
+        '507f1f77bcf86cd799439011',
+        { problemSlug: 'code-1', code: 'print(input())' },
+        'student-1',
+      );
 
       expect(result.passedCount).toBe(1);
       expect(result.totalCount).toBe(2);

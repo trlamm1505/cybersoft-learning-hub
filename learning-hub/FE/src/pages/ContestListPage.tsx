@@ -29,6 +29,7 @@ import { contestApi } from '../axios/contestApi';
 import { ContestExamWorkspace } from '../components/ContestExamWorkspace';
 import { ContestLeaderboard } from '../components/ContestLeaderboard';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useToast } from '../components/Toast';
 
 interface ContestListPageProps {
   userRole?: 'student' | 'teacher';
@@ -40,11 +41,11 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
   const [contests, setContests] = useState<ContestItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'all' | 'ongoing' | 'upcoming' | 'ended'>('all');
-  // Đăng nhập rồi thì dùng đúng ID/tên tài khoản thật — không còn dùng chung ID 'student-demo'
-  // cho mọi người trên cùng máy. Chưa đăng nhập vẫn cho xem thử ở chế độ khách (fallback demo).
-  const studentId = authUser?.id || 'student-demo';
-  const [guestName, setGuestName] = useState<string>(() => localStorage.getItem('app_student_name') || 'Học viên Demo');
-  const studentName = authUser?.fullName || guestName;
+  // Danh sách cuộc thi xem được không cần đăng nhập, nhưng đăng ký/vào thi thật
+  // (handleRegister/handleCheckAndEnter) bắt buộc login — không còn chế độ
+  // khách với tên tự nhập, luôn dùng đúng tài khoản thật khi đã đăng nhập.
+  const studentId = authUser?.id || '';
+  const studentName = authUser?.fullName || '';
 
   // Active Contest Exam state (Embedded Exam Mode)
   const [activeExamContest, setActiveExamContest] = useState<ContestItem | null>(null);
@@ -57,8 +58,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
   const [guardLoading, setGuardLoading] = useState<boolean>(false);
   const [targetContest, setTargetContest] = useState<ContestItem | null>(null);
 
-  // Toast notification state
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const { showToast } = useToast();
 
   // Live timer tick state to update countdowns every 1s
   const [now, setNow] = useState<Date>(new Date());
@@ -68,22 +68,17 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
     return () => clearInterval(interval);
   }, []);
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
-  };
-
   const fetchContests = useCallback(async () => {
     try {
       setLoading(true);
-      const list = await contestApi.getContests(studentId);
+      const list = await contestApi.getContests();
       setContests(list);
     } catch {
-      showToast('Không thể kết nối Backend API. Đang sử dụng bộ nhớ đệm cục bộ.', 'error');
+      showToast('Không thể kết nối tới máy chủ. Vui lòng thử lại sau.', 'error');
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, []);
 
   useEffect(() => {
     fetchContests();
@@ -116,11 +111,12 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
 
   const handleRegister = async (contestId: string, contestTitle: string) => {
     if (!authUser) {
+      showToast('Vui lòng đăng nhập để đăng ký tham gia cuộc thi.', 'info');
       navigate('/login');
       return;
     }
     try {
-      const res = await contestApi.registerContest(contestId, studentId, studentName);
+      const res = await contestApi.registerContest(contestId);
       showToast(res.message || `Đăng ký cuộc thi '${contestTitle}' thành công!`, 'success');
       fetchContests();
     } catch (err: any) {
@@ -131,6 +127,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
 
   const handleCheckAndEnter = async (contest: ContestItem) => {
     if (!authUser) {
+      showToast('Vui lòng đăng nhập để vào thi.', 'info');
       navigate('/login');
       return;
     }
@@ -147,7 +144,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
     try {
       setGuardLoading(true);
       setTargetContest(contest);
-      const statusRes = await contestApi.checkContestStatus(contest._id || contest.slug, studentId);
+      const statusRes = await contestApi.checkContestStatus(contest._id || contest.slug);
       setSelectedContestGuard(statusRes);
       setIsGuardModalOpen(true);
     } catch (err: any) {
@@ -248,19 +245,6 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
 
   return (
     <div className="space-y-8 pb-16">
-      {/* Toast Notification */}
-      {toast && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl border text-sm font-semibold flex items-center gap-2 animate-bounce ${
-            toast.type === 'error'
-              ? 'bg-red-600 text-white border-red-500'
-              : 'bg-emerald-600 text-white border-emerald-500'
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
-
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-cyan-900 text-white p-8 md:p-10 shadow-xl border border-indigo-700/40">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -279,29 +263,29 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
 
           {/* Student Info Bar */}
           <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-indigo-200 border-t border-indigo-700/50">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-white flex items-center gap-1"><User size={13} /> Học viên:</span>
-              {authUser ? (
-                <span className="bg-indigo-950/70 text-white border border-indigo-500/40 rounded-lg px-2.5 py-1 text-xs font-semibold">
-                  {studentName}
-                </span>
-              ) : (
-                <input
-                  type="text"
-                  value={guestName}
-                  onChange={(e) => {
-                    setGuestName(e.target.value);
-                    localStorage.setItem('app_student_name', e.target.value);
-                  }}
-                  className="bg-indigo-950/70 text-white border border-indigo-500/40 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-cyan-400 font-semibold"
-                  placeholder="Nhập tên học viên (chế độ khách)"
-                />
-              )}
-            </div>
-            <div className="flex items-center gap-1.5 bg-indigo-950/60 px-3 py-1 rounded-lg border border-indigo-500/30">
-              <span className="flex items-center gap-1"><Hash size={12} /> Mã SV:</span>
-              <span className="font-mono text-cyan-300 font-bold">{studentId}</span>
-            </div>
+            {authUser ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-white flex items-center gap-1"><User size={13} /> Học viên:</span>
+                  <span className="bg-indigo-950/70 text-white border border-indigo-500/40 rounded-lg px-2.5 py-1 text-xs font-semibold">
+                    {studentName}
+                  </span>
+                </div>
+                {authUser.studentCode && (
+                  <div className="flex items-center gap-1.5 bg-indigo-950/60 px-3 py-1 rounded-lg border border-indigo-500/30">
+                    <span className="flex items-center gap-1"><Hash size={12} /> Mã SV:</span>
+                    <span className="font-mono text-cyan-300 font-bold">{authUser.studentCode}</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                className="bg-indigo-950/70 hover:bg-indigo-900 text-white border border-indigo-500/40 rounded-lg px-3 py-1.5 text-xs font-bold cursor-pointer transition-colors"
+              >
+                Đăng nhập để đăng ký & vào thi
+              </button>
+            )}
             <div className="flex items-center gap-1 text-amber-300 font-semibold ml-auto">
               <span className="flex items-center gap-1"><Clock size={13} /> Giờ máy chủ:</span>
               <span className="font-mono bg-black/40 px-2 py-0.5 rounded text-cyan-300">

@@ -24,7 +24,8 @@ export class ContestProblem {
   order: number;
 }
 
-export const ContestProblemSchema = SchemaFactory.createForClass(ContestProblem);
+export const ContestProblemSchema =
+  SchemaFactory.createForClass(ContestProblem);
 
 @Schema({ _id: false })
 export class ContestRegistration {
@@ -38,7 +39,8 @@ export class ContestRegistration {
   registeredAt: Date;
 }
 
-export const ContestRegistrationSchema = SchemaFactory.createForClass(ContestRegistration);
+export const ContestRegistrationSchema =
+  SchemaFactory.createForClass(ContestRegistration);
 
 @Schema({ timestamps: true, collection: 'contests' })
 export class Contest {

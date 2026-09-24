@@ -33,7 +33,8 @@ export class SubmissionTestResult {
   memoryUsedMb?: number;
 }
 
-export const SubmissionTestResultSchema = SchemaFactory.createForClass(SubmissionTestResult);
+export const SubmissionTestResultSchema =
+  SchemaFactory.createForClass(SubmissionTestResult);
 
 @Schema({ timestamps: true, collection: 'submissions' })
 export class Submission {

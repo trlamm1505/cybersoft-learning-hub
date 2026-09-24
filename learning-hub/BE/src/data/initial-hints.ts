@@ -87,7 +87,8 @@ export const INITIAL_HINTS: InitialHintData[] = [
     exerciseSlug: 'tim-so-lon-nhat',
     level: 3,
     title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 'n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))',
+    content:
+      'n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -172,7 +173,8 @@ export const INITIAL_HINTS: InitialHintData[] = [
     exerciseSlug: 'fibonacci',
     level: 3,
     title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 'n = int(input())\na, b = 1, 1\nfor _ in range(n - 1):\n    a, b = b, a + b\nprint(a)',
+    content:
+      'n = int(input())\na, b = 1, 1\nfor _ in range(n - 1):\n    a, b = b, a + b\nprint(a)',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -200,7 +202,8 @@ export const INITIAL_HINTS: InitialHintData[] = [
     exerciseSlug: 'uoc-chung-lon-nhat',
     level: 3,
     title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 'a = int(input())\nb = int(input())\nwhile b:\n    a, b = b, a % b\nprint(a)',
+    content:
+      'a = int(input())\nb = int(input())\nwhile b:\n    a, b = b, a % b\nprint(a)',
     costPoints: 15,
     cooldownSeconds: 30,
   },

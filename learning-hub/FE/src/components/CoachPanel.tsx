@@ -1,29 +1,53 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Bot, Send, Loader2, AlertTriangle, ShieldAlert, Gauge } from 'lucide-react';
+import { Bot, Send, Loader2, AlertTriangle, ShieldAlert, Gauge, Bug, RotateCcw } from 'lucide-react';
 import coachApi from '../axios/coachApi';
-import type { CoachHistoryMessage } from '../types/coach';
+import type { CoachHistoryMessage, DebugLoopResponse } from '../types/coach';
 
 interface CoachPanelProps {
   exerciseSlug: string;
-  userId?: string;
+  userId: string;
+  // ID submission gần nhất đã lưu thật ở Backend (không phải kết quả chấm giả
+  // lập ở FE cho bài Teacher Authoring) — Debug Loop chỉ phân tích được
+  // submission đã tồn tại trong DB, để feedback bám vào test result thật.
+  lastSubmissionId?: string | null;
 }
 
-export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId = 'student-demo' }) => {
+const ERROR_CATEGORY_LABEL: Record<DebugLoopResponse['errorCategory'], string> = {
+  COMPILE_SYNTAX: 'Lỗi biên dịch / cú pháp',
+  RUNTIME_EXCEPTION: 'Lỗi khi chạy (runtime)',
+  TIMEOUT: 'Quá thời gian chạy',
+  WRONG_OUTPUT: 'Sai kết quả',
+  PASSED: 'Đã pass',
+};
+
+export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, lastSubmissionId = null }) => {
   const [messages, setMessages] = useState<CoachHistoryMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [lastUsage, setLastUsage] = useState<{ promptTokens: number; completionTokens: number; maxPromptTokens: number; maxCompletionTokens: number } | null>(null);
+  const [debugResult, setDebugResult] = useState<DebugLoopResponse | null>(null);
+  const [isDebugging, setIsDebugging] = useState(false);
+  const [debugError, setDebugError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMessages([]);
     setErrorMsg(null);
     setLastUsage(null);
+    setDebugResult(null);
+    setDebugError(null);
     loadHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exerciseSlug]);
+
+  // Lần nộp bài thay đổi -> kết quả phân tích cũ (nếu có) không còn khớp,
+  // xoá để tránh học viên đọc nhầm feedback của lần nộp trước.
+  useEffect(() => {
+    setDebugResult(null);
+    setDebugError(null);
+  }, [lastSubmissionId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -57,7 +81,7 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId = '
     ]);
 
     try {
-      const res = await coachApi.chat({ userId, exerciseSlug, message });
+      const res = await coachApi.chat({ exerciseSlug, message });
       setMessages((prev) => [
         ...prev,
         {
@@ -74,6 +98,20 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId = '
       setErrorMsg(err?.response?.data?.message || 'AI Coach hiện không phản hồi được. Vui lòng thử lại.');
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleDebugLoop = async () => {
+    if (!lastSubmissionId || isDebugging) return;
+    setIsDebugging(true);
+    setDebugError(null);
+    try {
+      const res = await coachApi.debugLoop({ exerciseSlug, submissionId: lastSubmissionId });
+      setDebugResult(res);
+    } catch (err: any) {
+      setDebugError(err?.response?.data?.message || 'Không phân tích được lần nộp này. Vui lòng thử lại.');
+    } finally {
+      setIsDebugging(false);
     }
   };
 
@@ -95,6 +133,52 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId = '
           </div>
         )}
       </div>
+
+      {/* Debug Loop trigger */}
+      {lastSubmissionId && (
+        <div className="mb-3">
+          <button
+            onClick={handleDebugLoop}
+            disabled={isDebugging}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
+          >
+            {isDebugging ? <Loader2 size={13} className="animate-spin" /> : <Bug size={13} />}
+            {isDebugging ? 'Đang phân tích...' : 'Phân tích lỗi lần nộp gần nhất'}
+          </button>
+
+          {debugError && (
+            <div className="mt-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 p-2 text-[11px] flex items-center gap-1.5">
+              <AlertTriangle size={12} className="shrink-0" /> {debugError}
+            </div>
+          )}
+
+          {debugResult && (
+            <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5 text-xs space-y-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-bold text-amber-700 dark:text-amber-300">
+                  {ERROR_CATEGORY_LABEL[debugResult.errorCategory]}
+                </span>
+                <span
+                  className="flex items-center gap-1 text-[10px] font-semibold text-[var(--text-muted)]"
+                  title="Số lần thử liên tiếp chưa AC / giới hạn tối đa"
+                >
+                  <RotateCcw size={11} /> {debugResult.loopCount}/{debugResult.maxLoops}
+                </span>
+              </div>
+              <p className="text-[var(--text-main)] leading-relaxed whitespace-pre-wrap">{debugResult.feedback}</p>
+              <p className="text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap">
+                <span className="font-semibold">Bước tiếp theo: </span>
+                {debugResult.nextStep}
+              </p>
+              {debugResult.loopLimitReached && (
+                <div className="pt-1.5 mt-1.5 border-t border-amber-500/30 text-[10px] text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                  <ShieldAlert size={11} /> Đã chạm giới hạn vòng lặp đồng hành
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-3 pr-1">

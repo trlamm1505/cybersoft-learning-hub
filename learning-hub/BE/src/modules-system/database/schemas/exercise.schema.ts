@@ -21,7 +21,8 @@ export class ExerciseTestCase {
   memoryLimitMb?: number;
 }
 
-export const ExerciseTestCaseSchema = SchemaFactory.createForClass(ExerciseTestCase);
+export const ExerciseTestCaseSchema =
+  SchemaFactory.createForClass(ExerciseTestCase);
 
 @Schema({ timestamps: true, collection: 'exercises' })
 export class Exercise {
@@ -34,7 +35,11 @@ export class Exercise {
   @Prop({ required: true, type: String })
   description: string;
 
-  @Prop({ type: String, enum: ['QUIZ', 'CODE_BLOCK', 'CODE_TEXT', 'SQL_LAB'], default: 'CODE_TEXT' })
+  @Prop({
+    type: String,
+    enum: ['QUIZ', 'CODE_BLOCK', 'CODE_TEXT', 'SQL_LAB'],
+    default: 'CODE_TEXT',
+  })
   type: string;
 
   @Prop({ type: String, enum: ['EASY', 'MEDIUM', 'HARD'], default: 'EASY' })

@@ -15,7 +15,8 @@ export class LessonTestCase {
   isHidden?: boolean;
 }
 
-export const LessonTestCaseSchema = SchemaFactory.createForClass(LessonTestCase);
+export const LessonTestCaseSchema =
+  SchemaFactory.createForClass(LessonTestCase);
 
 @Schema({ _id: false })
 export class QuizQuestionOption {
@@ -29,7 +30,8 @@ export class QuizQuestionOption {
   isCorrect: boolean;
 }
 
-export const QuizQuestionOptionSchema = SchemaFactory.createForClass(QuizQuestionOption);
+export const QuizQuestionOptionSchema =
+  SchemaFactory.createForClass(QuizQuestionOption);
 
 @Schema({ _id: false })
 export class QuizQuestion {
@@ -96,10 +98,22 @@ export class BlockStartPosition extends BlockPosition {
   direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 }
 
-export const BlockStartPositionSchema = SchemaFactory.createForClass(BlockStartPosition);
+export const BlockStartPositionSchema =
+  SchemaFactory.createForClass(BlockStartPosition);
 
 @Schema({ _id: false })
 export class BlockPuzzleConfig {
+  // Định danh game (ví dụ 'robot-ve-nha') — dùng để nhóm nhiều bài "ải" vào
+  // cùng một game trên màn hình chọn game của Block Puzzle. Nhiều bài khác
+  // nhau có thể chia sẻ cùng gameId để xuất hiện chung một thẻ game.
+  @Prop({ required: true, type: String, default: 'robot-ve-nha' })
+  gameId: string;
+
+  // Tên game hiển thị trên thẻ chọn game (ví dụ 'Robot Về Nhà') — tách khỏi
+  // title của từng bài riêng lẻ (ví dụ 'Robot Về Nhà - Bài 1: Đường Thẳng').
+  @Prop({ required: true, type: String, default: 'Robot Về Nhà' })
+  gameTitle: string;
+
   @Prop({ type: String, default: '' })
   storyText: string;
 
@@ -124,7 +138,11 @@ export class BlockPuzzleConfig {
   @Prop({ type: Number, default: 10 })
   maxBlocks: number;
 
-  @Prop({ required: true, type: String, enum: ['sequence', 'loop', 'condition'] })
+  @Prop({
+    required: true,
+    type: String,
+    enum: ['sequence', 'loop', 'condition'],
+  })
   concept: 'sequence' | 'loop' | 'condition';
 
   @Prop({ type: String, default: '' })
@@ -134,7 +152,8 @@ export class BlockPuzzleConfig {
   order: number;
 }
 
-export const BlockPuzzleConfigSchema = SchemaFactory.createForClass(BlockPuzzleConfig);
+export const BlockPuzzleConfigSchema =
+  SchemaFactory.createForClass(BlockPuzzleConfig);
 
 @Schema({ timestamps: true, collection: 'lessons' })
 export class Lesson {
@@ -147,10 +166,20 @@ export class Lesson {
   @Prop({ type: String, default: '' })
   description: string;
 
-  @Prop({ required: true, type: String, enum: ['coding', 'quiz', 'block'], default: 'coding' })
+  @Prop({
+    required: true,
+    type: String,
+    enum: ['coding', 'quiz', 'block'],
+    default: 'coding',
+  })
   type: 'coding' | 'quiz' | 'block';
 
-  @Prop({ required: true, type: String, enum: ['draft', 'published'], default: 'draft' })
+  @Prop({
+    required: true,
+    type: String,
+    enum: ['draft', 'published'],
+    default: 'draft',
+  })
   status: 'draft' | 'published';
 
   @Prop({ type: String, default: '' })

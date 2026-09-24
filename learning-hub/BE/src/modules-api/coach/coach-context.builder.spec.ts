@@ -47,10 +47,19 @@ describe('CoachContextBuilder — context schema tối thiểu, không lộ dữ
       providers: [
         CoachContextBuilder,
         { provide: getModelToken(Exercise.name), useValue: mockExerciseModel },
-        { provide: getModelToken(Submission.name), useValue: mockSubmissionModel },
-        { provide: getModelToken(HintUsage.name), useValue: mockHintUsageModel },
+        {
+          provide: getModelToken(Submission.name),
+          useValue: mockSubmissionModel,
+        },
+        {
+          provide: getModelToken(HintUsage.name),
+          useValue: mockHintUsageModel,
+        },
         { provide: getModelToken(Hint.name), useValue: mockHintModel },
-        { provide: getModelToken(CoachMessage.name), useValue: mockCoachMessageModel },
+        {
+          provide: getModelToken(CoachMessage.name),
+          useValue: mockCoachMessageModel,
+        },
       ],
     }).compile();
 
@@ -60,7 +69,9 @@ describe('CoachContextBuilder — context schema tối thiểu, không lộ dữ
   it('ném NotFoundException nếu bài tập không tồn tại', async () => {
     mockExerciseModel.findOne.mockReturnValue(leanChain(null));
 
-    await expect(builder.build('user1', 'khong-ton-tai')).rejects.toThrow(NotFoundException);
+    await expect(builder.build('user1', 'khong-ton-tai')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('không đưa hidden test case (input/expectedOutput) vào context', async () => {
@@ -73,7 +84,10 @@ describe('CoachContextBuilder — context schema tối thiểu, không lộ dữ
     const context = await builder.build('user1', 'tinh-tong-hai-so-nguyen');
 
     expect(context.exercise.visibleTestCases).toHaveLength(1);
-    expect(context.exercise.visibleTestCases[0]).toEqual({ input: '1 2', expectedOutput: '3' });
+    expect(context.exercise.visibleTestCases[0]).toEqual({
+      input: '1 2',
+      expectedOutput: '3',
+    });
     expect(context.exercise.hiddenTestCount).toBe(2);
 
     const serialized = JSON.stringify(context);
@@ -113,7 +127,10 @@ describe('CoachContextBuilder — context schema tối thiểu, không lộ dữ
 
     // find phải được gọi lọc theo đúng level đã unlock, không lấy toàn bộ hint
     expect(mockHintModel.find).toHaveBeenCalledWith(
-      expect.objectContaining({ exerciseSlug: 'tinh-tong-hai-so-nguyen', level: { $in: [1] } }),
+      expect.objectContaining({
+        exerciseSlug: 'tinh-tong-hai-so-nguyen',
+        level: { $in: [1] },
+      }),
     );
   });
 
@@ -135,7 +152,9 @@ describe('CoachContextBuilder — context schema tối thiểu, không lộ dữ
   it('allowFullSolution = true khi học viên đã mở tới tầng gợi ý 3', async () => {
     mockExerciseModel.findOne.mockReturnValue(leanChain(fakeExercise));
     mockSubmissionModel.find.mockReturnValue(leanChain([]));
-    mockHintUsageModel.find.mockReturnValue(leanChain([{ level: 1 }, { level: 2 }, { level: 3 }]));
+    mockHintUsageModel.find.mockReturnValue(
+      leanChain([{ level: 1 }, { level: 2 }, { level: 3 }]),
+    );
     mockHintModel.find.mockReturnValue(
       leanChain([
         { level: 1, title: 'Khái niệm', content: 'A' },

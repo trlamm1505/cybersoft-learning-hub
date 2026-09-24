@@ -22,7 +22,9 @@ const FULL_SOLUTION_PHRASES = [
 function countCodeBlockLines(content: string): number {
   const codeBlocks: string[] = content.match(/```[\s\S]*?```/g) ?? [];
   return codeBlocks.reduce((max: number, block: string) => {
-    const lines = block.split('\n').filter((l) => l.trim().length > 0 && !l.trim().startsWith('```'));
+    const lines = block
+      .split('\n')
+      .filter((l) => l.trim().length > 0 && !l.trim().startsWith('```'));
     return Math.max(max, lines.length);
   }, 0);
 }
@@ -31,7 +33,10 @@ function countCodeBlockLines(content: string): number {
  * Kiểm tra response của AI trước khi trả về học viên.
  * Cấm đưa full solution khi context.policy.allowFullSolution === false.
  */
-export function checkCoachResponsePolicy(content: string, context: CoachContext): PolicyCheckResult {
+export function checkCoachResponsePolicy(
+  content: string,
+  context: CoachContext,
+): PolicyCheckResult {
   if (context.policy.allowFullSolution) {
     return { allowed: true };
   }
@@ -73,6 +78,8 @@ function sanitizeToHintStyle(_original: string): string {
 export function assertContextHasNoForbiddenData(context: CoachContext): void {
   const serialized = JSON.stringify(context);
   if (/solutionCode/i.test(serialized)) {
-    throw new Error('Policy violation: context chứa solutionCode, không được gửi cho model.');
+    throw new Error(
+      'Policy violation: context chứa solutionCode, không được gửi cho model.',
+    );
   }
 }

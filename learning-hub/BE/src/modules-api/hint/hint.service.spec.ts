@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { HintService } from './hint.service';
-import { Hint, validateTier1NoCode } from '../../modules-system/database/schemas/hint.schema';
+import {
+  Hint,
+  validateTier1NoCode,
+} from '../../modules-system/database/schemas/hint.schema';
 import { HintUsage } from '../../modules-system/database/schemas/hint-usage.schema';
 
 describe('HintService & Tier 1 Validation', () => {
@@ -43,18 +46,22 @@ describe('HintService & Tier 1 Validation', () => {
 
   describe('Tier 1 Non-Code Validator', () => {
     it('cho phép văn bản khái niệm thuần túy không chứa code', () => {
-      const validText = 'Bài toán yêu cầu cộng hai đại lượng số nguyên từ đầu vào.';
+      const validText =
+        'Bài toán yêu cầu cộng hai đại lượng số nguyên từ đầu vào.';
       expect(validateTier1NoCode(validText, 1)).toBe(true);
     });
 
     it('từ chối khối code markdown (```)', () => {
-      const invalidText = 'Khái niệm:\n```python\na = int(input())\nprint(a)\n```';
+      const invalidText =
+        'Khái niệm:\n```python\na = int(input())\nprint(a)\n```';
       expect(validateTier1NoCode(invalidText, 1)).toBe(false);
     });
 
     it('từ chối khai báo hàm trong Python/JS (def / function)', () => {
       expect(validateTier1NoCode('Dùng hàm def calc(a, b):', 1)).toBe(false);
-      expect(validateTier1NoCode('Khai báo function sum(a, b) {', 1)).toBe(false);
+      expect(validateTier1NoCode('Khai báo function sum(a, b) {', 1)).toBe(
+        false,
+      );
     });
 
     it('từ chối câu lệnh in trực tiếp out (print() / console.log)', () => {
@@ -75,7 +82,13 @@ describe('HintService & Tier 1 Validation', () => {
       });
 
       await expect(
-        service.unlockHint({ exerciseSlug: 'boc-phenh', level: 1, userId: 'user1' }),
+        service.unlockHint(
+          {
+            exerciseSlug: 'boc-phenh',
+            level: 1,
+          },
+          'user1',
+        ),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -103,11 +116,13 @@ describe('HintService & Tier 1 Validation', () => {
         }),
       });
 
-      const res = await service.unlockHint({
-        exerciseSlug: 'tinh-tong-hai-so-nguyen',
-        level: 1,
-        userId: 'user1',
-      });
+      const res = await service.unlockHint(
+        {
+          exerciseSlug: 'tinh-tong-hai-so-nguyen',
+          level: 1,
+        },
+        'user1',
+      );
 
       expect(res.alreadyUnlocked).toBe(true);
       expect(res.hint.costPoints).toBe(0);
@@ -129,11 +144,17 @@ describe('HintService & Tier 1 Validation', () => {
         exec: jest.fn().mockResolvedValue(mockHint2),
       });
 
-      // User first check for level 2 usage -> null (not unlocked)
-      // Second check for last usage on this exercise -> unlocked 10s ago
+      // unlockHint() gọi findOne 3 lần theo thứ tự:
+      // 1. existingUsage cho chính level 2 -> null (chưa mở tầng này)
+      // 2. previousLevelUsage cho level 1 (bắt buộc mở tuần tự vì level > 1)
+      //    -> có giá trị (tầng 1 đã mở trước đó), không thì sẽ ném lỗi khác
+      // 3. lastUsage (có .sort()) để tính cooldown -> mở 10s trước, còn cooldown
       mockHintUsageModel.findOne
         .mockReturnValueOnce({
           exec: jest.fn().mockResolvedValue(null),
+        })
+        .mockReturnValueOnce({
+          exec: jest.fn().mockResolvedValue({ level: 1, unlockedAt: new Date(Date.now() - 20000) }),
         })
         .mockReturnValueOnce({
           sort: jest.fn().mockReturnValue({
@@ -144,11 +165,13 @@ describe('HintService & Tier 1 Validation', () => {
         });
 
       await expect(
-        service.unlockHint({
-          exerciseSlug: 'tinh-tong-hai-so-nguyen',
-          level: 2,
-          userId: 'user1',
-        }),
+        service.unlockHint(
+          {
+            exerciseSlug: 'tinh-tong-hai-so-nguyen',
+            level: 2,
+          },
+          'user1',
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -183,11 +206,13 @@ describe('HintService & Tier 1 Validation', () => {
         unlockedAt: new Date(),
       });
 
-      const res = await service.unlockHint({
-        exerciseSlug: 'tinh-tong-hai-so-nguyen',
-        level: 1,
-        userId: 'user1',
-      });
+      const res = await service.unlockHint(
+        {
+          exerciseSlug: 'tinh-tong-hai-so-nguyen',
+          level: 1,
+        },
+        'user1',
+      );
 
       expect(res.alreadyUnlocked).toBe(false);
       expect(res.hint.costPointsDeducted).toBe(5);

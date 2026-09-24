@@ -1,8 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Contest, ContestDocument } from '../../modules-system/database/schemas/contest.schema';
-import { ContestSubmission, ContestSubmissionDocument } from '../../modules-system/database/schemas/contest-submission.schema';
+import {
+  Contest,
+  ContestDocument,
+} from '../../modules-system/database/schemas/contest.schema';
+import {
+  ContestSubmission,
+  ContestSubmissionDocument,
+} from '../../modules-system/database/schemas/contest-submission.schema';
 
 export const PENALTY_MINUTES_PER_WRONG_ATTEMPT = 20;
 const DEFAULT_FREEZE_MINUTES_CAP = 60;
@@ -36,37 +42,55 @@ export interface LeaderboardResult {
 @Injectable()
 export class LeaderboardService {
   constructor(
-    @InjectModel(Contest.name) private readonly contestModel: Model<ContestDocument>,
+    @InjectModel(Contest.name)
+    private readonly contestModel: Model<ContestDocument>,
     @InjectModel(ContestSubmission.name)
     private readonly contestSubmissionModel: Model<ContestSubmissionDocument>,
   ) {}
 
   private async findContestOrThrow(id: string): Promise<ContestDocument> {
     const contest = await this.contestModel
-      .findOne({ $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }] })
+      .findOne({
+        $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }],
+      })
       .exec();
     if (!contest) {
-      throw new NotFoundException(`Không tìm thấy cuộc thi với ID hoặc slug: ${id}`);
+      throw new NotFoundException(
+        `Không tìm thấy cuộc thi với ID hoặc slug: ${id}`,
+      );
     }
     return contest;
   }
 
-  getConfig(contest: Pick<Contest, 'durationMinutes' | 'freezeMinutes'>): LeaderboardConfig {
+  getConfig(
+    contest: Pick<Contest, 'durationMinutes' | 'freezeMinutes'>,
+  ): LeaderboardConfig {
     const freezeMinutes =
       contest.freezeMinutes && contest.freezeMinutes > 0
         ? contest.freezeMinutes
-        : Math.min(DEFAULT_FREEZE_MINUTES_CAP, Math.round(contest.durationMinutes * FREEZE_RATIO_OF_DURATION));
+        : Math.min(
+            DEFAULT_FREEZE_MINUTES_CAP,
+            Math.round(contest.durationMinutes * FREEZE_RATIO_OF_DURATION),
+          );
 
     return {
       penaltyMinutesPerWrong: PENALTY_MINUTES_PER_WRONG_ATTEMPT,
       freezeMinutes,
-      tieBreakOrder: ['totalScore desc', '(timeMinutes + penaltyMinutes) asc', 'studentId asc'],
+      tieBreakOrder: [
+        'totalScore desc',
+        '(timeMinutes + penaltyMinutes) asc',
+        'studentId asc',
+      ],
       lateSubmitPolicy:
         'Bài nộp sau thời gian kết thúc cuộc thi (theo giờ máy chủ) bị từ chối tính điểm, nhưng vẫn được ghi log để đối soát.',
     };
   }
 
-  private computeStatus(startTime: Date, endTime: Date, now: Date): 'UPCOMING' | 'ONGOING' | 'ENDED' {
+  private computeStatus(
+    startTime: Date,
+    endTime: Date,
+    now: Date,
+  ): 'UPCOMING' | 'ONGOING' | 'ENDED' {
     if (now < startTime) return 'UPCOMING';
     if (now > endTime) return 'ENDED';
     return 'ONGOING';
@@ -77,18 +101,27 @@ export class LeaderboardService {
     return this.getConfig(contest);
   }
 
-  async computeLeaderboard(contestId: string, opts: { asTeacher?: boolean } = {}): Promise<LeaderboardResult> {
+  async computeLeaderboard(
+    contestId: string,
+    opts: { asTeacher?: boolean } = {},
+  ): Promise<LeaderboardResult> {
     const contest = await this.findContestOrThrow(contestId);
     const now = new Date();
     const status = this.computeStatus(contest.startTime, contest.endTime, now);
     const { freezeMinutes } = this.getConfig(contest);
 
-    const freezeAt = new Date(contest.endTime.getTime() - freezeMinutes * 60_000);
+    const freezeAt = new Date(
+      contest.endTime.getTime() - freezeMinutes * 60_000,
+    );
     const isFrozen = !opts.asTeacher && status === 'ONGOING' && now >= freezeAt;
     const cutoff = isFrozen ? freezeAt : now;
 
     const submissions = await this.contestSubmissionModel
-      .find({ contestId: String(contest._id), isLate: false, submittedAt: { $lte: cutoff } })
+      .find({
+        contestId: String(contest._id),
+        isLate: false,
+        submittedAt: { $lte: cutoff },
+      })
       .sort({ submittedAt: 1 })
       .lean();
 
@@ -139,11 +172,13 @@ export class LeaderboardService {
       const isFullSolve = maxPoints > 0 && bestScore === maxPoints;
       if (isFullSolve) {
         agg.solvedCount += 1;
-        agg.timeMinutes += (bestAttempt.submittedAt.getTime() - startTimeMs) / 60_000;
+        agg.timeMinutes +=
+          (bestAttempt.submittedAt.getTime() - startTimeMs) / 60_000;
         const priorWrongAttempts = attempts.filter(
           (a) => a.submittedAt.getTime() < bestAttempt.submittedAt.getTime(),
         ).length;
-        agg.penaltyMinutes += priorWrongAttempts * PENALTY_MINUTES_PER_WRONG_ATTEMPT;
+        agg.penaltyMinutes +=
+          priorWrongAttempts * PENALTY_MINUTES_PER_WRONG_ATTEMPT;
       }
 
       students.set(studentId, agg);

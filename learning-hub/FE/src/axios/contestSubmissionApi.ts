@@ -49,12 +49,10 @@ export const contestSubmissionApi = {
     return await axiosClient.get(`/contests/${contestId}/problems/${slug}`);
   },
 
-  /** POST /api/contests/:id/submissions — server grades and logs the attempt. */
+  /** POST /api/contests/:id/submissions — server grades and logs the attempt; studentId comes from the JWT, never the client. */
   submit: async (
     contestId: string,
     payload: {
-      studentId: string;
-      studentName?: string;
       problemSlug: string;
       code?: string;
       quizAnswers?: Record<string, string>;

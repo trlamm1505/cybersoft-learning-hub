@@ -7,6 +7,8 @@ export class ContestProblemDto {
   order?: number;
 }
 
+// authorId không còn nhận từ client — lấy từ Bearer token (@CurrentUser(),
+// yêu cầu role TEACHER) ở controller thay vì tin client tự khai ai là tác giả.
 export class CreateContestDto {
   title: string;
   slug?: string;
@@ -16,5 +18,4 @@ export class CreateContestDto {
   durationMinutes?: number;
   problems?: ContestProblemDto[];
   status?: 'draft' | 'published';
-  authorId?: string;
 }

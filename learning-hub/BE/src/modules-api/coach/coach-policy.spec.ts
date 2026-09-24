@@ -1,7 +1,12 @@
-import { assertContextHasNoForbiddenData, checkCoachResponsePolicy } from './coach-policy';
+import {
+  assertContextHasNoForbiddenData,
+  checkCoachResponsePolicy,
+} from './coach-policy';
 import { CoachContext } from './coach-context.types';
 
-function makeContext(overrides: Partial<CoachContext['policy']> = {}): CoachContext {
+function makeContext(
+  overrides: Partial<CoachContext['policy']> = {},
+): CoachContext {
   return {
     userId: 'user1',
     exercise: {
@@ -19,7 +24,9 @@ function makeContext(overrides: Partial<CoachContext['policy']> = {}): CoachCont
       lastTotalCount: 3,
       hasEverPassed: false,
     },
-    unlockedHints: [{ level: 1, title: 'Khái niệm', content: 'Đọc kỹ đề bài về input.' }],
+    unlockedHints: [
+      { level: 1, title: 'Khái niệm', content: 'Đọc kỹ đề bài về input.' },
+    ],
     recentHistory: [],
     policy: {
       allowFullSolution: false,
@@ -98,6 +105,8 @@ describe('assertContextHasNoForbiddenData — không gửi hidden tests / soluti
     const context = makeContext() as any;
     context.exercise.solutionCode = 'a = int(input())\nprint(a)';
 
-    expect(() => assertContextHasNoForbiddenData(context)).toThrow(/solutionCode/i);
+    expect(() => assertContextHasNoForbiddenData(context)).toThrow(
+      /solutionCode/i,
+    );
   });
 });

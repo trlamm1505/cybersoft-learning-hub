@@ -1,4 +1,8 @@
-import { TestCaseDto, QuizQuestionDto, LessonHintsDto } from './create-lesson.dto';
+import {
+  TestCaseDto,
+  QuizQuestionDto,
+  LessonHintsDto,
+} from './create-lesson.dto';
 
 export class UpdateLessonDto {
   title?: string;

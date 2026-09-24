@@ -42,7 +42,10 @@ describe('CodeRunnerHelper - runPythonCode', () => {
   });
 
   it('cannot read arbitrary host filesystem paths', async () => {
-    const result = await runPythonCode('print(open("C:/Windows/win.ini").read())', '');
+    const result = await runPythonCode(
+      'print(open("C:/Windows/win.ini").read())',
+      '',
+    );
     expect(result.blocked).toBe(true);
   });
 });

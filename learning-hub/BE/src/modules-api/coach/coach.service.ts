@@ -1,13 +1,36 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CoachMessage, CoachMessageDocument } from '../../modules-system/database/schemas/coach-message.schema';
+import {
+  CoachMessage,
+  CoachMessageDocument,
+} from '../../modules-system/database/schemas/coach-message.schema';
+import {
+  Exercise,
+  ExerciseDocument,
+} from '../../modules-system/database/schemas/exercise.schema';
+import {
+  Submission,
+  SubmissionDocument,
+} from '../../modules-system/database/schemas/submission.schema';
 import { CoachContextBuilder } from './coach-context.builder';
-import { assertContextHasNoForbiddenData, checkCoachResponsePolicy } from './coach-policy';
+import {
+  assertContextHasNoForbiddenData,
+  checkCoachResponsePolicy,
+} from './coach-policy';
 import { estimateTokens } from './coach-llm.client';
 import type { LlmClient } from './coach-llm.client';
 import { COACH_LLM_CLIENT } from './coach.constants';
 import { CoachChatDto } from './dto/coach-chat.dto';
+import { analyzeDebugLoop } from './coach-debug-loop';
+import { DebugLoopTestInput } from './coach-debug-loop.types';
+import { DebugLoopDto } from './dto/debug-loop.dto';
 
 // Giới hạn token theo lượt gọi (input context + output) — điều kiện nghiệm
 // thu yêu cầu "có logging và giới hạn token". Ngưỡng này chặn context phình
@@ -31,14 +54,19 @@ export class CoachService {
   constructor(
     private readonly contextBuilder: CoachContextBuilder,
     @Inject(COACH_LLM_CLIENT) private readonly llmClient: LlmClient,
-    @InjectModel(CoachMessage.name) private readonly coachMessageModel: Model<CoachMessageDocument>,
+    @InjectModel(CoachMessage.name)
+    private readonly coachMessageModel: Model<CoachMessageDocument>,
+    @InjectModel(Exercise.name)
+    private readonly exerciseModel: Model<ExerciseDocument>,
+    @InjectModel(Submission.name)
+    private readonly submissionModel: Model<SubmissionDocument>,
   ) {}
 
-  async chat(dto: CoachChatDto) {
-    const { userId, exerciseSlug, message } = dto;
+  async chat(dto: CoachChatDto, userId: string) {
+    const { exerciseSlug, message } = dto;
 
-    if (!userId || !exerciseSlug || !message?.trim()) {
-      throw new BadRequestException('Thiếu userId, exerciseSlug hoặc message.');
+    if (!exerciseSlug || !message?.trim()) {
+      throw new BadRequestException('Thiếu exerciseSlug hoặc message.');
     }
 
     const context = await this.contextBuilder.build(userId, exerciseSlug);
@@ -48,7 +76,9 @@ export class CoachService {
     assertContextHasNoForbiddenData(context);
 
     const promptTokenEstimate =
-      estimateTokens(SYSTEM_PROMPT) + estimateTokens(JSON.stringify(context)) + estimateTokens(message);
+      estimateTokens(SYSTEM_PROMPT) +
+      estimateTokens(JSON.stringify(context)) +
+      estimateTokens(message);
 
     if (promptTokenEstimate > MAX_PROMPT_TOKENS) {
       throw new BadRequestException(
@@ -56,9 +86,19 @@ export class CoachService {
       );
     }
 
-    await this.logMessage(userId, exerciseSlug, 'user', message, estimateTokens(message));
+    await this.logMessage(
+      userId,
+      exerciseSlug,
+      'user',
+      message,
+      estimateTokens(message),
+    );
 
-    const llmResult = await this.llmClient.chat(SYSTEM_PROMPT, context, message);
+    const llmResult = await this.llmClient.chat(
+      SYSTEM_PROMPT,
+      context,
+      message,
+    );
 
     let finalContent = llmResult.content;
     let completionTokens = llmResult.completionTokens;
@@ -75,14 +115,24 @@ export class CoachService {
 
     const policyCheck = checkCoachResponsePolicy(finalContent, context);
     if (!policyCheck.allowed) {
-      this.logger.warn(`Coach response bị chặn bởi policy: ${policyCheck.reason}`);
+      this.logger.warn(
+        `Coach response bị chặn bởi policy: ${policyCheck.reason}`,
+      );
       finalContent = policyCheck.sanitizedContent ?? finalContent;
       completionTokens = estimateTokens(finalContent);
       policyBlocked = true;
       policyReason = policyCheck.reason;
     }
 
-    await this.logMessage(userId, exerciseSlug, 'assistant', finalContent, completionTokens, policyBlocked, policyReason);
+    await this.logMessage(
+      userId,
+      exerciseSlug,
+      'assistant',
+      finalContent,
+      completionTokens,
+      policyBlocked,
+      policyReason,
+    );
 
     return {
       exerciseSlug,
@@ -99,6 +149,101 @@ export class CoachService {
         maxPromptTokens: MAX_PROMPT_TOKENS,
         maxCompletionTokens: MAX_COMPLETION_TOKENS,
       },
+    };
+  }
+
+  /**
+   * Debug Loop v0.1 — phân tích kết quả test THẬT của một submission đã lưu
+   * (không nhận mô tả lỗi tự do từ client) để tránh AI bịa nguyên nhân.
+   *
+   * "Vòng lặp" ở đây là chuỗi các submission liên tiếp CHƯA đạt AC cho cùng
+   * một bài — mỗi lần học viên sửa và nộp lại mà vẫn sai, loop count tăng.
+   * Chuỗi bị "ngắt" (reset) ngay khi có một lần AC xen giữa.
+   */
+  async debugLoop(dto: DebugLoopDto, userId: string) {
+    const { exerciseSlug, submissionId } = dto;
+
+    if (!exerciseSlug || !submissionId) {
+      throw new BadRequestException('Thiếu exerciseSlug hoặc submissionId.');
+    }
+
+    const exercise = await this.exerciseModel
+      .findOne({ slug: exerciseSlug })
+      .select('_id title')
+      .lean();
+    if (!exercise) {
+      throw new NotFoundException(`Không tìm thấy bài tập "${exerciseSlug}"`);
+    }
+
+    const submission = await this.submissionModel
+      .findOne({
+        _id: submissionId,
+        userId,
+        exerciseId: String((exercise as any)._id),
+      })
+      .lean();
+    if (!submission) {
+      throw new NotFoundException(
+        'Không tìm thấy submission thuộc đúng học viên/bài tập.',
+      );
+    }
+
+    // Đếm số submission liên tiếp NGAY TRƯỚC submission hiện tại (theo thời
+    // gian) mà vẫn chưa AC, để suy ra học viên đã "loop" bao nhiêu lần rồi.
+    const priorSubmissions = await this.submissionModel
+      .find({
+        userId,
+        exerciseId: String((exercise as any)._id),
+        createdAt: { $lt: (submission as any).createdAt },
+      })
+      .sort({ createdAt: -1 })
+      .select('status')
+      .lean();
+
+    let attemptsSoFar = 0;
+    for (const prior of priorSubmissions) {
+      if (prior.status === 'AC') break;
+      attemptsSoFar += 1;
+    }
+
+    const firstFailingResult = (submission.results ?? []).find(
+      (r) => !r.passed,
+    );
+
+    const debugInput: DebugLoopTestInput = {
+      status: submission.status,
+      passedCount: submission.passedCount,
+      totalCount: submission.totalCount,
+      errorMessage: submission.errorMessage,
+      firstFailingTest: firstFailingResult
+        ? {
+            index: firstFailingResult.index,
+            input: firstFailingResult.input,
+            expectedOutput: firstFailingResult.expectedOutput,
+            actualOutput: firstFailingResult.actualOutput,
+            stderr: firstFailingResult.stderr,
+            isHidden: firstFailingResult.isHidden,
+          }
+        : undefined,
+    };
+
+    const result = analyzeDebugLoop(debugInput, { attemptsSoFar });
+
+    const summaryForLog =
+      `[debug-loop] category=${result.errorCategory} loop=${result.loopCount}/${result.maxLoops} ` +
+      `feedback=${result.feedback}`;
+    await this.logMessage(
+      userId,
+      exerciseSlug,
+      'assistant',
+      summaryForLog,
+      estimateTokens(summaryForLog),
+    );
+
+    return {
+      exerciseSlug,
+      submissionId,
+      ...result,
     };
   }
 

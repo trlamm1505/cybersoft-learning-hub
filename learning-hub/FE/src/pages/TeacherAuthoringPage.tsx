@@ -30,6 +30,7 @@ import {
 import type { LessonAuthoring, TestCase, QuizQuestion, QuizOption } from '../types/authoring';
 import { authoringApi } from '../axios/authoringApi';
 import { TeacherContestAuthoring } from '../components/TeacherContestAuthoring';
+import { useToast } from '../components/Toast';
 
 
 const DEFAULT_LESSON: LessonAuthoring = {
@@ -68,9 +69,9 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
   const [formData, setFormData] = useState<LessonAuthoring>(DEFAULT_LESSON);
   const [existingLessons, setExistingLessons] = useState<LessonAuthoring[]>([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
-  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const previewModalRef = useFocusTrap(isPreviewOpen, () => setIsPreviewOpen(false));
+  const { showToast } = useToast();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const isLibraryView = searchParams.get('view') === 'library';
@@ -82,11 +83,6 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
   const [libraryViewMode, setLibraryViewMode] = useState<'grid' | 'list'>('grid');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const showToast = (text: string, type: 'success' | 'error' = 'success') => {
-    setToastMessage({ text, type });
-    setTimeout(() => setToastMessage(null), 3500);
-  };
 
   const [typeFilter, setTypeFilter] = useState<'all' | 'coding' | 'quiz'>('coding');
 
@@ -1491,19 +1487,6 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl border text-sm font-semibold flex items-center gap-2 animate-bounce ${
-            toastMessage.type === 'error'
-              ? 'bg-red-600 text-white border-red-500'
-              : 'bg-emerald-600 text-white border-emerald-500'
-          }`}
-        >
-          {toastMessage.text}
-        </div>
-      )}
-
       {isContestsView ? (
         <TeacherContestAuthoring />
       ) : isLibraryView ? (

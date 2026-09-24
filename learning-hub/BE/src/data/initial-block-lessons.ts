@@ -9,7 +9,11 @@ const MOVE_FORWARD = { key: 'MOVE_FORWARD', label: 'Đi tới', icon: '🚶' };
 const TURN_LEFT = { key: 'TURN_LEFT', label: 'Rẽ trái', icon: '↪️' };
 const TURN_RIGHT = { key: 'TURN_RIGHT', label: 'Rẽ phải', icon: '↩️' };
 const REPEAT = { key: 'REPEAT', label: 'Lặp lại N lần', icon: '🔁' };
-const IF_OBSTACLE = { key: 'IF_OBSTACLE', label: 'Nếu phía trước có chướng ngại vật', icon: '❓' };
+const IF_OBSTACLE = {
+  key: 'IF_OBSTACLE',
+  label: 'Nếu phía trước có chướng ngại vật',
+  icon: '❓',
+};
 
 export const INITIAL_BLOCK_LESSONS = [
   // ===== SEQUENCE (bài 1-5) =====
@@ -18,10 +22,14 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-ve-nha-1',
     difficulty: 'EASY',
     points: 10,
-    learningOutcome: 'Học sinh xếp đúng thứ tự các bước di chuyển đơn giản (sequence).',
+    learningOutcome:
+      'Học sinh xếp đúng thứ tự các bước di chuyển đơn giản (sequence).',
     description: 'Giúp Robot đi thẳng 3 ô để về nhà trước khi trời tối.',
     blockPuzzle: {
-      storyText: 'Trời sắp tối rồi! Robot cần đi thẳng 3 bước để về đến nhà. Con hãy xếp đúng số khối "Đi tới" nhé!',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Trời sắp tối rồi! Robot cần đi thẳng 3 bước để về đến nhà. Con hãy xếp đúng số khối "Đi tới" nhé!',
       gridWidth: 5,
       gridHeight: 3,
       startPosition: { x: 0, y: 1, direction: 'RIGHT' },
@@ -47,7 +55,10 @@ export const INITIAL_BLOCK_LESSONS = [
     learningOutcome: 'Học sinh kết hợp di chuyển và rẽ hướng theo đúng thứ tự.',
     description: 'Robot cần đi 2 ô rồi rẽ phải để tới đích.',
     blockPuzzle: {
-      storyText: 'Con đường phía trước bị chặn, Robot cần rẽ sang một hướng khác để tiếp tục về nhà.',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Con đường phía trước bị chặn, Robot cần rẽ sang một hướng khác để tiếp tục về nhà.',
       gridWidth: 5,
       gridHeight: 5,
       startPosition: { x: 0, y: 0, direction: 'RIGHT' },
@@ -60,7 +71,8 @@ export const INITIAL_BLOCK_LESSONS = [
       order: 2,
     },
     hints: {
-      hint1: 'Robot chỉ đổi hướng khi con dùng "Rẽ trái" hoặc "Rẽ phải" — nó không tự rẽ.',
+      hint1:
+        'Robot chỉ đổi hướng khi con dùng "Rẽ trái" hoặc "Rẽ phải" — nó không tự rẽ.',
       hint2: 'Hãy đi tới trước, sau đó rẽ đúng hướng, rồi đi tiếp.',
       hint3: 'Thứ tự đúng là: Đi tới, Đi tới, Rẽ phải, Đi tới, Đi tới.',
     },
@@ -70,10 +82,14 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-ve-nha-3',
     difficulty: 'EASY',
     points: 15,
-    learningOutcome: 'Học sinh lập kế hoạch di chuyển theo nhiều bước có rẽ hướng.',
+    learningOutcome:
+      'Học sinh lập kế hoạch di chuyển theo nhiều bước có rẽ hướng.',
     description: 'Đường về nhà có hình chữ L, Robot cần đi đúng đường.',
     blockPuzzle: {
-      storyText: 'Con đường về nhà hôm nay uốn cong như chữ L. Con hãy dẫn đường cho Robot nhé!',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Con đường về nhà hôm nay uốn cong như chữ L. Con hãy dẫn đường cho Robot nhé!',
       gridWidth: 6,
       gridHeight: 6,
       startPosition: { x: 0, y: 0, direction: 'RIGHT' },
@@ -86,8 +102,10 @@ export const INITIAL_BLOCK_LESSONS = [
       order: 3,
     },
     hints: {
-      hint1: 'Robot cần đi theo 1 hướng trước, rồi mới rẽ để đi theo hướng còn lại.',
-      hint2: 'Hãy đi 3 bước theo chiều ngang trước, rồi rẽ để đi 3 bước theo chiều dọc.',
+      hint1:
+        'Robot cần đi theo 1 hướng trước, rồi mới rẽ để đi theo hướng còn lại.',
+      hint2:
+        'Hãy đi 3 bước theo chiều ngang trước, rồi rẽ để đi 3 bước theo chiều dọc.',
       hint3: 'Thứ tự: Đi tới x3, Rẽ phải, Đi tới x3.',
     },
   },
@@ -96,10 +114,14 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-nhat-tao-1',
     difficulty: 'EASY',
     points: 15,
-    learningOutcome: 'Học sinh xếp chuỗi lệnh dài hơn, có 1 lần rẽ để né chướng ngại vật.',
+    learningOutcome:
+      'Học sinh xếp chuỗi lệnh dài hơn, có 1 lần rẽ để né chướng ngại vật.',
     description: 'Robot cần né 1 khúc gỗ để tới chỗ có quả táo.',
     blockPuzzle: {
-      storyText: 'Có một khúc gỗ chắn đường! Robot cần rẽ lên trên để né khúc gỗ, rồi đi tiếp tới chỗ có táo.',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Có một khúc gỗ chắn đường! Robot cần rẽ lên trên để né khúc gỗ, rồi đi tiếp tới chỗ có táo.',
       gridWidth: 5,
       gridHeight: 5,
       startPosition: { x: 0, y: 2, direction: 'RIGHT' },
@@ -108,12 +130,15 @@ export const INITIAL_BLOCK_LESSONS = [
       availableBlocks: [MOVE_FORWARD, TURN_LEFT, TURN_RIGHT],
       maxBlocks: 8,
       concept: 'sequence',
-      successMessage: 'Ngon quá! Robot đã lấy được táo mà không đụng khúc gỗ! 🍎',
+      successMessage:
+        'Ngon quá! Robot đã lấy được táo mà không đụng khúc gỗ! 🍎',
       order: 4,
     },
     hints: {
-      hint1: 'Nếu đi thẳng, Robot sẽ đụng khúc gỗ — con cần rẽ lên trên trước khi tới đó.',
-      hint2: 'Đi 1 bước, rẽ lên trên, đi 1 bước, rồi rẽ lại để đi tiếp về phía quả táo.',
+      hint1:
+        'Nếu đi thẳng, Robot sẽ đụng khúc gỗ — con cần rẽ lên trên trước khi tới đó.',
+      hint2:
+        'Đi 1 bước, rẽ lên trên, đi 1 bước, rồi rẽ lại để đi tiếp về phía quả táo.',
       hint3: 'Thứ tự: Đi tới, Rẽ trái, Đi tới, Rẽ phải, Đi tới x3.',
     },
   },
@@ -122,15 +147,22 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-nhat-tao-2',
     difficulty: 'MEDIUM',
     points: 15,
-    learningOutcome: 'Học sinh lập kế hoạch chuỗi lệnh phức tạp với nhiều lần rẽ liên tiếp.',
+    learningOutcome:
+      'Học sinh lập kế hoạch chuỗi lệnh phức tạp với nhiều lần rẽ liên tiếp.',
     description: 'Robot cần đi theo đường zíc-zắc qua 2 khúc gỗ để tới đích.',
     blockPuzzle: {
-      storyText: 'Hôm nay đường về nhà có tận 2 khúc gỗ! Robot cần zíc-zắc thật khéo léo.',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Hôm nay đường về nhà có tận 2 khúc gỗ! Robot cần zíc-zắc thật khéo léo.',
       gridWidth: 6,
       gridHeight: 6,
       startPosition: { x: 0, y: 0, direction: 'RIGHT' },
       goalPosition: { x: 4, y: 4 },
-      obstacles: [{ x: 2, y: 0 }, { x: 2, y: 4 }],
+      obstacles: [
+        { x: 2, y: 0 },
+        { x: 2, y: 4 },
+      ],
       availableBlocks: [MOVE_FORWARD, TURN_LEFT, TURN_RIGHT],
       maxBlocks: 12,
       concept: 'sequence',
@@ -139,7 +171,8 @@ export const INITIAL_BLOCK_LESSONS = [
     },
     hints: {
       hint1: 'Có 2 khúc gỗ trên đường — con cần tránh cả 2.',
-      hint2: 'Hãy chia bài toán thành từng đoạn nhỏ: tránh khúc gỗ thứ nhất trước, rồi mới lo khúc thứ hai.',
+      hint2:
+        'Hãy chia bài toán thành từng đoạn nhỏ: tránh khúc gỗ thứ nhất trước, rồi mới lo khúc thứ hai.',
       hint3: 'Rẽ phải, Đi tới x2, Rẽ trái, Đi tới x4, Rẽ phải, Đi tới x2.',
     },
   },
@@ -150,10 +183,15 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-nhat-sao-1',
     difficulty: 'EASY',
     points: 15,
-    learningOutcome: 'Học sinh hiểu khối "Lặp lại N lần" giúp rút gọn các bước lệnh giống nhau.',
-    description: 'Robot cần đi thẳng 4 ô — thử dùng khối Lặp lại thay vì xếp 4 lần "Đi tới".',
+    learningOutcome:
+      'Học sinh hiểu khối "Lặp lại N lần" giúp rút gọn các bước lệnh giống nhau.',
+    description:
+      'Robot cần đi thẳng 4 ô — thử dùng khối Lặp lại thay vì xếp 4 lần "Đi tới".',
     blockPuzzle: {
-      storyText: 'Đường về nhà hôm nay dài hơn mọi khi! Thay vì xếp thật nhiều khối "Đi tới", con hãy thử dùng khối "Lặp lại N lần" xem sao.',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Đường về nhà hôm nay dài hơn mọi khi! Thay vì xếp thật nhiều khối "Đi tới", con hãy thử dùng khối "Lặp lại N lần" xem sao.',
       gridWidth: 6,
       gridHeight: 3,
       startPosition: { x: 0, y: 1, direction: 'RIGHT' },
@@ -162,12 +200,15 @@ export const INITIAL_BLOCK_LESSONS = [
       availableBlocks: [MOVE_FORWARD, REPEAT],
       maxBlocks: 3,
       concept: 'loop',
-      successMessage: 'Con đã biết dùng vòng lặp rồi đó! Chỉ cần 1 khối để đi 4 bước! 🔁',
+      successMessage:
+        'Con đã biết dùng vòng lặp rồi đó! Chỉ cần 1 khối để đi 4 bước! 🔁',
       order: 6,
     },
     hints: {
-      hint1: 'Khối "Lặp lại N lần" sẽ thực hiện lại các khối bên trong nó đúng N lần.',
-      hint2: 'Con cần đi 4 bước — hãy đặt khối "Đi tới" vào bên trong khối "Lặp lại 4 lần".',
+      hint1:
+        'Khối "Lặp lại N lần" sẽ thực hiện lại các khối bên trong nó đúng N lần.',
+      hint2:
+        'Con cần đi 4 bước — hãy đặt khối "Đi tới" vào bên trong khối "Lặp lại 4 lần".',
       hint3: 'Xếp: Lặp lại 4 lần { Đi tới }.',
     },
   },
@@ -176,10 +217,14 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-nhat-sao-2',
     difficulty: 'MEDIUM',
     points: 15,
-    learningOutcome: 'Học sinh kết hợp vòng lặp với thao tác rẽ hướng sau khi lặp xong.',
+    learningOutcome:
+      'Học sinh kết hợp vòng lặp với thao tác rẽ hướng sau khi lặp xong.',
     description: 'Robot lặp lại đi 3 ô, sau đó rẽ phải và đi tiếp 2 ô.',
     blockPuzzle: {
-      storyText: 'Robot cần đi thẳng một đoạn dài, rồi rẽ sang lối khác để tới kho báu sao!',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Robot cần đi thẳng một đoạn dài, rồi rẽ sang lối khác để tới kho báu sao!',
       gridWidth: 6,
       gridHeight: 6,
       startPosition: { x: 0, y: 0, direction: 'RIGHT' },
@@ -188,13 +233,16 @@ export const INITIAL_BLOCK_LESSONS = [
       availableBlocks: [MOVE_FORWARD, TURN_LEFT, TURN_RIGHT, REPEAT],
       maxBlocks: 5,
       concept: 'loop',
-      successMessage: 'Chuẩn không cần chỉnh! Con đã ghép vòng lặp và rẽ hướng đúng cách! 🌟',
+      successMessage:
+        'Chuẩn không cần chỉnh! Con đã ghép vòng lặp và rẽ hướng đúng cách! 🌟',
       order: 7,
     },
     hints: {
       hint1: 'Vòng lặp chỉ lặp lại đúng những khối được đặt bên trong nó.',
-      hint2: 'Sau khi vòng lặp đi 3 bước kết thúc, con vẫn có thể thêm khối "Rẽ phải" và "Đi tới" ở bên ngoài vòng lặp.',
-      hint3: 'Xếp: Lặp lại 3 lần { Đi tới }, Rẽ phải, Lặp lại 2 lần { Đi tới }.',
+      hint2:
+        'Sau khi vòng lặp đi 3 bước kết thúc, con vẫn có thể thêm khối "Rẽ phải" và "Đi tới" ở bên ngoài vòng lặp.',
+      hint3:
+        'Xếp: Lặp lại 3 lần { Đi tới }, Rẽ phải, Lặp lại 2 lần { Đi tới }.',
     },
   },
   {
@@ -202,10 +250,15 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-nhat-sao-3',
     difficulty: 'MEDIUM',
     points: 20,
-    learningOutcome: 'Học sinh nhận ra một hình lặp lại (hình vuông) có thể giải bằng 1 vòng lặp duy nhất.',
-    description: 'Robot cần đi theo hình vuông 4 cạnh bằng cách lặp lại "đi + rẽ" 4 lần.',
+    learningOutcome:
+      'Học sinh nhận ra một hình lặp lại (hình vuông) có thể giải bằng 1 vòng lặp duy nhất.',
+    description:
+      'Robot cần đi theo hình vuông 4 cạnh bằng cách lặp lại "đi + rẽ" 4 lần.',
     blockPuzzle: {
-      storyText: 'Có một kho báu sao ở chính giữa khu vườn hình vuông. Robot cần đi vòng quanh hàng rào để canh gác!',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Có một kho báu sao ở chính giữa khu vườn hình vuông. Robot cần đi vòng quanh hàng rào để canh gác!',
       gridWidth: 6,
       gridHeight: 6,
       startPosition: { x: 1, y: 1, direction: 'RIGHT' },
@@ -214,12 +267,15 @@ export const INITIAL_BLOCK_LESSONS = [
       availableBlocks: [MOVE_FORWARD, TURN_RIGHT, REPEAT],
       maxBlocks: 4,
       concept: 'loop',
-      successMessage: 'Đỉnh cao! Con chỉ dùng 1 vòng lặp mà đi được cả hình vuông! 🔲',
+      successMessage:
+        'Đỉnh cao! Con chỉ dùng 1 vòng lặp mà đi được cả hình vuông! 🔲',
       order: 8,
     },
     hints: {
-      hint1: 'Một hình vuông có 4 cạnh bằng nhau — mỗi cạnh Robot đi rồi rẽ phải 1 lần.',
-      hint2: 'Nếu "đi rồi rẽ" là 1 nhóm hành động, con chỉ cần đặt cả 2 khối đó vào bên trong 1 khối Lặp lại 4 lần.',
+      hint1:
+        'Một hình vuông có 4 cạnh bằng nhau — mỗi cạnh Robot đi rồi rẽ phải 1 lần.',
+      hint2:
+        'Nếu "đi rồi rẽ" là 1 nhóm hành động, con chỉ cần đặt cả 2 khối đó vào bên trong 1 khối Lặp lại 4 lần.',
       hint3: 'Xếp: Lặp lại 4 lần { Đi tới, Rẽ phải }.',
     },
   },
@@ -228,10 +284,15 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-nhat-sao-4',
     difficulty: 'MEDIUM',
     points: 20,
-    learningOutcome: 'Học sinh dùng nhiều vòng lặp nối tiếp để giải bài toán dài hơn.',
-    description: 'Robot cần đi 2 đoạn đường dài, mỗi đoạn có hướng khác nhau, mỗi đoạn dùng 1 vòng lặp riêng.',
+    learningOutcome:
+      'Học sinh dùng nhiều vòng lặp nối tiếp để giải bài toán dài hơn.',
+    description:
+      'Robot cần đi 2 đoạn đường dài, mỗi đoạn có hướng khác nhau, mỗi đoạn dùng 1 vòng lặp riêng.',
     blockPuzzle: {
-      storyText: 'Đường tới kho sao hôm nay có 2 đoạn dài nối tiếp nhau, mỗi đoạn theo một hướng khác.',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Đường tới kho sao hôm nay có 2 đoạn dài nối tiếp nhau, mỗi đoạn theo một hướng khác.',
       gridWidth: 7,
       gridHeight: 7,
       startPosition: { x: 0, y: 0, direction: 'RIGHT' },
@@ -240,13 +301,15 @@ export const INITIAL_BLOCK_LESSONS = [
       availableBlocks: [MOVE_FORWARD, TURN_RIGHT, REPEAT],
       maxBlocks: 6,
       concept: 'loop',
-      successMessage: 'Tuyệt quá! Con đã dùng 2 vòng lặp để đi 2 đoạn đường! 🚀',
+      successMessage:
+        'Tuyệt quá! Con đã dùng 2 vòng lặp để đi 2 đoạn đường! 🚀',
       order: 9,
     },
     hints: {
       hint1: 'Mỗi đoạn đường thẳng dài có thể dùng riêng 1 vòng lặp.',
       hint2: 'Đoạn thứ nhất dài 4 ô, rẽ phải, rồi đoạn thứ hai dài 3 ô.',
-      hint3: 'Xếp: Lặp lại 4 lần { Đi tới }, Rẽ phải, Lặp lại 3 lần { Đi tới }.',
+      hint3:
+        'Xếp: Lặp lại 4 lần { Đi tới }, Rẽ phải, Lặp lại 3 lần { Đi tới }.',
     },
   },
   {
@@ -254,10 +317,15 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-nhat-sao-5',
     difficulty: 'HARD',
     points: 20,
-    learningOutcome: 'Học sinh đặt nhiều khối khác nhau vào bên trong 1 vòng lặp duy nhất để giải hình phức tạp hơn hình vuông.',
-    description: 'Robot cần đi theo hình chữ nhật (2 cạnh dài, 2 cạnh ngắn xen kẽ).',
+    learningOutcome:
+      'Học sinh đặt nhiều khối khác nhau vào bên trong 1 vòng lặp duy nhất để giải hình phức tạp hơn hình vuông.',
+    description:
+      'Robot cần đi theo hình chữ nhật (2 cạnh dài, 2 cạnh ngắn xen kẽ).',
     blockPuzzle: {
-      storyText: 'Khu vườn kho báu năm nay có hình chữ nhật chứ không phải hình vuông. Robot cần canh gác đúng hình dạng mới!',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Khu vườn kho báu năm nay có hình chữ nhật chứ không phải hình vuông. Robot cần canh gác đúng hình dạng mới!',
       gridWidth: 7,
       gridHeight: 5,
       startPosition: { x: 1, y: 1, direction: 'RIGHT' },
@@ -266,13 +334,17 @@ export const INITIAL_BLOCK_LESSONS = [
       availableBlocks: [MOVE_FORWARD, TURN_RIGHT, REPEAT],
       maxBlocks: 10,
       concept: 'loop',
-      successMessage: 'Con giỏi lắm! Hình chữ nhật khó hơn nhưng con vẫn giải được! 🏆',
+      successMessage:
+        'Con giỏi lắm! Hình chữ nhật khó hơn nhưng con vẫn giải được! 🏆',
       order: 10,
     },
     hints: {
-      hint1: 'Hình chữ nhật có 2 cặp cạnh: 2 cạnh dài bằng nhau và 2 cạnh ngắn bằng nhau, xen kẽ nhau.',
-      hint2: 'Một vòng "đi 4 bước, rẽ, đi 2 bước, rẽ" chính là đi hết 1 vòng hình chữ nhật — con chỉ cần lặp lại cả nhóm đó 2 lần.',
-      hint3: 'Xếp: Lặp lại 2 lần { Đi tới x4, Rẽ phải, Đi tới x2, Rẽ phải } — kéo tất cả các khối này vào CÙNG BÊN TRONG 1 khối Lặp lại.',
+      hint1:
+        'Hình chữ nhật có 2 cặp cạnh: 2 cạnh dài bằng nhau và 2 cạnh ngắn bằng nhau, xen kẽ nhau.',
+      hint2:
+        'Một vòng "đi 4 bước, rẽ, đi 2 bước, rẽ" chính là đi hết 1 vòng hình chữ nhật — con chỉ cần lặp lại cả nhóm đó 2 lần.',
+      hint3:
+        'Xếp: Lặp lại 2 lần { Đi tới x4, Rẽ phải, Đi tới x2, Rẽ phải } — kéo tất cả các khối này vào CÙNG BÊN TRONG 1 khối Lặp lại.',
     },
   },
 
@@ -282,10 +354,15 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-thong-minh-1',
     difficulty: 'MEDIUM',
     points: 20,
-    learningOutcome: 'Học sinh làm quen với cú pháp khối điều kiện "Nếu...thì..." — chưa cần tối ưu số khối ở bài đầu tiên này.',
-    description: 'Làm quen với khối "Nếu phía trước có chướng ngại vật thì...".',
+    learningOutcome:
+      'Học sinh làm quen với cú pháp khối điều kiện "Nếu...thì..." — chưa cần tối ưu số khối ở bài đầu tiên này.',
+    description:
+      'Làm quen với khối "Nếu phía trước có chướng ngại vật thì...".',
     blockPuzzle: {
-      storyText: 'Robot không biết trước phía trước có gì — con hãy dạy Robot cách "suy nghĩ": nếu có chướng ngại thì rẽ, nếu không thì cứ đi thẳng!',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Robot không biết trước phía trước có gì — con hãy dạy Robot cách "suy nghĩ": nếu có chướng ngại thì rẽ, nếu không thì cứ đi thẳng!',
       gridWidth: 5,
       gridHeight: 5,
       startPosition: { x: 0, y: 2, direction: 'RIGHT' },
@@ -294,13 +371,17 @@ export const INITIAL_BLOCK_LESSONS = [
       availableBlocks: [MOVE_FORWARD, TURN_LEFT, TURN_RIGHT, IF_OBSTACLE],
       maxBlocks: 8,
       concept: 'condition',
-      successMessage: 'Robot đã biết tự suy nghĩ rồi! Đây chính là "điều kiện" trong lập trình đó! 🧠',
+      successMessage:
+        'Robot đã biết tự suy nghĩ rồi! Đây chính là "điều kiện" trong lập trình đó! 🧠',
       order: 11,
     },
     hints: {
-      hint1: 'Khối "Nếu phía trước có chướng ngại vật" chỉ thực hiện lệnh bên trong khi có vật cản ngay trước mặt Robot.',
-      hint2: 'Con cần rẽ TRƯỚC KHI Robot đâm vào khúc gỗ, không phải rẽ sau khi đã đâm.',
-      hint3: 'Xếp: Đi tới, Nếu phía trước có chướng ngại vật { Rẽ phải }, Đi tới, Rẽ trái, Đi tới, Đi tới.',
+      hint1:
+        'Khối "Nếu phía trước có chướng ngại vật" chỉ thực hiện lệnh bên trong khi có vật cản ngay trước mặt Robot.',
+      hint2:
+        'Con cần rẽ TRƯỚC KHI Robot đâm vào khúc gỗ, không phải rẽ sau khi đã đâm.',
+      hint3:
+        'Xếp: Đi tới, Nếu phía trước có chướng ngại vật { Rẽ phải }, Đi tới, Rẽ trái, Đi tới, Đi tới.',
     },
   },
   {
@@ -308,25 +389,44 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-thong-minh-2',
     difficulty: 'MEDIUM',
     points: 20,
-    learningOutcome: 'Học sinh kết hợp vòng lặp và điều kiện để Robot tự né chướng ngại vật nhiều lần.',
-    description: 'Robot đi trên đường dài có 3 chướng ngại vật cách đều nhau, cần vừa lặp vừa kiểm tra điều kiện.',
+    learningOutcome:
+      'Học sinh kết hợp vòng lặp và điều kiện để Robot tự né chướng ngại vật nhiều lần.',
+    description:
+      'Robot đi trên đường dài có 3 chướng ngại vật cách đều nhau, cần vừa lặp vừa kiểm tra điều kiện.',
     blockPuzzle: {
-      storyText: 'Con đường hôm nay có tận 3 khúc gỗ rải đều nhau! Hãy dạy Robot một quy tắc chung để tự né tất cả, không cần nhớ từng vị trí.',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Con đường hôm nay có tận 3 khúc gỗ rải đều nhau! Hãy dạy Robot một quy tắc chung để tự né tất cả, không cần nhớ từng vị trí.',
       gridWidth: 13,
       gridHeight: 3,
       startPosition: { x: 0, y: 1, direction: 'RIGHT' },
       goalPosition: { x: 12, y: 1 },
-      obstacles: [{ x: 3, y: 1 }, { x: 6, y: 1 }, { x: 9, y: 1 }],
-      availableBlocks: [MOVE_FORWARD, TURN_LEFT, TURN_RIGHT, REPEAT, IF_OBSTACLE],
+      obstacles: [
+        { x: 3, y: 1 },
+        { x: 6, y: 1 },
+        { x: 9, y: 1 },
+      ],
+      availableBlocks: [
+        MOVE_FORWARD,
+        TURN_LEFT,
+        TURN_RIGHT,
+        REPEAT,
+        IF_OBSTACLE,
+      ],
       maxBlocks: 12,
       concept: 'condition',
-      successMessage: 'Xuất sắc! Robot đã tự né được cả 3 khúc gỗ chỉ bằng 1 quy tắc! 🤖',
+      successMessage:
+        'Xuất sắc! Robot đã tự né được cả 3 khúc gỗ chỉ bằng 1 quy tắc! 🤖',
       order: 12,
     },
     hints: {
-      hint1: 'Thay vì viết riêng cho từng khúc gỗ, con có thể lặp lại cùng 1 quy tắc "kiểm tra rồi đi" nhiều lần.',
-      hint2: 'Mỗi lần lặp: kiểm tra nếu có khúc gỗ ngay trước mặt thì né vòng qua (lên, qua 2 ô, xuống), rồi luôn đi tới 1 bước.',
-      hint3: 'Xếp: Lặp lại 6 lần { Nếu phía trước có chướng ngại vật { Rẽ trái, Đi tới, Rẽ phải, Đi tới x2, Rẽ phải, Đi tới, Rẽ trái }, Đi tới }.',
+      hint1:
+        'Thay vì viết riêng cho từng khúc gỗ, con có thể lặp lại cùng 1 quy tắc "kiểm tra rồi đi" nhiều lần.',
+      hint2:
+        'Mỗi lần lặp: kiểm tra nếu có khúc gỗ ngay trước mặt thì né vòng qua (lên, qua 2 ô, xuống), rồi luôn đi tới 1 bước.',
+      hint3:
+        'Xếp: Lặp lại 6 lần { Nếu phía trước có chướng ngại vật { Rẽ trái, Đi tới, Rẽ phải, Đi tới x2, Rẽ phải, Đi tới, Rẽ trái }, Đi tới }.',
     },
   },
   {
@@ -334,25 +434,46 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-thong-minh-3',
     difficulty: 'HARD',
     points: 25,
-    learningOutcome: 'Học sinh áp dụng cùng lúc vòng lặp và điều kiện trên một con đường dài hơn bài 12.',
-    description: 'Robot cần đi qua một con đường dài với 5 khúc gỗ cách đều nhau, dùng đúng 1 quy tắc chung.',
+    learningOutcome:
+      'Học sinh áp dụng cùng lúc vòng lặp và điều kiện trên một con đường dài hơn bài 12.',
+    description:
+      'Robot cần đi qua một con đường dài với 5 khúc gỗ cách đều nhau, dùng đúng 1 quy tắc chung.',
     blockPuzzle: {
-      storyText: 'Con đường lần này dài hơn và có tới 5 khúc gỗ! Robot vẫn dùng đúng quy tắc cũ, chỉ cần lặp lại nhiều lần hơn.',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Con đường lần này dài hơn và có tới 5 khúc gỗ! Robot vẫn dùng đúng quy tắc cũ, chỉ cần lặp lại nhiều lần hơn.',
       gridWidth: 19,
       gridHeight: 3,
       startPosition: { x: 0, y: 1, direction: 'RIGHT' },
       goalPosition: { x: 18, y: 1 },
-      obstacles: [{ x: 3, y: 1 }, { x: 6, y: 1 }, { x: 9, y: 1 }, { x: 12, y: 1 }, { x: 15, y: 1 }],
-      availableBlocks: [MOVE_FORWARD, TURN_LEFT, TURN_RIGHT, REPEAT, IF_OBSTACLE],
+      obstacles: [
+        { x: 3, y: 1 },
+        { x: 6, y: 1 },
+        { x: 9, y: 1 },
+        { x: 12, y: 1 },
+        { x: 15, y: 1 },
+      ],
+      availableBlocks: [
+        MOVE_FORWARD,
+        TURN_LEFT,
+        TURN_RIGHT,
+        REPEAT,
+        IF_OBSTACLE,
+      ],
       maxBlocks: 12,
       concept: 'condition',
-      successMessage: 'Con đã vượt qua cả 5 khúc gỗ! Đây là một lập trình viên nhí thực thụ! 🏅',
+      successMessage:
+        'Con đã vượt qua cả 5 khúc gỗ! Đây là một lập trình viên nhí thực thụ! 🏅',
       order: 13,
     },
     hints: {
-      hint1: 'Con đường này dài hơn bài 12, nhưng quy tắc né khúc gỗ vẫn giống hệt — chỉ cần lặp lại nhiều lần hơn.',
-      hint2: 'Đếm xem con đường có bao nhiêu ô để biết cần lặp lại đúng bao nhiêu lần.',
-      hint3: 'Xếp: Lặp lại 8 lần { Nếu phía trước có chướng ngại vật { Rẽ trái, Đi tới, Rẽ phải, Đi tới x2, Rẽ phải, Đi tới, Rẽ trái }, Đi tới }.',
+      hint1:
+        'Con đường này dài hơn bài 12, nhưng quy tắc né khúc gỗ vẫn giống hệt — chỉ cần lặp lại nhiều lần hơn.',
+      hint2:
+        'Đếm xem con đường có bao nhiêu ô để biết cần lặp lại đúng bao nhiêu lần.',
+      hint3:
+        'Xếp: Lặp lại 8 lần { Nếu phía trước có chướng ngại vật { Rẽ trái, Đi tới, Rẽ phải, Đi tới x2, Rẽ phải, Đi tới, Rẽ trái }, Đi tới }.',
     },
   },
   {
@@ -360,25 +481,44 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-thong-minh-4',
     difficulty: 'HARD',
     points: 25,
-    learningOutcome: 'Học sinh tự rẽ hướng ban đầu rồi áp dụng đúng quy tắc lặp+điều kiện đã học trên 1 đường dài theo hướng mới.',
-    description: 'Robot cần rẽ hướng rồi đi theo một con đường dài có 3 khúc gỗ cách đều.',
+    learningOutcome:
+      'Học sinh tự rẽ hướng ban đầu rồi áp dụng đúng quy tắc lặp+điều kiện đã học trên 1 đường dài theo hướng mới.',
+    description:
+      'Robot cần rẽ hướng rồi đi theo một con đường dài có 3 khúc gỗ cách đều.',
     blockPuzzle: {
-      storyText: 'Hôm nay Robot phải rẽ sang một hướng khác trước, rồi mới đi trên con đường dài có 3 khúc gỗ để tới ngôi làng bên kia!',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Hôm nay Robot phải rẽ sang một hướng khác trước, rồi mới đi trên con đường dài có 3 khúc gỗ để tới ngôi làng bên kia!',
       gridWidth: 3,
       gridHeight: 14,
       startPosition: { x: 0, y: 0, direction: 'RIGHT' },
       goalPosition: { x: 1, y: 13 },
-      obstacles: [{ x: 1, y: 3 }, { x: 1, y: 6 }, { x: 1, y: 9 }],
-      availableBlocks: [MOVE_FORWARD, TURN_LEFT, TURN_RIGHT, REPEAT, IF_OBSTACLE],
+      obstacles: [
+        { x: 1, y: 3 },
+        { x: 1, y: 6 },
+        { x: 1, y: 9 },
+      ],
+      availableBlocks: [
+        MOVE_FORWARD,
+        TURN_LEFT,
+        TURN_RIGHT,
+        REPEAT,
+        IF_OBSTACLE,
+      ],
       maxBlocks: 13,
       concept: 'condition',
-      successMessage: 'Con đã dẫn Robot đi một quãng đường thật xa! Thật đáng tự hào! 🎊',
+      successMessage:
+        'Con đã dẫn Robot đi một quãng đường thật xa! Thật đáng tự hào! 🎊',
       order: 14,
     },
     hints: {
-      hint1: 'Đầu tiên Robot cần đi 1 bước rồi rẽ để đổi hướng, sau đó mới bắt đầu dùng quy tắc lặp.',
-      hint2: 'Sau khi rẽ hướng, quy tắc né khúc gỗ vẫn giống hệt các bài trước — chỉ cần lặp lại đủ số lần.',
-      hint3: 'Xếp: Đi tới, Rẽ phải, rồi Lặp lại 7 lần { Nếu phía trước có chướng ngại vật { Rẽ trái, Đi tới, Rẽ phải, Đi tới x2, Rẽ phải, Đi tới, Rẽ trái }, Đi tới }.',
+      hint1:
+        'Đầu tiên Robot cần đi 1 bước rồi rẽ để đổi hướng, sau đó mới bắt đầu dùng quy tắc lặp.',
+      hint2:
+        'Sau khi rẽ hướng, quy tắc né khúc gỗ vẫn giống hệt các bài trước — chỉ cần lặp lại đủ số lần.',
+      hint3:
+        'Xếp: Đi tới, Rẽ phải, rồi Lặp lại 7 lần { Nếu phía trước có chướng ngại vật { Rẽ trái, Đi tới, Rẽ phải, Đi tới x2, Rẽ phải, Đi tới, Rẽ trái }, Đi tới }.',
     },
   },
   {
@@ -386,25 +526,48 @@ export const INITIAL_BLOCK_LESSONS = [
     slug: 'block-robot-thong-minh-5',
     difficulty: 'HARD',
     points: 30,
-    learningOutcome: 'Học sinh tự tin vận dụng vòng lặp và điều kiện trên con đường dài nhất, tổng hợp mọi bài học trước.',
-    description: 'Thử thách cuối cùng: con đường dài nhất với 7 khúc gỗ cách đều nhau.',
+    learningOutcome:
+      'Học sinh tự tin vận dụng vòng lặp và điều kiện trên con đường dài nhất, tổng hợp mọi bài học trước.',
+    description:
+      'Thử thách cuối cùng: con đường dài nhất với 7 khúc gỗ cách đều nhau.',
     blockPuzzle: {
-      storyText: 'Đây là thử thách cuối cùng! Con đường dài nhất với 7 khúc gỗ đang chờ Robot. Nếu con vượt qua được, con chính thức trở thành Lập Trình Viên Nhí Xuất Sắc!',
+      gameId: 'robot-ve-nha',
+      gameTitle: 'Robot Về Nhà',
+      storyText:
+        'Đây là thử thách cuối cùng! Con đường dài nhất với 7 khúc gỗ đang chờ Robot. Nếu con vượt qua được, con chính thức trở thành Lập Trình Viên Nhí Xuất Sắc!',
       gridWidth: 25,
       gridHeight: 3,
       startPosition: { x: 0, y: 1, direction: 'RIGHT' },
       goalPosition: { x: 24, y: 1 },
-      obstacles: [{ x: 3, y: 1 }, { x: 6, y: 1 }, { x: 9, y: 1 }, { x: 12, y: 1 }, { x: 15, y: 1 }, { x: 18, y: 1 }, { x: 21, y: 1 }],
-      availableBlocks: [MOVE_FORWARD, TURN_LEFT, TURN_RIGHT, REPEAT, IF_OBSTACLE],
+      obstacles: [
+        { x: 3, y: 1 },
+        { x: 6, y: 1 },
+        { x: 9, y: 1 },
+        { x: 12, y: 1 },
+        { x: 15, y: 1 },
+        { x: 18, y: 1 },
+        { x: 21, y: 1 },
+      ],
+      availableBlocks: [
+        MOVE_FORWARD,
+        TURN_LEFT,
+        TURN_RIGHT,
+        REPEAT,
+        IF_OBSTACLE,
+      ],
       maxBlocks: 12,
       concept: 'condition',
-      successMessage: 'CHÚC MỪNG! Con đã hoàn thành thử thách cuối cùng và trở thành Lập Trình Viên Nhí Xuất Sắc! 🏆🎉',
+      successMessage:
+        'CHÚC MỪNG! Con đã hoàn thành thử thách cuối cùng và trở thành Lập Trình Viên Nhí Xuất Sắc! 🏆🎉',
       order: 15,
     },
     hints: {
-      hint1: 'Đây là con đường dài nhất, nhưng quy tắc né khúc gỗ vẫn giống hệt bài 12 và 13.',
-      hint2: 'Đếm kỹ số ô từ đầu tới cuối con đường để biết cần lặp lại đúng bao nhiêu lần.',
-      hint3: 'Xếp: Lặp lại 10 lần { Nếu phía trước có chướng ngại vật { Rẽ trái, Đi tới, Rẽ phải, Đi tới x2, Rẽ phải, Đi tới, Rẽ trái }, Đi tới }.',
+      hint1:
+        'Đây là con đường dài nhất, nhưng quy tắc né khúc gỗ vẫn giống hệt bài 12 và 13.',
+      hint2:
+        'Đếm kỹ số ô từ đầu tới cuối con đường để biết cần lặp lại đúng bao nhiêu lần.',
+      hint3:
+        'Xếp: Lặp lại 10 lần { Nếu phía trước có chướng ngại vật { Rẽ trái, Đi tới, Rẽ phải, Đi tới x2, Rẽ phải, Đi tới, Rẽ trái }, Đi tới }.',
     },
   },
 ];

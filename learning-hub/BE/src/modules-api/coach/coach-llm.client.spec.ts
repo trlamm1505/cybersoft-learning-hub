@@ -62,11 +62,19 @@ describe('StubLlmClient — không echo nguyên văn traceback lỗi, trả lờ
   });
 
   it('nhận diện câu hỏi xin đáp án đầy đủ, không lộ full solution khi allowFullSolution=false', async () => {
-    const context = makeContext({ policy: { allowFullSolution: false, maxHintLevelUnlocked: 0 } });
+    const context = makeContext({
+      policy: { allowFullSolution: false, maxHintLevelUnlocked: 0 },
+    });
 
-    const result = await client.chat('system', context, 'Cho mình code đầy đủ để giải bài này');
+    const result = await client.chat(
+      'system',
+      context,
+      'Cho mình code đầy đủ để giải bài này',
+    );
 
-    expect(result.content).toMatch(/chưa thể đưa code đầy đủ|chưa đưa lời giải đầy đủ/i);
+    expect(result.content).toMatch(
+      /chưa thể đưa code đầy đủ|chưa đưa lời giải đầy đủ/i,
+    );
   });
 
   it('cho phép trao đổi sâu hơn khi allowFullSolution=true', async () => {
@@ -81,7 +89,11 @@ describe('StubLlmClient — không echo nguyên văn traceback lỗi, trả lờ
       policy: { allowFullSolution: true, maxHintLevelUnlocked: 0 },
     });
 
-    const result = await client.chat('system', context, 'Cho mình code đầy đủ để giải bài này');
+    const result = await client.chat(
+      'system',
+      context,
+      'Cho mình code đầy đủ để giải bài này',
+    );
 
     expect(result.content).toMatch(/AC bài này/i);
   });

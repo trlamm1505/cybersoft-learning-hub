@@ -8,7 +8,11 @@ export interface LlmChatResult {
 }
 
 export interface LlmClient {
-  chat(systemPrompt: string, context: CoachContext, userMessage: string): Promise<LlmChatResult>;
+  chat(
+    systemPrompt: string,
+    context: CoachContext,
+    userMessage: string,
+  ): Promise<LlmChatResult>;
 }
 
 // Ước lượng token thô (~4 ký tự/token cho tiếng Việt+code trộn lẫn), đủ dùng
@@ -20,38 +24,45 @@ export function estimateTokens(text: string): number {
 // Các loại lỗi runtime/syntax Python phổ biến mà học viên hay dán nguyên
 // traceback vào khung chat thay vì tự diễn đạt lại bằng lời. Nhận diện để
 // trả lời đúng trọng tâm loại lỗi, thay vì echo nguyên văn traceback.
-const ERROR_PATTERNS: Array<{ match: RegExp; kind: string; explain: string }> = [
-  {
-    match: /SyntaxError:.*was never closed|SyntaxError:.*unexpected EOF/i,
-    kind: 'thiếu dấu đóng ngoặc/quote',
-    explain: 'Python báo một dấu ngoặc hoặc dấu nháy đã mở nhưng chưa được đóng lại đúng chỗ. Hãy đếm lại số dấu ( ) [ ] { } hoặc dấu " trên dòng lỗi và các dòng trước đó.',
-  },
-  {
-    match: /SyntaxError/i,
-    kind: 'lỗi cú pháp (SyntaxError)',
-    explain: 'Dòng được chỉ ra trong traceback có cú pháp Python không hợp lệ — kiểm tra lại dấu hai chấm `:`, thụt lề, hoặc dấu ngoặc ở đúng dòng đó.',
-  },
-  {
-    match: /NameError:\s*name\s*'([^']+)'\s*is not defined/i,
-    kind: 'dùng biến chưa được gán giá trị (NameError)',
-    explain: 'Biến được nhắc tới chưa được gán giá trị trước khi dùng, hoặc bị gõ sai tên so với chỗ đã khai báo. Kiểm tra lại chính tả và thứ tự các dòng lệnh.',
-  },
-  {
-    match: /TypeError/i,
-    kind: 'sai kiểu dữ liệu khi thao tác (TypeError)',
-    explain: 'Một phép toán hoặc hàm đang được áp dụng lên sai kiểu dữ liệu (ví dụ cộng chuỗi với số). Kiểm tra lại kiểu dữ liệu trả về của `input()` — mặc định luôn là chuỗi, cần `int()`/`float()` nếu muốn tính toán.',
-  },
-  {
-    match: /IndexError/i,
-    kind: 'truy cập vị trí không tồn tại trong danh sách (IndexError)',
-    explain: 'Đang truy cập một chỉ số (index) vượt quá độ dài thực tế của danh sách/chuỗi. Kiểm tra lại điều kiện vòng lặp hoặc độ dài dữ liệu đầu vào.',
-  },
-  {
-    match: /IndentationError/i,
-    kind: 'lỗi thụt lề (IndentationError)',
-    explain: 'Các dòng code trong cùng một khối (if/for/while/def) cần thụt lề đều nhau. Kiểm tra lại có dòng nào lẫn tab và space, hoặc thụt lề không khớp khối cha.',
-  },
-];
+const ERROR_PATTERNS: Array<{ match: RegExp; kind: string; explain: string }> =
+  [
+    {
+      match: /SyntaxError:.*was never closed|SyntaxError:.*unexpected EOF/i,
+      kind: 'thiếu dấu đóng ngoặc/quote',
+      explain:
+        'Python báo một dấu ngoặc hoặc dấu nháy đã mở nhưng chưa được đóng lại đúng chỗ. Hãy đếm lại số dấu ( ) [ ] { } hoặc dấu " trên dòng lỗi và các dòng trước đó.',
+    },
+    {
+      match: /SyntaxError/i,
+      kind: 'lỗi cú pháp (SyntaxError)',
+      explain:
+        'Dòng được chỉ ra trong traceback có cú pháp Python không hợp lệ — kiểm tra lại dấu hai chấm `:`, thụt lề, hoặc dấu ngoặc ở đúng dòng đó.',
+    },
+    {
+      match: /NameError:\s*name\s*'([^']+)'\s*is not defined/i,
+      kind: 'dùng biến chưa được gán giá trị (NameError)',
+      explain:
+        'Biến được nhắc tới chưa được gán giá trị trước khi dùng, hoặc bị gõ sai tên so với chỗ đã khai báo. Kiểm tra lại chính tả và thứ tự các dòng lệnh.',
+    },
+    {
+      match: /TypeError/i,
+      kind: 'sai kiểu dữ liệu khi thao tác (TypeError)',
+      explain:
+        'Một phép toán hoặc hàm đang được áp dụng lên sai kiểu dữ liệu (ví dụ cộng chuỗi với số). Kiểm tra lại kiểu dữ liệu trả về của `input()` — mặc định luôn là chuỗi, cần `int()`/`float()` nếu muốn tính toán.',
+    },
+    {
+      match: /IndexError/i,
+      kind: 'truy cập vị trí không tồn tại trong danh sách (IndexError)',
+      explain:
+        'Đang truy cập một chỉ số (index) vượt quá độ dài thực tế của danh sách/chuỗi. Kiểm tra lại điều kiện vòng lặp hoặc độ dài dữ liệu đầu vào.',
+    },
+    {
+      match: /IndentationError/i,
+      kind: 'lỗi thụt lề (IndentationError)',
+      explain:
+        'Các dòng code trong cùng một khối (if/for/while/def) cần thụt lề đều nhau. Kiểm tra lại có dòng nào lẫn tab và space, hoặc thụt lề không khớp khối cha.',
+    },
+  ];
 
 /**
  * Implementation mặc định khi chưa cấu hình API key của nhà cung cấp model
@@ -70,13 +81,22 @@ const ERROR_PATTERNS: Array<{ match: RegExp; kind: string; explain: string }> = 
 export class StubLlmClient implements LlmClient {
   private readonly logger = new Logger(StubLlmClient.name);
 
-  async chat(systemPrompt: string, context: CoachContext, userMessage: string): Promise<LlmChatResult> {
-    const promptTokens = estimateTokens(systemPrompt) + estimateTokens(JSON.stringify(context)) + estimateTokens(userMessage);
+  async chat(
+    systemPrompt: string,
+    context: CoachContext,
+    userMessage: string,
+  ): Promise<LlmChatResult> {
+    const promptTokens =
+      estimateTokens(systemPrompt) +
+      estimateTokens(JSON.stringify(context)) +
+      estimateTokens(userMessage);
 
     const content = this.buildReply(context, userMessage);
     const completionTokens = estimateTokens(content);
 
-    this.logger.debug(`Stub LLM chat: prompt=${promptTokens} tokens, completion=${completionTokens} tokens`);
+    this.logger.debug(
+      `Stub LLM chat: prompt=${promptTokens} tokens, completion=${completionTokens} tokens`,
+    );
 
     return { content, promptTokens, completionTokens };
   }
@@ -102,7 +122,9 @@ export class StubLlmClient implements LlmClient {
   }
 
   private looksLikeAskingForAnswer(message: string): boolean {
-    return /(code đầy đủ|đáp án|lời giải|giải giúp|làm giúp|full solution)/i.test(message);
+    return /(code đầy đủ|đáp án|lời giải|giải giúp|làm giúp|full solution)/i.test(
+      message,
+    );
   }
 
   // Kiểm tra lời cảm ơn trước các pattern khác (kể cả khi đi cùng một câu

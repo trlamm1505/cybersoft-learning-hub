@@ -14,14 +14,17 @@ import * as codeRunner from '../../common/helper/code-runner.helper';
  * match, the other gets null.
  */
 function makeFakeSubmissionModel(initialDocs: Record<string, any>) {
-  const store = new Map<string, any>(Object.entries(initialDocs).map(([id, doc]) => [id, { ...doc }]));
+  const store = new Map<string, any>(
+    Object.entries(initialDocs).map(([id, doc]) => [id, { ...doc }]),
+  );
 
   return {
     findOneAndUpdate: jest.fn(async (filter: any, update: any) => {
       const id = String(filter._id);
       const doc = store.get(id);
       if (!doc) return null;
-      if (filter.status !== undefined && doc.status !== filter.status) return null;
+      if (filter.status !== undefined && doc.status !== filter.status)
+        return null;
 
       const $set = update.$set ?? {};
       const $inc = update.$inc ?? {};
@@ -38,7 +41,9 @@ function makeFakeSubmissionModel(initialDocs: Record<string, any>) {
     })),
     updateMany: jest.fn().mockResolvedValue({ modifiedCount: 0 }),
     find: jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
+      select: jest
+        .fn()
+        .mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
     }),
     __store: store,
   };
@@ -88,16 +93,46 @@ describe('JudgeQueueService', () => {
   it('classifies AC when all test cases pass', async () => {
     const submissionId = new Types.ObjectId().toString();
     const submissionModel = makeFakeSubmissionModel({
-      [submissionId]: { _id: submissionId, exerciseId, status: JudgeStatus.QUEUED, code: 'ok', attempts: 0 },
+      [submissionId]: {
+        _id: submissionId,
+        exerciseId,
+        status: JudgeStatus.QUEUED,
+        code: 'ok',
+        attempts: 0,
+      },
     });
-    const service = await buildService(submissionModel, makeFakeExerciseModel(sumExercise));
+    const service = await buildService(
+      submissionModel,
+      makeFakeExerciseModel(sumExercise),
+    );
 
-    syntaxSpy = jest.spyOn(codeRunner, 'checkPythonSyntax').mockResolvedValue({ ok: true });
+    syntaxSpy = jest
+      .spyOn(codeRunner, 'checkPythonSyntax')
+      .mockResolvedValue({ ok: true });
     runSpy = jest.spyOn(codeRunner, 'runPythonCode').mockResolvedValue({
-      stdout: '', stderr: '', exitCode: 0, timedOut: false, executionTimeMs: 5, blocked: false,
+      stdout: '',
+      stderr: '',
+      exitCode: 0,
+      timedOut: false,
+      executionTimeMs: 5,
+      blocked: false,
+    });
+    runSpy.mockResolvedValueOnce({
+      stdout: '8',
+      stderr: '',
+      exitCode: 0,
+      timedOut: false,
+      executionTimeMs: 5,
+      blocked: false,
     } as any);
-    runSpy.mockResolvedValueOnce({ stdout: '8', stderr: '', exitCode: 0, timedOut: false, executionTimeMs: 5, blocked: false } as any);
-    runSpy.mockResolvedValueOnce({ stdout: '2', stderr: '', exitCode: 0, timedOut: false, executionTimeMs: 5, blocked: false } as any);
+    runSpy.mockResolvedValueOnce({
+      stdout: '2',
+      stderr: '',
+      exitCode: 0,
+      timedOut: false,
+      executionTimeMs: 5,
+      blocked: false,
+    } as any);
 
     await (service as any).gradeOne(submissionId);
 
@@ -110,62 +145,128 @@ describe('JudgeQueueService', () => {
   it('classifies WA on output mismatch', async () => {
     const submissionId = new Types.ObjectId().toString();
     const submissionModel = makeFakeSubmissionModel({
-      [submissionId]: { _id: submissionId, exerciseId, status: JudgeStatus.QUEUED, code: 'wrong', attempts: 0 },
+      [submissionId]: {
+        _id: submissionId,
+        exerciseId,
+        status: JudgeStatus.QUEUED,
+        code: 'wrong',
+        attempts: 0,
+      },
     });
-    const service = await buildService(submissionModel, makeFakeExerciseModel(sumExercise));
+    const service = await buildService(
+      submissionModel,
+      makeFakeExerciseModel(sumExercise),
+    );
 
-    syntaxSpy = jest.spyOn(codeRunner, 'checkPythonSyntax').mockResolvedValue({ ok: true });
+    syntaxSpy = jest
+      .spyOn(codeRunner, 'checkPythonSyntax')
+      .mockResolvedValue({ ok: true });
     runSpy = jest.spyOn(codeRunner, 'runPythonCode').mockResolvedValue({
-      stdout: '999', stderr: '', exitCode: 0, timedOut: false, executionTimeMs: 5, blocked: false,
-    } as any);
+      stdout: '999',
+      stderr: '',
+      exitCode: 0,
+      timedOut: false,
+      executionTimeMs: 5,
+      blocked: false,
+    });
 
     await (service as any).gradeOne(submissionId);
 
-    expect(submissionModel.__store.get(submissionId).status).toBe(JudgeStatus.WA);
+    expect(submissionModel.__store.get(submissionId).status).toBe(
+      JudgeStatus.WA,
+    );
   });
 
   it('classifies TLE when a run times out', async () => {
     const submissionId = new Types.ObjectId().toString();
     const submissionModel = makeFakeSubmissionModel({
-      [submissionId]: { _id: submissionId, exerciseId, status: JudgeStatus.QUEUED, code: 'loop', attempts: 0 },
+      [submissionId]: {
+        _id: submissionId,
+        exerciseId,
+        status: JudgeStatus.QUEUED,
+        code: 'loop',
+        attempts: 0,
+      },
     });
-    const service = await buildService(submissionModel, makeFakeExerciseModel(sumExercise));
+    const service = await buildService(
+      submissionModel,
+      makeFakeExerciseModel(sumExercise),
+    );
 
-    syntaxSpy = jest.spyOn(codeRunner, 'checkPythonSyntax').mockResolvedValue({ ok: true });
+    syntaxSpy = jest
+      .spyOn(codeRunner, 'checkPythonSyntax')
+      .mockResolvedValue({ ok: true });
     runSpy = jest.spyOn(codeRunner, 'runPythonCode').mockResolvedValue({
-      stdout: '', stderr: '', exitCode: null, timedOut: true, executionTimeMs: 2000, blocked: false,
-    } as any);
+      stdout: '',
+      stderr: '',
+      exitCode: null,
+      timedOut: true,
+      executionTimeMs: 2000,
+      blocked: false,
+    });
 
     await (service as any).gradeOne(submissionId);
 
-    expect(submissionModel.__store.get(submissionId).status).toBe(JudgeStatus.TLE);
+    expect(submissionModel.__store.get(submissionId).status).toBe(
+      JudgeStatus.TLE,
+    );
   });
 
   it('classifies RE on a runtime error (nonzero exit code)', async () => {
     const submissionId = new Types.ObjectId().toString();
     const submissionModel = makeFakeSubmissionModel({
-      [submissionId]: { _id: submissionId, exerciseId, status: JudgeStatus.QUEUED, code: 'boom', attempts: 0 },
+      [submissionId]: {
+        _id: submissionId,
+        exerciseId,
+        status: JudgeStatus.QUEUED,
+        code: 'boom',
+        attempts: 0,
+      },
     });
-    const service = await buildService(submissionModel, makeFakeExerciseModel(sumExercise));
+    const service = await buildService(
+      submissionModel,
+      makeFakeExerciseModel(sumExercise),
+    );
 
-    syntaxSpy = jest.spyOn(codeRunner, 'checkPythonSyntax').mockResolvedValue({ ok: true });
+    syntaxSpy = jest
+      .spyOn(codeRunner, 'checkPythonSyntax')
+      .mockResolvedValue({ ok: true });
     runSpy = jest.spyOn(codeRunner, 'runPythonCode').mockResolvedValue({
-      stdout: '', stderr: 'ZeroDivisionError', exitCode: 1, timedOut: false, executionTimeMs: 5, blocked: false,
-    } as any);
+      stdout: '',
+      stderr: 'ZeroDivisionError',
+      exitCode: 1,
+      timedOut: false,
+      executionTimeMs: 5,
+      blocked: false,
+    });
 
     await (service as any).gradeOne(submissionId);
 
-    expect(submissionModel.__store.get(submissionId).status).toBe(JudgeStatus.RE);
+    expect(submissionModel.__store.get(submissionId).status).toBe(
+      JudgeStatus.RE,
+    );
   });
 
   it('classifies CE on a syntax error and never calls runPythonCode', async () => {
     const submissionId = new Types.ObjectId().toString();
     const submissionModel = makeFakeSubmissionModel({
-      [submissionId]: { _id: submissionId, exerciseId, status: JudgeStatus.QUEUED, code: 'def f(:', attempts: 0 },
+      [submissionId]: {
+        _id: submissionId,
+        exerciseId,
+        status: JudgeStatus.QUEUED,
+        code: 'def f(:',
+        attempts: 0,
+      },
     });
-    const service = await buildService(submissionModel, makeFakeExerciseModel(sumExercise));
+    const service = await buildService(
+      submissionModel,
+      makeFakeExerciseModel(sumExercise),
+    );
 
-    syntaxSpy = jest.spyOn(codeRunner, 'checkPythonSyntax').mockResolvedValue({ ok: false, errorMessage: 'SyntaxError: invalid syntax' });
+    syntaxSpy = jest.spyOn(codeRunner, 'checkPythonSyntax').mockResolvedValue({
+      ok: false,
+      errorMessage: 'SyntaxError: invalid syntax',
+    });
     runSpy = jest.spyOn(codeRunner, 'runPythonCode');
 
     await (service as any).gradeOne(submissionId);
@@ -179,14 +280,30 @@ describe('JudgeQueueService', () => {
   it('does not double-grade when gradeOne is invoked twice concurrently for the same id', async () => {
     const submissionId = new Types.ObjectId().toString();
     const submissionModel = makeFakeSubmissionModel({
-      [submissionId]: { _id: submissionId, exerciseId, status: JudgeStatus.QUEUED, code: 'ok', attempts: 0 },
+      [submissionId]: {
+        _id: submissionId,
+        exerciseId,
+        status: JudgeStatus.QUEUED,
+        code: 'ok',
+        attempts: 0,
+      },
     });
-    const service = await buildService(submissionModel, makeFakeExerciseModel(sumExercise));
+    const service = await buildService(
+      submissionModel,
+      makeFakeExerciseModel(sumExercise),
+    );
 
-    syntaxSpy = jest.spyOn(codeRunner, 'checkPythonSyntax').mockResolvedValue({ ok: true });
+    syntaxSpy = jest
+      .spyOn(codeRunner, 'checkPythonSyntax')
+      .mockResolvedValue({ ok: true });
     runSpy = jest.spyOn(codeRunner, 'runPythonCode').mockResolvedValue({
-      stdout: '8', stderr: '', exitCode: 0, timedOut: false, executionTimeMs: 5, blocked: false,
-    } as any);
+      stdout: '8',
+      stderr: '',
+      exitCode: 0,
+      timedOut: false,
+      executionTimeMs: 5,
+      blocked: false,
+    });
 
     await Promise.all([
       (service as any).gradeOne(submissionId),
@@ -218,19 +335,34 @@ describe('JudgeQueueService', () => {
         lean: jest.fn().mockResolvedValue(
           [...submissionModel.__store.values()].filter((d: any) => {
             if (filter.status && d.status !== filter.status) return false;
-            if (filter.updatedAt?.$lt && !(d.updatedAt < filter.updatedAt.$lt)) return false;
-            if (filter.attempts?.$lt !== undefined && !(d.attempts < filter.attempts.$lt)) return false;
+            if (filter.updatedAt?.$lt && !(d.updatedAt < filter.updatedAt.$lt))
+              return false;
+            if (
+              filter.attempts?.$lt !== undefined &&
+              !(d.attempts < filter.attempts.$lt)
+            )
+              return false;
             return true;
           }),
         ),
       }),
     }));
 
-    const service = await buildService(submissionModel, makeFakeExerciseModel(sumExercise));
-    syntaxSpy = jest.spyOn(codeRunner, 'checkPythonSyntax').mockResolvedValue({ ok: true });
+    const service = await buildService(
+      submissionModel,
+      makeFakeExerciseModel(sumExercise),
+    );
+    syntaxSpy = jest
+      .spyOn(codeRunner, 'checkPythonSyntax')
+      .mockResolvedValue({ ok: true });
     runSpy = jest.spyOn(codeRunner, 'runPythonCode').mockResolvedValue({
-      stdout: '8', stderr: '', exitCode: 0, timedOut: false, executionTimeMs: 5, blocked: false,
-    } as any);
+      stdout: '8',
+      stderr: '',
+      exitCode: 0,
+      timedOut: false,
+      executionTimeMs: 5,
+      blocked: false,
+    });
 
     await service.retryStale();
 
@@ -255,7 +387,11 @@ describe('JudgeQueueService', () => {
     submissionModel.updateMany = jest.fn(async (filter: any, update: any) => {
       let modifiedCount = 0;
       for (const doc of submissionModel.__store.values()) {
-        if (doc.status === filter.status && doc.updatedAt < filter.updatedAt.$lt && doc.attempts >= filter.attempts.$gte) {
+        if (
+          doc.status === filter.status &&
+          doc.updatedAt < filter.updatedAt.$lt &&
+          doc.attempts >= filter.attempts.$gte
+        ) {
           Object.assign(doc, update.$set);
           modifiedCount++;
         }
@@ -263,10 +399,15 @@ describe('JudgeQueueService', () => {
       return { modifiedCount };
     });
 
-    const service = await buildService(submissionModel, makeFakeExerciseModel(sumExercise));
+    const service = await buildService(
+      submissionModel,
+      makeFakeExerciseModel(sumExercise),
+    );
 
     await service.retryStale();
 
-    expect(submissionModel.__store.get(submissionId).status).toBe(JudgeStatus.FAILED);
+    expect(submissionModel.__store.get(submissionId).status).toBe(
+      JudgeStatus.FAILED,
+    );
   });
 });

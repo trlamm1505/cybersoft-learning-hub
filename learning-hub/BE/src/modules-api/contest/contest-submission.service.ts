@@ -1,14 +1,29 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Contest, ContestDocument, ContestProblem } from '../../modules-system/database/schemas/contest.schema';
-import { Lesson, LessonDocument } from '../../modules-system/database/schemas/lesson.schema';
+import {
+  Contest,
+  ContestDocument,
+  ContestProblem,
+} from '../../modules-system/database/schemas/contest.schema';
+import {
+  Lesson,
+  LessonDocument,
+} from '../../modules-system/database/schemas/lesson.schema';
 import {
   ContestSubmission,
   ContestSubmissionDocument,
   ContestSubmissionVerdict,
 } from '../../modules-system/database/schemas/contest-submission.schema';
-import { checkPythonSyntax, runPythonCode } from '../../common/helper/code-runner.helper';
+import { User, UserDocument } from '../../modules-system/database/schemas/user.schema';
+import {
+  checkPythonSyntax,
+  runPythonCode,
+} from '../../common/helper/code-runner.helper';
 import { SubmitContestProblemDto } from './dto/submit-contest-problem.dto';
 
 const DEFAULT_CODING_TIME_LIMIT_MS = 2000;
@@ -16,26 +31,39 @@ const DEFAULT_CODING_TIME_LIMIT_MS = 2000;
 @Injectable()
 export class ContestSubmissionService {
   constructor(
-    @InjectModel(Contest.name) private readonly contestModel: Model<ContestDocument>,
-    @InjectModel(Lesson.name) private readonly lessonModel: Model<LessonDocument>,
+    @InjectModel(Contest.name)
+    private readonly contestModel: Model<ContestDocument>,
+    @InjectModel(Lesson.name)
+    private readonly lessonModel: Model<LessonDocument>,
     @InjectModel(ContestSubmission.name)
     private readonly contestSubmissionModel: Model<ContestSubmissionDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
   private async findContestOrThrow(id: string): Promise<ContestDocument> {
     const contest = await this.contestModel
-      .findOne({ $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }] })
+      .findOne({
+        $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }],
+      })
       .exec();
     if (!contest) {
-      throw new NotFoundException(`Không tìm thấy cuộc thi với ID hoặc slug: ${id}`);
+      throw new NotFoundException(
+        `Không tìm thấy cuộc thi với ID hoặc slug: ${id}`,
+      );
     }
     return contest;
   }
 
-  private findProblemOrThrow(contest: ContestDocument, problemSlug: string): ContestProblem {
+  private findProblemOrThrow(
+    contest: ContestDocument,
+    problemSlug: string,
+  ): ContestProblem {
     const problem = contest.problems?.find((p) => p.slug === problemSlug);
     if (!problem) {
-      throw new NotFoundException(`Không tìm thấy đề bài "${problemSlug}" trong cuộc thi này`);
+      throw new NotFoundException(
+        `Không tìm thấy đề bài "${problemSlug}" trong cuộc thi này`,
+      );
     }
     return problem;
   }
@@ -44,14 +72,20 @@ export class ContestSubmissionService {
     const contest = await this.findContestOrThrow(contestId);
     const now = new Date();
     if (now < contest.startTime) {
-      throw new BadRequestException('Cuộc thi chưa bắt đầu. Chưa thể xem đề bài.');
+      throw new BadRequestException(
+        'Cuộc thi chưa bắt đầu. Chưa thể xem đề bài.',
+      );
     }
     if (now > contest.endTime) {
-      throw new BadRequestException('Cuộc thi đã kết thúc. Không thể xem đề bài nữa.');
+      throw new BadRequestException(
+        'Cuộc thi đã kết thúc. Không thể xem đề bài nữa.',
+      );
     }
 
     const problem = this.findProblemOrThrow(contest, problemSlug);
-    const lesson = problem.lessonId ? await this.lessonModel.findById(problem.lessonId).lean() : null;
+    const lesson = problem.lessonId
+      ? await this.lessonModel.findById(problem.lessonId).lean()
+      : null;
 
     if (problem.type === 'quiz') {
       const quizQuestions = (lesson?.quizQuestions ?? []).map((q) => ({
@@ -86,10 +120,7 @@ export class ContestSubmissionService {
     };
   }
 
-  async submit(contestId: string, dto: SubmitContestProblemDto) {
-    if (!dto.studentId || !dto.studentId.trim()) {
-      throw new BadRequestException('Mã học viên (studentId) không được để trống!');
-    }
+  async submit(contestId: string, dto: SubmitContestProblemDto, studentId: string) {
     if (!dto.problemSlug || !dto.problemSlug.trim()) {
       throw new BadRequestException('Thiếu mã đề bài (problemSlug)!');
     }
@@ -103,19 +134,24 @@ export class ContestSubmissionService {
       throw new BadRequestException('Cuộc thi chưa bắt đầu. Chưa thể nộp bài.');
     }
 
-    const lesson = problem.lessonId ? await this.lessonModel.findById(problem.lessonId).lean() : null;
+    const lesson = problem.lessonId
+      ? await this.lessonModel.findById(problem.lessonId).lean()
+      : null;
 
     const graded =
       problem.type === 'quiz'
         ? await this.gradeQuiz(problem, lesson, dto.quizAnswers ?? {})
         : await this.gradeCoding(problem, lesson, dto.code ?? '');
 
+    const user = await this.userModel.findById(studentId).select('fullName').lean();
+    const studentName = user?.fullName || 'Học viên';
+
     await this.contestSubmissionModel.create({
       contestId: String(contest._id),
       problemSlug: problem.slug,
       problemType: problem.type,
-      studentId: dto.studentId,
-      studentName: dto.studentName || 'Học viên',
+      studentId,
+      studentName,
       code: problem.type === 'coding' ? dto.code : undefined,
       quizAnswers: problem.type === 'quiz' ? dto.quizAnswers : undefined,
       score: graded.score,
@@ -141,7 +177,12 @@ export class ContestSubmissionService {
     problem: ContestProblem,
     lesson: LessonDocument | null,
     code: string,
-  ): Promise<{ verdict: ContestSubmissionVerdict; score: number; passedCount: number; totalCount: number }> {
+  ): Promise<{
+    verdict: ContestSubmissionVerdict;
+    score: number;
+    passedCount: number;
+    totalCount: number;
+  }> {
     const testCases = lesson?.testCases ?? [];
     const totalCount = testCases.length;
 
@@ -161,12 +202,19 @@ export class ContestSubmissionService {
     let passedCount = 0;
 
     for (const tc of testCases) {
-      const run = await runPythonCode(code, tc.input, DEFAULT_CODING_TIME_LIMIT_MS);
+      const run = await runPythonCode(
+        code,
+        tc.input,
+        DEFAULT_CODING_TIME_LIMIT_MS,
+      );
       if (run.blocked) {
         failureVerdict = 'RE';
         continue;
       }
-      const passed = !run.timedOut && run.exitCode === 0 && run.stdout.trim() === tc.expectedOutput.trim();
+      const passed =
+        !run.timedOut &&
+        run.exitCode === 0 &&
+        run.stdout.trim() === tc.expectedOutput.trim();
       if (passed) {
         passedCount++;
       } else if (run.timedOut) {
@@ -191,7 +239,10 @@ export class ContestSubmissionService {
       verdict = 'PARTIAL';
     }
 
-    const score = totalCount === 0 ? problem.points : Math.round((passedCount / totalCount) * problem.points);
+    const score =
+      totalCount === 0
+        ? problem.points
+        : Math.round((passedCount / totalCount) * problem.points);
     return { verdict, score, passedCount, totalCount };
   }
 
@@ -199,7 +250,12 @@ export class ContestSubmissionService {
     problem: ContestProblem,
     lesson: LessonDocument | null,
     quizAnswers: Record<string, string>,
-  ): Promise<{ verdict: ContestSubmissionVerdict; score: number; passedCount: number; totalCount: number }> {
+  ): Promise<{
+    verdict: ContestSubmissionVerdict;
+    score: number;
+    passedCount: number;
+    totalCount: number;
+  }> {
     const questions = lesson?.quizQuestions ?? [];
     const totalCount = questions.length;
     let passedCount = 0;
@@ -212,9 +268,16 @@ export class ContestSubmissionService {
       }
     });
 
-    const score = totalCount === 0 ? 0 : Math.round((passedCount / totalCount) * problem.points);
+    const score =
+      totalCount === 0
+        ? 0
+        : Math.round((passedCount / totalCount) * problem.points);
     const verdict: ContestSubmissionVerdict =
-      totalCount === 0 || passedCount === totalCount ? 'AC' : passedCount === 0 ? 'WA' : 'PARTIAL';
+      totalCount === 0 || passedCount === totalCount
+        ? 'AC'
+        : passedCount === 0
+          ? 'WA'
+          : 'PARTIAL';
 
     return { verdict, score, passedCount, totalCount };
   }

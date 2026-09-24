@@ -40,6 +40,10 @@ export interface BlockStartPosition extends BlockPosition {
 }
 
 export interface BlockPuzzleConfig {
+  // Nhóm nhiều bài "ải" vào cùng một game trên màn hình chọn game của Block
+  // Puzzle — nhiều bài chia sẻ cùng gameId sẽ xuất hiện chung một thẻ game.
+  gameId: string;
+  gameTitle: string;
   storyText: string;
   gridWidth: number;
   gridHeight: number;
