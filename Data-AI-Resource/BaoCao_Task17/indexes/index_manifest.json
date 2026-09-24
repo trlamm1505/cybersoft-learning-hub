@@ -1,0 +1,9 @@
+{
+  "artifact_file": "vector_index.npz",
+  "dimension": 64,
+  "total_vectors": 91,
+  "model_name": "TFIDF-SVD-L2",
+  "file_size_bytes": 55059,
+  "sha256_checksum": "7c157529e9e7b5d702ee4861db62627ce63bdf84e3ad9d55c8e5a052d0320ae5",
+  "created_at": "2026-09-24T09:14:54.969507"
+}
