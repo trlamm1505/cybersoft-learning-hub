@@ -3,10 +3,12 @@ import { getModelToken } from '@nestjs/mongoose';
 import { BadRequestException } from '@nestjs/common';
 import { ContestService } from './contest.service';
 import { Contest } from '../../modules-system/database/schemas/contest.schema';
+import { User } from '../../modules-system/database/schemas/user.schema';
 
 describe('ContestService', () => {
   let service: ContestService;
   let mockContestModel: any;
+  let mockUserModel: any;
 
   const mockContestObj = {
     _id: '507f1f77bcf86cd799439011',
@@ -15,7 +17,13 @@ describe('ContestService', () => {
     startTime: new Date(Date.now() - 10 * 60 * 1000), // 10m ago
     endTime: new Date(Date.now() + 50 * 60 * 1000), // in 50m
     durationMinutes: 60,
-    registrations: [{ studentId: 'student-1', studentName: 'Nguyen Van A', registeredAt: new Date() }],
+    registrations: [
+      {
+        studentId: 'student-1',
+        studentName: 'Nguyen Van A',
+        registeredAt: new Date(),
+      },
+    ],
     problems: [],
     status: 'published',
     toObject: function () {
@@ -27,7 +35,9 @@ describe('ContestService', () => {
   beforeEach(async () => {
     mockContestModel = jest.fn().mockImplementation((dto) => ({
       ...dto,
-      save: jest.fn().mockResolvedValue({ ...dto, _id: '507f1f77bcf86cd799439011' }),
+      save: jest
+        .fn()
+        .mockResolvedValue({ ...dto, _id: '507f1f77bcf86cd799439011' }),
     }));
 
     mockContestModel.find = jest.fn().mockReturnValue({
@@ -45,8 +55,18 @@ describe('ContestService', () => {
       save: jest.fn().mockResolvedValue(mockContestObj),
     });
 
-    mockContestModel.findByIdAndDelete = jest.fn().mockResolvedValue(mockContestObj);
+    mockContestModel.findByIdAndDelete = jest
+      .fn()
+      .mockResolvedValue(mockContestObj);
     mockContestModel.countDocuments = jest.fn().mockResolvedValue(1);
+
+    mockUserModel = {
+      findById: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          lean: jest.fn().mockResolvedValue({ fullName: 'Nguyen Van A' }),
+        }),
+      }),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -54,6 +74,10 @@ describe('ContestService', () => {
         {
           provide: getModelToken(Contest.name),
           useValue: mockContestModel,
+        },
+        {
+          provide: getModelToken(User.name),
+          useValue: mockUserModel,
         },
       ],
     }).compile();
@@ -69,11 +93,14 @@ describe('ContestService', () => {
     it('should throw BadRequestException if startTime >= endTime', async () => {
       const now = new Date();
       await expect(
-        service.createContest({
-          title: 'Invalid Time Contest',
-          startTime: new Date(now.getTime() + 600000),
-          endTime: now,
-        }),
+        service.createContest(
+          {
+            title: 'Invalid Time Contest',
+            startTime: new Date(now.getTime() + 600000),
+            endTime: now,
+          },
+          'teacher-1',
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -83,11 +110,14 @@ describe('ContestService', () => {
       });
 
       const now = new Date();
-      const result = await service.createContest({
-        title: 'New Contest 2026',
-        startTime: now,
-        endTime: new Date(now.getTime() + 3600000),
-      });
+      const result = await service.createContest(
+        {
+          title: 'New Contest 2026',
+          startTime: now,
+          endTime: new Date(now.getTime() + 3600000),
+        },
+        'teacher-1',
+      );
 
       expect(result).toBeDefined();
       expect(result.title).toBe('New Contest 2026');
@@ -104,10 +134,7 @@ describe('ContestService', () => {
         }),
       });
 
-      const result = await service.registerContest('507f1f77bcf86cd799439011', {
-        studentId: 'student-new',
-        studentName: 'Tran Van B',
-      });
+      const result = await service.registerContest('507f1f77bcf86cd799439011', 'student-new');
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('thành công');
@@ -122,7 +149,7 @@ describe('ContestService', () => {
       });
 
       await expect(
-        service.registerContest('507f1f77bcf86cd799439011', { studentId: 'student-late' }),
+        service.registerContest('507f1f77bcf86cd799439011', 'student-late'),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -133,7 +160,10 @@ describe('ContestService', () => {
         exec: jest.fn().mockResolvedValue(mockContestObj),
       });
 
-      const statusRes = await service.checkContestStatus('507f1f77bcf86cd799439011', 'student-1');
+      const statusRes = await service.checkContestStatus(
+        '507f1f77bcf86cd799439011',
+        'student-1',
+      );
 
       expect(statusRes).toBeDefined();
       expect(statusRes.computedStatus).toBe('ONGOING');
@@ -151,7 +181,9 @@ describe('ContestService', () => {
         }),
       });
 
-      const statusRes = await service.checkContestStatus('507f1f77bcf86cd799439011');
+      const statusRes = await service.checkContestStatus(
+        '507f1f77bcf86cd799439011',
+      );
       expect(statusRes.computedStatus).toBe('UPCOMING');
       expect(statusRes.isAllowedToJoin).toBe(false);
       expect(statusRes.isAllowedToSubmit).toBe(false);

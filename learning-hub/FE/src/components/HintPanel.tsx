@@ -5,7 +5,7 @@ import type { HintItem } from '../types/hint';
 
 interface HintPanelProps {
   exerciseSlug: string;
-  userId?: string;
+  userId: string;
   isDark?: boolean;
   onApplySolution?: (solutionCode: string) => void;
   customHints?: {
@@ -41,14 +41,10 @@ const TIER_META = [
 
 export const HintPanel: React.FC<HintPanelProps> = ({
   exerciseSlug,
+  userId,
   onApplySolution,
   customHints,
 }) => {
-  // Generate a unique session ID per practice attempt/exercise change
-  const [sessionId, setSessionId] = useState<string>(
-    () => `session_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-  );
-
   const [hints, setHints] = useState<HintItem[]>([]);
   const [activeLevel, setActiveLevel] = useState<1 | 2 | 3>(1);
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
@@ -57,10 +53,8 @@ export const HintPanel: React.FC<HintPanelProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Reset session when exerciseSlug changes
+  // Reset local UI state (không phải danh tính người dùng) khi đổi bài tập.
   useEffect(() => {
-    const newSession = `session_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-    setSessionId(newSession);
     setCooldownSeconds(0);
     setErrorMsg(null);
     setSuccessMsg(null);
@@ -111,7 +105,7 @@ export const HintPanel: React.FC<HintPanelProps> = ({
     }
 
     try {
-      const res = await hintApi.getHintsByExercise(exerciseSlug, sessionId);
+      const res = await hintApi.getHintsByExercise(exerciseSlug);
       setHints(res.hints || []);
       if (res.cooldownRemainingSeconds > 0) {
         setCooldownSeconds(res.cooldownRemainingSeconds);
@@ -125,7 +119,7 @@ export const HintPanel: React.FC<HintPanelProps> = ({
 
   useEffect(() => {
     loadHints();
-  }, [exerciseSlug, sessionId]);
+  }, [exerciseSlug, userId]);
 
   // Live timer countdown for cooldown
   useEffect(() => {
@@ -186,7 +180,6 @@ export const HintPanel: React.FC<HintPanelProps> = ({
       const res = await hintApi.unlockHint({
         exerciseSlug,
         level,
-        userId: sessionId,
       });
 
       setSuccessMsg(res.message || `Đã mở gợi ý Tầng ${level} thành công!`);

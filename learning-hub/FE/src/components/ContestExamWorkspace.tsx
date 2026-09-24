@@ -26,6 +26,7 @@ import { exerciseApi } from '../axios/exerciseApi';
 import { contestSubmissionApi } from '../axios/contestSubmissionApi';
 import type { ContestProblemForStudent } from '../axios/contestSubmissionApi';
 import { leaderboardApi } from '../axios/leaderboardApi';
+import { useToast } from './Toast';
 
 export interface ContestProblemResult {
   problemId: string;
@@ -242,13 +243,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     };
   }, [finalResult, contestId, studentId]);
 
-  // Toast notification state
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
-
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
-  };
+  const { showToast } = useToast();
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -389,8 +384,6 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     setIsEvaluating(true);
     try {
       const graded = await contestSubmissionApi.submit(contestId, {
-        studentId,
-        studentName,
         problemSlug: currentProblem.slug,
         code,
       });
@@ -443,8 +436,6 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     setIsEvaluating(true);
     try {
       const graded = await contestSubmissionApi.submit(contestId, {
-        studentId,
-        studentName,
         problemSlug: currentProblem.slug,
         quizAnswers: userAns,
       });
@@ -702,28 +693,6 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   if (viewMode === 'select') {
     return (
       <div className="space-y-8 animate-fade-in max-w-5xl mx-auto pb-16">
-        {/* Toast notification */}
-        {toast && (
-          <div
-            className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl border text-sm font-semibold flex items-center gap-2 animate-bounce ${
-              toast.type === 'error'
-                ? 'bg-red-600 text-white border-red-500'
-                : toast.type === 'info'
-                ? 'bg-cyan-600 text-white border-cyan-500'
-                : 'bg-emerald-600 text-white border-emerald-500'
-            }`}
-          >
-            {toast.type === 'error' ? (
-              <Ban size={16} strokeWidth={2.5} className="shrink-0" />
-            ) : toast.type === 'info' ? (
-              <CheckCircle2 size={16} strokeWidth={2.5} className="shrink-0" />
-            ) : (
-              <PartyPopper size={16} strokeWidth={2.5} className="shrink-0" />
-            )}
-            {toast.message}
-          </div>
-        )}
-
         {/* Header Banner */}
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 md:p-8 shadow-xl space-y-4 relative overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
@@ -900,28 +869,6 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   // RENDER: Active Contest Exam Workspace (Specific Problem View - Focused mode)
   return (
     <div className="space-y-6 animate-fade-in pb-16">
-      {/* Toast notification */}
-      {toast && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl border text-sm font-semibold flex items-center gap-2 animate-bounce ${
-            toast.type === 'error'
-              ? 'bg-red-600 text-white border-red-500'
-              : toast.type === 'info'
-              ? 'bg-cyan-600 text-white border-cyan-500'
-              : 'bg-emerald-600 text-white border-emerald-500'
-          }`}
-        >
-          {toast.type === 'error' ? (
-            <Ban size={16} strokeWidth={2.5} className="shrink-0" />
-          ) : toast.type === 'info' ? (
-            <CheckCircle2 size={16} strokeWidth={2.5} className="shrink-0" />
-          ) : (
-            <PartyPopper size={16} strokeWidth={2.5} className="shrink-0" />
-          )}
-          {toast.message}
-        </div>
-      )}
-
       {/* Top Header & Exam Timer Bar */}
       <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 shadow-xl flex flex-wrap items-center justify-between gap-4 sticky top-4 z-30 backdrop-blur-md bg-opacity-95">
         <div className="flex items-center gap-3">

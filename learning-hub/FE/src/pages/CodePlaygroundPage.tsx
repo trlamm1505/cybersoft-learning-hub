@@ -21,6 +21,7 @@ import { OutputPanel } from '../components/OutputPanel';
 import { TestResultsPanel } from '../components/TestResultsPanel';
 import { HintPanel } from '../components/HintPanel';
 import { CoachPanel } from '../components/CoachPanel';
+import { useToast } from '../components/Toast';
 import exerciseApi from '../axios/exerciseApi';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
 import type { LessonAuthoring } from '../types/authoring';
@@ -29,10 +30,6 @@ import { TERMINAL_SUBMISSION_STATUSES } from '../types/exercise';
 
 const POLL_INTERVAL_MS = 700;
 const POLL_TIMEOUT_MS = 15000;
-
-// Bài duy nhất khách vãng lai (chưa đăng nhập) được làm thử thật — 9 bài còn lại yêu cầu
-// đăng nhập khi bấm chọn, dù danh sách vẫn hiển thị đầy đủ 10 bài để xem trước.
-const FREE_GUEST_EXERCISE_SLUG = 'tinh-tong-hai-so-nguyen';
 
 interface CodePlaygroundPageProps {
   isDark?: boolean;
@@ -48,6 +45,7 @@ const DIFFICULTY_BADGE: Record<string, string> = {
 
 export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, teacherLessons = [], authUser }) => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [exercises, setExercises] = useState<ExerciseListItem[]>([]);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [exercise, setExercise] = useState<ExerciseDetail | null>(null);
@@ -78,22 +76,40 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
   // Sequential unlock within a topic: exercise N+1 only opens once exercise N has
   // been solved correctly (AC), same rule and localStorage-based persistence as the
   // Block Puzzle track (Day 13) — no server-side account tracking yet.
-  const COMPLETED_EXERCISES_KEY = 'app_code_playground_completed';
+  //
+  // Namespaced theo authUser.id (hoặc 'guest' khi chưa đăng nhập) — trước đây
+  // dùng chung một key cố định cho mọi tài khoản trên cùng trình duyệt, nên
+  // logout rồi đăng nhập tài khoản khác vẫn thấy tiến độ mở khóa của người
+  // dùng trước đó.
+  const completedExercisesKey = `app_code_playground_completed_${authUser?.id || 'guest'}`;
   const [completedSlugs, setCompletedSlugs] = useState<Set<string>>(() => {
     try {
-      const saved = localStorage.getItem(COMPLETED_EXERCISES_KEY);
+      const saved = localStorage.getItem(completedExercisesKey);
       return saved ? new Set(JSON.parse(saved)) : new Set();
     } catch {
       return new Set();
     }
   });
 
+  // Tài khoản đăng nhập có thể đổi mà không reload trang (login/logout trong
+  // cùng phiên SPA) — nạp lại đúng tiến độ của tài khoản hiện tại mỗi khi
+  // authUser?.id thay đổi, thay vì giữ nguyên state của tài khoản trước đó.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(completedExercisesKey);
+      setCompletedSlugs(saved ? new Set(JSON.parse(saved)) : new Set());
+    } catch {
+      setCompletedSlugs(new Set());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedExercisesKey]);
+
   const markCompleted = (slug: string) => {
     setCompletedSlugs((prev) => {
       if (prev.has(slug)) return prev;
       const next = new Set(prev).add(slug);
       try {
-        localStorage.setItem(COMPLETED_EXERCISES_KEY, JSON.stringify(Array.from(next)));
+        localStorage.setItem(completedExercisesKey, JSON.stringify(Array.from(next)));
       } catch {
         /* ignore */
       }
@@ -106,7 +122,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
   // later visit to an already-finished topic. "Already celebrated" is tracked
   // per topic in its own localStorage key so re-opening a finished topic later
   // stays quiet.
-  const CELEBRATED_TOPICS_KEY = 'app_code_playground_celebrated_topics';
+  const celebratedTopicsKey = `app_code_playground_celebrated_topics_${authUser?.id || 'guest'}`;
   const [celebrationTopicKey, setCelebrationTopicKey] = useState<string | null>(null);
   const [celebrationCountdown, setCelebrationCountdown] = useState(10);
 
@@ -216,7 +232,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     const topicKey = `${selectedGradeBand}::${selectedTopic !== 'all' ? selectedTopic : (filteredExercises[0].topic ?? 'default')}`;
     let alreadyCelebrated: string[] = [];
     try {
-      const saved = localStorage.getItem(CELEBRATED_TOPICS_KEY);
+      const saved = localStorage.getItem(celebratedTopicsKey);
       alreadyCelebrated = saved ? JSON.parse(saved) : [];
     } catch {
       /* ignore */
@@ -224,13 +240,13 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     if (alreadyCelebrated.includes(topicKey)) return;
 
     try {
-      localStorage.setItem(CELEBRATED_TOPICS_KEY, JSON.stringify([...alreadyCelebrated, topicKey]));
+      localStorage.setItem(celebratedTopicsKey, JSON.stringify([...alreadyCelebrated, topicKey]));
     } catch {
       /* ignore */
     }
     setCelebrationCountdown(10);
     setCelebrationTopicKey(topicKey);
-  }, [completedSlugs, filteredExercises, isSequentialUnlockActive, selectedGradeBand, selectedTopic]);
+  }, [completedSlugs, filteredExercises, isSequentialUnlockActive, selectedGradeBand, selectedTopic, celebratedTopicsKey]);
 
   // Countdown that auto-redirects to the home route once it reaches 0.
   useEffect(() => {
@@ -259,7 +275,15 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     return filteredExercises[idx + 1] ?? null;
   }, [filteredExercises, selectedSlug]);
 
-  const activeTeacherLesson = teacherCodingLessons.find((l) => l.slug === selectedSlug || l._id === selectedSlug);
+  // Hệ thống Exercise thật (có backend judge lưu submission vào DB) luôn được ưu
+  // tiên khi trùng slug với một Teacher Authoring lesson — nếu không, mọi bài
+  // trùng slug sẽ luôn bị chấm giả lập ở FE (không lưu submission), khiến các
+  // tính năng cần submission thật (như AI Coach Debug Loop) không hoạt động
+  // được trên đúng bài mà học viên đang làm.
+  const hasSystemExercise = exercises.some((ex) => ex.slug === selectedSlug);
+  const activeTeacherLesson = hasSystemExercise
+    ? undefined
+    : teacherCodingLessons.find((l) => l.slug === selectedSlug || l._id === selectedSlug);
 
   const stopPolling = () => {
     if (pollIntervalRef.current) {
@@ -270,7 +294,8 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
 
   // Clicking an exercise card is the only way into the editor screen.
   const openExercise = (slug: string) => {
-    if (!authUser && slug !== FREE_GUEST_EXERCISE_SLUG) {
+    if (!authUser) {
+      showToast('Vui lòng đăng nhập để làm bài này.', 'info');
       navigate('/login');
       return;
     }
@@ -297,8 +322,11 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     setRunResult(null);
     setSubmission(null);
 
-    // If selected slug belongs to a Teacher Created Coding Lesson
-    const tLesson = teacherCodingLessons.find((l) => l.slug === selectedSlug || l._id === selectedSlug);
+    // If selected slug belongs to a Teacher Created Coding Lesson (and has no
+    // colliding system Exercise — see activeTeacherLesson above for why).
+    const tLesson = hasSystemExercise
+      ? undefined
+      : teacherCodingLessons.find((l) => l.slug === selectedSlug || l._id === selectedSlug);
     if (tLesson) {
       const detail: ExerciseDetail = {
         _id: tLesson._id || `t-id-${tLesson.slug}`,
@@ -332,13 +360,14 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
         setStdin(detail.testCases[0]?.input ?? '');
       })
       .catch(() => setLoadError(`Không thể tải bài tập "${selectedSlug}".`));
-  }, [selectedSlug, teacherLessons]);
+  }, [selectedSlug, teacherLessons, exercises]);
 
   useEffect(() => stopPolling, []);
 
   const handleRun = async () => {
     if (!selectedSlug) return;
-    if (!authUser && selectedSlug !== FREE_GUEST_EXERCISE_SLUG) {
+    if (!authUser) {
+      showToast('Vui lòng đăng nhập để chạy thử code.', 'info');
       navigate('/login');
       return;
     }
@@ -375,7 +404,8 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
 
   const handleSubmit = async () => {
     if (!selectedSlug) return;
-    if (!authUser && selectedSlug !== FREE_GUEST_EXERCISE_SLUG) {
+    if (!authUser) {
+      showToast('Vui lòng đăng nhập để nộp bài.', 'info');
       navigate('/login');
       return;
     }
@@ -825,9 +855,10 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
             </>
           )}
 
-          {activeResultTab === 'hint' && selectedSlug && (
+          {activeResultTab === 'hint' && selectedSlug && authUser && (
             <HintPanel
               exerciseSlug={selectedSlug}
+              userId={authUser.id}
               customHints={activeTeacherLesson?.hints ?? exercise?.hints}
               onApplySolution={(solution) => {
                 setCode(solution);
@@ -835,7 +866,13 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
             />
           )}
 
-          {activeResultTab === 'coach' && selectedSlug && <CoachPanel exerciseSlug={selectedSlug} />}
+          {activeResultTab === 'coach' && selectedSlug && authUser && (
+            <CoachPanel
+              exerciseSlug={selectedSlug}
+              userId={authUser.id}
+              lastSubmissionId={!activeTeacherLesson ? (submission?._id ?? null) : null}
+            />
+          )}
 
           {loadError && (
             <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300">

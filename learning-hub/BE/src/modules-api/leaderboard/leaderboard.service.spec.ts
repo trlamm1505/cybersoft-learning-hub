@@ -39,7 +39,8 @@ describe('LeaderboardService', () => {
           docs.filter((d) => {
             if (filter.isLate === false && d.isLate !== false) return false;
             const cutoff = filter.submittedAt?.$lte;
-            if (cutoff && d.submittedAt.getTime() > cutoff.getTime()) return false;
+            if (cutoff && d.submittedAt.getTime() > cutoff.getTime())
+              return false;
             return true;
           }),
         ),
@@ -62,7 +63,10 @@ describe('LeaderboardService', () => {
       providers: [
         LeaderboardService,
         { provide: getModelToken(Contest.name), useValue: mockContestModel },
-        { provide: getModelToken(ContestSubmission.name), useValue: mockSubmissionModel },
+        {
+          provide: getModelToken(ContestSubmission.name),
+          useValue: mockSubmissionModel,
+        },
       ],
     }).compile();
 
@@ -119,9 +123,30 @@ describe('LeaderboardService', () => {
 
   it('applies +20 minutes penalty per wrong attempt before the best (max-score) submission', async () => {
     setupSubmissions([
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 40, submittedAt: minutesAfterStart(2), isLate: false },
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 60, submittedAt: minutesAfterStart(4), isLate: false },
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 100, submittedAt: minutesAfterStart(6), isLate: false },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 40,
+        submittedAt: minutesAfterStart(2),
+        isLate: false,
+      },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 60,
+        submittedAt: minutesAfterStart(4),
+        isLate: false,
+      },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 100,
+        submittedAt: minutesAfterStart(6),
+        isLate: false,
+      },
     ]);
 
     const result = await service.computeLeaderboard(contestId);
@@ -132,8 +157,22 @@ describe('LeaderboardService', () => {
 
   it('takes the max score per problem across resubmits, not the latest submission', async () => {
     setupSubmissions([
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 100, submittedAt: minutesAfterStart(5), isLate: false },
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 30, submittedAt: minutesAfterStart(10), isLate: false },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 100,
+        submittedAt: minutesAfterStart(5),
+        isLate: false,
+      },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 30,
+        submittedAt: minutesAfterStart(10),
+        isLate: false,
+      },
     ]);
 
     const result = await service.computeLeaderboard(contestId);
@@ -144,7 +183,14 @@ describe('LeaderboardService', () => {
 
   it('excludes isLate:true submissions entirely from scoring', async () => {
     setupSubmissions([
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 100, submittedAt: minutesAfterStart(150), isLate: true },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 100,
+        submittedAt: minutesAfterStart(150),
+        isLate: true,
+      },
     ]);
 
     const result = await service.computeLeaderboard(contestId);
@@ -155,7 +201,14 @@ describe('LeaderboardService', () => {
   it('freezes the ranking during the freeze window: a new submission after freezeAt does not change it', async () => {
     // duration 120min -> freezeMinutes = min(60, round(120*0.3)) = 36 -> freezeAt = endTime - 36min = t=84
     setupSubmissions([
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 100, submittedAt: minutesAfterStart(50), isLate: false },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 100,
+        submittedAt: minutesAfterStart(50),
+        isLate: false,
+      },
     ]);
     jest.setSystemTime(minutesAfterStart(90)); // ONGOING, past freezeAt (t=84)
 
@@ -164,8 +217,22 @@ describe('LeaderboardService', () => {
     expect(before.rows[0].totalScore).toBe(100);
 
     setupSubmissions([
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 100, submittedAt: minutesAfterStart(50), isLate: false },
-      { studentId: 'B', studentName: 'Bob', problemSlug: 'p1', score: 100, submittedAt: minutesAfterStart(85), isLate: false },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 100,
+        submittedAt: minutesAfterStart(50),
+        isLate: false,
+      },
+      {
+        studentId: 'B',
+        studentName: 'Bob',
+        problemSlug: 'p1',
+        score: 100,
+        submittedAt: minutesAfterStart(85),
+        isLate: false,
+      },
     ]);
 
     const after = await service.computeLeaderboard(contestId);
@@ -176,8 +243,22 @@ describe('LeaderboardService', () => {
 
   it('shows the full unfrozen leaderboard once the contest has ENDED', async () => {
     setupSubmissions([
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 100, submittedAt: minutesAfterStart(50), isLate: false },
-      { studentId: 'B', studentName: 'Bob', problemSlug: 'p1', score: 100, submittedAt: minutesAfterStart(85), isLate: false },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 100,
+        submittedAt: minutesAfterStart(50),
+        isLate: false,
+      },
+      {
+        studentId: 'B',
+        studentName: 'Bob',
+        problemSlug: 'p1',
+        score: 100,
+        submittedAt: minutesAfterStart(85),
+        isLate: false,
+      },
     ]);
     jest.setSystemTime(new Date(endTime.getTime() + 60_000)); // now past endTime -> ENDED
 
@@ -190,8 +271,22 @@ describe('LeaderboardService', () => {
 
   it('is deterministic: recomputing from the same log twice yields identical results', async () => {
     setupSubmissions([
-      { studentId: 'A', studentName: 'Alice', problemSlug: 'p1', score: 100, submittedAt: minutesAfterStart(10), isLate: false },
-      { studentId: 'B', studentName: 'Bob', problemSlug: 'p2', score: 80, submittedAt: minutesAfterStart(12), isLate: false },
+      {
+        studentId: 'A',
+        studentName: 'Alice',
+        problemSlug: 'p1',
+        score: 100,
+        submittedAt: minutesAfterStart(10),
+        isLate: false,
+      },
+      {
+        studentId: 'B',
+        studentName: 'Bob',
+        problemSlug: 'p2',
+        score: 80,
+        submittedAt: minutesAfterStart(12),
+        isLate: false,
+      },
     ]);
 
     const first = await service.computeLeaderboard(contestId);

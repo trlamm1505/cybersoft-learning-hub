@@ -6,8 +6,14 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Question, QuestionDocument } from '../../modules-system/database/schemas/question.schema';
-import { QuizAttempt, QuizAttemptDocument } from '../../modules-system/database/schemas/quiz-attempt.schema';
+import {
+  Question,
+  QuestionDocument,
+} from '../../modules-system/database/schemas/question.schema';
+import {
+  QuizAttempt,
+  QuizAttemptDocument,
+} from '../../modules-system/database/schemas/quiz-attempt.schema';
 import { StartAttemptDto } from './dto/start-attempt.dto';
 import { SubmitAttemptDto } from './dto/submit-attempt.dto';
 import { ReviewPolicyType } from './dto/review-attempt.dto';
@@ -27,8 +33,8 @@ export class QuizService {
    * 1. Start Attempt (Bắt đầu làm bài):
    * Khởi tạo lượt thi, xáo trộn phương án ngầm bằng SEED, ẩn đáp án đúng & giải thích
    */
-  async startAttempt(dto: StartAttemptDto) {
-    const { userId, testId, category } = dto;
+  async startAttempt(userId: string, dto: StartAttemptDto) {
+    const { testId, category } = dto;
 
     if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(testId)) {
       throw new BadRequestException('ID người dùng hoặc bài thi không hợp lệ.');
@@ -49,19 +55,15 @@ export class QuizService {
       return this.formatSanitizedQuestions(existingAttempt);
     }
 
-    // Fetch questions for this quiz topic. "Fullstack Web" is a single SYSTEM_QUIZZES topic
-    // spanning several underlying Question.category values (HTML5/CSS3/JavaScript/React/
-    // NestJS/Database/Quiz Engine) — matched here as "everything that isn't Python" rather
-    // than one exact category string, since no question is tagged "Fullstack Web" itself.
-    // Falls back to the full bank when no category is given (backward compatibility).
-    const questionFilter = !category
-      ? {}
-      : category === 'Fullstack Web'
-        ? { category: { $ne: 'Python' } }
-        : { category };
+    // Fetch questions for this quiz topic. Each SYSTEM_QUIZZES topic maps 1:1 to a
+    // Question.category value (Python / HTML5 / CSS3). Falls back to the full bank
+    // when no category is given (backward compatibility).
+    const questionFilter = !category ? {} : { category };
     const questions = await this.questionModel.find(questionFilter).exec();
     if (!questions || questions.length === 0) {
-      throw new NotFoundException('Không tìm thấy câu hỏi nào trong hệ thống bài thi.');
+      throw new NotFoundException(
+        'Không tìm thấy câu hỏi nào trong hệ thống bài thi.',
+      );
     }
 
     // Create unique deterministic seed
@@ -73,7 +75,7 @@ export class QuizService {
       const shuffledKeysOrder = seededShuffle(optionKeys, `${seed}_${q._id}`);
 
       return {
-        questionId: q._id as Types.ObjectId,
+        questionId: q._id,
         optionKeysOrder: shuffledKeysOrder,
         selectedOptionKey: undefined,
         isCorrect: false,
@@ -103,11 +105,17 @@ export class QuizService {
    * 2. Submit Attempt (Nộp bài & Tự động chấm điểm):
    * Kiểm tra thời hạn (chống nộp quá hạn), chấm điểm tự động và cập nhật điểm số
    */
-  async submitAttempt(attemptId: string, dto: SubmitAttemptDto) {
-    const { userId, answers } = dto;
+  async submitAttempt(
+    attemptId: string,
+    userId: string,
+    dto: SubmitAttemptDto,
+  ) {
+    const { answers } = dto;
 
     if (!Types.ObjectId.isValid(attemptId) || !Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException('ID lượt thi hoặc người dùng không hợp lệ.');
+      throw new BadRequestException(
+        'ID lượt thi hoặc người dùng không hợp lệ.',
+      );
     }
 
     const attempt = await this.quizAttemptModel.findOne({
@@ -120,11 +128,14 @@ export class QuizService {
     }
 
     if (attempt.status !== 'IN_PROGRESS') {
-      throw new BadRequestException(`Lượt làm bài đã kết thúc trước đó với trạng thái: ${attempt.status}`);
+      throw new BadRequestException(
+        `Lượt làm bài đã kết thúc trước đó với trạng thái: ${attempt.status}`,
+      );
     }
 
     // Check time limit with 15-second grace period for network latency
-    const elapsedSeconds = (Date.now() - new Date(attempt.startedAt).getTime()) / 1000;
+    const elapsedSeconds =
+      (Date.now() - new Date(attempt.startedAt).getTime()) / 1000;
     const allowedTimeSeconds = attempt.timeLimitSeconds + 15;
 
     if (elapsedSeconds > allowedTimeSeconds) {
@@ -132,7 +143,9 @@ export class QuizService {
       attempt.submittedAt = new Date();
       attempt.score = 0;
       await attempt.save();
-      throw new BadRequestException('Bài thi đã quá thời hạn nộp bài. Lượt thi bị hủy.');
+      throw new BadRequestException(
+        'Bài thi đã quá thời hạn nộp bài. Lượt thi bị hủy.',
+      );
     }
 
     // Map answers by questionId
@@ -145,9 +158,11 @@ export class QuizService {
 
     // Fetch questions to grade
     const questionIds = attempt.shuffledQuestions.map((sq) => sq.questionId);
-    const questions = await this.questionModel.find({ _id: { $in: questionIds } }).exec();
+    const questions = await this.questionModel
+      .find({ _id: { $in: questionIds } })
+      .exec();
     const questionMap = new Map<string, QuestionDocument>();
-    questions.forEach((q) => questionMap.set((q._id as Types.ObjectId).toString(), q));
+    questions.forEach((q) => questionMap.set(q._id.toString(), q));
 
     let totalScore = 0;
 
@@ -159,7 +174,9 @@ export class QuizService {
 
       const originalQuestion = questionMap.get(qIdStr);
       if (originalQuestion && selectedKey) {
-        const selectedOption = originalQuestion.options.find((opt) => opt.key === selectedKey);
+        const selectedOption = originalQuestion.options.find(
+          (opt) => opt.key === selectedKey,
+        );
         if (selectedOption && selectedOption.isCorrect) {
           sq.isCorrect = true;
           sq.scoreEarned = originalQuestion.points || 10;
@@ -195,9 +212,15 @@ export class QuizService {
    * 3. Review Attempt (Xem kết quả & Giải thích chi tiết):
    * Kiểm tra Review Policy để quyết định có trả về đáp án đúng và phần giải thích hay không
    */
-  async reviewAttempt(attemptId: string, userId: string, policy: ReviewPolicyType = 'AFTER_SUBMISSION') {
+  async reviewAttempt(
+    attemptId: string,
+    userId: string,
+    policy: ReviewPolicyType = 'AFTER_SUBMISSION',
+  ) {
     if (!Types.ObjectId.isValid(attemptId) || !Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException('ID lượt thi hoặc người dùng không hợp lệ.');
+      throw new BadRequestException(
+        'ID lượt thi hoặc người dùng không hợp lệ.',
+      );
     }
 
     const attempt = await this.quizAttemptModel.findOne({
@@ -212,17 +235,23 @@ export class QuizService {
     // Enforce Review Policy
     switch (policy) {
       case 'NEVER':
-        throw new ForbiddenException('Giảng viên đã tắt chức năng xem giải thích cho bài thi này.');
+        throw new ForbiddenException(
+          'Giảng viên đã tắt chức năng xem giải thích cho bài thi này.',
+        );
 
       case 'AFTER_SUBMISSION':
         if (attempt.status === 'IN_PROGRESS') {
-          throw new BadRequestException('Bạn phải nộp bài thi trước khi xem đáp án và giải thích chi tiết.');
+          throw new BadRequestException(
+            'Bạn phải nộp bài thi trước khi xem đáp án và giải thích chi tiết.',
+          );
         }
         break;
 
       case 'AFTER_DEADLINE':
         if (attempt.status === 'IN_PROGRESS') {
-          throw new BadRequestException('Chưa đến thời điểm được xem đáp án (sau Hạn nộp đề thi).');
+          throw new BadRequestException(
+            'Chưa đến thời điểm được xem đáp án (sau Hạn nộp đề thi).',
+          );
         }
         break;
 
@@ -233,47 +262,53 @@ export class QuizService {
 
     // Fetch full question documents
     const questionIds = attempt.shuffledQuestions.map((sq) => sq.questionId);
-    const questions = await this.questionModel.find({ _id: { $in: questionIds } }).exec();
+    const questions = await this.questionModel
+      .find({ _id: { $in: questionIds } })
+      .exec();
     const questionMap = new Map<string, QuestionDocument>();
-    questions.forEach((q) => questionMap.set((q._id as Types.ObjectId).toString(), q));
+    questions.forEach((q) => questionMap.set(q._id.toString(), q));
 
     // Construct detailed review payload
-    const reviewQuestions = attempt.shuffledQuestions.map((sq) => {
-      const qIdStr = sq.questionId.toString();
-      const originalQ = questionMap.get(qIdStr);
+    const reviewQuestions = attempt.shuffledQuestions
+      .map((sq) => {
+        const qIdStr = sq.questionId.toString();
+        const originalQ = questionMap.get(qIdStr);
 
-      if (!originalQ) {
-        return null;
-      }
+        if (!originalQ) {
+          return null;
+        }
 
-      // Re-apply deterministic option order
-      const optionMap = new Map(originalQ.options.map((opt) => [opt.key, opt]));
-      const orderedOptions = sq.optionKeysOrder
-        .map((key) => optionMap.get(key))
-        .filter((opt) => !!opt)
-        .map((opt) => ({
-          key: opt!.key,
-          text: opt!.text,
-          isCorrect: opt!.isCorrect, // Include correct flag for review
-        }));
+        // Re-apply deterministic option order
+        const optionMap = new Map(
+          originalQ.options.map((opt) => [opt.key, opt]),
+        );
+        const orderedOptions = sq.optionKeysOrder
+          .map((key) => optionMap.get(key))
+          .filter((opt) => !!opt)
+          .map((opt) => ({
+            key: opt.key,
+            text: opt.text,
+            isCorrect: opt.isCorrect, // Include correct flag for review
+          }));
 
-      const correctOption = originalQ.options.find((opt) => opt.isCorrect);
+        const correctOption = originalQ.options.find((opt) => opt.isCorrect);
 
-      return {
-        questionId: originalQ._id,
-        content: originalQ.content,
-        codeSnippet: originalQ.codeSnippet,
-        category: originalQ.category,
-        difficulty: originalQ.difficulty,
-        points: originalQ.points,
-        options: orderedOptions,
-        selectedOptionKey: sq.selectedOptionKey,
-        correctOptionKey: correctOption ? correctOption.key : null,
-        isCorrect: sq.isCorrect,
-        scoreEarned: sq.scoreEarned,
-        explanation: originalQ.explanation, // Detailed explanation
-      };
-    }).filter((q) => q !== null);
+        return {
+          questionId: originalQ._id,
+          content: originalQ.content,
+          codeSnippet: originalQ.codeSnippet,
+          category: originalQ.category,
+          difficulty: originalQ.difficulty,
+          points: originalQ.points,
+          options: orderedOptions,
+          selectedOptionKey: sq.selectedOptionKey,
+          correctOptionKey: correctOption ? correctOption.key : null,
+          isCorrect: sq.isCorrect,
+          scoreEarned: sq.scoreEarned,
+          explanation: originalQ.explanation, // Detailed explanation
+        };
+      })
+      .filter((q) => q !== null);
 
     return {
       attemptId: attempt._id,
@@ -295,38 +330,44 @@ export class QuizService {
    */
   private async formatSanitizedQuestions(attempt: QuizAttemptDocument) {
     const questionIds = attempt.shuffledQuestions.map((sq) => sq.questionId);
-    const questions = await this.questionModel.find({ _id: { $in: questionIds } }).exec();
+    const questions = await this.questionModel
+      .find({ _id: { $in: questionIds } })
+      .exec();
     const questionMap = new Map<string, QuestionDocument>();
-    questions.forEach((q) => questionMap.set((q._id as Types.ObjectId).toString(), q));
+    questions.forEach((q) => questionMap.set(q._id.toString(), q));
 
-    const sanitizedQuestions = attempt.shuffledQuestions.map((sq) => {
-      const qIdStr = sq.questionId.toString();
-      const originalQ = questionMap.get(qIdStr);
+    const sanitizedQuestions = attempt.shuffledQuestions
+      .map((sq) => {
+        const qIdStr = sq.questionId.toString();
+        const originalQ = questionMap.get(qIdStr);
 
-      if (!originalQ) return null;
+        if (!originalQ) return null;
 
-      const optionMap = new Map(originalQ.options.map((opt) => [opt.key, opt]));
-      const orderedOptions = sq.optionKeysOrder
-        .map((key) => optionMap.get(key))
-        .filter((opt) => !!opt)
-        .map((opt) => ({
-          key: opt!.key,
-          text: opt!.text,
-          // EXPLICITLY STRIPPED OUT: isCorrect
-        }));
+        const optionMap = new Map(
+          originalQ.options.map((opt) => [opt.key, opt]),
+        );
+        const orderedOptions = sq.optionKeysOrder
+          .map((key) => optionMap.get(key))
+          .filter((opt) => !!opt)
+          .map((opt) => ({
+            key: opt.key,
+            text: opt.text,
+            // EXPLICITLY STRIPPED OUT: isCorrect
+          }));
 
-      return {
-        questionId: originalQ._id,
-        content: originalQ.content,
-        codeSnippet: originalQ.codeSnippet,
-        category: originalQ.category,
-        difficulty: originalQ.difficulty,
-        points: originalQ.points,
-        options: orderedOptions,
-        selectedOptionKey: sq.selectedOptionKey,
-        // EXPLICITLY STRIPPED OUT: explanation
-      };
-    }).filter((q) => q !== null);
+        return {
+          questionId: originalQ._id,
+          content: originalQ.content,
+          codeSnippet: originalQ.codeSnippet,
+          category: originalQ.category,
+          difficulty: originalQ.difficulty,
+          points: originalQ.points,
+          options: orderedOptions,
+          selectedOptionKey: sq.selectedOptionKey,
+          // EXPLICITLY STRIPPED OUT: explanation
+        };
+      })
+      .filter((q) => q !== null);
 
     return {
       attemptId: attempt._id,

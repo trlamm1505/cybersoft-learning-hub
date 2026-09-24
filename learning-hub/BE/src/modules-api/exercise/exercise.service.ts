@@ -1,9 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Exercise, ExerciseDocument } from '../../modules-system/database/schemas/exercise.schema';
-import { Submission, SubmissionDocument } from '../../modules-system/database/schemas/submission.schema';
-import { checkPythonSyntax, runPythonCode } from '../../common/helper/code-runner.helper';
+import {
+  Exercise,
+  ExerciseDocument,
+} from '../../modules-system/database/schemas/exercise.schema';
+import {
+  Submission,
+  SubmissionDocument,
+} from '../../modules-system/database/schemas/submission.schema';
+import {
+  checkPythonSyntax,
+  runPythonCode,
+} from '../../common/helper/code-runner.helper';
 import { JudgeQueueService } from '../judge/judge-queue.service';
 import { JudgeStatus } from '../judge/judge-status.enum';
 import { RunCodeDto } from './dto/run-code.dto';
@@ -12,8 +21,10 @@ import { SubmitCodeDto } from './dto/submit-code.dto';
 @Injectable()
 export class ExerciseService {
   constructor(
-    @InjectModel(Exercise.name) private readonly exerciseModel: Model<ExerciseDocument>,
-    @InjectModel(Submission.name) private readonly submissionModel: Model<SubmissionDocument>,
+    @InjectModel(Exercise.name)
+    private readonly exerciseModel: Model<ExerciseDocument>,
+    @InjectModel(Submission.name)
+    private readonly submissionModel: Model<SubmissionDocument>,
     private readonly judgeQueueService: JudgeQueueService,
   ) {}
 
@@ -33,11 +44,19 @@ export class ExerciseService {
         'title slug description type difficulty points starterCode timeLimitMs testCases tags prerequisiteSlug gradeBand topic orderInTopic hints',
       )
       .lean();
-    if (!exercise) throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
+    if (!exercise)
+      throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
 
     // Hide the actual expected output of hidden tests, only expose count/labels.
-    const visibleTestCases = (exercise.testCases ?? []).filter((t) => !t.isHidden);
-    return { ...exercise, testCases: visibleTestCases, hiddenTestCount: (exercise.testCases ?? []).length - visibleTestCases.length };
+    const visibleTestCases = (exercise.testCases ?? []).filter(
+      (t) => !t.isHidden,
+    );
+    return {
+      ...exercise,
+      testCases: visibleTestCases,
+      hiddenTestCount:
+        (exercise.testCases ?? []).length - visibleTestCases.length,
+    };
   }
 
   /**
@@ -59,13 +78,14 @@ export class ExerciseService {
    * classification) happens asynchronously in JudgeQueueService; the caller polls
    * GET /exercises/submissions/:id for the result.
    */
-  async submitCode(slug: string, dto: SubmitCodeDto) {
+  async submitCode(slug: string, dto: SubmitCodeDto, userId: string) {
     const exercise = await this.exerciseModel.findOne({ slug }).lean();
-    if (!exercise) throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
+    if (!exercise)
+      throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
 
     const submission = await this.submissionModel.create({
       exerciseId: String((exercise as any)._id),
-      userId: dto.userId,
+      userId,
       code: dto.code,
       status: JudgeStatus.QUEUED,
       passedCount: 0,
