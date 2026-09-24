@@ -47,12 +47,14 @@ def run_demo():
     print("  PHASE 1: VECTOR INDEX BUILDING & ARTIFACT SERIALIZATION")
     print("===========================================================================")
 
-    chunks_file = (
-        BASE_DIR.parent
-        / "BaoCao_Task16"
-        / "output"
-        / "chunks_markdown_header_semantic.jsonl"
-    )
+    chunks_file = BASE_DIR / "data" / "chunks_markdown_header_semantic.jsonl"
+    if not chunks_file.exists() or chunks_file.stat().st_size == 0:
+        chunks_file = (
+            BASE_DIR.parent
+            / "BaoCao_Task16"
+            / "output"
+            / "chunks_markdown_header_semantic.jsonl"
+        )
     if not chunks_file.exists():
         print(f"[!] Phase 1 FAILED: Chunks file not found at {chunks_file}")
         return 1

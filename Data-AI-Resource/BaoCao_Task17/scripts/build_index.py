@@ -30,16 +30,19 @@ def main():
     parser = argparse.ArgumentParser(
         description="Build CyberSoft Vector Index Artifacts"
     )
-    parser.add_argument(
-        "--chunks-file",
-        type=str,
-        default=str(
+    default_chunks = BASE_DIR / "data" / "chunks_markdown_header_semantic.jsonl"
+    if not default_chunks.exists():
+        default_chunks = (
             BASE_DIR.parent
             / "BaoCao_Task16"
             / "output"
             / "chunks_markdown_header_semantic.jsonl"
-        ),
-        help="Path to JSONL chunks file from Task 16",
+        )
+    parser.add_argument(
+        "--chunks-file",
+        type=str,
+        default=str(default_chunks),
+        help="Path to JSONL chunks file",
     )
     parser.add_argument(
         "--output-dir",

@@ -1,5 +1,5 @@
 # CYBERSOFT DATA & AI LAB — RETRIEVAL BASELINE REPORT
-**Thời điểm đánh giá**: 2026-09-24T09:14:55.061885  
+**Thời điểm đánh giá**: 2026-09-24T09:23:47.969073  
 **Tập kiểm thử (Evaluation Split)**: `test` (20 queries)  
 **Mô hình**: Vector Index Flat Cosine Similarity + TFIDF-SVD L2 Dense Projection  
 
@@ -17,10 +17,10 @@
 
 | Phân vị Độ trễ | Thời gian thực thi (ms) | Ngưỡng SLA Production | Đánh giá |
 | :--- | :--- | :--- | :--- |
-| **Mean Latency** | **4.07 ms** | < 25.0 ms | Đạt xuất sắc |
-| **p50 Latency (Median)** | **4.04 ms** | < 20.0 ms | Tốc độ tức thì |
-| **p90 Latency** | **4.49 ms** | < 40.0 ms | Ổn định cao |
-| **p95 Latency** | **4.67 ms** | < 50.0 ms | Hoàn toàn đáp ứng SLA |
+| **Mean Latency** | **4.37 ms** | < 25.0 ms | Đạt xuất sắc |
+| **p50 Latency (Median)** | **4.22 ms** | < 20.0 ms | Tốc độ tức thì |
+| **p90 Latency** | **5.83 ms** | < 40.0 ms | Ổn định cao |
+| **p95 Latency** | **6.29 ms** | < 50.0 ms | Hoàn toàn đáp ứng SLA |
 
 ## 3. PHÂN TÍCH TRƯỜNG HỢP THẤT BẠI (FAILURE ANALYSIS CHO NGÀY 18)
 
