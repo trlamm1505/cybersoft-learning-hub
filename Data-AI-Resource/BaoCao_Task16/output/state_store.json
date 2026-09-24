@@ -1,0 +1,327 @@
+{
+  "updated_at": "2026-09-23T15:59:29.102227",
+  "total_documents": 23,
+  "documents": {
+    "CS-CRS-001": {
+      "document_id": "CS-CRS-001",
+      "relative_path": "CS-CRS-001_lo_trinh_fullstack_web.md",
+      "content_hash": "09968e78f419d982e8852e12831a1f3db004c18780f8b51f7959a9568dee7d6b",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.262227",
+      "chunk_hashes": [
+        "d8ee1277d67d5e80e511892bf85e4eac707f37be1ad1f4f3ab84d33d8c03a4b0",
+        "a1fa7771f457d9471455f7410d16ffe7070db0833e828cd8eb032d56b023a032",
+        "7ebeadfeaf1b526582060d76e3713ea70128534614fcb9d3817ebb29cec82f51",
+        "7fa8433952b0b0276a252982eed9ab16b74c2b187e2b882e6a33a2247b449a8b"
+      ]
+    },
+    "CS-CRS-002": {
+      "document_id": "CS-CRS-002",
+      "relative_path": "CS-CRS-002_lo_trinh_data_ai_resource_engineer.md",
+      "content_hash": "068c60d7879262d5fb6b5a1080ab02ff3c67ab4b3af93ed46987f8b9d05084cb",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.262227",
+      "chunk_hashes": [
+        "68120b73e8dc2b381bd16055dcfc10231e051dc48629ed5eb3b6f93b72ed86fd",
+        "2a3ccb0aa5fba1b119870be410c90ea513b0e3856ab09475c089ee354535cdf1",
+        "2a58e724ddf537a8d56b0089c0398fa83e4b921209fdfa203345ad222cbb9b1f",
+        "508b14eb842758c090951cdcce93f44daffae67af140c27e06b433563f0541a5"
+      ]
+    },
+    "CS-CRS-003": {
+      "document_id": "CS-CRS-003",
+      "relative_path": "CS-CRS-003_lo_trinh_devops_cloud_computing.md",
+      "content_hash": "c92b6236956e75b82014d24fc7759a70d10108b59c4763db5a527fdb2c6846a7",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.263228",
+      "chunk_hashes": [
+        "6c3eb04b93f5dd5579efdc0f5758f4f4cebefa61585f462981c81762c7fc7c31",
+        "06a87272f2a6a1e788e3bca1be819769627bb9a766da7aeae70f1bc03d0842c3",
+        "04fc5e6ef6903897b20aea6acdd289c53ee20da6b38bc17382f6bcd0d9796cb3",
+        "7b1e2ed61e252c1504f2a8de3b87774f8a008cfc3e55969df4e8c1d81fcb5eee"
+      ]
+    },
+    "CS-CRS-004": {
+      "document_id": "CS-CRS-004",
+      "relative_path": "CS-CRS-004_lo_trinh_cybersecurity_soc.md",
+      "content_hash": "757eee7462b192f248242967a9a938f9d7cdd9c6313066262a3ed076488302eb",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.264228",
+      "chunk_hashes": [
+        "c6101190a5e492926d5856a45314e175801e8d6c2667cdd1daa9de875ffae586",
+        "6c1e653c1423c053a9d3430f5504b67c057a577937f79b98c81eb55b379846f5",
+        "991c45ea061e8ca01c61fbd0a6e5ab9bce2a65022245ff3930d30e5b0dec7b2c",
+        "12c26f91a6aa01169d6efff759c52bf4dc6be6fc1d55ec4adec6d4b4a5d3dcba"
+      ]
+    },
+    "CS-CRS-005": {
+      "document_id": "CS-CRS-005",
+      "relative_path": "CS-CRS-005_lo_trinh_mobile_react_native.md",
+      "content_hash": "21d0c18323bf7a3617fff8e3010be1bacec55966d985ddd164ff2d2b63972b4e",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.265227",
+      "chunk_hashes": [
+        "d4a8a04523b6266fce87c476247aab8a99d7b1bd0551da765c402cd59e87a602",
+        "63ee28c38ea23b7111fe8aa950811dcd321c2f3c3a47ecc1436be3931b10faff",
+        "887775972f7f51fd8c6d8f1a7b0192bdd557b5186252307d787b9b4365d0fdc7",
+        "21770f7807fc6f1df5b904fe2c0bdf2146fc937c9aebdd43adf9deb7faddfa89"
+      ]
+    },
+    "CS-FAQ-001": {
+      "document_id": "CS-FAQ-001",
+      "relative_path": "CS-FAQ-001_faq_hoc_phi_va_thanh_toan.md",
+      "content_hash": "e0de0e83a7c911424ffdc8b24205171b8b726799c5bd87cd9faf9c0c27a601f7",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.265227",
+      "chunk_hashes": [
+        "ad03c1998539701c8894bed6231f62ee1c2fea519aa1f65d0f01959442905983",
+        "691221c0960e9a2b167fc3bea0b7cc9bf6201948c676d4f16d5e550c3fc115af",
+        "db93889862a51102189330dcd1c1f59d33938810a3d85f6e4fd46e9dfc4f7a18",
+        "1689602b4029238cb57bda103dd4fa447ef659b8ffdf0c6bd68ac124086c430d"
+      ]
+    },
+    "CS-FAQ-002": {
+      "document_id": "CS-FAQ-002",
+      "relative_path": "CS-FAQ-002_faq_hinh_thuc_hoc_online_offline.md",
+      "content_hash": "efb54be6a7fd91afb5f3f34e565be405bb3d743000d85eeaa8a69b02d8351ead",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.266229",
+      "chunk_hashes": [
+        "f37c05117335891a199e5cc4286e5d87cecf678ffd9c7af51ebf98c2531caff7",
+        "45cf636896363e61d51742f81628ad324ba3de909707fa73a9c456f1b6963c1f",
+        "32fc6b599acbb89183d8aea23a217a7f64aa40d1ae3069cb97d6fff3bfe70cb0",
+        "150c8b41c51c2089b229074acfecce8f3636c2dba5d7f43d41eb931d2e03d4fb"
+      ]
+    },
+    "CS-FAQ-003": {
+      "document_id": "CS-FAQ-003",
+      "relative_path": "CS-FAQ-003_faq_ho_tro_mentor_va_review_code.md",
+      "content_hash": "d2f5c0f9d54a9e42f2aae88bb20b5e17ee0003205ef32beacfaa59cf6674a290",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.267228",
+      "chunk_hashes": [
+        "aadf79d235a38e25c9631eb3423308e1c91b4e2dc0c2c9b3e698ce238b09722c",
+        "9df1539a7f80bd4496ce56aeaa4a074ee6122bab65a811ef2dff164db3eccd59",
+        "7791e5075931095ac3951f85ad2c5a6c880bd63e59d1aef401f9815dc287c0f6",
+        "42e8309292f4579454b4f15eb7f91eb4b6b5a44a31b610c3833726d607fe07cd"
+      ]
+    },
+    "CS-FAQ-004": {
+      "document_id": "CS-FAQ-004",
+      "relative_path": "CS-FAQ-004_faq_co_hoi_viec_lam_sau_tot_nghiep.md",
+      "content_hash": "97c118ddd90247992f8dd9cf5beaaa85b5eb7b1d2a30a48732bc88243616a8d3",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.268227",
+      "chunk_hashes": [
+        "2e56d762d138e95ce7c5d4bf242a42d6f92203734415753b449d238c766d0b2d",
+        "167d95cce84f87b45710cdb78df48e0de23d5b4b5aaee9fa25779509b56ea9da",
+        "c1fd0827bed052a962575baf9ba956819cd93fa4635cdd1827249e70258774fa",
+        "e9b6fec8b20fa1a87537b48080eda27625511bc14d49a91d4293b8d1da6fefd1"
+      ]
+    },
+    "CS-FAQ-005": {
+      "document_id": "CS-FAQ-005",
+      "relative_path": "CS-FAQ-005_faq_tai_khoan_lms_va_he_thong.md",
+      "content_hash": "47006686541a3a055125419eb2908f7f2d2e92d0052f751ffee2495ba490def8",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.269227",
+      "chunk_hashes": [
+        "37c51ec70e6fb54a9a6750f21af96f4d760e1a43ec93baf9b788800bcdef1367",
+        "1087131e58d7fc96afa4a592b15fb30dc6b122139161a2d0e7bfdba5f87e63f5",
+        "58e99178284a78dae67e9f4edee5848d3597dfe0cfd0a3e8b34b9bb26299a0e0",
+        "6291b19638d9c8ec9155aa2c5bd61e24ea92430527be3a106242d8d1a719c1f9"
+      ]
+    },
+    "CS-PDF-001_quy_che_dao_tao_thuc_chien": {
+      "document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+      "relative_path": "CS-PDF-001_quy_che_dao_tao_thuc_chien.pdf.txt",
+      "content_hash": "a7481b132768ab203beeb1f7536cf76883edf450309e93ca15f7969aec2be89f",
+      "chunk_count": 3,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.270230",
+      "chunk_hashes": [
+        "9ecdaeebd495fcf9f3fea555d07e81c6235b0f031c071c60b612635618e1c797",
+        "a211f60f9663f048082afea9992517ff5486c5b9d113d54165326268b0dfd0e2",
+        "4b1bcdc7217efaa535cc3b6ee70b18835088721cf8c4df30353b87e3036c8299"
+      ]
+    },
+    "CS-POL-001": {
+      "document_id": "CS-POL-001",
+      "relative_path": "CS-POL-001_quy_che_bao_luu.md",
+      "content_hash": "921665ac9f79cc92bd51b93b0431c41fe522b07587c7fbfcf3a1128f0ca1d93f",
+      "chunk_count": 5,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.272230",
+      "chunk_hashes": [
+        "41828b8f3261cf9dd5967e68087a8a25f5b09adc37da484873d98ff17737b9c6",
+        "62e14b59b850b3542d47269e0b36e0e46895c92fdde0f67cd94643a3c264ebb1",
+        "5cb41d8f8c60aaad00b9cfc890f29e5153ddc2f3c9ebb2f6d69f7fb57d7ef306",
+        "0f377325e4bc4518b68487d5dd42bdbce8d1e049f9b5bf82a8daf83c5c5f18b5",
+        "0ff965cdcd01a7fb869b900a60da563df98f21a75480a3428967e011b8de0cea"
+      ]
+    },
+    "CS-POL-002": {
+      "document_id": "CS-POL-002",
+      "relative_path": "CS-POL-002_chinh_sach_hoan_phi.md",
+      "content_hash": "619daff8496199fd60331aca9adbb0ba41a3568652932ffd67c489327def41da",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.274229",
+      "chunk_hashes": [
+        "b8945d8de648a1ab8f399063b45d571fabdfd0dd7377243eeee72731678abd8b",
+        "ca707fcc3608f51aeee0586d24a1f280b7aab58c904b67e9a1f24349e127c783",
+        "bd44d810e3da4412dae12da1f972973cdc10c9222e9f2ce48956e3f2d1196bf7",
+        "9d1d37b59102bcf440e7b3f503e2e78c5b132ab066343dc9a7af14b6718ee999"
+      ]
+    },
+    "CS-POL-003": {
+      "document_id": "CS-POL-003",
+      "relative_path": "CS-POL-003_quy_dinh_diem_danh_do_an.md",
+      "content_hash": "4746a4991668f76bb1ec5611133724b6bba92cccc11462c1fd40356b4eb02b40",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.276228",
+      "chunk_hashes": [
+        "253cd4efd3b1b821773b442d966cceee027b3f5a4acc5deda216cd9fcde69a9b",
+        "43c0bddf2d9e80a8a3638b963b3d70bd1aeea9381f3b4d1ccdb4b835bebabfe7",
+        "3143242d78d2b360d798012ae7a9e63e972de51169e2bf3eced09cf947671e66",
+        "b421568c7fe3fb847554772869acbcb9420e0f2c1649fd8112607e097c561149"
+      ]
+    },
+    "CS-POL-004": {
+      "document_id": "CS-POL-004",
+      "relative_path": "CS-POL-004_cap_chung_chi_tot_nghiep.md",
+      "content_hash": "ec84e3a0682e8a2d8977a1d16e6437ea9135dd3a50c005e623df0d9d7c0a1708",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.277229",
+      "chunk_hashes": [
+        "eae31ac078095bd31f9487041419ca36307efd20f79bee523ad66d8209855b0a",
+        "c2bc123c2099b0a93aaf7b0d22ea71c870037e286ce1629b365ea7bcb6cb8251",
+        "670ed25adbf02ed36aee0d04cab9c88bc1445b8af760e4e50ee93a7ad0b39dae",
+        "257d7fe1fb63dda9e5edcf61524b7d46de5c408512a705f544725ee543b90fee"
+      ]
+    },
+    "CS-POL-005": {
+      "document_id": "CS-POL-005",
+      "relative_path": "CS-POL-005_hoc_bong_va_ho_tro_viec_lam.md",
+      "content_hash": "c6c5b166311e56325831f74b4d0df6836dc6c9ff62146d62854cd84571f435af",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.278232",
+      "chunk_hashes": [
+        "2b1cf5d1082fbed20185cfefd5922eb1f78eb5ae857ee221315d111e13c03f02",
+        "3073d7d1b4124498e57f062d9cb04da54b6c0203657b397b6f5790f5b68985c0",
+        "266270744c7ad410f62ed5677e2426c01ce40d33db131aa7b430a79b34abdc26",
+        "8db3160aeb510e09f48f9eb91111dd3fe665f73431e230a9a16175e0ddbc62f4"
+      ]
+    },
+    "CS-MOCK-001": {
+      "document_id": "CS-MOCK-001",
+      "relative_path": "CS-POL-006_quy_dinh_phong_thi_online.md",
+      "content_hash": "c1c2a0f42f5cd9ae9c411f0e692c2c159f6b19479c06aa0dd270094ca0d94581",
+      "chunk_count": 3,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.279233",
+      "chunk_hashes": [
+        "4476f7146207d5d487361eda54f948734dd55651f2442034d91eec92d501b97f",
+        "7e4d2b0973d06951eb6d3ed5992d3de1e416b77a147f17fe771d8a00352c8c6e",
+        "b43df24a0a4fa9203303ae722988dba5333a17839792a87a86233c6c2b4d4ba2"
+      ]
+    },
+    "CS-TEC-001": {
+      "document_id": "CS-TEC-001",
+      "relative_path": "CS-TEC-001_moi_truong_lap_trinh_python_ai.md",
+      "content_hash": "6ab22366af844017a09992fba4b47c5b22bd884efe84846e8b8043310e8463e8",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.280235",
+      "chunk_hashes": [
+        "9f07b87cfaf2af4d1ad788e0432bbcba03d8a3142a4b7ca6a2047085d59110b2",
+        "5706db97362e164ee21dcb0d7a8b9375773e81817fac498010d24a096f79a885",
+        "be6873134fb44ff67e058b29816b43b59d94942b48adc888edc6cce52dbaeb48",
+        "52d1718159bf3b4d9144a67bee299e08bff28cd7589aee4678397a41bdf5b78f"
+      ]
+    },
+    "CS-TEC-002": {
+      "document_id": "CS-TEC-002",
+      "relative_path": "CS-TEC-002_quy_chuan_git_va_github_classroom.md",
+      "content_hash": "3bfc47e737cbd5116a2ac4d5163b94bf54b35e061a1cf23dfbd69071cb4df055",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.281228",
+      "chunk_hashes": [
+        "6685c815c4ac7e0c9a5ca0ee14fe714aeae0da576f49c16323fb7a3d3f5ee2f3",
+        "3365ee6f59c1ac6140692934ac130ef0fa37cb0fb86ebd08c7e0ffb5f5ad4606",
+        "3348b468f02d70b8695aaa530c00ce58f53d6c431a95987f6a57ece03c65ef48",
+        "bee09feff9c654fff78c413b623c8ad2d38d0109a33cd52bffa6e9c581961817"
+      ]
+    },
+    "CS-TEC-003": {
+      "document_id": "CS-TEC-003",
+      "relative_path": "CS-TEC-003_huong_dan_docker_va_database.md",
+      "content_hash": "9a64fe8675fb7b9b8b21d03ca66bb1bd5cdb8a01cb47618a3f3483fb98a8f7f4",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.282226",
+      "chunk_hashes": [
+        "0a31779aadc65511683a034a9d7ed6e012ff25a00125ac3191cfb853a3df968d",
+        "59d6c51242bc7054e245e4937c1e201ae9d8a1b84b59c102299f447d1bfb0b18",
+        "9ea5680fd6606b0162949b4845be83b3b6284fb2254b40ada9d352edd0eb6b17",
+        "b2eacaa97fad512bf0551fe1d50743aa5536abf3744114262bb9c0b01b95380c"
+      ]
+    },
+    "CS-TEC-004": {
+      "document_id": "CS-TEC-004",
+      "relative_path": "CS-TEC-004_cau_hinh_moi_truong_gpu_cloud.md",
+      "content_hash": "a13e13f7fd7c988ed1c2bd19ff149656480bea93ad02ed93fc9803dff234727a",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.283227",
+      "chunk_hashes": [
+        "cf251421885e25abb6dd93fcc7fcde204e478a74512e03af3f8bc79ff99f6ce9",
+        "05c523e12b0d5f648c58fa078194f628a6779691bdfd3dc22e524f0bd1cd1ee9",
+        "0874a50206418521492220235e55d99545ae844288486c18a7700558a7845788",
+        "627f335b269a8103d781459eed5251a0a11bf2c60ee1b397f5eba7534aab6bc2"
+      ]
+    },
+    "CS-TEC-005": {
+      "document_id": "CS-TEC-005",
+      "relative_path": "CS-TEC-005_quy_chuan_clean_code_va_linting.md",
+      "content_hash": "c0603f49cf8b469c8524b4bbecd631ff0a0ec2e4fa849fc069ef96abbaace76b",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.284228",
+      "chunk_hashes": [
+        "50f4f539c607bb7a4c8c6389755fefcd6a5cf416596086255a8b04906fb93fe2",
+        "f847cbcd2e8b8768419d252e8c849fdfaf84d82525d3a7516896619c3474a0a3",
+        "d56ffc7a700d79565b2dcc2e987e58d2a7bdb1525f24915fda3d6ed71d4a90ca",
+        "33468a58256e8d1ad0d0477e6c90e6323c121bb080cb80c4e30a6133a1941e04"
+      ]
+    },
+    "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart": {
+      "document_id": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart",
+      "relative_path": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart.txt",
+      "content_hash": "1500983982892ad58baba819478e45a02698cf2996f378521879fd0ff5144219",
+      "chunk_count": 4,
+      "strategy": "markdown_header_semantic",
+      "last_ingested_at": "2026-09-23T03:56:27.285226",
+      "chunk_hashes": [
+        "3ed5db66424b7437bab638f08b1f9e92532eafc67f53b2b13bd24a22eeb6b6ed",
+        "ee862a0500b64179ce615a3e855ae3010293b0adfafdef383a0b080bf48284f6",
+        "f7f3a78290c998a23a1ad8517cd11585667e374b6b8165c662eaca5c133f575e",
+        "922580df5e15d1742c3e3a03f926fb68af3bffb01390bd4ce19bd335400f0572"
+      ]
+    }
+  }
+}

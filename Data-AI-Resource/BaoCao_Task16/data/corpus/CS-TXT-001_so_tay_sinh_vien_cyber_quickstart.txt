@@ -1,0 +1,13 @@
+SỔ TAY HỌC VIÊN CYBERSOFT QUICKSTART GUIDE - PHIÊN BẢN 2026
+
+1. GIỚI THIỆU CHUNG
+Học viện Công nghệ Thông tin CyberSoft là đơn vị đào tạo lập trình thực chiến hàng đầu. Hệ sinh thái học tập CyberSoft Learning Hub tích hợp nền tảng quản trị học tập LMS, hệ thống chấm bài tự động Online Judge, và trợ lý học tập AI Tutor.
+
+2. QUY TRÌNH HỌC TẬP HÀNG TUẦN
+Mỗi tuần học viên cần hoàn thành ba đầu việc trọng tâm:
+- Xem bài giảng video lý thuyết trước khi lên lớp (Flipped Classroom).
+- Thực hành bài tập coding trên CyberSoft Online Judge và nộp bài đúng hạn.
+- Tham gia phiên mentoring trực tuyến để giải đáp thắc mắc và review đồ án cá nhân.
+
+3. KÊNH HỖ TRỢ KỸ THUẬT VÀ HỌC VỤ
+Học viên liên hệ trợ giảng qua kênh Discord chính thức của lớp học. Đối với các vấn đề liên quan đến học phí và bảo lưu, vui lòng gửi email tới phongdaotao@cybersoft.edu.vn.
