@@ -200,7 +200,7 @@ FastAPI tự động sinh tài liệu chuẩn OpenAPI tương tác tại đườ
 5. Chọn một trong các **Bản mẫu Request JSON Demo** ở Mục 6.5 dán vào khung **Request body**, sau đó bấm nút **Execute**.
 6. Kiểm tra mã phản hồi (HTTP 200 OK) và dữ liệu `results` có kèm trọn vẹn `citation` DTO.
 
-### 6.5. Bộ Sưu Tập Bản Mẫu Demo Cho `POST /api/v1/search`
+### 6.5. Các Bản Mẫu Demo Cho `POST /api/v1/search`
 
 * **Mẫu 1: Tìm kiếm ngữ nghĩa cơ bản (Top-3 kết quả)**
 ```json
