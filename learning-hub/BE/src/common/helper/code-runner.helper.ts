@@ -36,7 +36,9 @@ function resolvePythonBin(): string {
   if (process.platform !== 'win32') return 'python3';
 
   const candidates = [
-    process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Python', 'bin', 'python.exe') : null,
+    process.env.LOCALAPPDATA
+      ? path.join(process.env.LOCALAPPDATA, 'Python', 'bin', 'python.exe')
+      : null,
   ].filter((p): p is string => !!p);
 
   for (const candidate of candidates) {
@@ -50,7 +52,8 @@ const PYTHON_BIN = resolvePythonBin();
 /**
  * Runs untrusted Python source against a single stdin payload.
  * Isolation strategy (no Docker available on this host):
- *  - static AST-ish guard rejects dangerous imports/calls before anything runs
+ *  - real Python AST guard (python-guard.helper.ts) rejects dangerous
+ *    imports/calls/dunder-attribute access before anything runs
  *  - `python -I` (isolated mode: ignores env vars / user site-packages)
  *  - execution cwd is a fresh temp dir per run, deleted immediately after
  *  - hard wall-clock timeout kills the process tree
@@ -61,7 +64,7 @@ export async function runPythonCode(
   stdin: string,
   timeoutMs: number = DEFAULT_TIMEOUT_MS,
 ): Promise<RunResult> {
-  const violations = scanPythonForViolations(code);
+  const violations = await scanPythonForViolations(code);
   if (violations.length > 0) {
     return {
       stdout: '',
@@ -117,7 +120,10 @@ export async function runPythonCode(
       const memorySampler = child.pid
         ? setInterval(() => {
             sampleProcessMemoryMb(child.pid as number).then((mb) => {
-              if (mb !== undefined && (peakMemoryMb === undefined || mb > peakMemoryMb)) {
+              if (
+                mb !== undefined &&
+                (peakMemoryMb === undefined || mb > peakMemoryMb)
+              ) {
                 peakMemoryMb = mb;
               }
             });
@@ -167,7 +173,12 @@ export async function runPythonCode(
     });
   } finally {
     // Windows can briefly hold the killed child's file handle open; retry a couple times.
-    fs.rmSync(runDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+    fs.rmSync(runDir, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 100,
+    });
   }
 }
 
@@ -194,9 +205,20 @@ async function sampleProcessMemoryMb(pid: number): Promise<number | undefined> {
     // usage above being capped by the caller's own timeout) since spawning a process per sample
     // is expensive relative to the thing being measured.
     return await new Promise<number | undefined>((resolve) => {
-      const probe = spawn('wmic', ['process', 'where', `ProcessId=${pid}`, 'get', 'WorkingSetSize', '/value'], {
-        windowsHide: true,
-      });
+      const probe = spawn(
+        'wmic',
+        [
+          'process',
+          'where',
+          `ProcessId=${pid}`,
+          'get',
+          'WorkingSetSize',
+          '/value',
+        ],
+        {
+          windowsHide: true,
+        },
+      );
       let out = '';
       probe.stdout?.on('data', (c) => (out += c.toString('utf-8')));
       probe.on('close', () => {
@@ -216,7 +238,9 @@ async function sampleProcessMemoryMb(pid: number): Promise<number | undefined> {
  * change between test cases — a SyntaxError/IndentationError here maps to judge status CE,
  * distinct from RE (a runtime error raised by otherwise-valid code).
  */
-export async function checkPythonSyntax(code: string): Promise<SyntaxCheckResult> {
+export async function checkPythonSyntax(
+  code: string,
+): Promise<SyntaxCheckResult> {
   const runDir = fs.mkdtempSync(path.join(os.tmpdir(), 'code-runner-syntax-'));
   const scriptPath = path.join(runDir, `${randomUUID()}.py`);
   fs.writeFileSync(scriptPath, code, 'utf-8');
@@ -228,11 +252,15 @@ export async function checkPythonSyntax(code: string): Promise<SyntaxCheckResult
         minimalEnv.SystemRoot = process.env.SystemRoot;
       }
 
-      const child = spawn(PYTHON_BIN, ['-I', '-B', '-m', 'py_compile', scriptPath], {
-        cwd: runDir,
-        env: minimalEnv,
-        windowsHide: true,
-      });
+      const child = spawn(
+        PYTHON_BIN,
+        ['-I', '-B', '-m', 'py_compile', scriptPath],
+        {
+          cwd: runDir,
+          env: minimalEnv,
+          windowsHide: true,
+        },
+      );
 
       let stderr = '';
       let settled = false;
@@ -244,16 +272,27 @@ export async function checkPythonSyntax(code: string): Promise<SyntaxCheckResult
       child.on('error', (err) => {
         if (settled) return;
         settled = true;
-        resolve({ ok: false, errorMessage: `Không thể kiểm tra cú pháp: ${err.message}` });
+        resolve({
+          ok: false,
+          errorMessage: `Không thể kiểm tra cú pháp: ${err.message}`,
+        });
       });
 
       child.on('close', (exitCode) => {
         if (settled) return;
         settled = true;
-        resolve({ ok: exitCode === 0, errorMessage: exitCode === 0 ? undefined : stderr.trim() });
+        resolve({
+          ok: exitCode === 0,
+          errorMessage: exitCode === 0 ? undefined : stderr.trim(),
+        });
       });
     });
   } finally {
-    fs.rmSync(runDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+    fs.rmSync(runDir, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 100,
+    });
   }
 }
