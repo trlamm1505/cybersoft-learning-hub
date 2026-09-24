@@ -11,6 +11,7 @@ import { ContestModule } from './modules-api/contest/contest.module';
 import { AuthModule } from './modules-api/auth/auth.module';
 import { LeaderboardModule } from './modules-api/leaderboard/leaderboard.module';
 import { CoachModule } from './modules-api/coach/coach.module';
+import { BlockPuzzleModule } from './modules-api/block-puzzle/block-puzzle.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CoachModule } from './modules-api/coach/coach.module';
     AuthModule,
     LeaderboardModule,
     CoachModule,
+    BlockPuzzleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -62,7 +62,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Mật khẩu</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-[11px] font-semibold text-[var(--text-muted)]">Mật khẩu</label>
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-[11px] font-bold text-indigo-600 dark:text-cyan-400 bg-transparent border-none cursor-pointer hover:underline"
+              >
+                Quên mật khẩu?
+              </button>
+            </div>
             <input
               type="password"
               required

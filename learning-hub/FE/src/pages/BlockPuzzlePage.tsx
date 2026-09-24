@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   DndContext,
   useDraggable,
@@ -9,6 +10,7 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useToast } from '../components/Toast';
 import {
   Hash,
   Repeat,
@@ -35,12 +37,17 @@ import {
   Rocket,
   PartyPopper,
   Bomb,
+  ChevronLeft,
+  Gamepad2,
   type LucideIcon,
 } from 'lucide-react';
 import type { LessonAuthoring, BlockCommand } from '../types/authoring';
+import type { AuthUser } from '../types/auth';
+import blockPuzzleApi from '../axios/blockPuzzleApi';
 
 interface BlockPuzzlePageProps {
   teacherLessons?: LessonAuthoring[];
+  authUser?: AuthUser | null;
 }
 
 const CONCEPT_META: Record<string, { label: string; Icon: LucideIcon; color: string }> = {
@@ -387,8 +394,11 @@ function simulateRun(
   return { steps, success: false, message: 'Chưa tới đích rồi, thử xếp lại các khối lệnh nhé!' };
 }
 
-export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons = [] }) => {
-  const blockLessons = useMemo(
+export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons = [], authUser }) => {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+
+  const allBlockLessons = useMemo(
     () =>
       teacherLessons
         .filter((l) => (l.status === 'published' || !l.status) && l.type === 'block' && l.blockPuzzle)
@@ -398,31 +408,104 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
     [teacherLessons],
   );
 
-  const COMPLETED_SLUGS_KEY = 'app_block_puzzle_completed';
+  // Màn hình chọn game hiện trước danh sách bài — mỗi game là một gameId
+  // riêng biệt (ví dụ 'robot-ve-nha'), cho phép thêm game mới sau này mà
+  // không dồn tất cả bài vào chung một danh sách dài duy nhất.
+  const games = useMemo(() => {
+    const map = new Map<string, { gameId: string; gameTitle: string; lessons: LessonAuthoring[] }>();
+    allBlockLessons.forEach((l) => {
+      const gameId = l.blockPuzzle?.gameId || 'robot-ve-nha';
+      const gameTitle = l.blockPuzzle?.gameTitle || 'Robot Về Nhà';
+      const existing = map.get(gameId);
+      if (existing) {
+        existing.lessons.push(l);
+      } else {
+        map.set(gameId, { gameId, gameTitle, lessons: [l] });
+      }
+    });
+    return Array.from(map.values());
+  }, [allBlockLessons]);
 
-  // Sequential unlock ("ải"): bài 1 luôn mở, bài N+1 chỉ mở khi bài N đã hoàn thành.
-  // Progress lưu ở localStorage của trình duyệt (giống cách hệ thống contest hiện đang lưu
-  // kết quả) — v1 chưa gắn theo tài khoản đăng nhập.
+  const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
+
+  const blockLessons = useMemo(
+    () => (selectedGameId ? allBlockLessons.filter((l) => (l.blockPuzzle?.gameId || 'robot-ve-nha') === selectedGameId) : []),
+    [allBlockLessons, selectedGameId],
+  );
+
+  // Sequential unlock ("ải"): bài 1 luôn mở, bài N+1 chỉ mở khi bài N đã hoàn
+  // thành. Route /block-puzzle bắt buộc đăng nhập (App.tsx), nên authUser
+  // luôn tồn tại ở đây — tiến độ lưu THẬT trên MongoDB theo tài khoản
+  // (block-puzzle API), bền vững qua nhiều thiết bị/trình duyệt. localStorage
+  // chỉ dùng làm cache hiển thị tạm khi API lỗi mạng, không phải nguồn sự thật.
+  const completedSlugsKey = `app_block_puzzle_completed_${authUser?.id || 'guest'}`;
+
   const [completedSlugs, setCompletedSlugs] = useState<Set<string>>(() => {
     try {
-      const saved = localStorage.getItem(COMPLETED_SLUGS_KEY);
+      const saved = localStorage.getItem(completedSlugsKey);
       return saved ? new Set(JSON.parse(saved)) : new Set();
     } catch {
       return new Set();
     }
   });
 
-  const markCompleted = (slug: string) => {
+  // Nạp tiến độ thật từ server khi vào trang hoặc khi tài khoản đổi (không
+  // reload trang giữa 2 lượt đăng nhập trong cùng phiên SPA).
+  useEffect(() => {
+    if (!authUser?.id) return;
+    let cancelled = false;
+
+    blockPuzzleApi
+      .getProgress()
+      .then((res) => {
+        if (cancelled) return;
+        const slugs = new Set(res.completedSlugs);
+        setCompletedSlugs(slugs);
+        try {
+          localStorage.setItem(completedSlugsKey, JSON.stringify(Array.from(slugs)));
+        } catch {
+          /* ignore */
+        }
+      })
+      .catch(() => {
+        // API lỗi (mất mạng...) — vẫn hiển thị được bằng cache localStorage
+        // gần nhất thay vì chặn hẳn người dùng chơi tiếp.
+        if (cancelled) return;
+        try {
+          const saved = localStorage.getItem(completedSlugsKey);
+          setCompletedSlugs(saved ? new Set(JSON.parse(saved)) : new Set());
+        } catch {
+          setCompletedSlugs(new Set());
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedSlugsKey, authUser?.id]);
+
+  const markCompleted = (slug: string, gameId: string) => {
     setCompletedSlugs((prev) => {
       if (prev.has(slug)) return prev;
       const next = new Set(prev).add(slug);
       try {
-        localStorage.setItem(COMPLETED_SLUGS_KEY, JSON.stringify(Array.from(next)));
+        localStorage.setItem(completedSlugsKey, JSON.stringify(Array.from(next)));
       } catch {
         /* ignore */
       }
       return next;
     });
+
+    // Ghi lên server khi đã đăng nhập — không chờ response mới cập nhật UI
+    // (đã optimistic-update ở trên) vì đây không phải hành động cần xác nhận
+    // trước khi tiếp tục chơi. Lỗi mạng không chặn trải nghiệm, nhưng cũng
+    // đồng nghĩa tiến độ đó có thể chưa lên được server nếu request thất bại.
+    if (authUser?.id) {
+      blockPuzzleApi.markCompleted({ lessonSlug: slug, gameId }).catch(() => {
+        /* best-effort — cache localStorage vẫn còn cho phiên hiện tại */
+      });
+    }
   };
 
   const isLessonUnlocked = (idx: number) => {
@@ -496,6 +579,11 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
   };
 
   const handleSelectLesson = (slug: string) => {
+    if (!authUser) {
+      showToast('Vui lòng đăng nhập để chơi Block Puzzle.', 'info');
+      navigate('/login');
+      return;
+    }
     const idx = blockLessons.findIndex((l) => l.slug === slug);
     if (idx === -1 || !isLessonUnlocked(idx)) return;
     setSelectedSlug(slug);
@@ -623,19 +711,72 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
       if (idx >= sim.steps.length) {
         stopAnimation();
         setResult({ success: sim.success, message: sim.message });
-        if (sim.success && activeLesson) markCompleted(activeLesson.slug);
+        if (sim.success && activeLesson) {
+          markCompleted(activeLesson.slug, activeLesson.blockPuzzle?.gameId || 'robot-ve-nha');
+        }
         return;
       }
       setRobotStepIndex(idx);
     }, STEP_ANIMATION_MS);
   };
 
-  if (blockLessons.length === 0) {
+  if (games.length === 0) {
     return (
       <div className="text-center py-16 bg-[var(--bg-card)] rounded-3xl border border-[var(--border-color)]">
         <p className="text-sm font-semibold text-[var(--text-muted)]">
           Chưa có bài Block Puzzle nào được xuất bản.
         </p>
+      </div>
+    );
+  }
+
+  // ============ Screen 1: chọn game (trước khi vào danh sách bài của game đó) ============
+  if (selectedGameId === null) {
+    return (
+      <div className="space-y-6 animate-fade-in pb-16">
+        <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-cyan-900 text-white rounded-3xl p-6 md:p-8 shadow-xl">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-white/10 border border-white/20">
+            <Gamepad2 size={14} strokeWidth={2.5} />
+            Block Puzzle — Lập Trình Không Cần Gõ Code
+          </span>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight mt-2">Chọn Trò Chơi</h1>
+          <p className="text-sm text-indigo-200 mt-1">Mỗi trò chơi là một chuỗi bài luyện tư duy lập trình qua kéo-thả khối lệnh.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {games.map((game) => {
+            const gameCompletedCount = game.lessons.filter((l) => completedSlugs.has(l.slug)).length;
+            const isGameDone = gameCompletedCount === game.lessons.length;
+            return (
+              <button
+                key={game.gameId}
+                type="button"
+                onClick={() => {
+                  if (!authUser) {
+                    showToast('Vui lòng đăng nhập để chơi Block Puzzle.', 'info');
+                    navigate('/login');
+                    return;
+                  }
+                  setSelectedGameId(game.gameId);
+                }}
+                className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md transition-all text-left cursor-pointer flex flex-col gap-3"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md">
+                  {isGameDone ? <Trophy size={22} strokeWidth={2} /> : <Puzzle size={22} strokeWidth={2} />}
+                </div>
+                <div>
+                  <div className="font-extrabold text-base text-[var(--text-main)]">{game.gameTitle}</div>
+                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{game.lessons.length} bài</div>
+                </div>
+                <div className="mt-auto pt-2 border-t border-[var(--border-color)] flex items-center justify-between text-xs font-bold">
+                  <span className={isGameDone ? 'text-emerald-600 dark:text-emerald-400' : 'text-[var(--text-muted)]'}>
+                    {isGameDone ? 'Đã hoàn thành' : `Tiến độ: ${gameCompletedCount}/${game.lessons.length}`}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -648,12 +789,19 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
       <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-cyan-900 text-white rounded-3xl p-6 md:p-8 shadow-xl">
         <div className="flex items-start justify-between gap-3">
           <div>
+            <button
+              type="button"
+              onClick={() => setSelectedGameId(null)}
+              className="inline-flex items-center gap-1 text-xs font-bold text-indigo-200 hover:text-white cursor-pointer mb-2"
+            >
+              <ChevronLeft size={14} strokeWidth={2.5} /> Chọn trò chơi khác
+            </button>
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-white/10 border border-white/20">
               <Puzzle size={14} strokeWidth={2.5} />
               Block Puzzle — Lập Trình Không Cần Gõ Code
             </span>
             <h1 className="text-2xl md:text-3xl font-black tracking-tight mt-2">
-              Dẫn Robot Về Nhà
+              {activeLesson?.blockPuzzle?.gameTitle || 'Dẫn Robot Về Nhà'}
             </h1>
             <p className="text-sm text-indigo-200 mt-1">
               Kéo-thả các khối lệnh để giúp Robot vượt chướng ngại vật và tới đích!
