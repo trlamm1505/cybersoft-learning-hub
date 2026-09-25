@@ -18,8 +18,7 @@ BaoCao_Task17/
 ├── 17_retriever_baseline.md        # Bản đặc tả kỹ thuật chi tiết toàn diện Task 17
 ├── README.md                       # Báo cáo tổng quan bàn giao & hướng dẫn thực thi
 ├── AI_WORKLOG.md                   # Nhật ký phối hợp AI & thẩm định 3 cột theo chuẩn CyberSoft
-├── Picture_17_Detail.png           # Sơ đồ kiến trúc Retriever Baseline & Chỉ mục Vector (300 DPI)
-├── Picture_17_Detail.drawio        # Tệp thiết kế kiến trúc mở trên Draw.io (đầy đủ 4 cột & 6 KPI)
+├── Picture_17_Detail.png           # Sơ đồ kiến trúc Retriever Baseline & Chỉ mục Vector 3 tầng tối giản (300 DPI)
 ├── requirements.txt                # Danh mục thư viện phụ thuộc (Scikit-learn, FastAPI, Pytest, Pillow...)
 ├── data/
 │   └── eval/
