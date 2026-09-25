@@ -95,6 +95,7 @@ Trong quá trình đồng hành cùng AI, kỹ sư con người đã chủ độ
 | **9. Bài test `test_zero_hardcoded_paths.py` bị bắt lỗi chính nó do chứa chuỗi mẫu cấm trong mảng kiểm tra.** | **Lỗi False Positive Trong Kiểm Thử Tự Động**: Tệp kiểm thử quét chính nó và báo vi phạm chuỗi mẫu cấm được định nghĩa. | **CHUẨN HÓA REGEX VÀ PHẠM VI QUÉT**: Áp dụng biểu thức chính quy `(?:[c-zC-Z]:[\\/](?:users|Users)[\\/][a-zA-Z0-9_-]+[\\/])` quét các thư mục mã nguồn thực tế như đã thực hiện ở Task 16. |
 | **10. Tự động chèn dòng `**Nhánh Git**: feature/data-ai-day17` vào các văn bản Markdown.** | **Lệch Chuẩn Trình Bày Hồ Sơ Bàn Giao**: Theo chuẩn mực thống nhất từ Task 01 đến Task 16, các văn bản Markdown nghiệp vụ không chứa thông tin nhánh git cá nhân. | **LOẠI BỎ TRIỆT ĐỂ DÒNG NHÁNH GIT**: Rà soát và loại bỏ toàn bộ thông tin nhánh git khỏi `README.md`, `17_retriever_baseline.md`, `AI_WORKLOG.md`. |
 | **11. Chỉ hướng dẫn khởi chạy cổng API mà chưa cung cấp bản mẫu JSON demo cho người dùng thử nghiệm.** | **Trải Nghiệm Nghiệm Thu Chưa Tối Ưu**: Người dùng hoặc kiểm thử viên khi mở Swagger UI phải tự gõ thủ công cấu trúc JSON payload, dễ nhập sai kiểu dữ liệu hoặc thiếu trường citation. | **BỔ SUNG 5 BẢN MẪU DEMO VÀ HƯỚNG DẪN SWAGGER UI VÀO MD**: Đã cập nhật `README.md` (Mục 4.1-4.3) và `17_retriever_baseline.md` (Mục 6.4-6.6) với 5 bản mẫu payload chuẩn (Basic, Policy filter, Curriculum filter, Document ID filter, Min score) cùng cú pháp cURL và PowerShell chạy tức thì. |
+| **12. Sơ đồ kiến trúc ban đầu vẽ dạng 5 cột song song dày đặc chữ, nhiều mũi tên chéo và thanh KPI rời rạc ở đáy gây rối mắt.** | **Bẫy Trực Quan Hóa Quá Tải & Khó Theo Dõi (Visual Clutter Trap)**: Luồng dữ liệu bị phân mảnh, mũi tên nhảy xiên chéo giữa các khối và thanh KPI tách rời khiến người xem khó nắm bắt được kiến trúc thực tế của hệ thống. | **TÁI THIẾT KẾ SƠ ĐỒ 3 TẦNG TỐI GIẢN (MINIMALIST 3-TIER ARCHITECTURE)**: Bác bỏ bố cục cũ, tái cấu trúc thành 3 tầng chức năng phân tách rõ ràng (Tier 1: Offline Indexing, Tier 2: Online FastAPI Service, Tier 3: Benchmark & Evaluation Harness), chuẩn hóa luồng dữ liệu 1 chiều (ngang từ trái qua phải, dọc thẳng đứng 90° từ trên xuống dưới), loại bỏ thanh KPI đáy và tích hợp trực tiếp metrics vào Tier 3, xuất bản `Picture_17_Detail.png` chuẩn 300 DPI sắc nét. |
 
 ---
 
@@ -234,42 +235,11 @@ python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task17/scripts/run_evaluat
 
 ---
 
-## 5. Kịch Bản Thuyết Trình Bảo Vệ 3 Phút (3-Minute Defense Pitch)
+## 5. Bốn Tầng Năng lực AI theo chuẩn CyberSoft (Four AI Tiers)
 
-**Mở đầu (0:00 - 0:45) — Bài toán & Ý nghĩa Chiến lược:**
-> *"Kính thưa anh/chị Hội đồng Chuyên môn, hôm nay em xin báo cáo kết quả thực hiện Task 17: Xây dựng Retriever Baseline và Chỉ mục Vector – cột mốc cốt lõi tiếp theo của Tuần 4 về RAG và Trợ lý Học tập Thông minh (AI Tutor) tại CyberSoft Academy.  
-> Sau khi đã nạp và phân đoạn thành công 91 chunks chuẩn hóa ở Ngày 16, bài toán đặt ra là: Làm thế nào để khi sinh viên đưa ra một câu hỏi bất kỳ về quy chế, hệ thống có thể truy xuất ngay lập tức các đoạn văn bản chính xác nhất, kèm theo bằng chứng nguồn gốc rõ ràng mà không bị phụ thuộc vào các API bên ngoài hay tốn kém chi phí token vô cớ."*
-
-**Thân bài (0:45 - 2:00) — Điểm nhấn Kỹ thuật & Bằng chứng Thực nghiệm:**
-> *"Em đã giải quyết trọn vẹn bài toán qua 4 giải pháp kỹ thuật cốt lõi:  
-> Thứ nhất, em thiết kế động cơ nhúng ngữ nghĩa `EmbeddingEngine` thuần Python chuẩn hóa $L_2$, biến đổi văn bản thành vector dense 64 chiều. Nhờ chuẩn hóa $L_2$, phép tính Cosine Similarity được quy đổi trực tiếp thành tích vô hướng (Dot Product), cho phép tính toán trên toàn bộ kho chỉ mục chỉ trong **0.05 mili-giây**.  
-> Thứ hai, để giải quyết hiện tượng mất ngữ cảnh cha-con, em áp dụng kỹ thuật làm giàu ngữ nghĩa: ghép nối Tiêu đề, Breadcrumbs và Thân đoạn văn trước khi vector hóa. Nhờ đó, tỷ lệ tìm kiếm chính xác tăng vọt.  
-> Thứ ba, toàn bộ 91 vectors và metadata được đóng gói thành tệp nén bền vững `vector_index.npz` (55 KB) kèm tệp kê khai `index_manifest.json` có mã kiểm tra SHA-256 xác thực toàn vẹn.  
-> Thứ tư, về kiểm định thực nghiệm, em xây dựng bộ đánh giá gồm 30 câu hỏi thực tế và phân tách nghiêm ngặt 10 câu Train và 20 câu Test để tránh rò rỉ dữ liệu. Kết quả trên tập Test đạt **Recall@5: 100.0%** (vượt xa ngưỡng nghiệm thu $\ge 70.0\%$), **MRR: 0.9750**, và độ trễ median chỉ **2.67 ms**."*
-
-**Kết luận (2:00 - 3:00) — Làm chủ AI & Bàn đạp cho Ngày 18:**
-> *"Trong quá trình thực hiện, AI đã gợi ý em dùng các API dịch vụ ngoài và đánh giá gộp không chia split. Bằng việc phân tích rủi ro về rò rỉ dữ liệu và sự phụ thuộc đường truyền, em đã bác bỏ các đề xuất này, tự tay chuẩn hóa 100% ground-truth và thiết kế schema Citation DTO với đầy đủ số điều, tên tệp và vị trí ký tự. Toàn bộ mã nguồn đã vượt qua 20/20 bài kiểm thử Pytest tự động và kịch bản demo 4 giai đoạn đạt Exit Code 0.  
-> Đây là mốc đối chứng kỹ thuật vững chắc để ngày mai (Ngày 18), em tích hợp thêm BM25 Lexical Search và thuật toán RRF để xây dựng hệ thống Hybrid Search hoàn chỉnh. Em xin cảm ơn và sẵn sàng trả lời các câu hỏi phản biện ạ!"*
-
----
-
-## 6. Bộ Câu Hỏi Phản Biện Chuyên Sâu (Defense Q&A Preparation)
-
-### Câu hỏi 1: Vì sao em chọn chuẩn hóa $L_2$ trên vector và dùng Dot Product thay vì tính Cosine theo công thức phân số mỗi lần truy vấn?
-**Trả lời:**
-Công thức tính Cosine Similarity tiêu chuẩn $\frac{\mathbf{q} \cdot \mathbf{d}}{\|\mathbf{q}\|_2 \|\mathbf{d}\|_2}$ đòi hỏi phải tính căn bậc hai và tính chuẩn của hai vector ở mỗi phép so sánh. Nếu trong kho dữ liệu có hàng chục nghìn chunks, việc tính toán lặp lại phép chia và căn bậc hai sẽ chiếm nhiều chu kỳ CPU. Khi ta chuẩn hóa trước ma trận vector của kho dữ liệu về độ dài đơn vị ($\|\mathbf{d}\|_2 = 1.0$) trong quá trình lập chỉ mục (Build Index), lúc truy vấn ta chỉ cần chuẩn hóa 1 lần vector câu hỏi ($\|\mathbf{q}\|_2 = 1.0$). Lúc này, mẫu số của công thức Cosine luôn bằng 1.0, và Cosine Similarity chính là tích vô hướng $\mathbf{q} \cdot \mathbf{d}$. Phép toán này có thể thực hiện đồng thời bằng một phép nhân ma trận tận dụng tập lệnh SIMD của CPU, giúp giảm thời gian truy vấn từ hơn 20ms xuống chỉ còn **0.05ms**.
-
-### Câu hỏi 2: Em giải quyết bài toán "mất ngữ cảnh" khi người dùng hỏi các câu hỏi chung chung nhưng câu trả lời nằm ở điều khoản con như thế nào?
-**Trả lời:**
-Khi phân đoạn tài liệu theo tiêu đề (Markdown Header Chunking), các chunk con thường chỉ chứa câu chữ chi tiết (ví dụ: *"Học viên được hoàn trả 100% học phí nếu rút trước 07 ngày"*), trong khi câu hỏi của người dùng có thể là *"Quy chế hoàn tiền khóa học tại CyberSoft"*. Nếu chỉ vector hóa nội dung thân của chunk con, vector sẽ thiếu các từ khóa ngữ cảnh cha như *"Chính sách hoàn trả học phí"*. Em đã giải quyết triệt để vấn đề này bằng kỹ thuật **Semantic Text Enrichment**: trước khi nạp vào mô hình nhúng, văn bản của mỗi chunk được cấu trúc hóa theo công thức: `SearchableText = Title + Breadcrumbs + Body`. Nhờ đó, vector của chunk con vừa mang đặc trưng chi tiết của điều khoản, vừa mang đầy đủ ngữ cảnh của danh mục và tài liệu cha.
-
-### Câu hỏi 3: Làm thế nào để chứng minh rằng kết quả Recall@5: 100% không bị rò rỉ dữ liệu (Data Leakage)?
-**Trả lời:**
-Tính trung thực và khả năng tổng quát hóa được bảo đảm qua 3 chốt chặn:
-1. **Phân tách Split Độc lập**: Em chia bộ 30 câu hỏi thực tế thành 10 câu Train và 20 câu Test. Các câu hỏi trong tập Test hoàn toàn không được dùng để tinh chỉnh từ vựng hay ngưỡng điểm.
-2. **Câu hỏi đa dạng phong cách**: Tập câu hỏi Test bao gồm nhiều cách diễn đạt khác nhau (hỏi về điều kiện, hỏi về số lượng, hỏi về thủ tục, viết tắt từ vựng) trên 4 nhóm tài liệu khác nhau (POL, TEC, CRS, FAQ).
-3. **Kiểm thử độc lập qua CLI**: Báo cáo chính thức được sinh từ script `run_evaluation.py --split test`, trong đó tham số `--split test` lọc riêng 20 câu kiểm thử và tính toán trực tiếp từ đầu ra của động cơ tìm kiếm.
-
-### Câu hỏi 4: Vì sao em chọn lưu trữ chỉ mục dưới dạng `.npz` nén kết hợp JSON manifest thay vì dùng trực tiếp ChromaDB hay FAISS?
-**Trả lời:**
-Với quy mô 91 chunks chuẩn hóa hiện tại của CyberSoft Academy, việc kéo thêm các thư viện vector database phức tạp như ChromaDB hay FAISS sẽ làm tăng thêm hàng trăm MB dependencies, phụ thuộc vào các binary C++ biên dịch sẵn (có thể gây lỗi khi chạy trên các phiên bản hệ điều hành khác nhau), và che giấu các chi tiết toán học bên dưới. Định dạng `.npz` của NumPy là định dạng nén nhị phân chuẩn công nghiệp, dung lượng chỉ **55 KB**, nạp lên bộ nhớ trong chưa đầy 0.01 giây, hoàn toàn độc lập và có thể lưu vết toàn vẹn bằng mã hash SHA-256 trong `index_manifest.json`. Khi quy mô kho tài liệu mở rộng lên hàng triệu chunks trong tương lai, kiến trúc trừu tượng `VectorIndex` của em có thể dễ dàng chuyển đổi sang backend FAISS/Milvus mà không làm thay đổi giao diện API phía trên.
+| Tầng Năng Lực AI | Biểu Hiện Trong Quá Trình Thực Hiện Task 17 | Minh Chứng Kỹ Thuật Cụ Thể |
+| :--- | :--- | :--- |
+| **Tầng 1: Prompting & Context Ingestion** | Nạp toàn bộ 91 chunks chuẩn hóa từ Task 16, công thức toán học chuẩn hóa vector L2, phép đo Cosine Similarity và kiến trúc 3 tầng tối giản (Minimalist 3-Tier) vào LLM. | Prompt chi tiết phân vai Principal AI & Vector Search Architect; yêu cầu sinh mã nguồn mô-đun hóa cao, tách biệt rõ ràng giữa Embedding, Indexing, Retrieval và API serving. |
+| **Tầng 2: Harness Engineering & Guardrails** | Xây dựng dàn khung kiểm soát chặt chẽ: DTO `CitationMetadata` bảo đảm mọi chunk trả về có đầy đủ bằng chứng nguồn gốc (`doc_id`, `section_id`, `score`, `text_preview`), cơ chế lọc metadata đa điều kiện và kiểm tra đường dẫn tuyệt đối cá nhân. | Bộ kiểm thử `test_retriever.py` bảo đảm 100% kết quả có citation; `test_zero_hardcoded_paths.py` quét toàn bộ codebase ngăn chặn rò rỉ đường dẫn cá nhân. |
+| **Tầng 3: Evaluation & Ground-Truth Calibration** | Thiết lập bộ dữ liệu đánh giá 30 câu hỏi (10 Train / 20 Test) độc lập, bảo đảm không rò rỉ dữ liệu (Zero Data Leakage); đo lường các chỉ số IR chuẩn hóa: Recall@1, Recall@3, Recall@5, MRR và độ trễ truy xuất. | Báo cáo đánh giá thực nghiệm trên tập Test 20 câu hỏi đạt Recall@1: 95.0%, Recall@5: 100.0%, MRR: 0.9750, Latency trung vị p50: 2.67 ms (vượt xa chỉ tiêu SLA < 20 ms). |
+| **Tầng 4: Autonomous AI-Native & System Integration** | Tự động hóa tuần hoàn vòng đời chỉ mục vector (Serialize sang `vector_index.npz` 55 KB kèm `index_manifest.json`), tích hợp REST API chuẩn OpenAPI qua FastAPI (`/api/v1/search`, `/health`, `/stats`). | Kịch bản `demo_retriever_workflow.py` chạy qua 4 giai đoạn tự động đạt Exit Code 0; bộ kiểm thử Pytest 20/20 tests PASS tuyệt đối trong 4.0 giây. |
