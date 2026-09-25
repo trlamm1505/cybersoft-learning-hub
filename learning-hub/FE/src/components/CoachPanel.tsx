@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Bot, Send, Loader2, AlertTriangle, ShieldAlert, Gauge, Bug, RotateCcw } from 'lucide-react';
+import { Bot, Send, Loader2, AlertTriangle, ShieldAlert, Gauge, Bug, RotateCcw, X } from 'lucide-react';
 import coachApi from '../axios/coachApi';
 import type { CoachHistoryMessage, DebugLoopResponse } from '../types/coach';
 
@@ -30,7 +30,12 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
   const [debugResult, setDebugResult] = useState<DebugLoopResponse | null>(null);
   const [isDebugging, setIsDebugging] = useState(false);
   const [debugError, setDebugError] = useState<string | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  // Khác với debugResult (xoá được bằng nút X), cờ này khoá vĩnh viễn nút
+  // "Phân tích lỗi" cho TỚI KHI có submission mới — vì backend đã từ chối
+  // cứng (403) khi chạm giới hạn vòng lặp, không phải chỉ một cảnh báo có
+  // thể bấm đè qua.
+  const [loopBlocked, setLoopBlocked] = useState(false);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMessages([]);
@@ -38,19 +43,27 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
     setLastUsage(null);
     setDebugResult(null);
     setDebugError(null);
+    setLoopBlocked(false);
     loadHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exerciseSlug]);
 
   // Lần nộp bài thay đổi -> kết quả phân tích cũ (nếu có) không còn khớp,
-  // xoá để tránh học viên đọc nhầm feedback của lần nộp trước.
+  // xoá để tránh học viên đọc nhầm feedback của lần nộp trước. Submission
+  // mới cũng đồng nghĩa với một chuỗi thử mới, nên mở khoá lại nút.
   useEffect(() => {
     setDebugResult(null);
     setDebugError(null);
+    setLoopBlocked(false);
   }, [lastSubmissionId]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Cuộn trực tiếp container tin nhắn (scrollTop), KHÔNG dùng
+    // scrollIntoView trên phần tử cuối — scrollIntoView có thể kéo theo cả
+    // trang cha cuộn lên/xuống ngoài ý muốn, chỉ set scrollTop mới chỉ ảnh
+    // hưởng đúng khung chat này.
+    const el = messagesContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   const loadHistory = async () => {
@@ -102,13 +115,18 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
   };
 
   const handleDebugLoop = async () => {
-    if (!lastSubmissionId || isDebugging) return;
+    if (!lastSubmissionId || isDebugging || loopBlocked) return;
     setIsDebugging(true);
     setDebugError(null);
     try {
       const res = await coachApi.debugLoop({ exerciseSlug, submissionId: lastSubmissionId });
       setDebugResult(res);
+      if (res.loopLimitReached) setLoopBlocked(true);
     } catch (err: any) {
+      // Backend từ chối cứng (403) khi đã chạm giới hạn vòng lặp cho chuỗi
+      // submission chưa AC này — khoá luôn nút, không chỉ hiện lỗi rồi cho
+      // bấm lại như một lỗi mạng thông thường.
+      if (err?.response?.status === 403) setLoopBlocked(true);
       setDebugError(err?.response?.data?.message || 'Không phân tích được lần nộp này. Vui lòng thử lại.');
     } finally {
       setIsDebugging(false);
@@ -139,11 +157,12 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
         <div className="mb-3">
           <button
             onClick={handleDebugLoop}
-            disabled={isDebugging}
-            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
+            disabled={isDebugging || loopBlocked}
+            title={loopBlocked ? 'Đã chạm giới hạn vòng lặp đồng hành — nộp bài mới để tiếp tục phân tích' : undefined}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isDebugging ? <Loader2 size={13} className="animate-spin" /> : <Bug size={13} />}
-            {isDebugging ? 'Đang phân tích...' : 'Phân tích lỗi lần nộp gần nhất'}
+            {isDebugging ? 'Đang phân tích...' : loopBlocked ? 'Đã chạm giới hạn vòng lặp' : 'Phân tích lỗi lần nộp gần nhất'}
           </button>
 
           {debugError && (
@@ -153,8 +172,15 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
           )}
 
           {debugResult && (
-            <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5 text-xs space-y-1.5">
-              <div className="flex items-center justify-between gap-2">
+            <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2.5 text-xs space-y-1.5 max-h-64 overflow-y-auto relative">
+              <button
+                onClick={() => setDebugResult(null)}
+                aria-label="Đóng kết quả phân tích"
+                className="absolute top-2 right-2 p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X size={13} />
+              </button>
+              <div className="flex items-center justify-between gap-2 pr-6">
                 <span className="font-bold text-amber-700 dark:text-amber-300">
                   {ERROR_CATEGORY_LABEL[debugResult.errorCategory]}
                 </span>
@@ -181,7 +207,7 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto space-y-3 pr-1">
         {isLoadingHistory ? (
           <div className="py-10 text-center text-sm text-[var(--text-muted)] flex items-center justify-center gap-2">
             <Loader2 size={16} className="animate-spin" /> Đang tải lịch sử hội thoại...
@@ -210,7 +236,6 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
             </div>
           ))
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* Error */}

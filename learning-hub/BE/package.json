@@ -22,7 +22,8 @@
     "prisma:seed": "ts-node src/data/seed.ts",
     "seed": "ts-node src/data/seed.ts",
     "seed:quiz": "ts-node src/data/seed-quiz.ts",
-    "seed:exercises": "ts-node src/data/seed-exercises.ts"
+    "seed:exercises": "ts-node src/data/seed-exercises.ts",
+    "eval:coach": "ts-node -T src/modules-api/coach/eval/generate-baseline-report.ts"
   },
   "prisma": {
     "seed": "ts-node src/data/seed.ts"
