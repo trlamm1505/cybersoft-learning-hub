@@ -34,11 +34,33 @@ Trong kiến trúc RAG (Retrieval-Augmented Generation), Retriever là bộ ph�
 
 ## 2. KIẾN TRÚC HỆ THỐNG VÀ BẢN ĐỒ LUỒNG DỮ LIỆU
 
-Hệ thống Vector Retriever Baseline được tổ chức theo kiến trúc 4 tầng phân tách độc lập (4-Tier Decoupled Architecture):
+Hệ thống Vector Retriever Baseline được tổ chức theo kiến trúc 3 tầng tối giản phân tách độc lập (3-Tier Column-Aligned Minimalist Architecture):
 
 ![Sơ đồ Kiến trúc Retriever Baseline và Chỉ mục Vector](./Picture_17_Detail.png)
 
-### 2.1. Chuẩn Mực Zero Hardcoded Paths
+### 2.1. Phân Tích Chi Tiết 3 Tầng Kiến Trúc
+
+#### Tầng 1 — OFFLINE VECTOR INDEXING & ARTIFACT PACKAGING (Tiền xử lý & Đóng gói Chỉ mục)
+Vận hành hoàn toàn offline, xử lý kho ngữ liệu tĩnh và sinh ra bộ artifact bất biến:
+1. **Corpus Ingestion**: Tiếp nhận 91 semantic chunks chuẩn hóa kế thừa từ Task 16, đại diện cho 23 văn bản quy chế và khóa học của CyberSoft; áp dụng mã băm SHA-256 chống trùng lặp.
+2. **Feature Extraction**: Làm giàu ngữ nghĩa (Semantic Enrichment ghép Title + Breadcrumbs + Body), trích xuất đặc trưng TF-IDF n-grams (1, 2) và giảm chiều bằng TruncatedSVD (64 chiều), chuẩn hóa hình cầu đơn vị $L_2$ ($\|\mathbf{v}\|_2 = 1.0$), đóng gói thành `embedding_model.pkl`.
+3. **Vector Index Assembly**: Xây dựng ma trận dense float32 $(91, 64)$, tối ưu hóa cho phép tính tích vô hướng Cosine Dot-Product, lưu trữ dạng nén `vector_index.npz` (dung lượng siêu nhẹ ~55 KB).
+4. **Citation Metadata**: Đăng ký đầy đủ nguồn gốc điều khoản (`doc_id`, `section_id`, `file_path`, vị trí ký tự `char_start` và `char_end`), lưu vào `index_manifest.json`.
+
+#### Tầng 2 — ONLINE RETRIEVAL SERVICE & FASTAPI ENGINE (Dịch vụ Tìm kiếm Thời gian Thực)
+Cung cấp giao diện RESTful API tốc độ cao, phục vụ truy vấn cho người dùng và các dịch vụ downstream:
+1. **Client Request (Gateway)**: Endpoint `POST /api/v1/search` tiếp nhận truy vấn người dùng từ Web, Swagger UI hoặc Client ứng dụng với schema Pydantic chặt chẽ (`query`, `top_k`, `filter`).
+2. **Query Vectorizer**: Tải mô hình `embedding_model.pkl` từ Tầng 1, biến đổi câu truy vấn thời gian thực thành vector nhúng đơn vị $\mathbf{q} \in \mathbb{R}^{64}$.
+3. **Similarity Search Engine**: Tải chỉ mục `vector_index.npz` từ Tầng 1, tính toán tích vô hướng ma trận $\mathbf{s} = \mathbf{V} \cdot \mathbf{q}^T$ quét toàn bộ 91 vectors với độ trễ siêu tốc dưới $1\text{ ms}$.
+4. **Response & Citations**: Nạp metadata từ `index_manifest.json`, lọc theo ngưỡng điểm và category, trả về mã HTTP 200 kèm payload Top-K và trích dẫn bằng chứng xác thực (Grounded Provenance).
+
+#### Tầng 3 — BENCHMARK HARNESS & VERIFIED DOD METRICS (Đo lường & Kiểm định Nghiệm thu)
+Đóng vai trò bảo chứng chất lượng, thẩm định độc lập chất lượng truy xuất:
+1. **Golden Benchmark Dataset**: Bộ 30 câu hỏi thực tế có nhãn ground-truth, phân tách nghiêm ngặt 10 câu Train (tinh chỉnh) và 20 câu Test (đối chứng nghiệm thu), bảo đảm 100% Zero Data Leakage.
+2. **Automated Test Runner**: Thực thi batch truy vấn tự động gửi đến REST API của Tầng 2, đo lường thứ hạng Top-K, độ trễ và tỷ lệ lỗi (20/20 test queries đạt kết quả chuẩn xác, 0% lỗi).
+3. **Verified DoD Metrics**: Kiểm chứng bộ chỉ số đạt chuẩn nghiệm thu: Recall@1: 95.0% (DoD $\ge 40\%$), Recall@5: 100.0% (DoD $\ge 70\%$), MRR: 0.9750, Latency median (p50): 2.67 ms (SLA $< 20\text{ ms}$).
+
+### 2.2. Chuẩn Mực Zero Hardcoded Paths
 Toàn bộ mã nguồn, kịch bản CLI và bộ kiểm thử tuân thủ 100% nguyên tắc di động:
 * Sử dụng `pathlib.Path(__file__).resolve()` tương đối với gốc repository.
 * Bộ kiểm thử `test_zero_hardcoded_personal_paths()` tự động quét toàn bộ thư mục `src/`, `scripts/`, `tests/`, `data/` bảo đảm không có đường dẫn máy cá nhân nào bị lọt vào mã nguồn.
