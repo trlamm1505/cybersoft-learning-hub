@@ -1,0 +1,162 @@
+<mxfile host="Electron" modified="2026-09-24T10:25:00.000Z" agent="CyberSoft" version="24.7.5">
+  <diagram id="Day17_Retriever_Baseline" name="Retriever Baseline &amp; Vector Index Architecture">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="920" background="#0F172A">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Header -->
+        <mxCell id="hdr_title" value="&lt;font color='#F8FAFC'&gt;&lt;b style='font-size: 24px;'&gt;CYBERSOFT RAG RETRIEVER BASELINE &amp;amp; VECTOR INDEX ARCHITECTURE (TASK 17)&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="150" y="25" width="1300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="hdr_sub" value="&lt;font color='#94A3B8'&gt;&lt;span style='font-size: 13.5px;'&gt;End-to-End Pipeline: Semantic Enrichment → Dense L2 Vector Space → Flat Cosine Index → FastAPI Serving &amp;amp; IR Benchmark (Recall@5: 100%)&lt;/span&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="200" y="65" width="1200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Column 1: Chunks Ingestion -->
+        <mxCell id="col1_box" value="1. CORPUS CHUNKS (T16)&#xa;Input Semantic Chunks" style="swimlane;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#38BDF8;strokeWidth=2;fontColor=#FFFFFF;fontStyle=1;fontSize=14;startSize=55;rounded=1;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="115" width="310" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="c1_item1" value="&lt;b&gt;91 Chunks Chuẩn hóa&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Strategy B Header-Aware (Task 16)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#38BDF8;strokeWidth=2;fontColor=#38BDF8;fontSize=12;" vertex="1" parent="col1_box">
+          <mxGeometry x="20" y="70" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c1_item2" value="&lt;b&gt;Semantic Text Enrichment&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Title + Breadcrumbs + Text Body&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#38BDF8;strokeWidth=1.5;fontColor=#38BDF8;fontSize=12;" vertex="1" parent="col1_box">
+          <mxGeometry x="20" y="155" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c1_item3" value="&lt;b&gt;Citation Lineage Metadata&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;doc_id, section_id, file_path, char_offsets&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#38BDF8;strokeWidth=1.5;fontColor=#38BDF8;fontSize=12;" vertex="1" parent="col1_box">
+          <mxGeometry x="20" y="240" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c1_item4" value="&lt;b&gt;23 Tài liệu Học liệu Số&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;POL, TEC, CRS, FAQ, PDF, TXT&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#334155;fontColor=#38BDF8;fontSize=12;" vertex="1" parent="col1_box">
+          <mxGeometry x="20" y="325" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c1_item5" value="&lt;b&gt;Zero Duplication Guarantee&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;SHA-256 Hashed Idempotent Corpus&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#334155;fontColor=#38BDF8;fontSize=12;" vertex="1" parent="col1_box">
+          <mxGeometry x="20" y="410" width="270" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Column 2: Embedding Engine -->
+        <mxCell id="col2_box" value="2. EMBEDDING ENGINE&#xa;Dense L2 Vector Space" style="swimlane;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#818CF8;strokeWidth=2;fontColor=#FFFFFF;fontStyle=1;fontSize=14;startSize=55;rounded=1;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="445" y="115" width="310" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="c2_item1" value="&lt;b&gt;N-gram TF-IDF Space&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;N-gram (1, 2) | Sublinear TF Term Weight&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#818CF8;strokeWidth=2;fontColor=#818CF8;fontSize=12;" vertex="1" parent="col2_box">
+          <mxGeometry x="20" y="70" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c2_item2" value="&lt;b&gt;Vocabulary Space&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;6,819 Features Indexed from Corpus&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#818CF8;strokeWidth=1.5;fontColor=#818CF8;fontSize=12;" vertex="1" parent="col2_box">
+          <mxGeometry x="20" y="155" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c2_item3" value="&lt;b&gt;Truncated SVD Projection&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;64-Dimension Compact Semantic Basis&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#818CF8;strokeWidth=1.5;fontColor=#818CF8;fontSize=12;" vertex="1" parent="col2_box">
+          <mxGeometry x="20" y="240" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c2_item4" value="&lt;b&gt;L2 Normalization&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;||v||_2 = 1.0 (Unit Hypersphere Space)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#818CF8;strokeWidth=2;fontColor=#818CF8;fontSize=12;" vertex="1" parent="col2_box">
+          <mxGeometry x="20" y="325" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c2_item5" value="&lt;b&gt;Deterministic &amp;amp; Offline&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Zero API dependency | Latency &amp;lt; 1ms&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#334155;fontColor=#818CF8;fontSize=12;" vertex="1" parent="col2_box">
+          <mxGeometry x="20" y="410" width="270" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Column 3: Vector Index & Artifacts -->
+        <mxCell id="col3_box" value="3. VECTOR INDEX &amp; ARTIFACTS&#xa;Flat Cosine Similarity Engine" style="swimlane;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#34D399;strokeWidth=2;fontColor=#FFFFFF;fontStyle=1;fontSize=14;startSize=55;rounded=1;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="830" y="115" width="310" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="c3_item1" value="&lt;b&gt;Flat Dot-Product Search&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Cosine Sim = q · d (Normalized vectors)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#34D399;strokeWidth=2;fontColor=#34D399;fontSize=12;" vertex="1" parent="col3_box">
+          <mxGeometry x="20" y="70" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c3_item2" value="&lt;b&gt;Compressed NPZ Storage&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;vector_index.npz (55 KB footprint)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#34D399;strokeWidth=1.5;fontColor=#34D399;fontSize=12;" vertex="1" parent="col3_box">
+          <mxGeometry x="20" y="155" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c3_item3" value="&lt;b&gt;Fitted Model Checkpoint&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;embedding_model.pkl (Pickle DTO)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#34D399;strokeWidth=1.5;fontColor=#34D399;fontSize=12;" vertex="1" parent="col3_box">
+          <mxGeometry x="20" y="240" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c3_item4" value="&lt;b&gt;Integrity Manifest JSON&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;SHA-256 Checksum Verified&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#34D399;strokeWidth=2;fontColor=#34D399;fontSize=12;" vertex="1" parent="col3_box">
+          <mxGeometry x="20" y="325" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c3_item5" value="&lt;b&gt;Metadata Filtering&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Filter by Category &amp;amp; Document ID&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#334155;fontColor=#34D399;fontSize=12;" vertex="1" parent="col3_box">
+          <mxGeometry x="20" y="410" width="270" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Column 4: Retriever API & Evaluation -->
+        <mxCell id="col4_box" value="4. RETRIEVER API &amp; EVAL&#xa;Search Service &amp; Benchmark" style="swimlane;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#F472B6;strokeWidth=2;fontColor=#FFFFFF;fontStyle=1;fontSize=14;startSize=55;rounded=1;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="1215" y="115" width="310" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="c4_item1" value="&lt;b&gt;FastAPI REST Service&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;POST /api/v1/search | GET /health&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#F472B6;strokeWidth=2;fontColor=#F472B6;fontSize=12;" vertex="1" parent="col4_box">
+          <mxGeometry x="20" y="70" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c4_item2" value="&lt;b&gt;Complete Citation Output&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Provenance, Breadcrumbs &amp;amp; Section ID&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#F472B6;strokeWidth=2;fontColor=#F472B6;fontSize=12;" vertex="1" parent="col4_box">
+          <mxGeometry x="20" y="155" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c4_item3" value="&lt;b&gt;IR Evaluation Split&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;10 Train / 20 Test Ground-Truth&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#334155;fontColor=#F472B6;fontSize=12;" vertex="1" parent="col4_box">
+          <mxGeometry x="20" y="240" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c4_item4" value="&lt;b&gt;Recall@5 = 100.0%&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;MRR = 0.9750 | Exceeds DoD (>= 70%)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#F472B6;strokeWidth=2;fontColor=#F472B6;fontSize=12;" vertex="1" parent="col4_box">
+          <mxGeometry x="20" y="325" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c4_item5" value="&lt;b&gt;Sub-5ms Latency&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;p50: 2.67 ms (SLA &amp;lt; 20.0 ms)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#334155;fontColor=#F472B6;fontSize=12;" vertex="1" parent="col4_box">
+          <mxGeometry x="20" y="410" width="270" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- EXACT HORIZONTAL DATAFLOW PIPELINES -->
+
+        <!-- Row 1: 91 Chunks -> N-Gram TF-IDF -> Flat Dot-Product -> FastAPI -->
+        <mxCell id="flow_r1_1" value="&lt;b&gt;Enriched Text Tokens&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#38BDF8;strokeWidth=2.5;fontColor=#38BDF8;labelBackgroundColor=#0F172A;labelBorderColor=#38BDF8;fontSize=10;" edge="1" parent="1" source="c1_item1" target="c2_item1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_r1_2" value="&lt;b&gt;Dense Vectors (91,64)&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#818CF8;strokeWidth=2.5;fontColor=#818CF8;labelBackgroundColor=#0F172A;labelBorderColor=#818CF8;fontSize=10;" edge="1" parent="1" source="c2_item1" target="c3_item1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_r1_3" value="&lt;b&gt;Ranked Top-K Chunks&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#34D399;strokeWidth=2.5;fontColor=#34D399;labelBackgroundColor=#0F172A;labelBorderColor=#34D399;fontSize=10;" edge="1" parent="1" source="c3_item1" target="c4_item1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 2: Semantic Enrichment -> Vocab -> Compressed NPZ -> Complete Citation Output -->
+        <mxCell id="flow_r2_1" value="&lt;b&gt;Title+Breadcrumbs&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#38BDF8;strokeWidth=2;strokeDashArray=3 3;fontColor=#38BDF8;labelBackgroundColor=#0F172A;labelBorderColor=#38BDF8;fontSize=10;" edge="1" parent="1" source="c1_item2" target="c2_item2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_r2_2" value="&lt;b&gt;Numpy Array Compression&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#818CF8;strokeWidth=2;strokeDashArray=3 3;fontColor=#818CF8;labelBackgroundColor=#0F172A;labelBorderColor=#818CF8;fontSize=10;" edge="1" parent="1" source="c2_item2" target="c3_item2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_r2_3" value="&lt;b&gt;Provenance Audit DTO&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#34D399;strokeWidth=2;strokeDashArray=3 3;fontColor=#34D399;labelBackgroundColor=#0F172A;labelBorderColor=#34D399;fontSize=10;" edge="1" parent="1" source="c3_item2" target="c4_item2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 4: L2 Norm -> Integrity Manifest -> Recall@5 -->
+        <mxCell id="flow_r4_2" value="&lt;b&gt;SHA-256 Digest&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#818CF8;strokeWidth=2;strokeDashArray=3 3;fontColor=#818CF8;labelBackgroundColor=#0F172A;labelBorderColor=#818CF8;fontSize=10;" edge="1" parent="1" source="c2_item4" target="c3_item4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_r4_3" value="&lt;b&gt;IR Verification Benchmark&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#F472B6;strokeWidth=2;strokeDashArray=3 3;fontColor=#F472B6;labelBackgroundColor=#0F172A;labelBorderColor=#F472B6;fontSize=10;" edge="1" parent="1" source="c3_item4" target="c4_item4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Top Stage Headers (Y=142, perfectly horizontal across column headers) -->
+        <mxCell id="stage_arrow1" value="&lt;b&gt;STAGE 1: FEATURE FIT&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.045;exitDx=0;exitDy=0;entryX=0;entryY=0.045;entryDx=0;entryDy=0;strokeColor=#38BDF8;strokeWidth=2.5;fontColor=#38BDF8;labelBackgroundColor=#0F172A;labelBorderColor=#38BDF8;fontSize=11;" edge="1" parent="1" source="col1_box" target="col2_box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="stage_arrow2" value="&lt;b&gt;STAGE 2: VECTORIZE &amp;amp; INDEX&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.045;exitDx=0;exitDy=0;entryX=0;entryY=0.045;entryDx=0;entryDy=0;strokeColor=#818CF8;strokeWidth=2.5;fontColor=#818CF8;labelBackgroundColor=#0F172A;labelBorderColor=#818CF8;fontSize=11;" edge="1" parent="1" source="col2_box" target="col3_box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="stage_arrow3" value="&lt;b&gt;STAGE 3: SERVE &amp;amp; BENCHMARK&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.045;exitDx=0;exitDy=0;entryX=0;entryY=0.045;entryDx=0;entryDy=0;strokeColor=#34D399;strokeWidth=2.5;fontColor=#34D399;labelBackgroundColor=#0F172A;labelBorderColor=#34D399;fontSize=11;" edge="1" parent="1" source="col3_box" target="col4_box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- KPI Cards at bottom (Y=685, H=90) -->
+        <mxCell id="kpi1" value="&lt;b style='font-size: 18px; color: #38BDF8;'&gt;91 VECTORS&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Indexed Chunks&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#38BDF8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="685" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi2" value="&lt;b style='font-size: 18px; color: #34D399;'&gt;100.0%&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Recall@5 Test Split&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#34D399;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="310" y="685" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi3" value="&lt;b style='font-size: 18px; color: #FBBF24;'&gt;0.9750&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Mean Reciprocal Rank&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#FBBF24;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="685" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi4" value="&lt;b style='font-size: 18px; color: #A78BFA;'&gt;2.67 ms&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Median (p50) Latency&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#A78BFA;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="810" y="685" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi5" value="&lt;b style='font-size: 18px; color: #34D399;'&gt;20 / 20&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;Pytest Suite PASS&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#34D399;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="685" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi6" value="&lt;b style='font-size: 18px; color: #38BDF8;'&gt;100%&lt;/b&gt;&lt;br&gt;&lt;font color='#94A3B8'&gt;DoD Acceptance (8/8)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#38BDF8;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1305" y="685" width="220" height="90" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
