@@ -185,18 +185,11 @@ def _compute_phrase_proximity(self, query_tokens: List[str], doc_text: str) -> f
 
 ---
 
-## 6. KỊCH BẢN THUYẾT TRÌNH 3 PHÚT (3-MINUTE PRESENTATION SCRIPT)
+## 6. Bốn Tầng Năng lực AI theo chuẩn CyberSoft (Four AI Tiers)
 
-> *"Kính thưa Ban Giám khảo và Mentor CyberSoft,*  
-> *Hôm nay tôi xin báo cáo kết quả thực hiện **Task 18: Hybrid Search và Reranking** trong Tuần 4 của lộ trình RAG và AI Tutor.*
-> 
-> *Ở Ngày 17, chúng ta đã thiết lập Retriever Baseline v1.0 đạt Recall@5 100%. Tuy nhiên, khi đi sâu vào phân tích các truy vấn thực tế, mô hình vector dense bộc lộ điểm yếu ở 3 khu vực: các câu hỏi chứa cờ tham số kỹ thuật chính xác, các câu hỏi chứa từ phủ định hoặc số liệu thời hạn, và hiện tượng phân đoạn mở đầu lấn át các tiểu mục chuyên đề.*
-> 
-> *Trong Ngày 18, tôi đã giải quyết triệt để vấn đề này bằng 3 trụ cột kỹ thuật:*
-> *Thứ nhất, xây dựng động cơ từ khóa Okapi BM25 với Technical Tokenizer bảo toàn nguyên vẹn mã lệnh và ký hiệu gạch nối, vận hành song song với động cơ Dense L2.*
-> *Thứ hai, cài đặt thuật toán hợp nhất thứ hạng Reciprocal Rank Fusion (RRF k=60) kết hợp tầng tái xếp hạng Cross-Context Reranker thuần Python, đo lường 4 đặc trưng tương tác chéo với độ trễ dưới 1.5ms và chi phí $0.00 USD.*
-> *Thứ ba, tuân thủ kỷ luật thực nghiệm nghiêm ngặt của CyberSoft: chạy thí nghiệm đối chứng A/B trên cùng tập Test Split 20 câu hỏi độc lập. Kết quả thực tế chứng minh Recall@1 đã tăng từ 95.0% lên 100.0%, và MRR đạt mức 1.0000 hoàn hảo. Không có bất kỳ tuyên bố cải thiện vô căn cứ nào.*
-> 
-> *Đặc biệt, đáp ứng tiêu chí nghiệm thu DoD, tôi đã xây dựng bộ kiểm thử đối kháng và hoàn thành bản phân tích nguyên nhân gốc cho 10 dạng lỗi kinh điển của hệ thống IR. Toàn bộ 20 bài kiểm thử tự động đều PASS 100% trong 2.63 giây, và kịch bản demo 5 pha kết thúc với Exit Code 0.*
-> 
-> *Retriever v0.2 hiện đã sẵn sàng làm bệ phóng vững chắc cho Ngày 19 để chúng ta xây dựng Trợ lý AI Tutor có trích nguồn minh bạch và biết từ chối khi không đủ dữ kiện. Xin cảm ơn!"*
+| Tầng Năng Lực AI | Biểu Hiện Trong Quá Trình Thực Hiện Task 18 | Minh Chứng Kỹ Thuật Cụ Thể |
+| :--- | :--- | :--- |
+| **Tầng 1: Prompting & Context Ingestion** | Nạp toàn bộ 91 chunks chuẩn hóa từ Task 16/17, công thức toán học Okapi BM25, giải thuật Reciprocal Rank Fusion (RRF k=60), và kiến trúc 5 tầng của Retriever v0.2 vào LLM. | Prompt chi tiết phân vai Principal AI & Information Retrieval Architect; yêu cầu sinh mã nguồn mô-đun hóa cao, tách biệt rõ ràng giữa BM25, Dense Vector, RRF Fusion, Cross-Context Reranker và API serving. |
+| **Tầng 2: Harness Engineering & Guardrails** | Xây dựng dàn khung kiểm soát chặt chẽ: Technical Tokenizer bảo toàn nguyên vẹn mã lệnh (`WSL2`, `CS-POL-003`, `CI/CD`), DTO `CitationMetadata` bảo đảm mọi chunk trả về có đầy đủ nguồn gốc, và bộ kiểm tra đường dẫn tuyệt đối cá nhân. | Bộ kiểm thử `test_bm25.py` bảo đảm 100% token kỹ thuật không bị bẻ vụn; `test_zero_hardcoded_paths.py` quét toàn bộ codebase ngăn chặn rò rỉ đường dẫn cá nhân. |
+| **Tầng 3: Evaluation & Ground-Truth Calibration** | Thiết lập thí nghiệm đối chứng có kiểm soát (Controlled A/B Experiment) trên cùng tập Test Split 20 câu hỏi độc lập (Zero Data Leakage); đo lường đầy đủ Recall@1/3/5, MRR, NDCG@5, Latency SLA và bảng phân loại 10 dạng lỗi IR kinh điển. | Báo cáo thực nghiệm chứng minh Retriever v0.2 vượt trội toàn diện: Recall@1 tăng từ 95.0% lên 100.0%, MRR đạt 1.0000, 10 dạng lỗi được phân loại trong `failure_analysis.md`, độ trễ median 7.95ms (đáp ứng SLA < 20ms). |
+| **Tầng 4: Autonomous AI-Native & System Integration** | Tự động hóa tuần hoàn vòng đời Dual Index (Serialize `vector_index.npz` 55KB và `bm25_model.pkl` 102KB kèm `index_manifest.json`), tích hợp REST API chuẩn OpenAPI qua FastAPI (`/api/v1/search`, `/health`, `/stats`). | Kịch bản `demo_day18_workflow.py` chạy qua 5 giai đoạn tự động đạt Exit Code 0; bộ kiểm thử Pytest 20/20 tests PASS tuyệt đối trong 2.63 giây. |

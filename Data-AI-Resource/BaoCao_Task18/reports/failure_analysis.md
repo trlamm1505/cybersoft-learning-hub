@@ -2,7 +2,7 @@
 **Dự án**: CyberSoft Data & AI Lab  
 **Học phần**: Tuần 4 — RAG và AI Tutor  
 **Nhiệm vụ**: Phân loại và phân tích ít nhất 10 ca thất bại của Động cơ truy xuất (DoD Requirement)  
-**Thời điểm tạo**: 2026-09-24T21:19:53.822549
+**Thời điểm tạo**: 2026-09-25T09:53:38.051783
 
 ---
 
@@ -37,7 +37,7 @@ Trong hệ thống RAG thực tế, một động cơ truy xuất đơn lẻ (ch
 | **CAT-06** | Yêu cầu đầu vào và kiến thức tiên quyết ... | `CS-CRS-002_hdr_003` | #1 | #1 | #1 | **#1** | KHẮC PHỤC HOÀN TOÀN |
 | **CAT-07** | Hậu quả và hình thức xử lý khi học viên ... | `CS-POL-001_hdr_004` | #1 | #1 | #1 | **#1** | KHẮC PHỤC HOÀN TOÀN |
 | **CAT-08** | Cấu hình Visual Studio Code?... | `CS-TEC-001_hdr_002` | #1 | #1 | #1 | **#1** | KHẮC PHỤC HOÀN TOÀN |
-| **CAT-09** | Điều kiện và thời hạn bảo lưu khóa học t... | `CS-POL-001_hdr_000` | #3 | #2 | #2 | **#2** | Top-2 |
+| **CAT-09** | Điều kiện và thời hạn bảo lưu khóa học t... | `CS-POL-001_hdr_000` | #3 | #2 | #3 | **#2** | Top-2 |
 | **CAT-10** | Tiêu chuẩn format code và quy tắc PEP8 t... | `CS-TEC-001_hdr_002` | #1 | #1 | #1 | **#1** | KHẮC PHỤC HOÀN TOÀN |
 
 ---
@@ -138,7 +138,7 @@ Trong hệ thống RAG thực tế, một động cơ truy xuất đơn lẻ (ch
 - **Thứ hạng Thực nghiệm**:
   - Dense Baseline: `3`
   - BM25 Lexical: `2`
-  - Hybrid RRF: `2`
+  - Hybrid RRF: `3`
   - **Retriever v0.2 Reranked**: **`2`**
 - **Nguyên nhân gốc (Root Cause)**: Câu hỏi chứa điều kiện số liệu và mốc thời hạn như 'thời hạn bảo lưu tối đa'. Vector dense thường coi nhẹ số, BM25 bắt chính xác điều khoản quy định thời gian.
 - **Cơ chế Khắc phục của Retriever v0.2**: BM25 giữ nguyên các token số lượng và thời hạn ('06 tháng', '100%') giúp phân biệt chính xác điều khoản thời hiệu.

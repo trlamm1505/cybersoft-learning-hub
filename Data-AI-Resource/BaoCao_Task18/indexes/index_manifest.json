@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-24T21:12:19.972420",
+  "timestamp": "2026-09-25T09:53:10.048735",
   "task": "Task 18 - Hybrid Search and Reranking",
   "total_chunks": 91,
   "artifacts": {
@@ -12,7 +12,7 @@
     "embedding_model": {
       "file": "embedding_model.pkl",
       "size_bytes": 3693587,
-      "sha256": "5d180b9be2817d7c1e0ff7bd281149f406130be8a928f18e7e907a8cc481aeb5"
+      "sha256": "ee23b3f8a5a2986dcbb4f124f088cfcb2404ebe917d33d93af20b4072f4d91f4"
     },
     "bm25_model": {
       "file": "bm25_model.pkl",

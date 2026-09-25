@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-24T21:13:10.455117",
+  "timestamp": "2026-09-25T09:53:24.947397",
   "evaluation_split": "test",
   "num_queries": 20,
   "experiments": {
@@ -16,10 +16,10 @@
         "ndcg_at_5": 0.9815
       },
       "latency_ms": {
-        "mean": 6.93,
-        "p50": 6.24,
-        "p90": 10.08,
-        "p95": 10.72
+        "mean": 7.96,
+        "p50": 5.95,
+        "p90": 15.21,
+        "p95": 18.11
       },
       "cost": {
         "cloud_api_cost_usd": 0.0,
@@ -39,7 +39,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 11.36,
+          "latency_ms": 18.09,
           "top_retrieved_chunk_ids": [
             "CS-POL-004_hdr_000",
             "CS-POL-004_hdr_001",
@@ -58,7 +58,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.16,
+          "latency_ms": 18.51,
           "top_retrieved_chunk_ids": [
             "CS-MOCK-001_hdr_001",
             "CS-MOCK-001_hdr_000",
@@ -77,7 +77,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.33,
+          "latency_ms": 9.41,
           "top_retrieved_chunk_ids": [
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
@@ -96,7 +96,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.34,
+          "latency_ms": 5.18,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_000",
             "CS-POL-003_hdr_001",
@@ -115,7 +115,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.14,
+          "latency_ms": 5.94,
           "top_retrieved_chunk_ids": [
             "CS-POL-001_hdr_001",
             "CS-POL-001_hdr_004",
@@ -134,7 +134,7 @@
           "doc_rank": 2,
           "is_hit_at_1": false,
           "is_hit_at_5": true,
-          "latency_ms": 5.86,
+          "latency_ms": 5.96,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_002",
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
@@ -153,7 +153,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 9.31,
+          "latency_ms": 5.36,
           "top_retrieved_chunk_ids": [
             "CS-TEC-005_hdr_003",
             "CS-TEC-005_hdr_000",
@@ -172,7 +172,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.06,
+          "latency_ms": 5.37,
           "top_retrieved_chunk_ids": [
             "CS-TEC-003_hdr_000",
             "CS-TEC-001_hdr_001",
@@ -191,7 +191,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 10.01,
+          "latency_ms": 4.62,
           "top_retrieved_chunk_ids": [
             "CS-CRS-005_hdr_001",
             "CS-CRS-005_hdr_002",
@@ -210,7 +210,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.35,
+          "latency_ms": 4.47,
           "top_retrieved_chunk_ids": [
             "CS-CRS-005_hdr_000",
             "CS-CRS-005_hdr_003",
@@ -229,7 +229,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 8.54,
+          "latency_ms": 4.41,
           "top_retrieved_chunk_ids": [
             "CS-CRS-001_hdr_001",
             "CS-CRS-001_hdr_000",
@@ -248,7 +248,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.14,
+          "latency_ms": 6.52,
           "top_retrieved_chunk_ids": [
             "CS-POL-001_hdr_000",
             "CS-POL-001_hdr_001",
@@ -267,7 +267,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 10.69,
+          "latency_ms": 4.64,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-004_hdr_003",
             "CS-POL-005_hdr_003",
@@ -286,7 +286,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.74,
+          "latency_ms": 4.4,
           "top_retrieved_chunk_ids": [
             "CS-POL-004_hdr_003",
             "CS-POL-004_hdr_000",
@@ -305,7 +305,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.64,
+          "latency_ms": 8.77,
           "top_retrieved_chunk_ids": [
             "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
             "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
@@ -324,7 +324,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.5,
+          "latency_ms": 8.37,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-005_hdr_002",
             "CS-FAQ-005_hdr_000",
@@ -343,7 +343,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.34,
+          "latency_ms": 14.89,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_003",
             "CS-POL-003_hdr_002",
@@ -362,7 +362,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.28,
+          "latency_ms": 10.48,
           "top_retrieved_chunk_ids": [
             "CS-TEC-005_hdr_000",
             "CS-TEC-005_hdr_001",
@@ -381,7 +381,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.48,
+          "latency_ms": 4.56,
           "top_retrieved_chunk_ids": [
             "CS-TEC-001_hdr_000",
             "CS-TEC-001_hdr_002",
@@ -400,7 +400,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.34,
+          "latency_ms": 9.23,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-002_hdr_003",
             "CS-POL-001_hdr_003",
@@ -424,10 +424,10 @@
         "ndcg_at_5": 0.95
       },
       "latency_ms": {
-        "mean": 5.99,
-        "p50": 4.67,
-        "p90": 7.97,
-        "p95": 11.8
+        "mean": 5.39,
+        "p50": 4.96,
+        "p90": 7.46,
+        "p95": 8.02
       },
       "cost": {
         "cloud_api_cost_usd": 0.0,
@@ -446,7 +446,7 @@
           "doc_rank": 3,
           "is_hit_at_1": false,
           "is_hit_at_5": false,
-          "latency_ms": 5.0,
+          "latency_ms": 5.42,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_002",
             "CS-POL-004_hdr_000",
@@ -467,7 +467,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.51,
+          "latency_ms": 8.0,
           "top_retrieved_chunk_ids": [
             "CS-POL-004_hdr_000",
             "CS-POL-004_hdr_001",
@@ -486,7 +486,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.5,
+          "latency_ms": 6.59,
           "top_retrieved_chunk_ids": [
             "CS-MOCK-001_hdr_001",
             "CS-MOCK-001_hdr_000",
@@ -505,7 +505,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 20.32,
+          "latency_ms": 8.43,
           "top_retrieved_chunk_ids": [
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
@@ -524,7 +524,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 11.35,
+          "latency_ms": 5.23,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_000",
             "CS-POL-002_hdr_001",
@@ -543,7 +543,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.6,
+          "latency_ms": 7.4,
           "top_retrieved_chunk_ids": [
             "CS-POL-001_hdr_001",
             "CS-POL-001_hdr_004",
@@ -562,7 +562,7 @@
           "doc_rank": 3,
           "is_hit_at_1": false,
           "is_hit_at_5": false,
-          "latency_ms": 5.0,
+          "latency_ms": 5.42,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_002",
             "CS-POL-004_hdr_000",
@@ -581,7 +581,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.57,
+          "latency_ms": 4.74,
           "top_retrieved_chunk_ids": [
             "CS-TEC-005_hdr_003",
             "CS-TEC-005_hdr_000",
@@ -600,7 +600,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.33,
+          "latency_ms": 5.26,
           "top_retrieved_chunk_ids": [
             "CS-TEC-003_hdr_000",
             "CS-TEC-001_hdr_001",
@@ -619,7 +619,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.16,
+          "latency_ms": 4.35,
           "top_retrieved_chunk_ids": [
             "CS-CRS-005_hdr_001",
             "CS-CRS-005_hdr_002",
@@ -638,7 +638,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.41,
+          "latency_ms": 5.03,
           "top_retrieved_chunk_ids": [
             "CS-CRS-005_hdr_000",
             "CS-CRS-005_hdr_003",
@@ -657,7 +657,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.43,
+          "latency_ms": 4.22,
           "top_retrieved_chunk_ids": [
             "CS-CRS-001_hdr_001",
             "CS-CRS-001_hdr_000",
@@ -676,7 +676,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.23,
+          "latency_ms": 4.89,
           "top_retrieved_chunk_ids": [
             "CS-POL-001_hdr_000",
             "CS-POL-001_hdr_002",
@@ -695,7 +695,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.38,
+          "latency_ms": 4.42,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-004_hdr_003",
             "CS-POL-005_hdr_001",
@@ -714,7 +714,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.02,
+          "latency_ms": 4.78,
           "top_retrieved_chunk_ids": [
             "CS-POL-004_hdr_003",
             "CS-POL-004_hdr_001",
@@ -733,7 +733,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.15,
+          "latency_ms": 5.03,
           "top_retrieved_chunk_ids": [
             "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
             "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
@@ -771,7 +771,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.03,
+          "latency_ms": 4.28,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_003",
             "CS-POL-003_hdr_002",
@@ -790,7 +790,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.63,
+          "latency_ms": 4.58,
           "top_retrieved_chunk_ids": [
             "CS-TEC-005_hdr_000",
             "CS-TEC-005_hdr_003",
@@ -809,7 +809,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.3,
+          "latency_ms": 6.29,
           "top_retrieved_chunk_ids": [
             "CS-TEC-001_hdr_000",
             "CS-TEC-001_hdr_002",
@@ -828,7 +828,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.09,
+          "latency_ms": 4.14,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-002_hdr_003",
             "CS-POL-002_hdr_001",
@@ -852,10 +852,10 @@
         "ndcg_at_5": 0.975
       },
       "latency_ms": {
-        "mean": 4.52,
-        "p50": 4.55,
-        "p90": 4.78,
-        "p95": 4.84
+        "mean": 5.26,
+        "p50": 4.7,
+        "p90": 7.49,
+        "p95": 7.78
       },
       "cost": {
         "cloud_api_cost_usd": 0.0,
@@ -875,7 +875,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.63,
+          "latency_ms": 4.27,
           "top_retrieved_chunk_ids": [
             "CS-POL-004_hdr_000",
             "CS-POL-004_hdr_001",
@@ -894,7 +894,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.71,
+          "latency_ms": 5.26,
           "top_retrieved_chunk_ids": [
             "CS-MOCK-001_hdr_001",
             "CS-MOCK-001_hdr_000",
@@ -913,7 +913,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.25,
+          "latency_ms": 4.36,
           "top_retrieved_chunk_ids": [
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
@@ -932,7 +932,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 5.02,
+          "latency_ms": 4.35,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_000",
             "CS-POL-003_hdr_001",
@@ -951,7 +951,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.51,
+          "latency_ms": 4.77,
           "top_retrieved_chunk_ids": [
             "CS-POL-001_hdr_001",
             "CS-POL-001_hdr_004",
@@ -970,7 +970,7 @@
           "doc_rank": 3,
           "is_hit_at_1": false,
           "is_hit_at_5": true,
-          "latency_ms": 4.62,
+          "latency_ms": 4.53,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_002",
             "CS-POL-004_hdr_000",
@@ -989,7 +989,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.16,
+          "latency_ms": 4.14,
           "top_retrieved_chunk_ids": [
             "CS-TEC-005_hdr_003",
             "CS-TEC-005_hdr_000",
@@ -1008,7 +1008,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.59,
+          "latency_ms": 4.63,
           "top_retrieved_chunk_ids": [
             "CS-TEC-003_hdr_000",
             "CS-TEC-001_hdr_001",
@@ -1027,7 +1027,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.19,
+          "latency_ms": 5.35,
           "top_retrieved_chunk_ids": [
             "CS-CRS-005_hdr_001",
             "CS-CRS-005_hdr_002",
@@ -1046,7 +1046,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.83,
+          "latency_ms": 4.84,
           "top_retrieved_chunk_ids": [
             "CS-CRS-005_hdr_000",
             "CS-CRS-005_hdr_003",
@@ -1065,7 +1065,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.5,
+          "latency_ms": 4.57,
           "top_retrieved_chunk_ids": [
             "CS-CRS-001_hdr_001",
             "CS-CRS-001_hdr_000",
@@ -1084,11 +1084,11 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.3,
+          "latency_ms": 8.24,
           "top_retrieved_chunk_ids": [
             "CS-POL-001_hdr_000",
-            "CS-POL-001_hdr_001",
             "CS-POL-001_hdr_002",
+            "CS-POL-001_hdr_001",
             "CS-POL-001_hdr_004",
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001"
           ]
@@ -1103,11 +1103,11 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.4,
+          "latency_ms": 7.46,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-004_hdr_003",
-            "CS-POL-005_hdr_003",
             "CS-POL-005_hdr_001",
+            "CS-POL-005_hdr_003",
             "CS-POL-005_hdr_002",
             "CS-FAQ-004_hdr_000"
           ]
@@ -1122,7 +1122,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.77,
+          "latency_ms": 7.75,
           "top_retrieved_chunk_ids": [
             "CS-POL-004_hdr_003",
             "CS-POL-004_hdr_000",
@@ -1141,7 +1141,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.64,
+          "latency_ms": 7.2,
           "top_retrieved_chunk_ids": [
             "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
             "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
@@ -1160,7 +1160,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.7,
+          "latency_ms": 5.45,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-005_hdr_002",
             "CS-FAQ-005_hdr_000",
@@ -1179,7 +1179,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.24,
+          "latency_ms": 4.51,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_003",
             "CS-POL-003_hdr_002",
@@ -1198,7 +1198,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.65,
+          "latency_ms": 4.08,
           "top_retrieved_chunk_ids": [
             "CS-TEC-005_hdr_000",
             "CS-TEC-005_hdr_001",
@@ -1217,7 +1217,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.45,
+          "latency_ms": 5.2,
           "top_retrieved_chunk_ids": [
             "CS-TEC-001_hdr_000",
             "CS-TEC-001_hdr_002",
@@ -1236,7 +1236,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 4.2,
+          "latency_ms": 4.17,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-002_hdr_003",
             "CS-POL-001_hdr_003",
@@ -1260,10 +1260,10 @@
         "ndcg_at_5": 0.975
       },
       "latency_ms": {
-        "mean": 7.44,
-        "p50": 7.33,
-        "p90": 7.88,
-        "p95": 8.07
+        "mean": 7.58,
+        "p50": 7.42,
+        "p90": 8.6,
+        "p95": 8.87
       },
       "cost": {
         "cloud_api_cost_usd": 0.0,
@@ -1283,7 +1283,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.98,
+          "latency_ms": 7.12,
           "top_retrieved_chunk_ids": [
             "CS-POL-004_hdr_000",
             "CS-POL-004_hdr_001",
@@ -1302,7 +1302,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.98,
+          "latency_ms": 8.0,
           "top_retrieved_chunk_ids": [
             "CS-MOCK-001_hdr_001",
             "CS-MOCK-001_hdr_000",
@@ -1321,7 +1321,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.93,
+          "latency_ms": 7.45,
           "top_retrieved_chunk_ids": [
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
             "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
@@ -1340,7 +1340,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.45,
+          "latency_ms": 7.56,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_000",
             "CS-POL-002_hdr_001",
@@ -1359,7 +1359,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.74,
+          "latency_ms": 7.24,
           "top_retrieved_chunk_ids": [
             "CS-POL-001_hdr_001",
             "CS-POL-001_hdr_004",
@@ -1378,7 +1378,7 @@
           "doc_rank": 3,
           "is_hit_at_1": false,
           "is_hit_at_5": true,
-          "latency_ms": 7.52,
+          "latency_ms": 7.08,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_002",
             "CS-POL-004_hdr_000",
@@ -1397,7 +1397,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.8,
+          "latency_ms": 7.52,
           "top_retrieved_chunk_ids": [
             "CS-TEC-005_hdr_003",
             "CS-TEC-005_hdr_000",
@@ -1416,7 +1416,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.55,
+          "latency_ms": 7.1,
           "top_retrieved_chunk_ids": [
             "CS-TEC-003_hdr_000",
             "CS-TEC-001_hdr_001",
@@ -1435,7 +1435,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.92,
+          "latency_ms": 6.85,
           "top_retrieved_chunk_ids": [
             "CS-CRS-005_hdr_001",
             "CS-CRS-005_hdr_000",
@@ -1454,7 +1454,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 9.7,
+          "latency_ms": 6.93,
           "top_retrieved_chunk_ids": [
             "CS-CRS-005_hdr_000",
             "CS-CRS-002_hdr_000",
@@ -1473,7 +1473,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.1,
+          "latency_ms": 8.58,
           "top_retrieved_chunk_ids": [
             "CS-CRS-001_hdr_001",
             "CS-CRS-001_hdr_000",
@@ -1492,7 +1492,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.21,
+          "latency_ms": 6.75,
           "top_retrieved_chunk_ids": [
             "CS-POL-001_hdr_000",
             "CS-POL-001_hdr_002",
@@ -1511,7 +1511,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.09,
+          "latency_ms": 8.79,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-004_hdr_003",
             "CS-POL-005_hdr_001",
@@ -1530,7 +1530,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.87,
+          "latency_ms": 7.49,
           "top_retrieved_chunk_ids": [
             "CS-POL-004_hdr_003",
             "CS-POL-004_hdr_002",
@@ -1549,7 +1549,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 6.34,
+          "latency_ms": 7.44,
           "top_retrieved_chunk_ids": [
             "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
             "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
@@ -1568,7 +1568,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.85,
+          "latency_ms": 7.4,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-005_hdr_002",
             "CS-FAQ-005_hdr_000",
@@ -1587,7 +1587,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.05,
+          "latency_ms": 7.13,
           "top_retrieved_chunk_ids": [
             "CS-POL-003_hdr_003",
             "CS-POL-003_hdr_002",
@@ -1606,7 +1606,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.85,
+          "latency_ms": 6.73,
           "top_retrieved_chunk_ids": [
             "CS-TEC-005_hdr_000",
             "CS-TEC-005_hdr_001",
@@ -1625,7 +1625,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.06,
+          "latency_ms": 10.5,
           "top_retrieved_chunk_ids": [
             "CS-TEC-001_hdr_000",
             "CS-TEC-001_hdr_002",
@@ -1644,7 +1644,7 @@
           "doc_rank": 1,
           "is_hit_at_1": true,
           "is_hit_at_5": true,
-          "latency_ms": 7.84,
+          "latency_ms": 7.91,
           "top_retrieved_chunk_ids": [
             "CS-FAQ-002_hdr_003",
             "CS-POL-001_hdr_003",

@@ -1,5 +1,5 @@
 # CYBERSOFT DATA & AI LAB — CONTROLLED EXPERIMENT REPORT (TASK 18)
-**Thời điểm thực nghiệm**: 2026-09-24T21:13:10.455117  
+**Thời điểm thực nghiệm**: 2026-09-25T09:53:24.947397  
 **Tập kiểm thử (Evaluation Split)**: `test` (20 queries)  
 **Mục tiêu**: So sánh đối chứng chuẩn mực giữa Baseline (Vector Dense), BM25 Lexical, Hybrid RRF, và Hybrid RRF + Reranker.
 
@@ -27,10 +27,10 @@
 
 | Chiến lược (Mode) | Mean Latency | Median (p50) | p90 Latency | p95 Latency | Chi phí / 1.000 queries | Hạ tầng |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Baseline (Dense-only)** | 6.93 ms | 6.24 ms | 10.08 ms | 10.72 ms | $0.000 | In-Memory Cosine SIMD |
-| **BM25-only** | 5.99 ms | 4.67 ms | 7.97 ms | 11.8 ms | $0.000 | In-Memory Lexical Index |
-| **Hybrid RRF** | 4.52 ms | 4.55 ms | 4.78 ms | 4.84 ms | $0.000 | Song song Dual Engine |
-| **Retriever v0.2 (RRF+Rerank)** | **7.44 ms** | **7.33 ms** | **7.88 ms** | **8.07 ms** | **$0.000** | **Local CPU Cross-Reranker** |
+| **Baseline (Dense-only)** | 7.96 ms | 5.95 ms | 15.21 ms | 18.11 ms | $0.000 | In-Memory Cosine SIMD |
+| **BM25-only** | 5.39 ms | 4.96 ms | 7.46 ms | 8.02 ms | $0.000 | In-Memory Lexical Index |
+| **Hybrid RRF** | 5.26 ms | 4.7 ms | 7.49 ms | 7.78 ms | $0.000 | Song song Dual Engine |
+| **Retriever v0.2 (RRF+Rerank)** | **7.58 ms** | **7.42 ms** | **8.6 ms** | **8.87 ms** | **$0.000** | **Local CPU Cross-Reranker** |
 
 > [!TIP]
 > - Toàn bộ pipeline vận hành hoàn toàn offline trên CPU cục bộ, không gửi dữ liệu ra bên ngoài, chi phí vận hành đạt **$0.00 USD**.

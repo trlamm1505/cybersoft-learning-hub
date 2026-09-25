@@ -113,7 +113,7 @@
     "remediation": "BM25 giữ nguyên các token số lượng và thời hạn ('06 tháng', '100%') giúp phân biệt chính xác điều khoản thời hiệu.",
     "dense_rank": 3,
     "bm25_rank": 2,
-    "hybrid_rank": 2,
+    "hybrid_rank": 3,
     "reranked_rank": 2
   },
   {
