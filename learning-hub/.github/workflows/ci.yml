@@ -52,5 +52,12 @@ jobs:
       - name: 🧪 Run Backend Unit Tests
         run: npm run test --prefix BE
 
+      # Regression gate cho AI Coach (ngày 18): chạy lại 100 test case qua
+      # coach-eval.spec.ts (đã nằm trong bước test ở trên) rồi in baseline
+      # report ra log CI để review nhanh mà không cần mở file. Script tự
+      # exit code 1 nếu phát hiện leakage (xem generate-baseline-report.ts).
+      - name: 🛡️ Coach Eval Harness — Baseline Report
+        run: npm run eval:coach --prefix BE
+
       - name: 🏗️ Build Backend (NestJS)
         run: npm run build --prefix BE

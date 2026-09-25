@@ -74,9 +74,24 @@ function sanitizeToHintStyle(_original: string): string {
  * Kiểm tra context builder có vô tình đưa dữ liệu bị cấm vào prompt hay không
  * (hidden test cases, solutionCode). Dùng ở lớp service trước khi gọi model,
  * như một lớp phòng thủ thứ hai độc lập với builder.
+ *
+ * CHỈ quét phần dữ liệu do builder tự lắp ráp từ DB (exercise, unlockedHints)
+ * — KHÔNG quét `recentHistory`, vì đó là nguyên văn tin nhắn tự do của người
+ * dùng/assistant, có thể hợp lệ chứa từ "solutionCode" (ví dụ học viên gõ
+ * đúng chữ đó khi hỏi hoặc khi thử prompt injection) mà không có nghĩa là
+ * field solutionCode thật đã bị lộ vào field đó. Nếu quét luôn cả history,
+ * một tin nhắn cũ nhắc tới từ này sẽ làm mọi lượt chat SAU ĐÓ trên cùng bài
+ * tập bị chặn vĩnh viễn với lỗi 500 dù context không hề leak gì.
  */
 export function assertContextHasNoForbiddenData(context: CoachContext): void {
-  const serialized = JSON.stringify(context);
+  const structuredData: Omit<CoachContext, 'recentHistory'> = {
+    userId: context.userId,
+    exercise: context.exercise,
+    attemptSummary: context.attemptSummary,
+    unlockedHints: context.unlockedHints,
+    policy: context.policy,
+  };
+  const serialized = JSON.stringify(structuredData);
   if (/solutionCode/i.test(serialized)) {
     throw new Error(
       'Policy violation: context chứa solutionCode, không được gửi cho model.',

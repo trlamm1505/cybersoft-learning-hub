@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   Logger,
@@ -24,11 +25,16 @@ import {
   assertContextHasNoForbiddenData,
   checkCoachResponsePolicy,
 } from './coach-policy';
+import {
+  buildInjectionRefusalReply,
+  detectPromptInjection,
+} from './coach-injection-guard';
+import { buildGreetingReply, detectGreeting } from './coach-canned-replies';
 import { estimateTokens } from './coach-llm.client';
 import type { LlmClient } from './coach-llm.client';
 import { COACH_LLM_CLIENT } from './coach.constants';
 import { CoachChatDto } from './dto/coach-chat.dto';
-import { analyzeDebugLoop } from './coach-debug-loop';
+import { analyzeDebugLoop, MAX_DEBUG_LOOPS } from './coach-debug-loop';
 import { DebugLoopTestInput } from './coach-debug-loop.types';
 import { DebugLoopDto } from './dto/debug-loop.dto';
 
@@ -39,7 +45,11 @@ import { DebugLoopDto } from './dto/debug-loop.dto';
 const MAX_PROMPT_TOKENS = 4000;
 const MAX_COMPLETION_TOKENS = 800;
 
-const SYSTEM_PROMPT = [
+// Export để coach-eval-runner.ts import lại đúng nguyên văn thay vì copy
+// riêng một bản khác — tránh trường hợp sửa prompt ở đây mà quên sửa bên
+// harness, khiến eval chạy với prompt cũ mà không ai biết (eval/README.md
+// mục "đồng bộ SYSTEM_PROMPT" giải thích thêm).
+export const SYSTEM_PROMPT = [
   'Bạn là AI Coach hỗ trợ học viên lập trình.',
   'Chỉ trả lời bám sát bài tập được cung cấp trong context, không lạc đề.',
   'Không được tiết lộ test case ẩn (hidden test) dưới bất kỳ hình thức nào.',
@@ -93,6 +103,81 @@ export class CoachService {
       message,
       estimateTokens(message),
     );
+
+    // Lời chào đơn giản không cần "hiểu" gì cả — trả lời cứng, KHÔNG gọi
+    // llmClient.chat(). Đặt ở CoachService (không phải trong StubLlmClient)
+    // để hành vi này giữ nguyên dù ngày mai đổi sang client gọi model thật
+    // (Gemini/Anthropic...) — câu chào không bao giờ tốn quota gọi API.
+    if (detectGreeting(message)) {
+      const greeting = buildGreetingReply(context.exercise.title);
+      const greetingTokens = estimateTokens(greeting.reply!);
+
+      await this.logMessage(
+        userId,
+        exerciseSlug,
+        'assistant',
+        greeting.reply!,
+        greetingTokens,
+      );
+
+      return {
+        exerciseSlug,
+        reply: greeting.reply!,
+        policy: {
+          allowFullSolution: context.policy.allowFullSolution,
+          maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
+          blocked: false,
+          reason: undefined,
+        },
+        usage: {
+          promptTokens: promptTokenEstimate,
+          completionTokens: greetingTokens,
+          maxPromptTokens: MAX_PROMPT_TOKENS,
+          maxCompletionTokens: MAX_COMPLETION_TOKENS,
+        },
+      };
+    }
+
+    // Chặn ở tầng input trước khi user message được đưa vào prompt gửi model:
+    // không phụ thuộc hoàn toàn vào việc model tự chống injection (xem
+    // coach-injection-guard.ts). Nếu nghi ngờ, không gọi llmClient nữa —
+    // trả thẳng câu từ chối và vẫn log lại để có dấu vết.
+    const injectionCheck = detectPromptInjection(message);
+    if (injectionCheck.suspicious) {
+      this.logger.warn(
+        `Coach message bị chặn do nghi ngờ prompt injection: ${injectionCheck.reason}`,
+      );
+      const refusal = buildInjectionRefusalReply();
+      const refusalTokens = estimateTokens(refusal);
+      const policyReason = `prompt_injection: ${injectionCheck.reason}`;
+
+      await this.logMessage(
+        userId,
+        exerciseSlug,
+        'assistant',
+        refusal,
+        refusalTokens,
+        true,
+        policyReason,
+      );
+
+      return {
+        exerciseSlug,
+        reply: refusal,
+        policy: {
+          allowFullSolution: context.policy.allowFullSolution,
+          maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
+          blocked: true,
+          reason: policyReason,
+        },
+        usage: {
+          promptTokens: promptTokenEstimate,
+          completionTokens: refusalTokens,
+          maxPromptTokens: MAX_PROMPT_TOKENS,
+          maxCompletionTokens: MAX_COMPLETION_TOKENS,
+        },
+      };
+    }
 
     const llmResult = await this.llmClient.chat(
       SYSTEM_PROMPT,
@@ -204,6 +289,18 @@ export class CoachService {
     for (const prior of priorSubmissions) {
       if (prior.status === 'AC') break;
       attemptsSoFar += 1;
+    }
+
+    // Chặn CỨNG ở backend khi đã chạm giới hạn vòng lặp cho chuỗi submission
+    // chưa AC này — không chỉ đổi lời khuyên như analyzeDebugLoop() làm.
+    // attemptsSoFar được tính lại từ Submission thật mỗi lần gọi (không phải
+    // state phía client), nên không thể bị vượt qua bằng cách F5/gọi lại API
+    // nhiều lần hay bỏ qua trạng thái disable ở UI.
+    if (submission.status !== 'AC' && attemptsSoFar >= MAX_DEBUG_LOOPS) {
+      throw new ForbiddenException(
+        `Đã chạm giới hạn ${MAX_DEBUG_LOOPS} lần phân tích liên tục chưa qua được bài này. ` +
+          'Hãy đọc lại đề bài + gợi ý đã mở, hoặc nhờ người hướng dẫn xem trực tiếp code trước khi nộp lại và phân tích tiếp.',
+      );
     }
 
     const firstFailingResult = (submission.results ?? []).find(
