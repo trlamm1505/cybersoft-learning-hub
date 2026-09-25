@@ -1,0 +1,31 @@
+# Local history from earlier Day14 designs
+_backup_codex_v1/
+legacy/
+
+# Generated runtime and database snapshots
+fixtures/runtime/
+data/day14_snapshot.sqlite
+data/lab14.sqlite
+data/__pycache__/
+*.pyc
+
+# Node/Playwright generated output
+automation/node_modules/
+automation/test-results/
+automation/reports/
+automation/.env
+
+# Local spreadsheet inspection output
+*.xlsx.inspect.ndjson
+~$*.xlsx
+Day14_Tester_Labs_Quality_Report.xlsx
+
+# Filled Postman environments may contain credentials
+postman/*.filled.json
+postman/.postman/
+postman/postman/
+
+# Evidence from the retired learning-hub/lab-app design
+reports/runtime-verification.json
+reports/sql-reset-verification.json
+reports/playwright-login/

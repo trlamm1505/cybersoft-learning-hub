@@ -1,0 +1,125 @@
+{
+  "id": "ds-cybersoft-course-ratings-demo",
+  "title": "CyberSoft Course Ratings & Enrollment Demo Dataset",
+  "description": "Bo du lieu mau thu nghiem quy trinh dang ky, kiem thu chat luong Quality Gate va xuat ban tren Dataset Registry Portal danh cho TTS Data & AI.",
+  "version": "1.0.0",
+  "domain": "education",
+  "level": "beginner",
+  "difficulty": "easy",
+  "license": "MIT",
+  "author": "Dao Trung Kien (TTS 01)",
+  "maintainer": "CyberSoft Data & AI Team",
+  "created_at": "2026-09-14T01:00:00Z",
+  "updated_at": "2026-09-14T01:00:00Z",
+  "tags": [
+    "education",
+    "ratings",
+    "demo",
+    "cybersoft"
+  ],
+  "pii": {
+    "level": "low",
+    "has_pii": false,
+    "anonymization_applied": [
+      "synthetic_faker_masking"
+    ],
+    "compliance_tags": [
+      "INTERNAL_CYBERSOFT"
+    ],
+    "handling_instructions": "Du lieu duoc tao gia lap phuc vu dao tao noi bo, khong chua thong tin ca nhan nhay cam thuc te."
+  },
+  "lineage": {
+    "source_system": "CyberSoft Learning Management System (LMS Demo)",
+    "upstream_sources": [
+      "synthetic_curation_scripts"
+    ],
+    "ingestion_method": "manual_curation",
+    "generation_tool": "CyberSoft Data Tools v1.0",
+    "transformation_pipeline": [
+      "1. Trich xuat danh sach khoa hoc va danh gia",
+      "2. An danh thong tin giang vien va hoc vien",
+      "3. Chuan hoa kieu du lieu so va xac thuc Primary Key"
+    ],
+    "raw_data_hash": "277c085233fddc42266e0461dbc0d75ba2e6a9159da651f68ee215e40ba0bd68"
+  },
+  "learning_outcomes": {
+    "target_roles": [
+      "data_analyst",
+      "ai_engineer"
+    ],
+    "core_competencies": [
+      "SQL Aggregation & Grouping",
+      "Data Quality Verification",
+      "Dataset Registry Governance"
+    ],
+    "sample_business_questions": [
+      "Khoa hoc nao co diem danh gia cao nhat?",
+      "Tong so luong hoc vien dang ky cac khoa hoc la bao nhieu?"
+    ],
+    "recommended_exercises": [
+      "Viet truy van SQL tinh diem rating trung binh toan he thong",
+      "Kiem thu tinh toan ven va gia tri duy nhat cua course_id"
+    ]
+  },
+  "integrity": {
+    "algorithm": "SHA-256",
+    "checksum": "277c085233fddc42266e0461dbc0d75ba2e6a9159da651f68ee215e40ba0bd68",
+    "file_size_bytes": 264
+  },
+  "tables": [
+    {
+      "table_name": "course_ratings",
+      "description": "Bang du lieu danh gia va so luong dang ky cac khoa hoc tai he thong CyberSoft",
+      "file_path": "demo_practice/sample_data.csv",
+      "format": "csv",
+      "row_count": 4,
+      "column_count": 5,
+      "primary_key": [
+        "course_id"
+      ],
+      "foreign_keys": [],
+      "columns": [
+        {
+          "name": "course_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Ma dinh danh duy nhat cua khoa hoc",
+          "is_pii": false,
+          "example": "CS_01"
+        },
+        {
+          "name": "course_name",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Ten day du cua khoa hoc",
+          "is_pii": false,
+          "example": "Python for Data Science"
+        },
+        {
+          "name": "instructor",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Ho ten giang vien phu trach giang day",
+          "is_pii": false,
+          "example": "Nguyen Van A"
+        },
+        {
+          "name": "rating",
+          "data_type": "float",
+          "nullable": false,
+          "description": "Diem danh gia trung binh tu hoc vien (thang diem 5)",
+          "is_pii": false,
+          "example": 4.8
+        },
+        {
+          "name": "students_enrolled",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Tong so hoc vien da ghi danh tham gia khoa hoc",
+          "is_pii": false,
+          "example": 1250
+        }
+      ]
+    }
+  ]
+}

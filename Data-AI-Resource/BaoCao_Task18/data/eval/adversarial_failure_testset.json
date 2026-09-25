@@ -1,0 +1,82 @@
+[
+  {
+    "category_id": "CAT-01",
+    "category_name": "Exact Technical Identifier Mismatch",
+    "description": "Câu hỏi chứa mã lệnh, cờ tham số hoặc định danh kỹ thuật chính xác (ví dụ WSL2, Ubuntu 22.04). Vector dense dễ làm mờ định danh thành từ lập trình chung, BM25 giúp kéo đúng chunk.",
+    "query": "Cấu hình WSL2 và Ubuntu 22.04 LTS cho môi trường phát triển AI trên Windows?",
+    "target_document_id": "CS-TEC-001",
+    "target_chunk_id": "CS-TEC-001_hdr_000"
+  },
+  {
+    "category_id": "CAT-02",
+    "category_name": "Synonym & Student Term Disconnect",
+    "description": "Người dùng dùng từ đồng nghĩa đời thường 'sinh viên' trong khi văn bản CyberSoft dùng 'học viên'. BM25 bị trượt từ khóa, Vector dense gỡ gạc nhờ không gian ngữ nghĩa tương đồng.",
+    "query": "Quy định xử lý khi sinh viên vắng mặt quá số buổi học cho phép?",
+    "target_document_id": "CS-POL-003",
+    "target_chunk_id": "CS-POL-003_hdr_000"
+  },
+  {
+    "category_id": "CAT-03",
+    "category_name": "Fine-grained Subsection Misranking",
+    "description": "Câu hỏi hỏi sâu về tiểu mục đồ án Capstone, phần mở đầu văn bản bao quát toàn bộ tiêu đề lấn át điểm số dense. Reranker phân tích tiêu đề heading đưa chunk tiểu mục lên Rank 1.",
+    "query": "Tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone trong quy chế đào tạo thực chiến?",
+    "target_document_id": "CS-POL-003",
+    "target_chunk_id": "CS-POL-003_hdr_002"
+  },
+  {
+    "category_id": "CAT-04",
+    "category_name": "Negation & Prohibited Items Constraints",
+    "description": "Câu hỏi chứa từ phủ định hoặc cấm đoán ('không được mang', 'bị cấm'). Mô hình vector dễ nhầm sang tài liệu quy định đồ dùng được phép mang theo.",
+    "query": "Các vật dụng bị cấm và không được mang vào phòng thi trực tuyến?",
+    "target_document_id": "CS-MOCK-001",
+    "target_chunk_id": "CS-MOCK-001_hdr_000"
+  },
+  {
+    "category_id": "CAT-05",
+    "category_name": "Semantic Drift in Informal Conversational Query",
+    "description": "Câu hỏi diễn đạt bằng văn phong giao tiếp tự nhiên 'học online có được hỏi mentor trực tiếp không'. BM25 thiếu từ khóa hành chính, Vector dense và Reranker hỗ trợ bắt đúng ý.",
+    "query": "Lớp học online tương tác trực tiếp với mentor như thế nào?",
+    "target_document_id": "CS-FAQ-002",
+    "target_chunk_id": "CS-FAQ-002_hdr_001"
+  },
+  {
+    "category_id": "CAT-06",
+    "category_name": "Out-of-Vocabulary (OOV) Course Code Matching",
+    "description": "Truy vấn tìm kiếm chính xác theo mã khóa học 'CS-CRS-002'. Vector dense khó phân biệt mã học phần nếu chưa được fine-tune, BM25 định vị chính xác tuyệt đối.",
+    "query": "Yêu cầu đầu vào và kiến thức tiên quyết của khóa học CS-CRS-002?",
+    "target_document_id": "CS-CRS-002",
+    "target_chunk_id": "CS-CRS-002_hdr_003"
+  },
+  {
+    "category_id": "CAT-07",
+    "category_name": "Multi-Aspect Query Dilution",
+    "description": "Câu hỏi chứa hai khía cạnh: bảo lưu và xử lý vi phạm quá thời hạn. Đơn lẻ một retriever dễ thiên lệch, RRF kết hợp cả hai luồng để đảm bảo đúng phân đoạn chế tài.",
+    "query": "Hậu quả và hình thức xử lý khi học viên bảo lưu quá thời hạn quy định?",
+    "target_document_id": "CS-POL-001",
+    "target_chunk_id": "CS-POL-001_hdr_004"
+  },
+  {
+    "category_id": "CAT-08",
+    "category_name": "Short Keyword Query Ambiguity",
+    "description": "Câu hỏi quá ngắn (dưới 4 từ) 'cấu hình VS Code'. Không gian dense có entropy cao vì nhiều chunk chứa từ khóa này, Reranker ưu tiên chunk có title chứa đúng công cụ.",
+    "query": "Cấu hình Visual Studio Code?",
+    "target_document_id": "CS-TEC-001",
+    "target_chunk_id": "CS-TEC-001_hdr_002"
+  },
+  {
+    "category_id": "CAT-09",
+    "category_name": "Number & Percentage Constraint Sensitivity",
+    "description": "Câu hỏi chứa điều kiện số liệu và mốc thời hạn như 'thời hạn bảo lưu tối đa'. Vector dense thường coi nhẹ số, BM25 bắt chính xác điều khoản quy định thời gian.",
+    "query": "Điều kiện và thời hạn bảo lưu khóa học tối đa tại CyberSoft?",
+    "target_document_id": "CS-POL-001",
+    "target_chunk_id": "CS-POL-001_hdr_000"
+  },
+  {
+    "category_id": "CAT-10",
+    "category_name": "Fine-Grained Technical Standard (PEP8 & Formatting)",
+    "description": "Câu hỏi về tiêu chuẩn định dạng code PEP8. Reranker phân tích cross-token giúp định vị đúng phần cấu hình linter/formatter thay vì hướng dẫn cài đặt chung.",
+    "query": "Tiêu chuẩn format code và quy tắc PEP8 trong môi trường Python?",
+    "target_document_id": "CS-TEC-001",
+    "target_chunk_id": "CS-TEC-001_hdr_002"
+  }
+]

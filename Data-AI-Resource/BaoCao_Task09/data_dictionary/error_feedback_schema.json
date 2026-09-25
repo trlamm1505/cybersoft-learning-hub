@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ErrorFeedbackSchema",
+  "description": "Schema cho thông điệp phản hồi lỗi từ Data Quality Harness gửi lại cho AI trong vòng lặp sửa lỗi",
+  "type": "object",
+  "required": [
+    "record_id",
+    "attempt",
+    "passed",
+    "error_count",
+    "violations",
+    "corrective_guidance"
+  ],
+  "properties": {
+    "record_id": { "type": "string" },
+    "attempt": { "type": "integer", "minimum": 1 },
+    "passed": { "type": "boolean" },
+    "error_count": { "type": "integer", "minimum": 0 },
+    "violations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "severity", "field", "message"],
+        "properties": {
+          "rule_id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["CRITICAL", "WARNING"] },
+          "field": { "type": "string" },
+          "message": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "corrective_guidance": {
+      "type": "string",
+      "description": "Chỉ dẫn hành động sửa lỗi cụ thể cho AI"
+    }
+  },
+  "additionalProperties": false
+}

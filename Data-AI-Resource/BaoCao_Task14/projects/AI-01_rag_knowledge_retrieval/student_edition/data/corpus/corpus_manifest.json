@@ -1,0 +1,708 @@
+[
+  {
+    "document_id": "CS-CRS-001",
+    "title": "Lộ trình đào tạo chuyên sâu Fullstack Web Developer NodeJS & React",
+    "category": "Curriculum",
+    "version": "v4.0",
+    "effective_date": "2025-01-01",
+    "filename": "CS-CRS-001_lo_trinh_fullstack_web.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-CRS-001-01",
+        "section_title": "Mục tiêu đào tạo và chuẩn đầu ra Fullstack Web",
+        "char_count": 413,
+        "word_count": 77
+      },
+      {
+        "section_id": "SEC-CRS-001-02",
+        "section_title": "Cấu trúc 03 giai đoạn học tập chi tiết",
+        "char_count": 559,
+        "word_count": 95
+      },
+      {
+        "section_id": "SEC-CRS-001-03",
+        "section_title": "Đồ án Capstone cuối khóa và bảo vệ hội đồng",
+        "char_count": 363,
+        "word_count": 68
+      },
+      {
+        "section_id": "SEC-CRS-001-04",
+        "section_title": "Yêu cầu đầu vào và công cụ hỗ trợ",
+        "char_count": 249,
+        "word_count": 53
+      }
+    ]
+  },
+  {
+    "document_id": "CS-CRS-002",
+    "title": "Lộ trình đào tạo chuyên sâu Data & AI Resource Engineer",
+    "category": "Curriculum",
+    "version": "v2.5",
+    "effective_date": "2025-02-01",
+    "filename": "CS-CRS-002_lo_trinh_data_ai_resource_engineer.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-CRS-002-01",
+        "section_title": "Mục tiêu đào tạo và chuẩn đầu ra Data & AI Resource Engineer",
+        "char_count": 367,
+        "word_count": 69
+      },
+      {
+        "section_id": "SEC-CRS-002-02",
+        "section_title": "Cấu trúc 04 Module chuyên môn trọng tâm",
+        "char_count": 588,
+        "word_count": 88
+      },
+      {
+        "section_id": "SEC-CRS-002-03",
+        "section_title": "Đồ án Capstone cuối khóa chuyên ngành AI",
+        "char_count": 421,
+        "word_count": 77
+      },
+      {
+        "section_id": "SEC-CRS-002-04",
+        "section_title": "Yêu cầu đầu vào và kiến thức tiên quyết",
+        "char_count": 189,
+        "word_count": 40
+      }
+    ]
+  },
+  {
+    "document_id": "CS-CRS-003",
+    "title": "Lộ trình đào tạo chuyên sâu DevOps & Cloud Computing AWS",
+    "category": "Curriculum",
+    "version": "v3.1",
+    "effective_date": "2025-01-15",
+    "filename": "CS-CRS-003_lo_trinh_devops_cloud_computing.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-CRS-003-01",
+        "section_title": "Mục tiêu đào tạo và chuẩn đầu ra DevOps AWS",
+        "char_count": 388,
+        "word_count": 70
+      },
+      {
+        "section_id": "SEC-CRS-003-02",
+        "section_title": "Nội dung chi tiết các học phần cốt lõi",
+        "char_count": 490,
+        "word_count": 89
+      },
+      {
+        "section_id": "SEC-CRS-003-03",
+        "section_title": "Dự án thực chiến Capstone Cloud Infrastructure",
+        "char_count": 347,
+        "word_count": 66
+      },
+      {
+        "section_id": "SEC-CRS-003-04",
+        "section_title": "Tài trợ chi phí Cloud thực hành",
+        "char_count": 205,
+        "word_count": 47
+      }
+    ]
+  },
+  {
+    "document_id": "CS-CRS-004",
+    "title": "Lộ trình đào tạo An ninh mạng & Giám sát vận hành SOC Analyst",
+    "category": "Curriculum",
+    "version": "v1.9",
+    "effective_date": "2025-03-01",
+    "filename": "CS-CRS-004_lo_trinh_cybersecurity_soc.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-CRS-004-01",
+        "section_title": "Mục tiêu đào tạo và định hướng nghề nghiệp Blue Team",
+        "char_count": 352,
+        "word_count": 73
+      },
+      {
+        "section_id": "SEC-CRS-004-02",
+        "section_title": "Chi tiết các học phần chuyên môn phòng thủ",
+        "char_count": 450,
+        "word_count": 87
+      },
+      {
+        "section_id": "SEC-CRS-004-03",
+        "section_title": "Mô phỏng thao trường tấn công và phòng thủ Cyber Range",
+        "char_count": 369,
+        "word_count": 76
+      },
+      {
+        "section_id": "SEC-CRS-004-04",
+        "section_title": "Cam kết đạo đức an ninh mạng",
+        "char_count": 279,
+        "word_count": 63
+      }
+    ]
+  },
+  {
+    "document_id": "CS-CRS-005",
+    "title": "Lộ trình đào tạo chuyên sâu Mobile App React Native Đa nền tảng",
+    "category": "Curriculum",
+    "version": "v2.0",
+    "effective_date": "2025-01-20",
+    "filename": "CS-CRS-005_lo_trinh_mobile_react_native.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-CRS-005-01",
+        "section_title": "Mục tiêu đào tạo và khả năng làm chủ công nghệ Mobile",
+        "char_count": 285,
+        "word_count": 61
+      },
+      {
+        "section_id": "SEC-CRS-005-02",
+        "section_title": "Nội dung chương trình đào tạo React Native",
+        "char_count": 530,
+        "word_count": 96
+      },
+      {
+        "section_id": "SEC-CRS-005-03",
+        "section_title": "Đồ án Capstone ứng dụng di động thực tế",
+        "char_count": 340,
+        "word_count": 72
+      },
+      {
+        "section_id": "SEC-CRS-005-04",
+        "section_title": "Thiết bị học tập cần chuẩn bị",
+        "char_count": 229,
+        "word_count": 50
+      }
+    ]
+  },
+  {
+    "document_id": "CS-FAQ-001",
+    "title": "Giải đáp thắc mắc về học phí, chính sách đóng đợt và ưu đãi trả góp",
+    "category": "Academic FAQ",
+    "version": "v2.0",
+    "effective_date": "2025-01-01",
+    "filename": "CS-FAQ-001_faq_hoc_phi_va_thanh_toan.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-FAQ-001-01",
+        "section_title": "Hình thức đóng học phí chia đợt tại CyberSoft",
+        "char_count": 372,
+        "word_count": 86
+      },
+      {
+        "section_id": "SEC-FAQ-001-02",
+        "section_title": "Chương trình trả góp học phí lãi suất 0%",
+        "char_count": 374,
+        "word_count": 82
+      },
+      {
+        "section_id": "SEC-FAQ-001-03",
+        "section_title": "Chính sách ưu đãi thanh toán một lần và đăng ký nhóm",
+        "char_count": 336,
+        "word_count": 71
+      },
+      {
+        "section_id": "SEC-FAQ-001-04",
+        "section_title": "Xuất hóa đơn giá trị gia tăng (VAT) cho doanh nghiệp",
+        "char_count": 300,
+        "word_count": 69
+      }
+    ]
+  },
+  {
+    "document_id": "CS-FAQ-002",
+    "title": "Giải đáp thắc mắc về hình thức học kết hợp Online & Offline (Blended Learning)",
+    "category": "Academic FAQ",
+    "version": "v1.6",
+    "effective_date": "2025-02-10",
+    "filename": "CS-FAQ-002_faq_hinh_thuc_hoc_online_offline.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-FAQ-002-01",
+        "section_title": "Đặc điểm lớp học Offline trực tiếp tại cơ sở",
+        "char_count": 310,
+        "word_count": 62
+      },
+      {
+        "section_id": "SEC-FAQ-002-02",
+        "section_title": "Quy cách lớp học Online tương tác trực tiếp",
+        "char_count": 380,
+        "word_count": 76
+      },
+      {
+        "section_id": "SEC-FAQ-002-03",
+        "section_title": "Chính sách chuyển đổi giữa hình thức Online và Offline",
+        "char_count": 399,
+        "word_count": 87
+      },
+      {
+        "section_id": "SEC-FAQ-002-04",
+        "section_title": "Chính sách học bù khi phát sinh buổi vắng",
+        "char_count": 238,
+        "word_count": 52
+      }
+    ]
+  },
+  {
+    "document_id": "CS-FAQ-003",
+    "title": "Giải đáp thắc mắc về cơ chế hỗ trợ của Mentor và Giảng viên ngoài giờ học",
+    "category": "Academic FAQ",
+    "version": "v1.8",
+    "effective_date": "2025-01-05",
+    "filename": "CS-FAQ-003_faq_ho_tro_mentor_va_review_code.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-FAQ-003-01",
+        "section_title": "Kênh giao tiếp và khung giờ trực hỗ trợ kỹ thuật",
+        "char_count": 375,
+        "word_count": 80
+      },
+      {
+        "section_id": "SEC-FAQ-003-02",
+        "section_title": "Quy định đặt lịch hẹn phiên hỗ trợ cá nhân 1-on-1",
+        "char_count": 356,
+        "word_count": 73
+      },
+      {
+        "section_id": "SEC-FAQ-003-03",
+        "section_title": "Tiêu chuẩn quy trình Review Code cho học viên",
+        "char_count": 359,
+        "word_count": 72
+      },
+      {
+        "section_id": "SEC-FAQ-003-04",
+        "section_title": "Giới hạn phạm vi hỗ trợ của Mentor",
+        "char_count": 325,
+        "word_count": 72
+      }
+    ]
+  },
+  {
+    "document_id": "CS-FAQ-004",
+    "title": "Giải đáp thắc mắc về hội thảo tuyển dụng và kết nối doanh nghiệp đối tác",
+    "category": "Academic FAQ",
+    "version": "v2.1",
+    "effective_date": "2025-02-15",
+    "filename": "CS-FAQ-004_faq_co_hoi_viec_lam_sau_tot_nghiep.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-FAQ-004-01",
+        "section_title": "Ngày hội việc làm định kỳ CyberSoft Tech Job Fair",
+        "char_count": 390,
+        "word_count": 77
+      },
+      {
+        "section_id": "SEC-FAQ-004-02",
+        "section_title": "Quy trình Review CV và chuẩn hóa hồ sơ LinkedIn",
+        "char_count": 358,
+        "word_count": 74
+      },
+      {
+        "section_id": "SEC-FAQ-004-03",
+        "section_title": "Chương trình phỏng vấn thử Mock Interview kỹ thuật",
+        "char_count": 375,
+        "word_count": 77
+      },
+      {
+        "section_id": "SEC-FAQ-004-04",
+        "section_title": "Hỗ trợ kết nối cơ hội việc làm sau tốt nghiệp",
+        "char_count": 325,
+        "word_count": 68
+      }
+    ]
+  },
+  {
+    "document_id": "CS-FAQ-005",
+    "title": "Giải đáp thắc mắc về tài khoản CyberSoft Portal và thời hạn truy cập học liệu",
+    "category": "Academic FAQ",
+    "version": "v1.5",
+    "effective_date": "2025-01-10",
+    "filename": "CS-FAQ-005_faq_tai_khoan_lms_va_he_thong.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-FAQ-005-01",
+        "section_title": "Thời điểm cấp phát tài khoản học tập CyberSoft Portal",
+        "char_count": 368,
+        "word_count": 76
+      },
+      {
+        "section_id": "SEC-FAQ-005-02",
+        "section_title": "Thời hạn truy cập bài giảng và tài nguyên số",
+        "char_count": 338,
+        "word_count": 69
+      },
+      {
+        "section_id": "SEC-FAQ-005-03",
+        "section_title": "Chính sách bảo mật tài khoản và chia sẻ học liệu",
+        "char_count": 387,
+        "word_count": 84
+      },
+      {
+        "section_id": "SEC-FAQ-005-04",
+        "section_title": "Hỗ trợ kỹ thuật khi gặp sự cố đăng nhập hoặc quên mật khẩu",
+        "char_count": 383,
+        "word_count": 80
+      }
+    ]
+  },
+  {
+    "document_id": "CS-POL-001",
+    "title": "Quy chế bảo lưu khóa học tại CyberSoft Academy",
+    "category": "Academic Policy",
+    "version": "v2.1",
+    "effective_date": "2025-01-15",
+    "filename": "CS-POL-001_quy_che_bao_luu.md",
+    "sections_count": 5,
+    "sections": [
+      {
+        "section_id": "SEC-POL-001-01",
+        "section_title": "Điều kiện và đối tượng được xét duyệt bảo lưu",
+        "char_count": 496,
+        "word_count": 110
+      },
+      {
+        "section_id": "SEC-POL-001-02",
+        "section_title": "Thời hạn bảo lưu và quy định số lần bảo lưu",
+        "char_count": 362,
+        "word_count": 82
+      },
+      {
+        "section_id": "SEC-POL-001-03",
+        "section_title": "Quy trình nộp hồ sơ và thời gian phê duyệt",
+        "char_count": 382,
+        "word_count": 84
+      },
+      {
+        "section_id": "SEC-POL-001-04",
+        "section_title": "Thủ tục tiếp tục học lại sau thời gian bảo lưu",
+        "char_count": 524,
+        "word_count": 117
+      },
+      {
+        "section_id": "SEC-POL-001-05",
+        "section_title": "Xử lý vi phạm quá thời hạn bảo lưu",
+        "char_count": 363,
+        "word_count": 82
+      }
+    ]
+  },
+  {
+    "document_id": "CS-POL-002",
+    "title": "Chính sách hoàn trả học phí và rút hồ sơ nhập học",
+    "category": "Academic Policy",
+    "version": "v1.8",
+    "effective_date": "2025-02-01",
+    "filename": "CS-POL-002_chinh_sach_hoan_phi.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-POL-002-01",
+        "section_title": "Quy định rút hồ sơ trước ngày khai giảng khóa học",
+        "char_count": 399,
+        "word_count": 89
+      },
+      {
+        "section_id": "SEC-POL-002-02",
+        "section_title": "Quy định hoàn phí sau ngày khai giảng khóa học",
+        "char_count": 464,
+        "word_count": 105
+      },
+      {
+        "section_id": "SEC-POL-002-03",
+        "section_title": "Phương thức và thời hạn hoàn tiền học phí",
+        "char_count": 406,
+        "word_count": 87
+      },
+      {
+        "section_id": "SEC-POL-002-04",
+        "section_title": "Trường hợp không áp dụng chính sách hoàn phí",
+        "char_count": 286,
+        "word_count": 64
+      }
+    ]
+  },
+  {
+    "document_id": "CS-POL-003",
+    "title": "Quy định chuyên cần, đánh giá bài tập và đồ án Capstone",
+    "category": "Academic Policy",
+    "version": "v2.0",
+    "effective_date": "2025-01-01",
+    "filename": "CS-POL-003_quy_dinh_diem_danh_do_an.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-POL-003-01",
+        "section_title": "Quy định tỷ lệ chuyên cần và điểm danh lớp học",
+        "char_count": 495,
+        "word_count": 104
+      },
+      {
+        "section_id": "SEC-POL-003-02",
+        "section_title": "Quy chuẩn nộp bài tập thực hành định kỳ hàng tuần",
+        "char_count": 395,
+        "word_count": 86
+      },
+      {
+        "section_id": "SEC-POL-003-03",
+        "section_title": "Yêu cầu và tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone",
+        "char_count": 454,
+        "word_count": 96
+      },
+      {
+        "section_id": "SEC-POL-003-04",
+        "section_title": "Quy chế phúc khảo và thi lại đồ án",
+        "char_count": 355,
+        "word_count": 79
+      }
+    ]
+  },
+  {
+    "document_id": "CS-POL-004",
+    "title": "Tiêu chuẩn tốt nghiệp và quy trình cấp chứng chỉ đào tạo",
+    "category": "Academic Policy",
+    "version": "v1.5",
+    "effective_date": "2025-03-01",
+    "filename": "CS-POL-004_cap_chung_chi_tot_nghiep.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-POL-004-01",
+        "section_title": "Điều kiện công nhận tốt nghiệp chính thức",
+        "char_count": 351,
+        "word_count": 73
+      },
+      {
+        "section_id": "SEC-POL-004-02",
+        "section_title": "Phân loại thứ hạng chứng chỉ tốt nghiệp",
+        "char_count": 395,
+        "word_count": 76
+      },
+      {
+        "section_id": "SEC-POL-004-03",
+        "section_title": "Hình thức phát hành và xác thực văn bằng điện tử",
+        "char_count": 415,
+        "word_count": 86
+      },
+      {
+        "section_id": "SEC-POL-004-04",
+        "section_title": "Quy định cấp lại chứng chỉ khi bị thất lạc",
+        "char_count": 319,
+        "word_count": 72
+      }
+    ]
+  },
+  {
+    "document_id": "CS-POL-005",
+    "title": "Chính sách học bổng khuyến học và cam kết hỗ trợ việc làm",
+    "category": "Academic Policy",
+    "version": "v2.2",
+    "effective_date": "2025-01-01",
+    "filename": "CS-POL-005_hoc_bong_va_ho_tro_viec_lam.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-POL-005-01",
+        "section_title": "Cơ cấu và mức trao tặng học bổng tài năng",
+        "char_count": 378,
+        "word_count": 83
+      },
+      {
+        "section_id": "SEC-POL-005-02",
+        "section_title": "Cam kết hỗ trợ việc làm và phạm vi bảo đảm",
+        "char_count": 402,
+        "word_count": 85
+      },
+      {
+        "section_id": "SEC-POL-005-03",
+        "section_title": "Nghĩa vụ của học viên trong chương trình cam kết việc làm",
+        "char_count": 409,
+        "word_count": 86
+      },
+      {
+        "section_id": "SEC-POL-005-04",
+        "section_title": "Điều khoản chấm dứt cam kết việc làm",
+        "char_count": 306,
+        "word_count": 68
+      }
+    ]
+  },
+  {
+    "document_id": "CS-TEC-001",
+    "title": "Hướng dẫn cấu hình môi trường lập trình Python & AI/ML",
+    "category": "Technical Guide",
+    "version": "v3.0",
+    "effective_date": "2025-02-15",
+    "filename": "CS-TEC-001_moi_truong_lap_trinh_python_ai.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-TEC-001-01",
+        "section_title": "Yêu cầu phần cứng và phiên bản hệ điều hành chuẩn",
+        "char_count": 382,
+        "word_count": 76
+      },
+      {
+        "section_id": "SEC-TEC-001-02",
+        "section_title": "Cài đặt Miniconda và quản lý môi trường ảo độc lập",
+        "char_count": 430,
+        "word_count": 73
+      },
+      {
+        "section_id": "SEC-TEC-001-03",
+        "section_title": "Cấu hình Visual Studio Code và các Extensions bắt buộc",
+        "char_count": 356,
+        "word_count": 61
+      },
+      {
+        "section_id": "SEC-TEC-001-04",
+        "section_title": "Khắc phục các lỗi môi trường Python phổ biến",
+        "char_count": 389,
+        "word_count": 65
+      }
+    ]
+  },
+  {
+    "document_id": "CS-TEC-002",
+    "title": "Quy chuẩn quản lý mã nguồn Git và nộp bài trên GitHub Classroom",
+    "category": "Technical Guide",
+    "version": "v2.1",
+    "effective_date": "2025-01-10",
+    "filename": "CS-TEC-002_quy_chuan_git_va_github_classroom.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-TEC-002-01",
+        "section_title": "Quy tắc đặt tên nhánh làm việc theo tính năng (Branching Strategy)",
+        "char_count": 397,
+        "word_count": 64
+      },
+      {
+        "section_id": "SEC-TEC-002-02",
+        "section_title": "Quy chuẩn thông điệp Commit (Conventional Commits)",
+        "char_count": 432,
+        "word_count": 78
+      },
+      {
+        "section_id": "SEC-TEC-002-03",
+        "section_title": "Quy trình tạo Pull Request và nộp bài GitHub Classroom",
+        "char_count": 383,
+        "word_count": 79
+      },
+      {
+        "section_id": "SEC-TEC-002-04",
+        "section_title": "Xử lý xung đột mã nguồn (Merge Conflicts)",
+        "char_count": 345,
+        "word_count": 69
+      }
+    ]
+  },
+  {
+    "document_id": "CS-TEC-003",
+    "title": "Hướng dẫn triển khai Docker Compose & Cơ sở dữ liệu học tập",
+    "category": "Technical Guide",
+    "version": "v2.0",
+    "effective_date": "2025-02-01",
+    "filename": "CS-TEC-003_huong_dan_docker_va_database.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-TEC-003-01",
+        "section_title": "Cài đặt Docker Desktop và kích hoạt WSL2 trên Windows",
+        "char_count": 363,
+        "word_count": 73
+      },
+      {
+        "section_id": "SEC-TEC-003-02",
+        "section_title": "Cấu hình Docker Compose chạy cụm PostgreSQL và pgAdmin",
+        "char_count": 374,
+        "word_count": 53
+      },
+      {
+        "section_id": "SEC-TEC-003-03",
+        "section_title": "Thông số kết nối mặc định và bảo mật môi trường",
+        "char_count": 344,
+        "word_count": 55
+      },
+      {
+        "section_id": "SEC-TEC-003-04",
+        "section_title": "Sao lưu và phục hồi dữ liệu bằng CLI",
+        "char_count": 263,
+        "word_count": 49
+      }
+    ]
+  },
+  {
+    "document_id": "CS-TEC-004",
+    "title": "Hướng dẫn sử dụng GPU Cloud & Google Colab trong huấn luyện mô hình",
+    "category": "Technical Guide",
+    "version": "v1.7",
+    "effective_date": "2025-03-10",
+    "filename": "CS-TEC-004_cau_hinh_moi_truong_gpu_cloud.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-TEC-004-01",
+        "section_title": "Thiết lập môi trường phần cứng GPU trên Google Colab",
+        "char_count": 429,
+        "word_count": 88
+      },
+      {
+        "section_id": "SEC-TEC-004-02",
+        "section_title": "Quản lý dữ liệu bền vững qua kết nối Google Drive",
+        "char_count": 410,
+        "word_count": 79
+      },
+      {
+        "section_id": "SEC-TEC-004-03",
+        "section_title": "Tích hợp Hugging Face Hub và bảo mật Access Token",
+        "char_count": 378,
+        "word_count": 66
+      },
+      {
+        "section_id": "SEC-TEC-004-04",
+        "section_title": "Tối ưu hóa bộ nhớ GPU với PyTorch và BitsAndBytes",
+        "char_count": 346,
+        "word_count": 62
+      }
+    ]
+  },
+  {
+    "document_id": "CS-TEC-005",
+    "title": "Quy chuẩn viết Clean Code, Type Hinting và Linting chuẩn PEP8",
+    "category": "Technical Guide",
+    "version": "v1.4",
+    "effective_date": "2025-01-20",
+    "filename": "CS-TEC-005_quy_chuan_clean_code_va_linting.md",
+    "sections_count": 4,
+    "sections": [
+      {
+        "section_id": "SEC-TEC-005-01",
+        "section_title": "Quy tắc định danh biến, hàm và lớp theo chuẩn PEP8",
+        "char_count": 440,
+        "word_count": 76
+      },
+      {
+        "section_id": "SEC-TEC-005-02",
+        "section_title": "Bắt buộc khai báo Type Hints và Docstrings",
+        "char_count": 407,
+        "word_count": 81
+      },
+      {
+        "section_id": "SEC-TEC-005-03",
+        "section_title": "Thiết lập công cụ tự động kiểm tra cú pháp (Flake8 & Black)",
+        "char_count": 388,
+        "word_count": 75
+      },
+      {
+        "section_id": "SEC-TEC-005-04",
+        "section_title": "Nguyên tắc thiết kế hàm đơn nhiệm (Single Responsibility Principle)",
+        "char_count": 269,
+        "word_count": 57
+      }
+    ]
+  }
+]

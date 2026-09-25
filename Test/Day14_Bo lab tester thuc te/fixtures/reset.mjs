@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const here=path.dirname(fileURLToPath(import.meta.url));
+const args=process.argv.slice(2);
+const get=(name,def)=>{const i=args.indexOf(name);return i>=0?args[i+1]:def};
+const mode=get('--mode','buggy');
+const lab=get('--lab','all').toUpperCase();
+if(!['clean','buggy'].includes(mode)) throw new Error('mode phải là clean hoặc buggy');
+const src=path.join(here,mode), dst=path.join(here,'runtime');
+fs.mkdirSync(dst,{recursive:true});
+const files=fs.readdirSync(src).filter(x=>x.endsWith('.json')&&(lab==='ALL'||x===`${lab}.json`));
+if(!files.length) throw new Error(`Không tìm thấy fixture ${lab}`);
+for(const f of files) fs.copyFileSync(path.join(src,f),path.join(dst,f));
+console.log(JSON.stringify({mode,lab,count:files.length,runtime:dst},null,2));

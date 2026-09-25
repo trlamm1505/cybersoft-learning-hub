@@ -1,255 +1,435 @@
-# AI Work Log — 2026-09-08 (Ngày 10 - Teacher Authoring Tool v0)
+# AI Work Log Ngày 18: Harness đánh giá tự động cho AI Coach
 
-*File nhật ký theo dõi các prompt của người dùng và các thay đổi file tương ứng cho Ngày 10.*
+## Thông tin chung
 
----
+| Mục | Nội dung |
+|---|---|
+| Người thực hiện | Dương Chí Việt |
+| Ngày | 25 tháng 9 năm 2026 |
+| Nhánh | feature/learning hub day18 |
+| Công cụ, model | Claude Code, mô hình Claude Sonnet 5, có sử dụng một subagent loại Explore để đọc code trước khi thiết kế |
+| Phạm vi quyền | Chỉ đọc và ghi trong thư mục learning hub, không đụng vào thư mục Data AI Resource và các thư mục Test |
+| Dữ liệu nhạy cảm | Không có, toàn bộ context sử dụng trong ngày là mã nguồn công khai của dự án, dữ liệu thử nghiệm tự tạo, và nhật ký lỗi do chính người dùng chạy ứng dụng thật rồi dán lại |
 
-## Nhật ký công việc
+## Mục lục các việc trong ngày
 
-### Prompt 1
-> "Bạn là một Senior Backend Developer phụ trách module "Teacher Authoring Tool" (Ngày 10) trong dự án NestJS & MongoDB ("Learning & Contest Hub"). Hãy viết mã nguồn chi tiết cho các yêu cầu sau:
-> 1. Thiết kế Schema & API Quản lý Bài học (Courses/Lessons/Exercises):
-> - Tạo Mongoose Schema hỗ trợ cả bài trắc nghiệm (quiz) và bài lập trình (coding). Thêm trường trạng thái `status` phân định rõ ràng giữa `draft` (Bản nháp) và `published` (Đã xuất bản).
-> - Xây dựng API `POST /lessons/create` hoặc `PUT /lessons/:id` cho phép giảng viên tạo/cập nhật nội dung bài học.
-> 2. Business Logic & Điều kiện nghiệm thu:
-> - Viết middleware hoặc logic validate schema: Chặn yêu cầu đổi trạng thái từ `draft` sang `published` nếu bài học/bài tập thiếu chuẩn đầu ra (`learningOutcome`) hoặc thiếu bài kiểm tra (`test`).
-> - Xây dựng API Import/Export gói dữ liệu bài học dưới dạng định dạng JSON (`GET /lessons/export/:id` và `POST /lessons/import`).
-> Hãy cung cấp mã nguồn NestJS (Controller, Service, Schema) hoàn chỉnh, chuẩn bảo mật và xử lý ngoại lệ tốt."
-
-**Thời gian:** 2026-09-08 08:39:21
-
-**Các file đã tạo / cập nhật / xóa:**
-
-#### File Tạo Mới [NEW]
-1. [lesson.schema.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/lesson.schema.ts)
-   - Định nghĩa Mongoose Schema `Lesson` (`LessonDocument`) hỗ trợ loại hình `coding` và `quiz`.
-   - Lưu trữ các trường: `title`, `slug`, `type`, `status` (`draft` | `published`), `learningOutcome`, `content`, `starterCode`, `solutionCode`, `difficulty`, `points`, `authorId`, `testCases`, `quizQuestions`.
-2. [create-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/create-lesson.dto.ts)
-   - Class DTO định nghĩa cấu trúc dữ liệu tạo mới bài học.
-3. [update-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/update-lesson.dto.ts)
-   - Class DTO định nghĩa cấu trúc dữ liệu cập nhật thông tin bài học.
-4. [import-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/import-lesson.dto.ts)
-   - Class DTO định nghĩa cấu trúc payload import gói JSON bài học.
-5. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-   - Chứa Business Logic:
-     - `validatePublicationEligibility`: Kiểm tra điều kiện xuất bản bài học. Bắt buộc bài học xuất bản phải có `learningOutcome` không rỗng và chứa ít nhất 1 bài kiểm tra hợp lệ (`testCases` với bài coding, `quizQuestions` có đáp án đúng với bài quiz). Ngược lại ném `BadRequestException`.
-     - `createLesson` & `updateLesson`: Quản lý bài học bản nháp và chuyển đổi trạng thái sang đã xuất bản.
-     - `exportLessonJson`: Xuất dữ liệu bài học thành gói JSON định dạng version 1.0.
-     - `importLessonJson`: Đọc gói JSON và khởi tạo bài học mới.
-6. [authoring.controller.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.controller.ts)
-   - REST Controller định nghĩa 6 API endpoints dưới prefix `/api/authoring/lessons`:
-     - `POST /api/authoring/lessons/create`: Tạo bài học mới.
-     - `PUT /api/authoring/lessons/:id`: Cập nhật nội dung bài học.
-     - `GET /api/authoring/lessons`: Lấy danh sách tất cả bài học.
-     - `GET /api/authoring/lessons/:id`: Lấy chi tiết 1 bài học theo ID.
-     - `GET /api/authoring/lessons/export/:id`: Xuất bài học ra gói JSON.
-     - `POST /api/authoring/lessons/import`: Import bài học từ gói JSON.
-7. [authoring.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.module.ts)
-   - Đăng ký NestJS Module cho Teacher Authoring Tool.
-8. [authoring.service.spec.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.spec.ts)
-   - 8 unit tests kiểm tra toàn bộ logic validate điều kiện xuất bản bài học, tạo bản nháp, xuất gói JSON và xử lý ngoại lệ.
-
-#### File Chỉnh Sửa [MODIFY]
-1. [database.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/database.module.ts)
-   - Đăng ký `Lesson` Mongoose Schema vào `MongooseModule.forFeature`.
-2. [app.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/app.module.ts)
-   - Đăng ký `AuthoringModule` vào danh sách `imports` của root module `AppModule`.
+| Số thứ tự | Tên việc | Trạng thái |
+|---|---|---|
+| 1 | Nghiên cứu kiến trúc Coach hiện tại trước khi thiết kế | Đạt |
+| 2 | Vá lỗ hổng chèn lệnh giả mạo | Đạt |
+| 3 | Xây dựng Coach Eval Harness với một trăm trường hợp kiểm thử và bốn tiêu chí rubric | Đạt |
+| 4 | Sinh báo cáo nền và thêm bước trong tích hợp liên tục | Đạt |
+| 5 | Chạy thử dự án, phát hiện và sửa lỗi máy chủ trả về mã năm trăm | Đạt |
+| 6 | Sửa giao diện phần AI Coach theo phản hồi thực tế | Đạt |
+| 7 | Thêm câu trả lời mặc định cho lời chào đơn giản | Đạt |
+| 8 | Tự rà soát lại toàn bộ công việc trong ngày và bổ sung phần còn thiếu | Đạt |
+| 9 | Kiểm tra lại toàn bộ từ đầu bằng cách chạy trực tiếp mọi lệnh, không tin vào báo cáo cũ | Đạt |
 
 ---
 
-### Prompt 2
-> "Bạn là một Frontend Developer phụ trách giao diện quản trị của Ngày 10 trong dự án React & Tailwind CSS:
-> 1. Nút chuyển đổi giao diện nhanh (Role Switcher):
-> - Tạo một thanh toggle hoặc nút bấm trên header để chuyển đổi mượt mà qua lại giữa 2 góc nhìn: "Giao diện Học viên (Student View)" và "Giao diện Quản trị Giảng viên (Teacher Authoring)".
-> 2. Xây dựng giao diện Teacher Authoring Tool v0:
-> - Thiết kế một Form quản trị trực quan để giảng viên tạo/chỉnh sửa nội dung bài học (hỗ trợ nhập liệu cho cả trắc nghiệm và bài lập trình coding).
-> - Thêm cơ chế Schema validation trên giao diện: Cảnh báo hoặc khóa nút "Publish" nếu giảng viên chưa điền đủ chuẩn đầu ra (`learning outcome`) hoặc bài test.
-> - Tích hợp chế độ "Preview Learner View" giúp giảng viên xem trước giao diện hiển thị thực tế đối với học viên.
-> - Thêm nút tính năng Import/Export file JSON cấu hình bài học.
-> Hãy cung cấp mã nguồn component React chi tiết, state quản lý rõ ràng để tôi tích hợp trực tiếp vào dự án."
+## Việc 1: Nghiên cứu kiến trúc Coach hiện tại trước khi thiết kế
 
-**Thời gian:** 2026-09-08 08:51:12
+> **Prompt người dùng:** Yêu cầu ngày 18 là xây dựng harness cho AI Coach, gồm tạo trường hợp kiểm thử thuộc bốn nhóm đúng, sai, thiếu dữ kiện, chèn lệnh giả mạo, chấm điểm bằng rubric bốn tiêu chí đúng đắn, sư phạm, rò rỉ, an toàn, và chạy hồi quy theo phiên bản câu lệnh hoặc mô hình. Bàn giao cuối ngày gồm harness, một trăm trường hợp kiểm thử, và báo cáo nền. Điều kiện nghiệm thu gồm kiểm tra rò rỉ lời giải đầy đủ, giám khảo mô hình ngôn ngữ được đối chiếu mẫu thủ công, và cổng chặn hồi quy trong tích hợp liên tục. Người dùng đồng thời gửi kèm nội dung nhiệm vụ ngày 19 về việc AI hỗ trợ sinh đề có kiểm soát, để tham khảo trước, với mục đích rõ ràng là thiết kế ngày 18 sao cho không gây khó cho ngày 19. Người dùng nhấn mạnh riêng một điều kiện phạm vi: không được thao tác trên thư mục dữ liệu và thư mục kiểm thử ở cấp cao của kho mã nguồn, chỉ được làm việc trong thư mục learning hub.
 
-**Các file đã tạo / cập nhật / xóa:**
+### Điều tôi hiểu trước khi gọi AI
 
-#### File Tạo Mới [NEW]
-1. [authoring.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/types/authoring.ts)
-   - Định nghĩa TypeScript interfaces `LessonAuthoring`, `TestCase`, `QuizQuestion`, `QuizOption`, `ImportLessonPayload`.
-2. [authoringApi.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/axios/authoringApi.ts)
-   - Axios API client thực hiện gọi 6 REST API endpoints từ NestJS backend.
-3. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Component trang quản trị dành cho giảng viên:
-     - Form thiết kế bài học linh hoạt cho cả bài Lập trình (`coding`) và Trắc nghiệm (`quiz`).
-     - Tự động sinh `slug` từ tiêu đề bài học.
-     - **Schema Validation Real-time Guard**: Banner kiểm tra trực tiếp và hiển thị cảnh báo đỏ/xanh. Tự động khóa / disable nút `Publish` nếu thiếu `learningOutcome` hoặc chưa có ít nhất 1 bài test hợp lệ.
-     - **Chế độ Preview Learner View**: Modal xem trước 100% giao diện thực tế đối với học viên trước khi xuất bản.
-     - **Tính năng Import / Export JSON**: Cho phép tải xuống file cấu hình `.json` bài học hoặc đọc file `.json` để nạp dữ liệu vào form.
+Nhiệm vụ đòi hỏi xây một bộ đánh giá tự động cho AI Coach, nhưng phải thiết kế sao cho không tạo ra kiến trúc gây khó cho việc sinh đề bài của ngày 19. Chưa biết kiến trúc Coach hiện tại có sẵn những gì, có mô hình ngôn ngữ thật hay chưa, nên chưa thể tự viết code ngay mà cần khảo sát trước.
 
-#### File Chỉnh Sửa [MODIFY]
-1. [Header.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/Header.tsx)
-   - Tích hợp **Role Switcher Pill Toggle** (`🎓 Student` vs `👨‍🏫 Teacher`) trên thanh điều hướng Header.
-   - Thêm nút menu `🛠️ Authoring Tool` trong chế độ Teacher dành cho cả giao diện máy tính và mobile.
-2. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
-   - Đăng ký route điều hướng `/authoring` trỏ đến `TeacherAuthoringPage`.
-   - Lưu trữ và đồng bộ trạng thái `userRole` vào `localStorage`.
+### Context, tài liệu, file, constraint đã cung cấp
 
----
+Context cung cấp cho subagent Explore: toàn bộ thư mục coach trong backend, gồm bảy tệp mã nguồn, các tệp kiểm thử, thư mục fixtures, tệp cấu hình tích hợp liên tục, và nội dung AI worklog cũ của ngày trước. Constraint: không đụng thư mục Data AI Resource và Test.
 
-### Prompt 3
-> "sao chỗ thi trắc nghiệm này ko cho chọn bài để thi vậy và sao teacher đã thêm bài mới mà ko thấy hiển thị ra"
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
 
-**Thời gian:** 2026-09-08 08:56:56
+Chỉ dẫn chính đưa cho subagent Explore: đọc kiến trúc Coach hiện tại trước khi thiết kế harness, báo cáo lại phát hiện quan trọng. Sau khi nhận báo cáo, dùng công cụ hỏi người dùng để chốt ba quyết định thiết kế trước khi viết code, không tự đoán.
 
-**Các file đã tạo / cập nhật / xóa:**
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-#### File Chỉnh Sửa [MODIFY]
-1. [QuizTakingPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/QuizTakingPage.tsx)
-   - Bổ sung **Giao diện Chọn Bài thi Trắc nghiệm (Quiz Topic Selector Grid)** cho phép học viên lựa chọn đề thi trắc nghiệm trước khi bấm bắt đầu.
-   - Hỗ trợ hiển thị các đề thi trắc nghiệm do Giảng viên vừa thiết kế (`👨‍🏫 Giảng viên tạo`) bên cạnh các đề thi mẫu của hệ thống (`⚡ Đề Hệ thống`).
-   - Tự động nạp động danh sách câu hỏi `quizQuestions` và xử lý tính điểm, giải thích cho các bài trắc nghiệm của Giảng viên.
-2. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
-   - Tự động gọi API `authoringApi.getLessons()` khi ứng dụng khởi chạy để tải danh sách các bài học do Giảng viên đã tạo/xuất bản từ Backend (kèm bộ nhớ đệm `localStorage`).
-   - Đồng bộ động danh sách bài học của Giảng viên vào toàn bộ hệ thống: **Danh mục khóa học (`CourseCatalogPage`)**, **Chi tiết bài học (`LessonDetailPage`)**, **Code Playground**, và **Thi Trắc Nghiệm (`QuizTakingPage`)**.
-3. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Tích hợp callback `onLessonSaved` giúp tự động làm mới và cập nhật bài học mới thêm vào state chung của ứng dụng ngay sau khi Giảng viên lưu nháp hoặc xuất bản bài học.
+Việc này chưa tạo file hay diff nào, chỉ là bước nghiên cứu và ra quyết định thiết kế. Ba phát hiện quan trọng nhất từ báo cáo của subagent được giữ lại nguyên vẹn làm cơ sở thiết kế:
+
+1. Tệp coach module đang gán cứng StubLlmClient làm mô hình ngôn ngữ. Kho mã nguồn hiện tại chưa có mô hình ngôn ngữ thật nào được gọi, chưa cài thư viện của Anthropic hay OpenAI.
+2. Tệp readme trong thư mục fixtures đã ghi sẵn từ ngày 17 rằng tệp conversation traces dùng làm nền cho harness đánh giá của ngày 18.
+3. Tệp coach policy đã có sẵn cơ chế chặn rò rỉ lời giải đầy đủ nhưng hoàn toàn chưa có cơ chế nhận diện chèn lệnh giả mạo.
+
+Ba quyết định thiết kế chốt lại sau khi hỏi người dùng, thay cho việc AI tự đoán:
+
+1. Phần giám khảo mô hình ngôn ngữ triển khai theo hướng dựa trên luật, có kiến trúc sẵn sàng thay bằng mô hình ngôn ngữ thật sau này, thay vì gọi một mô hình thật ngay trong ngày 18.
+2. Một trăm trường hợp kiểm thử viết tay dưới dạng dữ liệu tĩnh, không sinh ngẫu nhiên.
+3. Đặt toàn bộ mã nguồn tại thư mục coach eval trong backend để tự động nằm trong lệnh kiểm thử có sẵn.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Không có lệnh kiểm thử nào chạy ở việc này vì chưa có code. Không phát hiện lỗi AI nào ở bước nghiên cứu này.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: đọc kiến trúc thật trước khi thiết kế đã tránh được một sai lầm lớn, nếu không đọc kỹ sẽ tưởng kho mã nguồn đã có mô hình ngôn ngữ thật và thiết kế giám khảo sai hướng ngay từ đầu. Điều chưa chắc: chưa rõ khi nào ngày 19 sẽ thật sự gắn một mô hình ngôn ngữ thật vào, nên kiến trúc rule based hôm nay có thể cần điều chỉnh thêm khi đó. Thay đổi cho lần sau: nên có một quy ước ghi rõ trong tài liệu dự án về việc kho mã nguồn hiện đang dùng mô hình giả lập nào, để các ngày sau không phải tự dò lại từ đầu.
 
 ---
 
-### Prompt 4
-> "nếu giáo viên thêm bài lâpj trình thì sẽ lưu vào database và hiển thị ra bài tập ở đây cho sinh viên xem còn nếu bài trắc nghiệm thì sẽ hiển thị bên phần thi trắc nghiệm và chỗ teacher nhập form thêm bài lập trình phải có tất cả các trường cần thiết và thêm cả 3 phần gợi ý này nữa"
+## Việc 2: Vá lỗ hổng chèn lệnh giả mạo
 
-**Thời gian:** 2026-09-08 09:01:42
+> **Bối cảnh phát sinh:** Việc này không phải một yêu cầu mới của người dùng mà phái sinh trực tiếp từ phát hiện thứ ba ở Việc 1, tệp coach policy đã có cơ chế chặn rò rỉ lời giải nhưng chưa có cơ chế chặn chèn lệnh giả mạo, trong khi đề bài ngày 18 yêu cầu bắt buộc phải có trường hợp kiểm thử cho nhóm chèn lệnh giả mạo.
 
-**Các file đã tạo / cập nhật / xóa:**
+### Context, tài liệu, file, constraint đã cung cấp
 
-#### File Chỉnh Sửa [MODIFY]
-1. [lesson.schema.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/lesson.schema.ts)
-   - Bổ sung Mongoose Sub-Schema `LessonHints` (`hint1`, `hint2`, `hint3`) hỗ trợ lưu trữ 3 tầng gợi ý vào MongoDB database.
-2. [create-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/create-lesson.dto.ts) & [update-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/update-lesson.dto.ts)
-   - Thêm DTO class `LessonHintsDto` cho phép truyền payload 3 tầng gợi ý lên backend API.
-3. [authoring.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/types/authoring.ts)
-   - Thêm interface `LessonHints` trong TypeScript Frontend.
-4. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Bổ sung **Phần 4: Thiết lập 3 Tầng Gợi Ý (Hint Engine)** trong Form bài lập trình coding với đầy đủ 3 ô nhập liệu (Tầng 1: Khái niệm & Tư duy, Tầng 2: Chiến lược thuật toán, Tầng 3: Code mẫu Python kèm nút nạp nhanh từ Solution Code).
-5. [HintPanel.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/HintPanel.tsx)
-   - Hỗ trợ nhận prop `customHints` truyền trực tiếp 3 tầng gợi ý do Giảng viên thiết lập khi học viên thực hành.
-6. [CodePlaygroundPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/CodePlaygroundPage.tsx)
-   - Hiển thị danh sách các bài tập lập trình do Giảng viên tạo (`👨‍🏫 Bài tập Giảng viên`) ngay trong bộ chọn bài tập Code Playground. Tự động nạp đề bài, starter code, test cases và 3 tầng gợi ý tương ứng.
+Context là kết quả nghiên cứu từ Việc 1, cụ thể là cấu trúc tệp coach policy và tệp coach service. Không có tài liệu bên ngoài nào khác được cung cấp.
 
----
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
 
-### Prompt 5
-> "teacher có thể chọn lại bài để chỉnh sửa thông tin trắc nghiệm hoặc lập trình hoặc có thể xóa các bài đi"
+Chỉ dẫn chính là tự triển khai dựa trên phát hiện lỗ hổng ở Việc 1, không có vòng phản hồi qua lại nào với người dùng ở việc này.
 
-**Thời gian:** 2026-09-08 09:06:55
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-**Các file đã tạo / cập nhật / xóa:**
+Tạo mới tệp coach injection guard, chứa hàm thuần detectPromptInjection quét khoảng mười ba mẫu biểu thức chính quy bằng cả tiếng Việt và tiếng Anh cho năm nhóm tấn công: yêu cầu bỏ qua hướng dẫn hệ thống, yêu cầu đổi vai trò thành quản trị viên hoặc chế độ nhà phát triển, tự xưng là quản trị viên để đòi quyền cao hơn, yêu cầu tiết lộ câu lệnh hệ thống hoặc test ẩn hoặc lời giải gốc, và các kỹ thuật vượt rào phổ biến.
 
-#### File Chỉnh Sửa [MODIFY]
-1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-   - Bổ sung phương thức `deleteLesson(id)` xóa bài học khỏi cơ sở dữ liệu MongoDB.
-2. [authoring.controller.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.controller.ts)
-   - Thêm REST API endpoint `@Delete('/api/authoring/lessons/:id')`.
-3. [authoringApi.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/axios/authoringApi.ts)
-   - Thêm phương thức `authoringApi.deleteLesson(id)`.
-4. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Bổ sung thanh **Quản lý & Chọn bài học để Chỉnh sửa / Xóa**:
-     - Menu thả xuống cho phép Giảng viên chọn lại bất kỳ bài học nào đã tạo (Coding hoặc Quiz) để nạp dữ liệu lên Form và cập nhật.
-     - Nút `➕ Bài tập mới` để reset Form nhập bài tập mới.
-     - Nút `🗑️ Xóa bài này` để xóa bài tập khỏi cơ sở dữ liệu.
-5. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
-   - Tích hợp callback `handleLessonDeleted` tự động xóa bài học khỏi state hệ thống khi Giảng viên bấm xóa.
+Sửa tệp coach service, gắn hàm phát hiện chèn lệnh vào, chạy ngay sau khi ghi lại tin nhắn của người dùng và trước khi gọi tới mô hình ngôn ngữ. Toàn bộ phần này được giữ lại nguyên vẹn, không có phần nào bị loại bỏ, vì đây là code mới hoàn toàn không thay thế logic cũ nào.
+
+Vì StubLlmClient hiện tại chỉ là bộ nhận diện mẫu câu, không phải mô hình thật, lớp chặn này không làm thay đổi hành vi quan sát được ngay hôm nay, giá trị của nó chỉ hiện rõ khi mô hình thật được gắn vào sau này. Giới hạn này được ghi rõ trong chú thích đầu tệp để giữ lại đúng ngữ cảnh cho người đọc sau.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Viết tệp coach injection guard spec với mười sáu trường hợp: mười câu chèn lệnh phải bị bắt, năm câu hỏi hợp lệ không được chặn nhầm, một kiểm tra nội dung câu từ chối không tiết lộ thêm gì. Thêm một trường hợp tích hợp trong coach service spec xác nhận hàm mockLlmClient chat không được gọi khi tin nhắn là chèn lệnh.
+
+Lệnh chạy và kết quả, chạy trong thư mục backend:
+
+```
+npx jest coach-injection-guard coach.service
+```
+
+Kết quả toàn bộ các trường hợp đều đạt. Không phát hiện lỗi AI nào ở việc này khi kiểm chứng lần đầu, các lỗi thật của bộ chặn này chỉ lộ ra sau khi chạy qua Coach Eval Harness ở Việc 3.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: đặt lớp chặn ở tầng service, trước khi gọi mô hình ngôn ngữ, là vị trí đúng để bảo đảm hiệu lực dù sau này đổi sang mô hình thật nào. Điều chưa chắc: bộ mẫu biểu thức chính quy hiện tại chỉ bắt được các dạng tấn công đã biết, chưa chắc bao quát hết các biến thể chèn lệnh mới. Thay đổi cho lần sau: nên bổ sung định kỳ mẫu tấn công mới vào bộ chặn này khi phát hiện qua thực tế sử dụng, giống như đã làm ở Việc 3.
 
 ---
 
-### Prompt 6: Tùy ý chọn, chỉnh sửa và xóa tất cả các bài tập trong hệ thống (Coding exercises & Quiz topics)
-- **User Prompt**: "sao có rất nhiều bài mà teacher lại chỉ có thể chọn 4 vậy teacher sẽ có thể tùy ý chỉnh sửa tất cả các bài"
-- **Files Modified**:
-  1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-     - Khởi tạo `OnModuleInit` tự động nạp (seed) toàn bộ 10 bài tập lập trình Python hệ thống (`INITIAL_EXERCISES` + `INITIAL_HINTS`) cùng các bộ đề trắc nghiệm hệ thống (`SYSTEM_QUIZZES`) vào MongoDB collection `lessons` nếu chưa tồn tại.
-     - Cho phép Giảng viên quản lý, xem, tùy ý chọn, chỉnh sửa nội dung/3-tier hints và xóa tất cả các bài tập hệ thống hoặc do Giảng viên tạo.
-  2. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Cập nhật menu chọn bài học hiển thị đầy đủ tất cả các bài học/bài tập trong cơ sở dữ liệu (`existingLessons.length` bài).
-     - Thêm tùy chọn `➕ Tạo bài học mới` và hỗ trợ nạp dữ liệu bài tập bất kỳ lên form để chỉnh sửa/xóa.
+## Việc 3: Xây dựng Coach Eval Harness với một trăm trường hợp kiểm thử và bốn tiêu chí rubric
+
+> **Prompt người dùng:** Nguyên văn yêu cầu đã dán ở Việc 1, không lặp lại ở đây.
+
+### Điều tôi hiểu trước khi gọi AI
+
+Cần dựng một trăm trường hợp kiểm thử chia bốn nhóm đúng, sai, thiếu dữ kiện, chèn lệnh giả mạo, chấm điểm bằng rubric bốn tiêu chí đúng đắn, sư phạm, rò rỉ, an toàn, và toàn bộ phải chạy được như một cổng chặn hồi quy tự động.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Context gồm ba quyết định thiết kế đã chốt ở Việc 1, cơ chế chặn chèn lệnh vừa tạo ở Việc 2, và hai mươi trường hợp phân tích lỗi có sẵn từ ngày 17 trong tệp failure fixtures. Constraint: không sinh case ngẫu nhiên, phải đọc lại fixtures của ngày 17 bằng hàm đọc tệp thay vì chép tay.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Chỉ dẫn chính: dựng đủ một trăm trường hợp, bốn tiêu chí rubric, cổng chặn hồi quy trong Jest. Vòng phản hồi quan trọng nhất: sau khi chạy thử lần đầu và phát hiện sáu trên mười hai trường hợp kiểm thử không đạt, tự quyết định không sửa mù mà viết kịch bản gỡ lỗi riêng để đọc từng trường hợp trước khi sửa.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Toàn bộ mã nguồn tạo mới tại thư mục coach eval trong backend, chi tiết đầy đủ nằm trong tài liệu riêng tại `learning-hub/docs/day18/coach-eval-harness-spec.md`.
+
+| Tệp | Nội dung | Giữ lại hay chỉnh sửa |
+|---|---|---|
+| eval types | Định nghĩa hai họ trường hợp kiểm thử tương ứng hai nhánh xử lý thật, một là chat đi qua CoachService, hai là debugLoop đi qua hàm thuần analyzeDebugLoop | Giữ nguyên |
+| debug loop eval cases | Ba mươi trường hợp, đọc trực tiếp tệp failure fixtures bằng hàm đọc tệp thay vì chép tay, tái dùng nguyên hai mươi trường hợp của ngày 17 làm nhóm đúng, thêm năm trường hợp nhóm sai và năm trường hợp nhóm thiếu dữ kiện viết mới | Giữ nguyên |
+| chat eval cases | Bảy mươi trường hợp, chia hai mươi nhóm đúng, mười lăm nhóm sai, mười lăm nhóm thiếu dữ kiện, hai mươi nhóm chèn lệnh giả mạo | Giữ nguyên |
+| coach eval runner | Mô phỏng lại đúng thứ tự các bước thật của hàm chat trong CoachService | Giữ nguyên ở việc này, chỉnh sửa thêm ở Việc 8 |
+| coach rubric | Chấm điểm bốn tiêu chí đúng đắn, sư phạm, rò rỉ, an toàn | Chỉnh sửa hai lần sau khi phát hiện lỗi, xem mục kiểm chứng bên dưới |
+| coach eval spec | Cổng chặn hồi quy, ngưỡng cứng cho rò rỉ và an toàn, ngưỡng mềm cho các tiêu chí còn lại | Giữ nguyên ở việc này, chỉnh sửa thêm ở Việc 8 |
+
+Một tệp kịch bản gỡ lỗi tạm thời được tạo ra trong lúc làm để đọc trực tiếp đầu vào đầu ra của từng trường hợp không đạt, sau đó bị loại bỏ hoàn toàn sau khi dùng xong, vì nó chỉ phục vụ mục đích chẩn đoán một lần, không phải một phần của harness.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Lần chạy đầu tiên của cổng chặn báo sáu trên mười hai trường hợp kiểm thử không đạt. Dùng kịch bản gỡ lỗi tạm thời để đọc trực tiếp từng trường hợp thay vì sửa mù, tìm ra bốn lỗi thật:
+
+1. Hai lỗi ở bộ nhận diện chèn lệnh còn thiếu mẫu câu, chưa bắt được hai câu chèn lệnh thật.
+2. Hai lỗi trong chính rubric tự viết, không phải lỗi mã nguồn sản phẩm: rubric hiểu nhầm một câu mô tả phạm vi từ chối là hành vi rò rỉ thật, và rubric hiểu nhầm một câu gợi ý mở gợi ý là một câu khẳng định đã mở gợi ý.
+
+Cách phát hiện: đọc nguyên văn nội dung đầu vào và đầu ra của từng trường hợp không đạt bằng kịch bản gỡ lỗi, không tin vào con số tổng do công cụ tự động trả ra. Cả bốn lỗi đều đã sửa, có trường hợp kiểm thử riêng để không tái diễn.
+
+Lệnh chạy và kết quả tại thời điểm hoàn thành việc 3, chạy trong thư mục backend:
+
+```
+npx tsc --noEmit
+npx jest --silent
+npm run eval:coach
+```
+
+Kết quả: không có lỗi kiểu, hai mươi mốt bộ kiểm thử đạt với một trăm bảy mươi tư trường hợp đạt, và một trăm trên một trăm trường hợp của báo cáo nền đạt.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: một cổng chặn tự động có thể tự sai ở chính công cụ chấm điểm của nó, không chỉ ở mã nguồn sản phẩm được chấm, nên luôn phải đọc lý do không đạt cụ thể trước khi kết luận. Điều chưa chắc: bộ một trăm trường hợp hiện tại là dữ liệu tĩnh viết tay, chưa chắc bao quát hết mọi tình huống thật sẽ gặp khi có mô hình ngôn ngữ thật. Thay đổi cho lần sau: nên tách rõ quy trình đối chiếu thủ công thành một bước bắt buộc mỗi khi thêm trường hợp kiểm thử mới, không chỉ làm một lần rồi thôi, và ghi quy trình này vào tài liệu hướng dẫn của harness.
 
 ---
 
-### Prompt 8: Loại bỏ icon/emoji tiền tố và khử trùng lặp bài tập
-- **User Prompt**: "bỏ mấy icon này đi cho nó đồng bộ"
-- **Files Modified**:
-  1. [CodePlaygroundPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/CodePlaygroundPage.tsx)
-     - Loại bỏ các icon/emoji tiền tố như `👨‍🏫`, `🧑‍💻`, `📝` khỏi tiêu đề bài tập.
-     - Áp dụng `useMemo` và `Map<string, ExerciseListItem>` để khử trùng lặp bài tập theo `slug`, đảm bảo mỗi bài tập chỉ xuất hiện duy nhất 1 lần trong menu chọn của Code Playground.
-  2. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Chuẩn hóa định dạng danh sách dropdown chọn bài học: sử dụng nhãn text đồng nhất `[Coding]` / `[Quiz]` thay cho icon emoji.
+## Việc 4: Sinh báo cáo nền và thêm bước trong tích hợp liên tục
+
+> **Bối cảnh:** Đây là phần bàn giao cuối ngày theo đề bài ngày 18 đã dán ở Việc 1, gồm baseline report và regression gate trong CI, không phải một yêu cầu mới.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Context là toàn bộ harness đã xây ở Việc 3 và tệp cấu hình tích hợp liên tục hiện có của dự án đã đọc ở Việc 1.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Chỉ dẫn chính là tự triển khai dựa trên bàn giao đã nêu ở đề bài, không có vòng phản hồi qua lại nào ở việc này.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Thêm lệnh eval coach vào tệp package json của backend. Thêm một bước riêng trong tệp cấu hình tích hợp liên tục, chạy sau bước kiểm thử đơn vị đã có sẵn, để in báo cáo nền ra nhật ký và tự thoát với mã lỗi nếu phát hiện rò rỉ. Toàn bộ được giữ lại nguyên vẹn, không có phần nào loại bỏ.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Không chạy được máy chủ tích hợp liên tục thật trong phiên làm việc vì không đẩy mã nguồn lên máy chủ từ xa. Đã chạy đúng hai lệnh mà máy chủ tích hợp liên tục sẽ chạy ngay tại máy cá nhân, cả hai đều thành công. Không phát hiện lỗi AI nào ở việc này.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: đặt báo cáo nền như một bước riêng trong tích hợp liên tục, tách khỏi bước kiểm thử đơn vị, giúp người xem nhật ký thấy ngay kết quả tổng hợp mà không cần đọc hết log kiểm thử chi tiết. Điều chưa chắc: chưa kiểm chứng được hành vi thật trên máy chủ tích hợp liên tục vì chưa đẩy mã nguồn lên. Thay đổi cho lần sau: khi đẩy nhánh này lên máy chủ từ xa, cần xác nhận lại bước này chạy đúng như mong đợi trên môi trường tích hợp liên tục thật, không chỉ tin vào kết quả chạy tại máy cá nhân.
 
 ---
 
-### Prompt 9: Loại bỏ nhãn "Giảng viên tạo" trên các thẻ bài thi trắc nghiệm
-- **User Prompt**: "bỏ chữ giảng viên tạo đi"
-- **Files Modified**:
-  1. [QuizTakingPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/QuizTakingPage.tsx)
-     - Loại bỏ nhãn badge `👨‍🏫 Giảng viên tạo` và `⚡ Đề Hệ thống` trên tất cả các thẻ bài thi trắc nghiệm.
-     - Thay thế bằng nhãn danh mục chuyên đề (`FULLSTACK WEB`, `PYTHON`, `TRẮC NGHIỆM`) với kiểu dáng đồng nhất và chuyên nghiệp.
+## Việc 5: Chạy thử dự án, phát hiện và sửa lỗi máy chủ trả về mã năm trăm
+
+> **Prompt người dùng, tin nhắn 1:** Yêu cầu khởi động dự án lên để kiểm thử trực tiếp.
+>
+> **Prompt người dùng, tin nhắn 2:** Kèm đoạn nhật ký trình duyệt báo lỗi mã năm trăm khi gọi đường dẫn coach chat, cùng nhận xét rằng trải nghiệm phần phân tích lỗi và hỏi đáp bài tập của AI Coach không tốt, đôi khi phải tải lại trang, và một phần giao diện che khuất phần khác.
+>
+> **Prompt người dùng, tin nhắn 3:** Xác nhận đồng ý với phương án khởi động lại máy chủ giao diện để bảo đảm mã nguồn mới nhất được áp dụng, chọn từ danh sách gợi ý do hệ thống đưa ra.
+
+### Điều tôi hiểu trước khi gọi AI
+
+Người dùng muốn tự tay chạy và kiểm thử ứng dụng thật trên trình duyệt, không chỉ tin vào kết quả kiểm thử tự động. Lỗi mã năm trăm xuất hiện khi dùng thật là một tín hiệu quan trọng cần điều tra ngay, có thể liên quan tới thay đổi vừa làm ở Việc 2.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Context là đoạn nhật ký lỗi trình duyệt người dùng dán vào, và dữ liệu thật đang có trong cơ sở dữ liệu Mongo của người dùng.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Chỉ dẫn chính từ tin nhắn 1 và 2. Vòng phản hồi quan trọng: sau khi đề xuất phương án khởi động lại máy chủ giao diện, người dùng xác nhận đồng ý qua lựa chọn trong danh sách gợi ý ở tin nhắn 3.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Viết một kịch bản gỡ lỗi tạm thời kết nối trực tiếp tới cơ sở dữ liệu Mongo để tìm nguyên nhân, sau đó loại bỏ hoàn toàn tệp này sau khi xác nhận sửa đúng, vì nó chỉ phục vụ chẩn đoán một lần.
+
+Sửa hàm assertContextHasNoForbiddenData tại tệp coach policy. Phần bị loại bỏ: đoạn quét toàn bộ nội dung ngữ cảnh đã chuyển thành chuỗi ký tự bao gồm cả lịch sử hội thoại tự do. Phần được giữ lại và chỉnh sửa: chỉ quét phần dữ liệu có cấu trúc do hệ thống tự ráp từ cơ sở dữ liệu, gồm thông tin bài tập và gợi ý đã mở. Lý do loại bỏ phần quét lịch sử hội thoại: một câu chữ xuất hiện trong hội thoại tự do không đồng nghĩa với việc trường dữ liệu cấm đó đã thực sự lọt vào ngữ cảnh, quét cả phần đó gây chặn nhầm vĩnh viễn mọi tin nhắn sau đó trên cùng bài tập.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Lỗi AI mắc phải: hàm assertContextHasNoForbiddenData viết ở phiên làm việc trước quét quá rộng, không phân biệt được dữ liệu có cấu trúc với văn bản tự do trong lịch sử hội thoại. Cách phát hiện: đọc nhật ký backend thấy lỗi ném ra từ đúng hàm này, sau đó dùng kịch bản gỡ lỗi kết nối trực tiếp cơ sở dữ liệu thật để xác nhận chính tin nhắn chèn lệnh giả mạo người dùng vừa gõ có chứa nguyên văn từ solutionCode, đã bị lưu vào lịch sử hội thoại và gây lỗi ở lượt trò chuyện kế tiếp.
+
+Thêm một trường hợp kiểm thử hồi quy trong tệp coach policy spec xác nhận hàm không ném lỗi khi chỉ có lịch sử hội thoại nhắc tới từ solutionCode. Chạy lại kịch bản gỡ lỗi để xác nhận trực tiếp trên chính dữ liệu Mongo thật của người dùng, kết quả hàm không còn ném lỗi dù lịch sử cũ vẫn còn nguyên câu chữ đó.
+
+```
+npx tsc --noEmit
+npx jest --silent
+```
+
+Kết quả: không lỗi kiểu, toàn bộ trường hợp kiểm thử đều đạt.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: toàn bộ trường hợp kiểm thử tự động ở Việc 3 đều dùng ngữ cảnh giả lập sạch sẽ, không mô phỏng đúng tình huống một câu chữ nhạy cảm bị lưu lại trong lịch sử hội thoại thật rồi quay lại ảnh hưởng tới lượt sau, nên không hề bắt được lỗi này. Chỉ có việc người dùng tự chạy ứng dụng thật mới phát hiện ra. Điều chưa chắc: chưa rõ còn tình huống thật nào khác tương tự, nơi kiểm thử tự động dùng dữ liệu giả lập không phản ánh đúng dữ liệu tích lũy qua thời gian trong hệ thống thật. Thay đổi cho lần sau: cân nhắc thêm ít nhất một trường hợp kiểm thử mô phỏng lịch sử hội thoại có chứa từ khóa nhạy cảm vào chính bộ một trăm trường hợp của harness, để lớp bảo vệ tự động cũng bắt được dạng lỗi này mà không cần chờ người dùng tự phát hiện.
 
 ---
 
-### Prompt 10: Tách biệt tuyệt đối dữ liệu JSON Xuất/Nhập và Lưu trữ giữa Trắc nghiệm (Quiz) và Lập trình (Coding)
-- **User Prompt**: "bài trắc nghiệm và tự luận là riêng biệt khi xuất json hoặc thêm bằng json thì chỉ có riêng trắc nghiệm hoặc lập trình thôi ko gọp chugn"
-- **Files Modified**:
-  1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-     - Bổ sung hàm `sanitizePayloadByType`: Nếu là bài `coding` thì dọn dẹp `quizQuestions = []`, nếu là bài `quiz` thì dọn dẹp `starterCode`, `solutionCode`, `content`, `testCases`, `hints`.
-     - Cập nhật `exportLessonJson`: File JSON xuất ra của bài `coding` chỉ chứa các trường mã nguồn, test cases & hints. File JSON của bài `quiz` chỉ chứa danh sách câu hỏi `quizQuestions`.
-     - Cập nhật `importLessonJson`: Tự động phân loại và chỉ nạp đúng các trường thuộc loại bài tương ứng.
-  2. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Cập nhật `handleExportJson` và `handleImportJson` trên giao diện Frontend để tạo/đọc file JSON tách biệt 100% theo loại bài (`lesson-coding-*.json` vs `lesson-quiz-*.json`).
-     - Tự động làm sạch Form và các trường không liên quan khi Giảng viên chuyển đổi qua lại giữa nút `Bài Lập trình (Coding)` và `Bài Trắc nghiệm (Quiz)`.
+## Việc 6: Sửa giao diện phần AI Coach theo phản hồi thực tế
+
+> **Prompt người dùng, tin nhắn 1:** Đã trích ở Việc 5 vì gửi chung với đoạn nhật ký lỗi mã năm trăm, nội dung về trải nghiệm chưa tốt của phần phân tích lỗi và hỏi đáp bài tập.
+>
+> **Prompt người dùng, tin nhắn 2, kèm một ảnh chụp màn hình:** Phản ánh rằng khối kết quả phân tích lỗi che hết khung trò chuyện mà không có nút đóng, và nút phân tích lỗi vẫn dùng được dù đã vượt quá giới hạn số lần sử dụng.
+>
+> **Prompt người dùng, tin nhắn 3:** Phản hồi rằng giới hạn vẫn bị vượt qua sau khi đã sửa, kèm bằng chứng vừa gửi thử nghiệm lần thứ mười.
+>
+> **Prompt người dùng, tin nhắn 4:** Phản ánh rằng mỗi lần gửi tin nhắn xong, màn hình tự cuộn trượt xuống, phải kéo tay lên lại rất khó chịu.
+
+### Điều tôi hiểu trước khi gọi AI
+
+Có ba vấn đề giao diện riêng biệt, gồm khối phân tích lỗi che khung chat không có nút đóng, nút phân tích lỗi vẫn dùng được dù đã vượt giới hạn vòng lặp, và khung chat tự cuộn kéo theo cả trang mỗi lần gửi tin nhắn.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Context là ảnh chụp màn hình người dùng gửi ở tin nhắn 2, cho thấy trực quan lỗi giao diện.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Vòng phản hồi 1: sửa theo tin nhắn 2, thêm nút đóng và giới hạn chiều cao khối phân tích lỗi. Vòng phản hồi 2: người dùng báo lại ở tin nhắn 3 rằng vẫn vượt được giới hạn sau khi đã sửa, buộc phải điều tra sâu hơn và dùng công cụ hỏi người dùng để xác nhận hướng sửa ở tầng backend thay vì chỉ sửa giao diện. Vòng phản hồi 3: sửa theo tin nhắn 4, một vấn đề giao diện độc lập khác.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Cho tin nhắn 2, sửa tệp CoachPanel. Phần giữ lại: toàn bộ cấu trúc hiển thị kết quả phân tích lỗi. Phần thêm mới: một nút đóng cho khối kết quả phân tích, giới hạn chiều cao khối này kèm thanh cuộn riêng, và điều kiện khóa nút phân tích khi cờ chạm giới hạn bật lên. Lý do: khối hiển thị cũ không có nút đóng nào, chỉ tự biến mất khi đổi bài tập hoặc có lần nộp mới, và nút phân tích chỉ khóa theo trạng thái đang tải chứ không theo cờ giới hạn.
+
+Cho tin nhắn 3, sửa hàm debugLoop trong tệp coach service. Phần loại bỏ: cách chặn cũ chỉ mang tính khuyến nghị ở phần nội dung trả về, không thực sự từ chối yêu cầu. Phần thêm mới: điều kiện nếu số lần thử liên tiếp chưa đạt đã lớn hơn hoặc bằng ngưỡng tối đa thì ném lỗi từ chối ngay, không tính toán tiếp. Cập nhật thêm tệp CoachPanel để bắt đúng lỗi từ chối này và khóa nút vĩnh viễn cho tới khi có lần nộp bài mới. Lý do loại bỏ cách cũ: số lần thử được máy chủ tự tính lại từ dữ liệu thật trong cơ sở dữ liệu mỗi lần gọi, nhưng trạng thái khóa nút ở giao diện lại bị đặt lại mỗi khi có lần nộp bài mới, nên người dùng chỉ cần nộp lại bài rồi bấm tiếp là vượt qua được cơ chế khuyến nghị cũ.
+
+Cho tin nhắn 4, sửa tệp CoachPanel. Phần loại bỏ: cách gọi hàm scrollIntoView trên một phần tử rỗng ở cuối danh sách tin nhắn. Phần thêm mới: gắn tham chiếu trực tiếp lên chính khối chứa danh sách tin nhắn và tự đặt giá trị cuộn của khối đó. Lý do loại bỏ cách cũ: hàm scrollIntoView có thể kéo theo bất kỳ phần tử cha nào có thanh cuộn riêng, không giới hạn đúng trong phạm vi khung trò chuyện, khiến cả trang bị cuộn theo ngoài ý muốn.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Lỗi AI mắc phải ở lần sửa đầu cho tin nhắn 2: chỉ sửa giao diện mà chưa nhận ra gốc rễ nằm ở backend, khiến người dùng vẫn vượt được giới hạn ở tin nhắn 3. Cách phát hiện: người dùng tự tay thử lại và báo trực tiếp rằng vẫn vượt được, không phải AI tự phát hiện ra thiếu sót này.
+
+| Tin nhắn | Lệnh chạy | Kết quả |
+|---|---|---|
+| 3 | npx tsc --noEmit và npx jest --silent | không lỗi, toàn bộ trường hợp đạt, thêm hai trường hợp kiểm thử mới xác nhận chặn cứng và không chặn nhầm khi đã đạt |
+| 4 | công cụ kiểm tra kiểu chữ và quy tắc mã nguồn của giao diện | không phát sinh lỗi nào liên quan tới tệp CoachPanel |
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: một cơ chế giới hạn chỉ đặt ở giao diện, dựa vào trạng thái có thể bị đặt lại, không phải một cơ chế chặn thật, phải luôn có một lớp chặn cứng ở phía máy chủ dựa trên dữ liệu không thể bị người dùng thao túng. Điều chưa chắc: chưa kiểm thử giao diện này trên nhiều kích thước màn hình khác nhau, chỉ xác nhận qua ảnh chụp người dùng gửi và mô tả bằng lời. Thay đổi cho lần sau: khi sửa giao diện dựa trên mô tả bằng lời hoặc ảnh chụp tĩnh, nên hỏi lại người dùng xác nhận trực tiếp trên trình duyệt thật sau khi sửa, thay vì chỉ tin vào kết quả kiểm tra kiểu chữ và quy tắc mã nguồn.
 
 ---
 
-### Prompt 11: Cho phép Giảng viên chọn Lập trình hay Trắc nghiệm trước để lọc danh sách bài học tương ứng
-- **User Prompt**: "chỗ teacher này sẽ cho người dùng chọn trước là bài lập trình hay quiz trước và sẽ lấy danh sách theo đó luôn"
-- **Files Modified**:
-  1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Bổ sung thanh lọc 2 bước (**Bước 1: Chọn loại bài học trước** `🧑‍💻 Bài Lập trình` / `📝 Bài Trắc nghiệm` / `Tất cả`).
-     - Tự động lọc và cập nhật danh sách bài học tại **Bước 2 (Dropdown selector)** chỉ hiển thị đúng các bài học thuộc loại đã chọn, giúp Giảng viên quản lý nhanh chóng và trực quan.
+## Việc 7: Thêm câu trả lời mặc định cho lời chào đơn giản
+
+> **Prompt người dùng:** Yêu cầu thêm một câu trả lời mặc định cho lời chào đơn giản kiểu hỏi thăm có thể giúp gì, với ràng buộc quan trọng là hành vi trả lời mặc định này phải tiếp tục hoạt động cả khi ngày mai gắn giao diện lập trình ứng dụng của Gemini vào, để không tốn hạn mức gọi mô hình cho những câu chào không cần thiết.
+
+### Điều tôi hiểu trước khi gọi AI
+
+Yêu cầu không chỉ đơn giản là thêm một câu trả lời cho lời chào, mà còn có ràng buộc quan trọng là hành vi này phải tồn tại độc lập với việc ngày mai đổi sang gọi mô hình Gemini thật, nghĩa là vị trí đặt logic quyết định việc có đạt được mục tiêu tiết kiệm hạn mức hay không.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Context là kiến trúc CoachService và StubLlmClient đã biết từ các việc trước. Constraint quan trọng nhất: hành vi phải giữ nguyên bất kể ngày 19 đổi sang client gọi Gemini nào.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Vòng phản hồi quan trọng: dùng công cụ hỏi người dùng để xác nhận vị trí đặt logic trước khi viết, giữa hai phương án đặt ở tầng CoachService trước khi gọi LlmClient, hoặc đặt bên trong StubLlmClient. Người dùng chọn phương án đặt ở tầng CoachService.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Tạo mới tệp coach canned replies, chứa hàm detectGreeting nhận diện lời chào đơn giản bằng biểu thức chính quy, chỉ khớp khi gần như toàn bộ câu là lời chào, và hàm buildGreetingReply trả về một câu chào có nhắc tên bài tập hiện tại kèm lời mời hỏi tiếp.
+
+Sửa tệp coach service, gắn hai hàm này vào, kiểm tra ngay sau bước ghi log tin nhắn người dùng và trước bước gọi tới llmClient chat. Toàn bộ được giữ lại nguyên vẹn. Lý do không đặt trong StubLlmClient: nếu đặt trong StubLlmClient thì logic này sẽ biến mất ngay khi ngày 19 thay StubLlmClient bằng một client gọi mô hình thật, không đạt được mục tiêu tiết kiệm hạn mức mà người dùng nêu rõ trong yêu cầu.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Viết tệp coach canned replies spec với mười sáu trường hợp: chín câu chào phải nhận diện được, sáu câu chứa từ chào nhưng có nội dung hỏi thêm không được nhận nhầm, một kiểm tra nội dung câu trả lời có nhắc đúng tên bài tập. Thêm một trường hợp tích hợp trong coach service spec xác nhận mockLlmClient chat không được gọi khi tin nhắn là lời chào.
+
+```
+npx tsc --noEmit
+npx jest --silent
+```
+
+Kết quả: không lỗi kiểu, hai mươi hai bộ kiểm thử đạt với một trăm chín mươi bốn trường hợp đạt. Không phát hiện lỗi AI nào ở việc này, các trường hợp kiểm thử đạt ngay từ lần chạy đầu tiên.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: khi một yêu cầu có ràng buộc về việc tồn tại qua một thay đổi kiến trúc tương lai, phải hỏi rõ vị trí đặt logic trước khi viết, không tự chọn vị trí thuận tiện nhất trong hiện tại. Điều chưa chắc: chưa rõ tập lời chào tiếng Việt hiện tại đã đủ bao quát các cách chào phổ biến khác của học viên hay chưa. Thay đổi cho lần sau: khi ngày 19 gắn Gemini thật vào, cần chạy lại đúng bộ kiểm thử coach canned replies spec để xác nhận lời chào vẫn không lọt tới mô hình thật, coi đây là một trường hợp kiểm thử hồi quy bắt buộc.
 
 ---
 
-### Prompt 12: Tự động đồng bộ hai chiều (2-way binding) giữa Bộ lọc loại bài học ở Bước 1 và Form nhập liệu phía dưới
-- **User Prompt**: "ở trên đã chọn loại bài lập trình hoặc quiz thì ở dưới sẽ ra form theo trên ko cần chọn lại nữa"
-- **Files Modified**:
-  1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Đồng bộ 2 chiều tức thì: Khi Giảng viên chọn `🧑‍💻 Bài Lập trình` hoặc `📝 Bài Trắc nghiệm` ở **Bước 1**, Form nhập liệu phía dưới tự động cập nhật đúng loại bài học (`formData.type`) và chuyển đổi giao diện Form tương ứng mà không cần Giảng viên phải thao tác chọn lại.
-     - Ngược lại, khi Giảng viên bấm thay đổi loại bài trong Form hoặc nạp bài từ Dropdown, bộ lọc ở **Bước 1** cũng tự động nhảy theo loại tương ứng.
+## Việc 8: Tự rà soát lại toàn bộ công việc trong ngày và bổ sung phần còn thiếu
+
+> **Prompt người dùng:** Yêu cầu kiểm tra lại toàn bộ nhiệm vụ trong ngày xem có sai sót hay thiếu sót gì không, kèm dán lại nguyên văn nội dung nhiệm vụ ngày 18 một lần nữa để đối chiếu. Người dùng dặn thêm ba yêu cầu về hình thức tài liệu: nếu công việc phát sinh yêu cầu tài liệu thì phải ghi vào thư mục tài liệu riêng của ngày 18, tệp AI worklog phải ghi lại đầy đủ chi tiết, và phần trích dẫn yêu cầu của người dùng phải ghi thẳng nguyên văn thay vì diễn giải lại kiểu tường thuật gián tiếp, đồng thời không dùng ký tự đặc biệt, không dùng ngôn ngữ ngoài tiếng Việt, không dùng dấu gạch ngang.
+
+### Điều tôi hiểu trước khi gọi AI
+
+Đây là yêu cầu tự kiểm tra độc lập, không phải tin tưởng vào báo cáo đã tự viết trước đó là đã hoàn chỉnh. Cần đối chiếu lại từng điều kiện nghiệm thu của đề bài gốc với thực tế đã làm, và viết lại tài liệu theo đúng định dạng nêu ra.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Context là toàn bộ tám việc đã làm trong ngày và bốn điều kiện nghiệm thu gốc của đề bài ngày 18. Constraint mới về định dạng tài liệu như đã nêu ở trên.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Chỉ dẫn chính: tự rà soát, không chờ người dùng chỉ ra lỗi. Đây là vòng phản hồi có tính chất khác các việc trước, vì không có một lỗi cụ thể nào được người dùng chỉ ra trước, mà là yêu cầu tự đối chiếu để tìm ra lỗi hoặc thiếu sót nếu có.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Tự đối chiếu bốn điều kiện nghiệm thu, phát hiện điều kiện thứ tư, chạy regression theo prompt hoặc phiên bản mô hình, chưa làm đầy đủ. Phát hiện thêm tệp coach eval runner đang chép tay một bản riêng của câu lệnh hệ thống thay vì lấy lại từ tệp coach service.
+
+Sửa các vấn đề này:
+
+1. Xuất câu lệnh hệ thống từ tệp coach service. Phần loại bỏ: bản chép tay riêng trong tệp coach eval runner. Phần giữ lại và chỉnh sửa: tệp coach eval runner nhập lại đúng nguyên văn từ coach service. Lý do: tránh rủi ro hai bản lệch nhau theo thời gian mà không ai biết.
+2. Thêm hàm getEvalRunVersion tại tệp coach eval runner, trả về một mã băm ngắn tính từ nội dung câu lệnh hệ thống cùng tên lớp mô hình đang dùng.
+3. Thêm trường runVersion vào kiểu dữ liệu EvalSummary.
+4. Sửa script generate baseline report, ngoài tệp báo cáo mới nhất luôn bị ghi đè, thêm việc lưu một bản vào thư mục reports history đặt tên theo mã băm và tên lớp mô hình, không bị ghi đè giữa các lần chạy khác phiên bản.
+5. Thêm một trường hợp kiểm thử mới trong coach eval spec xác nhận trường runVersion được gắn đúng định dạng.
+
+Tạo mới tài liệu tại `learning-hub/docs/day18/coach-eval-harness-spec.md`, theo đúng văn phong tài liệu kỹ thuật đã có sẵn ở các ngày trước trong cùng thư mục. Viết lại toàn bộ tệp AI worklog theo đúng yêu cầu định dạng, thay thế hoàn toàn bản cũ, vì bản cũ được viết trước khi có yêu cầu định dạng cụ thể này.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Lỗi AI mắc phải: khi hoàn thành Việc 3 và tự báo cáo, đã kết luận điều kiện chạy regression theo phiên bản là đạt, nhưng thực tế chưa có cơ chế ghi lại phiên bản nào cả, chỉ là một lời khẳng định không có bằng chứng đi kèm. Cách phát hiện: chỉ xảy ra khi được yêu cầu tường minh phải tự rà soát lại, không phải AI tự nhận ra thiếu sót này trong lúc làm Việc 3.
+
+Chạy trong thư mục backend:
+
+```
+npx tsc --noEmit
+npx jest coach
+npx jest --silent
+npm run eval:coach
+```
+
+Kết quả lần lượt: không lỗi kiểu; tám bộ kiểm thử đạt với chín mươi hai trường hợp đạt; hai mươi hai bộ kiểm thử đạt với một trăm chín mươi lăm trường hợp đạt; báo cáo nền một trăm trên một trăm trường hợp đạt, có in mã băm phiên bản và tên lớp mô hình, có sinh thêm tệp trong thư mục reports history.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: một báo cáo tự viết ngay sau khi hoàn thành công việc có xu hướng đánh giá lạc quan hơn thực tế, việc yêu cầu rà soát lại một cách độc lập sau đó là một bước cần thiết chứ không phải thừa. Điều chưa chắc: chưa rõ liệu còn điều kiện nghiệm thu nào khác bị đánh giá quá lạc quan mà lần rà soát này chưa phát hiện ra. Thay đổi cho lần sau: nên đưa việc tự đối chiếu từng điều kiện nghiệm thu với bằng chứng cụ thể, không chỉ bằng lời khẳng định, thành một bước bắt buộc ngay trong lúc làm việc, không đợi tới khi được yêu cầu rà soát riêng.
 
 ---
 
-### Prompt 13: Loại bỏ bộ nút chọn lại "Loại bài học" trùng lặp tại Phần 1 của Form
-- **User Prompt**: "chỗ này ko cần chọn lại nữa"
-- **Files Modified**:
-  1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Loại bỏ nút chuyển đổi Loại bài học dư thừa trong **Phần 1: Thông tin cơ bản bài học**.
-     - Thay thế bằng nhãn Badge tĩnh thông minh hiển thị tự động Loại bài học hiện tại (ví dụ: `🧑‍💻 Bài Lập trình (Coding)` hoặc `📝 Bài Trắc nghiệm (Quiz)`) được thừa hưởng từ lựa chọn ở **Bước 1**, giúp giao diện form tối gọn, tinh tế và không gây nhầm lẫn.
+## Việc 9: Kiểm tra lại toàn bộ từ đầu bằng cách chạy trực tiếp mọi lệnh, không tin vào báo cáo cũ
+
+> **Prompt người dùng:** Yêu cầu kiểm tra lại tất cả nhiệm vụ trong ngày, xác nhận thật sự đúng và đã hoàn tất hết hay chưa.
+
+### Điều tôi hiểu trước khi gọi AI
+
+Đây là lần rà soát thứ hai trong ngày, khác với Việc 8 ở chỗ Việc 8 chỉ đối chiếu bốn điều kiện nghiệm thu bằng cách đọc lại code, còn lần này cần tự tay chạy lại toàn bộ lệnh kiểm thử, build, và các tài liệu đã viết để xác nhận bằng chứng thật, không dựa vào kết luận đã viết sẵn từ các việc trước.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Context là toàn bộ chín việc đã làm trong ngày, bao gồm cả các tệp tài liệu vừa viết ở Việc 8.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Chỉ dẫn chính: kiểm tra lại tất cả, không giới hạn phạm vi cụ thể, nên tự quyết định mức độ kiểm tra cần thiết, bao gồm cả những phần chưa từng được xác minh trực tiếp trong ngày như lệnh build của cả hai phía backend và giao diện.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Chạy lại toàn bộ kiểm thử, kiểm tra kiểu, và quy tắc mã nguồn của backend, phát hiện hai vấn đề lint thật phát sinh từ các lần sửa trước đó trong ngày chưa được dọn sạch: tệp coach eval runner chưa được định dạng lại sau lần sửa gần nhất, và tệp coach policy còn một biến giải cấu trúc không dùng tới do cách viết cũ. Sửa cả hai: chạy công cụ định dạng tự động cho tệp thứ nhất, và với tệp thứ hai, thay cách giải cấu trúc bỏ một trường bằng cách xây dựng lại đối tượng tường minh chỉ với các trường cần giữ, tránh tạo ra một biến không dùng tới.
+
+Chạy thử lệnh build của backend, thành công. Chạy thử lệnh build của giao diện, phát hiện thất bại với ba lỗi kiểu ở ba tệp không liên quan tới AI Coach. Để xác minh đây có phải lỗi do việc trong ngày gây ra hay không, tạm cất toàn bộ thay đổi trong ngày sang một nơi lưu trữ tạm, chạy lại lệnh build ở trạng thái sạch của nhánh, kết quả vẫn thất bại với đúng ba lỗi đó, xác nhận đây là lỗi có sẵn từ trước, không liên quan tới công việc ngày 18. Khôi phục lại toàn bộ thay đổi trong ngày sau khi xác minh xong.
+
+Đọc lại toàn bộ tệp AI worklog đã viết ở Việc 8, phát hiện nhiều lệnh trong các khối mã minh họa bị viết sai cú pháp thật, ví dụ một lệnh của công cụ quản lý gói bị thiếu dấu hai chấm bắt buộc trong tên script, hai công cụ kiểm tra kiểu và kiểm thử bị viết bằng chữ thường thay vì đúng cờ dòng lệnh, và tên hai tệp kiểm thử bị viết cách nhau bằng khoảng trắng thay vì đúng tên tệp thật có dấu gạch ngang và dấu chấm. Nguyên nhân là do áp dụng quá cứng yêu cầu không dùng dấu gạch ngang vào cả phần mã lệnh kỹ thuật, vốn không phải văn xuôi và không thể đổi cú pháp mà vẫn chạy đúng. Sửa lại toàn bộ sáu khối mã lệnh trong tài liệu về đúng cú pháp thật, đã tự chạy thử từng lệnh để xác nhận trước khi ghi vào tài liệu.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Lỗi AI mắc phải, có hai loại. Một, hai lỗi quy tắc mã nguồn tồn đọng từ các lần sửa trước trong ngày mà không bước kiểm chứng nào trước đó phát hiện ra, vì các lần kiểm chứng trước chỉ chạy kiểm thử và kiểm tra kiểu, không chạy công cụ kiểm tra quy tắc mã nguồn trên đúng phạm vi tệp vừa sửa. Hai, nhiều lệnh minh họa trong tài liệu bị viết sai cú pháp do áp dụng máy móc một constraint về hình thức văn bản sang cả phần mã lệnh kỹ thuật, lẽ ra phải nhận ra ngay từ lúc viết rằng lệnh trong khối mã phải giữ nguyên cú pháp thật để người đọc copy chạy được.
+
+Cách phát hiện: tự chạy lại từng lệnh trong tài liệu thay vì chỉ đọc lại bằng mắt, thử tạm cất thay đổi để so sánh trạng thái sạch với trạng thái đã sửa nhằm phân biệt lỗi do mình gây ra với lỗi có sẵn từ trước.
+
+Chạy trong thư mục backend:
+
+```
+npx eslint "src/modules-api/coach/**/*.ts"
+npx tsc --noEmit
+npx jest --silent
+npm run eval:coach
+```
+
+Kết quả: quy tắc mã nguồn chỉ còn lỗi tồn đọng có sẵn từ trước không liên quan tới ngày 18, đã xác nhận qua việc đối chiếu với diff; không lỗi kiểu; hai mươi hai bộ kiểm thử đạt với một trăm chín mươi lăm trường hợp đạt; báo cáo nền một trăm trên một trăm trường hợp đạt. Chạy thêm lệnh build ở cả backend và giao diện, backend thành công, giao diện thất bại vì lỗi có sẵn từ trước đã xác minh không liên quan tới công việc ngày 18.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: một constraint về hình thức trình bày văn bản, như việc không dùng một loại ký tự nào đó, không được áp dụng máy móc vào phần nội dung mang tính kỹ thuật như lệnh dòng lệnh hay tên tệp, vì phần đó phải đúng sự thật tuyệt đối để người đọc dùng lại được, khác với phần văn xuôi mô tả có thể diễn đạt lại tự do. Điều học được thứ hai: kiểm chứng bằng cách đọc lại kết luận cũ không đủ, phải tự chạy lại để xác nhận, và khi nghi ngờ một lỗi có phải do mình gây ra hay không, cách xác minh chắc chắn nhất là so sánh trực tiếp giữa trạng thái có thay đổi và trạng thái sạch của nhánh.
+
+Điều chưa chắc: chưa rõ liệu ba lỗi kiểu ở giao diện có phải là vấn đề người dùng đã biết từ trước và đang xử lý riêng hay không, hay đây là thông tin mới cần báo ngay.
+
+Thay đổi cho lần sau: khi có một constraint về hình thức tài liệu, nên hỏi rõ ngay từ đầu rằng constraint đó áp dụng cho toàn văn bản hay chỉ cho phần văn xuôi, không tự suy diễn rồi áp dụng sai phạm vi. Ngoài ra, bước kiểm chứng cuối mỗi việc nên luôn bao gồm công cụ kiểm tra quy tắc mã nguồn trên đúng những tệp vừa sửa, không chỉ kiểm thử và kiểm tra kiểu.
 
 ---
 
-### Prompt 14: Đồng bộ 100% số lượng bài giữa Teacher Authoring và các trang Thi trắc nghiệm / Thi tự luận
-- **User Prompt**: "sao bên teacher có 1 bài mà ở thi trắc nghiệm hiển thị tới 2 vậy và kiểm tra luôn thi tự luận"
-- **Files Modified**:
-  1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-     - Cập nhật hàm `seedSystemLessons()` trong NestJS Backend để khi khởi tạo database MongoDB, bài `python-basic` nếu đã tồn tại nhưng chưa có `type: 'quiz'` hoặc thiếu danh sách câu hỏi trắc nghiệm `quizQuestions` sẽ được tự động cập nhật lên MongoDB thành `type: 'quiz'` cùng toàn bộ bộ câu hỏi trắc nghiệm tương ứng.
-     - Đảm bảo trong MongoDB có đầy đủ các bài thi trắc nghiệm mặc định để bên Teacher Authoring hiển thị đúng `Bài Trắc nghiệm (2)`.
-  2. [QuizTakingPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/QuizTakingPage.tsx)
-     - Cập nhật `availableQuizzes` và `teacherQuizzes`: Khi dữ liệu `teacherLessons` từ Backend API được nạp vào, `availableQuizzes` sẽ ưu tiên sử dụng danh sách bài trắc nghiệm thực tế từ Teacher Authoring/MongoDB làm nguồn dữ liệu chính.
-     - Khi Giảng viên thêm/sửa/xóa bài trắc nghiệm ở Teacher Authoring, trang Thi Trắc Nghiệm của Học viên sẽ lập tức phản ánh chính xác 100% (khớp số lượng bài 1-1 realtime).
-  3. [CodePlaygroundPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/CodePlaygroundPage.tsx)
-     - Cập nhật `combinedExercises`: Ưu tiên sử dụng trực tiếp các bài tập lập trình `teacherCodingItems` từ Teacher Authoring/MongoDB khi có dữ liệu.
-     - Đảm bảo khi Giảng viên thêm, chỉnh sửa hoặc xóa bất kỳ bài thi tự luận/lập trình nào ở phía Teacher Authoring thì danh sách bài tập ở trang Thi Tự luận / Code Playground cũng sẽ đồng bộ 100% ngay lập tức.
+## Đối chiếu với điều kiện nghiệm thu ngày 18
 
+| Điều kiện | Trạng thái | Ghi chú |
+|---|---|---|
+| Có kiểm tra leakage full solution | Đạt | Cơ chế nằm ở tệp coach rubric, chấm điểm rò rỉ bằng không tuyệt đối nếu lộ khối mã từ sáu dòng trở lên khi chưa đủ điều kiện hoặc nếu ngữ cảnh chứa trường solutionCode |
+| LLM judge được đối chiếu mẫu thủ công | Đạt, với giới hạn đã nêu | Giám khảo là dựa trên luật vì kho mã nguồn chưa có mô hình ngôn ngữ thật, quá trình đối chiếu thủ công đã tìm ra bốn lỗi thật gồm hai lỗi bộ chặn chèn lệnh và hai lỗi trong chính rubric |
+| Regression gate trong CI | Đạt | Tệp coach eval spec tự động chạy trong bước kiểm thử đơn vị có sẵn, thêm một bước riêng in báo cáo nền ra nhật ký và tự thoát với mã lỗi nếu phát hiện rò rỉ |
+| Một trăm test cases | Đạt | Bảy mươi trường hợp nhánh chat cộng ba mươi trường hợp nhánh debugLoop, trong đó hai mươi trường hợp nhánh debugLoop tái dùng nguyên từ ngày 17 |
+| Cases đúng sai thiếu dữ kiện prompt injection | Đạt | Phân bố đủ bốn nhóm ở cả hai nhánh, riêng nhóm chèn lệnh giả mạo chỉ có ở nhánh chat |
+| Rubric correctness pedagogy leakage safety | Đạt | Định nghĩa tại tệp coach rubric, mỗi tiêu chí cho điểm từ không đến một |
+| Chạy regression theo prompt model version | Đạt, sau khi bổ sung ở Việc 8 | Trước đó là một thiếu sót thật đã tự phát hiện ra trong lúc rà soát lại |
+| Bàn giao Coach eval harness | Đạt | Toàn bộ mã nguồn tại thư mục coach eval trong backend |
+| Bàn giao baseline report | Đạt | Tệp tại thư mục eval reports, có bản mới nhất và có bản lưu theo lịch sử phiên bản |
 
-
-
-
-
-
+Ngoài chín điều kiện trên, lần kiểm tra lại ở Việc 9 còn phát hiện một vấn đề nằm ngoài phạm vi ngày 18 nhưng cần ghi nhận trung thực: lệnh build của phần giao diện hiện đang thất bại với ba lỗi kiểu ở ba tệp không liên quan tới AI Coach, gồm tệp ContestExamWorkspace, tệp TeacherContestAuthoring, và tệp RegisterPage. Đã xác minh bằng cách tạm cất toàn bộ thay đổi trong ngày và chạy lại ở trạng thái sạch của nhánh, lỗi vẫn xuất hiện y hệt, xác nhận đây là lỗi có sẵn từ trước, không phải do bất kỳ việc nào trong ngày 18 gây ra. Không tự sửa vì nằm ngoài phạm vi được giao, chỉ ghi nhận lại để người dùng biết và quyết định xử lý.

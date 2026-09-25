@@ -1,14 +1,20 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FileEdit, CheckCircle2, HelpCircle, Clock, Download } from 'lucide-react';
 import quizApi from '../axios/quizApi';
 import type { QuizStartResponse, QuizReviewResponse, QuestionItem } from '../types/quiz';
 import type { LessonAuthoring } from '../types/authoring';
+import type { AuthUser } from '../types/auth';
 import QuizTimer from '../components/QuizTimer';
 import QuestionNavigator from '../components/QuestionNavigator';
 import QuestionCard from '../components/QuestionCard';
 import QuizResultView from '../components/QuizResultView';
+import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useToast } from '../components/Toast';
 
 interface QuizTakingPageProps {
   teacherLessons?: LessonAuthoring[];
+  authUser?: AuthUser | null;
 }
 
 export interface QuizTopic {
@@ -24,45 +30,72 @@ export interface QuizTopic {
 
 const SYSTEM_QUIZZES: QuizTopic[] = [
   {
-    id: 'standard-web',
-    title: 'Bài Trắc Nghiệm Lập Trình Web Tổng Hợp',
-    description: 'Kiểm tra toàn diện kiến thức Lập trình Web (HTML5, CSS3, JavaScript ES6+, React Hooks, NestJS & MongoDB).',
-    questionCount: 20,
-    timeLimitMinutes: 30,
-    category: 'Fullstack Web',
-    source: 'SYSTEM',
-  },
-  {
     id: 'python-basic',
     title: 'Bài Trắc Nghiệm Python Căn Bản',
     description: 'Kiểm tra kiến thức cốt lõi Python: Biến, kiểu dữ liệu, hàm input(), cấu trúc lặp và xử lý chuỗi.',
-    questionCount: 10,
-    timeLimitMinutes: 15,
+    questionCount: 20,
+    timeLimitMinutes: 30,
     category: 'Python',
+    source: 'SYSTEM',
+  },
+  {
+    id: 'html5-basic',
+    title: 'Bài Trắc Nghiệm HTML5 Căn Bản',
+    description: 'Kiểm tra kiến thức cốt lõi HTML5: Thẻ Semantic, Form, Media, Accessibility và cấu trúc tài liệu.',
+    questionCount: 20,
+    timeLimitMinutes: 30,
+    category: 'HTML5',
+    source: 'SYSTEM',
+  },
+  {
+    id: 'css3-basic',
+    title: 'Bài Trắc Nghiệm CSS3 Căn Bản',
+    description: 'Kiểm tra kiến thức cốt lõi CSS3: Box Model, Flexbox, Grid, Selector, Positioning và Responsive.',
+    questionCount: 20,
+    timeLimitMinutes: 30,
+    category: 'CSS3',
     source: 'SYSTEM',
   },
 ];
 
-export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons = [] }) => {
-  // Combine System Quizzes with Teacher Created Quizzes (deduplicated)
+export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons = [], authUser }) => {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+
+  // Combine System Quizzes with Teacher Created Quizzes (Only Published)
   const teacherQuizzes: QuizTopic[] = teacherLessons
-    .filter((l) => l.type === 'quiz' && l.quizQuestions && l.quizQuestions.length > 0)
+    .filter(
+      (l) =>
+        (l.status === 'published' || !l.status) &&
+        l.type === 'quiz' &&
+        l.quizQuestions &&
+        l.quizQuestions.length > 0,
+    )
     .map((l) => ({
-      id: l.slug || l._id || '',
+      // Prefixed so a teacher quiz slug (e.g. "python-basic") can never collide
+      // with a SYSTEM_QUIZZES id of the same name — each stays independently selectable.
+      id: `teacher-${l.slug || l._id || ''}`,
       title: l.title.replace(/^[🧑‍💻📝👨‍🏫\s]+/, '').trim(),
       description: l.description || l.learningOutcome || 'Bài trắc nghiệm tạo bởi Giảng viên',
       questionCount: l.quizQuestions.length,
       timeLimitMinutes: 20,
-      category: l.slug === 'python-basic' ? 'Python' : l.slug === 'standard-web' ? 'Fullstack Web' : 'Trắc nghiệm',
+      category:
+        l.slug === 'python-basic'
+          ? 'Python'
+          : l.slug === 'html5-basic'
+            ? 'HTML5'
+            : l.slug === 'css3-basic'
+              ? 'CSS3'
+              : 'Trắc nghiệm',
       source: 'TEACHER',
       teacherData: l,
     }));
 
+  // Show both sources side by side — teacher-authored quizzes don't replace the
+  // real backend-graded system quizzes (seeded via `npm run seed:quiz`), since a
+  // teacher quiz with just 1-2 sample questions would otherwise hide all 20 real ones.
   const availableQuizzes = useMemo(() => {
-    if (teacherQuizzes.length > 0) {
-      return teacherQuizzes;
-    }
-    return SYSTEM_QUIZZES;
+    return [...SYSTEM_QUIZZES, ...teacherQuizzes];
   }, [teacherQuizzes]);
 
   const [selectedQuizId, setSelectedQuizId] = useState<string>(() => availableQuizzes[0]?.id || 'standard-web');
@@ -77,8 +110,10 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
   // Active quiz topic details
   const activeTopic = availableQuizzes.find((q) => q.id === selectedQuizId) || availableQuizzes[0];
 
-  // State for user & test setup
-  const [userId] = useState<string>('673f11111111111111111111');
+  // testId chỉ dùng làm khóa nhóm attempt theo category (không tra cứu Test
+  // document thật) — giữ nguyên giá trị demo cố định như thiết kế ban đầu.
+  // userId KHÔNG còn được gửi lên Backend nữa: Backend lấy từ Bearer token
+  // (xem QuizController) để tránh việc client tự khai userId bất kỳ.
   const [testId] = useState<string>('673f22222222222222222222');
 
   // Quiz Engine State
@@ -89,9 +124,16 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
   const [reviewData, setReviewData] = useState<QuizReviewResponse | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const confirmModalRef = useFocusTrap(showConfirmModal, () => setShowConfirmModal(false));
 
   // 1. Handle Start Quiz API
   const handleStartQuiz = async () => {
+    if (!authUser) {
+      showToast('Vui lòng đăng nhập để bắt đầu làm bài trắc nghiệm.', 'info');
+      navigate('/login');
+      return;
+    }
+
     setStage('LOADING');
     setErrorMsg(null);
 
@@ -120,9 +162,10 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       return;
     }
 
-    // Otherwise start Backend System Quiz
+    // Otherwise start Backend System Quiz — pass the topic's category so the backend
+    // filters its question bank correctly (multiple topics share the same demo testId).
     try {
-      const response = await quizApi.startQuiz(userId, testId);
+      const response = await quizApi.startQuiz(testId, activeTopic.category);
       setQuizData(response);
       setCurrentIndex(0);
       setAnswersMap({});
@@ -188,7 +231,7 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
 
       const teacherReview: QuizReviewResponse = {
         attemptId: quizData.attemptId,
-        userId,
+        userId: 'local-teacher-quiz', // chấm hoàn toàn ở FE, không gửi lên Backend
         testId: activeTopic.id,
         status: 'GRADED',
         score: totalEarned,
@@ -212,11 +255,10 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       }));
 
       await quizApi.submitQuiz(quizData.attemptId, {
-        userId,
         answers: studentAnswers,
       });
 
-      const reviewRes = await quizApi.reviewQuiz(quizData.attemptId, userId, 'AFTER_SUBMISSION');
+      const reviewRes = await quizApi.reviewQuiz(quizData.attemptId, 'AFTER_SUBMISSION');
       setReviewData(reviewRes);
       setStage('RESULT');
     } catch (err: any) {
@@ -252,8 +294,8 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
           <div className="space-y-8 my-6">
             {/* Header Title Banner */}
             <div className="text-center max-w-3xl mx-auto space-y-2">
-              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 uppercase">
-                📝 Thi Trắc Nghiệm Trực Tuyến
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 uppercase">
+                <FileEdit size={12} strokeWidth={2.5} /> Thi Trắc Nghiệm Trực Tuyến
               </span>
               <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
                 Chọn Bài Thi Trắc Nghiệm Để Bắt Đầu
@@ -283,7 +325,9 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
                           {quiz.category === 'Giảng viên' ? 'Trắc nghiệm' : quiz.category || 'Trắc nghiệm'}
                         </span>
                         {isSelected && (
-                          <span className="text-xs font-bold text-indigo-600 dark:text-cyan-400">✓ Đang chọn</span>
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-cyan-400">
+                            <CheckCircle2 size={13} /> Đang chọn
+                          </span>
                         )}
                       </div>
 
@@ -296,8 +340,8 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 pt-3 border-t border-slate-100 dark:border-slate-800">
-                      <span>❓ {quiz.questionCount} câu hỏi</span>
-                      <span>⏱️ {quiz.timeLimitMinutes} phút</span>
+                      <span className="inline-flex items-center gap-1"><HelpCircle size={13} /> {quiz.questionCount} câu hỏi</span>
+                      <span className="inline-flex items-center gap-1"><Clock size={13} /> {quiz.timeLimitMinutes} phút</span>
                     </div>
                   </div>
                 );
@@ -306,8 +350,8 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
 
             {/* Selected Quiz Confirmation Banner */}
             <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-lg text-center">
-              <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-xs">
-                📝
+              <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs">
+                <FileEdit size={28} strokeWidth={2} />
               </div>
               <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
                 {activeTopic.title}
@@ -412,9 +456,16 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       {/* Confirmation Modal before Submit */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl">
-            <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
-              📥
+          <div
+            ref={confirmModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Xác nhận nộp bài"
+            tabIndex={-1}
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl"
+          >
+            <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Download size={26} strokeWidth={2} />
             </div>
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Xác nhận nộp bài thi?</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">

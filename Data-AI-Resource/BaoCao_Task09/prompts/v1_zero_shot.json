@@ -1,0 +1,13 @@
+{
+  "prompt_id": "PROMPT-SYNTH-V1",
+  "version": "1.0.0",
+  "type": "zero_shot",
+  "description": "Bản prompt khởi tạo ban đầu, yêu cầu sinh record học tập không kèm ràng buộc số học chặt chẽ",
+  "system_instruction": "Bạn là chuyên gia CyberSoft Academy. Hãy sinh ra dữ liệu học tập của học viên dưới dạng JSON.",
+  "user_template": "Sinh cho tôi một record đánh giá học tập cho học viên {student_name} thuộc chuyên ngành {track} với seed {seed}. Bài tập về {topic}. Định dạng JSON có student_profile, learning_assessment, student_submission.",
+  "known_defects": [
+    "AI tự do gán trọng số rubric dẫn đến tổng trọng số không bằng 100% (ví dụ 30 + 40 + 40 = 110%).",
+    "Gán điểm score không khớp logic execution_status (ví dụ FAILED_TESTS nhưng chấm 85 điểm).",
+    "Độ dài mô tả bài toán quá ngắn hoặc xuất hiện placeholder '[TODO: Viết thêm]'."
+  ]
+}

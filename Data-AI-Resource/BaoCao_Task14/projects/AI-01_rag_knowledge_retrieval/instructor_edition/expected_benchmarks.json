@@ -1,0 +1,106 @@
+{
+  "project_metadata": {
+    "capstone_id": "AI-01",
+    "title": "CyberSoft Internal Knowledge & HR Policy Q&A RAG System",
+    "domain": "Enterprise Internal Knowledge Base & Operational Policies",
+    "total_documents": 20,
+    "total_eval_queries": 100,
+    "query_distribution": {
+      "single_hop_answerable": 40,
+      "multi_hop_answerable": 20,
+      "unanswerable_out_of_domain": 20,
+      "adversarial_distractor": 20
+    }
+  },
+  "evaluation_metrics": {
+    "retrieval": {
+      "recall_at_5": {
+        "baseline": 0.68,
+        "advanced": 0.94,
+        "rubric_threshold": 0.8,
+        "weight": 15
+      },
+      "mrr": {
+        "baseline": 0.61,
+        "advanced": 0.88,
+        "rubric_threshold": 0.75,
+        "weight": 15
+      },
+      "context_precision": {
+        "baseline": 0.58,
+        "advanced": 0.89,
+        "rubric_threshold": 0.75,
+        "weight": 10
+      }
+    },
+    "generation": {
+      "faithfulness": {
+        "baseline": 0.72,
+        "advanced": 0.93,
+        "rubric_threshold": 0.85,
+        "weight": 15
+      },
+      "answer_relevance": {
+        "baseline": 0.74,
+        "advanced": 0.91,
+        "rubric_threshold": 0.8,
+        "weight": 15
+      }
+    },
+    "citation_and_abstention": {
+      "citation_f1": {
+        "baseline": 0.65,
+        "advanced": 0.92,
+        "rubric_threshold": 0.8,
+        "weight": 8
+      },
+      "abstain_accuracy": {
+        "baseline": 0.62,
+        "advanced": 0.95,
+        "rubric_threshold": 0.85,
+        "weight": 7
+      }
+    },
+    "efficiency_and_cost": {
+      "p95_latency_ms": {
+        "baseline": 950,
+        "advanced": 1120,
+        "max_allowed_ms": 1500,
+        "weight": 8
+      },
+      "cost_per_1k_queries_usd": {
+        "baseline": 0.024,
+        "advanced": 0.038,
+        "max_allowed_usd": 0.05,
+        "weight": 7
+      }
+    }
+  },
+  "rubric_breakdown": {
+    "total_points": 100,
+    "core_points": 70,
+    "extension_points": 30,
+    "sections": [
+      {
+        "name": "Retrieval Performance",
+        "points": 40,
+        "auto_graded": true
+      },
+      {
+        "name": "Generation Quality",
+        "points": 30,
+        "auto_graded": true
+      },
+      {
+        "name": "Citation & Abstention Guardrails",
+        "points": 15,
+        "auto_graded": true
+      },
+      {
+        "name": "Latency & Cost Efficiency",
+        "points": 15,
+        "auto_graded": true
+      }
+    ]
+  }
+}

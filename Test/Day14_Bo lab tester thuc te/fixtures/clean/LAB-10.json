@@ -1,0 +1,10 @@
+{
+  "labId": "LAB-10",
+  "mode": "clean",
+  "faultId": "F-D14-010",
+  "rule": "Locator phải theo role/label/name ổn định, không phụ thuộc class ngẫu nhiên.",
+  "data": {
+    "locator": "input[name='taiKhoan']",
+    "reason": "stable form field name"
+  }
+}

@@ -31,7 +31,7 @@ jobs:
         run: npm install --prefix FE
 
       - name: 🔍 Lint Frontend Code
-        run: npm run lint --prefix FE || true
+        run: npm run lint --prefix FE
 
       - name: 🏗️ Build Frontend (React + Vite)
         run: npm run build --prefix FE
@@ -42,8 +42,22 @@ jobs:
       - name: 📦 Install Backend Dependencies
         run: npm install --prefix BE
 
-      - name: 🔍 Lint Backend Code
+      # Backend lint có ~374 lỗi tồn đọng từ trước (chủ yếu
+      # @typescript-eslint/no-unsafe-*) chưa được dọn — bật `|| true` tạm thời
+      # để không chặn CI ngay bằng nợ kỹ thuật cũ, nhưng vẫn in ra log để thấy.
+      # TODO: dọn sạch rồi bỏ `|| true` để lint thật sự chặn được lỗi mới.
+      - name: 🔍 Lint Backend Code (không chặn build — xem TODO ở trên)
         run: npm run lint --prefix BE || true
+
+      - name: 🧪 Run Backend Unit Tests
+        run: npm run test --prefix BE
+
+      # Regression gate cho AI Coach (ngày 18): chạy lại 100 test case qua
+      # coach-eval.spec.ts (đã nằm trong bước test ở trên) rồi in baseline
+      # report ra log CI để review nhanh mà không cần mở file. Script tự
+      # exit code 1 nếu phát hiện leakage (xem generate-baseline-report.ts).
+      - name: 🛡️ Coach Eval Harness — Baseline Report
+        run: npm run eval:coach --prefix BE
 
       - name: 🏗️ Build Backend (NestJS)
         run: npm run build --prefix BE

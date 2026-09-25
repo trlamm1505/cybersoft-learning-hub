@@ -3,14 +3,21 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { MOCK_LESSONS } from './data/mockLessons';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { ResponsiveGuideModal } from './components/ResponsiveGuideModal';
 import { CourseCatalogPage } from './pages/CourseCatalogPage';
 import { LessonDetailPage } from './pages/LessonDetailPage';
 import { QuizTakingPage } from './pages/QuizTakingPage';
 import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
+import { BlockPuzzlePage } from './pages/BlockPuzzlePage';
 import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
+import { ContestListPage } from './pages/ContestListPage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { AgeGroupModal } from './components/AgeGroupModal';
 import type { Lesson } from './types/course';
 import type { LessonAuthoring } from './types/authoring';
+import type { AuthUser, AuthResponse } from './types/auth';
 import { authoringApi } from './axios/authoringApi';
 import './styles/main.css';
 
@@ -58,11 +65,18 @@ export function App() {
     const saved = localStorage.getItem('app_is_light_theme');
     return saved !== null ? JSON.parse(saved) : true;
   });
-  const [userRole, setUserRole] = useState<'student' | 'teacher'>(() => {
-    const savedRole = localStorage.getItem('app_user_role');
-    return savedRole === 'teacher' ? 'teacher' : 'student';
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
+    const saved = localStorage.getItem('app_auth_user');
+    if (!saved) return null;
+    try {
+      return JSON.parse(saved) as AuthUser;
+    } catch {
+      return null;
+    }
   });
-  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
+  // Role hiện được suy ra từ tài khoản đã đăng nhập; mặc định 'student' khi chưa đăng nhập
+  // (giữ trải nghiệm xem trước hiện có cho khách chưa có tài khoản).
+  const userRole: 'student' | 'teacher' = authUser?.role === 'TEACHER' ? 'teacher' : 'student';
 
   // Fetch teacher lessons from BE on load
   const fetchTeacherLessons = useCallback(async () => {
@@ -88,21 +102,26 @@ export function App() {
     fetchTeacherLessons();
   }, [fetchTeacherLessons]);
 
-  // Combine Mock lessons with Teacher created lessons
-  const convertedTeacherLessons = teacherLessons.map(mapAuthoringToCourseLesson);
-  
-  // Catalog lessons for Homepage (only core course curriculum, excluding standalone coding & quiz exercises)
-  const catalogLessons: Lesson[] = [
-    ...MOCK_LESSONS,
-    ...convertedTeacherLessons.filter(
-      (_, idx) => {
-        const orig = teacherLessons[idx];
-        return orig && orig.type !== 'coding' && orig.type !== 'quiz';
-      }
-    ),
-  ];
+  // Filter published lessons for student views (Draft lessons are hidden from users)
+  const publishedTeacherLessons = teacherLessons.filter(
+    (l) => l.status === 'published' || l.status === undefined
+  );
 
-  const allLessons: Lesson[] = [...MOCK_LESSONS, ...convertedTeacherLessons];
+  // Combine Mock lessons with Published Teacher created lessons
+  const convertedTeacherLessons = publishedTeacherLessons.map(mapAuthoringToCourseLesson);
+
+  // Only core course curriculum (theory/article lessons) belongs in "Lesson Detail" —
+  // standalone coding/quiz/block exercises live in Code Playground / Quiz / Block
+  // Puzzle instead, and must not leak into this list (used both for the Catalog
+  // grid and for Lesson Detail's sidebar + prev/next navigation).
+  const curriculumTeacherLessons = convertedTeacherLessons.filter((_, idx) => {
+    const orig = publishedTeacherLessons[idx];
+    return orig && orig.type !== 'coding' && orig.type !== 'quiz' && orig.type !== 'block';
+  });
+
+  const catalogLessons: Lesson[] = [...MOCK_LESSONS, ...curriculumTeacherLessons];
+
+  const allLessons: Lesson[] = [...MOCK_LESSONS, ...curriculumTeacherLessons];
 
   // Sync theme class with document element and save preference
   useEffect(() => {
@@ -113,11 +132,6 @@ export function App() {
       document.documentElement.classList.add('theme-dark');
     }
   }, [isLightTheme]);
-
-  // Sync user role preference
-  useEffect(() => {
-    localStorage.setItem('app_user_role', userRole);
-  }, [userRole]);
 
   // Save selected lesson ID to localStorage
   useEffect(() => {
@@ -134,8 +148,35 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleToggleRole = () => {
-    setUserRole((prev) => (prev === 'student' ? 'teacher' : 'student'));
+  const handleAuthSuccess = (auth: AuthResponse) => {
+    localStorage.setItem('token', auth.accessToken);
+    localStorage.setItem('app_auth_user', JSON.stringify(auth.user));
+    setAuthUser(auth.user);
+  };
+
+  // Modal chọn nhóm tuổi bắt buộc hiện ngay khi một tài khoản STUDENT chưa
+  // có ageGroup đăng nhập (lần đầu tiên) — thay cho việc chọn lúc đăng ký.
+  const needsAgeGroup = authUser?.role === 'STUDENT' && !authUser.ageGroup;
+
+  const handleAgeGroupSelected = (ageGroup: AuthUser['ageGroup']) => {
+    setAuthUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ageGroup };
+      localStorage.setItem('app_auth_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleLogout = () => {
+    // Chỉ xoá phiên đăng nhập — KHÔNG xoá tiến độ học tập namespace theo
+    // authUser.id (app_code_playground_completed_<id>, app_block_puzzle_completed_<id>...).
+    // Tiến độ đó phải được GIỮ LẠI để lần sau đăng nhập đúng tài khoản này
+    // vẫn thấy đúng những gì đã hoàn thành; namespace theo id đã đủ để tách
+    // biệt giữa các tài khoản khác nhau trên cùng trình duyệt, không cần xoá.
+    localStorage.removeItem('token');
+    localStorage.removeItem('app_auth_user');
+    setAuthUser(null);
+    navigate('/catalog');
   };
 
   const handleLessonSaved = (savedLesson: LessonAuthoring) => {
@@ -159,19 +200,21 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {needsAgeGroup && <AgeGroupModal onSelected={handleAgeGroupSelected} />}
+
       {/* Navigation Header */}
       <Header
         isLightTheme={isLightTheme}
         onToggleTheme={() => setIsLightTheme(!isLightTheme)}
-        onOpenGuide={() => setIsGuideOpen(true)}
         userRole={userRole}
-        onToggleRole={handleToggleRole}
+        authUser={authUser}
+        onLogout={handleLogout}
       />
 
       {/* Main Routes Container */}
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
         <Routes>
-          <Route path="/" element={<Navigate to="/catalog" replace />} />
+          <Route path="/" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
           <Route
             path="/catalog"
             element={
@@ -184,65 +227,83 @@ export function App() {
           <Route
             path="/detail"
             element={
-              <LessonDetailPage
-                currentLesson={currentLesson}
-                allLessons={allLessons}
-                onSelectLesson={(id) => {
-                  setSelectedLessonId(id);
-                  navigate(`/detail/${id}`);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onBackToCatalog={() => {
-                  navigate('/catalog');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
+              authUser ? (
+                <LessonDetailPage
+                  currentLesson={currentLesson}
+                  allLessons={allLessons}
+                  onSelectLesson={(id) => {
+                    setSelectedLessonId(id);
+                    navigate(`/detail/${id}`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onBackToCatalog={() => {
+                    navigate('/catalog');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
           <Route
             path="/detail/:lessonId"
             element={
-              <LessonDetailPage
-                currentLesson={currentLesson}
-                allLessons={allLessons}
-                onSelectLesson={(id) => {
-                  setSelectedLessonId(id);
-                  navigate(`/detail/${id}`);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onBackToCatalog={() => {
-                  navigate('/catalog');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
+              authUser ? (
+                <LessonDetailPage
+                  currentLesson={currentLesson}
+                  allLessons={allLessons}
+                  onSelectLesson={(id) => {
+                    setSelectedLessonId(id);
+                    navigate(`/detail/${id}`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onBackToCatalog={() => {
+                    navigate('/catalog');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
           <Route
             path="/quiz"
-            element={<QuizTakingPage teacherLessons={teacherLessons} />}
+            element={<QuizTakingPage teacherLessons={publishedTeacherLessons} authUser={authUser} />}
           />
-          <Route path="/playground" element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={teacherLessons} />} />
+          <Route
+            path="/playground"
+            element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} authUser={authUser} />}
+          />
+          <Route
+            path="/block-puzzle"
+            element={<BlockPuzzlePage teacherLessons={publishedTeacherLessons} authUser={authUser} />}
+          />
+          <Route path="/contests" element={<ContestListPage authUser={authUser} />} />
+          <Route path="/login" element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />
+          <Route path="/register" element={<RegisterPage onAuthSuccess={handleAuthSuccess} />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/authoring"
             element={
-              <TeacherAuthoringPage
-                onLessonSaved={handleLessonSaved}
-                onLessonDeleted={handleLessonDeleted}
-              />
+              authUser?.role === 'TEACHER' ? (
+                <TeacherAuthoringPage
+                  onLessonSaved={handleLessonSaved}
+                  onLessonDeleted={handleLessonDeleted}
+                />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
             }
           />
-          <Route path="*" element={<Navigate to="/catalog" replace />} />
+          <Route path="*" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
         </Routes>
       </div>
 
       {/* Footer */}
       <Footer />
-
-      {/* Responsive Screenshot Guide Modal */}
-      <ResponsiveGuideModal
-        isOpen={isGuideOpen}
-        onClose={() => setIsGuideOpen(false)}
-      />
     </div>
   );
 }

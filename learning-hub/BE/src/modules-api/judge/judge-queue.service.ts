@@ -1,13 +1,24 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Exercise, ExerciseDocument } from '../../modules-system/database/schemas/exercise.schema';
+import {
+  Exercise,
+  ExerciseDocument,
+} from '../../modules-system/database/schemas/exercise.schema';
 import {
   Submission,
   SubmissionDocument,
   SubmissionTestResult,
 } from '../../modules-system/database/schemas/submission.schema';
-import { checkPythonSyntax, runPythonCode } from '../../common/helper/code-runner.helper';
+import {
+  checkPythonSyntax,
+  runPythonCode,
+} from '../../common/helper/code-runner.helper';
 import { JudgeStatus } from './judge-status.enum';
 
 const STALE_RUNNING_THRESHOLD_MS = 30_000;
@@ -30,15 +41,20 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
   private sweepTimer?: NodeJS.Timeout;
 
   constructor(
-    @InjectModel(Submission.name) private readonly submissionModel: Model<SubmissionDocument>,
-    @InjectModel(Exercise.name) private readonly exerciseModel: Model<ExerciseDocument>,
+    @InjectModel(Submission.name)
+    private readonly submissionModel: Model<SubmissionDocument>,
+    @InjectModel(Exercise.name)
+    private readonly exerciseModel: Model<ExerciseDocument>,
   ) {}
 
   onModuleInit() {
     // Pick up anything left QUEUED/RUNNING from a previous process crash immediately,
     // then keep sweeping periodically for jobs that go stale mid-flight.
     void this.retryStale();
-    this.sweepTimer = setInterval(() => void this.retryStale(), SWEEP_INTERVAL_MS);
+    this.sweepTimer = setInterval(
+      () => void this.retryStale(),
+      SWEEP_INTERVAL_MS,
+    );
   }
 
   onModuleDestroy() {
@@ -80,7 +96,9 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
     if (!claimed) return;
 
     try {
-      const exercise = await this.exerciseModel.findById(claimed.exerciseId).lean();
+      const exercise = await this.exerciseModel
+        .findById(claimed.exerciseId)
+        .lean();
       if (!exercise) {
         await this.finish(submissionId, {
           status: JudgeStatus.FAILED,
@@ -109,21 +127,38 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
 
       for (let i = 0; i < testCases.length; i++) {
         const tc = testCases[i];
-        const run = await runPythonCode(claimed.code, tc.input, exercise.timeLimitMs);
+        const run = await runPythonCode(
+          claimed.code,
+          tc.input,
+          exercise.timeLimitMs,
+        );
 
         if (run.blocked) {
           status = JudgeStatus.RE;
           errorMessage = run.blockedReason;
-          results.push({ index: i, passed: false, isHidden: tc.isHidden, stderr: run.blockedReason } as SubmissionTestResult);
+          results.push({
+            index: i,
+            passed: false,
+            isHidden: tc.isHidden,
+            stderr: run.blockedReason,
+          });
           break;
         }
 
-        const actualOutput = run.stdout.trim();
-        const expectedOutput = tc.expectedOutput.trim();
-        const passed = !run.timedOut && run.exitCode === 0 && actualOutput === expectedOutput;
+        // Normalize CRLF -> LF before comparing: on Windows, Python's stdout uses \r\n
+        // per line, which would otherwise fail multi-line test cases authored with \n.
+        const actualOutput = run.stdout.replace(/\r\n/g, '\n').trim();
+        const expectedOutput = tc.expectedOutput.replace(/\r\n/g, '\n').trim();
+        const passed =
+          !run.timedOut &&
+          run.exitCode === 0 &&
+          actualOutput === expectedOutput;
 
         if (run.peakMemoryMb !== undefined) {
-          maxMemoryMb = maxMemoryMb === undefined ? run.peakMemoryMb : Math.max(maxMemoryMb, run.peakMemoryMb);
+          maxMemoryMb =
+            maxMemoryMb === undefined
+              ? run.peakMemoryMb
+              : Math.max(maxMemoryMb, run.peakMemoryMb);
         }
 
         results.push({
@@ -136,7 +171,7 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
           stderr: run.stderr || undefined,
           executionTimeMs: run.executionTimeMs,
           memoryUsedMb: run.peakMemoryMb,
-        } as SubmissionTestResult);
+        });
 
         if (!passed) {
           if (run.timedOut) status = JudgeStatus.TLE;
@@ -158,7 +193,10 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
         memoryUsedMb: maxMemoryMb,
       });
     } catch (err) {
-      this.logger.error(`Grading submission ${submissionId} failed`, err as Error);
+      this.logger.error(
+        `Grading submission ${submissionId} failed`,
+        err as Error,
+      );
       await this.finish(submissionId, {
         status: JudgeStatus.FAILED,
         errorMessage: err instanceof Error ? err.message : String(err),
@@ -199,31 +237,54 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
     const staleBefore = new Date(Date.now() - STALE_RUNNING_THRESHOLD_MS);
 
     const failed = await this.submissionModel.updateMany(
-      { status: JudgeStatus.RUNNING, updatedAt: { $lt: staleBefore }, attempts: { $gte: MAX_ATTEMPTS } },
-      { $set: { status: JudgeStatus.FAILED, errorMessage: 'Quá số lần thử chấm bài cho phép' } },
+      {
+        status: JudgeStatus.RUNNING,
+        updatedAt: { $lt: staleBefore },
+        attempts: { $gte: MAX_ATTEMPTS },
+      },
+      {
+        $set: {
+          status: JudgeStatus.FAILED,
+          errorMessage: 'Quá số lần thử chấm bài cho phép',
+        },
+      },
     );
     if (failed.modifiedCount > 0) {
-      this.logger.warn(`Marked ${failed.modifiedCount} stale submission(s) as FAILED after exceeding retry cap`);
+      this.logger.warn(
+        `Marked ${failed.modifiedCount} stale submission(s) as FAILED after exceeding retry cap`,
+      );
     }
 
     const staleDocs = await this.submissionModel
-      .find({ status: JudgeStatus.RUNNING, updatedAt: { $lt: staleBefore }, attempts: { $lt: MAX_ATTEMPTS } })
+      .find({
+        status: JudgeStatus.RUNNING,
+        updatedAt: { $lt: staleBefore },
+        attempts: { $lt: MAX_ATTEMPTS },
+      })
       .select('_id')
       .lean();
 
     // Also pick up anything left in QUEUED from a previous process crash before it was ever claimed.
-    const queuedDocs = await this.submissionModel.find({ status: JudgeStatus.QUEUED }).select('_id').lean();
+    const queuedDocs = await this.submissionModel
+      .find({ status: JudgeStatus.QUEUED })
+      .select('_id')
+      .lean();
 
     for (const doc of staleDocs) {
       const reclaimed = await this.submissionModel.findOneAndUpdate(
-        { _id: doc._id, status: JudgeStatus.RUNNING, attempts: { $lt: MAX_ATTEMPTS } },
+        {
+          _id: doc._id,
+          status: JudgeStatus.RUNNING,
+          attempts: { $lt: MAX_ATTEMPTS },
+        },
         { $set: { status: JudgeStatus.QUEUED } },
       );
       if (reclaimed) this.queue.push(String(doc._id));
     }
 
     for (const doc of queuedDocs) {
-      if (!this.queue.includes(String(doc._id))) this.queue.push(String(doc._id));
+      if (!this.queue.includes(String(doc._id)))
+        this.queue.push(String(doc._id));
     }
 
     if (staleDocs.length > 0 || queuedDocs.length > 0) await this.drain();

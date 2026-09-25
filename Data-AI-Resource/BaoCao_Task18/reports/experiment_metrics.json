@@ -1,0 +1,1659 @@
+{
+  "timestamp": "2026-09-25T09:53:24.947397",
+  "evaluation_split": "test",
+  "num_queries": 20,
+  "experiments": {
+    "dense_only": {
+      "mode": "dense_only",
+      "split": "test",
+      "total_queries": 20,
+      "metrics": {
+        "recall_at_1": 0.95,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "doc_recall_at_5": 1.0,
+        "mrr": 0.975,
+        "ndcg_at_5": 0.9815
+      },
+      "latency_ms": {
+        "mean": 7.96,
+        "p50": 5.95,
+        "p90": 15.21,
+        "p95": 18.11
+      },
+      "cost": {
+        "cloud_api_cost_usd": 0.0,
+        "cost_per_1000_queries_usd": 0.0,
+        "infrastructure": "Local CPU In-Memory SIMD (Zero Cloud Egress)"
+      },
+      "failures_count": 0,
+      "failures": [],
+      "queries_detail": [
+        {
+          "query_id": "Q-TE-011",
+          "query_text": "Điều kiện để được xét công nhận tốt nghiệp chính thức và nhận chứng chỉ là gì?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-004_hdr_000",
+          "target_document_id": "CS-POL-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 18.09,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-004_hdr_000",
+            "CS-POL-004_hdr_001",
+            "CS-POL-001_hdr_000",
+            "CS-POL-004_hdr_003",
+            "CS-POL-004_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-012",
+          "query_text": "Hệ thống giám sát tự động bằng AI và Proctoring trong phòng thi trực tuyến?",
+          "category": "POL",
+          "target_chunk_id": "CS-MOCK-001_hdr_001",
+          "target_document_id": "CS-MOCK-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 18.51,
+          "top_retrieved_chunk_ids": [
+            "CS-MOCK-001_hdr_001",
+            "CS-MOCK-001_hdr_000",
+            "CS-MOCK-001_hdr_002",
+            "CS-CRS-003_hdr_001",
+            "CS-CRS-004_hdr_003"
+          ]
+        },
+        {
+          "query_id": "Q-TE-013",
+          "query_text": "Quy chế đào tạo thực chiến chuẩn doanh nghiệp của học viện lập trình CyberSoft?",
+          "category": "PDF",
+          "target_chunk_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
+          "target_document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 9.41,
+          "top_retrieved_chunk_ids": [
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+            "CS-CRS-003_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-014",
+          "query_text": "Quy định về việc vắng mặt quá số buổi chuyên cần quy định của lớp học?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-003_hdr_000",
+          "target_document_id": "CS-POL-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.18,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_000",
+            "CS-POL-003_hdr_001",
+            "CS-POL-003_hdr_002",
+            "CS-POL-003_hdr_003",
+            "CS-FAQ-002_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-015",
+          "query_text": "Thời hạn bảo lưu tối đa và quy định số lần bảo lưu khóa học là bao lâu?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-001_hdr_001",
+          "target_document_id": "CS-POL-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.94,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-001_hdr_001",
+            "CS-POL-001_hdr_004",
+            "CS-POL-001_hdr_003",
+            "CS-POL-001_hdr_002",
+            "CS-POL-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-016",
+          "query_text": "Tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone trong quy chế đào tạo thực chiến?",
+          "category": "PDF",
+          "target_chunk_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+          "target_document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+          "rank": 2,
+          "doc_rank": 2,
+          "is_hit_at_1": false,
+          "is_hit_at_5": true,
+          "latency_ms": 5.96,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_002",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
+            "CS-POL-004_hdr_000",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-017",
+          "query_text": "Nguyên tắc thiết kế hàm đơn nhiệm Single Responsibility Principle theo chuẩn Clean Code?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-005_hdr_003",
+          "target_document_id": "CS-TEC-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.36,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-005_hdr_003",
+            "CS-TEC-005_hdr_000",
+            "CS-TEC-005_hdr_001",
+            "CS-TEC-005_hdr_002",
+            "CS-CRS-005_hdr_003"
+          ]
+        },
+        {
+          "query_id": "Q-TE-018",
+          "query_text": "Cài đặt Docker Desktop và kích hoạt WSL2 trên Windows cho môi trường học tập?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-003_hdr_000",
+          "target_document_id": "CS-TEC-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.37,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-003_hdr_000",
+            "CS-TEC-001_hdr_001",
+            "CS-TEC-003_hdr_002",
+            "CS-TEC-001_hdr_003",
+            "CS-TEC-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-019",
+          "query_text": "Nội dung chương trình đào tạo lập trình di động React Native đa nền tảng?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-005_hdr_001",
+          "target_document_id": "CS-CRS-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.62,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-005_hdr_001",
+            "CS-CRS-005_hdr_002",
+            "CS-CRS-005_hdr_000",
+            "CS-CRS-005_hdr_003",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-020",
+          "query_text": "Mục tiêu đào tạo và chuẩn đầu ra khóa học Mobile App React Native đa nền tảng?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-005_hdr_000",
+          "target_document_id": "CS-CRS-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.47,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-005_hdr_000",
+            "CS-CRS-005_hdr_003",
+            "CS-CRS-005_hdr_001",
+            "CS-CRS-005_hdr_002",
+            "CS-CRS-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-021",
+          "query_text": "Cấu trúc 03 giai đoạn học tập chi tiết của khóa Fullstack Web NodeJS và React?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-001_hdr_001",
+          "target_document_id": "CS-CRS-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.41,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-001_hdr_001",
+            "CS-CRS-001_hdr_000",
+            "CS-CRS-001_hdr_003",
+            "CS-CRS-001_hdr_002",
+            "CS-CRS-005_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-022",
+          "query_text": "Đối tượng và điều kiện được xét duyệt bảo lưu khóa học tại CyberSoft?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-001_hdr_000",
+          "target_document_id": "CS-POL-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 6.52,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-001_hdr_000",
+            "CS-POL-001_hdr_001",
+            "CS-POL-001_hdr_002",
+            "CS-POL-001_hdr_004",
+            "CS-POL-001_hdr_003"
+          ]
+        },
+        {
+          "query_id": "Q-TE-023",
+          "query_text": "Mạng lưới doanh nghiệp đối tác và chính sách hỗ trợ việc làm sau khi tốt nghiệp?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-004_hdr_003",
+          "target_document_id": "CS-FAQ-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.64,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-004_hdr_003",
+            "CS-POL-005_hdr_003",
+            "CS-POL-005_hdr_001",
+            "CS-POL-005_hdr_002",
+            "CS-FAQ-004_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-024",
+          "query_text": "Quy định và thủ tục cấp lại chứng chỉ đào tạo khi học viên bị thất lạc?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-004_hdr_003",
+          "target_document_id": "CS-POL-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.4,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-004_hdr_003",
+            "CS-POL-004_hdr_000",
+            "CS-POL-004_hdr_002",
+            "CS-POL-004_hdr_001",
+            "CS-POL-001_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-025",
+          "query_text": "Sổ tay sinh viên Quickstart Guide phiên bản 2026 của học viện CyberSoft?",
+          "category": "TEXT",
+          "target_chunk_id": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
+          "target_document_id": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 8.77,
+          "top_retrieved_chunk_ids": [
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_003",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_002",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-026",
+          "query_text": "Chính sách bảo mật tài khoản học tập CyberSoft Portal và cấm chia sẻ học liệu?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-005_hdr_002",
+          "target_document_id": "CS-FAQ-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 8.37,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-005_hdr_002",
+            "CS-FAQ-005_hdr_000",
+            "CS-FAQ-005_hdr_001",
+            "CS-FAQ-005_hdr_003",
+            "CS-POL-002_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-027",
+          "query_text": "Quy chế phúc khảo và thi lại đồ án tốt nghiệp Capstone khi không đạt điểm?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-003_hdr_003",
+          "target_document_id": "CS-POL-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 14.89,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_003",
+            "CS-POL-003_hdr_002",
+            "CS-POL-004_hdr_001",
+            "CS-POL-003_hdr_001",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-028",
+          "query_text": "Quy tắc định danh biến, hàm và lớp theo chuẩn PEP8 trong Python?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-005_hdr_000",
+          "target_document_id": "CS-TEC-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 10.48,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-005_hdr_000",
+            "CS-TEC-005_hdr_001",
+            "CS-TEC-005_hdr_003",
+            "CS-TEC-002_hdr_000",
+            "CS-TEC-001_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-029",
+          "query_text": "Yêu cầu cấu hình phần cứng tối thiểu để học lập trình Python và AI/ML?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-001_hdr_000",
+          "target_document_id": "CS-TEC-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.56,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-001_hdr_000",
+            "CS-TEC-001_hdr_002",
+            "CS-TEC-001_hdr_001",
+            "CS-TEC-001_hdr_003",
+            "CS-CRS-002_hdr_003"
+          ]
+        },
+        {
+          "query_id": "Q-TE-030",
+          "query_text": "Chính sách học bù khi học viên phát sinh buổi vắng đột xuất?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-002_hdr_003",
+          "target_document_id": "CS-FAQ-002",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 9.23,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-002_hdr_003",
+            "CS-POL-001_hdr_003",
+            "CS-POL-002_hdr_003",
+            "CS-POL-005_hdr_003",
+            "CS-POL-005_hdr_002"
+          ]
+        }
+      ]
+    },
+    "bm25_only": {
+      "mode": "bm25_only",
+      "split": "test",
+      "total_queries": 20,
+      "metrics": {
+        "recall_at_1": 0.95,
+        "recall_at_3": 0.95,
+        "recall_at_5": 0.95,
+        "doc_recall_at_5": 1.0,
+        "mrr": 0.95,
+        "ndcg_at_5": 0.95
+      },
+      "latency_ms": {
+        "mean": 5.39,
+        "p50": 4.96,
+        "p90": 7.46,
+        "p95": 8.02
+      },
+      "cost": {
+        "cloud_api_cost_usd": 0.0,
+        "cost_per_1000_queries_usd": 0.0,
+        "infrastructure": "Local CPU In-Memory SIMD (Zero Cloud Egress)"
+      },
+      "failures_count": 1,
+      "failures": [
+        {
+          "query_id": "Q-TE-016",
+          "query_text": "Tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone trong quy chế đào tạo thực chiến?",
+          "category": "PDF",
+          "target_chunk_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+          "target_document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+          "rank": null,
+          "doc_rank": 3,
+          "is_hit_at_1": false,
+          "is_hit_at_5": false,
+          "latency_ms": 5.42,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_002",
+            "CS-POL-004_hdr_000",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
+            "CS-POL-003_hdr_001",
+            "CS-POL-003_hdr_003"
+          ]
+        }
+      ],
+      "queries_detail": [
+        {
+          "query_id": "Q-TE-011",
+          "query_text": "Điều kiện để được xét công nhận tốt nghiệp chính thức và nhận chứng chỉ là gì?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-004_hdr_000",
+          "target_document_id": "CS-POL-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 8.0,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-004_hdr_000",
+            "CS-POL-004_hdr_001",
+            "CS-POL-001_hdr_000",
+            "CS-POL-004_hdr_002",
+            "CS-POL-003_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-012",
+          "query_text": "Hệ thống giám sát tự động bằng AI và Proctoring trong phòng thi trực tuyến?",
+          "category": "POL",
+          "target_chunk_id": "CS-MOCK-001_hdr_001",
+          "target_document_id": "CS-MOCK-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 6.59,
+          "top_retrieved_chunk_ids": [
+            "CS-MOCK-001_hdr_001",
+            "CS-MOCK-001_hdr_000",
+            "CS-MOCK-001_hdr_002",
+            "CS-CRS-004_hdr_002",
+            "CS-CRS-003_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-013",
+          "query_text": "Quy chế đào tạo thực chiến chuẩn doanh nghiệp của học viện lập trình CyberSoft?",
+          "category": "PDF",
+          "target_chunk_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
+          "target_document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 8.43,
+          "top_retrieved_chunk_ids": [
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+            "CS-FAQ-003_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-014",
+          "query_text": "Quy định về việc vắng mặt quá số buổi chuyên cần quy định của lớp học?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-003_hdr_000",
+          "target_document_id": "CS-POL-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.23,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_000",
+            "CS-POL-002_hdr_001",
+            "CS-POL-003_hdr_001",
+            "CS-FAQ-002_hdr_003",
+            "CS-TEC-005_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-015",
+          "query_text": "Thời hạn bảo lưu tối đa và quy định số lần bảo lưu khóa học là bao lâu?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-001_hdr_001",
+          "target_document_id": "CS-POL-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.4,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-001_hdr_001",
+            "CS-POL-001_hdr_004",
+            "CS-POL-001_hdr_003",
+            "CS-POL-001_hdr_000",
+            "CS-POL-001_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-016",
+          "query_text": "Tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone trong quy chế đào tạo thực chiến?",
+          "category": "PDF",
+          "target_chunk_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+          "target_document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+          "rank": null,
+          "doc_rank": 3,
+          "is_hit_at_1": false,
+          "is_hit_at_5": false,
+          "latency_ms": 5.42,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_002",
+            "CS-POL-004_hdr_000",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
+            "CS-POL-003_hdr_001",
+            "CS-POL-003_hdr_003"
+          ]
+        },
+        {
+          "query_id": "Q-TE-017",
+          "query_text": "Nguyên tắc thiết kế hàm đơn nhiệm Single Responsibility Principle theo chuẩn Clean Code?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-005_hdr_003",
+          "target_document_id": "CS-TEC-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.74,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-005_hdr_003",
+            "CS-TEC-005_hdr_000",
+            "CS-TEC-005_hdr_001",
+            "CS-TEC-005_hdr_002",
+            "CS-TEC-002_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-018",
+          "query_text": "Cài đặt Docker Desktop và kích hoạt WSL2 trên Windows cho môi trường học tập?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-003_hdr_000",
+          "target_document_id": "CS-TEC-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.26,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-003_hdr_000",
+            "CS-TEC-001_hdr_001",
+            "CS-TEC-001_hdr_003",
+            "CS-TEC-001_hdr_000",
+            "CS-TEC-003_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-019",
+          "query_text": "Nội dung chương trình đào tạo lập trình di động React Native đa nền tảng?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-005_hdr_001",
+          "target_document_id": "CS-CRS-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.35,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-005_hdr_001",
+            "CS-CRS-005_hdr_002",
+            "CS-CRS-005_hdr_000",
+            "CS-CRS-005_hdr_003",
+            "CS-CRS-003_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-020",
+          "query_text": "Mục tiêu đào tạo và chuẩn đầu ra khóa học Mobile App React Native đa nền tảng?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-005_hdr_000",
+          "target_document_id": "CS-CRS-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.03,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-005_hdr_000",
+            "CS-CRS-005_hdr_003",
+            "CS-CRS-005_hdr_001",
+            "CS-CRS-005_hdr_002",
+            "CS-CRS-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-021",
+          "query_text": "Cấu trúc 03 giai đoạn học tập chi tiết của khóa Fullstack Web NodeJS và React?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-001_hdr_001",
+          "target_document_id": "CS-CRS-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.22,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-001_hdr_001",
+            "CS-CRS-001_hdr_000",
+            "CS-CRS-001_hdr_003",
+            "CS-CRS-001_hdr_002",
+            "CS-CRS-005_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-022",
+          "query_text": "Đối tượng và điều kiện được xét duyệt bảo lưu khóa học tại CyberSoft?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-001_hdr_000",
+          "target_document_id": "CS-POL-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.89,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-001_hdr_000",
+            "CS-POL-001_hdr_002",
+            "CS-POL-001_hdr_001",
+            "CS-POL-001_hdr_004",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-023",
+          "query_text": "Mạng lưới doanh nghiệp đối tác và chính sách hỗ trợ việc làm sau khi tốt nghiệp?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-004_hdr_003",
+          "target_document_id": "CS-FAQ-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.42,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-004_hdr_003",
+            "CS-POL-005_hdr_001",
+            "CS-POL-005_hdr_003",
+            "CS-POL-005_hdr_002",
+            "CS-FAQ-004_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-024",
+          "query_text": "Quy định và thủ tục cấp lại chứng chỉ đào tạo khi học viên bị thất lạc?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-004_hdr_003",
+          "target_document_id": "CS-POL-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.78,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-004_hdr_003",
+            "CS-POL-004_hdr_001",
+            "CS-POL-004_hdr_000",
+            "CS-POL-004_hdr_002",
+            "CS-POL-001_hdr_003"
+          ]
+        },
+        {
+          "query_id": "Q-TE-025",
+          "query_text": "Sổ tay sinh viên Quickstart Guide phiên bản 2026 của học viện CyberSoft?",
+          "category": "TEXT",
+          "target_chunk_id": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
+          "target_document_id": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.03,
+          "top_retrieved_chunk_ids": [
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_003",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_002",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-026",
+          "query_text": "Chính sách bảo mật tài khoản học tập CyberSoft Portal và cấm chia sẻ học liệu?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-005_hdr_002",
+          "target_document_id": "CS-FAQ-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.71,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-005_hdr_002",
+            "CS-FAQ-005_hdr_000",
+            "CS-FAQ-005_hdr_003",
+            "CS-FAQ-005_hdr_001",
+            "CS-TEC-003_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-027",
+          "query_text": "Quy chế phúc khảo và thi lại đồ án tốt nghiệp Capstone khi không đạt điểm?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-003_hdr_003",
+          "target_document_id": "CS-POL-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.28,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_003",
+            "CS-POL-003_hdr_002",
+            "CS-POL-004_hdr_000",
+            "CS-POL-004_hdr_001",
+            "CS-CRS-002_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-028",
+          "query_text": "Quy tắc định danh biến, hàm và lớp theo chuẩn PEP8 trong Python?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-005_hdr_000",
+          "target_document_id": "CS-TEC-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.58,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-005_hdr_000",
+            "CS-TEC-005_hdr_003",
+            "CS-TEC-005_hdr_001",
+            "CS-TEC-001_hdr_002",
+            "CS-POL-003_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-029",
+          "query_text": "Yêu cầu cấu hình phần cứng tối thiểu để học lập trình Python và AI/ML?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-001_hdr_000",
+          "target_document_id": "CS-TEC-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 6.29,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-001_hdr_000",
+            "CS-TEC-001_hdr_002",
+            "CS-TEC-001_hdr_003",
+            "CS-TEC-001_hdr_001",
+            "CS-TEC-004_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-030",
+          "query_text": "Chính sách học bù khi học viên phát sinh buổi vắng đột xuất?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-002_hdr_003",
+          "target_document_id": "CS-FAQ-002",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.14,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-002_hdr_003",
+            "CS-POL-002_hdr_001",
+            "CS-POL-001_hdr_003",
+            "CS-FAQ-001_hdr_000",
+            "CS-FAQ-001_hdr_003"
+          ]
+        }
+      ]
+    },
+    "hybrid_rrf": {
+      "mode": "hybrid_rrf",
+      "split": "test",
+      "total_queries": 20,
+      "metrics": {
+        "recall_at_1": 0.95,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "doc_recall_at_5": 1.0,
+        "mrr": 0.9667,
+        "ndcg_at_5": 0.975
+      },
+      "latency_ms": {
+        "mean": 5.26,
+        "p50": 4.7,
+        "p90": 7.49,
+        "p95": 7.78
+      },
+      "cost": {
+        "cloud_api_cost_usd": 0.0,
+        "cost_per_1000_queries_usd": 0.0,
+        "infrastructure": "Local CPU In-Memory SIMD (Zero Cloud Egress)"
+      },
+      "failures_count": 0,
+      "failures": [],
+      "queries_detail": [
+        {
+          "query_id": "Q-TE-011",
+          "query_text": "Điều kiện để được xét công nhận tốt nghiệp chính thức và nhận chứng chỉ là gì?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-004_hdr_000",
+          "target_document_id": "CS-POL-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.27,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-004_hdr_000",
+            "CS-POL-004_hdr_001",
+            "CS-POL-001_hdr_000",
+            "CS-POL-004_hdr_002",
+            "CS-POL-004_hdr_003"
+          ]
+        },
+        {
+          "query_id": "Q-TE-012",
+          "query_text": "Hệ thống giám sát tự động bằng AI và Proctoring trong phòng thi trực tuyến?",
+          "category": "POL",
+          "target_chunk_id": "CS-MOCK-001_hdr_001",
+          "target_document_id": "CS-MOCK-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.26,
+          "top_retrieved_chunk_ids": [
+            "CS-MOCK-001_hdr_001",
+            "CS-MOCK-001_hdr_000",
+            "CS-MOCK-001_hdr_002",
+            "CS-CRS-003_hdr_001",
+            "CS-CRS-004_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-013",
+          "query_text": "Quy chế đào tạo thực chiến chuẩn doanh nghiệp của học viện lập trình CyberSoft?",
+          "category": "PDF",
+          "target_chunk_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
+          "target_document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.36,
+          "top_retrieved_chunk_ids": [
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+            "CS-CRS-003_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-014",
+          "query_text": "Quy định về việc vắng mặt quá số buổi chuyên cần quy định của lớp học?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-003_hdr_000",
+          "target_document_id": "CS-POL-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.35,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_000",
+            "CS-POL-003_hdr_001",
+            "CS-POL-002_hdr_001",
+            "CS-FAQ-002_hdr_003",
+            "CS-FAQ-002_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-015",
+          "query_text": "Thời hạn bảo lưu tối đa và quy định số lần bảo lưu khóa học là bao lâu?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-001_hdr_001",
+          "target_document_id": "CS-POL-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.77,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-001_hdr_001",
+            "CS-POL-001_hdr_004",
+            "CS-POL-001_hdr_003",
+            "CS-POL-001_hdr_002",
+            "CS-POL-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-016",
+          "query_text": "Tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone trong quy chế đào tạo thực chiến?",
+          "category": "PDF",
+          "target_chunk_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+          "target_document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+          "rank": 3,
+          "doc_rank": 3,
+          "is_hit_at_1": false,
+          "is_hit_at_5": true,
+          "latency_ms": 4.53,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_002",
+            "CS-POL-004_hdr_000",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
+            "CS-POL-003_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-017",
+          "query_text": "Nguyên tắc thiết kế hàm đơn nhiệm Single Responsibility Principle theo chuẩn Clean Code?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-005_hdr_003",
+          "target_document_id": "CS-TEC-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.14,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-005_hdr_003",
+            "CS-TEC-005_hdr_000",
+            "CS-TEC-005_hdr_001",
+            "CS-TEC-005_hdr_002",
+            "CS-TEC-002_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-018",
+          "query_text": "Cài đặt Docker Desktop và kích hoạt WSL2 trên Windows cho môi trường học tập?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-003_hdr_000",
+          "target_document_id": "CS-TEC-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.63,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-003_hdr_000",
+            "CS-TEC-001_hdr_001",
+            "CS-TEC-001_hdr_003",
+            "CS-TEC-003_hdr_002",
+            "CS-TEC-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-019",
+          "query_text": "Nội dung chương trình đào tạo lập trình di động React Native đa nền tảng?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-005_hdr_001",
+          "target_document_id": "CS-CRS-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.35,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-005_hdr_001",
+            "CS-CRS-005_hdr_002",
+            "CS-CRS-005_hdr_000",
+            "CS-CRS-005_hdr_003",
+            "CS-CRS-003_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-020",
+          "query_text": "Mục tiêu đào tạo và chuẩn đầu ra khóa học Mobile App React Native đa nền tảng?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-005_hdr_000",
+          "target_document_id": "CS-CRS-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.84,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-005_hdr_000",
+            "CS-CRS-005_hdr_003",
+            "CS-CRS-005_hdr_001",
+            "CS-CRS-005_hdr_002",
+            "CS-CRS-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-021",
+          "query_text": "Cấu trúc 03 giai đoạn học tập chi tiết của khóa Fullstack Web NodeJS và React?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-001_hdr_001",
+          "target_document_id": "CS-CRS-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.57,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-001_hdr_001",
+            "CS-CRS-001_hdr_000",
+            "CS-CRS-001_hdr_003",
+            "CS-CRS-001_hdr_002",
+            "CS-CRS-005_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-022",
+          "query_text": "Đối tượng và điều kiện được xét duyệt bảo lưu khóa học tại CyberSoft?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-001_hdr_000",
+          "target_document_id": "CS-POL-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 8.24,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-001_hdr_000",
+            "CS-POL-001_hdr_002",
+            "CS-POL-001_hdr_001",
+            "CS-POL-001_hdr_004",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-023",
+          "query_text": "Mạng lưới doanh nghiệp đối tác và chính sách hỗ trợ việc làm sau khi tốt nghiệp?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-004_hdr_003",
+          "target_document_id": "CS-FAQ-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.46,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-004_hdr_003",
+            "CS-POL-005_hdr_001",
+            "CS-POL-005_hdr_003",
+            "CS-POL-005_hdr_002",
+            "CS-FAQ-004_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-024",
+          "query_text": "Quy định và thủ tục cấp lại chứng chỉ đào tạo khi học viên bị thất lạc?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-004_hdr_003",
+          "target_document_id": "CS-POL-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.75,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-004_hdr_003",
+            "CS-POL-004_hdr_000",
+            "CS-POL-004_hdr_001",
+            "CS-POL-004_hdr_002",
+            "CS-POL-001_hdr_003"
+          ]
+        },
+        {
+          "query_id": "Q-TE-025",
+          "query_text": "Sổ tay sinh viên Quickstart Guide phiên bản 2026 của học viện CyberSoft?",
+          "category": "TEXT",
+          "target_chunk_id": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
+          "target_document_id": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.2,
+          "top_retrieved_chunk_ids": [
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_003",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_002",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-026",
+          "query_text": "Chính sách bảo mật tài khoản học tập CyberSoft Portal và cấm chia sẻ học liệu?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-005_hdr_002",
+          "target_document_id": "CS-FAQ-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.45,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-005_hdr_002",
+            "CS-FAQ-005_hdr_000",
+            "CS-FAQ-005_hdr_003",
+            "CS-FAQ-005_hdr_001",
+            "CS-FAQ-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-027",
+          "query_text": "Quy chế phúc khảo và thi lại đồ án tốt nghiệp Capstone khi không đạt điểm?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-003_hdr_003",
+          "target_document_id": "CS-POL-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.51,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_003",
+            "CS-POL-003_hdr_002",
+            "CS-POL-004_hdr_001",
+            "CS-CRS-002_hdr_002",
+            "CS-POL-003_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-028",
+          "query_text": "Quy tắc định danh biến, hàm và lớp theo chuẩn PEP8 trong Python?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-005_hdr_000",
+          "target_document_id": "CS-TEC-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.08,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-005_hdr_000",
+            "CS-TEC-005_hdr_001",
+            "CS-TEC-005_hdr_003",
+            "CS-TEC-001_hdr_002",
+            "CS-TEC-002_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-029",
+          "query_text": "Yêu cầu cấu hình phần cứng tối thiểu để học lập trình Python và AI/ML?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-001_hdr_000",
+          "target_document_id": "CS-TEC-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 5.2,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-001_hdr_000",
+            "CS-TEC-001_hdr_002",
+            "CS-TEC-001_hdr_001",
+            "CS-TEC-001_hdr_003",
+            "CS-TEC-004_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-030",
+          "query_text": "Chính sách học bù khi học viên phát sinh buổi vắng đột xuất?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-002_hdr_003",
+          "target_document_id": "CS-FAQ-002",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 4.17,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-002_hdr_003",
+            "CS-POL-001_hdr_003",
+            "CS-FAQ-001_hdr_000",
+            "CS-FAQ-001_hdr_003",
+            "CS-POL-005_hdr_002"
+          ]
+        }
+      ]
+    },
+    "reranked": {
+      "mode": "reranked",
+      "split": "test",
+      "total_queries": 20,
+      "metrics": {
+        "recall_at_1": 0.95,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "doc_recall_at_5": 1.0,
+        "mrr": 0.9667,
+        "ndcg_at_5": 0.975
+      },
+      "latency_ms": {
+        "mean": 7.58,
+        "p50": 7.42,
+        "p90": 8.6,
+        "p95": 8.87
+      },
+      "cost": {
+        "cloud_api_cost_usd": 0.0,
+        "cost_per_1000_queries_usd": 0.0,
+        "infrastructure": "Local CPU In-Memory SIMD (Zero Cloud Egress)"
+      },
+      "failures_count": 0,
+      "failures": [],
+      "queries_detail": [
+        {
+          "query_id": "Q-TE-011",
+          "query_text": "Điều kiện để được xét công nhận tốt nghiệp chính thức và nhận chứng chỉ là gì?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-004_hdr_000",
+          "target_document_id": "CS-POL-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.12,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-004_hdr_000",
+            "CS-POL-004_hdr_001",
+            "CS-POL-004_hdr_002",
+            "CS-POL-001_hdr_000",
+            "CS-POL-003_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-012",
+          "query_text": "Hệ thống giám sát tự động bằng AI và Proctoring trong phòng thi trực tuyến?",
+          "category": "POL",
+          "target_chunk_id": "CS-MOCK-001_hdr_001",
+          "target_document_id": "CS-MOCK-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 8.0,
+          "top_retrieved_chunk_ids": [
+            "CS-MOCK-001_hdr_001",
+            "CS-MOCK-001_hdr_000",
+            "CS-MOCK-001_hdr_002",
+            "CS-CRS-003_hdr_001",
+            "CS-CRS-004_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-013",
+          "query_text": "Quy chế đào tạo thực chiến chuẩn doanh nghiệp của học viện lập trình CyberSoft?",
+          "category": "PDF",
+          "target_chunk_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
+          "target_document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.45,
+          "top_retrieved_chunk_ids": [
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+            "CS-FAQ-003_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-014",
+          "query_text": "Quy định về việc vắng mặt quá số buổi chuyên cần quy định của lớp học?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-003_hdr_000",
+          "target_document_id": "CS-POL-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.56,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_000",
+            "CS-POL-002_hdr_001",
+            "CS-POL-003_hdr_001",
+            "CS-FAQ-002_hdr_001",
+            "CS-FAQ-003_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-015",
+          "query_text": "Thời hạn bảo lưu tối đa và quy định số lần bảo lưu khóa học là bao lâu?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-001_hdr_001",
+          "target_document_id": "CS-POL-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.24,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-001_hdr_001",
+            "CS-POL-001_hdr_004",
+            "CS-POL-001_hdr_003",
+            "CS-POL-001_hdr_002",
+            "CS-POL-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-016",
+          "query_text": "Tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone trong quy chế đào tạo thực chiến?",
+          "category": "PDF",
+          "target_chunk_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+          "target_document_id": "CS-PDF-001_quy_che_dao_tao_thuc_chien",
+          "rank": 3,
+          "doc_rank": 3,
+          "is_hit_at_1": false,
+          "is_hit_at_5": true,
+          "latency_ms": 7.08,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_002",
+            "CS-POL-004_hdr_000",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_002",
+            "CS-POL-003_hdr_001",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-017",
+          "query_text": "Nguyên tắc thiết kế hàm đơn nhiệm Single Responsibility Principle theo chuẩn Clean Code?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-005_hdr_003",
+          "target_document_id": "CS-TEC-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.52,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-005_hdr_003",
+            "CS-TEC-005_hdr_000",
+            "CS-TEC-002_hdr_000",
+            "CS-TEC-005_hdr_001",
+            "CS-TEC-005_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-018",
+          "query_text": "Cài đặt Docker Desktop và kích hoạt WSL2 trên Windows cho môi trường học tập?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-003_hdr_000",
+          "target_document_id": "CS-TEC-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.1,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-003_hdr_000",
+            "CS-TEC-001_hdr_001",
+            "CS-TEC-003_hdr_002",
+            "CS-TEC-001_hdr_003",
+            "CS-TEC-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-019",
+          "query_text": "Nội dung chương trình đào tạo lập trình di động React Native đa nền tảng?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-005_hdr_001",
+          "target_document_id": "CS-CRS-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 6.85,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-005_hdr_001",
+            "CS-CRS-005_hdr_000",
+            "CS-CRS-005_hdr_002",
+            "CS-CRS-005_hdr_003",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-020",
+          "query_text": "Mục tiêu đào tạo và chuẩn đầu ra khóa học Mobile App React Native đa nền tảng?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-005_hdr_000",
+          "target_document_id": "CS-CRS-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 6.93,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-005_hdr_000",
+            "CS-CRS-002_hdr_000",
+            "CS-CRS-001_hdr_000",
+            "CS-CRS-004_hdr_000",
+            "CS-CRS-005_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-021",
+          "query_text": "Cấu trúc 03 giai đoạn học tập chi tiết của khóa Fullstack Web NodeJS và React?",
+          "category": "Curriculum",
+          "target_chunk_id": "CS-CRS-001_hdr_001",
+          "target_document_id": "CS-CRS-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 8.58,
+          "top_retrieved_chunk_ids": [
+            "CS-CRS-001_hdr_001",
+            "CS-CRS-001_hdr_000",
+            "CS-CRS-001_hdr_003",
+            "CS-CRS-001_hdr_002",
+            "CS-POL-001_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-022",
+          "query_text": "Đối tượng và điều kiện được xét duyệt bảo lưu khóa học tại CyberSoft?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-001_hdr_000",
+          "target_document_id": "CS-POL-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 6.75,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-001_hdr_000",
+            "CS-POL-001_hdr_002",
+            "CS-POL-001_hdr_001",
+            "CS-POL-001_hdr_004",
+            "CS-POL-004_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-023",
+          "query_text": "Mạng lưới doanh nghiệp đối tác và chính sách hỗ trợ việc làm sau khi tốt nghiệp?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-004_hdr_003",
+          "target_document_id": "CS-FAQ-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 8.79,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-004_hdr_003",
+            "CS-POL-005_hdr_001",
+            "CS-POL-005_hdr_003",
+            "CS-POL-005_hdr_002",
+            "CS-FAQ-004_hdr_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-024",
+          "query_text": "Quy định và thủ tục cấp lại chứng chỉ đào tạo khi học viên bị thất lạc?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-004_hdr_003",
+          "target_document_id": "CS-POL-004",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.49,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-004_hdr_003",
+            "CS-POL-004_hdr_002",
+            "CS-POL-004_hdr_001",
+            "CS-POL-001_hdr_003",
+            "CS-POL-001_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-025",
+          "query_text": "Sổ tay sinh viên Quickstart Guide phiên bản 2026 của học viện CyberSoft?",
+          "category": "TEXT",
+          "target_chunk_id": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
+          "target_document_id": "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.44,
+          "top_retrieved_chunk_ids": [
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_000",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_001",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_003",
+            "CS-TXT-001_so_tay_sinh_vien_cyber_quickstart_para_002",
+            "CS-PDF-001_quy_che_dao_tao_thuc_chien_para_000"
+          ]
+        },
+        {
+          "query_id": "Q-TE-026",
+          "query_text": "Chính sách bảo mật tài khoản học tập CyberSoft Portal và cấm chia sẻ học liệu?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-005_hdr_002",
+          "target_document_id": "CS-FAQ-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.4,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-005_hdr_002",
+            "CS-FAQ-005_hdr_000",
+            "CS-FAQ-005_hdr_001",
+            "CS-FAQ-005_hdr_003",
+            "CS-POL-001_hdr_004"
+          ]
+        },
+        {
+          "query_id": "Q-TE-027",
+          "query_text": "Quy chế phúc khảo và thi lại đồ án tốt nghiệp Capstone khi không đạt điểm?",
+          "category": "Academic Policy",
+          "target_chunk_id": "CS-POL-003_hdr_003",
+          "target_document_id": "CS-POL-003",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.13,
+          "top_retrieved_chunk_ids": [
+            "CS-POL-003_hdr_003",
+            "CS-POL-003_hdr_002",
+            "CS-CRS-002_hdr_002",
+            "CS-POL-004_hdr_000",
+            "CS-POL-004_hdr_001"
+          ]
+        },
+        {
+          "query_id": "Q-TE-028",
+          "query_text": "Quy tắc định danh biến, hàm và lớp theo chuẩn PEP8 trong Python?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-005_hdr_000",
+          "target_document_id": "CS-TEC-005",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 6.73,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-005_hdr_000",
+            "CS-TEC-005_hdr_001",
+            "CS-POL-003_hdr_000",
+            "CS-TEC-002_hdr_000",
+            "CS-TEC-005_hdr_003"
+          ]
+        },
+        {
+          "query_id": "Q-TE-029",
+          "query_text": "Yêu cầu cấu hình phần cứng tối thiểu để học lập trình Python và AI/ML?",
+          "category": "Technical Guide",
+          "target_chunk_id": "CS-TEC-001_hdr_000",
+          "target_document_id": "CS-TEC-001",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 10.5,
+          "top_retrieved_chunk_ids": [
+            "CS-TEC-001_hdr_000",
+            "CS-TEC-001_hdr_002",
+            "CS-TEC-001_hdr_001",
+            "CS-CRS-002_hdr_003",
+            "CS-POL-003_hdr_002"
+          ]
+        },
+        {
+          "query_id": "Q-TE-030",
+          "query_text": "Chính sách học bù khi học viên phát sinh buổi vắng đột xuất?",
+          "category": "Academic FAQ",
+          "target_chunk_id": "CS-FAQ-002_hdr_003",
+          "target_document_id": "CS-FAQ-002",
+          "rank": 1,
+          "doc_rank": 1,
+          "is_hit_at_1": true,
+          "is_hit_at_5": true,
+          "latency_ms": 7.91,
+          "top_retrieved_chunk_ids": [
+            "CS-FAQ-002_hdr_003",
+            "CS-POL-001_hdr_003",
+            "CS-FAQ-001_hdr_000",
+            "CS-FAQ-002_hdr_002",
+            "CS-POL-002_hdr_003"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "labId": "LAB-06",
+  "mode": "buggy",
+  "faultId": "F-D14-006",
+  "rule": "Input biên phải trả 4xx phù hợp và không lộ stack trace.",
+  "data": {
+    "input": {
+      "pageIndex": -1
+    },
+    "status": 500,
+    "body": {
+      "stack": "at Controller..."
+    }
+  }
+}

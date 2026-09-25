@@ -1,12 +1,21 @@
-import { Injectable, BadRequestException, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Lesson, LessonDocument } from '../../modules-system/database/schemas/lesson.schema';
+import {
+  Lesson,
+  LessonDocument,
+} from '../../modules-system/database/schemas/lesson.schema';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { ImportLessonDto } from './dto/import-lesson.dto';
 import { INITIAL_EXERCISES } from '../../data/initial-exercises';
 import { INITIAL_HINTS } from '../../data/initial-hints';
+import { INITIAL_BLOCK_LESSONS } from '../../data/initial-block-lessons';
 
 @Injectable()
 export class AuthoringService implements OnModuleInit {
@@ -23,12 +32,19 @@ export class AuthoringService implements OnModuleInit {
     try {
       // 1. Seed System Coding Exercises
       for (const ex of INITIAL_EXERCISES) {
-        const existing = await this.lessonModel.findOne({ slug: ex.slug }).exec();
+        const existing = await this.lessonModel
+          .findOne({ slug: ex.slug })
+          .exec();
         if (!existing) {
-          const hintsForSlug = INITIAL_HINTS.filter((h) => h.exerciseSlug === ex.slug);
+          const hintsForSlug = INITIAL_HINTS.filter(
+            (h) => h.exerciseSlug === ex.slug,
+          );
           const h1 = hintsForSlug.find((h) => h.level === 1)?.content || '';
           const h2 = hintsForSlug.find((h) => h.level === 2)?.content || '';
-          const h3 = hintsForSlug.find((h) => h.level === 3)?.content || ex.solutionCode || '';
+          const h3 =
+            hintsForSlug.find((h) => h.level === 3)?.content ||
+            ex.solutionCode ||
+            '';
 
           await this.lessonModel.create({
             title: ex.title,
@@ -52,90 +68,17 @@ export class AuthoringService implements OnModuleInit {
         }
       }
 
-      // 2. Seed System Quizzes
-      const SYSTEM_QUIZZES = [
-        {
-          title: 'Bài Trắc Nghiệm Lập Trình Web Tổng Hợp',
-          slug: 'standard-web',
-          description:
-            'Kiểm tra toàn diện kiến thức Lập trình Web (HTML5, CSS3, JavaScript ES6+, React Hooks, NestJS & MongoDB).',
-          type: 'quiz',
-          status: 'published',
-          difficulty: 'MEDIUM',
-          points: 100,
-          learningOutcome: 'Đánh giá toàn diện kiến thức Fullstack Web Development.',
-          content: 'Bài thi trắc nghiệm tổng hợp kiến thức Frontend & Backend.',
-          starterCode: '',
-          solutionCode: '',
-          testCases: [],
-          quizQuestions: [
-            {
-              content:
-                'Trong HTML5, thẻ nào được dùng để định nghĩa thanh điều hướng chính của website?',
-              options: [
-                { key: 'A', text: '<nav>', isCorrect: true },
-                { key: 'B', text: '<header>', isCorrect: false },
-                { key: 'C', text: '<section>', isCorrect: false },
-                { key: 'D', text: '<aside>', isCorrect: false },
-              ],
-              explanation: 'Thẻ <nav> trong HTML5 biểu thị khu vực chứa các liên kết điều hướng.',
-              points: 10,
-            },
-            {
-              content: 'Hook nào trong React dùng để thực hiện side effects (ví dụ fetch data)?',
-              options: [
-                { key: 'A', text: 'useState', isCorrect: false },
-                { key: 'B', text: 'useEffect', isCorrect: true },
-                { key: 'C', text: 'useContext', isCorrect: false },
-                { key: 'D', text: 'useReducer', isCorrect: false },
-              ],
-              explanation: 'useEffect được gọi sau mỗi lần render để xử lý side-effects.',
-              points: 10,
-            },
-          ],
-        },
-        {
-          title: 'Bài Trắc Nghiệm Python Căn Bản',
-          slug: 'python-basic',
-          description:
-            'Kiểm tra kiến thức cốt lõi Python: Biến, kiểu dữ liệu, hàm input(), cấu trúc lặp và xử lý chuỗi.',
-          type: 'quiz',
-          status: 'published',
-          difficulty: 'EASY',
-          points: 50,
-          learningOutcome: 'Củng cố kiến thức nền tảng ngôn ngữ lập trình Python.',
-          content: 'Bài trắc nghiệm các khái niệm cơ bản trong Python.',
-          starterCode: '',
-          solutionCode: '',
-          testCases: [],
-          quizQuestions: [
-            {
-              content:
-                'Trong ngôn ngữ lập trình Python, hàm nào dùng để nhận dữ liệu nhập từ bàn phím?',
-              codeSnippet: 'user_input = input("Nhập số: ")',
-              options: [
-                { key: 'A', text: 'input()', isCorrect: true },
-                { key: 'B', text: 'readline()', isCorrect: false },
-                { key: 'C', text: 'scan()', isCorrect: false },
-                { key: 'D', text: 'get()', isCorrect: false },
-              ],
-              explanation:
-                'Hàm input() trong Python dùng để đọc một dòng ký tự nhập từ bàn phím dưới dạng string.',
-              points: 10,
-            },
-          ],
-        },
-      ];
-
-      for (const q of SYSTEM_QUIZZES) {
-        const existing = await this.lessonModel.findOne({ slug: q.slug }).exec();
+      // 2. Seed Block Puzzle lessons (Ngày 13 — computational thinking cho lớp 3-5)
+      for (const b of INITIAL_BLOCK_LESSONS) {
+        const existing = await this.lessonModel
+          .findOne({ slug: b.slug })
+          .exec();
         if (!existing) {
-          await this.lessonModel.create(q as any);
-        } else if (existing.type !== 'quiz' || !existing.quizQuestions || existing.quizQuestions.length === 0) {
-          await this.lessonModel.updateOne(
-            { slug: q.slug },
-            { $set: { type: 'quiz', quizQuestions: q.quizQuestions } },
-          );
+          await this.lessonModel.create({
+            ...b,
+            type: 'block',
+            status: 'published',
+          } as any);
         }
       }
     } catch (e) {
@@ -177,12 +120,28 @@ export class AuthoringService implements OnModuleInit {
           'Không thể xuất bản bài học trắc nghiệm (quiz): Cần ít nhất 1 câu hỏi (quizQuestions).',
         );
       }
-      const allHaveCorrectAnswer = questions.every((q) =>
-        q.options && q.options.some((opt) => opt.isCorrect === true),
+      const allHaveCorrectAnswer = questions.every(
+        (q) => q.options && q.options.some((opt) => opt.isCorrect === true),
       );
       if (!allHaveCorrectAnswer) {
         throw new BadRequestException(
           'Không thể xuất bản bài học trắc nghiệm: Mỗi câu hỏi phải chứa ít nhất 1 đáp án đúng.',
+        );
+      }
+    } else if (type === 'block') {
+      const puzzle = lessonData.blockPuzzle;
+      if (
+        !puzzle ||
+        !puzzle.availableBlocks ||
+        puzzle.availableBlocks.length === 0
+      ) {
+        throw new BadRequestException(
+          'Không thể xuất bản bài học Block Puzzle: Cần cấu hình blockPuzzle với ít nhất 1 khối lệnh (availableBlocks).',
+        );
+      }
+      if (!puzzle.goalPosition) {
+        throw new BadRequestException(
+          'Không thể xuất bản bài học Block Puzzle: Cần khai báo vị trí đích (goalPosition).',
         );
       }
     }
@@ -192,35 +151,47 @@ export class AuthoringService implements OnModuleInit {
    * Helper to sanitize payload strictly according to lesson type (coding vs quiz)
    */
   private sanitizePayloadByType(data: any): any {
-    const isQuiz = data.type === 'quiz';
-    if (isQuiz) {
+    if (data.type === 'quiz') {
       return {
         ...data,
         content: '',
         starterCode: '',
         solutionCode: '',
         testCases: [],
+        blockPuzzle: undefined,
         hints: { hint1: '', hint2: '', hint3: '' },
       };
-    } else {
+    }
+    if (data.type === 'block') {
       return {
         ...data,
-        type: 'coding',
+        content: '',
+        starterCode: '',
+        solutionCode: '',
+        testCases: [],
         quizQuestions: [],
       };
     }
+    return {
+      ...data,
+      type: 'coding',
+      quizQuestions: [],
+      blockPuzzle: undefined,
+    };
   }
 
   async createLesson(dto: CreateLessonDto): Promise<LessonDocument> {
     const existing = await this.lessonModel.findOne({ slug: dto.slug }).exec();
     if (existing) {
-      throw new BadRequestException(`Slug '${dto.slug}' đã tồn tại trong hệ thống.`);
+      throw new BadRequestException(
+        `Slug '${dto.slug}' đã tồn tại trong hệ thống.`,
+      );
     }
 
     const sanitized = this.sanitizePayloadByType(dto);
     const status = sanitized.status || 'draft';
     if (status === 'published') {
-      this.validatePublicationEligibility(sanitized as any);
+      this.validatePublicationEligibility(sanitized);
     }
 
     const createdLesson = new this.lessonModel({
@@ -230,7 +201,10 @@ export class AuthoringService implements OnModuleInit {
     return createdLesson.save();
   }
 
-  async updateLesson(id: string, dto: UpdateLessonDto): Promise<LessonDocument> {
+  async updateLesson(
+    id: string,
+    dto: UpdateLessonDto,
+  ): Promise<LessonDocument> {
     const lesson = await this.lessonModel.findById(id).exec();
     if (!lesson) {
       throw new NotFoundException(`Không tìm thấy bài học với ID: ${id}`);
@@ -243,7 +217,7 @@ export class AuthoringService implements OnModuleInit {
 
     const targetStatus = dto.status || lesson.status;
     if (targetStatus === 'published') {
-      this.validatePublicationEligibility(sanitized as any);
+      this.validatePublicationEligibility(sanitized);
     }
 
     const updated = await this.lessonModel
@@ -256,8 +230,48 @@ export class AuthoringService implements OnModuleInit {
     return updated;
   }
 
-  async findAll(): Promise<LessonDocument[]> {
-    return this.lessonModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(forStudent?: boolean): Promise<LessonDocument[]> {
+    const filter: any = forStudent ? { status: { $ne: 'draft' } } : {};
+    const lessons = await this.lessonModel
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    // `forStudent=true` là route CÔNG KHAI (không yêu cầu đăng nhập, dùng để
+    // hiển thị catalog/preview) — phải ẩn solutionCode, expectedOutput của
+    // hidden testCase, và isCorrect/explanation của quizQuestions, đúng như
+    // exercise.service.ts đã làm cho hệ thống Exercise thật. Trước bản sửa
+    // này, findAll trả nguyên toàn bộ document, lộ đáp án cho mọi bài giáo
+    // viên tạo mà không cần đăng nhập hay biết ID cụ thể.
+    if (forStudent) {
+      return lessons.map((l) =>
+        this.stripLearnerSensitiveFields(l),
+      ) as LessonDocument[];
+    }
+    return lessons as LessonDocument[];
+  }
+
+  private stripLearnerSensitiveFields(lesson: any): any {
+    const sanitized: any = { ...lesson, solutionCode: undefined };
+
+    if (Array.isArray(lesson.testCases)) {
+      sanitized.testCases = lesson.testCases.map((tc: any) =>
+        tc.isHidden ? { isHidden: true } : tc,
+      );
+    }
+
+    if (Array.isArray(lesson.quizQuestions)) {
+      sanitized.quizQuestions = lesson.quizQuestions.map((q: any) => ({
+        ...q,
+        explanation: undefined,
+        options: Array.isArray(q.options)
+          ? q.options.map((opt: any) => ({ key: opt.key, text: opt.text }))
+          : q.options,
+      }));
+    }
+
+    return sanitized;
   }
 
   async findOne(id: string): Promise<LessonDocument> {
@@ -274,6 +288,7 @@ export class AuthoringService implements OnModuleInit {
 
     const isCoding = lessonObj.type === 'coding';
     const isQuiz = lessonObj.type === 'quiz';
+    const isBlock = lessonObj.type === 'block';
 
     const lessonData: any = {
       title: lessonObj.title,
@@ -296,6 +311,11 @@ export class AuthoringService implements OnModuleInit {
       }
     } else if (isQuiz) {
       lessonData.quizQuestions = lessonObj.quizQuestions || [];
+    } else if (isBlock) {
+      lessonData.blockPuzzle = lessonObj.blockPuzzle || null;
+      if (lessonObj.hints) {
+        lessonData.hints = lessonObj.hints;
+      }
     }
 
     return {

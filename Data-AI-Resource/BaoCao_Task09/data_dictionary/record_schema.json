@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CyberSoftSyntheticLearningRecord",
+  "description": "Schema kiểm định chuẩn cho record đánh giá học tập tổng hợp có kiểm soát bằng AI",
+  "type": "object",
+  "required": [
+    "record_id",
+    "student_profile",
+    "learning_assessment",
+    "student_submission",
+    "generation_metadata"
+  ],
+  "properties": {
+    "record_id": {
+      "type": "string",
+      "pattern": "^REC-CYB-[0-9]{4}$",
+      "description": "Mã định danh duy nhất của record (Ví dụ: REC-CYB-0001)"
+    },
+    "student_profile": {
+      "type": "object",
+      "required": [
+        "student_id",
+        "full_name",
+        "email",
+        "track",
+        "current_module",
+        "prior_coding_experience_months"
+      ],
+      "properties": {
+        "student_id": {
+          "type": "string",
+          "pattern": "^HV-[0-9]{5}$"
+        },
+        "full_name": {
+          "type": "string",
+          "minLength": 3
+        },
+        "email": {
+          "type": "string"
+        },
+        "track": {
+          "type": "string",
+          "enum": [
+            "Fullstack Web",
+            "Data & AI Resource Engineer",
+            "DevOps Cloud",
+            "Cybersecurity SOC",
+            "Mobile React Native"
+          ]
+        },
+        "current_module": {
+          "type": "string",
+          "minLength": 3
+        },
+        "prior_coding_experience_months": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 120
+        }
+      },
+      "additionalProperties": false
+    },
+    "learning_assessment": {
+      "type": "object",
+      "required": [
+        "challenge_id",
+        "topic",
+        "difficulty_level",
+        "problem_statement",
+        "expected_solution_concept",
+        "rubric_criteria"
+      ],
+      "properties": {
+        "challenge_id": {
+          "type": "string",
+          "pattern": "^CHAL-[A-Z]{3,6}-[0-9]{3}$"
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 3
+        },
+        "difficulty_level": {
+          "type": "string",
+          "enum": ["Beginner", "Intermediate", "Advanced"]
+        },
+        "problem_statement": {
+          "type": "string",
+          "minLength": 50
+        },
+        "expected_solution_concept": {
+          "type": "string",
+          "minLength": 20
+        },
+        "rubric_criteria": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "required": ["criterion_name", "weight_percent", "description"],
+            "properties": {
+              "criterion_name": { "type": "string", "minLength": 3 },
+              "weight_percent": { "type": "integer", "minimum": 5, "maximum": 100 },
+              "description": { "type": "string", "minLength": 10 }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "student_submission": {
+      "type": "object",
+      "required": [
+        "submission_code",
+        "submission_timestamp",
+        "execution_status",
+        "score",
+        "mentor_feedback"
+      ],
+      "properties": {
+        "submission_code": {
+          "type": "string",
+          "minLength": 10
+        },
+        "submission_timestamp": {
+          "type": "string"
+        },
+        "execution_status": {
+          "type": "string",
+          "enum": ["PASSED", "FAILED_TESTS", "SYNTAX_ERROR", "TIMEOUT"]
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "mentor_feedback": {
+          "type": "string",
+          "minLength": 40
+        }
+      },
+      "additionalProperties": false
+    },
+    "generation_metadata": {
+      "type": "object",
+      "required": [
+        "seed",
+        "prompt_version",
+        "generator_iteration",
+        "validation_status",
+        "checksum_sha256"
+      ],
+      "properties": {
+        "seed": { "type": "integer" },
+        "prompt_version": { "type": "string" },
+        "generator_iteration": { "type": "integer", "minimum": 0 },
+        "validation_status": {
+          "type": "string",
+          "enum": ["PASSED", "FALLBACK_APPLIED"]
+        },
+        "checksum_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

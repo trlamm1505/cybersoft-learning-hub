@@ -37,6 +37,40 @@
     outline-offset: 3px;
     border-radius: 4px;
   }
+
+  /* Thin, theme-aware scrollbar everywhere instead of the OS's default bulky
+     one (visible arrows/thumb) — Firefox via scrollbar-width/-color, Chrome/
+     Edge/Safari via the ::-webkit-scrollbar pseudo-elements below. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-muted);
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }
 
 /* Custom Video Aspect Ratio Utility */
@@ -54,4 +88,33 @@
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+/* Block Puzzle: robot crash feedback (đâm tường/gốc cây) */
+@keyframes block-puzzle-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px) rotate(-3deg); }
+  40% { transform: translateX(4px) rotate(3deg); }
+  60% { transform: translateX(-3px) rotate(-2deg); }
+  80% { transform: translateX(3px) rotate(2deg); }
+}
+
+.animate-shake {
+  animation: block-puzzle-shake 0.4s ease-in-out;
+}
+
+/* Toast dùng chung: rơi/trượt xuống từ mép trên màn hình */
+@keyframes toast-drop-in {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.toast-drop-in {
+  animation: toast-drop-in 0.25s ease-out;
 }

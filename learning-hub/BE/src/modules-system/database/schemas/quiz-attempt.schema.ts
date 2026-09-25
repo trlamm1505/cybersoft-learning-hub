@@ -21,7 +21,8 @@ export class ShuffledQuestionItem {
   scoreEarned?: number; // Score achieved for this question
 }
 
-export const ShuffledQuestionItemSchema = SchemaFactory.createForClass(ShuffledQuestionItem);
+export const ShuffledQuestionItemSchema =
+  SchemaFactory.createForClass(ShuffledQuestionItem);
 
 @Schema({ timestamps: true, collection: 'quizattempts' })
 export class QuizAttempt {
@@ -30,6 +31,11 @@ export class QuizAttempt {
 
   @Prop({ type: Types.ObjectId, ref: 'Test', required: true })
   testId: Types.ObjectId;
+
+  // Distinguishes concurrent quiz topics sharing the same testId (e.g. "Fullstack Web" vs
+  // "Python") so an in-progress attempt for one topic is never reused for another.
+  @Prop({ type: String })
+  category?: string;
 
   @Prop({ type: String, required: true })
   seed: string; // Seed string/number used for deterministic shuffle of questions & options
@@ -49,7 +55,7 @@ export class QuizAttempt {
   @Prop({
     type: String,
     enum: ['IN_PROGRESS', 'SUBMITTED', 'EXPIRED', 'GRADED'],
-    default: 'IN_PROGRESS'
+    default: 'IN_PROGRESS',
   })
   status: string; // Attempt state
 

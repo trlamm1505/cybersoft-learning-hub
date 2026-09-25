@@ -86,7 +86,9 @@ describe('AuthoringService', () => {
 
   describe('createLesson', () => {
     it('should allow creating a draft lesson without testCases or learningOutcome', async () => {
-      mockLessonModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+      mockLessonModel.findOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      });
 
       const dto: any = {
         title: 'Draft Lesson',
@@ -101,7 +103,9 @@ describe('AuthoringService', () => {
     });
 
     it('should block creating a published lesson if validation fails', async () => {
-      mockLessonModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+      mockLessonModel.findOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      });
 
       const dto: any = {
         title: 'Published Without Tests',
@@ -112,7 +116,9 @@ describe('AuthoringService', () => {
         testCases: [],
       };
 
-      await expect(service.createLesson(dto)).rejects.toThrow(BadRequestException);
+      await expect(service.createLesson(dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
