@@ -24,6 +24,58 @@ export interface SyntaxCheckResult {
 const DEFAULT_TIMEOUT_MS = 2000;
 const MAX_OUTPUT_BYTES = 64 * 1024; // 64KB stdout/stderr cap
 
+// Sai số cho phép khi so token là số thực — đủ nhỏ để không che giấu lỗi
+// logic thật (ví dụ nhầm công thức ra sai hẳn kết quả), chỉ hấp thụ sai số
+// làm tròn nhị phân tự nhiên của Python (0.1 + 0.2 = 0.30000000000000004).
+const FLOAT_COMPARE_EPSILON = 1e-6;
+
+/**
+ * So khớp output đã chấm điểm, dùng CHUNG cho cả judge chấm bài học viên
+ * thật (judge-queue.service.ts) và validator của AI Tạo Đề
+ * (problem-generator/problem-validator.ts) — bắt buộc 2 nơi phải cùng một
+ * tiêu chí "đúng" là gì, nếu không một bài AI duyệt "pass" có thể chấm SAI
+ * cho học viên làm đúng y hệt logic, hoặc ngược lại.
+ *
+ * So khớp theo TỪNG DÒNG, KHÔNG so cả khối text như một số duy nhất — một
+ * bài in nhiều số trên nhiều dòng vẫn phải khớp đúng số dòng và đúng thứ tự.
+ * Với mỗi cặp dòng: nếu cả hai đều parse được trọn vẹn thành số hữu hạn
+ * (không chỉ chứa số ở đâu đó trong chuỗi), so bằng sai số tuyệt đối
+ * FLOAT_COMPARE_EPSILON thay vì so chuỗi — hấp thụ sai số làm tròn dấu phẩy
+ * động (`1.5 + 3.2` ra `4.800000000000001` trong Python). Nếu một trong hai
+ * không phải số thuần (ví dụ "Yes"/"No", văn bản), rơi về so chuỗi tuyệt đối
+ * như cũ.
+ */
+export function outputsMatch(actual: string, expected: string): boolean {
+  if (actual === expected) return true;
+
+  const actualLines = actual.split('\n');
+  const expectedLines = expected.split('\n');
+  if (actualLines.length !== expectedLines.length) return false;
+
+  return actualLines.every((line, i) => {
+    const a = line.trim();
+    const e = expectedLines[i].trim();
+    if (a === e) return true;
+
+    const aNum = parseStrictFloat(a);
+    const eNum = parseStrictFloat(e);
+    if (aNum === null || eNum === null) return false;
+
+    return Math.abs(aNum - eNum) <= FLOAT_COMPARE_EPSILON;
+  });
+}
+
+// Number('') === 0 và Number(' 12 ') bỏ qua khoảng trắng giữa — cả hai đều
+// sai cho mục đích này (chuỗi rỗng không phải số 0, và khoảng trắng lẫn
+// trong output là lỗi định dạng thật cần bắt, không phải sai số làm tròn).
+// Regex bắt buộc token phải là toàn bộ một số thực hợp lệ, không cho khoảng
+// trắng nội bộ hay ký tự thừa.
+function parseStrictFloat(token: string): number | null {
+  if (!/^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(token)) return null;
+  const n = Number(token);
+  return Number.isFinite(n) ? n : null;
+}
+
 /**
  * On Windows, the bare `python` on PATH is often the Microsoft Store /
  * "App Execution Alias" shim, which re-resolves the real interpreter via
