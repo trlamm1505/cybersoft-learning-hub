@@ -3,10 +3,12 @@ import { getModelToken } from '@nestjs/mongoose';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AuthoringService } from './authoring.service';
 import { Lesson } from '../../modules-system/database/schemas/lesson.schema';
+import { Exercise } from '../../modules-system/database/schemas/exercise.schema';
 
 describe('AuthoringService', () => {
   let service: AuthoringService;
   let mockLessonModel: any;
+  let mockExerciseModel: any;
 
   const mockLessonDoc = (data: any) => ({
     ...data,
@@ -21,12 +23,23 @@ describe('AuthoringService', () => {
     mockLessonModel.findByIdAndUpdate = jest.fn();
     mockLessonModel.find = jest.fn();
 
+    // Đồng bộ sang exercises chỉ thật sự chạy khi lesson coding published
+    // (syncPublishedCodingLessonToExerciseBank tự return sớm với draft) —
+    // mock findOneAndUpdate resolve thành công cho các case published.
+    mockExerciseModel = {
+      findOneAndUpdate: jest.fn().mockResolvedValue({}),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthoringService,
         {
           provide: getModelToken(Lesson.name),
           useValue: mockLessonModel,
+        },
+        {
+          provide: getModelToken(Exercise.name),
+          useValue: mockExerciseModel,
         },
       ],
     }).compile();

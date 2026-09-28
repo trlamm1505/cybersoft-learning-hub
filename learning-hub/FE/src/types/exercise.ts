@@ -31,6 +31,28 @@ export interface ExerciseDetail extends ExerciseListItem {
   };
 }
 
+// Bản đầy đủ CHỈ giáo viên xem được (GET /exercises/:slug/full) — có
+// solutionCode thật và testCases KHÔNG bị lọc hidden, khác ExerciseDetail
+// (bản học viên xem, luôn ẩn đáp án/test ẩn).
+export interface ExerciseFullDetail {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  type: string;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  points: number;
+  starterCode: string;
+  solutionCode?: string;
+  testCases: ExerciseTestCase[];
+  tags?: string[];
+  hints?: {
+    hint1?: string;
+    hint2?: string;
+    hint3?: string;
+  };
+}
+
 export interface RunCodeResponse {
   stdout: string;
   stderr: string;

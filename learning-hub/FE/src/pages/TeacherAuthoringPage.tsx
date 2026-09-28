@@ -28,7 +28,9 @@ import {
   ClipboardCheck,
 } from 'lucide-react';
 import type { LessonAuthoring, TestCase, QuizQuestion, QuizOption } from '../types/authoring';
+import type { ExerciseListItem } from '../types/exercise';
 import { authoringApi } from '../axios/authoringApi';
+import { exerciseApi } from '../axios/exerciseApi';
 import { TeacherContestAuthoring } from '../components/TeacherContestAuthoring';
 import { useToast } from '../components/Toast';
 
@@ -85,6 +87,16 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [typeFilter, setTypeFilter] = useState<'all' | 'coding' | 'quiz'>('coding');
+
+  // Picker "Chọn từ Ngân hàng đề" — nạp 1 Exercise đã có sẵn (kể cả bài do
+  // AI Tạo Đề sinh và lưu) vào form soạn thảo, thay vì tự gõ testCases/
+  // solutionCode từ đầu.
+  const [isBankPickerOpen, setIsBankPickerOpen] = useState(false);
+  const [bankExercises, setBankExercises] = useState<ExerciseListItem[]>([]);
+  const [isBankLoading, setIsBankLoading] = useState(false);
+  const [bankSearch, setBankSearch] = useState('');
+  const bankPickerModalRef = useFocusTrap(isBankPickerOpen, () => setIsBankPickerOpen(false));
+  const [importingSlug, setImportingSlug] = useState<string | null>(null);
 
   const libraryLessons = useMemo(() => {
     return existingLessons.filter((l) => {
@@ -159,6 +171,107 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
     showToast('Đã tạo Form bài tập mới!');
   };
 
+  // Đổi loại bài học (Coding <-> Quiz) xoá sạch nội dung riêng của loại cũ
+  // (testCases/starterCode/solutionCode/hints hoặc quizQuestions) — hỏi xác
+  // nhận trước nếu người dùng đã thực sự nhập gì đó, tránh mất dữ liệu do
+  // bấm nhầm. Đồng thời luôn cấp slug mới khi đổi loại: nếu form vẫn đang
+  // giữ slug demo mặc định (`tinh-dien-tich-hcn`) hoặc slug của bài đang sửa,
+  // Publish sau khi đổi loại dễ bị lỗi trùng slug với bài gốc.
+  const handleSwitchType = (nextType: 'coding' | 'quiz') => {
+    if (formData.type === nextType) return;
+
+    const hasCodingContent =
+      formData.content.trim() !== '' ||
+      formData.testCases.some((tc) => tc.input.trim() !== '' || tc.expectedOutput.trim() !== '');
+    const hasQuizContent = formData.quizQuestions.some((q) => q.content.trim() !== '');
+    const hasContentToLose = formData.type === 'coding' ? hasCodingContent : hasQuizContent;
+
+    if (
+      hasContentToLose &&
+      !window.confirm(
+        `Đổi sang loại bài "${nextType === 'quiz' ? 'Trắc nghiệm' : 'Lập trình'}" sẽ xoá nội dung ${
+          formData.type === 'coding' ? 'lập trình' : 'trắc nghiệm'
+        } bạn đang nhập. Tiếp tục?`,
+      )
+    ) {
+      return;
+    }
+
+    setTypeFilter(nextType);
+    const timestamp = Date.now().toString().slice(-4);
+    setFormData((prev) => ({
+      ...prev,
+      type: nextType,
+      slug: `bai-tap-moi-${timestamp}`,
+      ...(nextType === 'coding'
+        ? { quizQuestions: [] }
+        : {
+            content: '',
+            starterCode: '',
+            solutionCode: '',
+            testCases: [],
+            hints: { hint1: '', hint2: '', hint3: '' },
+          }),
+    }));
+  };
+
+  // Mở picker "Chọn từ Ngân hàng đề" — tải danh sách Exercise (bảng
+  // `exercises`, dùng chung với Code Playground và các bài do AI Tạo Đề vừa
+  // lưu) mỗi lần mở, để luôn thấy bài mới nhất.
+  const handleOpenBankPicker = async () => {
+    setIsBankPickerOpen(true);
+    setIsBankLoading(true);
+    try {
+      const list = await exerciseApi.listExercises();
+      setBankExercises(list);
+    } catch (err: any) {
+      showToast(
+        err?.response?.data?.message || 'Không tải được danh sách ngân hàng đề.',
+        'error',
+      );
+    } finally {
+      setIsBankLoading(false);
+    }
+  };
+
+  // Import 1 Exercise từ ngân hàng đề vào form soạn thảo — gọi route
+  // :slug/full (chỉ TEACHER) để lấy solutionCode thật và toàn bộ testCases
+  // không bị lọc hidden, khác route công khai findBySlug dành cho học viên.
+  const handleImportFromBank = async (slug: string) => {
+    setImportingSlug(slug);
+    try {
+      const full = await exerciseApi.getExerciseFull(slug);
+      setTypeFilter('coding');
+      setFormData((prev) => ({
+        ...prev,
+        _id: undefined, // Import là TẠO MỚI dựa trên bài có sẵn, không ghi đè bài gốc trong exercises.
+        title: full.title,
+        slug: `${full.slug}-copy-${Date.now().toString().slice(-4)}`,
+        description: full.description,
+        type: 'coding',
+        status: 'draft',
+        difficulty: full.difficulty,
+        points: full.points,
+        learningOutcome: prev.learningOutcome, // Exercise không có learningOutcome — giáo viên tự bổ sung.
+        content: full.description,
+        starterCode: full.starterCode,
+        solutionCode: full.solutionCode || '',
+        testCases: full.testCases,
+        quizQuestions: [],
+        hints: full.hints || { hint1: '', hint2: '', hint3: full.solutionCode || '' },
+      }));
+      setIsBankPickerOpen(false);
+      showToast(`Đã nạp bài "${full.title}" từ ngân hàng đề vào form!`);
+    } catch (err: any) {
+      showToast(
+        err?.response?.data?.message || `Không import được bài "${slug}".`,
+        'error',
+      );
+    } finally {
+      setImportingSlug(null);
+    }
+  };
+
   // Handle Delete Lesson
   const handleDeleteLesson = async (lessonId?: string, title?: string) => {
     const targetId = lessonId || formData._id;
@@ -175,11 +288,15 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
 
     try {
       await authoringApi.deleteLesson(targetId);
-      showToast(`Đã xóa bài học "${targetTitle}" thành công!`);
-    } catch {
-      showToast(`Đã xóa bài học (Lưu cục bộ)!`);
+    } catch (err: any) {
+      showToast(
+        err?.response?.data?.message || `Không xóa được bài học "${targetTitle}". Vui lòng thử lại.`,
+        'error',
+      );
+      return;
     }
 
+    showToast(`Đã xóa bài học "${targetTitle}" thành công!`);
     setExistingLessons((prev) => prev.filter((l) => l._id !== targetId && l.slug !== targetId));
     if (onLessonDeleted) onLessonDeleted(targetId);
 
@@ -261,29 +378,34 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
     setFormData((prev) => ({ ...prev, quizQuestions: updated }));
   };
 
+  // Không mutate object/mảng lồng nhau (updatedQs[qIndex] hay .options vẫn
+  // là cùng reference với formData.quizQuestions[qIndex] nếu chỉ spread cấp
+  // 1) — trước đây gán thẳng field/push trực tiếp vào chúng, khiến state cũ
+  // (kể cả entry đang hiển thị ở Library) bị đổi theo trước khi Save.
   const handleUpdateQuizOption = (qIndex: number, optIndex: number, field: keyof QuizOption, value: any) => {
-    const updatedQs = [...formData.quizQuestions];
-    const updatedOpts = [...updatedQs[qIndex].options];
-
-    if (field === 'isCorrect' && value === true) {
-      updatedOpts.forEach((o, i) => {
-        o.isCorrect = i === optIndex;
-      });
-    } else {
-      updatedOpts[optIndex] = { ...updatedOpts[optIndex], [field]: value };
-    }
-
-    updatedQs[qIndex].options = updatedOpts;
-    setFormData((prev) => ({ ...prev, quizQuestions: updatedQs }));
+    setFormData((prev) => ({
+      ...prev,
+      quizQuestions: prev.quizQuestions.map((q, i) => {
+        if (i !== qIndex) return q;
+        const newOptions =
+          field === 'isCorrect' && value === true
+            ? q.options.map((o, oi) => ({ ...o, isCorrect: oi === optIndex }))
+            : q.options.map((o, oi) => (oi === optIndex ? { ...o, [field]: value } : o));
+        return { ...q, options: newOptions };
+      }),
+    }));
   };
 
   const handleAddOptionToQuestion = (qIndex: number) => {
-    const updatedQs = [...formData.quizQuestions];
-    const keys = ['A', 'B', 'C', 'D', 'E', 'F'];
-    const nextKey = keys[updatedQs[qIndex].options.length] || `OPT${updatedQs[qIndex].options.length + 1}`;
-
-    updatedQs[qIndex].options.push({ key: nextKey, text: '', isCorrect: false });
-    setFormData((prev) => ({ ...prev, quizQuestions: updatedQs }));
+    setFormData((prev) => ({
+      ...prev,
+      quizQuestions: prev.quizQuestions.map((q, i) => {
+        if (i !== qIndex) return q;
+        const keys = ['A', 'B', 'C', 'D', 'E', 'F'];
+        const nextKey = keys[q.options.length] || `OPT${q.options.length + 1}`;
+        return { ...q, options: [...q.options, { key: nextKey, text: '', isCorrect: false }] };
+      }),
+    }));
   };
 
   const handleRemoveQuizQuestion = (qIndex: number) => {
@@ -334,19 +456,14 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
           : 'Đã lưu bản nháp bài học thành công!',
       );
     } catch (err: any) {
-      console.warn('API save fallback to local state:', err);
-      const localResult: LessonAuthoring = {
-        ...payload,
-        status: targetStatus,
-        _id: formData._id || `local-${Date.now()}`,
-      } as LessonAuthoring;
-      setFormData(localResult);
-      setExistingLessons((prev) => [...prev.filter((l) => l._id !== localResult._id), localResult]);
-      if (onLessonSaved) onLessonSaved(localResult);
+      // KHÔNG âm thầm coi lỗi API là thành công — trước đây fallback về state
+      // cục bộ (không lưu localStorage, mất khi F5) và báo toast "thành
+      // công", khiến giáo viên tưởng đã lưu trong khi bài chưa từng được ghi
+      // vào MongoDB (ví dụ khi trùng slug, JWT hết hạn, hoặc mất mạng).
       showToast(
-        targetStatus === 'published'
-          ? 'Đã xuất bản bài học (Lưu cục bộ)!'
-          : 'Đã lưu bản nháp bài học thành công (Lưu cục bộ)!',
+        err?.response?.data?.message ||
+          'Không lưu được bài học lên máy chủ. Vui lòng kiểm tra kết nối và thử lại.',
+        'error',
       );
     } finally {
       setIsSubmitting(false);
@@ -858,6 +975,14 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
 
             {/* Action Buttons Header */}
             <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={handleOpenBankPicker}
+                className="px-3.5 py-2 text-xs font-bold rounded-xl border border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                title="Nạp một bài đã có sẵn trong ngân hàng đề (kể cả bài do AI Tạo Đề sinh) vào form"
+              >
+                <FolderOpen size={14} /> Chọn từ Ngân hàng đề
+              </button>
               <input
                 type="file"
                 ref={fileInputRef}
@@ -904,14 +1029,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
           <div className="flex items-center gap-1.5 bg-[var(--bg-main)] p-1 rounded-xl border border-[var(--border-color)]">
             <button
               type="button"
-              onClick={() => {
-                setTypeFilter('coding');
-                setFormData((prev) => ({
-                  ...prev,
-                  type: 'coding',
-                  quizQuestions: [],
-                }));
-              }}
+              onClick={() => handleSwitchType('coding')}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 typeFilter === 'coding'
                   ? 'bg-indigo-600 text-white shadow-xs'
@@ -922,18 +1040,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => {
-                setTypeFilter('quiz');
-                setFormData((prev) => ({
-                  ...prev,
-                  type: 'quiz',
-                  content: '',
-                  starterCode: '',
-                  solutionCode: '',
-                  testCases: [],
-                  hints: { hint1: '', hint2: '', hint3: '' },
-                }));
-              }}
+              onClick={() => handleSwitchType('quiz')}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                 typeFilter === 'quiz'
                   ? 'bg-indigo-600 text-white shadow-xs'
@@ -1604,6 +1711,91 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Bank Picker Modal: "Chọn từ Ngân hàng đề" */}
+      {isBankPickerOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div
+            ref={bankPickerModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Chọn bài từ ngân hàng đề"
+            tabIndex={-1}
+            className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl space-y-4"
+          >
+            <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+              <div>
+                <span className="text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 uppercase inline-flex items-center gap-1">
+                  <FolderOpen size={12} /> Ngân hàng đề
+                </span>
+                <h3 className="text-lg font-black text-[var(--text-main)] mt-1">
+                  Chọn một bài để nạp vào form
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                  Bao gồm bài tập lập trình có sẵn và bài do AI Tạo Đề sinh đã được lưu. Chọn xong sẽ tạo một bản sao mới, không ghi đè bài gốc.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsBankPickerOpen(false)}
+                className="p-1.5 text-xs font-bold text-[var(--text-muted)] hover:text-[var(--text-main)] bg-[var(--bg-main)] rounded-lg cursor-pointer border border-[var(--border-color)] flex items-center gap-1 shrink-0"
+              >
+                <X size={13} /> Đóng
+              </button>
+            </div>
+
+            <div className="relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+              <input
+                type="text"
+                value={bankSearch}
+                onChange={(e) => setBankSearch(e.target.value)}
+                placeholder="Tìm theo tên hoặc slug..."
+                className="w-full pl-9 pr-3 py-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            {isBankLoading ? (
+              <div className="text-center py-10 text-sm text-[var(--text-muted)]">Đang tải danh sách...</div>
+            ) : (
+              <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                {bankExercises
+                  .filter((ex) => {
+                    const q = bankSearch.toLowerCase().trim();
+                    return !q || ex.title.toLowerCase().includes(q) || ex.slug.toLowerCase().includes(q);
+                  })
+                  .map((ex) => (
+                    <div
+                      key={ex.slug}
+                      className="flex items-center justify-between gap-3 p-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] hover:border-indigo-400 transition-colors"
+                    >
+                      <div className="min-w-0">
+                        <div className="text-sm font-bold text-[var(--text-main)] truncate">{ex.title}</div>
+                        <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-2 mt-0.5">
+                          <span className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-color)]">
+                            {ex.difficulty}
+                          </span>
+                          <span className="truncate">{ex.slug}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleImportFromBank(ex.slug)}
+                        disabled={importingSlug === ex.slug}
+                        className="shrink-0 px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {importingSlug === ex.slug ? 'Đang nạp...' : 'Chọn'}
+                      </button>
+                    </div>
+                  ))}
+                {!isBankLoading && bankExercises.length === 0 && (
+                  <div className="text-center py-10 text-sm text-[var(--text-muted)]">
+                    Ngân hàng đề chưa có bài nào.
+                  </div>
+                )}
               </div>
             )}
           </div>

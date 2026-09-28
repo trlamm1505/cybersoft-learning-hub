@@ -23,12 +23,14 @@
     "seed": "ts-node src/data/seed.ts",
     "seed:quiz": "ts-node src/data/seed-quiz.ts",
     "seed:exercises": "ts-node src/data/seed-exercises.ts",
-    "eval:coach": "ts-node -T src/modules-api/coach/eval/generate-baseline-report.ts"
+    "eval:coach": "ts-node -T src/modules-api/coach/eval/generate-baseline-report.ts",
+    "generate:problems": "ts-node -T src/modules-api/problem-generator/run-pipeline.ts"
   },
   "prisma": {
     "seed": "ts-node src/data/seed.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.24.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",

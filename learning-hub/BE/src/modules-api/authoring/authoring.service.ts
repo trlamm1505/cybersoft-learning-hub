@@ -10,6 +10,10 @@ import {
   Lesson,
   LessonDocument,
 } from '../../modules-system/database/schemas/lesson.schema';
+import {
+  Exercise,
+  ExerciseDocument,
+} from '../../modules-system/database/schemas/exercise.schema';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { ImportLessonDto } from './dto/import-lesson.dto';
@@ -22,6 +26,8 @@ export class AuthoringService implements OnModuleInit {
   constructor(
     @InjectModel(Lesson.name)
     private readonly lessonModel: Model<LessonDocument>,
+    @InjectModel(Exercise.name)
+    private readonly exerciseModel: Model<ExerciseDocument>,
   ) {}
 
   async onModuleInit() {
@@ -180,6 +186,49 @@ export class AuthoringService implements OnModuleInit {
     };
   }
 
+  /**
+   * Đồng bộ một lesson type=coding VỪA PUBLISH sang collection `exercises` —
+   * để Code Playground và AI Coach (đọc từ Exercise, không phải Lesson)
+   * thấy được ngay bài giáo viên vừa soạn/xuất bản, thay vì lỗi "Không tìm
+   * thấy bài tập" vì 2 collection trước đây hoàn toàn tách biệt.
+   *
+   * Dùng upsert theo `slug` (khớp đúng khoá unique của Exercise): nếu đã có
+   * exercise cùng slug (kể cả bài do AI Tạo Đề sinh, hoặc bản đồng bộ từ
+   * lần publish trước), ghi đè nội dung theo lesson mới nhất, không tạo
+   * trùng bản ghi. KHÔNG throw nếu lỗi — publish lesson vẫn phải thành công
+   * ngay cả khi đồng bộ sang exercises thất bại (ví dụ lỗi mạng DB tạm
+   * thời), lỗi chỉ được log lại.
+   */
+  private async syncPublishedCodingLessonToExerciseBank(
+    lesson: LessonDocument,
+  ): Promise<void> {
+    if (lesson.type !== 'coding' || lesson.status !== 'published') return;
+
+    try {
+      await this.exerciseModel.findOneAndUpdate(
+        { slug: lesson.slug },
+        {
+          $set: {
+            title: lesson.title,
+            description: lesson.content || lesson.description || '',
+            type: 'CODE_TEXT',
+            difficulty: lesson.difficulty,
+            points: lesson.points,
+            starterCode: lesson.starterCode || '',
+            solutionCode: lesson.solutionCode || '',
+            testCases: lesson.testCases || [],
+          },
+        },
+        { upsert: true, new: true },
+      );
+    } catch (err) {
+      console.error(
+        `Đồng bộ lesson "${lesson.slug}" sang exercises thất bại:`,
+        err,
+      );
+    }
+  }
+
   async createLesson(dto: CreateLessonDto): Promise<LessonDocument> {
     const existing = await this.lessonModel.findOne({ slug: dto.slug }).exec();
     if (existing) {
@@ -198,7 +247,9 @@ export class AuthoringService implements OnModuleInit {
       ...sanitized,
       status,
     });
-    return createdLesson.save();
+    const saved = await createdLesson.save();
+    await this.syncPublishedCodingLessonToExerciseBank(saved);
+    return saved;
   }
 
   async updateLesson(
@@ -206,8 +257,51 @@ export class AuthoringService implements OnModuleInit {
     dto: UpdateLessonDto,
   ): Promise<LessonDocument> {
     const lesson = await this.lessonModel.findById(id).exec();
+
     if (!lesson) {
-      throw new NotFoundException(`Không tìm thấy bài học với ID: ${id}`);
+      // Cùng tình huống với deleteLesson(): id có thể thuộc về một exercise
+      // "mồ côi" (chỉ tồn tại trong `exercises`, do AI Tạo Đề lưu thẳng) mà
+      // findAll() đã gộp hiển thị trong Library với shape/_id của chính
+      // exercise đó. Không có bản lesson tương ứng để "sửa tại chỗ" theo
+      // đúng nghĩa updateLesson — tạo một lesson MỚI từ dữ liệu exercise đó
+      // (kèm thay đổi trong dto), rồi để syncPublishedCodingLessonToExerciseBank
+      // (gọi qua createLesson) đồng bộ ngược lại đúng slug, thay vì trả 404
+      // khó hiểu cho một hàng trông y hệt lesson sửa được bình thường trên UI.
+      const exercise = await this.exerciseModel.findById(id).exec();
+      if (!exercise) {
+        throw new NotFoundException(`Không tìm thấy bài học với ID: ${id}`);
+      }
+
+      const asLessonPayload: any = {
+        title: exercise.title,
+        slug: exercise.slug,
+        description: exercise.description,
+        type: 'coding',
+        status: 'draft',
+        learningOutcome: '',
+        content: exercise.description,
+        starterCode: exercise.starterCode,
+        solutionCode: exercise.solutionCode,
+        difficulty: exercise.difficulty,
+        points: exercise.points,
+        testCases: exercise.testCases,
+        ...dto,
+      };
+
+      const sanitized = this.sanitizePayloadByType(asLessonPayload);
+      const targetStatus = dto.status || 'draft';
+      if (targetStatus === 'published') {
+        this.validatePublicationEligibility(sanitized);
+      }
+
+      // Xoá exercise gốc trước khi tạo lesson cùng slug — createLesson()
+      // chặn trùng slug, và exercise này sẽ được ghi lại ngay bởi
+      // syncPublishedCodingLessonToExerciseBank nếu targetStatus published.
+      await this.exerciseModel.deleteOne({ _id: id });
+      const created = new this.lessonModel({ ...sanitized, status: targetStatus });
+      const saved = await created.save();
+      await this.syncPublishedCodingLessonToExerciseBank(saved);
+      return saved;
     }
 
     const sanitized = this.sanitizePayloadByType({
@@ -227,6 +321,7 @@ export class AuthoringService implements OnModuleInit {
     if (!updated) {
       throw new NotFoundException(`Cập nhật bài học thất bại cho ID: ${id}`);
     }
+    await this.syncPublishedCodingLessonToExerciseBank(updated);
     return updated;
   }
 
@@ -238,6 +333,27 @@ export class AuthoringService implements OnModuleInit {
       .lean()
       .exec();
 
+    // Bài lưu THẲNG vào `exercises` (qua AI Tạo Đề, chưa từng "Chọn từ Ngân
+    // hàng đề" -> Xuất bản trong Soạn Thảo) không có bản ghi tương ứng trong
+    // `lessons` — trước đây findAll() chỉ đọc lessons nên trang "Xem Các Bài
+    // Thi" hoàn toàn không thấy những bài này, giáo viên không quản lý
+    // (sửa/xoá) được chúng. Gộp thêm các exercise CHƯA có slug trùng với bất
+    // kỳ lesson nào (tránh liệt kê trùng bài đã đồng bộ 2 chiều) vào cùng
+    // danh sách, đánh dấu `sourceCollection: 'exercise'` để FE phân biệt
+    // được nguồn khi cần (ví dụ ẩn nút Import JSON không áp dụng được).
+    const lessonSlugs = new Set(lessons.map((l) => l.slug));
+    const orphanExercises = await this.exerciseModel
+      .find({ slug: { $nin: Array.from(lessonSlugs) } })
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    const mappedExercises = orphanExercises.map((ex) =>
+      this.mapExerciseToLessonShape(ex),
+    );
+
+    const combined = [...lessons, ...mappedExercises] as any[];
+
     // `forStudent=true` là route CÔNG KHAI (không yêu cầu đăng nhập, dùng để
     // hiển thị catalog/preview) — phải ẩn solutionCode, expectedOutput của
     // hidden testCase, và isCorrect/explanation của quizQuestions, đúng như
@@ -245,11 +361,41 @@ export class AuthoringService implements OnModuleInit {
     // này, findAll trả nguyên toàn bộ document, lộ đáp án cho mọi bài giáo
     // viên tạo mà không cần đăng nhập hay biết ID cụ thể.
     if (forStudent) {
-      return lessons.map((l) =>
+      return combined.map((l) =>
         this.stripLearnerSensitiveFields(l),
       ) as LessonDocument[];
     }
-    return lessons as LessonDocument[];
+    return combined as LessonDocument[];
+  }
+
+  /**
+   * Map một Exercise sang shape gần giống Lesson để trang "Xem Các Bài Thi"
+   * hiển thị được chung 1 danh sách. Exercise không có field status/
+   * learningOutcome — coi mọi exercise là 'published' (đã hiển thị công
+   * khai cho học viên qua Code Playground từ trước), learningOutcome để
+   * rỗng vì AI Tạo Đề không thu thập field này riêng theo đúng shape Lesson.
+   */
+  private mapExerciseToLessonShape(ex: any): any {
+    return {
+      _id: ex._id,
+      title: ex.title,
+      slug: ex.slug,
+      description: ex.description,
+      type: 'coding',
+      status: 'published',
+      learningOutcome: '',
+      content: ex.description,
+      starterCode: ex.starterCode,
+      solutionCode: ex.solutionCode,
+      difficulty: ex.difficulty,
+      points: ex.points,
+      testCases: ex.testCases,
+      quizQuestions: [],
+      hints: ex.hints,
+      createdAt: ex.createdAt,
+      updatedAt: ex.updatedAt,
+      sourceCollection: 'exercise',
+    };
   }
 
   private stripLearnerSensitiveFields(lesson: any): any {
@@ -353,10 +499,41 @@ export class AuthoringService implements OnModuleInit {
 
   async deleteLesson(id: string): Promise<{ message: string }> {
     const lesson = await this.lessonModel.findById(id).exec();
-    if (!lesson) {
+
+    if (lesson) {
+      await this.lessonModel.findByIdAndDelete(id).exec();
+
+      // Xoá lesson coding không tự kéo theo xoá bản đồng bộ bên `exercises`
+      // (ghi bởi syncPublishedCodingLessonToExerciseBank khi publish) — nếu
+      // không xoá theo, học viên vẫn thấy bài này qua Code Playground/AI
+      // Coach dù giáo viên đã xoá ở Soạn Thảo. Không throw nếu xoá exercises
+      // lỗi, cùng lý do với sync lúc publish: việc xoá lesson vẫn phải
+      // thành công.
+      if (lesson.type === 'coding') {
+        try {
+          await this.exerciseModel.deleteOne({ slug: lesson.slug });
+        } catch (err) {
+          console.error(
+            `Xoá bản đồng bộ "${lesson.slug}" khỏi exercises thất bại:`,
+            err,
+          );
+        }
+      }
+
+      return { message: `Đã xóa bài học '${lesson.title}' thành công.` };
+    }
+
+    // Không tìm thấy trong `lessons` — có thể đây là một bài chỉ tồn tại
+    // trong `exercises` (do AI Tạo Đề lưu thẳng, chưa từng qua "Chọn từ Ngân
+    // hàng đề" -> Xuất bản) mà findAll() đã gộp hiển thị chung danh sách
+    // Library với cùng shape/_id của exercise đó. Thử xoá ở exercises trước
+    // khi báo "không tìm thấy" — nếu không, trang Library sẽ không thể xoá
+    // được những bài nó vừa gộp thêm vào chính danh sách của mình.
+    const exercise = await this.exerciseModel.findById(id).exec();
+    if (!exercise) {
       throw new NotFoundException(`Không tìm thấy bài học với ID: ${id}`);
     }
-    await this.lessonModel.findByIdAndDelete(id).exec();
-    return { message: `Đã xóa bài học '${lesson.title}' thành công.` };
+    await this.exerciseModel.findByIdAndDelete(id).exec();
+    return { message: `Đã xóa bài học '${exercise.title}' thành công.` };
   }
 }

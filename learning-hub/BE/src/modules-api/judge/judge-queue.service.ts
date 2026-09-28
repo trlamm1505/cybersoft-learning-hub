@@ -17,6 +17,7 @@ import {
 } from '../../modules-system/database/schemas/submission.schema';
 import {
   checkPythonSyntax,
+  outputsMatch,
   runPythonCode,
 } from '../../common/helper/code-runner.helper';
 import { JudgeStatus } from './judge-status.enum';
@@ -152,7 +153,7 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
         const passed =
           !run.timedOut &&
           run.exitCode === 0 &&
-          actualOutput === expectedOutput;
+          outputsMatch(actualOutput, expectedOutput);
 
         if (run.peakMemoryMb !== undefined) {
           maxMemoryMb =

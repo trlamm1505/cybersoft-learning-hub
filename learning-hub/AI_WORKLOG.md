@@ -1,435 +1,826 @@
-# AI Work Log Ngày 18: Harness đánh giá tự động cho AI Coach
+# AI Work Log Ngày 19: AI hỗ trợ tạo đề có kiểm soát
 
 ## Thông tin chung
 
 | Mục | Nội dung |
 |---|---|
 | Người thực hiện | Dương Chí Việt |
-| Ngày | 25 tháng 9 năm 2026 |
-| Nhánh | feature/learning hub day18 |
-| Công cụ, model | Claude Code, mô hình Claude Sonnet 5, có sử dụng một subagent loại Explore để đọc code trước khi thiết kế |
-| Phạm vi quyền | Chỉ đọc và ghi trong thư mục learning hub, không đụng vào thư mục Data AI Resource và các thư mục Test |
-| Dữ liệu nhạy cảm | Không có, toàn bộ context sử dụng trong ngày là mã nguồn công khai của dự án, dữ liệu thử nghiệm tự tạo, và nhật ký lỗi do chính người dùng chạy ứng dụng thật rồi dán lại |
+| Ngày | 28 tháng 9 năm 2026 |
+| Nhánh | feature/learning-hub-day19 |
+| Công cụ, model | Claude Code, mô hình Claude Sonnet 5, có sử dụng một subagent loại Explore để đọc kiến trúc exercise/judge trước khi thiết kế |
+| Phạm vi quyền | Chỉ đọc và ghi trong thư mục learning-hub, không đụng vào thư mục Data-AI-Resource và Test |
+| Dữ liệu nhạy cảm | Có một sự cố: người dùng dán nhầm một chuỗi trông giống access token OAuth (tiền tố `AQ.Ab8...`) vào chat 2 lần khi được yêu cầu lấy Gemini API key, trước khi xác nhận qua ảnh chụp màn hình đây thực chất là định dạng key Gemini hợp lệ do Google cấp (không phải OAuth token như nghi ngờ ban đầu). Đã khuyến nghị người dùng cân nhắc xoá/tạo lại key vì đã xuất hiện trong lịch sử chat; người dùng chọn dùng luôn key đó. Key được lưu trong `learning-hub/BE/.env` (đã xác nhận nằm trong `.gitignore`, không lọt vào commit) — xem Việc 7. |
 
 ## Mục lục các việc trong ngày
 
 | Số thứ tự | Tên việc | Trạng thái |
 |---|---|---|
-| 1 | Nghiên cứu kiến trúc Coach hiện tại trước khi thiết kế | Đạt |
-| 2 | Vá lỗ hổng chèn lệnh giả mạo | Đạt |
-| 3 | Xây dựng Coach Eval Harness với một trăm trường hợp kiểm thử và bốn tiêu chí rubric | Đạt |
-| 4 | Sinh báo cáo nền và thêm bước trong tích hợp liên tục | Đạt |
-| 5 | Chạy thử dự án, phát hiện và sửa lỗi máy chủ trả về mã năm trăm | Đạt |
-| 6 | Sửa giao diện phần AI Coach theo phản hồi thực tế | Đạt |
-| 7 | Thêm câu trả lời mặc định cho lời chào đơn giản | Đạt |
-| 8 | Tự rà soát lại toàn bộ công việc trong ngày và bổ sung phần còn thiếu | Đạt |
-| 9 | Kiểm tra lại toàn bộ từ đầu bằng cách chạy trực tiếp mọi lệnh, không tin vào báo cáo cũ | Đạt |
+| 1 | Tạo nhánh feature/learning-hub-day19 từ main đã cập nhật | Đạt |
+| 2 | Nghiên cứu kiến trúc Exercise/Judge hiện tại trước khi thiết kế | Đạt |
+| 3 | Xây dựng Problem Generator v0.1 (stub, không gọi LLM thật) | Đạt |
+| 4 | Xây validator chạy reference solution qua test thật + kiểm tra trùng lặp | Đạt |
+| 5 | Chạy 10 bài qua pipeline, phát hiện và sửa lỗi test case tự viết sai | Đạt |
+| 6 | Sinh Validation report, xác nhận điều kiện nghiệm thu | Đạt |
+| 7 | Thay stub bằng Gemini thật theo yêu cầu người dùng | Đạt |
+| 8 | Thêm API cho giáo viên tự nhập, sinh nhiều bài, lưu vào ngân hàng đề | Đạt |
+| 9 | Thêm chức năng chọn bài từ ngân hàng đề trong trang Soạn Thảo Bài Thi | Đạt |
+| 10 | Sửa lỗi lưu bài trắc nghiệm báo thành công giả và lỗi thao tác nhầm khi đổi loại bài học | Đạt |
+| 11 | Sửa lỗi hai nơi lưu dữ liệu tách biệt khiến AI Coach không thấy bài mới xuất bản | Đạt |
+| 12 | Sửa lỗi chấm sai bài có phép tính số thực do sai số làm tròn | Đạt |
+| 13 | Tự rà soát lại toàn bộ thay đổi trong ngày, phát hiện và ghi nhận lỗi còn sót | Đạt, còn lỗi để lại cho ngày mai |
 
 ---
 
-## Việc 1: Nghiên cứu kiến trúc Coach hiện tại trước khi thiết kế
+## Việc 1: Tạo nhánh feature/learning-hub-day19 từ main đã cập nhật
 
-> **Prompt người dùng:** Yêu cầu ngày 18 là xây dựng harness cho AI Coach, gồm tạo trường hợp kiểm thử thuộc bốn nhóm đúng, sai, thiếu dữ kiện, chèn lệnh giả mạo, chấm điểm bằng rubric bốn tiêu chí đúng đắn, sư phạm, rò rỉ, an toàn, và chạy hồi quy theo phiên bản câu lệnh hoặc mô hình. Bàn giao cuối ngày gồm harness, một trăm trường hợp kiểm thử, và báo cáo nền. Điều kiện nghiệm thu gồm kiểm tra rò rỉ lời giải đầy đủ, giám khảo mô hình ngôn ngữ được đối chiếu mẫu thủ công, và cổng chặn hồi quy trong tích hợp liên tục. Người dùng đồng thời gửi kèm nội dung nhiệm vụ ngày 19 về việc AI hỗ trợ sinh đề có kiểm soát, để tham khảo trước, với mục đích rõ ràng là thiết kế ngày 18 sao cho không gây khó cho ngày 19. Người dùng nhấn mạnh riêng một điều kiện phạm vi: không được thao tác trên thư mục dữ liệu và thư mục kiểm thử ở cấp cao của kho mã nguồn, chỉ được làm việc trong thư mục learning hub.
+> **Prompt người dùng:** "tạo hub day19 vào pull main về".
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Nhiệm vụ đòi hỏi xây một bộ đánh giá tự động cho AI Coach, nhưng phải thiết kế sao cho không tạo ra kiến trúc gây khó cho việc sinh đề bài của ngày 19. Chưa biết kiến trúc Coach hiện tại có sẵn những gì, có mô hình ngôn ngữ thật hay chưa, nên chưa thể tự viết code ngay mà cần khảo sát trước.
-
-### Context, tài liệu, file, constraint đã cung cấp
-
-Context cung cấp cho subagent Explore: toàn bộ thư mục coach trong backend, gồm bảy tệp mã nguồn, các tệp kiểm thử, thư mục fixtures, tệp cấu hình tích hợp liên tục, và nội dung AI worklog cũ của ngày trước. Constraint: không đụng thư mục Data AI Resource và Test.
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Chỉ dẫn chính đưa cho subagent Explore: đọc kiến trúc Coach hiện tại trước khi thiết kế harness, báo cáo lại phát hiện quan trọng. Sau khi nhận báo cáo, dùng công cụ hỏi người dùng để chốt ba quyết định thiết kế trước khi viết code, không tự đoán.
+Ban đầu hiểu nhầm là tự thiết kế nội dung ngày 19 dựa trên suy đoán (nhánh
+day18 chưa merge main). Đã tự ý viết một file spec rỗng "chờ đề bài" — bị
+người dùng từ chối ngay lập tức với phản hồi "tôi kêu gì thì làm nấy đừng
+tự ý quyết định, từ từ rồi giao đề, tự ghi text hao token".
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Việc này chưa tạo file hay diff nào, chỉ là bước nghiên cứu và ra quyết định thiết kế. Ba phát hiện quan trọng nhất từ báo cáo của subagent được giữ lại nguyên vẹn làm cơ sở thiết kế:
-
-1. Tệp coach module đang gán cứng StubLlmClient làm mô hình ngôn ngữ. Kho mã nguồn hiện tại chưa có mô hình ngôn ngữ thật nào được gọi, chưa cài thư viện của Anthropic hay OpenAI.
-2. Tệp readme trong thư mục fixtures đã ghi sẵn từ ngày 17 rằng tệp conversation traces dùng làm nền cho harness đánh giá của ngày 18.
-3. Tệp coach policy đã có sẵn cơ chế chặn rò rỉ lời giải đầy đủ nhưng hoàn toàn chưa có cơ chế nhận diện chèn lệnh giả mạo.
-
-Ba quyết định thiết kế chốt lại sau khi hỏi người dùng, thay cho việc AI tự đoán:
-
-1. Phần giám khảo mô hình ngôn ngữ triển khai theo hướng dựa trên luật, có kiến trúc sẵn sàng thay bằng mô hình ngôn ngữ thật sau này, thay vì gọi một mô hình thật ngay trong ngày 18.
-2. Một trăm trường hợp kiểm thử viết tay dưới dạng dữ liệu tĩnh, không sinh ngẫu nhiên.
-3. Đặt toàn bộ mã nguồn tại thư mục coach eval trong backend để tự động nằm trong lệnh kiểm thử có sẵn.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-Không có lệnh kiểm thử nào chạy ở việc này vì chưa có code. Không phát hiện lỗi AI nào ở bước nghiên cứu này.
+Sau khi bị từ chối, chỉ giữ lại đúng phần việc git: `git fetch`, xác nhận
+`feature/learning-hub-day18` đã merge vào `origin/main` qua PR #75,
+`git checkout main && git pull` rồi `git checkout -b feature/learning-hub-day19`.
+Không tạo thêm file nào cho tới khi nhận đề bài thật.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: đọc kiến trúc thật trước khi thiết kế đã tránh được một sai lầm lớn, nếu không đọc kỹ sẽ tưởng kho mã nguồn đã có mô hình ngôn ngữ thật và thiết kế giám khảo sai hướng ngay từ đầu. Điều chưa chắc: chưa rõ khi nào ngày 19 sẽ thật sự gắn một mô hình ngôn ngữ thật vào, nên kiến trúc rule based hôm nay có thể cần điều chỉnh thêm khi đó. Thay đổi cho lần sau: nên có một quy ước ghi rõ trong tài liệu dự án về việc kho mã nguồn hiện đang dùng mô hình giả lập nào, để các ngày sau không phải tự dò lại từ đầu.
+Điều học được: không tự suy đoán nội dung công việc khi chưa có đề bài rõ
+ràng, kể cả khi có ngữ cảnh gợi ý (worklog ngày 18 có nhắc "đã gửi đề ngày
+19 để tham khảo") — phải hỏi lại thay vì tự viết placeholder tốn token.
 
 ---
 
-## Việc 2: Vá lỗ hổng chèn lệnh giả mạo
+## Việc 2: Nghiên cứu kiến trúc Exercise/Judge hiện tại trước khi thiết kế
 
-> **Bối cảnh phát sinh:** Việc này không phải một yêu cầu mới của người dùng mà phái sinh trực tiếp từ phát hiện thứ ba ở Việc 1, tệp coach policy đã có cơ chế chặn rò rỉ lời giải nhưng chưa có cơ chế chặn chèn lệnh giả mạo, trong khi đề bài ngày 18 yêu cầu bắt buộc phải có trường hợp kiểm thử cho nhóm chèn lệnh giả mạo.
+> **Prompt người dùng:** Dán nguyên văn đề bài ngày 19 (AI hỗ trợ tạo đề có
+> kiểm soát: tạo prompt từ learning outcome/level/constraints, sinh
+> statement/examples/tests/solution sketch, chạy validator + reference
+> solution trước review; bàn giao Problem generator v0.1, 10 bài qua
+> pipeline, Validation report; điều kiện nghiệm thu: không publish tự động,
+> reference solution pass mọi test, kiểm tra trùng lặp thủ công hoặc
+> semantic) kèm đề bài ngày 20 để tham khảo trước, với yêu cầu rõ ràng
+> "chỉ xem để làm 19 có lợi cho 20 tránh bị lạc nhịp chứ không code ngày
+> 20", và một câu hỏi riêng: ngày 19 có cần gọi API Gemini không.
 
 ### Context, tài liệu, file, constraint đã cung cấp
 
-Context là kết quả nghiên cứu từ Việc 1, cụ thể là cấu trúc tệp coach policy và tệp coach service. Không có tài liệu bên ngoài nào khác được cung cấp.
+Context cung cấp cho subagent Explore: toàn bộ thư mục
+`modules-system/database/schemas` (Exercise, Hint, Submission),
+`modules-api/judge`, `common/helper/code-runner.helper.ts`,
+`common/helper/python-guard.helper.ts`, `data/seed-exercises.ts`, và
+`modules-api/coach/` (để lấy convention module/LlmClient interface làm mẫu
+tổ chức code).
 
 ### Chỉ dẫn chính và các vòng phản hồi quan trọng
 
-Chỉ dẫn chính là tự triển khai dựa trên phát hiện lỗ hổng ở Việc 1, không có vòng phản hồi qua lại nào với người dùng ở việc này.
+Chỉ dẫn chính: đọc schema Exercise, cơ chế chấm code Python thật (có sandbox
+không, chạy bằng cách nào), cấu trúc hint, và convention module Coach ngày
+17-18, để trả lời trực tiếp câu hỏi "ngày 19 có cần gọi Gemini chưa" bằng
+bằng chứng cụ thể thay vì suy đoán, đồng thời lấy shape dữ liệu tham chiếu
+cho generator.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Tạo mới tệp coach injection guard, chứa hàm thuần detectPromptInjection quét khoảng mười ba mẫu biểu thức chính quy bằng cả tiếng Việt và tiếng Anh cho năm nhóm tấn công: yêu cầu bỏ qua hướng dẫn hệ thống, yêu cầu đổi vai trò thành quản trị viên hoặc chế độ nhà phát triển, tự xưng là quản trị viên để đòi quyền cao hơn, yêu cầu tiết lộ câu lệnh hệ thống hoặc test ẩn hoặc lời giải gốc, và các kỹ thuật vượt rào phổ biến.
+Việc này chưa tạo file, chỉ nghiên cứu. Phát hiện quan trọng nhất được giữ
+lại làm cơ sở thiết kế: `package.json` của backend không có bất kỳ SDK
+Gemini/Anthropic/OpenAI nào; `StubLlmClient` (Coach, ngày 17-18) là bằng
+chứng sống cho việc "chưa có LLM thật, dùng stub template" đã từng được
+người dùng chấp nhận trước đó. Trả lời cho người dùng: **chưa cần gọi
+Gemini ở ngày 19** — đề bài không có điều kiện nghiệm thu nào bắt buộc gọi
+LLM thật, và pipeline có thể hoàn thành bằng generator dạng template +
+validator chạy code thật, theo đúng mẫu Coach đã dùng.
 
-Sửa tệp coach service, gắn hàm phát hiện chèn lệnh vào, chạy ngay sau khi ghi lại tin nhắn của người dùng và trước khi gọi tới mô hình ngôn ngữ. Toàn bộ phần này được giữ lại nguyên vẹn, không có phần nào bị loại bỏ, vì đây là code mới hoàn toàn không thay thế logic cũ nào.
-
-Vì StubLlmClient hiện tại chỉ là bộ nhận diện mẫu câu, không phải mô hình thật, lớp chặn này không làm thay đổi hành vi quan sát được ngay hôm nay, giá trị của nó chỉ hiện rõ khi mô hình thật được gắn vào sau này. Giới hạn này được ghi rõ trong chú thích đầu tệp để giữ lại đúng ngữ cảnh cho người đọc sau.
+Phát hiện phụ: `Exercise.testCases` với cờ `isHidden` chính là "examples"
+(không hidden) và "test thật" (hidden) gộp chung một mảng — không có field
+`examples` riêng, nên generator ngày 19 phải theo đúng quy ước này, không
+tự tạo field mới. `runPythonCode()`/`checkPythonSyntax()` tại
+`code-runner.helper.ts` là hàm production dùng để chấm bài học viên thật,
+tái dùng được thẳng cho việc "chạy reference solution qua test" thay vì
+viết lại logic chấm.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Viết tệp coach injection guard spec với mười sáu trường hợp: mười câu chèn lệnh phải bị bắt, năm câu hỏi hợp lệ không được chặn nhầm, một kiểm tra nội dung câu từ chối không tiết lộ thêm gì. Thêm một trường hợp tích hợp trong coach service spec xác nhận hàm mockLlmClient chat không được gọi khi tin nhắn là chèn lệnh.
-
-Lệnh chạy và kết quả, chạy trong thư mục backend:
-
-```
-npx jest coach-injection-guard coach.service
-```
-
-Kết quả toàn bộ các trường hợp đều đạt. Không phát hiện lỗi AI nào ở việc này khi kiểm chứng lần đầu, các lỗi thật của bộ chặn này chỉ lộ ra sau khi chạy qua Coach Eval Harness ở Việc 3.
+Không có lệnh kiểm thử ở bước nghiên cứu. Không phát hiện lỗi AI nào ở bước
+này.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: đặt lớp chặn ở tầng service, trước khi gọi mô hình ngôn ngữ, là vị trí đúng để bảo đảm hiệu lực dù sau này đổi sang mô hình thật nào. Điều chưa chắc: bộ mẫu biểu thức chính quy hiện tại chỉ bắt được các dạng tấn công đã biết, chưa chắc bao quát hết các biến thể chèn lệnh mới. Thay đổi cho lần sau: nên bổ sung định kỳ mẫu tấn công mới vào bộ chặn này khi phát hiện qua thực tế sử dụng, giống như đã làm ở Việc 3.
+Điều học được: kết luận ban đầu ở việc này ("chưa cần gọi Gemini vì đề bài
+không bắt buộc") đúng về mặt điều kiện nghiệm thu, nhưng chưa đúng ý người
+dùng — sau khi thấy pipeline chỉ chọn giữa 4 template cố định, người dùng
+yêu cầu thẳng "cài Gemini đi chứ, làm phải cho ra hồn xíu" (xem Việc 7).
+Bài học: "không bắt buộc theo đề bài" không đồng nghĩa "không nên làm" —
+cần phân biệt rõ giới hạn tối thiểu của đề bài với kỳ vọng thực tế của
+người dùng. Điều chưa chắc: chưa rõ khi nào ngày 20 (cá nhân hóa lộ trình)
+sẽ cần tag chuẩn hóa từ exercise để tính mastery — quyết định giữ field
+`tags` trên `ProblemDraft` đi thẳng theo input spec, không tự bịa thêm
+taxonomy mới, để không đi trước quyết định của ngày 20.
 
 ---
 
-## Việc 3: Xây dựng Coach Eval Harness với một trăm trường hợp kiểm thử và bốn tiêu chí rubric
+## Việc 3: Xây dựng Problem Generator v0.1 (stub, không gọi LLM thật)
 
-> **Prompt người dùng:** Nguyên văn yêu cầu đã dán ở Việc 1, không lặp lại ở đây.
+> **Prompt người dùng:** "cứ làm đúng bám sát theo lộ trình này" (đề bài
+> ngày 19 đã dán ở Việc 2).
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Cần dựng một trăm trường hợp kiểm thử chia bốn nhóm đúng, sai, thiếu dữ kiện, chèn lệnh giả mạo, chấm điểm bằng rubric bốn tiêu chí đúng đắn, sư phạm, rò rỉ, an toàn, và toàn bộ phải chạy được như một cổng chặn hồi quy tự động.
-
-### Context, tài liệu, file, constraint đã cung cấp
-
-Context gồm ba quyết định thiết kế đã chốt ở Việc 1, cơ chế chặn chèn lệnh vừa tạo ở Việc 2, và hai mươi trường hợp phân tích lỗi có sẵn từ ngày 17 trong tệp failure fixtures. Constraint: không sinh case ngẫu nhiên, phải đọc lại fixtures của ngày 17 bằng hàm đọc tệp thay vì chép tay.
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Chỉ dẫn chính: dựng đủ một trăm trường hợp, bốn tiêu chí rubric, cổng chặn hồi quy trong Jest. Vòng phản hồi quan trọng nhất: sau khi chạy thử lần đầu và phát hiện sáu trên mười hai trường hợp kiểm thử không đạt, tự quyết định không sửa mù mà viết kịch bản gỡ lỗi riêng để đọc từng trường hợp trước khi sửa.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-Toàn bộ mã nguồn tạo mới tại thư mục coach eval trong backend, chi tiết đầy đủ nằm trong tài liệu riêng tại `learning-hub/docs/day18/coach-eval-harness-spec.md`.
-
-| Tệp | Nội dung | Giữ lại hay chỉnh sửa |
-|---|---|---|
-| eval types | Định nghĩa hai họ trường hợp kiểm thử tương ứng hai nhánh xử lý thật, một là chat đi qua CoachService, hai là debugLoop đi qua hàm thuần analyzeDebugLoop | Giữ nguyên |
-| debug loop eval cases | Ba mươi trường hợp, đọc trực tiếp tệp failure fixtures bằng hàm đọc tệp thay vì chép tay, tái dùng nguyên hai mươi trường hợp của ngày 17 làm nhóm đúng, thêm năm trường hợp nhóm sai và năm trường hợp nhóm thiếu dữ kiện viết mới | Giữ nguyên |
-| chat eval cases | Bảy mươi trường hợp, chia hai mươi nhóm đúng, mười lăm nhóm sai, mười lăm nhóm thiếu dữ kiện, hai mươi nhóm chèn lệnh giả mạo | Giữ nguyên |
-| coach eval runner | Mô phỏng lại đúng thứ tự các bước thật của hàm chat trong CoachService | Giữ nguyên ở việc này, chỉnh sửa thêm ở Việc 8 |
-| coach rubric | Chấm điểm bốn tiêu chí đúng đắn, sư phạm, rò rỉ, an toàn | Chỉnh sửa hai lần sau khi phát hiện lỗi, xem mục kiểm chứng bên dưới |
-| coach eval spec | Cổng chặn hồi quy, ngưỡng cứng cho rò rỉ và an toàn, ngưỡng mềm cho các tiêu chí còn lại | Giữ nguyên ở việc này, chỉnh sửa thêm ở Việc 8 |
-
-Một tệp kịch bản gỡ lỗi tạm thời được tạo ra trong lúc làm để đọc trực tiếp đầu vào đầu ra của từng trường hợp không đạt, sau đó bị loại bỏ hoàn toàn sau khi dùng xong, vì nó chỉ phục vụ mục đích chẩn đoán một lần, không phải một phần của harness.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-Lần chạy đầu tiên của cổng chặn báo sáu trên mười hai trường hợp kiểm thử không đạt. Dùng kịch bản gỡ lỗi tạm thời để đọc trực tiếp từng trường hợp thay vì sửa mù, tìm ra bốn lỗi thật:
-
-1. Hai lỗi ở bộ nhận diện chèn lệnh còn thiếu mẫu câu, chưa bắt được hai câu chèn lệnh thật.
-2. Hai lỗi trong chính rubric tự viết, không phải lỗi mã nguồn sản phẩm: rubric hiểu nhầm một câu mô tả phạm vi từ chối là hành vi rò rỉ thật, và rubric hiểu nhầm một câu gợi ý mở gợi ý là một câu khẳng định đã mở gợi ý.
-
-Cách phát hiện: đọc nguyên văn nội dung đầu vào và đầu ra của từng trường hợp không đạt bằng kịch bản gỡ lỗi, không tin vào con số tổng do công cụ tự động trả ra. Cả bốn lỗi đều đã sửa, có trường hợp kiểm thử riêng để không tái diễn.
-
-Lệnh chạy và kết quả tại thời điểm hoàn thành việc 3, chạy trong thư mục backend:
-
-```
-npx tsc --noEmit
-npx jest --silent
-npm run eval:coach
-```
-
-Kết quả: không có lỗi kiểu, hai mươi mốt bộ kiểm thử đạt với một trăm bảy mươi tư trường hợp đạt, và một trăm trên một trăm trường hợp của báo cáo nền đạt.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: một cổng chặn tự động có thể tự sai ở chính công cụ chấm điểm của nó, không chỉ ở mã nguồn sản phẩm được chấm, nên luôn phải đọc lý do không đạt cụ thể trước khi kết luận. Điều chưa chắc: bộ một trăm trường hợp hiện tại là dữ liệu tĩnh viết tay, chưa chắc bao quát hết mọi tình huống thật sẽ gặp khi có mô hình ngôn ngữ thật. Thay đổi cho lần sau: nên tách rõ quy trình đối chiếu thủ công thành một bước bắt buộc mỗi khi thêm trường hợp kiểm thử mới, không chỉ làm một lần rồi thôi, và ghi quy trình này vào tài liệu hướng dẫn của harness.
-
----
-
-## Việc 4: Sinh báo cáo nền và thêm bước trong tích hợp liên tục
-
-> **Bối cảnh:** Đây là phần bàn giao cuối ngày theo đề bài ngày 18 đã dán ở Việc 1, gồm baseline report và regression gate trong CI, không phải một yêu cầu mới.
-
-### Context, tài liệu, file, constraint đã cung cấp
-
-Context là toàn bộ harness đã xây ở Việc 3 và tệp cấu hình tích hợp liên tục hiện có của dự án đã đọc ở Việc 1.
+Cần một pipeline: input là `ProblemSpec` (learning outcome, level,
+constraints, tags), output là `ProblemDraft` đúng shape các field chính của
+`Exercise` schema, sinh ra bởi một client có interface tách biệt để sau này
+cắm LLM thật vào không phải viết lại phần còn lại.
 
 ### Chỉ dẫn chính và các vòng phản hồi quan trọng
 
-Chỉ dẫn chính là tự triển khai dựa trên bàn giao đã nêu ở đề bài, không có vòng phản hồi qua lại nào ở việc này.
+Trước khi viết code, dùng công cụ hỏi người dùng để chốt 2 quyết định thiết
+kế thay vì tự đoán: (1) nguồn 10 bộ input mẫu — người dùng chọn "thấy cái
+nào đúng nhất thì làm"; (2) mức độ kiểm tra trùng lặp — người dùng chọn
+"thấy cái nào đúng, hợp lý thì làm, tránh làm cho có mai mốt sửa lại kéo
+theo sai". Tự quyết định kỹ thuật cuối cùng: 10 bộ input viết tay (không
+suy ra từ exercise đã seed, để đúng bản chất sinh đề mới), kiểm tra trùng
+lặp bằng so khớp text Jaccard (không giả vờ là semantic thật vì backend
+không có model embedding nào cài sẵn).
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Thêm lệnh eval coach vào tệp package json của backend. Thêm một bước riêng trong tệp cấu hình tích hợp liên tục, chạy sau bước kiểm thử đơn vị đã có sẵn, để in báo cáo nền ra nhật ký và tự thoát với mã lỗi nếu phát hiện rò rỉ. Toàn bộ được giữ lại nguyên vẹn, không có phần nào loại bỏ.
+Tạo module mới `learning-hub/BE/src/modules-api/problem-generator/`, theo
+đúng convention DI token + interface của `coach/` (ngày 17-18):
+
+- `problem-generator.types.ts`: `ProblemSpec`, `ProblemDraft`,
+  `ProblemDraftTestCase` — `ProblemDraftTestCase` cố tình cùng shape với
+  `ExerciseTestCase` để draft có thể insert thẳng vào `exercises` sau khi
+  người review duyệt, không cần chuyển đổi field.
+- `problem-generator-llm.client.ts`: interface `ProblemGeneratorLlmClient`
+  + `StubProblemGeneratorClient` — chọn 1 trong 4 template (vòng lặp/tổng,
+  chuỗi/palindrome, danh sách, so sánh điều kiện) theo từ khóa trong
+  `learningOutcome`/`tags`, không gọi mạng ngoài.
+- `problem-generator-specs.ts`: 10 bộ `ProblemSpec` viết tay.
+
+Toàn bộ giữ nguyên, không có phần nào bị loại bỏ vì đây là module hoàn toàn
+mới, không thay thế logic cũ nào.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Không chạy được máy chủ tích hợp liên tục thật trong phiên làm việc vì không đẩy mã nguồn lên máy chủ từ xa. Đã chạy đúng hai lệnh mà máy chủ tích hợp liên tục sẽ chạy ngay tại máy cá nhân, cả hai đều thành công. Không phát hiện lỗi AI nào ở việc này.
+Viết `problem-generator-llm.client.spec.ts`: xác nhận cả 10 spec đều sinh
+draft hợp lệ (có cả test visible lẫn hidden), slug duy nhất cho toàn bộ 10
+spec, slug truy vết đúng về `specId` gốc.
+
+```
+npx jest problem-generator
+```
+
+3/3 test đạt ở bước này. Không phát hiện lỗi AI nào ở việc này — lỗi thật
+(test case tự viết sai đáp án) chỉ lộ ra ở Việc 5 khi chạy qua validator
+thật, không phải qua test đơn vị của generator.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: đặt báo cáo nền như một bước riêng trong tích hợp liên tục, tách khỏi bước kiểm thử đơn vị, giúp người xem nhật ký thấy ngay kết quả tổng hợp mà không cần đọc hết log kiểm thử chi tiết. Điều chưa chắc: chưa kiểm chứng được hành vi thật trên máy chủ tích hợp liên tục vì chưa đẩy mã nguồn lên. Thay đổi cho lần sau: khi đẩy nhánh này lên máy chủ từ xa, cần xác nhận lại bước này chạy đúng như mong đợi trên môi trường tích hợp liên tục thật, không chỉ tin vào kết quả chạy tại máy cá nhân.
+Điều học được: tách riêng phần "chọn template + ghép nội dung" khỏi phần
+"chạy test thật để xác nhận đúng" là đúng hướng — vì chính bước sau mới bắt
+được lỗi. Điều chưa chắc: bộ 4 template hiện tại chỉ phủ được các dạng bài
+cơ bản (tổng, chuỗi, danh sách, so sánh); khi có LLM thật thay stub, cần
+kiểm tra lại toàn bộ logic chọn template theo từ khóa có còn phù hợp không.
 
 ---
 
-## Việc 5: Chạy thử dự án, phát hiện và sửa lỗi máy chủ trả về mã năm trăm
+## Việc 4: Xây validator chạy reference solution qua test thật + kiểm tra trùng lặp
 
-> **Prompt người dùng, tin nhắn 1:** Yêu cầu khởi động dự án lên để kiểm thử trực tiếp.
->
-> **Prompt người dùng, tin nhắn 2:** Kèm đoạn nhật ký trình duyệt báo lỗi mã năm trăm khi gọi đường dẫn coach chat, cùng nhận xét rằng trải nghiệm phần phân tích lỗi và hỏi đáp bài tập của AI Coach không tốt, đôi khi phải tải lại trang, và một phần giao diện che khuất phần khác.
->
-> **Prompt người dùng, tin nhắn 3:** Xác nhận đồng ý với phương án khởi động lại máy chủ giao diện để bảo đảm mã nguồn mới nhất được áp dụng, chọn từ danh sách gợi ý do hệ thống đưa ra.
+> **Prompt người dùng, viết lại cho rõ ý:** Phần việc này thuộc cùng chỉ
+> dẫn "cứ làm đúng bám sát theo lộ trình này" đã ghi ở Việc 3, ứng với hai
+> điều kiện nghiệm thu của đề bài ngày 19: reference solution phải pass
+> mọi test trước khi được xem là hợp lệ, và phải có bước kiểm tra trùng
+> lặp thủ công hoặc dựa trên nội dung gần giống trước khi đưa bài vào diện
+> chờ duyệt.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Context: hàm `runPythonCode()`/`checkPythonSyntax()` đã có sẵn tại
+`code-runner.helper.ts` (dùng chung với `judge-queue.service.ts` để chấm
+bài học viên thật), và 3 nguồn exercise đã seed
+(`initial-exercises.ts`, `initial-exercises-day14.ts`,
+`initial-exercises-day15.ts`) làm tập đối chiếu trùng lặp.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+- `problem-duplicate-check.ts`: `findDuplicateCandidates()` — so khớp
+  Jaccard trên tập từ (đã chuẩn hoá bỏ dấu, bỏ stopword tiếng Việt cơ bản)
+  giữa draft mới và từng exercise đã seed, ngưỡng cảnh báo 0.5, chỉ gắn cờ
+  nghi vấn chứ không tự loại bài.
+- `problem-validator.ts`: `validateProblemDraft()` — gọi
+  `checkPythonSyntax()` trước, nếu hợp lệ mới chạy từng `testCases[]` qua
+  `runPythonCode()`, so khớp `stdout` đã trim/normalize CRLF với
+  `expectedOutput`, gộp kết quả cùng `duplicateCandidates` thành
+  `ValidationResult`. Trường `readyForReview` chỉ true khi vừa pass mọi
+  test vừa không có nghi vấn trùng lặp.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Viết `problem-validator.spec.ts` với 4 trường hợp: solution đúng pass mọi
+test, solution sai bị bắt ít nhất 1 test fail, solution lỗi cú pháp bị chặn
+trước khi chạy test, draft trùng nội dung với bài đã seed bị gắn cờ nghi
+vấn.
+
+```
+npx jest problem-validator
+```
+
+4/4 test đạt. Không phát hiện lỗi AI nào ở bước viết validator — validator
+tự nó không có bug, lỗi nằm ở dữ liệu test case tự viết tay cho generator
+(xem Việc 5).
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: tái dùng đúng hàm production để chấm (`runPythonCode`) thay
+vì tự viết logic so sánh output riêng giúp validator phản ánh đúng hành vi
+chấm bài thật, không lệch pha với judge thật. Điều chưa chắc: ngưỡng 0.5
+cho cảnh báo trùng lặp là ước lượng ban đầu, chưa có dữ liệu đủ lớn để hiệu
+chỉnh — cần theo dõi thêm khi số lượng exercise trong catalog tăng lên.
+
+---
+
+## Việc 5: Chạy 10 bài qua pipeline, phát hiện và sửa lỗi test case tự viết sai
+
+> **Prompt người dùng, viết lại cho rõ ý:** Cùng thuộc chỉ dẫn ở Việc 3,
+> ứng với phần bàn giao cuối ngày của đề bài ngày 19 yêu cầu mười bài phải
+> thực sự chạy qua pipeline, không phải chỉ viết code lý thuyết rồi báo
+> cáo bằng lời.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Viết `run-pipeline.ts` (theo mẫu `generate-baseline-report.ts` của ngày 18:
+không ghi DB, chỉ ghi file report) rồi chạy thật bằng
+`npm run generate:problems` để tự kiểm chứng, không tin vào việc code "nhìn
+có vẻ đúng".
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Lệnh chạy:
+
+```
+cd learning-hub/BE
+npm run generate:problems
+```
+
+**Lỗi AI mắc phải, phát hiện bởi chính pipeline tự viết:** lần chạy đầu chỉ
+7/10 bài pass mọi test. 3 bài (spec-01, spec-04, spec-08, cùng dùng template
+"tổng chia hết cho 3 hoặc 5") có test case hidden `input=20` viết tay
+`expectedOutput=119`, nhưng chạy thật ra `98`. Xác minh độc lập bằng
+`python -c` tính lại tổng các số từ 1 đến 20 chia hết cho 3 hoặc 5, kết quả
+đúng là 98 — sửa lại `expectedOutput` trong `problem-generator-llm.client.ts`
+rồi chạy lại pipeline, đạt 10/10 bài pass mọi test.
+
+Không tự động sửa cảnh báo trùng lặp (3/10 bài nhóm palindrome bị gắn cờ
+trùng với bài `kiem-tra-palindrome` đã seed sẵn) để "làm đẹp" số liệu —
+giữ nguyên vì đây đúng là hành vi validator cần có, minh chứng cơ chế kiểm
+tra trùng lặp hoạt động đúng trên dữ liệu thật, không phải lỗi cần sửa.
+
+Chạy lại toàn bộ test suite backend để xác nhận không có regression:
+
+```
+npx jest
+```
+
+Kết quả: 24/24 test suite, 202/202 test đạt.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: đây chính là giá trị cốt lõi của điều kiện nghiệm thu
+"reference solution pass mọi test" — nếu không có bước chạy thật qua
+validator, lỗi tính sai tay (119 thay vì 98) sẽ lọt qua và không ai phát
+hiện cho tới khi học viên thật gặp phải. Thay đổi cho lần sau: mọi test
+case hidden viết tay cho generator nên được tính lại bằng cách chạy thử
+solution qua trình thông dịch thật ngay khi soạn, thay vì tính nhẩm.
+
+---
+
+## Việc 6: Sinh Validation report, xác nhận điều kiện nghiệm thu
+
+> **Prompt người dùng, viết lại cho rõ ý:** Cùng thuộc chỉ dẫn ở Việc 3,
+> ứng với hạng mục bàn giao cuối ngày thứ ba của đề bài ngày 19 là báo cáo
+> kiểm chứng, để người review đọc lại kết quả mà không cần tự chạy lệnh.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+`run-pipeline.ts` xuất `reports/validation-report.json` và
+`reports/validation-report.md` (bảng tổng hợp + chi tiết từng bài: cú pháp,
+từng test case pass/fail, cảnh báo trùng lặp). Thêm script
+`generate:problems` vào `package.json`. Viết tài liệu tham chiếu
+`learning-hub/docs/day19/problem-generator-spec.md`, mô tả luồng xử lý,
+giới hạn (chưa có LLM thật), và cách 3 điều kiện nghiệm thu được hiện thực
+hoá trong code — theo đúng khuôn `docs/day18/coach-eval-harness-spec.md`.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Đối chiếu lại 3 điều kiện nghiệm thu của đề bài với kết quả chạy thật:
+
+1. Không publish tự động: xác nhận bằng cách đọc lại `run-pipeline.ts`,
+   không có bất kỳ lệnh gọi `ExerciseModel`/MongoDB nào.
+2. Reference solution pass mọi test: 10/10 bài đạt sau khi sửa lỗi ở Việc 5.
+3. Kiểm tra trùng lặp thủ công hoặc semantic: 7/10 bài không có cảnh báo,
+   3/10 bài (nhóm palindrome) được gắn cờ nghi vấn đúng, chờ người review
+   quyết định cuối cùng.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: bàn giao "10 bài qua pipeline" không có nghĩa 10/10 bài phải
+sẵn sàng publish ngay — mục đích của validator là lọc ra bài nào cần sửa
+(3 bài palindrome trùng lặp) trước khi con người vào cuộc, đúng tinh thần
+"human-in-the-loop" trong kiến thức nhận lại của đề bài. Điều chưa chắc:
+chưa rõ ngày 20 sẽ cần những field nào từ `ProblemDraft`/`tags` để tính
+mastery — nếu ngày 20 cần thêm field, nên mở rộng `ProblemSpec`/`ProblemDraft`
+thay vì đổi shape hiện tại, để không phá vỡ pipeline đã chạy được.
+
+---
+
+## Việc 7: Thay stub bằng Gemini thật theo yêu cầu người dùng
+
+> **Prompt người dùng:** Sau khi xem stub chỉ chọn giữa 4 template cố định
+> ("nhưng mà cái này 10 bài cố sẵn thấy đề bảo tạo prompt"), người dùng yêu
+> cầu "cài gemini đi chứ, làm phải cho ra hồn xíu", sau đó "thêm dùm luôn đi
+> đã vibe thì biết đâu" (ý: tự thêm API key vào `.env` luôn, không cần hỏi
+> lại từng bước), và "dùng model nhẹ với giới hạn token thôi để dùng được
+> nhiều" khi model đầy đủ đầu tiên bị lỗi quá tải.
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Người dùng muốn tự tay chạy và kiểm thử ứng dụng thật trên trình duyệt, không chỉ tin vào kết quả kiểm thử tự động. Lỗi mã năm trăm xuất hiện khi dùng thật là một tín hiệu quan trọng cần điều tra ngay, có thể liên quan tới thay đổi vừa làm ở Việc 2.
+Người dùng đúng: dù đề bài không bắt buộc gọi LLM thật, việc dùng thuần
+template cố định khiến "10 bài qua pipeline" thực chất chỉ là 4 dạng bài
+lặp lại theo từ khóa, không phản ánh đúng tinh thần "generative assessment"
+của đề bài. Cần thay `StubProblemGeneratorClient` bằng một client gọi
+Gemini thật, giữ nguyên interface `ProblemGeneratorLlmClient` để
+`problem-validator.ts` và `run-pipeline.ts` không phải sửa.
+
+### Sự cố cần ghi nhận: API key bị dán vào chat
+
+Khi hỏi người dùng lấy Gemini API key tại aistudio.google.com/apikey, người
+dùng dán một chuỗi bắt đầu bằng `AQ.Ab8...` vào chat. Nhận định ban đầu: đây
+không đúng định dạng `AIzaSy...` quen thuộc của Gemini key cũ, nên cảnh báo
+đây có thể là access token OAuth, khuyên không dùng và đề nghị thu hồi
+quyền tại myaccount.google.com/permissions. Người dùng dán lại chuỗi đó
+thêm 2 lần nữa kèm ảnh chụp màn hình trang "API key details" thật của
+Google AI Studio (có nhãn "Gemini API Key", tên project rõ ràng) — xác nhận
+đây đúng là Gemini key thật, chỉ là Google đã đổi sang định dạng tiền tố
+mới `AQ.` mà nhận định ban đầu không biết tới. Đã xin lỗi vì cảnh báo nhầm.
+Vẫn giữ khuyến nghị nên tạo lại key mới vì đã xuất hiện trong lịch sử chat
+nhiều lần; người dùng chọn dùng luôn key cũ. Key được tự thêm vào
+`learning-hub/BE/.env` (đã xác nhận trước đó nằm trong `.gitignore`), không
+gõ giá trị key vào bất kỳ file code nào.
 
 ### Context, tài liệu, file, constraint đã cung cấp
 
-Context là đoạn nhật ký lỗi trình duyệt người dùng dán vào, và dữ liệu thật đang có trong cơ sở dữ liệu Mongo của người dùng.
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Chỉ dẫn chính từ tin nhắn 1 và 2. Vòng phản hồi quan trọng: sau khi đề xuất phương án khởi động lại máy chủ giao diện, người dùng xác nhận đồng ý qua lựa chọn trong danh sách gợi ý ở tin nhắn 3.
+Không có tài liệu ngoài. Ràng buộc tự đặt ra: không tự fallback âm thầm về
+stub khi Gemini lỗi (để tránh một bài "trông như AI sinh thật" nhưng thực
+chất là template giả mà không ai biết) — nếu gọi lỗi không phục hồi được,
+ném lỗi rõ ràng và dừng pipeline.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Viết một kịch bản gỡ lỗi tạm thời kết nối trực tiếp tới cơ sở dữ liệu Mongo để tìm nguyên nhân, sau đó loại bỏ hoàn toàn tệp này sau khi xác nhận sửa đúng, vì nó chỉ phục vụ chẩn đoán một lần.
-
-Sửa hàm assertContextHasNoForbiddenData tại tệp coach policy. Phần bị loại bỏ: đoạn quét toàn bộ nội dung ngữ cảnh đã chuyển thành chuỗi ký tự bao gồm cả lịch sử hội thoại tự do. Phần được giữ lại và chỉnh sửa: chỉ quét phần dữ liệu có cấu trúc do hệ thống tự ráp từ cơ sở dữ liệu, gồm thông tin bài tập và gợi ý đã mở. Lý do loại bỏ phần quét lịch sử hội thoại: một câu chữ xuất hiện trong hội thoại tự do không đồng nghĩa với việc trường dữ liệu cấm đó đã thực sự lọt vào ngữ cảnh, quét cả phần đó gây chặn nhầm vĩnh viễn mọi tin nhắn sau đó trên cùng bài tập.
+- Cài package `@google/genai` (SDK chính thức hiện tại của Google cho
+  Gemini API, thay `@google/generative-ai` cũ đã deprecated).
+- Tạo `problem-prompt-builder.ts`: `buildProblemPrompt(spec)` ghép learning
+  outcome/level/constraints/tags thành prompt text thật — đúng nghĩa đen
+  yêu cầu đề bài "Tạo prompt từ learning outcome, level, constraints", tách
+  riêng để cả Gemini client lẫn validation report đều dùng chung một nguồn.
+- Tạo `problem-generator-gemini.client.ts`: `GeminiProblemGeneratorClient`
+  implement `ProblemGeneratorLlmClient`, dùng `responseSchema` (Structured
+  Output) để ép Gemini trả JSON đúng shape thay vì tự parse text lộn xộn.
+  Có `callWithRetry()` retry tối đa 3 lần, chỉ với lỗi 503 (quá tải)/429
+  (rate limit) — không retry lỗi khác vì thử lại vô ích. Model đổi 2 lần
+  theo phản hồi thực tế: `gemini-2.5-flash` (lỗi 404, model đã bị Google
+  deprecated) → `gemini-3.8-flash` (lỗi 503 liên tục, quá tải) →
+  `gemini-flash-lite-latest` theo yêu cầu người dùng dùng model nhẹ, kèm
+  `maxOutputTokens=2048` để tiết kiệm quota.
+- Sửa `run-pipeline.ts`: thêm `buildClient()` chọn
+  `GeminiProblemGeneratorClient` khi có `GEMINI_API_KEY` trong env (đọc qua
+  `dotenv.config()`), rơi về `StubProblemGeneratorClient` nếu không có key
+  — để máy/CI không có key vẫn chạy được. Chạy tuần tự (không `Promise.all`)
+  để không vượt rate limit khi gọi gần đồng thời. Report ghi thêm dòng
+  "Generator client" và toàn bộ prompt đã dùng cho mỗi bài, để người review
+  đối chiếu input với output thật.
+- `StubProblemGeneratorClient` (Việc 3) được giữ nguyên, không xoá — vẫn là
+  client mặc định cho toàn bộ `*.spec.ts` (để test đơn vị chạy offline,
+  không tốn quota Gemini mỗi lần `npx jest`).
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Lỗi AI mắc phải: hàm assertContextHasNoForbiddenData viết ở phiên làm việc trước quét quá rộng, không phân biệt được dữ liệu có cấu trúc với văn bản tự do trong lịch sử hội thoại. Cách phát hiện: đọc nhật ký backend thấy lỗi ném ra từ đúng hàm này, sau đó dùng kịch bản gỡ lỗi kết nối trực tiếp cơ sở dữ liệu thật để xác nhận chính tin nhắn chèn lệnh giả mạo người dùng vừa gõ có chứa nguyên văn từ solutionCode, đã bị lưu vào lịch sử hội thoại và gây lỗi ở lượt trò chuyện kế tiếp.
+Chạy `npm run generate:problems` nhiều lần, tự log lại từng lỗi thật gặp
+phải thay vì chỉ báo cáo lần chạy thành công cuối cùng:
 
-Thêm một trường hợp kiểm thử hồi quy trong tệp coach policy spec xác nhận hàm không ném lỗi khi chỉ có lịch sử hội thoại nhắc tới từ solutionCode. Chạy lại kịch bản gỡ lỗi để xác nhận trực tiếp trên chính dữ liệu Mongo thật của người dùng, kết quả hàm không còn ném lỗi dù lịch sử cũ vẫn còn nguyên câu chữ đó.
+1. Lần 1 (`gemini-2.5-flash`): lỗi 404 — model đã bị Google gỡ khỏi API cho
+   người dùng mới, thông báo lỗi trực tiếp đề nghị đổi sang
+   `gemini-3.8-flash`.
+2. Lần 2-3 (`gemini-3.8-flash`): lỗi 503 "high demand" liên tục — model
+   đúng nhưng quá tải, không phải lỗi code.
+3. Lần 4 (`gemini-flash-lite-latest`, chưa có retry): sinh được 3/10 bài
+   (spec-01 đến spec-03) rồi dừng ở spec-04 vì 503 — xác nhận model nhẹ gọi
+   được nhưng vẫn cần retry.
+4. Lần 5 (sau khi thêm `callWithRetry`): chạy trọn 10/10 request thành công,
+   không còn exception nào giữa chừng.
+
+Kết quả validate 10 bài do Gemini sinh: 7/10 reference solution pass mọi
+test, 0/10 bị cảnh báo trùng lặp (khác hẳn bản stub trước đó luôn dính
+3/10 trùng vì lặp cùng 1 template). 3 bài fail có nguyên nhân cụ thể, đọc
+trực tiếp từ report:
+
+- spec-07: `solutionCode` Gemini trả về chứa chuỗi `\n` bị hỏng thành 2 ký
+  tự literal `\` và `n` thay vì xuống dòng thật ở một số đoạn, khiến
+  `checkPythonSyntax()` báo `SyntaxError: unexpected character after line
+  continuation character` — bắt được TRƯỚC khi chạy test, đúng thiết kế
+  validator.
+- spec-08, spec-09: cú pháp hợp lệ nhưng `expectedOutput` Gemini tự tính
+  không khớp kết quả thật khi chạy `solutionCode` qua `runPythonCode()` —
+  đúng loại lỗi mà điều kiện nghiệm thu "reference solution pass mọi test"
+  được đặt ra để chặn.
+
+Chạy lại toàn bộ test suite backend (dùng stub, không gọi Gemini) để xác
+nhận không có regression:
 
 ```
-npx tsc --noEmit
-npx jest --silent
+npx jest
 ```
 
-Kết quả: không lỗi kiểu, toàn bộ trường hợp kiểm thử đều đạt.
+Kết quả: 24/24 test suite, 202/202 test đạt — không đổi so với trước khi
+thêm Gemini, vì các spec hiện có cố tình không phụ thuộc network/API key.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: toàn bộ trường hợp kiểm thử tự động ở Việc 3 đều dùng ngữ cảnh giả lập sạch sẽ, không mô phỏng đúng tình huống một câu chữ nhạy cảm bị lưu lại trong lịch sử hội thoại thật rồi quay lại ảnh hưởng tới lượt sau, nên không hề bắt được lỗi này. Chỉ có việc người dùng tự chạy ứng dụng thật mới phát hiện ra. Điều chưa chắc: chưa rõ còn tình huống thật nào khác tương tự, nơi kiểm thử tự động dùng dữ liệu giả lập không phản ánh đúng dữ liệu tích lũy qua thời gian trong hệ thống thật. Thay đổi cho lần sau: cân nhắc thêm ít nhất một trường hợp kiểm thử mô phỏng lịch sử hội thoại có chứa từ khóa nhạy cảm vào chính bộ một trăm trường hợp của harness, để lớp bảo vệ tự động cũng bắt được dạng lỗi này mà không cần chờ người dùng tự phát hiện.
+Điều học được: validator viết ở Việc 4 (dựa hoàn toàn trên chạy code thật,
+không tin nội dung LLM trả về) chứng minh giá trị rõ nhất ở chính bước này
+— khi đổi từ stub sang LLM thật, tỷ lệ lỗi tăng lên (10/10 → 7/10) đúng như
+dự đoán tự nhiên (LLM không đảm bảo đúng 100%), và hệ thống bắt được đúng
+loại lỗi mà một pipeline sinh đề tự động cần bắt (cú pháp hỏng, sai đáp
+án) — không phải sửa gì thêm ở validator, chỉ cần đổi client sinh đề. Điều
+học được thứ hai, ngoài phạm vi kỹ thuật: xử lý sai một tín hiệu bảo mật
+(nhận định sai định dạng key) vẫn tốt hơn bỏ qua cảnh báo, nhưng cần xác
+minh bằng bằng chứng cụ thể (ảnh chụp màn hình nguồn gốc) trước khi kết
+luận chắc chắn, thay vì giữ nguyên phán đoán ban đầu khi có bằng chứng mới
+mâu thuẫn với nó. Điều chưa chắc: `gemini-flash-lite-latest` là model nhẹ
+nhất hiện có nhưng vẫn có thể đổi tên/bị deprecate trong tương lai gần
+(đã xảy ra 2 lần chỉ trong một phiên làm việc) — nên coi tên model là cấu
+hình dễ đổi, không hard-code giả định nó ổn định lâu dài.
 
 ---
 
-## Việc 6: Sửa giao diện phần AI Coach theo phản hồi thực tế
+## Việc 8: Thêm API cho giáo viên tự nhập, sinh nhiều bài, lưu vào ngân hàng đề
 
-> **Prompt người dùng, tin nhắn 1:** Đã trích ở Việc 5 vì gửi chung với đoạn nhật ký lỗi mã năm trăm, nội dung về trải nghiệm chưa tốt của phần phân tích lỗi và hỏi đáp bài tập.
->
-> **Prompt người dùng, tin nhắn 2, kèm một ảnh chụp màn hình:** Phản ánh rằng khối kết quả phân tích lỗi che hết khung trò chuyện mà không có nút đóng, và nút phân tích lỗi vẫn dùng được dù đã vượt quá giới hạn số lần sử dụng.
->
-> **Prompt người dùng, tin nhắn 3:** Phản hồi rằng giới hạn vẫn bị vượt qua sau khi đã sửa, kèm bằng chứng vừa gửi thử nghiệm lần thứ mười.
->
-> **Prompt người dùng, tin nhắn 4:** Phản ánh rằng mỗi lần gửi tin nhắn xong, màn hình tự cuộn trượt xuống, phải kéo tay lên lại rất khó chịu.
+> **Prompt người dùng, viết lại cho rõ ý từ nội dung trao đổi thực tế:**
+> Pipeline hiện tại chỉ chạy được bằng dòng lệnh với 10 spec cố định sẵn
+> trong code, giáo viên không rành kỹ thuật sẽ không dùng được. Yêu cầu bổ
+> sung một giao diện cho giáo viên tự nhập learning outcome, chọn mức độ,
+> nhập ràng buộc, sinh được một hoặc nhiều bài cùng lúc, xem kết quả kèm
+> trạng thái kiểm tra, và có nút lưu riêng cho từng bài đạt yêu cầu vào hệ
+> thống bài tập thật.
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Có ba vấn đề giao diện riêng biệt, gồm khối phân tích lỗi che khung chat không có nút đóng, nút phân tích lỗi vẫn dùng được dù đã vượt giới hạn vòng lặp, và khung chat tự cuộn kéo theo cả trang mỗi lần gửi tin nhắn.
-
-### Context, tài liệu, file, constraint đã cung cấp
-
-Context là ảnh chụp màn hình người dùng gửi ở tin nhắn 2, cho thấy trực quan lỗi giao diện.
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Vòng phản hồi 1: sửa theo tin nhắn 2, thêm nút đóng và giới hạn chiều cao khối phân tích lỗi. Vòng phản hồi 2: người dùng báo lại ở tin nhắn 3 rằng vẫn vượt được giới hạn sau khi đã sửa, buộc phải điều tra sâu hơn và dùng công cụ hỏi người dùng để xác nhận hướng sửa ở tầng backend thay vì chỉ sửa giao diện. Vòng phản hồi 3: sửa theo tin nhắn 4, một vấn đề giao diện độc lập khác.
+Cần tách rõ hai việc: sinh xem trước (không đổi trạng thái hệ thống) và
+lưu chính thức (ghi vào cơ sở dữ liệu thật). Việc lưu chỉ được thực hiện
+khi người dùng chủ động bấm, không được tự động, và phải tự kiểm tra lại
+điều kiện đạt ngay tại backend, không tin dữ liệu phía trình duyệt gửi
+lên.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Cho tin nhắn 2, sửa tệp CoachPanel. Phần giữ lại: toàn bộ cấu trúc hiển thị kết quả phân tích lỗi. Phần thêm mới: một nút đóng cho khối kết quả phân tích, giới hạn chiều cao khối này kèm thanh cuộn riêng, và điều kiện khóa nút phân tích khi cờ chạm giới hạn bật lên. Lý do: khối hiển thị cũ không có nút đóng nào, chỉ tự biến mất khi đổi bài tập hoặc có lần nộp mới, và nút phân tích chỉ khóa theo trạng thái đang tải chứ không theo cờ giới hạn.
+Thêm module backend mới gồm `problem-generator.module.ts`,
+`problem-generator.controller.ts`, `problem-generator.service.ts`, và thư
+mục `dto`. Route sinh bài nhận một mảng specs thay vì một spec đơn, giới
+hạn tối đa mười bài một lần gọi, chạy tuần tự để không vượt giới hạn tốc
+độ gọi của Gemini. Route lưu bài nhận một bản nháp, chạy lại toàn bộ kiểm
+tra ở tầng backend trước khi ghi, từ chối nếu chưa đạt hoặc trùng đường
+dẫn định danh với bài đã có.
 
-Cho tin nhắn 3, sửa hàm debugLoop trong tệp coach service. Phần loại bỏ: cách chặn cũ chỉ mang tính khuyến nghị ở phần nội dung trả về, không thực sự từ chối yêu cầu. Phần thêm mới: điều kiện nếu số lần thử liên tiếp chưa đạt đã lớn hơn hoặc bằng ngưỡng tối đa thì ném lỗi từ chối ngay, không tính toán tiếp. Cập nhật thêm tệp CoachPanel để bắt đúng lỗi từ chối này và khóa nút vĩnh viễn cho tới khi có lần nộp bài mới. Lý do loại bỏ cách cũ: số lần thử được máy chủ tự tính lại từ dữ liệu thật trong cơ sở dữ liệu mỗi lần gọi, nhưng trạng thái khóa nút ở giao diện lại bị đặt lại mỗi khi có lần nộp bài mới, nên người dùng chỉ cần nộp lại bài rồi bấm tiếp là vượt qua được cơ chế khuyến nghị cũ.
-
-Cho tin nhắn 4, sửa tệp CoachPanel. Phần loại bỏ: cách gọi hàm scrollIntoView trên một phần tử rỗng ở cuối danh sách tin nhắn. Phần thêm mới: gắn tham chiếu trực tiếp lên chính khối chứa danh sách tin nhắn và tự đặt giá trị cuộn của khối đó. Lý do loại bỏ cách cũ: hàm scrollIntoView có thể kéo theo bất kỳ phần tử cha nào có thanh cuộn riêng, không giới hạn đúng trong phạm vi khung trò chuyện, khiến cả trang bị cuộn theo ngoài ý muốn.
+Thêm trang giao diện `TeacherProblemGeneratorPage.tsx`, cho phép thêm bớt
+nhiều dòng nhập liệu, hiển thị kết quả từng bài kèm danh sách trường hợp
+kiểm tra đạt hay không đạt, và nút lưu riêng cho từng bài, chỉ bật khi bài
+đó đã đạt điều kiện.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Lỗi AI mắc phải ở lần sửa đầu cho tin nhắn 2: chỉ sửa giao diện mà chưa nhận ra gốc rễ nằm ở backend, khiến người dùng vẫn vượt được giới hạn ở tin nhắn 3. Cách phát hiện: người dùng tự tay thử lại và báo trực tiếp rằng vẫn vượt được, không phải AI tự phát hiện ra thiếu sót này.
-
-| Tin nhắn | Lệnh chạy | Kết quả |
-|---|---|---|
-| 3 | npx tsc --noEmit và npx jest --silent | không lỗi, toàn bộ trường hợp đạt, thêm hai trường hợp kiểm thử mới xác nhận chặn cứng và không chặn nhầm khi đã đạt |
-| 4 | công cụ kiểm tra kiểu chữ và quy tắc mã nguồn của giao diện | không phát sinh lỗi nào liên quan tới tệp CoachPanel |
+Gọi trực tiếp các route mới bằng lệnh gọi mạng thật với tài khoản giáo
+viên có sẵn trong dữ liệu mẫu, xác nhận sinh nhiều bài trong một lần gọi
+thành công, lưu một bài đạt thành công và xuất hiện ngay ở đường dẫn công
+khai dành cho học viên, từ chối lưu khi bài chưa đạt hoặc khi trùng đường
+dẫn định danh. Chạy toàn bộ bộ kiểm thử sẵn có của backend, không phát
+sinh lỗi mới.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: một cơ chế giới hạn chỉ đặt ở giao diện, dựa vào trạng thái có thể bị đặt lại, không phải một cơ chế chặn thật, phải luôn có một lớp chặn cứng ở phía máy chủ dựa trên dữ liệu không thể bị người dùng thao túng. Điều chưa chắc: chưa kiểm thử giao diện này trên nhiều kích thước màn hình khác nhau, chỉ xác nhận qua ảnh chụp người dùng gửi và mô tả bằng lời. Thay đổi cho lần sau: khi sửa giao diện dựa trên mô tả bằng lời hoặc ảnh chụp tĩnh, nên hỏi lại người dùng xác nhận trực tiếp trên trình duyệt thật sau khi sửa, thay vì chỉ tin vào kết quả kiểm tra kiểu chữ và quy tắc mã nguồn.
+Điều học được: tách hành động xem trước và hành động lưu thành hai lệnh
+gọi riêng, cùng với việc backend tự kiểm tra lại điều kiện đạt thay vì tin
+dữ liệu từ trình duyệt, là cách chắc chắn nhất để giữ đúng nguyên tắc
+không tự động đưa bài chưa kiểm chứng vào hệ thống thật.
 
 ---
 
-## Việc 7: Thêm câu trả lời mặc định cho lời chào đơn giản
+## Việc 9: Thêm chức năng chọn bài từ ngân hàng đề trong trang Soạn Thảo Bài Thi
 
-> **Prompt người dùng:** Yêu cầu thêm một câu trả lời mặc định cho lời chào đơn giản kiểu hỏi thăm có thể giúp gì, với ràng buộc quan trọng là hành vi trả lời mặc định này phải tiếp tục hoạt động cả khi ngày mai gắn giao diện lập trình ứng dụng của Gemini vào, để không tốn hạn mức gọi mô hình cho những câu chào không cần thiết.
+> **Prompt người dùng, viết lại cho rõ ý từ nội dung trao đổi thực tế:**
+> Trang Soạn Thảo Bài Thi dùng để tạo bài học cho học viên hiện chưa có
+> cách nào lấy lại nội dung từ những bài đã tạo trước đó hoặc từ những bài
+> sinh bằng công cụ hỗ trợ AI, mọi trường nhập liệu đều phải gõ lại từ đầu.
+> Yêu cầu thêm khả năng chọn một bài có sẵn để nạp sẵn nội dung vào biểu
+> mẫu soạn thảo.
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Yêu cầu không chỉ đơn giản là thêm một câu trả lời cho lời chào, mà còn có ràng buộc quan trọng là hành vi này phải tồn tại độc lập với việc ngày mai đổi sang gọi mô hình Gemini thật, nghĩa là vị trí đặt logic quyết định việc có đạt được mục tiêu tiết kiệm hạn mức hay không.
-
-### Context, tài liệu, file, constraint đã cung cấp
-
-Context là kiến trúc CoachService và StubLlmClient đã biết từ các việc trước. Constraint quan trọng nhất: hành vi phải giữ nguyên bất kể ngày 19 đổi sang client gọi Gemini nào.
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Vòng phản hồi quan trọng: dùng công cụ hỏi người dùng để xác nhận vị trí đặt logic trước khi viết, giữa hai phương án đặt ở tầng CoachService trước khi gọi LlmClient, hoặc đặt bên trong StubLlmClient. Người dùng chọn phương án đặt ở tầng CoachService.
+Cần một điểm truy cập backend riêng dành cho giáo viên, trả về đầy đủ nội
+dung bài tập bao gồm cả lời giải và toàn bộ trường hợp kiểm tra, khác với
+điểm truy cập công khai dành cho học viên vốn phải che giấu lời giải và
+trường hợp kiểm tra ẩn.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Tạo mới tệp coach canned replies, chứa hàm detectGreeting nhận diện lời chào đơn giản bằng biểu thức chính quy, chỉ khớp khi gần như toàn bộ câu là lời chào, và hàm buildGreetingReply trả về một câu chào có nhắc tên bài tập hiện tại kèm lời mời hỏi tiếp.
-
-Sửa tệp coach service, gắn hai hàm này vào, kiểm tra ngay sau bước ghi log tin nhắn người dùng và trước bước gọi tới llmClient chat. Toàn bộ được giữ lại nguyên vẹn. Lý do không đặt trong StubLlmClient: nếu đặt trong StubLlmClient thì logic này sẽ biến mất ngay khi ngày 19 thay StubLlmClient bằng một client gọi mô hình thật, không đạt được mục tiêu tiết kiệm hạn mức mà người dùng nêu rõ trong yêu cầu.
+Thêm route lấy chi tiết đầy đủ theo đường dẫn định danh, chỉ giáo viên gọi
+được, đặt trước route công khai đã có để không bị route đó nhận nhầm.
+Thêm hộp thoại chọn bài trong trang Soạn Thảo, tải danh sách bài mỗi lần
+mở để luôn thấy bài mới nhất, có ô tìm kiếm theo tên hoặc đường dẫn định
+danh. Chọn một bài sẽ tạo bản sao mới trong biểu mẫu, không ghi đè bài
+gốc.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Viết tệp coach canned replies spec với mười sáu trường hợp: chín câu chào phải nhận diện được, sáu câu chứa từ chào nhưng có nội dung hỏi thêm không được nhận nhầm, một kiểm tra nội dung câu trả lời có nhắc đúng tên bài tập. Thêm một trường hợp tích hợp trong coach service spec xác nhận mockLlmClient chat không được gọi khi tin nhắn là lời chào.
+Xác nhận bằng lệnh gọi mạng thật rằng giáo viên xem được đầy đủ lời giải,
+học viên chưa đăng nhập bị từ chối, tài khoản học viên đã đăng nhập cũng
+bị từ chối. Trong lúc người dùng thử trên giao diện thật, phát hiện ô tìm
+kiếm chỉ gõ được đúng một ký tự rồi mất con trỏ nhập liệu.
 
-```
-npx tsc --noEmit
-npx jest --silent
-```
+**Lỗi AI mắc phải:** nguyên nhân nằm ở một hàm dùng chung xử lý việc giữ
+tiêu điểm bàn phím trong hộp thoại, nhận vào một hàm gọi lại để đóng hộp
+thoại. Hàm gọi lại này được truyền vào dưới dạng một hàm viết tại chỗ,
+nên có một giá trị mới mỗi lần thành phần cha vẽ lại. Mỗi lần gõ một ký
+tự vào ô tìm kiếm, thành phần cha vẽ lại, hàm gọi lại có giá trị mới, làm
+đoạn xử lý bên trong chạy lại và ép tiêu điểm bàn phím quay về phần tử
+đầu tiên trong hộp thoại, không còn ở ô tìm kiếm nữa. Lỗi này vốn đã tồn
+tại tiềm ẩn trong hàm dùng chung từ trước, chỉ lộ ra khi thêm ô nhập liệu
+đầu tiên vào một hộp thoại dùng hàm này.
 
-Kết quả: không lỗi kiểu, hai mươi hai bộ kiểm thử đạt với một trăm chín mươi bốn trường hợp đạt. Không phát hiện lỗi AI nào ở việc này, các trường hợp kiểm thử đạt ngay từ lần chạy đầu tiên.
+Đã sửa bằng cách giữ hàm gọi lại mới nhất trong một tham chiếu không kích
+hoạt vẽ lại, để đoạn xử lý giữ tiêu điểm không còn phụ thuộc vào giá trị
+hàm gọi lại thay đổi mỗi lần vẽ lại. Xác nhận lại bằng việc đọc lại đoạn
+mã sau khi sửa, chưa có điều kiện kiểm thử tự động riêng cho hành vi bàn
+phím này.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: khi một yêu cầu có ràng buộc về việc tồn tại qua một thay đổi kiến trúc tương lai, phải hỏi rõ vị trí đặt logic trước khi viết, không tự chọn vị trí thuận tiện nhất trong hiện tại. Điều chưa chắc: chưa rõ tập lời chào tiếng Việt hiện tại đã đủ bao quát các cách chào phổ biến khác của học viên hay chưa. Thay đổi cho lần sau: khi ngày 19 gắn Gemini thật vào, cần chạy lại đúng bộ kiểm thử coach canned replies spec để xác nhận lời chào vẫn không lọt tới mô hình thật, coi đây là một trường hợp kiểm thử hồi quy bắt buộc.
+Điều học được: một hàm dùng chung được viết đúng cho các trường hợp dùng
+trước đó không có nghĩa là đúng cho mọi trường hợp dùng sau này, đặc biệt
+khi trường hợp mới thêm một ô nhập liệu cần giữ tiêu điểm liên tục, đây
+là kiểu lỗi chỉ lộ ra khi có người dùng thật gõ liên tục, khó thấy qua
+đọc mã tĩnh.
 
 ---
 
-## Việc 8: Tự rà soát lại toàn bộ công việc trong ngày và bổ sung phần còn thiếu
+## Việc 10: Sửa lỗi lưu bài trắc nghiệm báo thành công giả và lỗi thao tác nhầm khi đổi loại bài học
 
-> **Prompt người dùng:** Yêu cầu kiểm tra lại toàn bộ nhiệm vụ trong ngày xem có sai sót hay thiếu sót gì không, kèm dán lại nguyên văn nội dung nhiệm vụ ngày 18 một lần nữa để đối chiếu. Người dùng dặn thêm ba yêu cầu về hình thức tài liệu: nếu công việc phát sinh yêu cầu tài liệu thì phải ghi vào thư mục tài liệu riêng của ngày 18, tệp AI worklog phải ghi lại đầy đủ chi tiết, và phần trích dẫn yêu cầu của người dùng phải ghi thẳng nguyên văn thay vì diễn giải lại kiểu tường thuật gián tiếp, đồng thời không dùng ký tự đặc biệt, không dùng ngôn ngữ ngoài tiếng Việt, không dùng dấu gạch ngang.
+> **Prompt người dùng, viết lại cho rõ ý từ nội dung trao đổi thực tế:**
+> Trang Soạn Thảo Bài Thi khó sử dụng đối với người mới, không có cách nào
+> lấy bài từ ngân hàng đề, các trường nhập liệu khi tạo bài mới đều trống,
+> và đặc biệt phần tạo câu hỏi trắc nghiệm có vẻ không hoạt động được nữa.
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Đây là yêu cầu tự kiểm tra độc lập, không phải tin tưởng vào báo cáo đã tự viết trước đó là đã hoàn chỉnh. Cần đối chiếu lại từng điều kiện nghiệm thu của đề bài gốc với thực tế đã làm, và viết lại tài liệu theo đúng định dạng nêu ra.
-
-### Context, tài liệu, file, constraint đã cung cấp
-
-Context là toàn bộ tám việc đã làm trong ngày và bốn điều kiện nghiệm thu gốc của đề bài ngày 18. Constraint mới về định dạng tài liệu như đã nêu ở trên.
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Chỉ dẫn chính: tự rà soát, không chờ người dùng chỉ ra lỗi. Đây là vòng phản hồi có tính chất khác các việc trước, vì không có một lỗi cụ thể nào được người dùng chỉ ra trước, mà là yêu cầu tự đối chiếu để tìm ra lỗi hoặc thiếu sót nếu có.
+Yêu cầu gồm nhiều ý khác nhau, cần khảo sát kỹ trước khi kết luận đâu là
+lỗi thật cần sửa và đâu là hạn chế thiết kế đã có từ trước. Dùng một tác
+vụ đọc mã nguồn riêng để khảo sát toàn bộ trang Soạn Thảo Bài Thi trước
+khi quyết định.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Tự đối chiếu bốn điều kiện nghiệm thu, phát hiện điều kiện thứ tư, chạy regression theo prompt hoặc phiên bản mô hình, chưa làm đầy đủ. Phát hiện thêm tệp coach eval runner đang chép tay một bản riêng của câu lệnh hệ thống thay vì lấy lại từ tệp coach service.
+Kết quả khảo sát cho thấy phần lưu bài, khi gọi máy chủ thất bại vì bất
+kỳ lý do gì như hết phiên đăng nhập, trùng đường dẫn định danh, hay mất
+kết nối, đều bị bắt lỗi rồi hiển thị thông báo lưu thành công kèm chữ lưu
+cục bộ, trong khi dữ liệu chỉ tồn tại tạm trong bộ nhớ trình duyệt, tải
+lại trang là mất hoàn toàn. Đây chính là nguyên nhân khiến người dùng cảm
+thấy phần trắc nghiệm không dùng được, vì bài tưởng đã lưu thực chất chưa
+từng được ghi vào cơ sở dữ liệu.
 
-Sửa các vấn đề này:
+Sửa lại để hiển thị đúng thông báo lỗi thật khi gọi máy chủ thất bại,
+không còn nhánh giả vờ thành công. Áp dụng sửa tương tự cho thao tác xóa
+bài.
 
-1. Xuất câu lệnh hệ thống từ tệp coach service. Phần loại bỏ: bản chép tay riêng trong tệp coach eval runner. Phần giữ lại và chỉnh sửa: tệp coach eval runner nhập lại đúng nguyên văn từ coach service. Lý do: tránh rủi ro hai bản lệch nhau theo thời gian mà không ai biết.
-2. Thêm hàm getEvalRunVersion tại tệp coach eval runner, trả về một mã băm ngắn tính từ nội dung câu lệnh hệ thống cùng tên lớp mô hình đang dùng.
-3. Thêm trường runVersion vào kiểu dữ liệu EvalSummary.
-4. Sửa script generate baseline report, ngoài tệp báo cáo mới nhất luôn bị ghi đè, thêm việc lưu một bản vào thư mục reports history đặt tên theo mã băm và tên lớp mô hình, không bị ghi đè giữa các lần chạy khác phiên bản.
-5. Thêm một trường hợp kiểm thử mới trong coach eval spec xác nhận trường runVersion được gắn đúng định dạng.
+Cũng phát hiện thêm một lỗi kỹ thuật khác trong lúc đọc mã: khi cập nhật
+đáp án đúng cho câu hỏi trắc nghiệm, đoạn mã thay đổi trực tiếp vào đối
+tượng dữ liệu cũ thay vì tạo bản sao mới, vi phạm nguyên tắc không thay
+đổi trực tiếp trạng thái giao diện, có thể gây hành vi khó đoán khi dữ
+liệu đó đang được hiển thị đồng thời ở nơi khác trên trang. Đã sửa để
+luôn tạo bản sao mới ở mọi cấp dữ liệu lồng nhau.
 
-Tạo mới tài liệu tại `learning-hub/docs/day18/coach-eval-harness-spec.md`, theo đúng văn phong tài liệu kỹ thuật đã có sẵn ở các ngày trước trong cùng thư mục. Viết lại toàn bộ tệp AI worklog theo đúng yêu cầu định dạng, thay thế hoàn toàn bản cũ, vì bản cũ được viết trước khi có yêu cầu định dạng cụ thể này.
+Thêm xác nhận trước khi đổi loại bài học từ lập trình sang trắc nghiệm
+hoặc ngược lại, chỉ hỏi khi đang có nội dung thật sẽ bị xóa, tránh mất dữ
+liệu do bấm nhầm. Đồng thời cấp lại đường dẫn định danh mới mỗi lần đổi
+loại, vì đường dẫn định danh mặc định của biểu mẫu trống dễ trùng với bài
+mẫu có sẵn trong hệ thống, gây lỗi trùng khi xuất bản mà trước đây bị che
+giấu bởi lỗi báo thành công giả.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Lỗi AI mắc phải: khi hoàn thành Việc 3 và tự báo cáo, đã kết luận điều kiện chạy regression theo phiên bản là đạt, nhưng thực tế chưa có cơ chế ghi lại phiên bản nào cả, chỉ là một lời khẳng định không có bằng chứng đi kèm. Cách phát hiện: chỉ xảy ra khi được yêu cầu tường minh phải tự rà soát lại, không phải AI tự nhận ra thiếu sót này trong lúc làm Việc 3.
-
-Chạy trong thư mục backend:
-
-```
-npx tsc --noEmit
-npx jest coach
-npx jest --silent
-npm run eval:coach
-```
-
-Kết quả lần lượt: không lỗi kiểu; tám bộ kiểm thử đạt với chín mươi hai trường hợp đạt; hai mươi hai bộ kiểm thử đạt với một trăm chín mươi lăm trường hợp đạt; báo cáo nền một trăm trên một trăm trường hợp đạt, có in mã băm phiên bản và tên lớp mô hình, có sinh thêm tệp trong thư mục reports history.
+Chạy toàn bộ bộ kiểm thử sẵn có của backend sau khi sửa, không phát sinh
+lỗi mới. Kiểm tra lại bằng mắt phần mã đã sửa, chưa có điều kiện kiểm thử
+tự động riêng cho luồng thao tác này ở phía giao diện.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: một báo cáo tự viết ngay sau khi hoàn thành công việc có xu hướng đánh giá lạc quan hơn thực tế, việc yêu cầu rà soát lại một cách độc lập sau đó là một bước cần thiết chứ không phải thừa. Điều chưa chắc: chưa rõ liệu còn điều kiện nghiệm thu nào khác bị đánh giá quá lạc quan mà lần rà soát này chưa phát hiện ra. Thay đổi cho lần sau: nên đưa việc tự đối chiếu từng điều kiện nghiệm thu với bằng chứng cụ thể, không chỉ bằng lời khẳng định, thành một bước bắt buộc ngay trong lúc làm việc, không đợi tới khi được yêu cầu rà soát riêng.
+Điều học được: một thông báo báo thành công sai sự thật nguy hiểm hơn một
+thông báo lỗi thật, vì người dùng sẽ tin tưởng và không tìm cách khác để
+hoàn thành công việc, trong khi dữ liệu thực chất chưa được lưu. Không có
+đủ thời gian trong ngày để tự thao tác kiểm tra trên trình duyệt thật,
+việc xác nhận các sửa đổi giao diện chủ yếu dựa vào đọc lại mã nguồn sau
+khi sửa và lệnh gọi mạng thật tới máy chủ, chưa phải xác nhận bằng thao
+tác chuột và bàn phím trực tiếp.
 
 ---
 
-## Việc 9: Kiểm tra lại toàn bộ từ đầu bằng cách chạy trực tiếp mọi lệnh, không tin vào báo cáo cũ
+## Việc 11: Sửa lỗi hai nơi lưu dữ liệu tách biệt khiến AI Coach không thấy bài mới xuất bản
 
-> **Prompt người dùng:** Yêu cầu kiểm tra lại tất cả nhiệm vụ trong ngày, xác nhận thật sự đúng và đã hoàn tất hết hay chưa.
+> **Prompt người dùng, viết lại cho rõ ý từ nội dung trao đổi thực tế:**
+> Sau khi tạo một bài mới bằng cách kết hợp bài sinh từ AI Tạo Đề và trang
+> Soạn Thảo Bài Thi rồi xuất bản, mở bài đó trong khu vực luyện tập lập
+> trình và hỏi AI Coach thì nhận được thông báo không tìm thấy bài tập.
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Đây là lần rà soát thứ hai trong ngày, khác với Việc 8 ở chỗ Việc 8 chỉ đối chiếu bốn điều kiện nghiệm thu bằng cách đọc lại code, còn lần này cần tự tay chạy lại toàn bộ lệnh kiểm thử, build, và các tài liệu đã viết để xác nhận bằng chứng thật, không dựa vào kết luận đã viết sẵn từ các việc trước.
+Cần xác định chính xác bài đang hỏi tồn tại ở đâu trong cơ sở dữ liệu
+trước khi kết luận nguyên nhân, không suy đoán.
 
 ### Context, tài liệu, file, constraint đã cung cấp
 
-Context là toàn bộ chín việc đã làm trong ngày, bao gồm cả các tệp tài liệu vừa viết ở Việc 8.
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Chỉ dẫn chính: kiểm tra lại tất cả, không giới hạn phạm vi cụ thể, nên tự quyết định mức độ kiểm tra cần thiết, bao gồm cả những phần chưa từng được xác minh trực tiếp trong ngày như lệnh build của cả hai phía backend và giao diện.
+Tra cứu trực tiếp trong cơ sở dữ liệu bằng đường dẫn định danh người dùng
+cung cấp, xác nhận bài này tồn tại trong tập hợp bài học của trang Soạn
+Thảo nhưng không tồn tại trong tập hợp bài tập mà khu vực luyện tập lập
+trình và AI Coach cùng đọc.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Chạy lại toàn bộ kiểm thử, kiểm tra kiểu, và quy tắc mã nguồn của backend, phát hiện hai vấn đề lint thật phát sinh từ các lần sửa trước đó trong ngày chưa được dọn sạch: tệp coach eval runner chưa được định dạng lại sau lần sửa gần nhất, và tệp coach policy còn một biến giải cấu trúc không dùng tới do cách viết cũ. Sửa cả hai: chạy công cụ định dạng tự động cho tệp thứ nhất, và với tệp thứ hai, thay cách giải cấu trúc bỏ một trường bằng cách xây dựng lại đối tượng tường minh chỉ với các trường cần giữ, tránh tạo ra một biến không dùng tới.
+Xác nhận nguyên nhân: hệ thống có hai nơi lưu bài tách biệt từ trước, một
+nơi phục vụ trang Soạn Thảo, một nơi phục vụ khu vực luyện tập lập trình
+và AI Coach. Xuất bản một bài ở trang Soạn Thảo trước đây chỉ ghi vào nơi
+thứ nhất.
 
-Chạy thử lệnh build của backend, thành công. Chạy thử lệnh build của giao diện, phát hiện thất bại với ba lỗi kiểu ở ba tệp không liên quan tới AI Coach. Để xác minh đây có phải lỗi do việc trong ngày gây ra hay không, tạm cất toàn bộ thay đổi trong ngày sang một nơi lưu trữ tạm, chạy lại lệnh build ở trạng thái sạch của nhánh, kết quả vẫn thất bại với đúng ba lỗi đó, xác nhận đây là lỗi có sẵn từ trước, không liên quan tới công việc ngày 18. Khôi phục lại toàn bộ thay đổi trong ngày sau khi xác minh xong.
+Thêm cơ chế đồng bộ: mỗi lần tạo mới hoặc cập nhật một bài loại lập trình
+ở trạng thái đã xuất bản tại trang Soạn Thảo, tự động ghi hoặc cập nhật
+bản tương ứng sang nơi thứ hai theo đường dẫn định danh. Xóa bài loại lập
+trình cũng xóa theo bản tương ứng ở nơi thứ hai. Việc đồng bộ thất bại chỉ
+ghi lại nhật ký lỗi, không làm hỏng thao tác chính của người dùng.
 
-Đọc lại toàn bộ tệp AI worklog đã viết ở Việc 8, phát hiện nhiều lệnh trong các khối mã minh họa bị viết sai cú pháp thật, ví dụ một lệnh của công cụ quản lý gói bị thiếu dấu hai chấm bắt buộc trong tên script, hai công cụ kiểm tra kiểu và kiểm thử bị viết bằng chữ thường thay vì đúng cờ dòng lệnh, và tên hai tệp kiểm thử bị viết cách nhau bằng khoảng trắng thay vì đúng tên tệp thật có dấu gạch ngang và dấu chấm. Nguyên nhân là do áp dụng quá cứng yêu cầu không dùng dấu gạch ngang vào cả phần mã lệnh kỹ thuật, vốn không phải văn xuôi và không thể đổi cú pháp mà vẫn chạy đúng. Sửa lại toàn bộ sáu khối mã lệnh trong tài liệu về đúng cú pháp thật, đã tự chạy thử từng lệnh để xác nhận trước khi ghi vào tài liệu.
+Đồng thời sửa danh sách bài hiển thị ở trang Soạn Thảo để gộp thêm những
+bài chỉ tồn tại ở nơi thứ hai, ví dụ bài lưu thẳng qua AI Tạo Đề chưa từng
+qua trang Soạn Thảo, để giáo viên xem và quản lý được đầy đủ từ một nơi.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Lỗi AI mắc phải, có hai loại. Một, hai lỗi quy tắc mã nguồn tồn đọng từ các lần sửa trước trong ngày mà không bước kiểm chứng nào trước đó phát hiện ra, vì các lần kiểm chứng trước chỉ chạy kiểm thử và kiểm tra kiểu, không chạy công cụ kiểm tra quy tắc mã nguồn trên đúng phạm vi tệp vừa sửa. Hai, nhiều lệnh minh họa trong tài liệu bị viết sai cú pháp do áp dụng máy móc một constraint về hình thức văn bản sang cả phần mã lệnh kỹ thuật, lẽ ra phải nhận ra ngay từ lúc viết rằng lệnh trong khối mã phải giữ nguyên cú pháp thật để người đọc copy chạy được.
+Xác nhận bằng lệnh gọi mạng thật: tạo và xuất bản một bài mới, kiểm tra
+ngay lập tức bài đó xuất hiện ở nơi thứ hai qua đường dẫn công khai dành
+cho học viên. Cập nhật tiêu đề bài đã xuất bản, xác nhận nội dung ở nơi
+thứ hai cũng đổi theo. Xóa bài, xác nhận bài biến mất ở cả hai nơi.
 
-Cách phát hiện: tự chạy lại từng lệnh trong tài liệu thay vì chỉ đọc lại bằng mắt, thử tạm cất thay đổi để so sánh trạng thái sạch với trạng thái đã sửa nhằm phân biệt lỗi do mình gây ra với lỗi có sẵn từ trước.
-
-Chạy trong thư mục backend:
-
-```
-npx eslint "src/modules-api/coach/**/*.ts"
-npx tsc --noEmit
-npx jest --silent
-npm run eval:coach
-```
-
-Kết quả: quy tắc mã nguồn chỉ còn lỗi tồn đọng có sẵn từ trước không liên quan tới ngày 18, đã xác nhận qua việc đối chiếu với diff; không lỗi kiểu; hai mươi hai bộ kiểm thử đạt với một trăm chín mươi lăm trường hợp đạt; báo cáo nền một trăm trên một trăm trường hợp đạt. Chạy thêm lệnh build ở cả backend và giao diện, backend thành công, giao diện thất bại vì lỗi có sẵn từ trước đã xác minh không liên quan tới công việc ngày 18.
+Trong lúc kiểm tra thêm, phát hiện thao tác cập nhật một bài chỉ tồn tại
+ở nơi thứ hai, tức những bài vừa được gộp thêm vào danh sách hiển thị,
+vẫn báo lỗi không tìm thấy, vì đoạn mã cập nhật chỉ tra cứu ở nơi thứ
+nhất, không có phương án dự phòng như đoạn mã xóa đã có. Tái hiện được
+lỗi này bằng lệnh gọi mạng thật, sau đó sửa bằng cách thêm nhánh xử lý
+tương tự, xác nhận lại bằng lệnh gọi mạng thật một lần nữa cho kết quả
+đúng.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: một constraint về hình thức trình bày văn bản, như việc không dùng một loại ký tự nào đó, không được áp dụng máy móc vào phần nội dung mang tính kỹ thuật như lệnh dòng lệnh hay tên tệp, vì phần đó phải đúng sự thật tuyệt đối để người đọc dùng lại được, khác với phần văn xuôi mô tả có thể diễn đạt lại tự do. Điều học được thứ hai: kiểm chứng bằng cách đọc lại kết luận cũ không đủ, phải tự chạy lại để xác nhận, và khi nghi ngờ một lỗi có phải do mình gây ra hay không, cách xác minh chắc chắn nhất là so sánh trực tiếp giữa trạng thái có thay đổi và trạng thái sạch của nhánh.
-
-Điều chưa chắc: chưa rõ liệu ba lỗi kiểu ở giao diện có phải là vấn đề người dùng đã biết từ trước và đang xử lý riêng hay không, hay đây là thông tin mới cần báo ngay.
-
-Thay đổi cho lần sau: khi có một constraint về hình thức tài liệu, nên hỏi rõ ngay từ đầu rằng constraint đó áp dụng cho toàn văn bản hay chỉ cho phần văn xuôi, không tự suy diễn rồi áp dụng sai phạm vi. Ngoài ra, bước kiểm chứng cuối mỗi việc nên luôn bao gồm công cụ kiểm tra quy tắc mã nguồn trên đúng những tệp vừa sửa, không chỉ kiểm thử và kiểm tra kiểu.
+Điều học được: khi thêm một thao tác dự phòng cho một hành động, ví dụ
+thao tác xóa, cần rà lại toàn bộ các hành động cùng nhóm, ví dụ thao tác
+cập nhật, xem có cần thao tác dự phòng tương tự hay không, không chỉ dừng
+lại ở hành động vừa được yêu cầu sửa.
 
 ---
 
-## Đối chiếu với điều kiện nghiệm thu ngày 18
+## Việc 12: Sửa lỗi chấm sai bài có phép tính số thực do sai số làm tròn
 
-| Điều kiện | Trạng thái | Ghi chú |
-|---|---|---|
-| Có kiểm tra leakage full solution | Đạt | Cơ chế nằm ở tệp coach rubric, chấm điểm rò rỉ bằng không tuyệt đối nếu lộ khối mã từ sáu dòng trở lên khi chưa đủ điều kiện hoặc nếu ngữ cảnh chứa trường solutionCode |
-| LLM judge được đối chiếu mẫu thủ công | Đạt, với giới hạn đã nêu | Giám khảo là dựa trên luật vì kho mã nguồn chưa có mô hình ngôn ngữ thật, quá trình đối chiếu thủ công đã tìm ra bốn lỗi thật gồm hai lỗi bộ chặn chèn lệnh và hai lỗi trong chính rubric |
-| Regression gate trong CI | Đạt | Tệp coach eval spec tự động chạy trong bước kiểm thử đơn vị có sẵn, thêm một bước riêng in báo cáo nền ra nhật ký và tự thoát với mã lỗi nếu phát hiện rò rỉ |
-| Một trăm test cases | Đạt | Bảy mươi trường hợp nhánh chat cộng ba mươi trường hợp nhánh debugLoop, trong đó hai mươi trường hợp nhánh debugLoop tái dùng nguyên từ ngày 17 |
-| Cases đúng sai thiếu dữ kiện prompt injection | Đạt | Phân bố đủ bốn nhóm ở cả hai nhánh, riêng nhóm chèn lệnh giả mạo chỉ có ở nhánh chat |
-| Rubric correctness pedagogy leakage safety | Đạt | Định nghĩa tại tệp coach rubric, mỗi tiêu chí cho điểm từ không đến một |
-| Chạy regression theo prompt model version | Đạt, sau khi bổ sung ở Việc 8 | Trước đó là một thiếu sót thật đã tự phát hiện ra trong lúc rà soát lại |
-| Bàn giao Coach eval harness | Đạt | Toàn bộ mã nguồn tại thư mục coach eval trong backend |
-| Bàn giao baseline report | Đạt | Tệp tại thư mục eval reports, có bản mới nhất và có bản lưu theo lịch sử phiên bản |
+> **Prompt người dùng, viết lại cho rõ ý từ nội dung trao đổi thực tế:**
+> Một bài kiểm tra có phép cộng hai số thực bị đánh giá sai dù kết quả về
+> mặt toán học là đúng, do máy tính in ra nhiều chữ số thập phân hơn giá
+> trị mong đợi.
 
-Ngoài chín điều kiện trên, lần kiểm tra lại ở Việc 9 còn phát hiện một vấn đề nằm ngoài phạm vi ngày 18 nhưng cần ghi nhận trung thực: lệnh build của phần giao diện hiện đang thất bại với ba lỗi kiểu ở ba tệp không liên quan tới AI Coach, gồm tệp ContestExamWorkspace, tệp TeacherContestAuthoring, và tệp RegisterPage. Đã xác minh bằng cách tạm cất toàn bộ thay đổi trong ngày và chạy lại ở trạng thái sạch của nhánh, lỗi vẫn xuất hiện y hệt, xác nhận đây là lỗi có sẵn từ trước, không phải do bất kỳ việc nào trong ngày 18 gây ra. Không tự sửa vì nằm ngoài phạm vi được giao, chỉ ghi nhận lại để người dùng biết và quyết định xử lý.
+### Điều tôi hiểu trước khi gọi AI
+
+Ban đầu định chỉ sửa phần kiểm tra của công cụ AI Tạo Đề, nhưng người
+dùng chỉ ra ngay việc chỉ sửa một nơi sẽ tạo ra tình huống nguy hiểm hơn:
+một bài được công cụ AI Tạo Đề duyệt đạt, nhưng khi học viên thật làm
+đúng cùng cách và nộp bài, hệ thống chấm điểm chính thức lại chấm sai vì
+dùng tiêu chí so sánh khác. Phải sửa đồng thời cả hai nơi dùng chung một
+tiêu chí so sánh.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Xác nhận cả hai nơi, hệ thống chấm điểm bài nộp thật và bộ kiểm tra của
+công cụ AI Tạo Đề, trước đây đều so sánh kết quả bằng cách so từng ký tự
+tuyệt đối.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Thêm một hàm so sánh dùng chung, đặt tại nơi cả hai hệ thống cùng có thể
+gọi tới. Hàm so sánh theo từng dòng kết quả, nếu cả hai dòng tương ứng
+đều là số hợp lệ thì so sánh bằng sai số cho phép rất nhỏ thay vì so ký
+tự tuyệt đối, nếu không phải số thì vẫn so ký tự tuyệt đối như cũ. Áp
+dụng hàm này ở cả hệ thống chấm bài nộp thật và bộ kiểm tra của công cụ
+AI Tạo Đề.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Viết thêm các trường hợp kiểm thử riêng cho hàm so sánh mới, gồm trường
+hợp hai chuỗi giống hệt nhau, hai chuỗi văn bản khác nhau thật sự, hai số
+thực lệch nhau rất nhỏ do sai số làm tròn, hai số thực lệch nhau nhiều do
+sai logic thật sự, kết quả nhiều dòng, số dòng không khớp, và một chuỗi
+chỉ chứa chữ số nhưng không phải là số thuần túy. Toàn bộ trường hợp đều
+đạt. Chạy lại toàn bộ bộ kiểm thử sẵn có của backend, không phát sinh lỗi
+mới. Gọi trực tiếp trình thông dịch Python thật với các cặp số thực để
+xác nhận hàm so sánh xử lý đúng trường hợp gây ra lỗi ban đầu.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: khi sửa một hành vi kiểm tra được dùng để quyết định một
+bài có được đưa vào hệ thống hay không, cần luôn kiểm tra hành vi kiểm
+tra đó có đang lệch với hành vi chấm điểm chính thức mà người dùng cuối
+thật sự trải nghiệm hay không, hai nơi lệch nhau sẽ gây hậu quả nghiêm
+trọng hơn nhiều so với việc chỉ có một nơi sai. Điều chưa chắc: mức sai
+số cho phép hiện tại chưa được kiểm tra kỹ với các bài yêu cầu định dạng
+đầu ra chính xác theo số chữ số, ghi nhận ở Việc 13.
+
+---
+
+## Việc 13: Tự rà soát lại toàn bộ thay đổi trong ngày, phát hiện và ghi nhận lỗi còn sót
+
+> **Prompt người dùng, viết lại cho rõ ý từ nội dung trao đổi thực tế:**
+> Yêu cầu kiểm tra lại toàn bộ nhiệm vụ ngày 19 cùng toàn bộ nội dung đã
+> làm và đã sửa trong ngày, xem có gì sai không, việc sửa lỗi này có kéo
+> theo lỗi chức năng khác không. Nếu kiểm tra ổn thì báo đã xong và chờ
+> giao việc tiếp theo, không tự ý cập nhật tài liệu hay tạo commit.
+
+### Điều tôi hiểu trước khi gọi AI
+
+Đây là yêu cầu tự kiểm tra lại toàn diện, không phải yêu cầu sửa thêm
+tính năng. Cần phân biệt rõ giữa lỗi thật cần sửa ngay vì đang chặn một
+thao tác cơ bản, và lỗi cần ghi nhận lại nhưng chưa sửa vì đã hết dư địa
+làm việc trong ngày.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Dùng công cụ đánh giá lại mã nguồn theo nhiều góc nhìn độc lập để giảm
+thiên vị, vì tự đọc lại mã do chính mình viết trong cùng một phiên làm
+việc dễ bỏ sót lỗi đã tự thuyết phục bản thân là đúng. Sau khi có danh
+sách phát hiện, xác nhận lại từng phát hiện bằng cách đọc mã nguồn liên
+quan hoặc gọi thử API thật, loại bỏ phát hiện không đúng thực tế, chỉ giữ
+lại phát hiện đã xác nhận.
+
+Giữa chừng, người dùng yêu cầu dừng việc tự sửa thêm, chỉ liệt kê lỗi vào
+tài liệu và nhật ký công việc để dành cho ngày làm việc tiếp theo, ngoại
+trừ một lỗi đã lỡ sửa xong trước khi có yêu cầu dừng.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Xác nhận được tổng cộng chín phát hiện thật qua đọc mã nguồn hoặc gọi thử
+API. Một phát hiện, việc cập nhật bài học báo lỗi không tìm thấy với
+những bài chỉ tồn tại ở nơi lưu thứ hai, đã được sửa ngay trong lúc rà
+soát vì tái hiện được cụ thể bằng lệnh gọi mạng thật và mức độ ảnh hưởng
+rõ ràng, chặn hẳn một thao tác cơ bản của giáo viên. Tám phát hiện còn
+lại được ghi nhận vào tài liệu tham chiếu ngày mười chín và mục này, chưa
+sửa, để lại cho công việc ngày mai, gồm: hàm so sánh số thực coi nhầm hai
+số nguyên khác định dạng ký tự số không ở đầu là bằng nhau, route sinh
+nhiều bài không có xử lý lỗi giữa chừng khiến mất toàn bộ kết quả đã sinh
+thành công trước đó, cơ chế thử lại khi gọi Gemini chỉ nhận diện đúng một
+dạng lỗi tạm thời cụ thể, việc đồng bộ dữ liệu sang nơi lưu thứ hai không
+kiểm tra nguồn gốc bài đã tồn tại nên có thể ghi đè nhầm, bộ kiểm tra
+trùng lặp chỉ so khớp với dữ liệu mẫu tĩnh không truy vấn dữ liệu thật
+đang chạy, khả năng phản hồi từ Gemini bị cắt ngang do giới hạn số lượng
+token đầu ra gây lỗi phân tích cú pháp không được thử lại, và một hàm
+chuyển tiêu đề thành đường dẫn định danh bị viết trùng lặp ở hai tệp mã
+nguồn khác nhau.
+
+Cũng xác nhận riêng một hành vi lỗi trả về mã năm trăm khi xóa bài học
+bằng một mã định danh sai định dạng là hành vi đã tồn tại từ trước khi
+bắt đầu công việc trong ngày, không phải do các thay đổi hôm nay gây ra,
+nên không đưa vào phạm vi sửa của ngày mai theo yêu cầu người dùng chỉ
+sửa những gì tự tay gây ra trong ngày.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+Chạy lại toàn bộ bộ kiểm thử sẵn có của backend sau lần sửa duy nhất
+trong mục này, không phát sinh lỗi mới. Với mỗi phát hiện, xác nhận bằng
+một trong hai cách: đọc trực tiếp đoạn mã nguồn liên quan để xác nhận
+hành vi đúng như mô tả, hoặc gọi thử hàm hay điểm truy cập liên quan bằng
+dữ liệu thật để quan sát kết quả thực tế, không dừng lại ở suy đoán từ
+công cụ đánh giá tự động.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: việc tự rà soát lại có hệ thống sau một ngày làm việc dài
+với nhiều thay đổi phát sinh ngoài kế hoạch ban đầu tìm ra được ít nhất
+một lỗi ảnh hưởng thật đến thao tác cơ bản của giáo viên, việc này xứng
+đáng dành thời gian làm dù đề bài gốc của ngày không yêu cầu. Điều chưa
+chắc: một số phát hiện trong danh sách tám lỗi còn lại là hệ quả hợp lý
+từ đọc mã nguồn nhưng chưa được tái hiện bằng dữ liệu thật do giới hạn
+thời gian và tài nguyên gọi mô hình ngôn ngữ trong ngày, cần ưu tiên tái
+hiện trước khi sửa vào ngày mai để tránh sửa nhầm hướng.

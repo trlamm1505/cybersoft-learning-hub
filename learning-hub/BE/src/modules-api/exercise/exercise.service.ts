@@ -37,6 +37,19 @@ export class ExerciseService {
       .lean();
   }
 
+  /**
+   * Bản đầy đủ cho GIÁO VIÊN (không lọc hidden test case, có solutionCode) —
+   * dùng để import một exercise đã có sẵn (kể cả bài do AI Tạo Đề sinh và
+   * lưu) vào form soạn thảo bài thi, KHÔNG dùng cho học viên (findBySlug ở
+   * trên mới là route học viên, cố ý ẩn đáp án/test ẩn).
+   */
+  async findBySlugFull(slug: string) {
+    const exercise = await this.exerciseModel.findOne({ slug }).lean();
+    if (!exercise)
+      throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
+    return exercise;
+  }
+
   async findBySlug(slug: string) {
     const exercise = await this.exerciseModel
       .findOne({ slug })
