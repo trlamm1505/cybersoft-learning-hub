@@ -12,6 +12,16 @@ const FOCUSABLE_SELECTOR =
 export function useFocusTrap(active: boolean, onClose?: () => void) {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Callers almost always pass an inline arrow function (`() => setOpen(false)`),
+  // which gets a new identity on every parent render. If that identity were a
+  // dependency of the effect below, ANY unrelated state update in the parent
+  // (e.g. typing in a search input inside the modal) would re-run the effect and
+  // force focus back onto the modal's first focusable element mid-keystroke,
+  // stealing focus from whatever the user was actually typing into. Storing the
+  // latest callback in a ref lets the effect read it without depending on it.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!active) return;
     const container = containerRef.current;
@@ -25,9 +35,9 @@ export function useFocusTrap(active: boolean, onClose?: () => void) {
     (focusables[0] ?? container).focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && onClose) {
+      if (e.key === 'Escape' && onCloseRef.current) {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== 'Tab') return;
@@ -51,7 +61,8 @@ export function useFocusTrap(active: boolean, onClose?: () => void) {
       document.removeEventListener('keydown', handleKeyDown);
       previouslyFocused?.focus();
     };
-  }, [active, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onClose intentionally excluded, see onCloseRef above.
+  }, [active]);
 
   return containerRef;
 }

@@ -2,6 +2,7 @@ import axiosClient from '../common/configAxios';
 import type {
   ExerciseListItem,
   ExerciseDetail,
+  ExerciseFullDetail,
   RunCodeResponse,
   SubmitCodeResponse,
   SubmitAckResponse,
@@ -25,6 +26,15 @@ export const exerciseApi = {
    */
   getExercise: async (slug: string): Promise<ExerciseDetail> => {
     return await axiosClient.get(`/exercises/${slug}`);
+  },
+
+  /**
+   * GET /api/exercises/:slug/full — CHỈ giáo viên, có solutionCode thật và
+   * testCases không bị lọc hidden. Dùng để import 1 bài đã có sẵn trong
+   * ngân hàng đề vào form soạn thảo bài thi.
+   */
+  getExerciseFull: async (slug: string): Promise<ExerciseFullDetail> => {
+    return await axiosClient.get(`/exercises/${slug}/full`);
   },
 
   /**
