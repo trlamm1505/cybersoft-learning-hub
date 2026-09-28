@@ -12,6 +12,7 @@ import {
   Sun,
   Menu,
   GraduationCap,
+  Sparkles,
 } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 
@@ -42,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
       if (search.includes('view=contests')) return 'teacher-contests';
       return 'authoring';
     }
+    if (path.startsWith('/problem-generator')) return 'problem-generator';
     if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
     if (path.startsWith('/block-puzzle')) return 'block-puzzle';
@@ -131,6 +133,7 @@ export const Header: React.FC<HeaderProps> = ({
                 { key: 'authoring', label: 'Soạn Thảo Bài Thi', Icon: Wrench, path: '/authoring' },
                 { key: 'teacher-library', label: 'Xem Các Bài Thi', Icon: ClipboardList, path: '/authoring?view=library' },
                 { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
+                { key: 'problem-generator', label: 'AI Tạo Đề', Icon: Sparkles, path: '/problem-generator' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -329,6 +332,19 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
               >
                 <Trophy size={16} strokeWidth={2} /> Quản Lý Cuộc Thi
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'problem-generator'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/problem-generator');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <Sparkles size={16} strokeWidth={2} /> AI Tạo Đề
               </button>
             </>
           )}

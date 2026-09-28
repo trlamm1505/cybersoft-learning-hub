@@ -9,6 +9,7 @@ import { QuizTakingPage } from './pages/QuizTakingPage';
 import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
 import { BlockPuzzlePage } from './pages/BlockPuzzlePage';
 import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
+import { TeacherProblemGeneratorPage } from './pages/TeacherProblemGeneratorPage';
 import { ContestListPage } from './pages/ContestListPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -293,6 +294,16 @@ export function App() {
                   onLessonSaved={handleLessonSaved}
                   onLessonDeleted={handleLessonDeleted}
                 />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
+            }
+          />
+          <Route
+            path="/problem-generator"
+            element={
+              authUser?.role === 'TEACHER' ? (
+                <TeacherProblemGeneratorPage />
               ) : (
                 <Navigate to={authUser ? '/catalog' : '/login'} replace />
               )
