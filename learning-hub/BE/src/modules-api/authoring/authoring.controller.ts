@@ -29,16 +29,20 @@ export class AuthoringController {
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
-  async createLesson(@Body() dto: CreateLessonDto) {
-    return this.authoringService.createLesson(dto);
+  @Roles('TEACHER', 'ADMIN')
+  async createLesson(@CurrentUser() user: JwtPayload, @Body() dto: CreateLessonDto) {
+    return this.authoringService.createLesson(dto, user.sub);
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
-  async updateLesson(@Param('id') id: string, @Body() dto: UpdateLessonDto) {
-    return this.authoringService.updateLesson(id, dto);
+  @Roles('TEACHER', 'ADMIN')
+  async updateLesson(
+    @Param('id') id: string,
+    @Body() dto: UpdateLessonDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.authoringService.updateLesson(id, dto, user);
   }
 
   /**
@@ -54,36 +58,36 @@ export class AuthoringController {
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   async findAll(@CurrentUser() user?: JwtPayload) {
-    const isAuthenticatedTeacher = user?.role === 'TEACHER';
-    return this.authoringService.findAll(!isAuthenticatedTeacher);
+    const isStaff = user?.role === 'TEACHER' || user?.role === 'ADMIN';
+    return this.authoringService.findAll(!isStaff);
   }
 
   @Get('export/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
-  async exportLesson(@Param('id') id: string) {
-    return this.authoringService.exportLessonJson(id);
+  @Roles('TEACHER', 'ADMIN')
+  async exportLesson(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.authoringService.exportLessonJson(id, user);
   }
 
   @Post('import')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
-  async importLesson(@Body() dto: ImportLessonDto) {
-    return this.authoringService.importLessonJson(dto);
+  @Roles('TEACHER', 'ADMIN')
+  async importLesson(@CurrentUser() user: JwtPayload, @Body() dto: ImportLessonDto) {
+    return this.authoringService.importLessonJson(dto, user.sub);
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
-  async findOne(@Param('id') id: string) {
-    return this.authoringService.findOne(id);
+  @Roles('TEACHER', 'ADMIN')
+  async findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.authoringService.findOne(id, user);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
-  async deleteLesson(@Param('id') id: string) {
-    return this.authoringService.deleteLesson(id);
+  @Roles('TEACHER', 'ADMIN')
+  async deleteLesson(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.authoringService.deleteLesson(id, user);
   }
 }

@@ -38,7 +38,7 @@ export class ContestController {
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
+  @Roles('TEACHER', 'ADMIN')
   async createContestLegacy(@CurrentUser() user: JwtPayload, @Body() dto: CreateContestDto) {
     return this.contestService.createContest(dto, user.sub);
   }
@@ -46,23 +46,27 @@ export class ContestController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
+  @Roles('TEACHER', 'ADMIN')
   async createContest(@CurrentUser() user: JwtPayload, @Body() dto: CreateContestDto) {
     return this.contestService.createContest(dto, user.sub);
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
-  async updateContest(@Param('id') id: string, @Body() dto: UpdateContestDto) {
-    return this.contestService.updateContest(id, dto);
+  @Roles('TEACHER', 'ADMIN')
+  async updateContest(
+    @Param('id') id: string,
+    @Body() dto: UpdateContestDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.contestService.updateContest(id, dto, user);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
-  async deleteContest(@Param('id') id: string) {
-    return this.contestService.deleteContest(id);
+  @Roles('TEACHER', 'ADMIN')
+  async deleteContest(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.contestService.deleteContest(id, user);
   }
 
   /**

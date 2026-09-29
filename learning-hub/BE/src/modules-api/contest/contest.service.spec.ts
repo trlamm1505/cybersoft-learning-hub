@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ContestService } from './contest.service';
 import { Contest } from '../../modules-system/database/schemas/contest.schema';
 import { User } from '../../modules-system/database/schemas/user.schema';
@@ -188,6 +188,86 @@ describe('ContestService', () => {
       expect(statusRes.isAllowedToJoin).toBe(false);
       expect(statusRes.isAllowedToSubmit).toBe(false);
       expect(statusRes.message).toContain('chưa bắt đầu');
+    });
+  });
+
+  describe('IDOR — ownership check (assertCanModify via updateContest/deleteContest)', () => {
+    const teacherA = { sub: 'teacher-a', role: 'TEACHER' };
+    const teacherB = { sub: 'teacher-b', role: 'TEACHER' };
+    const admin = { sub: 'admin-1', role: 'ADMIN' };
+
+    function ownedContest(authorId?: string) {
+      return {
+        ...mockContestObj,
+        authorId,
+        save: jest.fn().mockResolvedValue({ ...mockContestObj, authorId }),
+      };
+    }
+
+    it('KHÔNG cho Teacher B sửa contest do Teacher A tạo', async () => {
+      mockContestModel.findById = jest.fn().mockResolvedValue(ownedContest('teacher-a'));
+
+      await expect(
+        service.updateContest(
+          '507f1f77bcf86cd799439011',
+          { title: 'Hacked' } as any,
+          teacherB,
+        ),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('cho phép chính Teacher A (chủ sở hữu) sửa contest của mình', async () => {
+      mockContestModel.findById = jest.fn().mockResolvedValue(ownedContest('teacher-a'));
+
+      await expect(
+        service.updateContest(
+          '507f1f77bcf86cd799439011',
+          { title: 'Sua boi chinh chu' } as any,
+          teacherA,
+        ),
+      ).resolves.toBeDefined();
+    });
+
+    it('ADMIN sửa được contest của bất kỳ giáo viên nào', async () => {
+      mockContestModel.findById = jest.fn().mockResolvedValue(ownedContest('teacher-a'));
+
+      await expect(
+        service.updateContest(
+          '507f1f77bcf86cd799439011',
+          { title: 'Admin sua' } as any,
+          admin,
+        ),
+      ).resolves.toBeDefined();
+    });
+
+    it('contest seed với authorId "teacher-1" được coi là dùng chung, Teacher B vẫn sửa được', async () => {
+      mockContestModel.findById = jest.fn().mockResolvedValue(ownedContest('teacher-1'));
+
+      await expect(
+        service.updateContest(
+          '507f1f77bcf86cd799439011',
+          { title: 'Sua contest seed' } as any,
+          teacherB,
+        ),
+      ).resolves.toBeDefined();
+    });
+
+    it('KHÔNG cho Teacher B xoá contest của Teacher A', async () => {
+      mockContestModel.findById = jest.fn().mockResolvedValue(ownedContest('teacher-a'));
+
+      await expect(
+        service.deleteContest('507f1f77bcf86cd799439011', teacherB),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('cho phép Teacher A xoá contest của chính mình', async () => {
+      mockContestModel.findById = jest.fn().mockResolvedValue(ownedContest('teacher-a'));
+      mockContestModel.findByIdAndDelete = jest
+        .fn()
+        .mockResolvedValue(ownedContest('teacher-a'));
+
+      const result = await service.deleteContest('507f1f77bcf86cd799439011', teacherA);
+      expect(result.success).toBe(true);
     });
   });
 });

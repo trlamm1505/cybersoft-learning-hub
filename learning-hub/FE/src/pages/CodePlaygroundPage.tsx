@@ -147,6 +147,13 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
   // Combine both sources (system Exercise API + Teacher Authoring lessons) instead of
   // letting one fully replace the other — otherwise any teacher-created coding lesson
   // would hide the entire system exercise catalog from the dropdown.
+  //
+  // Khi một teacher lesson trùng slug với một system exercise (ví dụ do đồng bộ dữ
+  // liệu authoring <-> exercises), lesson đó KHÔNG được ghi đè sạch bản system —
+  // teacherCodingItems build thủ công ở trên không có gradeBand/topic/orderInTopic/
+  // tags, nên set thẳng sẽ làm bài đó rơi khỏi mọi nhóm lớp (về "Bài cũ chưa phân
+  // lớp") dù backend vẫn trả gradeBand đúng. Giữ lại các field phân loại từ bản
+  // system, chỉ để bản teacher ghi đè nội dung (title/description/starterCode...).
   const combinedExercises = useMemo(() => {
     const map = new Map<string, ExerciseListItem>();
     exercises.forEach((ex) => {
@@ -154,7 +161,19 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
       map.set(ex.slug, { ...ex, title: cleanedTitle });
     });
     teacherCodingItems.forEach((ex) => {
-      map.set(ex.slug, ex);
+      const existing = map.get(ex.slug);
+      map.set(
+        ex.slug,
+        existing
+          ? {
+              ...ex,
+              gradeBand: existing.gradeBand,
+              topic: existing.topic,
+              orderInTopic: existing.orderInTopic,
+              tags: existing.tags,
+            }
+          : ex,
+      );
     });
 
     return Array.from(map.values());

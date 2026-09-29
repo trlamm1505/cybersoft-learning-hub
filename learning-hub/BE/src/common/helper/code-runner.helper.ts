@@ -38,12 +38,13 @@ const FLOAT_COMPARE_EPSILON = 1e-6;
  *
  * So khớp theo TỪNG DÒNG, KHÔNG so cả khối text như một số duy nhất — một
  * bài in nhiều số trên nhiều dòng vẫn phải khớp đúng số dòng và đúng thứ tự.
- * Với mỗi cặp dòng: nếu cả hai đều parse được trọn vẹn thành số hữu hạn
- * (không chỉ chứa số ở đâu đó trong chuỗi), so bằng sai số tuyệt đối
- * FLOAT_COMPARE_EPSILON thay vì so chuỗi — hấp thụ sai số làm tròn dấu phẩy
- * động (`1.5 + 3.2` ra `4.800000000000001` trong Python). Nếu một trong hai
- * không phải số thuần (ví dụ "Yes"/"No", văn bản), rơi về so chuỗi tuyệt đối
- * như cũ.
+ * Với mỗi cặp dòng: CHỈ so bằng sai số tuyệt đối FLOAT_COMPARE_EPSILON khi
+ * token đó có dấu chấm thập phân hoặc ký hiệu khoa học (isDecimalNotation) —
+ * tức chỉ áp dụng cho số THỰC, để hấp thụ sai số làm tròn dấu phẩy động
+ * (`1.5 + 3.2` ra `4.800000000000001` trong Python). Số nguyên thuần
+ * ("007" vs "7") và văn bản ("Yes"/"No") luôn so chuỗi tuyệt đối sau khi
+ * trim() — "007" và "7" KHÔNG được coi là bằng nhau, vì nhiều bài yêu cầu
+ * output giữ định dạng đệm 0 hoặc mã định danh dạng chuỗi số.
  */
 export function outputsMatch(actual: string, expected: string): boolean {
   if (actual === expected) return true;
@@ -57,12 +58,22 @@ export function outputsMatch(actual: string, expected: string): boolean {
     const e = expectedLines[i].trim();
     if (a === e) return true;
 
+    if (!isDecimalNotation(a) || !isDecimalNotation(e)) return false;
+
     const aNum = parseStrictFloat(a);
     const eNum = parseStrictFloat(e);
     if (aNum === null || eNum === null) return false;
 
     return Math.abs(aNum - eNum) <= FLOAT_COMPARE_EPSILON;
   });
+}
+
+// Chỉ token có dấu chấm thập phân hoặc ký hiệu khoa học (1.5, 3.2e10) mới được
+// coi là "số thực" đủ điều kiện so bằng epsilon. Số nguyên thuần (kể cả có số 0
+// đứng đầu như "007") không đi qua nhánh này, để "007" !== "7" như ý đồ output
+// đệm 0/mã định danh, thay vì bị ép kiểu số học rồi coi là bằng nhau.
+function isDecimalNotation(token: string): boolean {
+  return /[.eE]/.test(token);
 }
 
 // Number('') === 0 và Number(' 12 ') bỏ qua khoảng trắng giữa — cả hai đều
