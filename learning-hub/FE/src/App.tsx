@@ -10,6 +10,8 @@ import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
 import { BlockPuzzlePage } from './pages/BlockPuzzlePage';
 import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
 import { TeacherProblemGeneratorPage } from './pages/TeacherProblemGeneratorPage';
+import { LearnerProgressPage } from './pages/LearnerProgressPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { ContestListPage } from './pages/ContestListPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -308,6 +310,20 @@ export function App() {
                 <Navigate to={authUser ? '/catalog' : '/login'} replace />
               )
             }
+          />
+          <Route
+            path="/progress"
+            element={
+              authUser?.role === 'STUDENT' ? (
+                <LearnerProgressPage />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
+            }
+          />
+          <Route
+            path="/profile"
+            element={authUser ? <ProfilePage authUser={authUser} /> : <Navigate to="/login" replace />}
           />
           <Route path="*" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
         </Routes>

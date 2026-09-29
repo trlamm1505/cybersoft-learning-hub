@@ -13,6 +13,7 @@ import { LeaderboardModule } from './modules-api/leaderboard/leaderboard.module'
 import { CoachModule } from './modules-api/coach/coach.module';
 import { BlockPuzzleModule } from './modules-api/block-puzzle/block-puzzle.module';
 import { ProblemGeneratorModule } from './modules-api/problem-generator/problem-generator.module';
+import { RecommendationModule } from './modules-api/recommendation/recommendation.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ProblemGeneratorModule } from './modules-api/problem-generator/problem-
     CoachModule,
     BlockPuzzleModule,
     ProblemGeneratorModule,
+    RecommendationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

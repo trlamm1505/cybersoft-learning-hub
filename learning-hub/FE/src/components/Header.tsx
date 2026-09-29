@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
@@ -13,6 +13,10 @@ import {
   Menu,
   GraduationCap,
   Sparkles,
+  BarChart3,
+  User,
+  ChevronDown,
+  LogOut,
 } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 
@@ -32,8 +36,22 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const avatarMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Click bên ngoài cụm avatar/dropdown thì tự đóng menu.
+  useEffect(() => {
+    if (!avatarMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (avatarMenuRef.current && !avatarMenuRef.current.contains(e.target as Node)) {
+        setAvatarMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [avatarMenuOpen]);
 
   const getActiveTab = () => {
     const path = location.pathname;
@@ -46,6 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (path.startsWith('/problem-generator')) return 'problem-generator';
     if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
+    if (path.startsWith('/progress')) return 'progress';
     if (path.startsWith('/block-puzzle')) return 'block-puzzle';
     if (path.startsWith('/quiz')) return 'quiz';
     if (path.startsWith('/detail')) return 'detail';
@@ -171,12 +190,81 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="hidden sm:block w-px h-6 bg-[var(--border-color)]" aria-hidden="true" />
 
           {authUser ? (
-            <button
-              onClick={onLogout}
-              className="hidden sm:inline-flex items-center h-8 px-3.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-[10px] transition-all cursor-pointer whitespace-nowrap"
-            >
-              Đăng xuất
-            </button>
+            <div className="relative hidden sm:block" ref={avatarMenuRef}>
+              <button
+                onClick={() => setAvatarMenuOpen((prev) => !prev)}
+                className="flex items-center gap-1.5 cursor-pointer bg-transparent border-none"
+                aria-haspopup="menu"
+                aria-expanded={avatarMenuOpen}
+                aria-label="Menu tài khoản"
+              >
+                <span className="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--border-color)] bg-gradient-to-br from-indigo-600 to-cyan-500 text-white text-sm font-bold shrink-0">
+                  {(authUser.fullName || authUser.email).trim().charAt(0).toUpperCase()}
+                </span>
+                <ChevronDown
+                  size={14}
+                  strokeWidth={2.5}
+                  className={`text-[var(--text-muted)] transition-transform ${avatarMenuOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
+
+              {avatarMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 border border-[var(--border-color)] rounded-xl shadow-lg z-50 overflow-hidden"
+                >
+                  <div className="px-4 py-3 border-b border-[var(--border-color)]">
+                    <p className="text-sm font-semibold text-[var(--text-main)] truncate">
+                      {authUser.fullName || authUser.email}
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)] truncate">{authUser.email}</p>
+                    <span className="inline-flex items-center mt-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-indigo-600/10 text-indigo-600 dark:text-indigo-400">
+                      {userRole === 'teacher' ? 'Giảng viên' : 'Học viên'}
+                    </span>
+                  </div>
+
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setAvatarMenuOpen(false);
+                      handleNavigate('/profile');
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-colors bg-transparent border-none cursor-pointer text-left"
+                  >
+                    <User size={15} strokeWidth={2} />
+                    Thông tin cá nhân
+                  </button>
+
+                  {userRole === 'student' && (
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        setAvatarMenuOpen(false);
+                        handleNavigate('/progress');
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-colors bg-transparent border-none cursor-pointer text-left"
+                    >
+                      <BarChart3 size={15} strokeWidth={2} />
+                      Tiến độ học tập
+                    </button>
+                  )}
+
+                  <div className="border-t border-[var(--border-color)]" />
+
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setAvatarMenuOpen(false);
+                      onLogout();
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors bg-transparent border-none cursor-pointer text-left"
+                  >
+                    <LogOut size={15} strokeWidth={2} />
+                    Đăng xuất
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
               <button
@@ -291,6 +379,19 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Trophy size={16} strokeWidth={2} /> Cuộc Thi & Lịch Thi
               </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'progress'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/progress');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <BarChart3 size={16} strokeWidth={2} /> Tiến Độ Của Tôi
+              </button>
             </>
           ) : (
             <>
@@ -355,7 +456,7 @@ export const Header: React.FC<HeaderProps> = ({
               <>
                 <span className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)]">
                   {userRole === 'teacher' ? <Wrench size={13} strokeWidth={2} /> : <GraduationCap size={13} strokeWidth={2} />}
-                  {authUser.fullName} ({authUser.email})
+                  {authUser.fullName || authUser.email} ({authUser.email})
                 </span>
                 <button
                   onClick={() => {
