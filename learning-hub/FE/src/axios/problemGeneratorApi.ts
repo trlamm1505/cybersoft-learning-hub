@@ -2,8 +2,10 @@ import axiosClient from '../common/configAxios';
 import type {
   GenerateProblemPayload,
   GenerateProblemResponse,
-  ProblemDraft,
+  RevalidateProblemPayload,
+  SaveProblemPayload,
   SaveProblemResponse,
+  ValidationResult,
 } from '../types/problemGenerator';
 
 /**
@@ -29,9 +31,23 @@ export const problemGeneratorApi = {
   /**
    * POST /api/problem-generator/save
    * Lưu một draft đã được giáo viên xem qua vào ngân hàng đề thật.
+   * forceSave/overrideReason: human-in-the-loop cho cảnh báo trùng lặp mềm.
    */
-  save: async (draft: ProblemDraft): Promise<SaveProblemResponse> => {
-    return await axiosClient.post('/problem-generator/save', { draft });
+  save: async (payload: SaveProblemPayload): Promise<SaveProblemResponse> => {
+    return await axiosClient.post('/problem-generator/save', payload);
+  },
+
+  /**
+   * POST /api/problem-generator/revalidate
+   * "Chạy lại test" cho một draft giáo viên vừa tự sửa trực tiếp trên UI —
+   * không gọi Gemini, chỉ chạy lại syntax/test/duplicate check.
+   */
+  revalidate: async (
+    payload: RevalidateProblemPayload,
+  ): Promise<ValidationResult> => {
+    return await axiosClient.post('/problem-generator/revalidate', payload, {
+      timeout: 15000,
+    });
   },
 };
 
