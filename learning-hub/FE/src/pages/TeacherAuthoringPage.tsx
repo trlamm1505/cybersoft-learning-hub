@@ -26,6 +26,7 @@ import {
   Save,
   Rocket,
   ClipboardCheck,
+  Loader2,
 } from 'lucide-react';
 import type { LessonAuthoring, TestCase, QuizQuestion, QuizOption } from '../types/authoring';
 import type { ExerciseListItem } from '../types/exercise';
@@ -1567,9 +1568,10 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
               type="button"
               disabled={isSubmitting}
               onClick={() => handleSubmit('draft')}
-              className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-bold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
+              className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-bold rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Save size={14} /> Lưu bản nháp (Draft)
+              {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              {isSubmitting ? 'Đang lưu...' : 'Lưu bản nháp (Draft)'}
             </button>
 
             {/* Publish Button with Guard */}
@@ -1579,12 +1581,13 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
               onClick={() => handleSubmit('published')}
               className={`flex-1 sm:flex-initial px-6 py-2.5 text-xs font-extrabold rounded-xl transition-all border-none shadow-md flex items-center justify-center gap-2 ${
                 canPublish
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
                   : 'bg-slate-300 dark:bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
               }`}
               title={canPublish ? 'Xuất bản bài học' : 'Vui lòng bổ sung Chuẩn đầu ra và Bài test để xuất bản'}
             >
-              <Rocket size={14} /> Xuất bản bài học (Publish)
+              {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Rocket size={14} />}
+              {isSubmitting ? 'Đang xuất bản...' : 'Xuất bản bài học (Publish)'}
             </button>
           </div>
         </div>
@@ -1768,29 +1771,60 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                     const q = bankSearch.toLowerCase().trim();
                     return !q || ex.title.toLowerCase().includes(q) || ex.slug.toLowerCase().includes(q);
                   })
-                  .map((ex) => (
-                    <div
-                      key={ex.slug}
-                      className="flex items-center justify-between gap-3 p-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] hover:border-indigo-400 transition-colors"
-                    >
-                      <div className="min-w-0">
-                        <div className="text-sm font-bold text-[var(--text-main)] truncate">{ex.title}</div>
-                        <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-2 mt-0.5">
-                          <span className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-color)]">
-                            {ex.difficulty}
-                          </span>
-                          <span className="truncate">{ex.slug}</span>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => handleImportFromBank(ex.slug)}
-                        disabled={importingSlug === ex.slug}
-                        className="shrink-0 px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  .map((ex) => {
+                    // Draft/Ready/Validated suy từ dữ liệu thật của bài, không
+                    // phải field status riêng (Exercise không có status) —
+                    // Validated: đã từng publish qua một Lesson thật (bước
+                    // "Chọn từ Ngân hàng đề -> Xuất bản" đã hoàn tất ít nhất 1
+                    // lần cho slug này). Ready: đủ solutionCode + testCase để
+                    // publish ngay nếu import. Draft: còn thiếu 1 trong 2.
+                    const badge = ex.sourceLessonSlug
+                      ? { label: 'Validated', className: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' }
+                      : ex.hasSolution && (ex.testCaseCount ?? 0) > 0
+                      ? { label: 'Ready', className: 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300' }
+                      : { label: 'Draft', className: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' };
+
+                    return (
+                      <div
+                        key={ex.slug}
+                        className="flex items-center justify-between gap-3 p-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] hover:border-indigo-400 transition-colors"
                       >
-                        {importingSlug === ex.slug ? 'Đang nạp...' : 'Chọn'}
-                      </button>
-                    </div>
-                  ))}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase shrink-0 ${badge.className}`}
+                              title={
+                                badge.label === 'Validated'
+                                  ? 'Đã từng xuất bản qua Soạn Thảo — đủ điều kiện publish'
+                                  : badge.label === 'Ready'
+                                  ? 'Có lời giải mẫu và test case — đủ điều kiện publish ngay'
+                                  : 'Thiếu lời giải mẫu hoặc test case — cần bổ sung trước khi publish'
+                              }
+                            >
+                              {badge.label}
+                            </span>
+                            <div className="text-sm font-bold text-[var(--text-main)] truncate">{ex.title}</div>
+                          </div>
+                          <div className="text-[11px] text-[var(--text-muted)] flex items-center gap-2 mt-0.5">
+                            <span className="px-1.5 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-color)]">
+                              {ex.difficulty}
+                            </span>
+                            <span className="truncate">{ex.slug}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleImportFromBank(ex.slug)}
+                          disabled={importingSlug === ex.slug}
+                          className="shrink-0 px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                        >
+                          {importingSlug === ex.slug && (
+                            <Loader2 size={12} className="animate-spin" />
+                          )}
+                          {importingSlug === ex.slug ? 'Đang nạp...' : 'Chọn'}
+                        </button>
+                      </div>
+                    );
+                  })}
                 {!isBankLoading && bankExercises.length === 0 && (
                   <div className="text-center py-10 text-sm text-[var(--text-muted)]">
                     Ngân hàng đề chưa có bài nào.

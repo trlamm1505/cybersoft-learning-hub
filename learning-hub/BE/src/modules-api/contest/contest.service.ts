@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   OnModuleInit,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -41,6 +42,31 @@ export class ContestService implements OnModuleInit {
       }
     } catch (error) {
       console.warn('Could not seed sample contests:', error.message);
+    }
+  }
+
+  // Giống AuthoringService.SHARED_AUTHOR_ID — contest seed sẵn
+  // (initial-contests.ts) đều mang authorId 'teacher-1', coi đây là tài
+  // nguyên dùng chung, không phải sở hữu riêng của một giáo viên cụ thể.
+  private static readonly SHARED_AUTHOR_ID = 'teacher-1';
+
+  /**
+   * Chặn TEACHER sửa/xoá contest KHÔNG do chính họ tạo và KHÔNG phải tài
+   * nguyên dùng chung — vá lỗ hổng IDOR "giáo viên A đoán/biết ID cuộc thi
+   * của giáo viên B là sửa/xoá được ngay" (updateContest/deleteContest
+   * trước đây không so sánh authorId). ADMIN bỏ qua kiểm tra này.
+   */
+  private assertCanModify(
+    contest: { authorId?: string },
+    requester: { sub: string; role: string },
+  ): void {
+    if (requester.role === 'ADMIN') return;
+    const owner = contest.authorId || ContestService.SHARED_AUTHOR_ID;
+    if (owner === ContestService.SHARED_AUTHOR_ID) return;
+    if (owner !== requester.sub) {
+      throw new ForbiddenException(
+        'Bạn không có quyền thao tác trên cuộc thi này — cuộc thi thuộc sở hữu của giáo viên khác.',
+      );
     }
   }
 
@@ -127,11 +153,16 @@ export class ContestService implements OnModuleInit {
     return newContest.save();
   }
 
-  async updateContest(id: string, dto: UpdateContestDto): Promise<Contest> {
+  async updateContest(
+    id: string,
+    dto: UpdateContestDto,
+    requester: { sub: string; role: string },
+  ): Promise<Contest> {
     const contest = await this.contestModel.findById(id);
     if (!contest) {
       throw new NotFoundException(`Không tìm thấy cuộc thi với ID: ${id}`);
     }
+    this.assertCanModify(contest, requester);
 
     const startTime = dto.startTime
       ? new Date(dto.startTime)
@@ -351,11 +382,13 @@ export class ContestService implements OnModuleInit {
     };
   }
 
-  async deleteContest(id: string) {
-    const contest = await this.contestModel.findByIdAndDelete(id);
+  async deleteContest(id: string, requester: { sub: string; role: string }) {
+    const contest = await this.contestModel.findById(id);
     if (!contest) {
       throw new NotFoundException(`Không tìm thấy cuộc thi với ID: ${id}`);
     }
+    this.assertCanModify(contest, requester);
+    await this.contestModel.findByIdAndDelete(id);
     return {
       success: true,
       message: `Đã xóa thành công cuộc thi: ${contest.title}`,

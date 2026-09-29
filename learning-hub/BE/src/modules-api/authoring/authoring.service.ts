@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  ForbiddenException,
   NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
@@ -20,6 +21,7 @@ import { ImportLessonDto } from './dto/import-lesson.dto';
 import { INITIAL_EXERCISES } from '../../data/initial-exercises';
 import { INITIAL_HINTS } from '../../data/initial-hints';
 import { INITIAL_BLOCK_LESSONS } from '../../data/initial-block-lessons';
+import { stripControlChars } from '../../common/utils/sanitize-text-input.util';
 
 @Injectable()
 export class AuthoringService implements OnModuleInit {
@@ -92,10 +94,45 @@ export class AuthoringService implements OnModuleInit {
     }
   }
 
+  // Giá trị authorId mặc định của schema (Lesson.authorId default: 'teacher-1')
+  // — lesson seed sẵn (INITIAL_EXERCISES, INITIAL_BLOCK_LESSONS) hoặc tạo bởi
+  // các bản cũ trước khi có ownership check đều mang giá trị này. Coi đây là
+  // "tài nguyên dùng chung của hệ sinh thái", KHÔNG phải sở hữu riêng của một
+  // giáo viên cụ thể nào — mọi TEACHER đều được sửa, tránh việc enforce
+  // ownership chặt làm khoá cứng toàn bộ nội dung seed khỏi mọi giáo viên
+  // thật (không ai có sub === 'teacher-1').
+  private static readonly SHARED_AUTHOR_ID = 'teacher-1';
+
+  /**
+   * Chặn TEACHER sửa/xoá/xem chi tiết lesson KHÔNG do chính họ tạo và KHÔNG
+   * phải tài nguyên dùng chung (SHARED_AUTHOR_ID) — vá lỗ hổng IDOR "giáo
+   * viên A đoán/biết ObjectId của giáo viên B là sửa/xoá được ngay". ADMIN
+   * bỏ qua mọi kiểm tra này, được xem/duyệt toàn bộ theo đúng yêu cầu.
+   */
+  private assertCanModify(
+    lesson: { authorId?: string },
+    requester: { sub: string; role: string },
+  ): void {
+    if (requester.role === 'ADMIN') return;
+    const owner = lesson.authorId || AuthoringService.SHARED_AUTHOR_ID;
+    if (owner === AuthoringService.SHARED_AUTHOR_ID) return;
+    if (owner !== requester.sub) {
+      throw new ForbiddenException(
+        'Bạn không có quyền thao tác trên bài học này — bài thuộc sở hữu của giáo viên khác.',
+      );
+    }
+  }
+
   /**
    * Validate if lesson meets publication standards (learningOutcome + testCases/quizQuestions)
    */
   validatePublicationEligibility(lessonData: Partial<Lesson>): void {
+    if (!lessonData.title?.trim()) {
+      throw new BadRequestException(
+        'Không thể xuất bản bài học: Thiếu tiêu đề (title).',
+      );
+    }
+
     const outcome = lessonData.learningOutcome?.trim();
     if (!outcome) {
       throw new BadRequestException(
@@ -105,6 +142,11 @@ export class AuthoringService implements OnModuleInit {
 
     const type = lessonData.type || 'coding';
     if (type === 'coding') {
+      if (!lessonData.solutionCode?.trim()) {
+        throw new BadRequestException(
+          'Không thể xuất bản bài học lập trình (coding): Thiếu lời giải mẫu (solutionCode).',
+        );
+      }
       const testCases = lessonData.testCases || [];
       if (testCases.length === 0) {
         throw new BadRequestException(
@@ -116,7 +158,7 @@ export class AuthoringService implements OnModuleInit {
       );
       if (!hasValidTestCase) {
         throw new BadRequestException(
-          'Không thể xuất bản bài học lập trình (coding): Bài kiểm tra không hợp lệ.',
+          'Không thể xuất bản bài học lập trình (coding): Bài kiểm tra không hợp lệ — mỗi test case cần có input và expectedOutput.',
         );
       }
     } else if (type === 'quiz') {
@@ -154,12 +196,27 @@ export class AuthoringService implements OnModuleInit {
   }
 
   /**
-   * Helper to sanitize payload strictly according to lesson type (coding vs quiz)
+   * Helper to sanitize payload strictly according to lesson type (coding vs quiz).
+   *
+   * Cũng loại bỏ ký tự điều khiển ẩn khỏi các field văn bản tự do (title,
+   * description, learningOutcome, content) trước khi lưu DB — Admin/Teacher
+   * nhập những field này tự do, ký tự điều khiển ẩn có thể dùng để chèn
+   * escape sequence/ẩn nội dung. KHÔNG cắt độ dài (dùng stripControlChars,
+   * không phải sanitizeFreeformText) vì content bài học có thể hợp lệ dài.
+   * Không cần thêm gì cho XSS: FE render các field này như text thuần (không
+   * dùng dangerouslySetInnerHTML ở đâu), React tự escape khi hiển thị.
    */
   private sanitizePayloadByType(data: any): any {
-    if (data.type === 'quiz') {
+    const cleanedBase = {
+      ...data,
+      title: stripControlChars(data.title),
+      description: stripControlChars(data.description),
+      learningOutcome: stripControlChars(data.learningOutcome),
+    };
+
+    if (cleanedBase.type === 'quiz') {
       return {
-        ...data,
+        ...cleanedBase,
         content: '',
         starterCode: '',
         solutionCode: '',
@@ -168,9 +225,9 @@ export class AuthoringService implements OnModuleInit {
         hints: { hint1: '', hint2: '', hint3: '' },
       };
     }
-    if (data.type === 'block') {
+    if (cleanedBase.type === 'block') {
       return {
-        ...data,
+        ...cleanedBase,
         content: '',
         starterCode: '',
         solutionCode: '',
@@ -179,8 +236,9 @@ export class AuthoringService implements OnModuleInit {
       };
     }
     return {
-      ...data,
+      ...cleanedBase,
       type: 'coding',
+      content: stripControlChars(cleanedBase.content),
       quizQuestions: [],
       blockPuzzle: undefined,
     };
@@ -192,12 +250,17 @@ export class AuthoringService implements OnModuleInit {
    * thấy được ngay bài giáo viên vừa soạn/xuất bản, thay vì lỗi "Không tìm
    * thấy bài tập" vì 2 collection trước đây hoàn toàn tách biệt.
    *
-   * Dùng upsert theo `slug` (khớp đúng khoá unique của Exercise): nếu đã có
-   * exercise cùng slug (kể cả bài do AI Tạo Đề sinh, hoặc bản đồng bộ từ
-   * lần publish trước), ghi đè nội dung theo lesson mới nhất, không tạo
-   * trùng bản ghi. KHÔNG throw nếu lỗi — publish lesson vẫn phải thành công
-   * ngay cả khi đồng bộ sang exercises thất bại (ví dụ lỗi mạng DB tạm
-   * thời), lỗi chỉ được log lại.
+   * An toàn ghi đè: chỉ upsert theo `slug` khi exercise cùng slug đã tồn tại
+   * KHÔNG có chủ, hoặc có `sourceLessonSlug` khớp đúng lesson này (tức chính
+   * lesson này đã tạo/đồng bộ bản ghi đó ở lần publish trước — an toàn để tự
+   * cập nhật lại). Nếu slug đã bị một nguồn KHÁC chiếm (bài do AI Tạo Đề lưu
+   * trực tiếp qua saveDraft(), hoặc lesson khác từng đồng bộ slug này trước
+   * khi có field sourceLessonSlug), KHÔNG ghi đè âm thầm — tự sinh slug hậu
+   * tố `${slug}-2`, `${slug}-3`... cho bản ghi exercise của lesson này, và
+   * cảnh báo rõ trong log để người vận hành biết có xung đột slug cần xem
+   * lại. KHÔNG throw nếu lỗi — publish lesson vẫn phải thành công ngay cả
+   * khi đồng bộ sang exercises thất bại (ví dụ lỗi mạng DB tạm thời), lỗi
+   * chỉ được log lại.
    */
   private async syncPublishedCodingLessonToExerciseBank(
     lesson: LessonDocument,
@@ -205,11 +268,31 @@ export class AuthoringService implements OnModuleInit {
     if (lesson.type !== 'coding' || lesson.status !== 'published') return;
 
     try {
+      const existing = await this.exerciseModel
+        .findOne({ slug: lesson.slug })
+        .select('slug sourceLessonSlug')
+        .lean();
+
+      const ownedByThisLesson =
+        !existing || existing.sourceLessonSlug === lesson.slug;
+
+      const targetSlug = ownedByThisLesson
+        ? lesson.slug
+        : await this.findAvailableExerciseSlug(lesson.slug);
+
+      if (!ownedByThisLesson) {
+        console.warn(
+          `Slug exercise "${lesson.slug}" đã bị nguồn khác chiếm (không có sourceLessonSlug khớp lesson này) — ` +
+            `đồng bộ lesson "${lesson.slug}" sang slug thay thế "${targetSlug}" thay vì ghi đè.`,
+        );
+      }
+
       await this.exerciseModel.findOneAndUpdate(
-        { slug: lesson.slug },
+        { slug: targetSlug },
         {
           $set: {
             title: lesson.title,
+            slug: targetSlug,
             description: lesson.content || lesson.description || '',
             type: 'CODE_TEXT',
             difficulty: lesson.difficulty,
@@ -217,6 +300,7 @@ export class AuthoringService implements OnModuleInit {
             starterCode: lesson.starterCode || '',
             solutionCode: lesson.solutionCode || '',
             testCases: lesson.testCases || [],
+            sourceLessonSlug: lesson.slug,
           },
         },
         { upsert: true, new: true },
@@ -229,7 +313,29 @@ export class AuthoringService implements OnModuleInit {
     }
   }
 
-  async createLesson(dto: CreateLessonDto): Promise<LessonDocument> {
+  /**
+   * Tìm slug còn trống dạng `${baseSlug}-2`, `${baseSlug}-3`... để tránh
+   * ghi đè một exercise slug đã có chủ khác. Bắt đầu từ hậu tố 2 (không phải
+   * 1) vì bản gốc không có hậu tố được xem như "phiên bản 1" ngầm định.
+   */
+  private async findAvailableExerciseSlug(baseSlug: string): Promise<string> {
+    for (let suffix = 2; suffix < 1000; suffix++) {
+      const candidate = `${baseSlug}-${suffix}`;
+      const taken = await this.exerciseModel
+        .findOne({ slug: candidate })
+        .select('_id')
+        .lean();
+      if (!taken) return candidate;
+    }
+    // Về lý thuyết không thể xảy ra (1000 lesson trùng slug cùng lúc) —
+    // fallback an toàn để không lặp vô hạn.
+    return `${baseSlug}-${Date.now()}`;
+  }
+
+  async createLesson(
+    dto: CreateLessonDto,
+    authorId: string,
+  ): Promise<LessonDocument> {
     const existing = await this.lessonModel.findOne({ slug: dto.slug }).exec();
     if (existing) {
       throw new BadRequestException(
@@ -246,6 +352,9 @@ export class AuthoringService implements OnModuleInit {
     const createdLesson = new this.lessonModel({
       ...sanitized,
       status,
+      // authorId luôn lấy từ JWT của người gọi (controller truyền vào),
+      // KHÔNG bao giờ từ dto client tự gửi — chặn IDOR mạo danh chủ sở hữu.
+      authorId,
     });
     const saved = await createdLesson.save();
     await this.syncPublishedCodingLessonToExerciseBank(saved);
@@ -255,6 +364,7 @@ export class AuthoringService implements OnModuleInit {
   async updateLesson(
     id: string,
     dto: UpdateLessonDto,
+    requester: { sub: string; role: string },
   ): Promise<LessonDocument> {
     const lesson = await this.lessonModel.findById(id).exec();
 
@@ -278,7 +388,7 @@ export class AuthoringService implements OnModuleInit {
         description: exercise.description,
         type: 'coding',
         status: 'draft',
-        learningOutcome: '',
+        learningOutcome: this.defaultLearningOutcomeFor(exercise.title),
         content: exercise.description,
         starterCode: exercise.starterCode,
         solutionCode: exercise.solutionCode,
@@ -297,12 +407,21 @@ export class AuthoringService implements OnModuleInit {
       // Xoá exercise gốc trước khi tạo lesson cùng slug — createLesson()
       // chặn trùng slug, và exercise này sẽ được ghi lại ngay bởi
       // syncPublishedCodingLessonToExerciseBank nếu targetStatus published.
+      // Exercise mồ côi không có field authorId (chỉ Lesson mới có) nên
+      // không cần assertCanModify ở đây — mặc định coi là tài nguyên dùng
+      // chung; người sửa đầu tiên trở thành authorId của bản Lesson mới.
       await this.exerciseModel.deleteOne({ _id: id });
-      const created = new this.lessonModel({ ...sanitized, status: targetStatus });
+      const created = new this.lessonModel({
+        ...sanitized,
+        status: targetStatus,
+        authorId: requester.sub,
+      });
       const saved = await created.save();
       await this.syncPublishedCodingLessonToExerciseBank(saved);
       return saved;
     }
+
+    this.assertCanModify(lesson, requester);
 
     const sanitized = this.sanitizePayloadByType({
       ...lesson.toObject(),
@@ -369,11 +488,27 @@ export class AuthoringService implements OnModuleInit {
   }
 
   /**
+   * Sinh learningOutcome mặc định cho một Exercise "mồ côi" (do AI Tạo Đề
+   * lưu thẳng vào `exercises`, không có field learningOutcome riêng theo
+   * shape Lesson) — cùng công thức seedSystemLessons() đã dùng cho
+   * INITIAL_EXERCISES (dòng ~64). Trước đây để rỗng ('') khiến
+   * validatePublicationEligibility() LUÔN chặn Publish ngay khi giáo viên
+   * "Sửa" một bài loại này mà chưa kịp tự gõ lại outcome — đây chính là
+   * nguyên nhân gốc của bug "lấy bài từ ngân hàng đề ra không publish được".
+   * Không throw/chặn gì ở đây — chỉ cấp một giá trị khởi điểm hợp lý để
+   * giáo viên có thể publish ngay, và vẫn tự sửa lại nếu muốn.
+   */
+  private defaultLearningOutcomeFor(title: string): string {
+    return `Hiểu và giải quyết thành công bài tập "${title}" bằng tư duy thuật toán tối ưu.`;
+  }
+
+  /**
    * Map một Exercise sang shape gần giống Lesson để trang "Xem Các Bài Thi"
-   * hiển thị được chung 1 danh sách. Exercise không có field status/
-   * learningOutcome — coi mọi exercise là 'published' (đã hiển thị công
-   * khai cho học viên qua Code Playground từ trước), learningOutcome để
-   * rỗng vì AI Tạo Đề không thu thập field này riêng theo đúng shape Lesson.
+   * hiển thị được chung 1 danh sách. Exercise không có field status —
+   * coi mọi exercise là 'published' (đã hiển thị công khai cho học viên qua
+   * Code Playground từ trước). learningOutcome được cấp giá trị mặc định
+   * (xem defaultLearningOutcomeFor) thay vì để rỗng, để giáo viên "Sửa" bài
+   * này không bị chặn Publish ngay lập tức.
    */
   private mapExerciseToLessonShape(ex: any): any {
     return {
@@ -383,7 +518,7 @@ export class AuthoringService implements OnModuleInit {
       description: ex.description,
       type: 'coding',
       status: 'published',
-      learningOutcome: '',
+      learningOutcome: this.defaultLearningOutcomeFor(ex.title),
       content: ex.description,
       starterCode: ex.starterCode,
       solutionCode: ex.solutionCode,
@@ -420,16 +555,20 @@ export class AuthoringService implements OnModuleInit {
     return sanitized;
   }
 
-  async findOne(id: string): Promise<LessonDocument> {
+  async findOne(
+    id: string,
+    requester: { sub: string; role: string },
+  ): Promise<LessonDocument> {
     const lesson = await this.lessonModel.findById(id).exec();
     if (!lesson) {
       throw new NotFoundException(`Không tìm thấy bài học với ID: ${id}`);
     }
+    this.assertCanModify(lesson, requester);
     return lesson;
   }
 
-  async exportLessonJson(id: string) {
-    const lesson = await this.findOne(id);
+  async exportLessonJson(id: string, requester: { sub: string; role: string }) {
+    const lesson = await this.findOne(id, requester);
     const lessonObj = lesson.toObject();
 
     const isCoding = lessonObj.type === 'coding';
@@ -471,7 +610,10 @@ export class AuthoringService implements OnModuleInit {
     };
   }
 
-  async importLessonJson(dto: ImportLessonDto): Promise<LessonDocument> {
+  async importLessonJson(
+    dto: ImportLessonDto,
+    authorId: string,
+  ): Promise<LessonDocument> {
     const data = dto.lessonData;
     if (!data || !data.title || !data.slug || !data.type) {
       throw new BadRequestException(
@@ -494,13 +636,17 @@ export class AuthoringService implements OnModuleInit {
       status: data.status || 'draft',
     };
 
-    return this.createLesson(importDto);
+    return this.createLesson(importDto, authorId);
   }
 
-  async deleteLesson(id: string): Promise<{ message: string }> {
+  async deleteLesson(
+    id: string,
+    requester: { sub: string; role: string },
+  ): Promise<{ message: string }> {
     const lesson = await this.lessonModel.findById(id).exec();
 
     if (lesson) {
+      this.assertCanModify(lesson, requester);
       await this.lessonModel.findByIdAndDelete(id).exec();
 
       // Xoá lesson coding không tự kéo theo xoá bản đồng bộ bên `exercises`

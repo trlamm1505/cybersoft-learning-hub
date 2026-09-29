@@ -87,6 +87,33 @@ export class Exercise {
 
   @Prop({ type: LessonHintsSchema })
   hints?: LessonHints;
+
+  // Slug của Lesson (Teacher Authoring) đã tạo/đồng bộ bản ghi exercise này,
+  // set DUY NHẤT bởi AuthoringService.syncPublishedCodingLessonToExerciseBank.
+  // Dùng để phân biệt "exercise thuộc sở hữu của lesson này, an toàn để
+  // lesson tự cập nhật lại" với "exercise có cùng slug nhưng do nguồn khác
+  // tạo (AI Tạo Đề lưu trực tiếp qua saveDraft, hoặc import thủ công)" —
+  // undefined/không khớp lesson.slug nghĩa là KHÔNG được ghi đè âm thầm.
+  @Prop({ type: String })
+  sourceLessonSlug?: string;
+
+  // Audit trail cho cơ chế human-in-the-loop khi lưu đè cảnh báo trùng lặp
+  // MỀM (xem ProblemGeneratorService.saveDraft, forceSave). Chỉ set khi bài
+  // được lưu qua forceSave=true trong khi vẫn còn duplicateCandidates chưa
+  // xử lý — giúp người vận hành sau này lọc ra các bài "đã bị giáo viên bỏ
+  // qua cảnh báo" để rà soát lại nếu cần, không xoá dấu vết như ghi đè âm
+  // thầm thông thường.
+  @Prop({ type: Boolean, default: false })
+  hasDuplicateWarning?: boolean;
+
+  @Prop({ type: String })
+  approvedBy?: string;
+
+  @Prop({ type: Date })
+  approvedAt?: Date;
+
+  @Prop({ type: String })
+  overrideReason?: string;
 }
 
 export const ExerciseSchema = SchemaFactory.createForClass(Exercise);

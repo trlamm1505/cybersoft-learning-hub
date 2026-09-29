@@ -29,12 +29,25 @@ export class ExerciseService {
   ) {}
 
   async findAll() {
-    return this.exerciseModel
+    const exercises = await this.exerciseModel
       .find()
       .select(
-        'title slug description type difficulty points starterCode timeLimitMs tags prerequisiteSlug gradeBand topic orderInTopic',
+        'title slug description type difficulty points starterCode timeLimitMs tags prerequisiteSlug gradeBand topic orderInTopic testCases solutionCode sourceLessonSlug',
       )
       .lean();
+
+    // Không trả testCases/solutionCode thô qua route dùng chung này (có thể
+    // lộ đáp án ẩn cho học viên) — chỉ tính sẵn 2 cờ trạng thái để FE (bank
+    // picker của Teacher Authoring) hiển thị badge "Draft/Ready/Validated"
+    // mà không cần fetch riêng :slug/full cho từng item trong danh sách.
+    return exercises.map((ex) => {
+      const { testCases, solutionCode, ...rest } = ex as any;
+      return {
+        ...rest,
+        hasSolution: Boolean(solutionCode?.trim()),
+        testCaseCount: Array.isArray(testCases) ? testCases.length : 0,
+      };
+    });
   }
 
   /**

@@ -13,6 +13,14 @@ export interface ExerciseListItem {
   gradeBand?: string;
   topic?: string;
   orderInTopic?: number;
+  // Cờ trạng thái tính sẵn ở BE (ExerciseService.findAll) để hiển thị badge
+  // Draft/Ready/Validated trên bank picker — không phải nội dung thật của
+  // testCases/solutionCode (route này không trả field đó để không lộ đáp án).
+  hasSolution?: boolean;
+  testCaseCount?: number;
+  // Có mặt khi bài đã từng được publish qua một Lesson (Teacher Authoring),
+  // tức đã qua bước "Chọn từ Ngân hàng đề -> Xuất bản" ít nhất 1 lần.
+  sourceLessonSlug?: string;
 }
 
 export interface ExerciseTestCase {
