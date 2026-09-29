@@ -95,7 +95,7 @@ describe('CodeRunnerHelper - outputsMatch', () => {
   });
 
   it('compares multi-line numeric output line by line', () => {
-    expect(outputsMatch('1.0000000000000002\n2', '1\n2')).toBe(true);
+    expect(outputsMatch('1.0000000000000002\n2', '1.0\n2')).toBe(true);
   });
 
   it('rejects multi-line output with mismatched line count', () => {
@@ -108,5 +108,25 @@ describe('CodeRunnerHelper - outputsMatch', () => {
 
   it('rejects negative-zero vs positive-zero text mismatch outside tolerance rules only when actually different', () => {
     expect(outputsMatch('-0.0', '0.0')).toBe(true);
+  });
+
+  it('rejects "007" vs "7" as equal — integer tokens compare as strict strings, not numerically', () => {
+    expect(outputsMatch('007', '7')).toBe(false);
+  });
+
+  it('treats a zero-padded identifier as different from its unpadded form even when both look numeric', () => {
+    expect(outputsMatch('00123', '123')).toBe(false);
+  });
+
+  it('still matches identical zero-padded integer strings exactly', () => {
+    expect(outputsMatch('007', '007')).toBe(true);
+  });
+
+  it('does not apply epsilon tolerance when only one side is decimal notation', () => {
+    expect(outputsMatch('7', '7.0')).toBe(false);
+  });
+
+  it('applies epsilon tolerance when both sides use scientific notation', () => {
+    expect(outputsMatch('1.00000000001e1', '1e1')).toBe(true);
   });
 });

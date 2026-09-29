@@ -27,11 +27,19 @@ import { spawn } from 'child_process';
  * Vẫn KHÔNG phải một sandbox process thật — code sau khi qua guard vẫn chạy
  * trực tiếp trên host (xem code-runner.helper.ts). Đây là một lớp phòng thủ
  * tĩnh bổ sung, không thay thế được cô lập ở tầng OS/container.
+ *
+ * `sys` KHÔNG bị chặn như một module (khác `os`/`subprocess`) — sys.stdin/
+ * sys.argv/sys.stdout là cách đọc/ghi I/O hoàn toàn hợp lệ và phổ biến cho
+ * bài toán đọc nhiều dòng/nhiều giá trị input (`sys.stdin.read().split()`).
+ * Trước đây `import sys` bị chặn tuyệt đối cùng nhóm os/subprocess khiến MỌI
+ * solution dùng sys.stdin (kể cả code Gemini tự sinh hợp lệ) bị blocked:true
+ * và stdout luôn rỗng — báo sai "code sai" trong khi logic đúng hoàn toàn.
+ * Thay vào đó chỉ chặn các thuộc tính thật sự nguy hiểm của sys (xem
+ * BLOCKED_SYS_ATTRS: sys.exit, sys.modules, sys.path, sys._getframe...).
  */
 
 const BLOCKED_MODULES = [
   'os',
-  'sys',
   'subprocess',
   'socket',
   'shutil',
@@ -91,6 +99,35 @@ const BLOCKED_DUNDER_ATTRS = [
   '__closure__',
 ];
 
+// `sys` KHÔNG nằm trong BLOCKED_MODULES nữa — sys.stdin/sys.argv/sys.stdout
+// là nhu cầu hoàn toàn hợp lệ cho code đọc nhiều dòng/nhiều giá trị input
+// (ví dụ `sys.stdin.read().split()`), và trước đây `import sys` bị chặn
+// tuyệt đối khiến MỌI solution dùng sys.stdin — kể cả code Gemini tự sinh —
+// luôn bị blocked:true, stdout rỗng, báo sai là "code sai" trong khi logic
+// hoàn toàn đúng. Thay vào đó, chặn RIÊNG các thuộc tính nguy hiểm của sys
+// (thoát process, thao túng import system, debug/trace nội bộ...) bằng cùng
+// cơ chế Attribute-name matching như BLOCKED_DUNDER_ATTRS — không cần theo
+// dõi biến nào alias `sys` vì tên các thuộc tính này đủ đặc trưng để không
+// trùng với API hợp pháp khác.
+const BLOCKED_SYS_ATTRS = [
+  'exit',
+  'modules',
+  'path',
+  'meta_path',
+  'path_hooks',
+  'path_importer_cache',
+  '_getframe',
+  'settrace',
+  'setprofile',
+  'set_asyncgen_hooks',
+  'setrecursionlimit',
+  'breakpointhook',
+  'excepthook',
+  'unraisablehook',
+  'audit',
+  'addaudithook',
+];
+
 export interface GuardViolation {
   line: number;
   reason: string;
@@ -98,7 +135,7 @@ export interface GuardViolation {
 
 interface RawViolation {
   line: number;
-  kind: 'import' | 'call' | 'attr' | 'syntax_error';
+  kind: 'import' | 'call' | 'attr' | 'sys_attr' | 'syntax_error';
   name: string;
 }
 
@@ -112,6 +149,7 @@ def main():
     blocked_modules = set(json.loads(sys.argv[1]))
     blocked_calls = set(json.loads(sys.argv[2]))
     blocked_attrs = set(json.loads(sys.argv[3]))
+    blocked_sys_attrs = set(json.loads(sys.argv[4]))
     source = sys.stdin.read()
 
     violations = []
@@ -151,7 +189,13 @@ def main():
             if node.id in blocked_calls and not isinstance(node.ctx, ast.Store):
                 violations.append({"line": node.lineno, "kind": "call", "name": node.id})
         elif isinstance(node, ast.Attribute):
-            if node.attr in blocked_attrs:
+            # sys.exit/sys.modules/... chặn RIÊNG với message rõ ràng hơn
+            # (kind="sys_attr") thay vì rơi vào nhánh dunder-attr chung —
+            # sys giờ được phép import, chỉ phần thuộc tính nguy hiểm của nó
+            # mới bị chặn, nên lý do báo lỗi cũng cần nói rõ đây là sys.X.
+            if node.attr in blocked_sys_attrs:
+                violations.append({"line": node.lineno, "kind": "sys_attr", "name": node.attr})
+            elif node.attr in blocked_attrs:
                 violations.append({"line": node.lineno, "kind": "attr", "name": node.attr})
 
     print(json.dumps(violations))
@@ -165,6 +209,8 @@ function reasonFor(v: RawViolation): string {
       return `Không được phép import module "${v.name}"`;
     case 'call':
       return `Không được phép gọi hàm "${v.name}(...)"`;
+    case 'sys_attr':
+      return `Không được phép dùng "sys.${v.name}" (sys.stdin/argv/stdout vẫn dùng được bình thường)`;
     case 'attr':
       return `Không được phép truy cập thuộc tính "${v.name}"`;
     default:
@@ -191,6 +237,7 @@ export async function scanPythonForViolations(
         JSON.stringify(BLOCKED_MODULES),
         JSON.stringify(BLOCKED_CALLS),
         JSON.stringify(BLOCKED_DUNDER_ATTRS),
+        JSON.stringify(BLOCKED_SYS_ATTRS),
       ],
       { windowsHide: true },
     );

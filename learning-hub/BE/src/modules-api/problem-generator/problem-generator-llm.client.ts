@@ -1,18 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { slugify } from '../../common/utils/slug.util';
 import { ProblemDraft, ProblemSpec } from './problem-generator.types';
 
 export interface ProblemGeneratorLlmClient {
   generate(spec: ProblemSpec): Promise<ProblemDraft>;
-}
-
-function slugify(title: string): string {
-  return title
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/gi, 'd')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 }
 
 interface Template {

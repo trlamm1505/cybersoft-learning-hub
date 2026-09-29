@@ -50,7 +50,7 @@ describe('PythonGuardHelper - scanPythonForViolations (AST-based)', () => {
   });
 
   it('reports the correct line number', async () => {
-    const code = 'x = 1\ny = 2\nimport sys\n';
+    const code = 'x = 1\ny = 2\nimport os\n';
     const violations = await scanPythonForViolations(code);
     expect(violations[0].line).toBe(3);
   });
@@ -96,5 +96,54 @@ describe('PythonGuardHelper - scanPythonForViolations (AST-based)', () => {
   it('returns no violations for code with a SyntaxError (left to checkPythonSyntax)', async () => {
     const violations = await scanPythonForViolations('def f(:\n    pass');
     expect(violations).toEqual([]);
+  });
+
+  describe('sys module — cho phép dùng cho I/O, vẫn chặn thuộc tính nguy hiểm', () => {
+    it('allows plain "import sys" with no other usage', async () => {
+      const violations = await scanPythonForViolations('import sys\nprint(1)');
+      expect(violations).toEqual([]);
+    });
+
+    it('allows sys.stdin.read() — the exact pattern that was previously always blocked', async () => {
+      const code =
+        'import sys\n' +
+        'raw = sys.stdin.read().split()\n' +
+        'a, b, c = map(int, raw[:3])\n' +
+        'print(a * b * c)';
+      expect(await scanPythonForViolations(code)).toEqual([]);
+    });
+
+    it('allows sys.argv and sys.stdout', async () => {
+      const code = 'import sys\nprint(sys.argv)\nsys.stdout.write("hi")';
+      expect(await scanPythonForViolations(code)).toEqual([]);
+    });
+
+    it('blocks sys.exit', async () => {
+      const violations = await scanPythonForViolations('import sys\nsys.exit(1)');
+      expect(violations.some((v) => v.reason.includes('sys.exit'))).toBe(true);
+    });
+
+    it('blocks sys.modules (module-system tampering)', async () => {
+      const violations = await scanPythonForViolations(
+        'import sys\nprint(sys.modules)',
+      );
+      expect(violations.some((v) => v.reason.includes('sys.modules'))).toBe(true);
+    });
+
+    it('blocks sys.path (import path tampering)', async () => {
+      const violations = await scanPythonForViolations(
+        'import sys\nsys.path.append("/tmp")',
+      );
+      expect(violations.some((v) => v.reason.includes('sys.path'))).toBe(true);
+    });
+
+    it('blocks sys._getframe (stack frame introspection)', async () => {
+      const violations = await scanPythonForViolations(
+        'import sys\nprint(sys._getframe())',
+      );
+      expect(violations.some((v) => v.reason.includes('sys._getframe'))).toBe(
+        true,
+      );
+    });
   });
 });
