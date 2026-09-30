@@ -1,0 +1,147 @@
+[
+  {
+    "id": "fbk-8856389d",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Đào Trung Kiên",
+    "role": "instructor",
+    "comment": "Tập dữ liệu rất sạch, cấu trúc 3NF hoàn chỉnh, học viên thực hành SQL đạt kết quả 100%!",
+    "usefulness_aspects": [
+      "clean_data",
+      "schema_3nf",
+      "pedagogy_ready"
+    ],
+    "created_at": "2026-09-30T08:18:34.770396Z"
+  },
+  {
+    "id": "fbk-3ec87f3e",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Nguyen Minh Thang",
+    "role": "instructor",
+    "comment": "Dataset 3NF rất tốt cho học viên thực hành bài tập SQL truy vấn nâng cao.",
+    "usefulness_aspects": [
+      "clean_data",
+      "schema_3nf"
+    ],
+    "created_at": "2026-09-30T08:18:34.589643Z"
+  },
+  {
+    "id": "fbk-20b329a9",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Đào Trung Kiên",
+    "role": "instructor",
+    "comment": "Tập dữ liệu rất sạch, cấu trúc 3NF hoàn chỉnh, học viên thực hành SQL đạt kết quả 100%!",
+    "usefulness_aspects": [
+      "clean_data",
+      "schema_3nf",
+      "pedagogy_ready"
+    ],
+    "created_at": "2026-09-30T08:15:06.453827Z"
+  },
+  {
+    "id": "fbk-a2453820",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Nguyen Minh Thang",
+    "role": "instructor",
+    "comment": "Dataset 3NF rất tốt cho học viên thực hành bài tập SQL truy vấn nâng cao.",
+    "usefulness_aspects": [
+      "clean_data",
+      "schema_3nf"
+    ],
+    "created_at": "2026-09-30T08:15:06.225464Z"
+  },
+  {
+    "id": "fbk-b3962bd2",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Đào Trung Kiên",
+    "role": "instructor",
+    "comment": "Dữ liệu bán hàng 3NF cực kỳ sạch, học viên thực hành SQL JOIN và Aggregations rất hào hứng!",
+    "usefulness_aspects": [
+      "clean_data",
+      "schema_3nf",
+      "pedagogy_ready"
+    ],
+    "created_at": "2026-09-30T08:14:28.029632Z"
+  },
+  {
+    "id": "fbk-001",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Nguyen Thanh Binh",
+    "role": "instructor",
+    "comment": "Bộ dữ liệu bán hàng chuẩn hóa 3NF cực kỳ sạch và trực quan, rất phù hợp dạy môn SQL Nâng Cao và PowerBI Dashboard cho học viên K26.",
+    "usefulness_aspects": [
+      "data_cleanliness",
+      "schema_3nf",
+      "ready_for_teaching"
+    ],
+    "created_at": "2026-09-28T09:30:00Z"
+  },
+  {
+    "id": "fbk-002",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "ThS. Le Hong Ngoc",
+    "role": "instructor",
+    "comment": "Mã băm SHA-256 đối soát khớp 100%, có đủ bảng Orders và Customers với khóa ngoại chuẩn xác.",
+    "usefulness_aspects": [
+      "integrity_verified",
+      "clear_documentation"
+    ],
+    "created_at": "2026-09-28T14:15:00Z"
+  },
+  {
+    "id": "fbk-003",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 4,
+    "reviewer_name": "Tran Van Hai",
+    "role": "teaching_assistant",
+    "comment": "Dữ liệu rất tốt, đề xuất thêm một vài trường hợp ngoại lệ (null value có chủ đích) để sinh viên thực hành xử lý Data Cleaning.",
+    "usefulness_aspects": [
+      "good_samples"
+    ],
+    "created_at": "2026-09-29T10:00:00Z"
+  },
+  {
+    "id": "fbk-004",
+    "dataset_id": "ds-hr-operations-attendance-v1",
+    "rating": 5,
+    "reviewer_name": "Pham Minh Tuan",
+    "role": "instructor",
+    "comment": "Tập dữ liệu nhân sự chấm công có cấu trúc thời gian log rõ ràng, bài toán tính tỷ lệ đi muộn và OT tính toán mượt mà.",
+    "usefulness_aspects": [
+      "practical_business",
+      "clean_timestamps"
+    ],
+    "created_at": "2026-09-29T16:20:00Z"
+  },
+  {
+    "id": "fbk-005",
+    "dataset_id": "ds-ai-rag-knowledge-chunks-v1",
+    "rating": 5,
+    "reviewer_name": "Doan Bao Long",
+    "role": "qa_engineer",
+    "comment": "91 Chunks giáo trình RAG chuẩn hóa Markdown Header Semantic phân đoạn rất tốt, benchmark Recall@5 đạt trên 94%.",
+    "usefulness_aspects": [
+      "high_recall",
+      "clean_chunks"
+    ],
+    "created_at": "2026-09-29T18:45:00Z"
+  },
+  {
+    "id": "fbk-006",
+    "dataset_id": "ds-customer-churn-classification-v1",
+    "rating": 4,
+    "reviewer_name": "Nguyen Hoang Nam",
+    "role": "student",
+    "comment": "Dữ liệu churn telecom trực quan, đã làm được model Logistic Regression và Random Forest với F1-score 0.82.",
+    "usefulness_aspects": [
+      "ml_ready"
+    ],
+    "created_at": "2026-09-30T08:10:00Z"
+  }
+]
