@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-09-25T09:53:10.048735",
+  "task": "Task 18 - Hybrid Search and Reranking",
+  "total_chunks": 91,
+  "artifacts": {
+    "vector_index": {
+      "file": "vector_index.npz",
+      "size_bytes": 55063,
+      "sha256": "e051b18402a4fca00af5df42d3ba9b8ec9f45e9067d59eb35b077ef7b8850cc0",
+      "dimension": 64
+    },
+    "embedding_model": {
+      "file": "embedding_model.pkl",
+      "size_bytes": 3693587,
+      "sha256": "ee23b3f8a5a2986dcbb4f124f088cfcb2404ebe917d33d93af20b4072f4d91f4"
+    },
+    "bm25_model": {
+      "file": "bm25_model.pkl",
+      "size_bytes": 102376,
+      "sha256": "6bb65566ea1ff9ab60434ee6fec20d5650b30789611eefe88abbf07aa674bb57",
+      "k1": 1.5,
+      "b": 0.75,
+      "vocab_size": 1554
+    }
+  }
+}
