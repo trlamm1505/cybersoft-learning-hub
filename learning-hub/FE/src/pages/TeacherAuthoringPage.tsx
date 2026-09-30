@@ -182,7 +182,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
     if (formData.type === nextType) return;
 
     const hasCodingContent =
-      formData.content.trim() !== '' ||
+      (formData.content ?? '').trim() !== '' ||
       formData.testCases.some((tc) => tc.input.trim() !== '' || tc.expectedOutput.trim() !== '');
     const hasQuizContent = formData.quizQuestions.some((q) => q.content.trim() !== '');
     const hasContentToLose = formData.type === 'coding' ? hasCodingContent : hasQuizContent;
@@ -257,7 +257,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
         content: full.description,
         starterCode: full.starterCode,
         solutionCode: full.solutionCode || '',
-        testCases: full.testCases,
+        testCases: full.testCases.map((tc) => ({ ...tc, expectedOutput: tc.expectedOutput ?? '' })),
         quizQuestions: [],
         hints: full.hints || { hint1: '', hint2: '', hint3: full.solutionCode || '' },
       }));

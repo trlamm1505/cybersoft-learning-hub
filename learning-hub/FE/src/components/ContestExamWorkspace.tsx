@@ -14,7 +14,6 @@ import {
   CheckCircle2,
   Rocket,
   Ban,
-  PartyPopper,
   Loader2,
   Flag,
   Download,
