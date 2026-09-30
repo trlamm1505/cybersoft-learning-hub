@@ -657,7 +657,9 @@ export class AuthoringService implements OnModuleInit {
       // thành công.
       if (lesson.type === 'coding') {
         try {
-          await this.exerciseModel.deleteOne({ slug: lesson.slug });
+          await this.exerciseModel.deleteOne({
+            sourceLessonSlug: lesson.slug,
+          });
         } catch (err) {
           console.error(
             `Xoá bản đồng bộ "${lesson.slug}" khỏi exercises thất bại:`,
