@@ -13,6 +13,7 @@ import {
   Menu,
   GraduationCap,
   Sparkles,
+  FlaskConical,
   BarChart3,
   User,
   ChevronDown,
@@ -65,6 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
     if (path.startsWith('/progress')) return 'progress';
+    if (path.startsWith('/tester-labs')) return 'tester-labs';
     if (path.startsWith('/block-puzzle')) return 'block-puzzle';
     if (path.startsWith('/quiz')) return 'quiz';
     if (path.startsWith('/detail')) return 'detail';
@@ -123,6 +125,7 @@ export const Header: React.FC<HeaderProps> = ({
                 { key: 'playground', label: 'Code Playground', Icon: Code2, path: '/playground' },
                 { key: 'block-puzzle', label: 'Block Puzzle', Icon: Puzzle, path: '/block-puzzle' },
                 { key: 'contests', label: 'Cuộc Thi & Lịch Thi', Icon: Trophy, path: '/contests' },
+                { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -153,6 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
                 { key: 'teacher-library', label: 'Xem Các Bài Thi', Icon: ClipboardList, path: '/authoring?view=library' },
                 { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
                 { key: 'problem-generator', label: 'AI Tạo Đề', Icon: Sparkles, path: '/problem-generator' },
+                { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -381,6 +385,19 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               <button
                 className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'tester-labs'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/tester-labs');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <FlaskConical size={16} strokeWidth={2} /> Tester Lab
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'progress'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -446,6 +463,19 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
               >
                 <Sparkles size={16} strokeWidth={2} /> AI Tạo Đề
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'tester-labs'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/tester-labs');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <FlaskConical size={16} strokeWidth={2} /> Tester Lab
               </button>
             </>
           )}
