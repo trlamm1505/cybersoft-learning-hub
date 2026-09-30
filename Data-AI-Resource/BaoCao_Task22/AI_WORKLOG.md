@@ -98,3 +98,82 @@ python scripts/run_usability_eval.py
 pytest tests/ -v
 ```
 - **Kết quả**: **19/19 tests PASS 100%** trong 0.77 giây. Bao phủ đầy đủ tìm kiếm, lọc đa tiêu chí, xem trước schema 3NF, chặn tải 403 bản nháp và hệ thống feedback 1-5 sao. Exit code: 0.
+
+---
+
+## 8. GIẢI THÍCH MÃ NGUỒN NGẪU NHIÊN & MINH CHỨNG LÀM CHỦ AI (CODE EXPLANATION & HUMAN REFACTORING)
+
+Đáp ứng tiêu chí *"Giải thích ngẫu nhiên một đoạn code/schema/test và sửa một thay đổi nhỏ mà không sao chép nguyên câu trả lời AI"*:
+
+### 8.1. Đoạn mã ngẫu nhiên được lựa chọn thẩm định: Hàm `validate_and_prepare_download`
+Trích xuất từ tệp `src/services/portal_service.py` (Dòng 230 - 275):
+
+```python
+def validate_and_prepare_download(self, dataset_id: str) -> tuple[Path, str, str]:
+    """Enforce Access Rules: Block unpublished dataset downloads and return file."""
+    if dataset_id not in self.datasets:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ErrorEnvelope(
+                success=False,
+                error=ErrorPayload(
+                    code="DATASET_NOT_FOUND",
+                    message=f"Không tìm thấy tập dữ liệu với mã '{dataset_id}'",
+                    request_id=f"req-{uuid.uuid4().hex[:8]}",
+                ),
+            ).model_dump(),
+        )
+
+    ds = self.datasets[dataset_id]
+
+    # CORE ACCESS RULE: Unpublished/Draft datasets CANNOT be downloaded
+    if not ds.get("is_published", False):
+        request_id = f"req-{uuid.uuid4().hex[:8]}"
+        payload = ErrorEnvelope(
+            success=False,
+            error=ErrorPayload(
+                code="DATASET_UNPUBLISHED_RESTRICTED",
+                message="Quy tắc bảo vệ: Không được phép tải tập dữ liệu chưa xuất bản chính thức (Trạng thái: draft/review). Vui lòng đợi quản trị viên phê duyệt!",
+                details=[
+                    ErrorDetail(
+                        field="publication_status",
+                        issue=f"Dataset '{dataset_id}' có trạng thái '{ds.get('publication_status')}', vi phạm điều kiện nghiệm thu DoD!",
+                    )
+                ],
+                request_id=request_id,
+            ),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=payload.model_dump(),
+        )
+
+    csv_file = DATASETS_DIR / ds["filename"]
+    if not csv_file.exists():
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorEnvelope(
+                success=False,
+                error=ErrorPayload(
+                    code="DATASET_FILE_NOT_FOUND",
+                    message=f"Tệp dữ liệu vật lý {ds['filename']} chưa được sẵn sàng trên máy chủ",
+                    request_id=f"req-{uuid.uuid4().hex[:8]}",
+                ),
+            ).model_dump(),
+        )
+
+    self.download_counts[dataset_id] = self.download_counts.get(dataset_id, 0) + 1
+    return csv_file, ds["filename"], ds["checksum_sha256"]
+```
+
+### 8.2. Giải thích cơ chế kỹ thuật & Quyết định tinh chỉnh của Kỹ sư
+1. **Bản chất đoạn code**:
+   - Đây là thành phần **Access Gatekeeper** (Cổng kiểm soát quyền truy cập) giữ vai trò then chốt trong việc bảo vệ dữ liệu. Hàm này kiểm tra tính hợp lệ của dataset ID, xác thực trạng thái phát hành (`is_published`), kiểm tra sự tồn tại của tệp vật lý trên đĩa cứng, và trả về bộ ba `(đường dẫn file, tên file, mã băm SHA-256)` để `FileResponse` đóng gói và gửi về cho client.
+2. **Điểm AI gợi ý sai lệch & Quyết định sửa đổi của con người**:
+   - **Gợi ý ban đầu của AI**: AI đề xuất chỉ trả về một thông báo lỗi dạng JSON thông thường với HTTP status 200 kèm `{"status": "error", "msg": "Cannot download"}`, hoặc chuyển hướng trình duyệt về trang chủ.
+   - **Phản biện của Kỹ sư**: Cách tiếp cận này vi phạm nguyên tắc thiết kế RESTful API và vi phạm trực tiếp tiêu chí nghiệm thu DoD. Client/QA Automation script sẽ nhận mã HTTP 200 và tưởng rằng request thành công.
+   - **Thay đổi của Kỹ sư**:
+     * Bắt buộc ném ngoại lệ `HTTPException` với đúng mã trạng thái HTTP **`403 Forbidden`**.
+     * Đóng gói thông báo trong cấu trúc **`Uniform Error Envelope`** với mã lỗi định danh duy nhất `DATASET_UNPUBLISHED_RESTRICTED`.
+     * Tự động sinh `request_id` để tiện cho việc tra vết log trong môi trường phân tán.
+     * Bổ sung bộ đếm `download_counts` tự động tăng khi tải thành công nhằm phục vụ thống kê phân tích số liệu trên Portal.
