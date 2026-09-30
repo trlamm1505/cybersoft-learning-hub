@@ -27,6 +27,11 @@ import {
   BlockPuzzleProgress,
   BlockPuzzleProgressSchema,
 } from './schemas/block-puzzle-progress.schema';
+import { TesterLab, TesterLabSchema } from './schemas/tester-lab.schema';
+import {
+  TesterLabSubmission,
+  TesterLabSubmissionSchema,
+} from './schemas/tester-lab-submission.schema';
 
 @Module({
   imports: [
@@ -57,6 +62,11 @@ import {
       { name: Counter.name, schema: CounterSchema },
       { name: PasswordReset.name, schema: PasswordResetSchema },
       { name: BlockPuzzleProgress.name, schema: BlockPuzzleProgressSchema },
+      { name: TesterLab.name, schema: TesterLabSchema },
+      {
+        name: TesterLabSubmission.name,
+        schema: TesterLabSubmissionSchema,
+      },
     ]),
   ],
   exports: [MongooseModule],

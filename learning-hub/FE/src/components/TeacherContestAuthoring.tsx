@@ -109,7 +109,7 @@ export const TeacherContestAuthoring: React.FC = () => {
           lessonId: lesson._id,
           title: lesson.title,
           slug: lesson.slug,
-          type: lesson.type,
+          type: lesson.type as ContestProblem['type'],
           points: lesson.points || 100,
           order: currentProblems.length + 1,
         };

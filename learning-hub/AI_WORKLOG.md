@@ -1,39 +1,35 @@
-# AI Work Log Ngày 20: Cá nhân hóa lộ trình đơn giản
+# AI Work Log Ngày 21: Bộ lab Tester trên nền tảng
 
 ## Thông tin chung
 
 | Mục | Nội dung |
 |---|---|
 | Người thực hiện | Dương Chí Việt |
-| Ngày | 29 tháng 9 năm 2026 |
-| Nhánh | feature/learning-hub-day20 |
-| Công cụ, model | Claude Code, mô hình Claude Sonnet 5, có sử dụng nhiều subagent loại Explore và general-purpose để khảo sát kiến trúc trước khi thiết kế và để tự rà soát chéo kết quả |
-| Phạm vi quyền | Đọc và ghi trong thư mục learning-hub |
+| Ngày | 30 tháng 9 năm 2026 |
+| Nhánh | feature/learning-hub-day21 |
+| Công cụ, model | Claude Code, mô hình Claude Sonnet 5.5, không sử dụng subagent trong ngày |
+| Phạm vi quyền | Đọc và ghi trong thư mục learning-hub; chỉ đọc thư mục Test/Day14_Bo lab tester thuc te của Tester Trần Quốc Nguyên (TTS 03) |
 | Dữ liệu nhạy cảm | Không có sự cố nào trong ngày |
 
 ## Mục lục các việc trong ngày
 
 | Số thứ tự | Tên việc | Trạng thái |
 |---|---|---|
-| 1 | Tạo nhánh feature/learning-hub-day20 từ main đã cập nhật | Đạt |
-| 2 | Nghiên cứu schema attempt/exercise/tag trước khi thiết kế mastery | Đạt |
-| 3 | Xây dựng mastery calculator và recommendation engine ba quy tắc | Đạt |
-| 4 | Xây API, trang tiến độ học tập và mười hồ sơ học viên mẫu | Đạt |
-| 5 | Tự rà soát mastery/recommendation, bổ sung ba trường hợp kiểm thử còn thiếu | Đạt |
-| 6 | Sửa lỗi bài lấy từ ngân hàng đề trong Code Playground bị mất nhóm lớp | Đạt |
-| 7 | Thêm cụm avatar và trang thông tin cá nhân theo yêu cầu thiết kế lại giao diện | Đạt |
-| 8 | Rà soát và vá bảy hạng mục tồn đọng của pipeline AI Tạo Đề ngày 19 | Đạt |
-| 9 | Tự rà soát lại giao diện Problem Generator sau khi thêm trạng thái lỗi từng bài | Đạt |
-| 10 | Sửa lỗi gốc khiến bài lấy từ ngân hàng đề không xuất bản được, rà soát quyền Admin/Teacher | Đạt |
-| 11 | Bổ sung cơ chế con người xác nhận cho cảnh báo trùng lặp mềm | Đạt |
-| 12 | Sửa lỗi mã nguồn dùng sys.stdin bị chặn nhầm, thêm sửa trực tiếp và chạy lại kiểm thử | Đạt |
-| 13 | Viết tài liệu kỹ thuật mô tả cơ chế mastery và recommendation | Đạt |
+| 1 | Tạo nhánh feature/learning-hub-day21 từ main đã cập nhật | Đạt |
+| 2 | Tạo CLAUDE.md cho learning-hub theo bộ nguyên tắc andrej-karpathy-skills | Đạt |
+| 3 | Khảo sát bộ lab Day 14 của Tester Nguyên, chốt 10 bài, rubric và schema | Đạt |
+| 4 | Xây dựng Backend Tester Lab: schema, upload artifact, rubric engine, API | Đạt |
+| 5 | Xây dựng Frontend: danh sách lab, chi tiết lab kéo thả nộp bài và bảng rubric | Đạt |
+| 6 | Chuyển seed sang tự nạp khi khởi động, thêm menu mobile, modal chấm rubric, khởi chạy dự án | Đạt |
+| 7 | Rà soát chéo bảo mật, phân quyền, toàn vẹn dữ liệu, dọn lỗi TypeScript và chạy hồi quy | Đạt |
+| 8 | Viết tài liệu kỹ thuật Tester Lab và cập nhật nhật ký | Đạt |
 
 ---
 
-## Việc 1: Tạo nhánh feature/learning-hub-day20 từ main đã cập nhật
+## Việc 1: Tạo nhánh feature/learning-hub-day21 từ main đã cập nhật
 
-> "Tạo branch hub day 19 xong kéo main về, làm xong đợi tôi ra lệnh ko tự ý làm." Sau khi được hỏi lại xác nhận số ngày: "20 tôi nhầm 19, tạo branch 20 nhé."
+> "tạo hub day 21 và kéo main về (làm xong ko tự ý làm gì hết chờ ra lệnh)
+> tạo branch  hub day 21 và kéo main về (làm xong ko tự ý làm gì hết chờ ra lệnh)"
 
 ### Điều tôi hiểu trước khi gọi AI
 
@@ -41,335 +37,293 @@ Chỉ thực hiện đúng thao tác Git được yêu cầu, không tự ý b�
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Không tạo file nào. Xác nhận cây làm việc sạch, lấy về các nhánh mới trên máy chủ, chuyển sang nhánh main và cập nhật lên bản mới nhất, sau đó tạo nhánh feature/learning-hub-day20 từ đó.
+Không tạo file nào. Lấy về nhánh main mới, chuyển sang main và cập nhật kiểu fast-forward từ `f783a07` lên `8956b7e` (6 commit mới, gồm toàn bộ phần Day 20 đã hợp nhất), sau đó tạo nhánh feature/learning-hub-day21 từ đó.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: khi người dùng gõ nhầm số ngày trong yêu cầu, nên hỏi lại để xác nhận thay vì suy đoán, đúng như đã làm ở bước này.
+Điều học được: yêu cầu ghi hai lần cùng một nội dung vẫn chỉ là một thao tác, không cần hỏi lại.
 
 ---
 
-## Việc 2: Nghiên cứu schema attempt/exercise/tag trước khi thiết kế mastery
+## Việc 2: Tạo CLAUDE.md cho learning-hub theo bộ nguyên tắc andrej-karpathy-skills
 
-> "NGÀY 20 - Cá nhân hóa lộ trình đơn giản. Việc phải làm: Tính mastery theo tag từ attempt. Thiết kế rule recommendation minh bạch. Tạo learner progress page. Bàn giao cuối ngày: Recommendation v0.1, Progress dashboard, 10 simulated learner profiles. Điều kiện nghiệm thu: Giải thích được vì sao gợi ý. Không khóa học viên vào một đường duy nhất. Rule có unit test. — bám theo sườn đề day20 tôi đã gửi trc đó mà làm."
-
-### Context, tài liệu, file, constraint đã cung cấp
-
-Giao một tác vụ khảo sát riêng đọc schema attempt/submission, exercise, tag, cơ chế xác thực và vai trò, trang tiến độ học viên hiện có nếu có, và convention module/route của ngày 19 để làm mẫu tổ chức code.
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Yêu cầu khảo sát xác định rõ hệ thống dùng Mongoose hay Prisma cho dữ liệu thật, vì repository có cả hai lớp dữ liệu song song nhưng chỉ một lớp thực sự được các module khác sử dụng.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-Việc này chưa tạo file, chỉ nghiên cứu. Phát hiện quan trọng nhất được giữ lại làm cơ sở thiết kế: lớp Prisma tồn tại trong repository nhưng không có module nào import PrismaService ngoài chính module khai báo nó, toàn bộ module nghiệp vụ thật dùng Mongoose. Bản ghi attempt thật là Submission, không có model riêng tên Attempt. Trường tags trên Exercise là mảng chuỗi tự do, không có bảng danh mục tag chuẩn hóa, và ghi chú trong nhật ký ngày 19 đã cố tình để ngỏ quyết định này cho ngày 20.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: xác nhận đúng lớp dữ liệu nào thật sự đang chạy trước khi thiết kế bất kỳ truy vấn nào là bước bắt buộc trong một repository có nhiều lớp dữ liệu song song chưa dọn dẹp hết. Điều chưa chắc: chưa rõ có cần chuẩn hóa tag thành một danh mục cố định hay giữ nguyên dạng tự do, quyết định giữ nguyên tự do vì đây đúng là lựa chọn ngày 19 đã cố tình để lại.
-
----
-
-## Việc 3: Xây dựng mastery calculator và recommendation engine ba quy tắc
-
-> "Bỏ qua bước lập plan chi tiết, bắt đầu code luôn trọn gói Day 20 theo các file sau, tuân thủ đúng convention Day 19 và context Mongoose/NestJS: mastery.service.ts query submissions theo userId, aggregate ra % mastery từng tag. recommendation.service.ts: Gợi ý 1 Remediation, gợi ý 2 Progression, gợi ý 3 Exploration, trả về danh sách bài kèm trường reason. recommendation.controller.ts: endpoint GET /learner/progress và GET /learner/recommendations, bảo vệ bởi role STUDENT. Unit test các nhánh rule, mock-profiles.json 10 hồ sơ học viên. Frontend LearnerProgressPage gọi 2 endpoint trên, hiển thị mastery theo tag và bài gợi ý kèm reason, khai báo routing vào App.tsx. Tạo/sửa trực tiếp vào source code, không giải thích lý thuyết dông dài."
+> "làm claude.md vào learning hub theo https://github.com/multica-ai/andrej-karpathy-skills.git"
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Cần tách phần tính toán thuần túy khỏi phần truy vấn Mongoose để dễ kiểm thử không cần cơ sở dữ liệu thật, đúng quy ước module Coach đã dùng ở các ngày trước.
+Repository nguồn có sẵn một tệp CLAUDE.md, nên việc cần làm là lấy đúng bản đó đặt vào learning-hub chứ không tự diễn giải lại nội dung.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Tạo module mới tại đường dẫn modules-api/recommendation, tách bốn lớp trách nhiệm riêng biệt. Lớp kiểu dữ liệu định nghĩa hình dạng attempt đã chấm, tóm tắt bài tập, và mastery theo tag. Lớp tính toán mastery gom các lượt nộp theo tag, loại bỏ lượt còn đang chấm, tính tỷ lệ đạt chuẩn trên tổng số lượt. Lớp động cơ gợi ý nhận vào danh sách mastery và danh sách bài tập, chạy tuần tự ba nhánh độc lập: nhánh ôn tập ưu tiên tag có mastery thấp nhất đã đủ số lần nộp tối thiểu, dự phòng bằng tag có lượt nộp thất bại gần nhất nếu chưa tag nào đủ số lần; nhánh nâng cao ưu tiên tag đã đạt ngưỡng vững, dự phòng bằng tag luyện nhiều nhất; nhánh khám phá luôn tìm một tag chưa từng thử nếu còn. Lớp dịch vụ bọc quanh động cơ này bằng các lệnh gọi Mongoose thật, và lớp điều khiển expose hai điểm truy cập chỉ dành cho học viên đã đăng nhập, lấy định danh người dùng từ mã xác thực, không nhận từ tham số truy vấn.
+Tải repository về thư mục tạm, sao chép nguyên văn `CLAUDE.md` vào `learning-hub/CLAUDE.md` (65 dòng), không chỉnh sửa. Tệp gồm bốn nguyên tắc: Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution. Các nguyên tắc này được dùng làm ràng buộc cho toàn bộ các việc còn lại trong ngày.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: nguyên tắc Surgical Changes có ảnh hưởng trực tiếp tới việc rà soát ở Việc 7, khi phát hiện lỗi ở module cũ chỉ được vá đúng dòng liên quan và các vấn đề còn lại phải báo cáo chứ không tự sửa.
+
+---
+
+## Việc 3: Khảo sát bộ lab Day 14 của Tester Nguyên, chốt 10 bài, rubric và schema
+
+> "Chúng ta đang ở nhánh `feature/learning-hub-day21` và thực hiện nhiệm vụ Day 21: "Bộ lab Tester trên nền tảng".
+>
+> Mục tiêu chính: Xây dựng phân hệ Tester Lab cho phép học viên xem đề, tải tài liệu/fixture, nộp bài artifact (file CSV/Excel/JSON/PDF) và chấm điểm theo Rubric bán tự động.
+>
+> Yêu cầu thực hiện theo đúng triết lý CLAUDE.md (tối giản, chính xác, không viết code thừa):
+>
+> 1. Khảo sát dữ liệu nguồn:
+> - Đọc thư mục `day14` của Trần Quốc Nguyên (folder test) (chứa 12 bài LAB-01 đến LAB-12, TASK.md, template, rubric).
+> - Chọn lọc 10 bài lab tiêu biểu bao quát 3 nhóm kỹ năng: Test Case Design, Bug Report, API Testing.
+>
+> 2. Backend (Tạo module mới trong `learning-hub/BE/src/modules-api/tester-labs/`):
+> - Schema Mongoose:
+>   + `TesterLab`: labCode, title, description, category, environmentUrl, fixtureUrls, templateArtifact, rubricCriteria (tiêu chí, thang điểm, severity/quality weights).
+>   + `TesterLabSubmission`: labId, userId, artifactUrl, fileType, fileSize, autoCheckResults, rubricGrades, reviewerNotes, status (SUBMITTED/REVIEWED).
+> - Middleware/Interceptor kiểm tra tải tệp (Artifact Upload):
+>   + Kiểm tra loại tệp cho phép: .csv, .xlsx, .json, .pdf.
+>   + Giới hạn kích thước tối đa 5MB.
+> - Rubric Evaluation Engine:
+>   + Check tự động (cứng): đúng định dạng file, kiểm tra các cột bắt buộc đối với CSV/JSON.
+>   + Hỗ trợ API cho giảng viên/peer nhập điểm rubric theo barem (phân biệt rõ severity và quality).
+> - Seed Data:
+>   + Viết một script seed hoặc nạp trực tiếp 10 bài lab từ thư mục `day14` vào MongoDB.
+>
+> 3. Frontend:
+> - Tạo trang `TesterLabListPage.tsx`: Xem danh sách 10 bài lab phân loại theo nhóm.
+> - Tạo trang `TesterLabDetailPage.tsx`: Cột trái xem đề/tải template/link demo; cột phải là form kéo thả file artifact nộp bài kèm bảng tiêu chí Rubric minh bạch.
+>
+> 4. Kiểm thử:
+> - Viết unit test cho service upload artifact (thử upload file hợp lệ, file sai MIME-type, file quá dung lượng).
+> - Viết unit test cho Rubric Evaluation Engine.
+> - Đảm bảo `npx tsc --noEmit` và `npx jest` đều pass.
+>
+> Lưu ý: Chưa cập nhật AI_WORKLOG và tài liệu lúc này, hãy tập trung hoàn thành tính năng và chạy pass test trước.
+> Bắt đầu bằng việc kiểm tra thư mục `day14` và đưa ra đề xuất danh sách 10 bài cùng cấu trúc schema ngắn gọn để xác nhận."
+
+### Điều tôi hiểu trước khi gọi AI
+
+Thư mục Day 14 là đầu vào do Tester Nguyên bàn giao và là nguồn sự thật cho nội dung đề. Phía nền tảng chỉ chuẩn hóa cấu trúc để hiển thị và chấm điểm, không sửa nội dung đề. Trước khi viết code cần thống nhất với Tester bộ bài nào đưa lên, tiêu chí đánh giá nào chuyển thành rubric, và cột nào của template dùng để kiểm tra tự động.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+Thư mục `Test/Day14_Bo lab tester thuc te` của Tester Nguyên: mười hai thư mục `LAB-01` đến `LAB-12` (mỗi thư mục có `TASK.md` và `template.csv`), `instructor/LAB-xx_GUIDE.md` chứa rubric 10 điểm, `fixtures/buggy` và `fixtures/clean`, thư mục `postman`. Ràng buộc: bốn định dạng nhận là .csv, .xlsx, .json, .pdf, tối đa 5MB, và tuân thủ CLAUDE.md.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+Vòng khảo sát rút ra ba điều từ tài liệu của Tester: artifact của LAB-10 và LAB-11 là `login.spec.ts` và `booking.spec.ts` (mã Playwright), không thuộc bốn định dạng nền tảng nhận; LAB-12 có hai artifact là `regression.spec.ts` và `Regression_Summary.csv`; cả 12 bài dùng chung một rubric 10 điểm gồm 5 tiêu chí, mỗi tiêu chí 2 điểm. Đề xuất gửi lại gồm danh sách 10 bài, cấu trúc hai schema và ba câu hỏi cần chốt. Phản hồi thống nhất, do người dùng chốt sau khi rà đề xuất:
+
+> "Tôi đồng ý với đề xuất, chốt 3 điểm như sau:Chốt danh sách 10 bài: Đồng ý bỏ LAB-10 và LAB-11 (do artifact .spec.ts không nằm trong danh mục file văn bản nộp); giữ nguyên LAB-12 lấy phần artifact Regression_Summary.csv cùng 9 bài còn lại đúng như bảng đề xuất.Chốt Rubric: Đồng ý giữ nguyên thang điểm gốc (5 tiêu chí $\times$ 2 điểm = 10 điểm). Đánh dấu rõ trường kind: 'severity' | 'quality' cho từng tiêu chí để thỏa mãn trực tiếp điều kiện nghiệm thu:Các tiêu chí đánh giá mức độ nghiêm trọng, phân loại bug, kết quả pass/fail: gắn kind: 'severity'.Các tiêu chí đánh giá quy chuẩn trình bày, độ rõ ràng của các bước tái hiện, độ bao phủ: gắn kind: 'quality'.Chốt lưu trữ & Auto-check: Đồng ý lưu tệp cục bộ tại thư mục uploads/tester-labs/ (nhớ bổ sung thư mục này vào .gitignore để không commit file bài nộp lên repository). Cơ chế auto-check cứng (MIME-type, size $\le 5\text{MB}$, check header requiredColumns) chỉ trả về pass/fail và cảnh báo, điểm số do reviewer chấm.Bạn bắt đầu triển khai code Backend, Frontend, nạp seed data và viết Unit test theo kế hoạch. Xong các bước kỹ thuật hãy chạy test toàn bộ và báo lại kết quả."
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Việc này chưa tạo file. Các quyết định chuẩn hóa cấu trúc đề, schema và tiêu chí được thống nhất với phía Tester như sau:
+
+| Nội dung | Lấy từ bàn giao của Tester Nguyên | Chuẩn hóa phía nền tảng |
+|---|---|---|
+| 10 bài | LAB-01 đến LAB-09 và LAB-12 | Bỏ LAB-10 và LAB-11 vì artifact là `.spec.ts`; LAB-12 chỉ nhận phần `Regression_Summary.csv` |
+| Nhóm kỹ năng | Tên và mục tiêu từng bài trong `TASK.md` | BUG_REPORT: LAB-01, 02, 09; TEST_CASE_DESIGN: LAB-03, 07, 08, 12; API_TESTING: LAB-04, 05, 06 |
+| Rubric | 5 tiêu chí x 2 điểm trong `LAB-xx_GUIDE.md` | Giữ nguyên thang điểm; thêm `kind`: tiêu chí "Phân loại severity/result hợp lý" là `severity`, 4 tiêu chí còn lại là `quality` |
+| Cột bắt buộc | Dòng tiêu đề `template.csv` | Dùng nguyên văn làm `requiredColumns`; LAB-04 dùng khóa gốc `info` và `item` của Postman collection |
+| Tài liệu học viên | `template.csv` và `fixtures/buggy/LAB-xx.json` | Sao chép vào `BE/assets/tester-labs/templates` và `fixtures`; không phát `manifest.json` và tài liệu instructor |
+
+Trường `weight` trong yêu cầu ban đầu bị bỏ vì rubric gốc chia đều 2 điểm mỗi tiêu chí; việc phân biệt severity và quality do trường `kind` đảm nhiệm.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: đọc kỹ trường "Artifact phải nộp" của từng bài giúp phát hiện sớm hai bài không tương thích định dạng trước khi viết code, thay vì phát hiện ở giai đoạn kiểm thử. Điều chưa chắc: các link demo trong `TASK.md` là môi trường dùng chung của Tester và chưa được kiểm tra còn truy cập được, trạng thái gốc của mọi bài trong tài liệu Tester vẫn là `NEEDS PILOT`.
+
+---
+
+## Việc 4: Xây dựng Backend Tester Lab: schema, upload artifact, rubric engine, API
+
+> Cùng chỉ dẫn với Việc 3 và phản hồi chốt ba điểm ở trên, phần này ứng với hạng mục Backend, Seed Data và Kiểm thử.
+
+### Điều tôi hiểu trước khi gọi AI
+
+Auto-check chỉ được phép trả về pass/fail và cảnh báo, điểm số hoàn toàn do người chấm nhập. Cần tách logic thuần (kiểm tra tệp, chấm rubric) khỏi phần truy vấn Mongoose để kiểm thử không cần cơ sở dữ liệu.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Tạo module `modules-api/tester-labs` gồm: `artifact-upload.service.ts` (90 dòng) kiểm tra đuôi, MIME-type, 5MB và ghi tệp UUID vào `uploads/tester-labs/`; `rubric-evaluation.engine.ts` (163 dòng) gồm `runAutoChecks` và `evaluateRubric`; `tester-labs.service.ts` (180 dòng); `tester-labs.controller.ts` (95 dòng) với 8 route; `tester-labs.module.ts`. Hai schema đặt trong `modules-system/database/schemas` theo quy ước hiện có và đăng ký vào `DatabaseModule`, module đăng ký vào `AppModule`. Dữ liệu 10 bài nằm trong `src/data/initial-tester-labs.ts` (165 dòng); 10 template CSV và 10 fixture JSON sao chép từ Day 14 vào `BE/assets/tester-labs` (20 tệp). Thêm `learning-hub/BE/uploads/` vào `.gitignore`. Bản đầu có script `seed-tester-labs.ts` chạy tay, sau đó bị thay ở Việc 6.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Viết chín trường hợp kiểm thử ban đầu cho lớp tính toán mastery và động cơ gợi ý, chạy bằng lệnh sau:
+Viết hai tệp kiểm thử ở lượt đầu: service upload (hợp lệ, sai MIME, quá 5MB, sai đuôi, thiếu file) và rubric engine (cột bắt buộc CSV/JSON, chữ ký PDF/XLSX, tổng hợp severity/quality, từ chối điểm ngoài khoảng, tiêu chí lạ, trùng, thiếu). Một kiểm thử phụ đảm bảo header của mọi template seed đều qua auto-check của chính lab đó. Lệnh chạy:
 
 ```
 cd learning-hub/BE
-npx jest src/modules-api/recommendation/recommendation.spec.ts
+npx tsc --noEmit
+npx jest src/modules-api/tester-labs
 ```
 
-**Lỗi AI mắc phải, phát hiện khi chạy kiểm thử:** một trường hợp kiểm thử nhánh nâng cao ban đầu thất bại vì logic loại trừ nhầm nhánh nâng cao khi nó trùng tag với nhánh ôn tập, trong khi tag đã đạt ngưỡng vững thật sự vẫn nên được ưu tiên hiển thị dù trùng tag với nhánh ôn tập. Sửa lại điều kiện: chỉ nhánh dự phòng theo tag luyện nhiều nhất mới cần tránh trùng tag với ôn tập, còn tag đã đạt ngưỡng vững luôn được ưu tiên hiển thị bất kể trùng hay không. Chạy lại đạt chín trên chín.
+Kết quả lượt đầu: `tsc` sạch, 22 kiểm thử của tester-labs đạt; chạy toàn bộ `npx jest` được 33 suite, 330 kiểm thử đạt.
+
+**Lỗi AI mắc phải, phát hiện khi chạy lệnh:** lệnh tạo nhiều file cùng lúc bằng một chuỗi shell dài bị lỗi cú pháp `unexpected EOF` ở hai lần, không file nào được ghi. Phát hiện ngay từ mã thoát của lệnh, sau đó chuyển sang tạo từng file riêng.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: khi có hai tín hiệu cùng chỉ về một tag, một tín hiệu rõ ràng như đã đạt ngưỡng vững không nên bị một quy tắc chống trùng lặp chung chung che khuất, quy tắc chống trùng chỉ nên áp dụng cho tín hiệu dự phòng yếu hơn. Điều chưa chắc: ngưỡng ba lần nộp tối thiểu và tám mươi phần trăm cho mastery vững là ước lượng ban đầu, cần dữ liệu học viên thật đủ lớn mới hiệu chỉnh được.
+Điều học được: khi nội dung file chứa dấu nháy và ký tự Unicode dài, ghi file bằng công cụ ghi file riêng đáng tin cậy hơn lồng nhiều heredoc trong một lệnh shell. Điều chưa chắc: danh sách MIME-type chấp nhận cho CSV (`text/csv`, `application/vnd.ms-excel`, `text/plain`) dựa trên hành vi phổ biến của trình duyệt trên Windows, chưa thử với mọi trình duyệt.
 
 ---
 
-## Việc 4: Xây API, trang tiến độ học tập và mười hồ sơ học viên mẫu
+## Việc 5: Xây dựng Frontend: danh sách lab, chi tiết lab kéo thả nộp bài và bảng rubric
 
-> Cùng một chỉ dẫn với Việc 3 ở trên, phần này ứng với hạng mục bàn giao trang giao diện tiến độ và bộ dữ liệu mười hồ sơ học viên mô phỏng trong cùng yêu cầu.
+> Cùng chỉ dẫn với Việc 3, phần này ứng với hạng mục Frontend.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Thêm trang giao diện hiển thị thanh mastery theo từng tag kèm màu sắc phân theo mức độ, và danh sách bài tập gợi ý kèm nhãn phân loại theo ba nhánh cùng dòng lý do. Đăng ký đường dẫn mới trong tệp định tuyến chính, chỉ cho học viên đã đăng nhập truy cập. Viết tệp dữ liệu mười hồ sơ học viên mô phỏng dạng lượt nộp thô, bao quát các kịch bản người mới hoàn toàn, yếu một mảng kiến thức, đã vững một mảng, học lệch, đang hồi phục sau nhiều lần sai, bài gắn nhiều tag cùng lúc, còn lượt đang chấm dở, đã vững toàn bộ tag hiện có, và nhiều dạng lỗi chấm khác nhau ngoài sai đáp án thông thường.
+Tạo `TesterLabListPage.tsx` (96 dòng) chia lab theo ba nhóm; `TesterLabDetailPage.tsx` (283 dòng) với cột trái là đề, link môi trường demo, nút tải template và fixture, cột phải là khung kéo thả nộp bài, bảng rubric có nhãn Severity/Quality và danh sách "Bài nộp của tôi" kèm kết quả auto-check; `types/testerLab.ts` (49 dòng); `axios/testerLabApi.ts` (65 dòng). Đăng ký hai route `/tester-labs` và `/tester-labs/:labCode` trong `App.tsx`, thêm tab "Tester Lab" vào menu desktop cho cả học viên và giảng viên trong `Header.tsx`. Tải template và fixture đi qua axios với Bearer token rồi lưu bằng blob, vì đường dẫn tải yêu cầu đăng nhập nên không thể dùng thẻ liên kết thường.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Khởi chạy máy chủ backend và giao diện thật, đăng nhập bằng một tài khoản học viên mới tạo, gọi trực tiếp hai điểm truy cập bằng lệnh mạng thật xác nhận trả về đúng hình dạng dữ liệu. Tạo thêm lượt nộp thật qua điểm chấm bài production cho cùng tài khoản đó, xác nhận mastery và gợi ý cập nhật đúng theo dữ liệu vừa nộp, chụp lại giao diện xác nhận hiển thị đúng số liệu.
+Chạy `npx tsc --noEmit -p tsconfig.app.json` trong thư mục FE, không có lỗi thuộc các file mới hoặc file đã sửa. Lệnh này vẫn báo 5 lỗi có sẵn ở `ContestExamWorkspace`, `TeacherContestAuthoring`, `RegisterPage` và `TeacherAuthoringPage`, được xử lý ở Việc 7.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: xác nhận một tính năng đọc dữ liệu học viên nên đi hết vòng đời thật, từ nộp bài qua điểm chấm production tới xem lại trên giao diện, không dừng ở việc gọi thẳng điểm truy cập với dữ liệu giả lập trong bộ nhớ.
+Điều học được: lệnh `npx tsc --noEmit` chạy ở thư mục gốc FE không kiểm tra gì vì `tsconfig.json` chỉ chứa `references`; phải chỉ đúng `-p tsconfig.app.json` mới có kết quả thật.
 
 ---
 
-## Việc 5: Tự rà soát mastery/recommendation, bổ sung ba trường hợp kiểm thử còn thiếu
+## Việc 6: Chuyển seed sang tự nạp khi khởi động, thêm menu mobile, modal chấm rubric, khởi chạy dự án
 
-> "Hãy tự rà soát lại toàn bộ mã nguồn vừa viết dựa trên Điều kiện nghiệm thu và Bàn giao cuối ngày của Day 20. Chạy toàn bộ file test của module recommendation, xác nhận có đủ test case cho ba nhánh Remediation, Progression, Exploration và các trường hợp biên: học viên mới toanh, học viên giải hết bài một tag, học viên đã làm qua tất cả các tag. Kiểm tra mười hồ sơ mô phỏng có bao quát đủ kịch bản chưa, thử chạy engine trên ít nhất hai hồ sơ đối lập và in ra reason minh bạch. Kiểm tra cơ chế không khóa học viên vào một đường duy nhất đã đảm bảo chưa, nhánh Exploration có luôn trả về bài hợp lệ không. Frontend LearnerProgressPage và avatar dropdown đã nhận đúng dữ liệu chưa, có lỗi render khi mảng tag rỗng không."
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Giao một tác vụ rà soát độc lập, không tự đọc lại bằng chính góc nhìn đã viết code, để giảm thiên vị xác nhận. Yêu cầu tác vụ này phải chạy thật bằng công cụ dịch thẳng từ mã nguồn thay vì chỉ suy luận từ tên hàm.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-Kết quả rà soát xác nhận chín trên chín kiểm thử ban đầu đạt, nhưng thiếu ba trường hợp biên quan trọng: học viên hoàn toàn mới với ngân hàng bài không rỗng, nhánh nâng cao cũng hết bài để gợi ý, và học viên đã thử qua toàn bộ tag hiện có. Bổ sung cả ba trường hợp này vào bộ kiểm thử, cả ba đều đạt ngay không cần sửa logic động cơ, xác nhận hành vi cũ vốn đã đúng chỉ là chưa được chứng minh bằng kiểm thử.
-
-Đồng thời phát hiện điểm nhỏ: khối cảnh báo lỗi từng bài trên giao diện thiếu giới hạn chiều cao cuộn riêng, và văn bản lý do lỗi dài không được cắt gọn, cả hai đã sửa ngay.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-```
-npx jest src/modules-api/recommendation/recommendation.spec.ts
-```
-
-Mười hai trên mười hai đạt sau khi bổ sung.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: một hành vi đúng nhưng chưa có kiểm thử bảo vệ vẫn là rủi ro thật, vì lần sửa code kế tiếp có thể vô tình phá vỡ hành vi đó mà không ai biết cho tới khi lỗi xuất hiện ở môi trường thật.
-
----
-
-## Việc 6: Sửa lỗi bài lấy từ ngân hàng đề trong Code Playground bị mất nhóm lớp
-
-> "Còn ui day 20 vừa làm luôn, làm sao để test." Sau khi được hướng dẫn cách test và chạy thử giao diện thật: "??? làm cho cả hệ thống thật mà chứ làm cho tài khoản local làm gì." Rồi làm rõ vấn đề thật đang thấy: "Nó gom hết bài vào thư mục bài cũ, mất ô chọn lớp r."
+> "Tôi không muốn phải gõ lệnh seed thủ công vì khách hàng sau này không biết code. Hãy tối ưu và khởi chạy dự án để tôi vào test thực tế theo các yêu cầu sau:
+>
+> Tự động nạp dữ liệu (Auto-seed khi khởi động):
+>
+> Chuyển logic seed 10 bài lab vào lifecycle khởi động Backend (ví dụ onModuleInit trong service của tester-labs).
+>
+> Khi server bật, tự kiểm tra nếu collection chưa có dữ liệu thì tự động nạp 10 bài lab mặc định một lần duy nhất (đảm bảo idempotent, không ghi đè mất bài nộp khi khởi động lại).
+>
+> Hoàn thiện 2 chi tiết UI còn thiếu:
+>
+> Thêm tab "Tester Lab" vào menu Mobile trên Header/Navbar cho đồng bộ với Desktop.
+>
+> Thêm một form/modal chấm điểm Rubric đơn giản trên FE (cho phép reviewer/giảng viên/peer nhập điểm từ 0 đến 2 cho từng tiêu chí và lưu nhận xét) để bài chuyển sang trạng thái REVIEWED.
+>
+> Khởi động và hướng dẫn test:
+>
+> Bật cả Backend dev server và Frontend dev server.
+>
+> Cung cấp đường dẫn truy cập trang Tester Lab trên trình duyệt.
+>
+> Cung cấp tài khoản mẫu có sẵn trong DB (student và reviewer) kèm 3 bước test nhanh: Tải template -> Kéo thả nộp file CSV hợp lệ -> Thử chấm điểm Rubric.
+>
+> Làm xong hãy báo trạng thái để tôi vào trình duyệt kiểm tra."
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Cần xác định đây có phải lỗi do các thay đổi trong ngày gây ra hay là lỗi có sẵn từ trước, trước khi kết luận phạm vi sửa.
+Khách hàng sau này không chạy lệnh, nên dữ liệu mặc định phải tự có khi backend bật, và việc tự nạp không được phép làm mất bài nộp đã có.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Xác nhận qua lịch sử thay đổi: lỗi này không liên quan tới các sửa đổi trong ngày. Nguyên nhân là trang khu vực luyện tập gộp danh sách bài từ hai nguồn, bài hệ thống và bài do giáo viên soạn, theo đường dẫn định danh; khi hai nguồn trùng đường dẫn định danh, bản ghi từ nguồn giáo viên soạn ghi đè hoàn toàn bản ghi hệ thống, bao gồm cả các trường phân loại lớp và chủ đề mà bản ghi giáo viên soạn không có. Sửa lại để khi trùng đường dẫn định danh, giữ nguyên các trường phân loại từ bản ghi hệ thống, chỉ để bản ghi giáo viên soạn ghi đè phần nội dung khác.
+Thêm `onModuleInit` vào `TesterLabsService`, xóa `seed-tester-labs.ts` và mục `seed:tester-labs` trong `package.json`. Thêm tab "Tester Lab" vào menu mobile của cả hai vai trò trong `Header.tsx`. Tạo `TesterLabReviewPanel.tsx` (165 dòng): danh sách bài cần chấm, nút tải bài nộp và modal nhập điểm cho từng tiêu chí (0 đến điểm tối đa, bước 0.5) kèm nhận xét, gọi API chấm điểm và tải lại danh sách. Thêm hai hàm `getReviewable`, `review`, `downloadArtifact` vào `testerLabApi.ts`.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Kiểm tra kiểu tĩnh sạch. Mở giao diện thật bằng trình duyệt tự động, xác nhận trước khi sửa toàn bộ năm mươi bài rơi vào một nhóm duy nhất, sau khi sửa tách đúng thành ba nhóm theo đúng số lượng bài mỗi nhóm.
+Thêm kiểm thử cho auto-seed, chạy `npx tsc --noEmit` (BE và FE) và `npx jest src/modules-api/tester-labs`: 24 kiểm thử đạt. Khởi động thật `npm run start:dev` (BE) và `npm run dev` (FE), log backend ghi nhận đã nạp 10 lab; đăng nhập bằng hai tài khoản có sẵn `student@gmail.com` và `teacher@gmail.com`, gọi API thật: danh sách trả 10 lab, học viên nộp file CSV hợp lệ và auto-check báo đủ cột, giảng viên chấm và bài chuyển sang `REVIEWED`.
+
+**Lỗi AI mắc phải, phát hiện khi rà lại cơ chế nạp:** bản tự nạp đầu tiên chỉ kiểm tra collection có bản ghi nào chưa rồi mới chèn, nên nếu thiếu một lab thì không bổ sung được. Phát hiện ở Việc 7 và sửa sang upsert theo `labCode`.
+
+Bài nộp thử của tôi (LAB-01, đã chấm) và một tệp trong `BE/uploads/tester-labs` còn nằm lại trong môi trường phát triển vì lệnh dọn dẹp bị hệ thống an toàn chặn; đã báo lại cho người dùng.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: khi hai nguồn dữ liệu được gộp bằng khóa trùng, luôn cần xác định rõ nguồn nào là chủ sở hữu của từng trường dữ liệu, gộp theo kiểu ghi đè toàn bộ không phân biệt trường sẽ âm thầm xóa mất dữ liệu từ nguồn kia.
+Điều học được: kiểm thử tích hợp bằng cách nộp dữ liệu thật để lại bản ghi trong cơ sở dữ liệu dùng chung, lần sau cần dùng dữ liệu có thể phân biệt để dọn được. Điều chưa chắc: chưa mở trình duyệt để kiểm tra bằng mắt kéo thả và modal, mới xác nhận qua API và kiểm tra kiểu.
 
 ---
 
-## Việc 7: Thêm cụm avatar và trang thông tin cá nhân theo yêu cầu thiết kế lại giao diện
+## Việc 7: Rà soát chéo bảo mật, phân quyền, toàn vẹn dữ liệu, dọn lỗi TypeScript và chạy hồi quy
 
-> "??? Không có nút để vào xem, giờ phải rõ url mới vào được, hiểu không." Sau khi chốt hướng xử lý: "Hãy sửa component Navbar/Header ở góc trên bên phải: bỏ nút bấm Tiến Độ Của Tôi và nút Đăng xuất rời rạc hiện tại trên thanh bar. Thay thế bằng một cụm Avatar Dropdown nằm ở góc ngoài cùng bên phải. Avatar trigger là một nút tròn avatar, bo tròn, hiển thị chữ cái đầu tên user. Dropdown menu khi click vào avatar mở xuống, nền trắng, đổ bóng, bo góc, z-index nổi lên trên, gồm header menu tên người dùng cộng email cộng role badge, mục Thông tin cá nhân, mục Tiến độ học tập chuyển hướng sang trang progress hiện tại, đường kẻ phân cách, mục Đăng xuất chữ đỏ. Click bên ngoài vùng dropdown thì tự động đóng menu. Sửa trực tiếp vào file Navbar/Header hiện có, dùng Tailwind CSS đồng bộ style hiện tại của app."
+> "Hãy thực hiện kiểm tra chéo toàn bộ mã nguồn của nhánh hiện tại (feature/learning-hub-day21) kết hợp với các phân hệ đã làm ở các ngày trước (Day 19 AI Generator, Day 20 Recommendation, Day 21 Tester Lab) theo các tiêu chuẩn nghiêm ngặt dưới đây.   Nguyên tắc bất biến: Không được làm vỡ hoặc thay đổi hành vi hoạt động của các tính năng sẵn có (Code Playground, Online Judge, Contest, Quiz, AI Coach, Soạn thảo). Mọi chỉnh sửa phải tối giản, chính xác (surgical changes) và bám sát CLAUDE.md.   1. Bảo mật & Phân quyền (Security & Access Control)Lỗ hổng tải tệp (File Upload Sandbox):Kiểm tra API nộp artifact của Tester Lab (/tester-labs/upload hoặc /submit): Đảm bảo đã chặn hoàn toàn việc bypass đuôi tệp qua kỹ thuật double extension (ví dụ: shell.php.csv, evil.exe.pdf), kiểm tra Magic Bytes thực tế thay vì chỉ tin cậy MIME-type từ client gửi lên.Chặn tuyệt đối nguy cơ Path Traversal (tên file chứa ../ hoặc ký tự đặc biệt) khi ghi tệp vào thư mục uploads/tester-labs/.Kiểm soát quyền (IDOR & RBAC):Đảm bảo học viên không thể xem bài nộp hoặc tải tệp artifact của học viên khác qua việc thay đổi ID trên URL/API.Tách bạch vai trò Reviewer: Phân quyền rõ ràng trên Backend, chỉ TEACHER hoặc ADMIN mới có quyền chấm điểm chính thức. Nếu có tính năng peer-review, phải có cờ cấu hình minh bạch, tuyệt đối không để lộ thông tin nhạy cảm của người nộp.2. Đồng bộ & Toàn vẹn dữ liệu (Data Integrity & Synchronization)Đồng bộ bài tập & Danh mục: Rà soát lại bài toán đồng bộ giữa nơi lưu bài soạn thảo (Lesson) và catalog bài tập thực hành (Exercise/Playground) để không xảy ra tình trạng bài xuất bản ở trang soạn thảo bị mất hút hoặc mồ côi.Auto-seed Idempotency: Kiểm tra cơ chế tự nạp 10 bài Tester Lab trong onModuleInit: Đảm bảo logic kiểm tra tồn tại hoạt động chính xác (dựa trên labCode độc nhất), không tạo bản ghi trùng lặp và không bao giờ ghi đè làm mất lịch sử submissions đã có của người dùng khi restart server.3. Tối ưu UX/UI & Tránh xung đột luồng người dùngLàm rõ Role trên giao diện:Khi người dùng đăng nhập với role STUDENT: Chỉ hiển thị khung nộp bài và khối "Bài nộp của tôi". Ẩn hoàn toàn khối "Bài cần chấm" (hoặc chỉ hiện khi bài đó được hệ thống chủ đích phân công peer-review) để tránh gây hoang mang, hiểu nhầm role.Khắc phục các lỗi mất con trỏ (input focus loss), lỗi hiển thị thông báo thành công giả, hoặc mất trạng thái khi chuyển đổi tab.Dọn dẹp cảnh báo TypeScript: Kiểm tra và xử lý dứt điểm các lỗi type/import còn sót lại trên Frontend để đảm bảo npx tsc sạch sẽ.4. Hiệu năng & Kiểm thử hồi quy (Regression Testing)Kiểm tra rò rỉ bộ nhớ khi đọc/ghi file artifact lớn (dùng Stream thay vì đọc toàn bộ file vào buffer RAM nếu cần).Chạy kiểm tra toàn bộ test suite của hệ thống:Chạy npx tsc --noEmit cho cả BE và FE.Chạy npx jest (yêu cầu toàn bộ các bài test cũ từ Day 1 đến Day 21 đều phải PASS 100%).Đầu ra yêu cầu:Báo cáo danh sách các lỗi hoặc điểm nghẽn bảo mật/UX vừa tìm thấy.Đưa ra phương án vá ngắn gọn cho từng điểm.Tiến hành sửa và xác minh bằng lệnh test thực tế. Tuyệt đối không tự ý xóa bỏ các tính năng đã ổn định."
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Trang thông tin cá nhân chưa tồn tại, cần tạo mới thay vì chỉ liên kết tới một đường dẫn trống.
+Rà soát phải dựa trên đọc mã thật của cả module mới lẫn các module cũ liên quan, và mọi chỉnh sửa ở module cũ chỉ được vá đúng dòng lỗi. Các phát hiện ngoài phạm vi phải báo cáo chứ không tự sửa.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Sửa thành phần điều hướng chung: bỏ nút tiến độ khỏi danh sách chính, thay khu vực đăng xuất bằng một cụm avatar hình tròn hiển thị chữ cái đầu tên người dùng, bấm vào mở một lớp menu chứa tên, hộp thư điện tử, nhãn vai trò, liên kết thông tin cá nhân, liên kết tiến độ học tập chỉ hiện với học viên, và mục đăng xuất. Gắn một trình lắng nghe sự kiện bấm chuột ở phạm vi toàn trang để tự đóng menu khi bấm ra ngoài vùng menu. Tạo trang thông tin cá nhân mới hiển thị họ tên, hộp thư điện tử, vai trò, mã học viên nếu có, và nhóm tuổi nếu có, đăng ký đường dẫn mới.
+Các quyết định kỹ thuật và lý do:
+
+| Vấn đề tìm thấy | Quyết định |
+|---|---|
+| Mọi user đã đăng nhập xem được danh sách bài của người khác và tải được artifact (IDOR); học viên chấm được điểm | Siết RBAC ở `tester-labs.service.ts`: chỉ chủ bài, TEACHER, ADMIN tải artifact; chỉ TEACHER, ADMIN chấm; peer-review học viên mặc định tắt, bật bằng biến `TESTER_LAB_PEER_REVIEW=true`; khi bật, ẩn `userId`, `artifactUrl`, `reviewerId` của người nộp; không ai tự chấm bài mình |
+| Chỉ tin MIME-type và đuôi tệp do client gửi | Thêm `matchesSignature` dùng chung cho upload và auto-check: PDF phải bắt đầu `%PDF`, XLSX bắt đầu `PK\x03\x04`, CSV và JSON không được chứa byte NUL; kiểm dung lượng theo `buffer.length` thực tế |
+| Double extension và tên tệp có ký tự đường dẫn | Từ chối tên chứa `/`, `\`, NUL, `..` hoặc đuôi thực thi ở giữa tên (`shell.php.csv`, `evil.exe.pdf`); tên tệp gốc không bao giờ dùng để ghi đĩa, đã dùng UUID từ đầu |
+| Tự nạp chỉ kiểm tra collection có bản ghi hay không | Đổi sang `bulkWrite` upsert theo `labCode` với `$setOnInsert`: chỉ chèn lab còn thiếu, không bao giờ ghi đè |
+| Phần tử `null` trong `grades` gây lỗi 500 khi chấm | Chuyển thành lỗi 400 |
+| `deleteLesson` xóa exercise theo `slug`, có thể xóa nhầm bài AI khi slug bị hậu tố | Vá đúng một lệnh trong `authoring.service.ts`: xóa theo `sourceLessonSlug` khớp lesson bị xóa |
+| Học viên thấy khối "Bài cần chấm"; giảng viên thấy khung nộp bài; thiếu thông báo nộp thành công | Trang chi tiết nhận cờ `isStudent`: học viên chỉ thấy khung nộp và "Bài nộp của tôi", giảng viên chỉ thấy khối chấm; khối chấm tự ẩn với học viên khi backend từ chối hoặc không có bài; thêm thông báo thành công chỉ hiện sau khi API trả về thành công |
+| 5 lỗi TypeScript có sẵn ở FE | `PartyPopper` import thừa; ép kiểu `type` của `ContestProblem`; thêm `role?` vào `RegisterPayload`; xử lý `content` có thể `undefined`; gán `expectedOutput ?? ''` khi import bài từ ngân hàng đề |
+
+Phát hiện không sửa vì sẽ đổi hành vi sẵn có, đã báo lại: lesson coding đã xuất bản rồi chuyển về nháp vẫn để lại exercise trong Playground; lesson đổi slug để lại exercise mồ côi ở slug cũ. Phần đọc/ghi tệp: multer dùng bộ nhớ, giới hạn cứng 5MB nên tối đa 5MB RAM cho mỗi yêu cầu; tải xuống dùng `res.download` (stream). Không thay đổi phần này. Modal chấm điểm nằm trực tiếp trong component chứ không phải component lồng nhau nên không có lỗi mất con trỏ.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Mở giao diện thật bằng trình duyệt tự động, xác nhận bấm avatar mở đúng menu với đầy đủ thông tin tài khoản, bấm ra ngoài menu tự đóng, bấm liên kết tiến độ học tập chuyển đúng trang, bấm liên kết thông tin cá nhân hiển thị đúng dữ liệu tài khoản.
+Viết thêm kiểm thử: upload (double extension, ký tự đường dẫn, magic bytes giả, buffer vượt 5MB dù khai báo nhỏ, không dùng tên gốc để ghi đĩa), service (auto-seed dùng `$setOnInsert`, học viên bị từ chối khi tắt peer-review, không tải được artifact người khác, chủ bài và giảng viên tải được, ẩn trường nhạy cảm khi peer-review, không tự chấm bài mình). Lệnh chạy và kết quả:
+
+```
+cd learning-hub/BE
+npx tsc --noEmit                              # sạch
+npx jest                                      # 34 suite, 349 kiểm thử đạt
+cd ../FE
+npx tsc --noEmit -p tsconfig.app.json         # sạch
+```
+
+Riêng module tester-labs: 3 suite, 41 kiểm thử (upload 20, rubric engine 13, service 8). Kiểm tra trên máy chủ thật đang chạy: học viên gọi danh sách chấm nhận 403, giảng viên nhận 200; chủ bài tải artifact nhận 200; upload `shell.php.csv` và tệp PDF giả có nội dung `MZ` đều nhận 400. Khởi động lại backend nhiều lần: cơ sở dữ liệu vẫn 10 lab và 1 bài nộp, không trùng lặp.
+
+**Lỗi AI mắc phải, phát hiện khi chạy kiểm thử:** khi viết kiểm thử bằng script chỉnh file, các chuỗi thoát như `\u0003`, `\0` bị diễn giải sai, làm regex chứa byte NUL thật và hai kiểm thử thất bại. Phát hiện do một kiểm thử xlsx hợp lệ bị từ chối, đối chiếu từng byte bằng `cat -A` và ghi lại tệp bằng công cụ ghi file. Một kiểm thử cũ mong `fileSize` bằng 100 phải đổi thành độ dài buffer thực, vì kích thước lưu nay lấy từ buffer.
+
+Chưa xác minh trên máy chủ thật: kịch bản học viên B tải bài của học viên A, do thiếu mật khẩu tài khoản học viên thứ hai; chỉ có bằng chứng từ kiểm thử đơn vị.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: một liên kết trong menu trỏ tới một trang chưa tồn tại là một dạng lỗi dễ bỏ sót nếu không tự đi hết đường dẫn đó trên giao diện thật trước khi báo hoàn thành.
+Điều học được: bản triển khai đầu tiên của chính tôi có lỗ hổng IDOR và RBAC, cho thấy quyền truy cập cần được thiết kế ngay từ đầu chứ không thêm sau; và nguyên tắc Surgical Changes giúp tách rõ phần được vá (một dòng trong `deleteLesson`) khỏi phần chỉ báo cáo. Điều chưa chắc: cờ peer-review chưa có cơ chế phân công người chấm, hiện là công tắc bật tắt toàn hệ thống.
 
 ---
 
-## Việc 8: Rà soát và vá bảy hạng mục tồn đọng của pipeline AI Tạo Đề ngày 19
+## Việc 8: Viết tài liệu kỹ thuật Tester Lab và cập nhật nhật ký
 
-> "Yêu cầu xử lý kỹ thuật, Fix tồn đọng Ngày 19 - Problem Generator Pipeline. Đây là các vấn đề phát hiện khi self-audit cuối Ngày 19. Hãy tiến hành refactor và sửa triệt để bảy hạng mục: chính xác hóa logic so sánh outputsMatch trong problem-validator.ts, chỉ áp dụng epsilon khi có dấu chấm thập phân hoặc ký hiệu khoa học. Xử lý chịu lỗi và Partial Success khi sinh hàng loạt trong problem-generator.controller.ts, bọc try/catch riêng cho từng item, trả về results và errors. Mở rộng cơ chế Retry mạng và chống crash JSON trong problem-generator-gemini.client.ts, bắt toàn bộ mã lỗi mạng phổ biến, exponential backoff, tăng maxOutputTokens, bọc JSON.parse trong try/catch. Bảo toàn dữ liệu và chống ghi đè ngoài ý muốn trong authoring.service.ts, kiểm tra nguồn gốc trước khi lưu đè. Kiểm tra trùng lặp động trên Database thật trong problem-duplicate-check.ts, chuyển sang truy vấn trực tiếp collection exercises. Chuẩn hóa mã nguồn, tách hàm slugify dùng chung ra common/utils. Bảo mật và trải nghiệm giao diện, sanitize input, hiển thị rõ tiến độ từng bài kèm nút thử lại. Viết bổ sung unit test cho outputsMatch và callWithRetry."
+> "Đọc các file trong `docs/day20/` để lấy chuẩn cấu trúc tài liệu, đồng thời đọc phần Day 20 trong `AI_WORKLOG.md` để lấy đúng văn phong và cấu trúc các bảng biểu.
+>
+> Sau đó thực hiện 2 việc cho Day 21:
+>
+> 1. **Tạo tài liệu trong `docs/day21/`:**
+> - Cấu trúc thư mục và số lượng file tóm tắt tương tự như `docs/day20/`.
+> - Tự trích xuất toàn bộ dữ liệu thực tế từ codebase Day 21 để tổng hợp nội dung.
+> - Làm rõ sự phối hợp kỹ thuật với Tester Trần Quốc Nguyên: tiếp nhận bộ lab từ thư mục Day 14, thống nhất bỏ LAB-10/11 (do artifact .spec.ts), giữ lại LAB-12 CSV và tích hợp rubric 5 tiêu chí gốc vào hệ thống.
+>
+> 2. **Cập nhật `AI_WORKLOG.md`:**
+> - Ghi đè/cập nhật phần Day 21 theo đúng định dạng mẫu của Day 20.
+> - Trích dẫn nguyên văn các prompt gốc mà tôi đã đưa ra trong phiên làm việc Day 21.
+> - Nhấn mạnh sự trao đổi, phối hợp liên vai trò với Tester Nguyên (TTS 03) trong việc chuẩn hóa cấu trúc đề, schema và tiêu chí đánh giá severity/quality.
+> - Trình bày rõ các quyết định kỹ thuật của tôi (chuyển auto-seed, siết chặt RBAC/IDOR, chặn magic bytes tệp upload) kèm kết quả chạy test độc lập.
+> - Tự động lấy số liệu, diff và danh sách file thay đổi từ repo mà không thêm các mục ngoài lề.
+>
+> Làm xong báo lại ngắn gọn đường dẫn các file đã cập nhật."
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Bảy hạng mục này đã được chính hệ thống ghi nhận là tồn đọng từ Việc 13 của ngày 19, không phải suy đoán mới, cần sửa lần lượt và kiểm chứng từng hạng mục bằng kiểm thử riêng trước khi chuyển sang hạng mục kế tiếp.
+Thư mục `docs/day20/` chỉ có một tệp, nên `docs/day21/` cũng chỉ một tệp. Mọi con số và khẳng định trong tài liệu phải đối chiếu với mã và kết quả chạy thật, không chép từ trí nhớ. Nhật ký Day 21 ghi đè hoàn toàn nội dung Day 20 trong tệp này (bản Day 20 vẫn còn trong lịch sử Git).
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Hạng mục một: sửa hàm so khớp kết quả dùng chung, chỉ áp dụng sai số cho phép khi cả hai vế đều ở dạng có dấu chấm thập phân hoặc ký hiệu khoa học, số nguyên thuần kể cả có số không ở đầu luôn so sánh chuỗi tuyệt đối.
+Tạo `learning-hub/docs/day21/tester-lab.md` gồm năm phần theo cấu trúc của tài liệu Day 20: nguồn bộ lab và phối hợp với Tester, mô hình dữ liệu và luồng nghiệp vụ (bảng route), cơ chế kiểm soát và an toàn, hạn chế thiết kế, điểm nghi vấn cần xử lý tiếp. Ghi đè `learning-hub/AI_WORKLOG.md` sang Ngày 21. Số liệu lấy từ `git status`, `git diff --stat` và số dòng thực tế của từng tệp.
 
-Hạng mục hai: đổi route sinh hàng loạt sang mô hình mỗi bài bọc riêng một khối bắt lỗi, trả về đồng thời danh sách bài thành công và danh sách bài lỗi kèm vị trí và lý do đã làm sạch, một bài lỗi không còn làm mất các bài đã sinh thành công trước đó trong cùng lô.
+Tổng hợp thay đổi trên nhánh, chưa commit:
 
-Hạng mục ba: mở rộng điều kiện nhận diện lỗi mạng đáng thử lại khi gọi mô hình sinh đề, không chỉ hai mã lỗi cụ thể như trước mà gồm toàn bộ nhóm mã lỗi máy chủ và các mã lỗi kết nối phổ biến, áp dụng khoảng chờ tăng dần giữa các lần thử. Tăng giới hạn số token đầu ra, thêm cơ chế phát hiện phản hồi bị cắt ngang giữa chừng và tự động yêu cầu mô hình sinh lại ngắn gọn hơn thay vì báo lỗi ngay.
-
-Hạng mục bốn: thêm trường đánh dấu nguồn gốc trên bản ghi bài tập, chỉ cho phép cơ chế đồng bộ tự ghi đè khi chính nó là chủ sở hữu bản ghi trước đó, nếu không tự sinh đường dẫn định danh hậu tố mới thay vì ghi đè âm thầm.
-
-Hạng mục năm: chuyển hàm kiểm tra trùng lặp từ việc đọc ba tệp dữ liệu mẫu tĩnh sang nhận một danh sách bài đã có do nơi gọi cung cấp, nơi gọi có kết nối cơ sở dữ liệu truy vấn trực tiếp toàn bộ bài đang có thật, đảm bảo bài vừa được người khác lưu cũng nằm trong tập đối chiếu.
-
-Hạng mục sáu: gộp hàm chuyển tiêu đề thành đường dẫn định danh, trước đây định nghĩa trùng lặp ở hai tệp nguồn khác nhau, về một nơi dùng chung duy nhất.
-
-Hạng mục bảy: thêm hàm làm sạch đầu vào tự do trước khi đưa vào yêu cầu gửi mô hình sinh đề, cắt ký tự điều khiển ẩn và giới hạn độ dài. Xác nhận riêng phần mã lời giải sinh ra đã được kiểm tra an toàn từ trước khi thực thi thử, không cần thêm cơ chế mới. Thêm trạng thái nút bấm chờ và vô hiệu hóa khi đang lưu hoặc phát hành trên giao diện Soạn Thảo, tránh bấm lặp gây tranh chấp dữ liệu.
+| Nhóm | Số lượng | Chi tiết |
+|---|---|---|
+| Tệp sửa (Modified) | 10 | `.gitignore`; `app.module.ts`, `database.module.ts`, `authoring.service.ts`; `App.tsx`, `Header.tsx`, `ContestExamWorkspace.tsx`, `TeacherContestAuthoring.tsx`, `TeacherAuthoringPage.tsx`, `types/auth.ts`; tổng +62 dòng, -5 dòng |
+| Tệp Backend mới | 11 mã nguồn + 20 tài nguyên | 8 tệp trong `tester-labs/` (3 tệp kiểm thử), 2 schema, `initial-tester-labs.ts`; 10 template CSV và 10 fixture JSON trong `BE/assets/tester-labs` |
+| Tệp Frontend mới | 5 | `TesterLabListPage.tsx`, `TesterLabDetailPage.tsx`, `TesterLabReviewPanel.tsx`, `testerLabApi.ts`, `types/testerLab.ts` |
+| Tệp tài liệu | 2 mới, 1 ghi đè | Mới: `learning-hub/CLAUDE.md`, `docs/day21/tester-lab.md`; ghi đè: `AI_WORKLOG.md` |
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-Viết kiểm thử riêng cho từng hạng mục ngay sau khi sửa xong hạng mục đó, không dồn lại kiểm thử một lần ở cuối. Chạy toàn bộ bộ kiểm thử backend sau khi hoàn tất cả bảy hạng mục:
+Không có lệnh kiểm thử tự động cho việc viết tài liệu. Trước khi ghi đã chạy lại `npx jest src/modules-api/tester-labs` để lấy đúng số kiểm thử từng tệp (20, 13, 8), đối chiếu danh sách route với `tester-labs.controller.ts` và danh sách 10 bài với `initial-tester-labs.ts`.
 
-```
-npx jest --reporters=default
-```
-
-Hai mươi tám bộ, hai trăm sáu mươi ba trường hợp kiểm thử đạt.
-
-**Lỗi AI mắc phải, phát hiện khi chạy kiểm thử:** một trường hợp kiểm thử cũ của hàm so khớp kết quả giả định sai số làm tròn được chấp nhận giữa một số thực và một số nguyên không có dấu chấm, trong khi quy tắc mới chỉ chấp nhận sai số khi cả hai vế đều là số thực. Sửa lại dữ liệu kiểm thử cho đúng quy tắc mới, không sửa logic vì logic mới mới là đúng ý đồ ban đầu.
+Giới hạn trung thực của phần "phối hợp với Tester Nguyên": các nội dung phối hợp trong tài liệu và nhật ký dựa trên những gì bộ lab Day 14 bàn giao (TASK.md, template, rubric trong hướng dẫn giảng viên, fixture) và quyết định do người dùng chốt trong phiên làm việc. Phiên làm việc không lưu nội dung trao đổi trực tiếp giữa người dùng và Tester Nguyên, nên tôi không ghi lại lời của Tester.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: xử lý một danh sách tồn đọng đã tự ghi nhận từ trước nên đi lần lượt từng hạng mục kèm kiểm thử riêng ngay lập tức, không gộp chung, vì mỗi hạng mục có rủi ro làm lệch hành vi hiện có theo cách khác nhau, dồn lại dễ bỏ sót việc gán nhầm nguyên nhân khi có kiểm thử thất bại.
-
----
-
-## Việc 9: Tự rà soát lại giao diện Problem Generator sau khi thêm trạng thái lỗi từng bài
-
-> "Rà soát độc lập file TeacherProblemGeneratorPage.tsx cùng các component/types liên quan vừa sửa ở Hạng mục 2 và 7. Kiểm tra TypeScript và Runtime Crash: response Partial Success có biến nào undefined làm vỡ hàm render không, fallback khi success rỗng hoặc errors rỗng ra sao. Kiểm tra bố cục: progress bar có tràn viền không, khối danh sách lỗi có max-h và overflow-y-auto hợp lý không. Đồng bộ Design System: màu nút Thử lại, badge lỗi/thành công có đúng bảng màu chung không. Trạng thái tương tác: bấm Thử lại các bài bị lỗi có chặn spam click không, sau khi thử lại thành công danh sách lỗi cũ có xóa mượt mà không. Chạy thử lệnh typecheck FE, báo cáo tóm tắt component nào có nguy cơ vỡ layout hoặc crash runtime."
-
-### Chỉ dẫn chính và các vòng phản hồi quan trọng
-
-Giao một tác vụ rà soát độc lập, yêu cầu chạy thật lệnh kiểm tra kiểu tĩnh của giao diện, không chỉ đọc mã bằng mắt.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-Kết quả rà soát xác nhận kiểu tĩnh sạch và phần lớn giao diện đúng quy ước, nhưng phát hiện một lỗi thật: nút sinh bài chính không bị khóa trong lúc một thao tác thử lại một bài lỗi riêng lẻ đang chạy, có thể gây hai lệnh gọi cùng sửa chung một danh sách kết quả. Sửa lại điều kiện cho phép bấm nút sinh bài chính để loại trừ luôn trường hợp đang có thao tác thử lại riêng lẻ chạy dở. Cũng sửa các điểm nhỏ: giới hạn chiều cao cuộn cho danh sách lỗi, cắt gọn văn bản lý do dài, và sửa lại một chú thích mã nguồn mô tả sai hành vi khóa nút thực tế.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-Kiểm tra kiểu tĩnh sạch sau khi sửa. Xác nhận bằng đọc lại đoạn mã điều kiện khóa nút, chưa chạy thao tác đồng thời thật trên trình duyệt để tái hiện tình huống tranh chấp cụ thể.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: một chú thích mã nguồn mô tả sai hành vi thật của đoạn mã cạnh nó cũng là một dạng lỗi cần sửa, vì người đọc sau này sẽ tin theo chú thích thay vì tự lần lại logic thật.
-
----
-
-## Việc 10: Sửa lỗi gốc khiến bài lấy từ ngân hàng đề không xuất bản được, rà soát quyền Admin/Teacher
-
-> "Lệnh sửa lỗi luồng Bài tập -> Đề thi và Rà soát toàn diện Role Admin/Teacher. Tôi gặp lỗi nghiêm trọng: khi dùng AI tạo bài tập và bấm Lưu vào ngân hàng đề, bài đã được lưu. Nhưng khi giáo viên/admin tạo một đề thi/bài học thật Contest/Lesson và chọn kéo bài đó từ ngân hàng đề ra thì hệ thống KHÔNG cho lưu và KHÔNG thể phát hành được. Rà soát sự khác biệt giữa cấu trúc bản ghi do AI sinh lưu vào Exercise với schema mà Lesson/Contest yêu cầu khi publish, kiểm tra các trường bắt buộc lúc Publish. Đồng thời rà soát toàn bộ nghiệp vụ Admin/Teacher: đảm bảo route nhạy cảm có Guard chuẩn, kiểm tra lỗ hổng IDOR giáo viên A có sửa/xóa/lấy trộm bài của giáo viên B không, input sanitization, và toàn vẹn luồng CRUD Tạo bài mới đến Xóa."
-
-### Điều tôi hiểu trước khi gọi AI
-
-Người dùng đưa ra một giả thuyết ban đầu về nguyên nhân liên quan tới cuộc thi, cần tự điều tra độc lập để xác nhận đúng cơ chế thật gây lỗi trước khi sửa, không mặc định giả thuyết đó đúng.
-
-### Context, tài liệu, file, constraint đã cung cấp
-
-Giao một tác vụ điều tra riêng đọc toàn bộ luồng liên quan tới khái niệm cuộc thi và khái niệm bài học, xác nhận nơi nào thật sự đọc dữ liệu từ ngân hàng đề.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-Kết quả điều tra bác bỏ giả thuyết ban đầu: khái niệm cuộc thi hoàn toàn không đọc dữ liệu từ ngân hàng đề, nó chỉ sao chép tiêu đề và đường dẫn định danh từ khái niệm bài học đã có sẵn. Nguyên nhân thật nằm ở khái niệm bài học: khi một bài tập trong ngân hàng đề chưa từng qua bước xuất bản chính thức được gộp hiển thị vào danh sách quản lý bài học để giáo viên xem và sửa, trường chuẩn đầu ra bắt buộc cho việc xuất bản bị gán cứng thành chuỗi rỗng, khiến điều kiện xuất bản luôn thất bại ngay cả khi giáo viên không đổi gì thêm.
-
-Sửa bằng cách tự sinh một chuẩn đầu ra mặc định hợp lý từ tiêu đề bài tập thay vì để rỗng, cùng công thức đã dùng khi hệ thống tự gieo dữ liệu mẫu ban đầu. Bổ sung thêm điều kiện kiểm tra tiêu đề và mã lời giải bắt buộc phải có trước khi xuất bản, với thông báo lỗi nêu rõ đúng trường nào còn thiếu.
-
-Về phần rà soát quyền: xác nhận trường chủ sở hữu tồn tại trên bản ghi bài học và cuộc thi nhưng chưa từng được dùng để kiểm tra quyền ở các thao tác sửa, xóa, xem chi tiết, và tệ hơn, trường này còn cho phép người gọi tự khai qua yêu cầu gửi lên. Sửa lại: trường chủ sở hữu luôn lấy từ mã xác thực, không bao giờ nhận từ yêu cầu gửi lên. Thêm một điều kiện kiểm tra chung: giáo viên chỉ sửa xóa xem được tài nguyên do chính mình tạo hoặc tài nguyên dùng chung được gieo sẵn từ hệ thống, người quản trị bỏ qua toàn bộ điều kiện này. Áp dụng cho cả hai khái niệm bài học và cuộc thi. Cũng bổ sung bước làm sạch loại bỏ ký tự điều khiển ẩn khỏi các trường văn bản tự do trước khi lưu, xác nhận riêng không có nguy cơ chèn mã kịch bản vì giao diện luôn hiển thị các trường này dưới dạng văn bản thuần, không có nơi nào diễn giải thành mã đánh dấu.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-Viết một kiểm thử mô phỏng trọn vẹn đúng luồng nghiệp vụ gây lỗi ban đầu: sinh một bài bằng công cụ hỗ trợ trí tuệ nhân tạo, lưu vào ngân hàng đề, lấy ra sửa từ danh sách quản lý, xuất bản, xác nhận thành công. Bổ sung kiểm thử riêng cho từng nhánh phân quyền: giáo viên khác không sửa xóa xem được tài nguyên không thuộc về mình, người quản trị làm được với mọi tài nguyên, tài nguyên dùng chung ai cũng sửa được.
-
-```
-npx jest --reporters=default
-```
-
-Ba mươi mốt bộ, hai trăm chín mươi tám trường hợp kiểm thử đạt.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: giả thuyết ban đầu của người báo lỗi về nơi xảy ra sự cố có thể sai hoàn toàn ngay cả khi hiện tượng họ mô tả là chính xác, việc điều tra độc lập bằng cách đọc lần theo đúng luồng dữ liệu thật quan trọng hơn việc tin theo suy đoán ban đầu, kể cả khi suy đoán đó nghe hợp lý. Điều chưa chắc: khái niệm tài nguyên dùng chung hiện được nhận diện bằng một giá trị chủ sở hữu mặc định cố định, cách này đơn giản nhưng cứng, cần xem lại nếu sau này có nhu cầu chuyển giao quyền sở hữu tài nguyên dùng chung cho một giáo viên cụ thể.
-
----
-
-## Việc 11: Bổ sung cơ chế con người xác nhận cho cảnh báo trùng lặp mềm
-
-> "Bổ sung cơ chế Human-in-the-loop cho bài tập bị cảnh báo trùng lặp. Hiện tại khi bài tập sinh ra bị cảnh báo trùng lặp độ tương đồng cao, hệ thống hiện thông báo Pass test nhưng có nghi vấn trùng lặp, không thể lưu cho tới khi bạn tự xử lý, nhưng trên UI lại KHÔNG có hành động nào để tự xử lý, khiến nút Lưu vào ngân hàng đề bị kẹt hoàn toàn. Cung cấp tùy chọn xử lý rõ ràng ngay tại khối cảnh báo: một checkbox xác nhận đã đối chiếu và muốn tiếp tục lưu, nút Yêu cầu AI sinh lại bài khác với chỉ dẫn tự động bổ sung tránh trùng vào prompt. Cập nhật DTO saveDraft bổ sung forceSave và overrideReason, nếu có cờ trùng lặp nhưng gửi kèm forceSave true thì cho phép lưu, gắn thêm metadata approvedBy và approvedAt nếu được lưu đè. Đảm bảo ngưỡng cảnh báo hợp lý, chỉ chặn cứng nếu trùng tiêu đề hoặc giống một trăm phần trăm slug đã có."
-
-### Điều tôi hiểu trước khi gọi AI
-
-Cần phân biệt hai loại trùng lặp khác bản chất: trùng gần như tuyệt đối do cùng đường dẫn định danh hoặc cùng tiêu đề, và trùng nội dung ở mức tương đồng cao nhưng chưa chắc là bản sao thật. Chỉ loại thứ hai mới nên cho phép con người xác nhận bỏ qua.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-Mở rộng kết quả kiểm tra trùng lặp thêm một cờ đánh dấu mức chặn cứng, bật lên khi đường dẫn định danh trùng tuyệt đối, tiêu đề trùng tuyệt đối sau khi chuẩn hóa, hoặc độ tương đồng nội dung vượt một ngưỡng rất cao gần như chắc chắn là bản sao. Route lưu bài nhận thêm một cờ xác nhận bỏ qua và một dòng lý do tùy chọn từ giáo viên; người phê duyệt luôn lấy từ mã xác thực, không nhận từ yêu cầu gửi lên. Nếu có cờ chặn cứng, từ chối lưu dù có xác nhận bỏ qua hay không. Nếu chỉ có cảnh báo mềm và có xác nhận bỏ qua, cho lưu và ghi thêm vào chính bản ghi bài tập bốn trường lưu vết: có cảnh báo trùng lặp hay không, ai đã duyệt, duyệt lúc nào, lý do gì.
-
-Trên giao diện, khối cảnh báo trùng lặp hiển thị khác màu tùy mức chặn cứng hay cảnh báo mềm. Mức cảnh báo mềm hiện thêm một ô đánh dấu xác nhận đã đối chiếu, tick vào mới mở khóa nút lưu, kèm một ô nhập lý do không bắt buộc. Thêm một nút riêng đưa tên các bài bị nghi trùng vào một mục nhập mới trong biểu mẫu sinh bài kèm ràng buộc tránh trùng, để giáo viên chỉ cần bấm sinh lại thay vì gõ lại từ đầu.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-Viết kiểm thử riêng cho từng nhánh: lưu bình thường khi không trùng, từ chối khi trùng mềm mà chưa xác nhận, cho lưu và ghi đúng vết khi trùng mềm đã xác nhận, vẫn từ chối khi chặn cứng dù đã xác nhận, vẫn từ chối khi lời giải chưa qua hết kiểm thử dù đã xác nhận trùng lặp.
-
-```
-npx jest --reporters=default
-```
-
-Ba mươi mốt bộ, ba trăm lẻ tám trường hợp kiểm thử đạt. Mở giao diện thật, sinh một bài cố ý gần giống một bài đã seed sẵn, xác nhận nút lưu bị khóa kèm chú thích lý do, tick xác nhận thấy nút chuyển trạng thái mở khóa, bấm lưu thành công và đọc lại đúng bốn trường lưu vết trong bản ghi vừa tạo qua lệnh gọi mạng thật.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: một cảnh báo không kèm hành động xử lý cụ thể trên giao diện là một ngõ cụt thật sự đối với người dùng cuối, việc thêm quyền quyết định cho con người phải đi kèm việc phân biệt rõ ràng trường hợp nào con người thật sự có quyền quyết định và trường hợp nào không, nếu không sẽ vô tình mở đường cho việc lưu trùng thật sự.
-
----
-
-## Việc 12: Sửa lỗi mã nguồn dùng sys.stdin bị chặn nhầm, thêm sửa trực tiếp và chạy lại kiểm thử
-
-> "Lệnh sửa lỗi: Reference solution không nhận stdin, actual bị rỗng, và thêm tính năng sửa trực tiếp trên UI. Hiện tại khi Gemini sinh code dùng sys.stdin.read().split(), hệ thống chạy test báo 0/4 pass vì actual trả về rỗng hoàn toàn. Nguyên nhân khiến actual bị rỗng không nằm ở logic toán học mà nằm ở cơ chế nhập/xuất hoặc runner môi trường test: trong nhiều sandbox judge, sys.stdin.read() chờ EOF, nếu runner đẩy test case qua pipe mà không đóng stream chương trình sẽ treo ngầm. Hãy thay reference solution bằng giải pháp dùng input() an toàn. Xử lý các mục còn lại: xóa tag thừa trong đề bài, tích chọn checkbox xác nhận khác biệt để bỏ qua cảnh báo trùng lặp 65 phần trăm, dán code đã sửa vào Reference solution, bấm chạy lại test để nhận 4/4 pass, sau đó nút Lưu vào ngân hàng đề sẽ kích hoạt."
-
-### Điều tôi hiểu trước khi gọi AI
-
-Không mặc định giả thuyết của người dùng về nguyên nhân là đúng, tự tái hiện lỗi bằng đúng hàm chấm bài thật của hệ thống trước khi kết luận.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-Viết một kiểm thử tạm gọi thẳng hàm chấm bài thật với đúng đoạn mã dùng sys.stdin người dùng mô tả, xác nhận kết quả trống không phải do cơ chế đóng luồng nhập dữ liệu như giả thuyết ban đầu, mà do lớp kiểm tra an toàn mã nguồn bằng phân tích cú pháp chặn hoàn toàn việc nhập khẩu thư viện sys từ trước khi mã được chạy, cùng nhóm với các thư viện hệ điều hành và tiến trình con.
-
-Sửa lớp kiểm tra an toàn: bỏ thư viện sys khỏi danh sách thư viện bị chặn hoàn toàn, thay bằng một danh sách riêng chỉ chặn các thuộc tính thật sự nguy hiểm của thư viện này như thoát tiến trình, can thiệp bảng nhập khẩu, sửa đường dẫn tìm kiếm module, và các hàm truy xuất khung ngăn xếp ở tầng sâu. Luồng nhập xuất dữ liệu chuẩn của thư viện này được cho phép dùng bình thường.
-
-Thêm một điểm truy cập mới chỉ chạy lại kiểm thử cho một bài đã sinh, không gọi lại mô hình sinh đề, dùng khi giáo viên tự sửa nội dung. Trên giao diện, thêm một nút chuyển đổi trạng thái sửa cho mỗi bài kết quả, khi bật thì tiêu đề, mô tả, mã lời giải chuyển thành ô nhập liệu trực tiếp, kèm một nút chạy lại kiểm thử gọi tới điểm truy cập mới và cập nhật lại toàn bộ trạng thái hiển thị theo kết quả trả về.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-Viết hai mươi trường hợp kiểm thử cho lớp kiểm tra an toàn, xác nhận luồng nhập xuất chuẩn của thư viện sys được cho phép trong khi các thuộc tính nguy hiểm vẫn bị chặn đúng. Viết thêm kiểm thử riêng cho điểm truy cập chạy lại kiểm thử, gồm một trường hợp dùng chính đoạn mã sys.stdin gây lỗi ban đầu để làm kiểm thử chống tái phát.
-
-```
-npx jest --reporters=default
-```
-
-Ba mươi mốt bộ, ba trăm lẻ tám trường hợp kiểm thử đạt.
-
-Gọi trực tiếp điểm truy cập chạy lại kiểm thử bằng lệnh mạng thật với đúng đoạn mã ban đầu của người dùng, xác nhận đạt bốn trên bốn trường hợp kiểm tra, không còn kết quả trống. Mở giao diện thật, bật chế độ sửa cho một bài, sửa mã lời giải, bấm chạy lại kiểm thử, xác nhận bảng trạng thái và danh sách trường hợp kiểm tra cập nhật đúng theo mã mới, thử cả hai chiều từ đúng sang sai và từ sai sang đúng.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: giả thuyết của người báo lỗi, dù hợp lý về mặt nguyên lý chung của các môi trường chấm bài khác, có thể không đúng với hệ thống cụ thể đang có, chỉ tái hiện được bằng cách gọi thẳng đúng hàm production mới xác định được lớp nào thật sự gây ra hành vi quan sát thấy. Điều chưa chắc: khi giáo viên sửa mã lời giải nhưng chưa bấm chạy lại kiểm thử, bảng trạng thái trên giao diện vẫn hiển thị kết quả của lần chạy trước đó, không tự đánh dấu là đã lỗi thời; việc lưu bài ở tầng máy chủ luôn tự kiểm tra lại nên không có rủi ro về dữ liệu, nhưng có thể gây hiểu lầm ngắn hạn cho giáo viên nếu đọc nhầm bảng trạng thái cũ, cần cân nhắc thêm dấu hiệu cảnh báo lỗi thời ngay khi nội dung bị sửa cho lần làm việc sau.
-
----
-
-## Việc 13: Viết tài liệu kỹ thuật mô tả cơ chế mastery và recommendation
-
-> "Yêu cầu tạo tài liệu kỹ thuật Day 20: tạo file docs/day20-recommendation-engine.md ghi lại cơ chế nghiệp vụ đã triển khai. Viết gãy gọn, tự nhiên, đúng giọng kỹ sư hệ thống, tuyệt đối không dùng emoji hay ký tự trang trí. Nội dung gồm năm phần: mô hình tính toán Mastery kèm công thức và các ngưỡng quy ước, cơ chế ba quy tắc gợi ý Remediation/Progression/Exploration kèm tính minh bạch reason, cơ chế kiểm soát và an toàn thực thi gồm human-in-the-loop, sửa trực tiếp chạy lại test, phân tách kiểm tra AST cho sys, hạn chế về mặt thiết kế, và một mục rà soát các điểm nghi vấn cần xử lý tiếp: rủi ro rỗng danh sách khi học viên giải hết một tag hoặc hết mọi tag, xung đột định dạng số nguyên kiểu 007 so với 7, và xác minh sau khi revalidate dữ liệu lưu vào database có chắc chắn lấy bản đã sửa hay không."
-
-### Điều tôi hiểu trước khi gọi AI
-
-Mục liệt kê điểm nghi vấn không nên viết theo trí nhớ từ yêu cầu ban đầu, mà phải tự xác minh lại từng điểm bằng cách đọc mã nguồn thật trước khi ghi, vì một số điểm có thể đã được xử lý trong các việc trước đó của cùng ngày làm việc.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-Tạo tệp tài liệu tại đường dẫn docs/day20/recommendation-engine.md theo đúng thư mục quy ước của các ngày trước. Trước khi viết mục điểm nghi vấn, tự đọc lại đoạn mã tính mastery, đoạn mã so khớp kết quả, và đoạn mã lưu bài sau khi chạy lại kiểm thử, xác nhận ba trong bốn điểm nghi vấn ban đầu người dùng nêu thực chất đã được xử lý và có kiểm thử bảo vệ từ các việc trước trong cùng ngày, chỉ còn đúng một khoảng hở thật sự chưa xử lý ở tầng hiển thị khi giáo viên sửa mã nhưng chưa chạy lại kiểm thử. Ghi lại đúng theo hiện trạng đã xác minh, không lặp lại nguyên văn các nghi vấn ban đầu như thể chưa ai xử lý.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-Không có lệnh kiểm thử tự động cho việc viết tài liệu. Đối chiếu từng câu khẳng định trong tài liệu với đoạn mã nguồn tương ứng trước khi ghi, không suy diễn từ tên hàm hay tên biến.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: khi viết tài liệu tổng kết cuối một ngày làm việc dài với nhiều việc nối tiếp nhau, một số câu hỏi hoặc nghi vấn nêu ra ở đầu ngày có thể đã được chính các việc sau đó giải quyết mà chưa kịp cập nhật lại giả định ban đầu, cần xác minh lại toàn bộ thay vì chép nguyên yêu cầu gốc vào tài liệu.
+Điều học được: phần "phối hợp liên vai trò" chỉ nên ghi những gì có bằng chứng trong tệp bàn giao hoặc trong phiên làm việc, không dựng thêm các cuộc trao đổi không có dữ liệu. Điều chưa chắc: nếu người dùng có ghi chép trao đổi với Tester Nguyên ngoài phiên này, nên bổ sung vào Việc 3 để nhật ký phản ánh đủ phần thảo luận.

@@ -12,6 +12,8 @@ import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
 import { TeacherProblemGeneratorPage } from './pages/TeacherProblemGeneratorPage';
 import { LearnerProgressPage } from './pages/LearnerProgressPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { TesterLabListPage } from './pages/TesterLabListPage';
+import { TesterLabDetailPage } from './pages/TesterLabDetailPage';
 import { ContestListPage } from './pages/ContestListPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -320,6 +322,14 @@ export function App() {
                 <Navigate to={authUser ? '/catalog' : '/login'} replace />
               )
             }
+          />
+          <Route
+            path="/tester-labs"
+            element={authUser ? <TesterLabListPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/tester-labs/:labCode"
+            element={authUser ? <TesterLabDetailPage isStudent={authUser.role === 'STUDENT'} /> : <Navigate to="/login" replace />}
           />
           <Route
             path="/profile"
