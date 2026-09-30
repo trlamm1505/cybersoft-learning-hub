@@ -5,3 +5,6 @@ venv/
 **/.pytest_cache/
 **/.ruff_cache/
 *.pyc
+
+# Tester Lab: file bai nop cua hoc vien
+learning-hub/BE/uploads/
