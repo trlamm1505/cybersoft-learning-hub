@@ -2,12 +2,10 @@
 ## GIAO DIỆN TÌM VÀ TẢI TÀI NGUYÊN DỮ LIỆU GIÁO DỤC (`cybersoft-resource-portal`)
 
 **Dự án**: CyberSoft Data & AI Lab  
-**Đầu việc**: **NGÀY 22 — Giao diện tìm và tải tài nguyên** (`cybersoft-resource-portal`)  
-**Giai đoạn**: Tuần 5 — Sản phẩm hóa  
-**Vai trò phụ trách**: Data & AI Resource Engineer (Đào Trung Kiên)  
+**Đầu việc**: NGÀY 22 — Giao diện tìm và tải tài nguyên (`cybersoft-resource-portal`)  
+**Vai trò**: Data & AI Resource Engineer (Đào Trung Kiên)  
 **Trạng thái**:  **ĐÃ HOÀN THÀNH 100% THEO ĐẶC TẢ VÀ TIÊU CHÍ NGHIỆM THU (DoD)**  
-**Ngày thực hiện**: **2026-09-30**  
-**Nhánh Git làm việc**: `feature/data-ai-day22`  
+**Ngày thực hiện**: 2026-09-30  
 
 ---
 

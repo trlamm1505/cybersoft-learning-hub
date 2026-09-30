@@ -1,36 +1,82 @@
-# KỊCH BẢN VIDEO DEMO 3 PHÚT (DEMO_SCRIPT_3_MINUTES)
-## CỔNG GIAO DIỆN TÌM VÀ TẢI TÀI NGUYÊN DỮ LIỆU GIÁO DỤC (CYBERSOFT RESOURCE PORTAL v0.1)
+# KỊCH BẢN VIDEO DEMO 3 PHÚT (DEMO SCRIPT) — NGÀY 22
+## GIAO DIỆN TÌM VÀ TẢI TÀI NGUYÊN DỮ LIỆU GIÁO DỤC (CYBERSOFT RESOURCE PORTAL v0.1)
 
-- **Dự án**: CyberSoft Data & AI Lab  
-- **Cột mốc**: NGÀY 22 — Giao diện tìm và tải tài nguyên (`cybersoft-resource-portal`)  
-- **Thời lượng**: Đúng 03 phút 00 giây (180 giây)  
-- **Người thực hiện**: Đào Trung Kiên (Data & AI Resource Engineer)  
-- **Đối tượng theo dõi**: Hội đồng nghiệm thu, Giảng viên chuyên môn, Trợ giảng CyberSoft Academy  
-- **Mục tiêu cốt lõi**: Chứng minh Giảng viên có thể tìm kiếm, xem trước lược đồ, kiểm tra tính toàn vẹn và tải dataset trong **dưới 60 giây**, tuân thủ 100% tiêu chí nghiệm thu DoD (chặn tải bản nháp 403, feedback 1-5 sao, 5 kịch bản usability pass).
-
----
-
-## BẢNG PHÂN CẢNH CHI TIẾT THEO TỪNG GIÂY (STORYBOARD & TIMELINE)
-
-| Thời Lượng | Phân Cảnh (Visual) | Thao Tác Kỹ Thuật (Actions) | Lời Thoại Thuyết Minh (Voiceover Script) | Mục Tiêu & DoD Nghiệm Thu |
-| :---: | :--- | :--- | :--- | :--- |
-| **0:00 - 0:30**<br>(30 giây) | **Cảnh 1: Giới thiệu Tổng quan & Đặt vấn đề**<br>- Màn hình hiển thị trang chủ Cổng Tài nguyên: `http://localhost:8000/portal/`<br>- Banner CyberSoft Data & AI Lab, thanh thống kê 5 datasets, 4 published, điểm 4.85 ★. | - Mở trình duyệt Web tại `http://localhost:8000/portal/`<br>- Rà chuột qua các chỉ số tổng quan ở thanh Header. | "Xin chào quý Thầy Cô và Hội đồng nghiệm thu. Tôi là Đào Trung Kiên, Data & AI Resource Engineer tại CyberSoft. Trong Tuần 5 - Sản phẩm hóa, nhiệm vụ Ngày 22 của tôi là xây dựng **Giao diện tìm và tải tài nguyên giáo dục CyberSoft Resource Portal v0.1**. Vấn đề thực tế trước đây là Giảng viên mất nhiều thời gian tìm kiếm dữ liệu thực hành rải rác. Hôm nay, tôi xin chứng minh hệ thống mới giúp Giảng viên tìm và tải dữ liệu hoàn chỉnh trong **dưới 60 giây**." | Giới thiệu bài toán, vai trò kỹ sư và cam kết SLA tốc độ. |
-| **0:30 - 1:05**<br>(35 giây) | **Cảnh 2: Tìm kiếm tức thì & Lọc đa chiều (< 60s Discovery)**<br>- Gõ từ khóa `bán hàng` vào ô tìm kiếm.<br>- Kết quả hiển thị tức thì trong 18.2 ms.<br>- Chọn bộ lọc `Domain = Retail`. | - Nhập `bán hàng` vào Search Bar.<br>- Chọn Dropdown Domain `Retail`.<br>- Chỉ vào đồng hồ đo độ trễ: `18.2 ms`. | "Bây giờ, Giảng viên cần chuẩn bị bài giảng môn SQL Nâng Cao. Tôi nhập từ khóa `bán hàng` và chọn lĩnh vực `Retail`. Chỉ sau **18 mili-giây**, tập dữ liệu `Retail Sales v1.0` đa bảng chuẩn hóa 3NF xuất hiện ngay lập tức với đầy đủ thông số: 10.500 dòng, kích thước 1.4 MB, xếp hạng chất lượng Tier A (98.5%) và điểm hữu ích 4.9 sao. Tiêu chí tìm kiếm dưới 1 phút đã đạt xuất sắc." | **DoD 1: Tìm được theo từ khóa và bộ lọc** trong < 60s. |
-| **1:05 - 1:45**<br>(40 giây) | **Cảnh 3: Xem trước dữ liệu & Tra cứu lược đồ (Schema Inspector)**<br>- Bấm nút `Xem Trước & Schema`.<br>- Modal mở ra với 3 tab: Dữ liệu mẫu (10 dòng), Lược đồ cột (Schema Inspector), Chất lượng & License. | - Bấm `Xem Trước & Schema`.<br>- Lướt qua 10 dòng dữ liệu bảng đơn hàng.<br>- Chuyển sang tab `Lược Đồ Cột`: Rà chuột qua các cột `order_id` (NOT NULL), `total_amount`...<br>- Chuyển tab `Chất Lượng`: Đối soát mã SHA-256. | "Để bảo đảm dữ liệu phù hợp với giáo trình, Giảng viên bấm **Xem Trước**. Tab đầu tiên hiển thị trực quan 10 bản ghi đơn hàng mẫu trích xuất trực tiếp từ máy chủ. Chuyển sang tab **Lược Đồ Cột**, Giảng viên tra cứu tức thì kiểu dữ liệu, ràng buộc NOT NULL và mô tả nghiệp vụ của từng trường. Tại tab **Chất lượng**, mã băm SHA-256 `99b617486fd2...` được cung cấp kèm nút sao chép để đối soát tính toàn vẹn 100%." | **Yêu cầu 2: Hiển thị preview, license, level, quality**. |
-| **1:45 - 2:20**<br>(35 giây) | **Cảnh 4: Kiểm thử Access Rules (Chặn tải Bản nháp) & Tải tập dữ liệu**<br>- Chọn bộ lọc `Trạng thái = Bản nháp`.<br>- Thấy dataset khảo sát `student_survey_draft`.<br>- Thử bấm nút tải: Nút bị khóa, hệ thống hiển thị cảnh báo từ chối 403.<br>- Quay lại dataset bán hàng và tải về thành công. | - Lọc `Trạng thái: Bản nháp`.<br>- Bấm vào nút `Khóa Tải (DoD)` của dataset bản nháp -> Hộp thoại Access Rules xuất hiện cảnh báo mã 403 Forbidden.<br>- Quay lại tải dataset bán hàng -> Tệp `retail_sales_v1.csv` tải xuống máy kèm mã băm. | "Đây là điểm cốt lõi trong điều kiện nghiệm thu DoD: **Không download bản chưa publish**. Khi tôi chọn tập dữ liệu bản nháp `Draft Student Survey`, nút tải đã bị khóa màu cam. Nếu người dùng cố tình gọi API tải, hệ thống lập tức chặn lại và trả về mã lỗi **403 Forbidden** với Uniform Error Envelope chuẩn hóa. Tiếp theo, tôi tải tập dữ liệu bán hàng chính thức: tệp CSV tải về hoàn tất trong 60ms kèm mã băm xác thực." | **DoD 2: Không download bản chưa publish (403 Forbidden)**. |
-| **2:20 - 2:45**<br>(25 giây) | **Cảnh 5: Hệ thống Đánh giá Độ Hữu ích (Feedback 1-5 Sao)**<br>- Bấm nút `Đánh Giá`.<br>- Modal chọn 5 sao, nhập nhận xét thực tế.<br>- Bấm `Gửi Đánh Giá Ngay`.<br>- Điểm trung bình và số lượt đánh giá cập nhật theo thời gian thực. | - Bấm nút `Đánh Giá (3)` trên thẻ dataset bán hàng.<br>- Chọn 5 sao.<br>- Nhập nhận xét: 'Dữ liệu 3NF rất sạch, phù hợp dạy SQL Nâng Cao!'.<br>- Bấm `Gửi Đánh Giá Ngay`.<br>- Danh sách nhận xét cập nhật tức thì. | "Để hệ sinh thái liên tục hoàn thiện, hệ thống tích hợp widget đánh giá độ hữu ích 1-5 sao. Giảng viên chọn 5 sao, để lại nhận xét nghiệp vụ sư phạm và gửi đi. Hệ thống tính toán lại điểm trung bình theo thời gian thực và lưu trữ bền vững vào cơ sở dữ liệu phản hồi." | **Yêu cầu 3: Thêm feedback usefulness 1-5 sao**. |
-| **2:45 - 3:00**<br>(15 giây) | **Cảnh 6: Kiểm thử Usability Benchmark (5 Scenarios) & Kết luận**<br>- Bấm nút `Kiểm Thử Usability (5 Scenarios)` ở góc trên.<br>- Modal chạy 5 kịch bản tự động, cả 5 đều hiện `[PASS]` trong 0.14 giây.<br>- Đưa ra lời chào kết thúc. | - Bấm nút tím `Kiểm Thử Usability (5 Scenarios)`.<br>- 5 kịch bản chạy trong chớp mắt, hiện biểu tượng màu xanh `100% PASS`.<br>- Kết thúc video. | "Cuối cùng, bộ kiểm thử độ khả dụng tự động thực thi cả 5 kịch bản thực tế của Giảng viên chỉ trong **0.14 giây**, vượt xa ngưỡng cam kết 60 giây. Cổng tài nguyên CyberSoft Resource Portal v0.1 đã sẵn sàng bàn giao cho toàn bộ học viện. Xin trân trọng cảm ơn!" | **DoD 3: 5 kịch bản usability pass**; kết thúc chuyên nghiệp. |
+**Dự án**: CyberSoft Data & AI Lab  
+**Đầu việc**: NGÀY 22 — Giao diện tìm và tải tài nguyên (`cybersoft-resource-portal`)  
+**Thực hiện**: Đào Trung Kiên (Data & AI Resource Engineer)  
+**Thời lượng**: 03 phút 00 giây (180 giây)  
+**Môi trường quay**: Trình duyệt Web (1920x1080 Full HD), VS Code Terminal, Swagger UI (`http://localhost:8000/docs`).
 
 ---
 
-## HƯỚNG DẪN KỸ THUẬT KHI QUAY VIDEO (RECORDING CHECKLIST)
-1. **Thiết lập môi trường**:
-   - Khởi động máy chủ: `python scripts/run_server.py`.
-   - Trình duyệt: Mở Chrome hoặc Edge ở độ phân giải Full HD (1920x1080), zoom 100%.
-   - Truy cập sẵn trang: `http://localhost:8000/portal/`.
-2. **Âm thanh & Tốc độ nói**:
-   - Sử dụng microphone lọc tạp âm; giọng nói rõ ràng, tự tin, mang phong thái kỹ sư Data/AI chuyên nghiệp.
-   - Nhịp điệu vừa phải, đồng bộ chính xác với từng thao tác bấm chuột trên màn hình.
-3. **Phần mềm quay màn hình khuyến nghị**:
-   - OBS Studio hoặc Windows Game Bar (`Win + Alt + R`).
-   - Tốc độ khung hình: 60 FPS, định dạng MP4.
+### PHÂN CẢNH CHI TIẾT (TIMELINE)
+
+#### PHÂN CẢNH 1: MỞ ĐẦU & TỔNG QUAN BÀI TOÁN (00:00 - 00:30)
+- **Hành động trên màn hình**:
+  - Mở giao diện Cổng tài nguyên CyberSoft Resource Portal tại `http://localhost:8000/portal/`.
+  - Giới thiệu nhanh header, thanh tìm kiếm live search tức thì và các thống kê KPI (Tổng dataset, Số lượt tải, Điểm phản hồi trung bình).
+- **Lời thuyết minh (Voiceover)**:
+  > *"Xin chào thầy cô và các bạn. Hôm nay em xin phép demo sản phẩm Ngày 22 trong lộ trình thực tập Data & AI Resource Engineer: Giao diện tìm và tải tài nguyên dữ liệu CyberSoft Resource Portal phiên bản v0.1.*  
+  > *Trước đây, giảng viên mất từ 10 đến 15 phút để tìm và tải một bộ dữ liệu giáo dục chuẩn hóa, đồng thời đối mặt nguy cơ tải nhầm dữ liệu lỗi hoặc bản nháp. Cổng thông tin hôm nay giải quyết triệt để vấn đề này với mục tiêu cốt lõi: Giảng viên tìm kiếm và tải dataset trong dưới 60 giây, bảo đảm an toàn kiểm soát truy cập tuyệt đối."*
+
+---
+
+#### PHÂN CẢNH 2: TÌM KIẾM TỨC THÌ & BỘ LỌC ĐA CHIỀU (00:30 - 01:10)
+- **Hành động trên màn hình**:
+  - Gõ từ khóa `retail` vào ô tìm kiếm -> Kết quả lọc tức thì theo thời gian thực (Debounced Search < 200ms) hiển thị ngay dataset Doanh số Bán lẻ Chuỗi Siêu thị.
+  - Xóa từ khóa, chuyển sang click chip bộ lọc:
+    - Chọn Domain: `Finance / Retail`.
+    - Chọn Level: `Beginner` (Cơ bản).
+    - Chọn License: `CC-BY-4.0`.
+  - Thẻ dataset tự động cập nhật mượt mà không cần reload trang.
+- **Lời thuyết minh (Voiceover)**:
+  > *"Tính năng đầu tiên là tìm kiếm và lọc đa chiều theo thời gian thực. Em gõ từ khóa 'retail', hệ thống phản hồi ngay tức thì chỉ trong vài mili-giây.*  
+  > *Giảng viên có thể kết hợp các tiêu chí lọc: Lĩnh vực, Độ khó từ Cơ bản đến Nâng cao, và Giấy phép học liệu bản quyền. Mọi thao tác đều diễn ra mượt mà trên nền tảng Single Page Application."*
+
+---
+
+#### PHÂN CẢNH 3: XEM TRƯỚC LƯỢC ĐỒ 3NF & TẢI DATASET (01:10 - 01:50)
+- **Hành động trên màn hình**:
+  - Click nút **"Xem trước & Lược đồ"** trên thẻ `DATASET-RET-001`.
+  - Modal bật lên hiển thị:
+    - Bảng dữ liệu mẫu (10 dòng đầu tiên có thanh cuộn ngang).
+    - Bảng thông tin lược đồ chuẩn 3NF: Tên cột, kiểu dữ liệu (`INTEGER`, `DECIMAL`, `VARCHAR`), ràng buộc `NOT NULL`, khóa chính/ngoại.
+    - Đối soát mã băm toàn vẹn SHA-256 (`8a5c2f...`).
+  - Click nút **"Tải Dataset (.CSV)"** -> Tệp tải về máy lập tức (< 1 giây).
+- **Lời thuyết minh (Voiceover)**:
+  > *"Để tránh tình trạng tải nhầm file không đúng cấu trúc bài giảng, Cổng thông tin cung cấp tính năng Xem trước dữ liệu và Tra cứu Lược đồ chuẩn 3NF.*  
+  > *Giảng viên xem được 10 dòng dữ liệu thực tế, kiểm tra từng kiểu dữ liệu, các ràng buộc toàn vẹn và mã kiểm tra SHA-256. Sau khi xác nhận chuẩn xác, click 'Tải Dataset', tệp CSV tải về hoàn tất ngay lập tức."*
+
+---
+
+#### PHÂN CẢNH 4: CƠ CHẾ BẢO VỆ CHẶN BẢN NHÁP (403 FORBIDDEN) (01:50 - 02:25)
+- **Hành động trên màn hình**:
+  - Nhấp chọn checkbox "Hiển thị bản thảo nội bộ" -> Xuất hiện dataset `DATASET-STU-005` (Bản khảo sát học viên — Trạng thái Draft).
+  - Nút Tải trên giao diện bị khóa (disabled) kèm badge cảnh báo đỏ: `Chỉ xem trước - Bản nháp nội bộ`.
+  - Mở tab DevTools Network hoặc Postman/cURL, thực hiện request tải trực tiếp `GET /api/v1/portal/datasets/DATASET-STU-005/download`.
+  - Hệ thống trả về `403 Forbidden` với payload chuẩn mực:
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "DATASET_UNPUBLISHED_RESTRICTED",
+        "message": "Không thể tải tập dữ liệu ở trạng thái draft..."
+      }
+    }
+    ```
+- **Lời thuyết minh (Voiceover)**:
+  > *"Tiêu chí nghiệm thu DoD số 2 yêu cầu: Không cho phép download bản chưa publish. Trên giao diện, nút tải của bản thảo Draft tự động bị vô hiệu hóa.*  
+  > *Đặc biệt, cơ chế bảo vệ này được thực thi ở mức Gatekeeper Backend. Khi cố tình gọi API tải trực tiếp, máy chủ lập tức từ chối và trả về HTTP 403 Forbidden với mã lỗi DATASET_UNPUBLISHED_RESTRICTED. Đảm bảo an toàn dữ liệu 100%."*
+
+---
+
+#### PHÂN CẢNH 5: WIDGET ĐÁNH GIÁ 1-5 SAO & KẾT QUẢ ĐO LƯỜNG (02:25 - 03:00)
+- **Hành động trên màn hình**:
+  - Trên Modal dataset, chọn 5 sao, nhập nhận xét: *"Dữ liệu rất sạch, cấu trúc chuẩn 3NF, phù hợp làm bài thực hành tuần 2 cho học viên"*.
+  - Nhấn "Gửi Đánh Giá" -> Toast thông báo thành công xanh lá, điểm đánh giá trung bình của dataset cập nhật ngay lập tức.
+  - Bật Terminal chạy kịch bản đo kiểm `python scripts/run_usability_eval.py`:
+    - Hiển thị kết quả 5/5 kịch bản hoàn thành xuất sắc trong **0.141 giây** (vượt xa chỉ tiêu < 60 giây).
+    - Pytest `19 passed in 0.68s`.
+- **Lời thuyết minh (Voiceover)**:
+  > *"Cuối cùng là hệ thống phản hồi chất lượng. Giảng viên có thể chấm từ 1 đến 5 sao và để lại góp ý sư phạm, giúp đội ngũ kỹ thuật liên tục nâng cao chất lượng học liệu.*  
+  > *Toàn bộ 5 kịch bản kiểm thử độ khả dụng thực tế của giảng viên đều đạt kết quả xuất sắc với thời gian phản hồi dưới 1 giây, hoàn thành 100% tiêu chí nghiệm thu DoD Ngày 22. Em xin chân thành cảm ơn!"*

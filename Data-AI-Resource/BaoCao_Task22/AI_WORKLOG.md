@@ -2,10 +2,10 @@
 ## DỰ ÁN: CYBERSOFT DATA & AI LAB — PHÂN HỆ GIAO DIỆN TÌM VÀ TẢI TÀI NGUYÊN (PORTAL v0.1)
 
 **Dự án**: CyberSoft Data & AI Lab  
-**Đầu việc**: **NGÀY 22 — Giao diện tìm và tải tài nguyên** (`cybersoft-resource-portal`)  
+**Đầu việc**: NGÀY 22 — Giao diện tìm và tải tài nguyên (`cybersoft-resource-portal`)  
 **Vai trò**: Data & AI Resource Engineer (Đào Trung Kiên)  
 **Trạng thái**:  **ĐÃ HOÀN THÀNH 100% THEO ĐẶC TẢ VÀ TIÊU CHÍ NGHIỆM THU (DoD)**  
-**Ngày thực hiện**: **2026-09-30**  
+**Ngày thực hiện**: 2026-09-30  
 
 ---
 
