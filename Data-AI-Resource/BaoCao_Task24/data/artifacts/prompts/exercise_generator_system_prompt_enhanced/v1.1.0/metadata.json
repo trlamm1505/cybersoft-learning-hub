@@ -1,0 +1,26 @@
+{
+  "id": "prompt_exercise_generator_system_prompt_enhanced_v1.1.0",
+  "name": "Exercise Generator System Prompt Enhanced",
+  "artifact_type": "prompt",
+  "version": "v1.1.0",
+  "state": "active",
+  "description": "Prompt sinh bài tập nâng cao tích hợp ràng buộc tính khả thi thực thi SQL và kiểm chứng tự động.",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.425054+00:00",
+  "file_path": "data/artifacts/prompts/exercise_generator_system_prompt_enhanced/v1.1.0/system_prompt_v2.txt",
+  "file_size_bytes": 147,
+  "content_hash": "e11291d7f1bf82636a367888e706b700f24370fe23e27f12ead7457165b529cd",
+  "upstream_ids": [
+    "prompt_exercise_generator_system_prompt_v1.0.0"
+  ],
+  "tags": [
+    "prompt",
+    "bloom",
+    "feasibility",
+    "sandbox"
+  ],
+  "deprecation_reason": null,
+  "superseded_by": null,
+  "sunset_date": null,
+  "extra_metadata": {}
+}

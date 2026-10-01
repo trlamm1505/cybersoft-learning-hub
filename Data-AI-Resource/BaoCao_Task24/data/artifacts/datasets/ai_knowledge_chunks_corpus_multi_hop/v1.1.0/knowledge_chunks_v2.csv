@@ -1,0 +1,3 @@
+chunk_id,doc_id,title,text,multi_hop_context
+CHK-01-v2,CS-POL-01,Chinh sach bao luu,Hoc vien duoc bao luu toi da 6 thang voi dieu kien nop don truoc 7 ngay.,CS-POL-02
+CHK-02-v2,CS-TEC-01,Huong dan Git,Moi task thuc tap sinh tao nhanh feature va rebase truoc khi merge.,CS-TEC-03

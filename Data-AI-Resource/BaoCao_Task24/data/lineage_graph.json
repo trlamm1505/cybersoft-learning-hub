@@ -1,0 +1,507 @@
+{
+  "nodes": {
+    "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0": {
+      "id": "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+      "name": "AI Knowledge Chunks Corpus Multi-Hop",
+      "artifact_type": "dataset",
+      "version": "v1.1.0",
+      "state": "active",
+      "content_hash": "37feb015e8ac56e65151a6b3ad4b2699812ab80e2947826c166c982b36d885b3",
+      "upstream_ids": [
+        "dataset_ai_knowledge_chunks_corpus_v1.0.0"
+      ],
+      "downstream_ids": [
+        "index_hybrid_rag_search_index_v1.1.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/datasets/ai_knowledge_chunks_corpus_multi_hop/v1.1.0/knowledge_chunks_v2.csv",
+        "file_size_bytes": 278,
+        "created_at": "2026-10-01T18:37:47.423048+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "dataset_ai_knowledge_chunks_corpus_v1.0.0": {
+      "id": "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+      "name": "AI Knowledge Chunks Corpus",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "state": "deprecated",
+      "content_hash": "7a6cc90f7f958520da40df0bd41b1bc44f139a25781ebed47e84673cc7729042",
+      "upstream_ids": [],
+      "downstream_ids": [
+        "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+        "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+        "exercise_approved_exercise_bank_20_v1.0.0",
+        "index_bm25_knowledge_chunks_index_v1.0.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/datasets/ai_knowledge_chunks_corpus/v1.0.0/knowledge_chunks_v1.csv",
+        "file_size_bytes": 188,
+        "created_at": "2026-10-01T18:37:47.259906+00:00",
+        "deprecation_reason": "Thay thế bằng phiên bản v1.1.0 có phân đoạn đa bước Multi-Hop.",
+        "superseded_by": "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+        "sunset_date": "2026-12-31T23:59:59Z"
+      }
+    },
+    "dataset_customer_churn_dataset_v1.0.0": {
+      "id": "dataset_customer_churn_dataset_v1.0.0",
+      "name": "Customer Churn Dataset",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "8965f90eba608ba353c141f27248a8ef461a0ea86e80063fc6a94d7368aef9ec",
+      "upstream_ids": [],
+      "downstream_ids": [
+        "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+        "exercise_approved_exercise_bank_20_v1.0.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/datasets/customer_churn_dataset/v1.0.0/customer_churn.csv",
+        "file_size_bytes": 124,
+        "created_at": "2026-10-01T18:37:47.257795+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "dataset_hr_attendance_dataset_v1.0.0": {
+      "id": "dataset_hr_attendance_dataset_v1.0.0",
+      "name": "HR Attendance Dataset",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "abf5e7b20c73f68630d6a7e61b818f6b687d0b9f99984c31543771e78c0bfa6f",
+      "upstream_ids": [],
+      "downstream_ids": [
+        "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+        "exercise_approved_exercise_bank_20_v1.0.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/datasets/hr_attendance_dataset/v1.0.0/hr_attendance.csv",
+        "file_size_bytes": 129,
+        "created_at": "2026-10-01T18:37:47.254974+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "dataset_retail_sales_dataset_v1.0.0": {
+      "id": "dataset_retail_sales_dataset_v1.0.0",
+      "name": "Retail Sales Dataset",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "9342b483b2c5cd575a825c2aaa1979e5f242b8a6e26acbb8b7740e5a054b0692",
+      "upstream_ids": [],
+      "downstream_ids": [
+        "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+        "exercise_approved_exercise_bank_20_v1.0.0",
+        "index_faiss_retail_sales_index_v1.0.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/datasets/retail_sales_dataset/v1.0.0/retail_sales.csv",
+        "file_size_bytes": 152,
+        "created_at": "2026-10-01T18:37:47.253151+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "evaluation_exercise_generator_feasibility_evaluation_v1.0.0": {
+      "id": "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+      "name": "Exercise Generator Feasibility Evaluation",
+      "artifact_type": "evaluation",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "c7562ace68465cbf4b51f778b31631e379e3ee7b4dadfbb0578f9a7cc77d1323",
+      "upstream_ids": [
+        "dataset_retail_sales_dataset_v1.0.0",
+        "dataset_hr_attendance_dataset_v1.0.0",
+        "dataset_customer_churn_dataset_v1.0.0",
+        "prompt_exercise_generator_system_prompt_v1.0.0",
+        "model_gemini_3.8_flash_checkpoint_v1.0.0"
+      ],
+      "downstream_ids": [
+        "exercise_approved_exercise_bank_20_v1.0.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/evaluations/exercise_generator_feasibility_evaluation/v1.0.0/generator_eval_results.json",
+        "file_size_bytes": 129,
+        "created_at": "2026-10-01T18:37:47.278633+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "evaluation_rag_benchmark_100_evaluation_v1.0.0": {
+      "id": "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+      "name": "RAG Benchmark 100 Evaluation",
+      "artifact_type": "evaluation",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "88aed7019e26fbf77092fe8d78afefd4fb318973ac4621e7b132d5ff35a0582b",
+      "upstream_ids": [
+        "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+        "prompt_rag_tutor_grounding_prompt_v1.0.0",
+        "model_bge_small_english_embedder_v1.0.0",
+        "model_gemini_3.8_flash_checkpoint_v1.0.0",
+        "index_bm25_knowledge_chunks_index_v1.0.0"
+      ],
+      "downstream_ids": [],
+      "metadata": {
+        "file_path": "data/artifacts/evaluations/rag_benchmark_100_evaluation/v1.0.0/rag_benchmark_results.json",
+        "file_size_bytes": 108,
+        "created_at": "2026-10-01T18:37:47.276635+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "exercise_approved_exercise_bank_20_v1.0.0": {
+      "id": "exercise_approved_exercise_bank_20_v1.0.0",
+      "name": "Approved Exercise Bank 20",
+      "artifact_type": "exercise",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "8f6af4147a643e35acac28bb94d6d861daf47cd85b0207e2e72afceb2c175851",
+      "upstream_ids": [
+        "dataset_retail_sales_dataset_v1.0.0",
+        "dataset_hr_attendance_dataset_v1.0.0",
+        "dataset_customer_churn_dataset_v1.0.0",
+        "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+        "prompt_exercise_generator_system_prompt_v1.0.0",
+        "model_gemini_3.8_flash_checkpoint_v1.0.0",
+        "evaluation_exercise_generator_feasibility_evaluation_v1.0.0"
+      ],
+      "downstream_ids": [],
+      "metadata": {
+        "file_path": "data/artifacts/exercises/approved_exercise_bank_20/v1.0.0/approved_bank_20.json",
+        "file_size_bytes": 140,
+        "created_at": "2026-10-01T18:37:47.281636+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "index_bm25_knowledge_chunks_index_v1.0.0": {
+      "id": "index_bm25_knowledge_chunks_index_v1.0.0",
+      "name": "BM25 Knowledge Chunks Index",
+      "artifact_type": "index",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "c9eecfe7b89612123cd7dc05a14136ba4a78048518ec21bfde84337fc19ceec1",
+      "upstream_ids": [
+        "dataset_ai_knowledge_chunks_corpus_v1.0.0"
+      ],
+      "downstream_ids": [
+        "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+        "index_hybrid_rag_search_index_v1.1.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/indexs/bm25_knowledge_chunks_index/v1.0.0/bm25_meta.json",
+        "file_size_bytes": 117,
+        "created_at": "2026-10-01T18:37:47.273633+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "index_faiss_retail_sales_index_v1.0.0": {
+      "id": "index_faiss_retail_sales_index_v1.0.0",
+      "name": "FAISS Retail Sales Index",
+      "artifact_type": "index",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "a4aba96de08e402f3a29795298017538d1085dca9f176df1fdfb5a96c4c4be42",
+      "upstream_ids": [
+        "dataset_retail_sales_dataset_v1.0.0",
+        "model_bge_small_english_embedder_v1.0.0"
+      ],
+      "downstream_ids": [],
+      "metadata": {
+        "file_path": "data/artifacts/indexs/faiss_retail_sales_index/v1.0.0/faiss_meta.json",
+        "file_size_bytes": 123,
+        "created_at": "2026-10-01T18:37:47.271635+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "index_hybrid_rag_search_index_v1.1.0": {
+      "id": "index_hybrid_rag_search_index_v1.1.0",
+      "name": "Hybrid RAG Search Index",
+      "artifact_type": "index",
+      "version": "v1.1.0",
+      "state": "active",
+      "content_hash": "7a00359f70b3f53cac83fb6463e0debc20c8a4e1d1461f3107138c19ac3880a1",
+      "upstream_ids": [
+        "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+        "model_bge_small_english_embedder_v1.0.0",
+        "index_bm25_knowledge_chunks_index_v1.0.0"
+      ],
+      "downstream_ids": [],
+      "metadata": {
+        "file_path": "data/artifacts/indexs/hybrid_rag_search_index/v1.1.0/hybrid_meta.json",
+        "file_size_bytes": 110,
+        "created_at": "2026-10-01T18:37:47.427047+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "model_bge_small_english_embedder_v1.0.0": {
+      "id": "model_bge_small_english_embedder_v1.0.0",
+      "name": "BGE Small English Embedder",
+      "artifact_type": "model",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "56c8a813e32ff6a4081d4556800ecfc7e6637c5cfe6ba72dc058cda79bf8a123",
+      "upstream_ids": [],
+      "downstream_ids": [
+        "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+        "index_faiss_retail_sales_index_v1.0.0",
+        "index_hybrid_rag_search_index_v1.1.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/models/bge_small_english_embedder/v1.0.0/model_card.json",
+        "file_size_bytes": 128,
+        "created_at": "2026-10-01T18:37:47.267513+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "model_gemini_3.8_flash_checkpoint_v1.0.0": {
+      "id": "model_gemini_3.8_flash_checkpoint_v1.0.0",
+      "name": "Gemini 3.8 Flash Checkpoint",
+      "artifact_type": "model",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "88bf84358136ef5e792e68c8fa083d2f6eeb824a8bbd46a0252bb249e4e5ff6a",
+      "upstream_ids": [],
+      "downstream_ids": [
+        "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+        "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+        "exercise_approved_exercise_bank_20_v1.0.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/models/gemini_3.8_flash_checkpoint/v1.0.0/llm_config.json",
+        "file_size_bytes": 127,
+        "created_at": "2026-10-01T18:37:47.269621+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "prompt_exercise_generator_system_prompt_enhanced_v1.1.0": {
+      "id": "prompt_exercise_generator_system_prompt_enhanced_v1.1.0",
+      "name": "Exercise Generator System Prompt Enhanced",
+      "artifact_type": "prompt",
+      "version": "v1.1.0",
+      "state": "active",
+      "content_hash": "e11291d7f1bf82636a367888e706b700f24370fe23e27f12ead7457165b529cd",
+      "upstream_ids": [
+        "prompt_exercise_generator_system_prompt_v1.0.0"
+      ],
+      "downstream_ids": [],
+      "metadata": {
+        "file_path": "data/artifacts/prompts/exercise_generator_system_prompt_enhanced/v1.1.0/system_prompt_v2.txt",
+        "file_size_bytes": 147,
+        "created_at": "2026-10-01T18:37:47.425054+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    },
+    "prompt_exercise_generator_system_prompt_v1.0.0": {
+      "id": "prompt_exercise_generator_system_prompt_v1.0.0",
+      "name": "Exercise Generator System Prompt",
+      "artifact_type": "prompt",
+      "version": "v1.0.0",
+      "state": "deprecated",
+      "content_hash": "6ad80a463dd21415c7ae0ffff001e86c5eef4876d42b02e3acb5d48dd2cb6bdc",
+      "upstream_ids": [],
+      "downstream_ids": [
+        "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+        "exercise_approved_exercise_bank_20_v1.0.0",
+        "prompt_exercise_generator_system_prompt_enhanced_v1.1.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/prompts/exercise_generator_system_prompt/v1.0.0/system_prompt_v1.txt",
+        "file_size_bytes": 115,
+        "created_at": "2026-10-01T18:37:47.262498+00:00",
+        "deprecation_reason": "Nâng cấp lên prompt v1.1.0 có hộp cát kiểm chứng khả thi thực thi.",
+        "superseded_by": "prompt_exercise_generator_system_prompt_enhanced_v1.1.0",
+        "sunset_date": "2026-11-30T23:59:59Z"
+      }
+    },
+    "prompt_rag_tutor_grounding_prompt_v1.0.0": {
+      "id": "prompt_rag_tutor_grounding_prompt_v1.0.0",
+      "name": "RAG Tutor Grounding Prompt",
+      "artifact_type": "prompt",
+      "version": "v1.0.0",
+      "state": "active",
+      "content_hash": "dd5880a0533c52311494161405a2e0fc480f10df102224ef17e88013c8dcc166",
+      "upstream_ids": [],
+      "downstream_ids": [
+        "evaluation_rag_benchmark_100_evaluation_v1.0.0"
+      ],
+      "metadata": {
+        "file_path": "data/artifacts/prompts/rag_tutor_grounding_prompt/v1.0.0/tutor_prompt_v1.txt",
+        "file_size_bytes": 156,
+        "created_at": "2026-10-01T18:37:47.264514+00:00",
+        "deprecation_reason": null,
+        "superseded_by": null,
+        "sunset_date": null
+      }
+    }
+  },
+  "edges": [
+    {
+      "source": "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+      "target": "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+      "relationship": "derived_from"
+    },
+    {
+      "source": "dataset_retail_sales_dataset_v1.0.0",
+      "target": "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "dataset_hr_attendance_dataset_v1.0.0",
+      "target": "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "dataset_customer_churn_dataset_v1.0.0",
+      "target": "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "prompt_exercise_generator_system_prompt_v1.0.0",
+      "target": "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "model_gemini_3.8_flash_checkpoint_v1.0.0",
+      "target": "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+      "target": "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "prompt_rag_tutor_grounding_prompt_v1.0.0",
+      "target": "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "model_bge_small_english_embedder_v1.0.0",
+      "target": "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "model_gemini_3.8_flash_checkpoint_v1.0.0",
+      "target": "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "index_bm25_knowledge_chunks_index_v1.0.0",
+      "target": "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+      "relationship": "evaluated_by"
+    },
+    {
+      "source": "dataset_retail_sales_dataset_v1.0.0",
+      "target": "exercise_approved_exercise_bank_20_v1.0.0",
+      "relationship": "generated_with"
+    },
+    {
+      "source": "dataset_hr_attendance_dataset_v1.0.0",
+      "target": "exercise_approved_exercise_bank_20_v1.0.0",
+      "relationship": "generated_with"
+    },
+    {
+      "source": "dataset_customer_churn_dataset_v1.0.0",
+      "target": "exercise_approved_exercise_bank_20_v1.0.0",
+      "relationship": "generated_with"
+    },
+    {
+      "source": "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+      "target": "exercise_approved_exercise_bank_20_v1.0.0",
+      "relationship": "generated_with"
+    },
+    {
+      "source": "prompt_exercise_generator_system_prompt_v1.0.0",
+      "target": "exercise_approved_exercise_bank_20_v1.0.0",
+      "relationship": "generated_with"
+    },
+    {
+      "source": "model_gemini_3.8_flash_checkpoint_v1.0.0",
+      "target": "exercise_approved_exercise_bank_20_v1.0.0",
+      "relationship": "generated_with"
+    },
+    {
+      "source": "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+      "target": "exercise_approved_exercise_bank_20_v1.0.0",
+      "relationship": "generated_with"
+    },
+    {
+      "source": "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+      "target": "index_bm25_knowledge_chunks_index_v1.0.0",
+      "relationship": "indexed_from"
+    },
+    {
+      "source": "dataset_retail_sales_dataset_v1.0.0",
+      "target": "index_faiss_retail_sales_index_v1.0.0",
+      "relationship": "indexed_from"
+    },
+    {
+      "source": "model_bge_small_english_embedder_v1.0.0",
+      "target": "index_faiss_retail_sales_index_v1.0.0",
+      "relationship": "indexed_from"
+    },
+    {
+      "source": "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+      "target": "index_hybrid_rag_search_index_v1.1.0",
+      "relationship": "indexed_from"
+    },
+    {
+      "source": "model_bge_small_english_embedder_v1.0.0",
+      "target": "index_hybrid_rag_search_index_v1.1.0",
+      "relationship": "indexed_from"
+    },
+    {
+      "source": "index_bm25_knowledge_chunks_index_v1.0.0",
+      "target": "index_hybrid_rag_search_index_v1.1.0",
+      "relationship": "indexed_from"
+    },
+    {
+      "source": "prompt_exercise_generator_system_prompt_v1.0.0",
+      "target": "prompt_exercise_generator_system_prompt_enhanced_v1.1.0",
+      "relationship": "derived_from"
+    }
+  ],
+  "root_node_ids": [
+    "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+    "dataset_customer_churn_dataset_v1.0.0",
+    "dataset_hr_attendance_dataset_v1.0.0",
+    "dataset_retail_sales_dataset_v1.0.0",
+    "model_bge_small_english_embedder_v1.0.0",
+    "model_gemini_3.8_flash_checkpoint_v1.0.0",
+    "prompt_exercise_generator_system_prompt_v1.0.0",
+    "prompt_rag_tutor_grounding_prompt_v1.0.0"
+  ],
+  "leaf_node_ids": [
+    "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+    "exercise_approved_exercise_bank_20_v1.0.0",
+    "index_faiss_retail_sales_index_v1.0.0",
+    "index_hybrid_rag_search_index_v1.1.0",
+    "prompt_exercise_generator_system_prompt_enhanced_v1.1.0"
+  ],
+  "total_nodes": 16,
+  "total_edges": 25
+}

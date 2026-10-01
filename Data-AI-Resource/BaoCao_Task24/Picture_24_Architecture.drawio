@@ -1,0 +1,91 @@
+<mxfile host="Electron" modified="2026-10-02T01:30:00.000Z" agent="CyberSoft DrawIO" version="21.6.8" type="device">
+  <diagram id="lineage-versioning-task24" name="Lineage &amp; Versioning Architecture">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" background="#0B0F19" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <!-- Header -->
+        <mxCell id="header" value="CYBERSOFT DATA &amp; AI LAB — KIẾN TRÚC LINEAGE DAG &amp; PHIÊN BẢN BẤT BIẾN (WORM) v0.1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#06B6D4;strokeWidth=2;fontColor=#FFFFFF;fontSize=18;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="50" y="30" width="1550" height="60" as="geometry" />
+        </mxCell>
+        <!-- Column 1: Root Datasets -->
+        <mxCell id="col1" value="CỘT 1: NGUỒN GỐC GỐC (ROOT DATASETS)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#3B82F6;fontColor=#FFFFFF;fontSize=14;fontStyle=1;startSize=40;" vertex="1" parent="1">
+          <mxGeometry x="50" y="120" width="360" height="980" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_retail" value="[DATASET] Retail Sales v1.0.0&#xa;SHA256: 9342b483b2...&#xa;3NF Multi-table Sales Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#E2E8F0;fontSize=12;" vertex="1" parent="col1">
+          <mxGeometry x="20" y="60" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_hr" value="[DATASET] HR Attendance v1.0.0&#xa;SHA256: e3b0c44298...&#xa;Employees, Shifts, Leaves" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#E2E8F0;fontSize=12;" vertex="1" parent="col1">
+          <mxGeometry x="20" y="180" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_churn" value="[DATASET] Customer Churn v1.0.0&#xa;SHA256: 4a2b9c78d1...&#xa;Telecom Churn Classification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#E2E8F0;fontSize=12;" vertex="1" parent="col1">
+          <mxGeometry x="20" y="300" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_chunks_v1" value="[DATASET] Chunks Corpus v1.0.0&#xa;SHA256: 12a3b4c5d6...&#xa;81 sections RAG (DEPRECATED)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#F59E0B;fontColor=#FBBF24;fontSize=12;" vertex="1" parent="col1">
+          <mxGeometry x="20" y="420" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ds_chunks_v2" value="[DATASET] Chunks Multi-Hop v1.1.0&#xa;SHA256: 55a4e3c2b1...&#xa;Multi-hop Context, Anti-leakage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#10B981;fontColor=#34D399;fontSize=12;" vertex="1" parent="col1">
+          <mxGeometry x="20" y="540" width="320" height="90" as="geometry" />
+        </mxCell>
+        <!-- Column 2: Prompts, Models, Indices -->
+        <mxCell id="col2" value="CỘT 2: TÀI NGUYÊN TRUNG GIAN (PROMPTS &amp; MODELS)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#8B5CF6;fontColor=#FFFFFF;fontSize=14;fontStyle=1;startSize=40;" vertex="1" parent="1">
+          <mxGeometry x="450" y="120" width="360" height="980" as="geometry" />
+        </mxCell>
+        <mxCell id="m_emb" value="[MODEL] BGE Small Embedder v1.0.0&#xa;SHA256: fa881249b0...&#xa;Dense 384-dim Sentence Transformer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#EC4899;fontColor=#E2E8F0;fontSize=12;" vertex="1" parent="col2">
+          <mxGeometry x="20" y="60" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="m_llm" value="[MODEL] Gemini 3.8 Flash Checkpoint&#xa;SHA256: 77bf3214da...&#xa;Context 1M, Temp 0.2, TopP 0.95" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#EC4899;fontColor=#E2E8F0;fontSize=12;" vertex="1" parent="col2">
+          <mxGeometry x="20" y="180" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p_gen_v1" value="[PROMPT] Generator Prompt v1.0.0&#xa;SHA256: 3321456789...&#xa;Few-shot Bloom (DEPRECATED)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#F59E0B;fontColor=#FBBF24;fontSize=12;" vertex="1" parent="col2">
+          <mxGeometry x="20" y="300" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p_gen_v2" value="[PROMPT] Generator Prompt Enh v1.1.0&#xa;SHA256: bb89123456...&#xa;SQL Feasibility Sandbox Enforced" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#10B981;fontColor=#34D399;fontSize=12;" vertex="1" parent="col2">
+          <mxGeometry x="20" y="420" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="idx_hybrid" value="[INDEX] Hybrid RAG Index v1.1.0&#xa;SHA256: 8899aabbcc...&#xa;Dense FAISS + Sparse BM25 RRF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#10B981;fontColor=#34D399;fontSize=12;" vertex="1" parent="col2">
+          <mxGeometry x="20" y="540" width="320" height="90" as="geometry" />
+        </mxCell>
+        <!-- Column 3: Downstream Deliverables -->
+        <mxCell id="col3" value="CỘT 3: SẢN PHẨM HẠ NGUỒN (DELIVERABLES)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#10B981;fontColor=#FFFFFF;fontSize=14;fontStyle=1;startSize=40;" vertex="1" parent="1">
+          <mxGeometry x="850" y="120" width="360" height="980" as="geometry" />
+        </mxCell>
+        <mxCell id="ex_bank" value="[EXERCISE] Approved Bank 20 v1.0.0&#xa;SHA256: 4455667788...&#xa;20 Bài tập đã qua Giảng viên duyệt&#xa;Truy vết ngược 100% về 4 Datasets, Model, Prompt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#06B6D4;strokeWidth=2;fontColor=#22D3EE;fontSize=12;fontStyle=1;" vertex="1" parent="col3">
+          <mxGeometry x="20" y="60" width="320" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="eval_gen" value="[EVALUATION] Generator Feasibility Eval&#xa;SHA256: 2233445566...&#xa;Round 1: 84%, Round 2: 100%, 0.78ms" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#F59E0B;fontColor=#E2E8F0;fontSize=12;" vertex="1" parent="col3">
+          <mxGeometry x="20" y="200" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="eval_rag" value="[EVALUATION] RAG Benchmark 100 Eval&#xa;SHA256: 1122334455...&#xa;P@3: 94%, MRR: 0.91, Hallucination: 0%" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#F59E0B;fontColor=#E2E8F0;fontSize=12;" vertex="1" parent="col3">
+          <mxGeometry x="20" y="320" width="320" height="90" as="geometry" />
+        </mxCell>
+        <!-- Column 4: Releases & Rollback -->
+        <mxCell id="col4" value="CỘT 4: BẢN PHÁT HÀNH &amp; HOÀN TÁC (RELEASES &amp; WORM)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#EC4899;fontColor=#FFFFFF;fontSize=14;fontStyle=1;startSize=40;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="120" width="350" height="980" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_v10" value="[RELEASE] Manifest v1.0.0&#xa;Checksum: 20577462c080d8cb...&#xa;13 Components, Baseline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#60A5FA;fontSize=12;" vertex="1" parent="col4">
+          <mxGeometry x="20" y="60" width="310" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_v11" value="[RELEASE] Manifest v1.1.0&#xa;Checksum: fa096099dc46141c...&#xa;16 Components (+3 New, -2 Deprecated)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#10B981;fontColor=#34D399;fontSize=12;" vertex="1" parent="col4">
+          <mxGeometry x="20" y="180" width="310" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="rollback" value="[ROLLBACK NOTE] v1.1.0 ➔ v1.0.0&#xa;Chuyển con trỏ Gateway&#xa;Phục hồi v1.0.0, cách ly v1.1.0&#xa;Risk Level: LOW (0 từ cấm)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E1B4B;strokeColor=#8B5CF6;fontColor=#C084FC;fontSize=12;fontStyle=1;" vertex="1" parent="col4">
+          <mxGeometry x="20" y="300" width="310" height="110" as="geometry" />
+        </mxCell>
+        <!-- Edges / Connections -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#06B6D4;strokeWidth=2;" edge="1" parent="1" source="ds_retail" target="ex_bank">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#06B6D4;strokeWidth=2;" edge="1" parent="1" source="p_gen_v1" target="ex_bank">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#06B6D4;strokeWidth=2;" edge="1" parent="1" source="m_llm" target="ex_bank">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#10B981;strokeWidth=2;" edge="1" parent="1" source="ex_bank" target="rel_v11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
