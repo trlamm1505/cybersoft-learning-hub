@@ -1,0 +1,4 @@
+survey_id,student_id,course_id,instructor_score,content_score,status
+SURV-DRAFT-01,STU-501,CRS-AI-01,4.8,4.5,draft_internal_review
+SURV-DRAFT-02,STU-502,CRS-AI-01,4.2,4.0,draft_internal_review
+SURV-DRAFT-03,STU-503,CRS-DATA-02,5.0,4.9,draft_internal_review
