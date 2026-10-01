@@ -8,3 +8,9 @@ venv/
 
 # Tester Lab: file bai nop cua hoc vien
 learning-hub/BE/uploads/
+
+# Video recordings (uploaded to Cloud/Drive instead of Git)
+*.mkv
+*.mp4
+*.avi
+*.mov
