@@ -19,7 +19,7 @@
       </div>
       <div class="header-title">
         <h1>Lineage & Versioning Explorer <span class="tag-version">v0.1</span></h1>
-        <p class="header-subtitle">Hệ thống theo dõi nguồn gốc dữ liệu, kiểm soát phiên bản bất biến (WORM) & quản lý phát hành</p>
+        <p class="header-subtitle">Hệ thống theo dõi nguồn gốc dữ liệu, kiểm soát phiên bản bất biến (WORM) & quản trị bản phát hành</p>
       </div>
     </div>
     <div class="header-right">
@@ -48,7 +48,7 @@
       <span class="metric-icon">🔗</span>
       <div class="metric-info">
         <span class="metric-val" id="metric-total-edges">25</span>
-        <span class="metric-lbl">Quan Hệ Nhân Quả (Edges)</span>
+        <span class="metric-lbl">Quan Hệ Nhân Quả</span>
       </div>
     </div>
     <div class="metric-card">
@@ -69,7 +69,7 @@
       <span class="metric-icon">⏳</span>
       <div class="metric-info">
         <span class="metric-val" id="metric-deprecated">2</span>
-        <span class="metric-lbl">Tài Nguyên Deprecated</span>
+        <span class="metric-lbl">Đang Deprecated</span>
       </div>
     </div>
   </section>
@@ -99,30 +99,42 @@
     <!-- TAB 1: LINEAGE DAG & PROVENANCE TRACE -->
     <div class="tab-pane active" id="tab-dag">
       <div class="pane-toolbar">
+        <div class="view-mode-toggle">
+          <button class="mode-btn active" id="mode-pipeline" title="Xem dạng luồng phân cột nhân quả">
+            🌐 Luồng Nhân Quả (Pipeline Flow)
+          </button>
+          <button class="mode-btn" id="mode-grid" title="Xem dạng thẻ lưới chi tiết">
+            📋 Lưới Thẻ (Grid View)
+          </button>
+        </div>
+
         <div class="filter-group">
-          <label>Lọc phân loại:</label>
+          <label>Phân loại:</label>
           <select id="filter-type">
-            <option value="all">Tất cả phân loại (6 nhóm)</option>
-            <option value="dataset">Dataset (Dữ liệu nguồn)</option>
-            <option value="prompt">Prompt (Chỉ dẫn AI)</option>
-            <option value="model">Model (Trọng số/Checkpoint)</option>
-            <option value="index">Index (Chỉ mục Vector/BM25)</option>
+            <option value="all">Tất cả (6 nhóm)</option>
+            <option value="dataset">Dataset (Dữ liệu)</option>
+            <option value="prompt">Prompt (Chỉ dẫn)</option>
+            <option value="model">Model (Mô hình)</option>
+            <option value="index">Index (Chỉ mục)</option>
             <option value="evaluation">Evaluation (Đánh giá)</option>
-            <option value="exercise">Exercise (Bài tập thực hành)</option>
+            <option value="exercise">Exercise (Bài tập)</option>
           </select>
         </div>
+
         <div class="filter-group">
-          <label>Trạng thái vòng đời:</label>
+          <label>Trạng thái:</label>
           <select id="filter-state">
-            <option value="all">Tất cả trạng thái</option>
-            <option value="active">Active (Đang vận hành)</option>
+            <option value="all">Tất cả</option>
+            <option value="active">Active (Vận hành)</option>
             <option value="deprecated">Deprecated (Sắp ngừng)</option>
             <option value="retired">Retired (Đã thu hồi)</option>
           </select>
         </div>
+
         <div class="search-box">
-          <input type="text" id="dag-search-input" placeholder="🔍 Tìm kiếm tên tài nguyên, ID, thẻ tag...">
+          <input type="text" id="dag-search-input" placeholder="🔍 Tìm kiếm tài nguyên, tag, SHA-256...">
         </div>
+
         <button class="btn btn-primary" id="btn-quick-trace">
           🎯 Truy Vết Nguồn Gốc Bài Tập (DoD)
         </button>
@@ -130,8 +142,43 @@
 
       <div class="dag-layout">
         <div class="dag-canvas-container" id="dag-container">
-          <!-- DAG Grid/Cards Rendered Here -->
-          <div class="dag-grid" id="dag-grid"></div>
+          <!-- PIPELINE VIEW (DEFAULT) -->
+          <div class="pipeline-container" id="pipeline-view">
+            <div class="pipeline-lane" id="lane-datasets">
+              <div class="lane-header">
+                <span class="lane-badge">CỘT 1</span>
+                <h4>Dữ Liệu Nguồn (Datasets)</h4>
+              </div>
+              <div class="lane-nodes" id="lane-nodes-datasets"></div>
+            </div>
+
+            <div class="pipeline-lane" id="lane-models">
+              <div class="lane-header">
+                <span class="lane-badge">CỘT 2</span>
+                <h4>Mô Hình & Prompt</h4>
+              </div>
+              <div class="lane-nodes" id="lane-nodes-models"></div>
+            </div>
+
+            <div class="pipeline-lane" id="lane-indices">
+              <div class="lane-header">
+                <span class="lane-badge">CỘT 3</span>
+                <h4>Chỉ Mục & Đánh Giá</h4>
+              </div>
+              <div class="lane-nodes" id="lane-nodes-indices"></div>
+            </div>
+
+            <div class="pipeline-lane" id="lane-products">
+              <div class="lane-header">
+                <span class="lane-badge">CỘT 4</span>
+                <h4>Bài Tập & Bản Phát Hành</h4>
+              </div>
+              <div class="lane-nodes" id="lane-nodes-products"></div>
+            </div>
+          </div>
+
+          <!-- GRID VIEW (ALTERNATIVE) -->
+          <div class="dag-grid" id="dag-grid" style="display: none;"></div>
         </div>
 
         <!-- RIGHT DETAIL SIDEBAR -->
@@ -141,7 +188,10 @@
             <span class="badge-type" id="side-type">N/A</span>
           </div>
           <div class="sidebar-body" id="side-content">
-            <p class="empty-hint">Chọn một nút trên đồ thị để xem thông tin chi tiết và truy vết nhân quả ngược về nguồn.</p>
+            <div class="empty-state-box">
+              <span class="empty-icon">👆</span>
+              <p class="empty-hint">Bấm chuột vào một nút trên đồ thị để mở khóa bảng phân tích nguồn gốc nhân quả và đối soát mã băm bất biến.</p>
+            </div>
           </div>
         </aside>
       </div>
@@ -151,7 +201,7 @@
     <div class="tab-pane" id="tab-manifests">
       <div class="manifests-layout">
         <div class="manifest-selector">
-          <h3>Danh Sách Bản Phát Hành (Releases)</h3>
+          <h3>Bản Phát Hành (Releases)</h3>
           <div class="release-list" id="release-list"></div>
         </div>
         <div class="manifest-detail-view" id="manifest-detail">
@@ -166,7 +216,7 @@
             </div>
           </div>
           <div class="manifest-sections">
-            <h4>Danh Mục Thành Phần Trong Bản Phát Hành:</h4>
+            <h4>Danh Mục Thành Phần Bất Biến (WORM Components):</h4>
             <div class="component-table-wrapper">
               <table class="data-table" id="table-manifest-components">
                 <thead>
@@ -192,7 +242,7 @@
       <div class="changelog-container">
         <div class="changelog-header">
           <h2>Nhật Ký Thay Đổi Bản Phát Hành (Release Changelog)</h2>
-          <p>Tự động tổng hợp sai khác cấu trúc (diff) giữa các phiên bản Release Manifests chuẩn CyberSoft</p>
+          <p>Tự động phân tích sai khác (diff) giữa các bản phát hành chuẩn CyberSoft: Thêm Mới, Nâng Cấp và Deprecate</p>
         </div>
         <div class="timeline" id="changelog-timeline"></div>
       </div>
