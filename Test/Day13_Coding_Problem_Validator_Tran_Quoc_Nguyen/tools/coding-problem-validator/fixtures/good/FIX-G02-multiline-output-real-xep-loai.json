@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "day14-ham-quy-doi-diem-chu",
+    "title": "Hàm tái sử dụng: quy đổi điểm chữ",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Viết hàm xep_loai(diem) trả về chuỗi xếp loại theo quy tắc: diem >= 9 -> \"A\"; 8 <= diem < 9 -> \"B\"; 6.5 <= diem < 8 -> \"C\"; 5 <= diem < 6.5 -> \"D\"; diem < 5 -> \"F\". Dòng đầu là số lượng N điểm số. Dòng hai gồm N số thực cách nhau bởi dấu cách. Với mỗi điểm, in ra kết quả xep_loai tương ứng, mỗi kết quả trên một dòng, theo đúng thứ tự đầu vào.",
+    "starterCode": "def xep_loai(diem):\n    # Viết code của bạn ở đây\n    pass\n\nn = int(input())\ndiems = list(map(float, input().split()))\nfor d in diems:\n    print(xep_loai(d))\n",
+    "solutionCode": "def xep_loai(diem):\n    if diem >= 9:\n        return \"A\"\n    if diem >= 8:\n        return \"B\"\n    if diem >= 6.5:\n        return \"C\"\n    if diem >= 5:\n        return \"D\"\n    return \"F\"\n\nn = int(input())\ndiems = list(map(float, input().split()))\nfor d in diems:\n    print(xep_loai(d))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\n9.5 7 4",
+        "expectedOutput": "A\nC\nF",
+        "isHidden": false
+      },
+      {
+        "input": "1\n5",
+        "expectedOutput": "D",
+        "isHidden": false
+      },
+      {
+        "input": "4\n9 8.9 8 6.5",
+        "expectedOutput": "A\nB\nB\nC",
+        "isHidden": true
+      },
+      {
+        "input": "2\n0 10",
+        "expectedOutput": "F\nA",
+        "isHidden": true
+      },
+      {
+        "input": "1\n4.999",
+        "expectedOutput": "F",
+        "isHidden": true
+      }
+    ]
+  }
+]

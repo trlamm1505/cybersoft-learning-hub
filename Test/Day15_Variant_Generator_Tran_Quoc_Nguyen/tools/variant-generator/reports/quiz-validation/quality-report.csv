@@ -1,0 +1,6 @@
+ruleId,severity,file,questionId,line,path,message,suggestedFix,humanVerification,falsePositive,finalResult
+QV006,WARNING,quiz-variants.json,quiz-variants.json#Q2,38,$[1].content,"question content duplicates another question (file ""quiz-variants.json"", $[0])","Xoá câu hỏi trùng, hoặc viết lại để hỏi khía cạnh khác.",,,
+QV006,WARNING,quiz-variants.json,quiz-variants.json#Q3,73,$[2].content,"question content duplicates another question (file ""quiz-variants.json"", $[0])","Xoá câu hỏi trùng, hoặc viết lại để hỏi khía cạnh khác.",,,
+QV006,WARNING,quiz-variants.json,quiz-variants.json#Q4,108,$[3].content,"question content duplicates another question (file ""quiz-variants.json"", $[0])","Xoá câu hỏi trùng, hoặc viết lại để hỏi khía cạnh khác.",,,
+QV006,WARNING,quiz-variants.json,quiz-variants.json#Q5,143,$[4].content,"question content duplicates another question (file ""quiz-variants.json"", $[0])","Xoá câu hỏi trùng, hoặc viết lại để hỏi khía cạnh khác.",,,
+QV006,WARNING,quiz-variants.json,quiz-variants.json#Q6,178,$[5].content,"question content duplicates another question (file ""quiz-variants.json"", $[0])","Xoá câu hỏi trùng, hoặc viết lại để hỏi khía cạnh khác.",,,

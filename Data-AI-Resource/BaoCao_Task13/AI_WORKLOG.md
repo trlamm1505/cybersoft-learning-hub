@@ -207,26 +207,3 @@ tests/test_zero_leakage.py::test_zero_answer_leakage_in_student_edition PASSED [
 | **Tầng 4: Autonomous AI-Native & System Integration** | Tự động hóa hoàn toàn quy trình kiểm thử tự động, đóng gói và chấm điểm độc lập qua `auto_grader.py` (60 điểm). | Kịch bản `demo_capstone_workflow.py` chạy qua 4 giai đoạn tự động, tích hợp hoàn hảo với Pytest suite đạt 9/9 tests passed trong 0.46 giây. |
 
 ---
-
-## 6. Kịch bản Thuyết trình 3 phút (3-Minute Presentation Script)
-*(Dành cho phiên Technical Review cùng Ban Giám đốc & Hội đồng Chuyên môn)*
-
-> "Kính thưa Ban Giám đốc và Hội đồng Chuyên môn,
-> 
-> Trong nhiệm vụ Ngày 13 hôm nay, tôi đã phối hợp cùng các mô hình AI tiên tiến (Google Antigravity / Gemini 3.8 Flash) để thiết kế trọn vẹn bài tập lớn số 2: **Capstone DA-02 Inventory Optimization & Multi-Warehouse Operations Analytics**.
-> 
-> **Thứ nhất — AI đã hỗ trợ gì?**  
-> AI hỗ trợ rất mạnh mẽ trong việc nhanh chóng phác thảo khung cấu trúc thư mục, sinh các bộ sinh dữ liệu giao dịch kho ngẫu nhiên và soạn thảo các câu hỏi nghiệp vụ theo phong cách điều hành C-Suite.
-> 
-> **Thứ hai — Những điểm sai và bẫy lỗi mà AI mắc phải?**  
-> Nếu không có sự thẩm định chuyên sâu của một Data Architect có kinh nghiệm, các đề xuất của AI sẽ dẫn tới những sai lầm nghiêm trọng trong thực tế:
-> 1. AI đã quên hoàn toàn số dư đầu kỳ khi tính tồn kho, làm sai lệch giá trị tài sản kho hơn 473,000 USD.
-> 2. AI nhầm lẫn giữa điều chuyển nội bộ giữa 3 kho và giá vốn hàng bán ngoại vi, làm thổi phồng COGS và sai lệch vòng quay tồn kho.
-> 3. AI vi phạm nguyên tắc kế toán chuẩn mực khi lấy giá bán niêm yết để định giá kho thay vì giá vốn gốc.
-> 4. Đặc biệt, khi xử lý dữ liệu dirty có tồn kho âm, AI đề xuất xóa bỏ bản ghi thay vì nhận diện đó là hiện tượng trễ nhập liệu (Data Entry Latency) rất phổ biến trong doanh nghiệp.
-> 5. Ngoài ra, việc xuất file bằng PowerShell mặc định chèn UTF-8 BOM làm crash bộ giải mã JSON, và ký tự `$` trong matplotlib làm crash bộ dựng hình toán học.
-> 
-> **Thứ ba — Tôi đã kiểm chứng và làm chủ hệ thống ra sao?**  
-> Tôi đã bác bỏ và tái cấu trúc lại toàn bộ các công thức tính toán, xây dựng Động cơ đối soát số liệu 3 chiều (SQL vs Pandas vs Matrix Balance Equation) đạt sự trùng khớp số học tuyệt đối với độ lệch Delta = $0.00 và 0 units. Đồng thời, tôi đã xây dựng máy chấm tự động `auto_grader.py` chấm 60 điểm định lượng, bảo vệ Zero-Leakage 100% sạch cho học viên, và vượt qua 9/9 Pytest cases trong chưa đầy 0.5 giây.
-> 
-> Toàn bộ tài nguyên Capstone DA-02 đã sẵn sàng bàn giao và đưa vào giảng dạy ngay hôm nay!"

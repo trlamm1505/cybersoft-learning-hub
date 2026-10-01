@@ -1,0 +1,11 @@
+{
+  "labId": "LAB-05",
+  "mode": "buggy",
+  "faultId": "F-D14-005",
+  "rule": "Sửa/xóa phải kiểm quyền sở hữu tài nguyên.",
+  "data": {
+    "resourceOwner": "user-B",
+    "requestUser": "user-A",
+    "updateAllowed": true
+  }
+}

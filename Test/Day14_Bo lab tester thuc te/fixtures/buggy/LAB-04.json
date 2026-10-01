@@ -1,0 +1,12 @@
+{
+  "labId": "LAB-04",
+  "mode": "buggy",
+  "faultId": "F-D14-004",
+  "rule": "API bệnh viện dùng Authorization: Bearer; không dùng TokenCybersoft.",
+  "data": {
+    "requestHeaders": {
+      "TokenCybersoft": "demo-token"
+    },
+    "expectedStatus": 200
+  }
+}

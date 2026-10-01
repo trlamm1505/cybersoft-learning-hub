@@ -1,10 +1,19 @@
-import { Injectable, NotFoundException, BadRequestException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Contest, ContestDocument } from '../../modules-system/database/schemas/contest.schema';
+import {
+  Contest,
+  ContestDocument,
+} from '../../modules-system/database/schemas/contest.schema';
+import { User, UserDocument } from '../../modules-system/database/schemas/user.schema';
 import { CreateContestDto } from './dto/create-contest.dto';
 import { UpdateContestDto } from './dto/update-contest.dto';
-import { RegisterContestDto } from './dto/register-contest.dto';
 
 import { getInitialContests } from '../../data/initial-contests';
 
@@ -13,6 +22,8 @@ export class ContestService implements OnModuleInit {
   constructor(
     @InjectModel(Contest.name)
     private readonly contestModel: Model<ContestDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
   async onModuleInit() {
@@ -25,10 +36,37 @@ export class ContestService implements OnModuleInit {
       if (count === 0) {
         const sampleContests = getInitialContests();
         await this.contestModel.insertMany(sampleContests);
-        console.log(`✅ Seeded ${sampleContests.length} sample contests into MongoDB for Contest Module`);
+        console.log(
+          `✅ Seeded ${sampleContests.length} sample contests into MongoDB for Contest Module`,
+        );
       }
     } catch (error) {
       console.warn('Could not seed sample contests:', error.message);
+    }
+  }
+
+  // Giống AuthoringService.SHARED_AUTHOR_ID — contest seed sẵn
+  // (initial-contests.ts) đều mang authorId 'teacher-1', coi đây là tài
+  // nguyên dùng chung, không phải sở hữu riêng của một giáo viên cụ thể.
+  private static readonly SHARED_AUTHOR_ID = 'teacher-1';
+
+  /**
+   * Chặn TEACHER sửa/xoá contest KHÔNG do chính họ tạo và KHÔNG phải tài
+   * nguyên dùng chung — vá lỗ hổng IDOR "giáo viên A đoán/biết ID cuộc thi
+   * của giáo viên B là sửa/xoá được ngay" (updateContest/deleteContest
+   * trước đây không so sánh authorId). ADMIN bỏ qua kiểm tra này.
+   */
+  private assertCanModify(
+    contest: { authorId?: string },
+    requester: { sub: string; role: string },
+  ): void {
+    if (requester.role === 'ADMIN') return;
+    const owner = contest.authorId || ContestService.SHARED_AUTHOR_ID;
+    if (owner === ContestService.SHARED_AUTHOR_ID) return;
+    if (owner !== requester.sub) {
+      throw new ForbiddenException(
+        'Bạn không có quyền thao tác trên cuộc thi này — cuộc thi thuộc sở hữu của giáo viên khác.',
+      );
     }
   }
 
@@ -44,7 +82,10 @@ export class ContestService implements OnModuleInit {
     );
   }
 
-  private computeStatus(startTime: Date, endTime: Date): {
+  private computeStatus(
+    startTime: Date,
+    endTime: Date,
+  ): {
     status: 'UPCOMING' | 'ONGOING' | 'ENDED';
     statusText: string;
   } {
@@ -61,7 +102,7 @@ export class ContestService implements OnModuleInit {
     return { status: 'ONGOING', statusText: 'Đang diễn ra' };
   }
 
-  async createContest(dto: CreateContestDto): Promise<Contest> {
+  async createContest(dto: CreateContestDto, authorId: string): Promise<Contest> {
     if (!dto.title || !dto.title.trim()) {
       throw new BadRequestException('Tiêu đề cuộc thi không được để trống!');
     }
@@ -70,17 +111,26 @@ export class ContestService implements OnModuleInit {
     const end = new Date(dto.endTime);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      throw new BadRequestException('Thời gian bắt đầu hoặc kết thúc không hợp lệ!');
+      throw new BadRequestException(
+        'Thời gian bắt đầu hoặc kết thúc không hợp lệ!',
+      );
     }
 
     if (start >= end) {
-      throw new BadRequestException('Thời gian bắt đầu phải trước thời gian kết thúc!');
+      throw new BadRequestException(
+        'Thời gian bắt đầu phải trước thời gian kết thúc!',
+      );
     }
 
-    const slug = dto.slug && dto.slug.trim() ? dto.slug.trim() : this.generateSlug(dto.title);
+    const slug =
+      dto.slug && dto.slug.trim()
+        ? dto.slug.trim()
+        : this.generateSlug(dto.title);
     const existing = await this.contestModel.findOne({ slug }).exec();
     if (existing) {
-      throw new BadRequestException(`Slug '${slug}' đã tồn tại. Vui lòng chọn tiêu đề hoặc slug khác.`);
+      throw new BadRequestException(
+        `Slug '${slug}' đã tồn tại. Vui lòng chọn tiêu đề hoặc slug khác.`,
+      );
     }
 
     const durationMinutes =
@@ -97,33 +147,47 @@ export class ContestService implements OnModuleInit {
       problems: dto.problems || [],
       registrations: [],
       status: dto.status || 'published',
-      authorId: dto.authorId || 'teacher-1',
+      authorId,
     });
 
     return newContest.save();
   }
 
-  async updateContest(id: string, dto: UpdateContestDto): Promise<Contest> {
+  async updateContest(
+    id: string,
+    dto: UpdateContestDto,
+    requester: { sub: string; role: string },
+  ): Promise<Contest> {
     const contest = await this.contestModel.findById(id);
     if (!contest) {
       throw new NotFoundException(`Không tìm thấy cuộc thi với ID: ${id}`);
     }
+    this.assertCanModify(contest, requester);
 
-    const startTime = dto.startTime ? new Date(dto.startTime) : contest.startTime;
+    const startTime = dto.startTime
+      ? new Date(dto.startTime)
+      : contest.startTime;
     const endTime = dto.endTime ? new Date(dto.endTime) : contest.endTime;
 
     if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
-      throw new BadRequestException('Thời gian bắt đầu hoặc kết thúc không hợp lệ!');
+      throw new BadRequestException(
+        'Thời gian bắt đầu hoặc kết thúc không hợp lệ!',
+      );
     }
 
     if (startTime >= endTime) {
-      throw new BadRequestException('Thời gian bắt đầu phải trước thời gian kết thúc!');
+      throw new BadRequestException(
+        'Thời gian bắt đầu phải trước thời gian kết thúc!',
+      );
     }
 
     const durationMinutes =
       dto.durationMinutes && dto.durationMinutes > 0
         ? dto.durationMinutes
-        : Math.max(1, Math.round((endTime.getTime() - startTime.getTime()) / 60000));
+        : Math.max(
+            1,
+            Math.round((endTime.getTime() - startTime.getTime()) / 60000),
+          );
 
     Object.assign(contest, {
       ...dto,
@@ -137,11 +201,17 @@ export class ContestService implements OnModuleInit {
 
   async findAll(studentId?: string) {
     const filter: any = studentId ? { status: { $ne: 'draft' } } : {};
-    const contests = await this.contestModel.find(filter).sort({ startTime: -1 }).exec();
+    const contests = await this.contestModel
+      .find(filter)
+      .sort({ startTime: -1 })
+      .exec();
     const serverTime = new Date();
 
     return contests.map((c) => {
-      const { status: computedStatus, statusText } = this.computeStatus(c.startTime, c.endTime);
+      const { status: computedStatus, statusText } = this.computeStatus(
+        c.startTime,
+        c.endTime,
+      );
       const isRegistered = studentId
         ? c.registrations?.some((r) => r.studentId === studentId) || false
         : false;
@@ -158,16 +228,23 @@ export class ContestService implements OnModuleInit {
   }
 
   async findOne(id: string, studentId?: string) {
-    const contest = await this.contestModel.findOne({
-      $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }],
-    }).exec();
+    const contest = await this.contestModel
+      .findOne({
+        $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }],
+      })
+      .exec();
 
     if (!contest) {
-      throw new NotFoundException(`Không tìm thấy cuộc thi với thông tin: ${id}`);
+      throw new NotFoundException(
+        `Không tìm thấy cuộc thi với thông tin: ${id}`,
+      );
     }
 
     const serverTime = new Date();
-    const { status: computedStatus, statusText } = this.computeStatus(contest.startTime, contest.endTime);
+    const { status: computedStatus, statusText } = this.computeStatus(
+      contest.startTime,
+      contest.endTime,
+    );
     const isRegistered = studentId
       ? contest.registrations?.some((r) => r.studentId === studentId) || false
       : false;
@@ -182,25 +259,32 @@ export class ContestService implements OnModuleInit {
     };
   }
 
-  async registerContest(id: string, dto: RegisterContestDto) {
-    if (!dto.studentId || !dto.studentId.trim()) {
-      throw new BadRequestException('Mã học viên (studentId) không được để trống!');
-    }
+  async registerContest(id: string, studentId: string) {
+    const user = await this.userModel.findById(studentId).select('fullName').lean();
+    const studentName = user?.fullName || 'Học viên';
 
-    const contest = await this.contestModel.findOne({
-      $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }],
-    }).exec();
+    const contest = await this.contestModel
+      .findOne({
+        $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }],
+      })
+      .exec();
 
     if (!contest) {
-      throw new NotFoundException(`Không tìm thấy cuộc thi với ID hoặc slug: ${id}`);
+      throw new NotFoundException(
+        `Không tìm thấy cuộc thi với ID hoặc slug: ${id}`,
+      );
     }
 
     const now = new Date();
     if (now > contest.endTime) {
-      throw new BadRequestException('Cuộc thi này đã kết thúc! Bạn không thể đăng ký tham gia nữa.');
+      throw new BadRequestException(
+        'Cuộc thi này đã kết thúc! Bạn không thể đăng ký tham gia nữa.',
+      );
     }
 
-    const isAlreadyRegistered = contest.registrations.some((r) => r.studentId === dto.studentId);
+    const isAlreadyRegistered = contest.registrations.some(
+      (r) => r.studentId === studentId,
+    );
     if (isAlreadyRegistered) {
       return {
         success: true,
@@ -212,8 +296,8 @@ export class ContestService implements OnModuleInit {
     }
 
     contest.registrations.push({
-      studentId: dto.studentId,
-      studentName: dto.studentName || 'Học viên',
+      studentId,
+      studentName: studentName || 'Học viên',
       registeredAt: now,
     });
 
@@ -230,19 +314,26 @@ export class ContestService implements OnModuleInit {
   }
 
   async checkContestStatus(id: string, studentId?: string) {
-    const contest = await this.contestModel.findOne({
-      $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }],
-    }).exec();
+    const contest = await this.contestModel
+      .findOne({
+        $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { slug: id }],
+      })
+      .exec();
 
     if (!contest) {
-      throw new NotFoundException(`Không tìm thấy cuộc thi với ID hoặc slug: ${id}`);
+      throw new NotFoundException(
+        `Không tìm thấy cuộc thi với ID hoặc slug: ${id}`,
+      );
     }
 
     const now = new Date();
     const start = new Date(contest.startTime);
     const end = new Date(contest.endTime);
 
-    const { status: computedStatus, statusText } = this.computeStatus(start, end);
+    const { status: computedStatus, statusText } = this.computeStatus(
+      start,
+      end,
+    );
     const isRegistered = studentId
       ? contest.registrations.some((r) => r.studentId === studentId)
       : false;
@@ -254,17 +345,24 @@ export class ContestService implements OnModuleInit {
     if (computedStatus === 'UPCOMING') {
       message = 'Cuộc thi chưa bắt đầu. Thời gian máy chủ chưa đạt giờ mở đề.';
     } else if (computedStatus === 'ENDED') {
-      message = 'Cuộc thi đã kết thúc. Máy chủ đã khóa quyền nộp bài và làm đề thi.';
+      message =
+        'Cuộc thi đã kết thúc. Máy chủ đã khóa quyền nộp bài và làm đề thi.';
     } else if (!isRegistered) {
-      message = 'Bạn chưa đăng ký tham gia cuộc thi này! Vui lòng bấm nút "Đăng ký tham gia" trước khi làm bài thi.';
+      message =
+        'Bạn chưa đăng ký tham gia cuộc thi này! Vui lòng bấm nút "Đăng ký tham gia" trước khi làm bài thi.';
     } else {
-      message = 'Cuộc thi đang diễn ra hợp lệ theo thời gian máy chủ và bạn đã đăng ký tham gia thành công.';
+      message =
+        'Cuộc thi đang diễn ra hợp lệ theo thời gian máy chủ và bạn đã đăng ký tham gia thành công.';
     }
 
     const timeRemainingSeconds =
-      computedStatus === 'ONGOING' ? Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000)) : 0;
+      computedStatus === 'ONGOING'
+        ? Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000))
+        : 0;
     const countdownSeconds =
-      computedStatus === 'UPCOMING' ? Math.max(0, Math.floor((start.getTime() - now.getTime()) / 1000)) : 0;
+      computedStatus === 'UPCOMING'
+        ? Math.max(0, Math.floor((start.getTime() - now.getTime()) / 1000))
+        : 0;
 
     return {
       contestId: contest._id,
@@ -284,11 +382,16 @@ export class ContestService implements OnModuleInit {
     };
   }
 
-  async deleteContest(id: string) {
-    const contest = await this.contestModel.findByIdAndDelete(id);
+  async deleteContest(id: string, requester: { sub: string; role: string }) {
+    const contest = await this.contestModel.findById(id);
     if (!contest) {
       throw new NotFoundException(`Không tìm thấy cuộc thi với ID: ${id}`);
     }
-    return { success: true, message: `Đã xóa thành công cuộc thi: ${contest.title}` };
+    this.assertCanModify(contest, requester);
+    await this.contestModel.findByIdAndDelete(id);
+    return {
+      success: true,
+      message: `Đã xóa thành công cuộc thi: ${contest.title}`,
+    };
   }
 }

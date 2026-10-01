@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Zap, Loader2 } from 'lucide-react';
 import authApi from '../axios/authApi';
 import type { AuthResponse } from '../types/auth';
 
@@ -34,8 +35,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
     <div className="min-h-[70vh] flex items-center justify-center py-8 px-4">
       <div className="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 sm:p-8 shadow-md space-y-5">
         <div className="text-center space-y-1.5">
-          <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-xl shadow-md">
-            ⚡
+          <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md">
+            <Zap size={22} strokeWidth={2.25} />
           </div>
           <h1 className="text-xl font-black text-[var(--text-main)]">Đăng nhập</h1>
           <p className="text-xs text-[var(--text-muted)]">Chào mừng bạn quay lại CyberSoft Hub.</p>
@@ -61,7 +62,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Mật khẩu</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-[11px] font-semibold text-[var(--text-muted)]">Mật khẩu</label>
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-[11px] font-bold text-indigo-600 dark:text-cyan-400 bg-transparent border-none cursor-pointer hover:underline"
+              >
+                Quên mật khẩu?
+              </button>
+            </div>
             <input
               type="password"
               required
@@ -77,7 +87,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
             disabled={isSubmitting}
             className="w-full py-3 text-sm font-extrabold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md cursor-pointer disabled:opacity-50"
           >
-            {isSubmitting ? '⏳ Đang đăng nhập...' : 'Đăng nhập'}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-1.5">
+                <Loader2 size={14} className="animate-spin" /> Đang đăng nhập...
+              </span>
+            ) : (
+              'Đăng nhập'
+            )}
           </button>
         </form>
 

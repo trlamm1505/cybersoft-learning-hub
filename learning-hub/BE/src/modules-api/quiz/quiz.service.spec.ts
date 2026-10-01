@@ -34,7 +34,8 @@ describe('QuizService Unit & Integration Tests', () => {
         { key: 'C', text: '<aside>', isCorrect: false },
         { key: 'D', text: '<header>', isCorrect: false },
       ],
-      explanation: 'Thẻ <nav> được thiết kế dành riêng cho menu liên kết điều hướng.',
+      explanation:
+        'Thẻ <nav> được thiết kế dành riêng cho menu liên kết điều hướng.',
     },
     {
       _id: new Types.ObjectId(validQuestionId2),
@@ -48,7 +49,8 @@ describe('QuizService Unit & Integration Tests', () => {
         { key: 'C', text: 'useContext', isCorrect: false },
         { key: 'D', text: 'useRef', isCorrect: false },
       ],
-      explanation: 'useEffect cho phép thực thi side effects sau khi render component.',
+      explanation:
+        'useEffect cho phép thực thi side effects sau khi render component.',
     },
   ];
 
@@ -91,8 +93,14 @@ describe('QuizService Unit & Integration Tests', () => {
         testId: new Types.ObjectId(validTestId),
         seed: 'sample-seed-123',
         shuffledQuestions: [
-          { questionId: new Types.ObjectId(validQuestionId1), optionKeysOrder: ['B', 'A', 'C', 'D'] },
-          { questionId: new Types.ObjectId(validQuestionId2), optionKeysOrder: ['A', 'B', 'C', 'D'] },
+          {
+            questionId: new Types.ObjectId(validQuestionId1),
+            optionKeysOrder: ['B', 'A', 'C', 'D'],
+          },
+          {
+            questionId: new Types.ObjectId(validQuestionId2),
+            optionKeysOrder: ['A', 'B', 'C', 'D'],
+          },
         ],
         startedAt: new Date(),
         timeLimitSeconds: 1800,
@@ -103,8 +111,7 @@ describe('QuizService Unit & Integration Tests', () => {
 
       mockQuizAttemptModel.create.mockResolvedValue(createdAttemptObj);
 
-      const result = await service.startAttempt({
-        userId: validUserId,
+      const result = await service.startAttempt(validUserId, {
         testId: validTestId,
       });
 
@@ -134,15 +141,17 @@ describe('QuizService Unit & Integration Tests', () => {
         score: 0,
         maxScore: 20,
         shuffledQuestions: [
-          { questionId: new Types.ObjectId(validQuestionId1), optionKeysOrder: ['B', 'A', 'C', 'D'] },
+          {
+            questionId: new Types.ObjectId(validQuestionId1),
+            optionKeysOrder: ['B', 'A', 'C', 'D'],
+          },
         ],
         save: jest.fn().mockResolvedValue(true),
       };
 
       mockQuizAttemptModel.findOne.mockResolvedValue(mockAttemptDoc);
 
-      const result = await service.submitAttempt(validAttemptId, {
-        userId: validUserId,
+      const result = await service.submitAttempt(validAttemptId, validUserId, {
         answers: [{ questionId: validQuestionId1, selectedOptionKey: 'B' }],
       });
 
@@ -169,8 +178,7 @@ describe('QuizService Unit & Integration Tests', () => {
       mockQuizAttemptModel.findOne.mockResolvedValue(mockOverdueAttemptDoc);
 
       await expect(
-        service.submitAttempt(validAttemptId, {
-          userId: validUserId,
+        service.submitAttempt(validAttemptId, validUserId, {
           answers: [],
         }),
       ).rejects.toThrow(BadRequestException);
@@ -230,7 +238,11 @@ describe('QuizService Unit & Integration Tests', () => {
 
       mockQuizAttemptModel.findOne.mockResolvedValue(mockAttemptDoc);
 
-      const review = await service.reviewAttempt(validAttemptId, validUserId, 'AFTER_SUBMISSION');
+      const review = await service.reviewAttempt(
+        validAttemptId,
+        validUserId,
+        'AFTER_SUBMISSION',
+      );
 
       expect(review).toBeDefined();
       expect(review.status).toBe('GRADED');
@@ -239,7 +251,9 @@ describe('QuizService Unit & Integration Tests', () => {
       const q1 = review.questions[0];
       expect(q1?.correctOptionKey).toBe('B');
       expect(q1?.selectedOptionKey).toBe('B');
-      expect(q1?.explanation).toBe('Thẻ <nav> được thiết kế dành riêng cho menu liên kết điều hướng.');
+      expect(q1?.explanation).toBe(
+        'Thẻ <nav> được thiết kế dành riêng cho menu liên kết điều hướng.',
+      );
     });
   });
 });

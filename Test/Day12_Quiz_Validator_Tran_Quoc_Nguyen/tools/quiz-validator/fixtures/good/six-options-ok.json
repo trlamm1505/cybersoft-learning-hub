@@ -1,0 +1,44 @@
+[
+  {
+    "content": "Câu hỏi mẫu hợp lệ dùng để kiểm tra rule.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Một",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Hai",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Ba",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "Bốn",
+        "isCorrect": false
+      },
+      {
+        "key": "E",
+        "text": "Năm",
+        "isCorrect": false
+      },
+      {
+        "key": "F",
+        "text": "Sáu",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "problem": "sap-xep-tang-dan",
+  "hiddenTotal": 2,
+  "leakedViaStderr": 2,
+  "detail": [
+    {
+      "hiddenIndex": 1,
+      "guardBlocked": false,
+      "stderrEchoesFirstInputLine": true
+    },
+    {
+      "hiddenIndex": 2,
+      "guardBlocked": false,
+      "stderrEchoesFirstInputLine": true
+    }
+  ]
+}

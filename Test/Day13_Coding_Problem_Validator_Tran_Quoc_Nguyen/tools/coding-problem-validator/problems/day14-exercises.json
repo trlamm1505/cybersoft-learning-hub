@@ -1,0 +1,707 @@
+[
+  {
+    "slug": "day14-chao-hoi-theo-ten",
+    "title": "Chào hỏi theo tên",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Nhập vào một tên (chuỗi không chứa khoảng trắng ở đầu/cuối). In ra câu \"Xin chao, <ten>!\".",
+    "starterCode": "ten = input()\n# Viết code của bạn ở đây\n",
+    "solutionCode": "ten = input()\nprint(f\"Xin chao, {ten}!\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "An",
+        "expectedOutput": "Xin chao, An!",
+        "isHidden": false
+      },
+      {
+        "input": "Nguyen Van B",
+        "expectedOutput": "Xin chao, Nguyen Van B!",
+        "isHidden": false
+      },
+      {
+        "input": "A",
+        "expectedOutput": "Xin chao, A!",
+        "isHidden": true
+      },
+      {
+        "input": "Cybersoft Academy",
+        "expectedOutput": "Xin chao, Cybersoft Academy!",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-tinh-tien-co-thue",
+    "title": "Tính tiền mua hàng có thuế",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Nhập giá tiền gốc (số thực, có thể có phần thập phân) trên một dòng. Thuế suất cố định là 10%. In ra tổng tiền phải trả, làm tròn đến 2 chữ số thập phân.",
+    "starterCode": "gia = float(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "gia = float(input())\ntong = gia * 1.1\nprint(f\"{tong:.2f}\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "100",
+        "expectedOutput": "110.00",
+        "isHidden": false
+      },
+      {
+        "input": "50.5",
+        "expectedOutput": "55.55",
+        "isHidden": false
+      },
+      {
+        "input": "0",
+        "expectedOutput": "0.00",
+        "isHidden": true
+      },
+      {
+        "input": "19.99",
+        "expectedOutput": "21.99",
+        "isHidden": true
+      },
+      {
+        "input": "1000000",
+        "expectedOutput": "1100000.00",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-doi-phut-thanh-gio-phut",
+    "title": "Đổi phút thành giờ và phút",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Nhập một số nguyên không âm N là tổng số phút. In ra kết quả theo định dạng \"Xh Ym\" (X là số giờ, Y là số phút còn lại). Ví dụ 90 phút -> \"1h 30m\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\ngio = n // 60\nphut = n % 60\nprint(f\"{gio}h {phut}m\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "90",
+        "expectedOutput": "1h 30m",
+        "isHidden": false
+      },
+      {
+        "input": "45",
+        "expectedOutput": "0h 45m",
+        "isHidden": false
+      },
+      {
+        "input": "0",
+        "expectedOutput": "0h 0m",
+        "isHidden": true
+      },
+      {
+        "input": "60",
+        "expectedOutput": "1h 0m",
+        "isHidden": true
+      },
+      {
+        "input": "1439",
+        "expectedOutput": "23h 59m",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-dinh-dang-hoa-don",
+    "title": "Định dạng hóa đơn nhiều dòng",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Dòng đầu là tên sản phẩm. Dòng hai là số lượng N (nguyên dương). Dòng ba là đơn giá P (số thực). In ra 3 dòng theo đúng thứ tự:\n\"San pham: <ten>\"\n\"So luong: <N>\"\n\"Thanh tien: <N*P làm tròn 2 chữ số thập phân>\"",
+    "starterCode": "ten = input()\nn = int(input())\ngia = float(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "ten = input()\nn = int(input())\ngia = float(input())\nprint(f\"San pham: {ten}\")\nprint(f\"So luong: {n}\")\nprint(f\"Thanh tien: {n * gia:.2f}\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "But chi\n3\n5000",
+        "expectedOutput": "San pham: But chi\nSo luong: 3\nThanh tien: 15000.00",
+        "isHidden": false
+      },
+      {
+        "input": "Vo viet\n10\n7500.5",
+        "expectedOutput": "San pham: Vo viet\nSo luong: 10\nThanh tien: 75005.00",
+        "isHidden": false
+      },
+      {
+        "input": "Tay xoa\n1\n0",
+        "expectedOutput": "San pham: Tay xoa\nSo luong: 1\nThanh tien: 0.00",
+        "isHidden": true
+      },
+      {
+        "input": "Balo hoc sinh\n2\n199999.99",
+        "expectedOutput": "San pham: Balo hoc sinh\nSo luong: 2\nThanh tien: 399999.98",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-tong-trung-binh-danh-sach",
+    "title": "Tổng và trung bình cộng danh sách",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Dòng đầu là số lượng phần tử N (N >= 1). Dòng tiếp theo gồm N số nguyên cách nhau bởi dấu cách. In ra 2 dòng: tổng các phần tử, và trung bình cộng làm tròn 2 chữ số thập phân.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\ntong = sum(nums)\nprint(tong)\nprint(f\"{tong / n:.2f}\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\n1 2 3",
+        "expectedOutput": "6\n2.00",
+        "isHidden": false
+      },
+      {
+        "input": "4\n10 20 30 40",
+        "expectedOutput": "100\n25.00",
+        "isHidden": false
+      },
+      {
+        "input": "1\n7",
+        "expectedOutput": "7\n7.00",
+        "isHidden": true
+      },
+      {
+        "input": "3\n-5 5 0",
+        "expectedOutput": "0\n0.00",
+        "isHidden": true
+      },
+      {
+        "input": "5\n1 1 1 1 2",
+        "expectedOutput": "6\n1.20",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-dem-so-lan-xuat-hien",
+    "title": "Đếm số lần xuất hiện của một giá trị",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Dòng đầu là số lượng phần tử N. Dòng hai gồm N số nguyên cách nhau bởi dấu cách. Dòng ba là giá trị X cần đếm. In ra số lần X xuất hiện trong danh sách.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\nx = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\nx = int(input())\nprint(nums.count(x))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "5\n1 2 2 3 2\n2",
+        "expectedOutput": "3",
+        "isHidden": false
+      },
+      {
+        "input": "4\n1 2 3 4\n5",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "input": "1\n9\n9",
+        "expectedOutput": "1",
+        "isHidden": true
+      },
+      {
+        "input": "6\n-1 -1 0 1 -1 2\n-1",
+        "expectedOutput": "3",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-loai-bo-trung-lap",
+    "title": "Loại bỏ phần tử trùng lặp, giữ thứ tự xuất hiện",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Dòng đầu là số lượng phần tử N. Dòng hai gồm N số nguyên cách nhau bởi dấu cách. In ra danh sách sau khi loại bỏ các phần tử trùng lặp (chỉ giữ lần xuất hiện đầu tiên), các số cách nhau bởi dấu cách, giữ nguyên thứ tự xuất hiện ban đầu.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\nda_thay = set()\nket_qua = []\nfor x in nums:\n    if x not in da_thay:\n        da_thay.add(x)\n        ket_qua.append(x)\nprint(' '.join(map(str, ket_qua)))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "6\n1 2 2 3 1 4",
+        "expectedOutput": "1 2 3 4",
+        "isHidden": false
+      },
+      {
+        "input": "3\n5 5 5",
+        "expectedOutput": "5",
+        "isHidden": false
+      },
+      {
+        "input": "1\n7",
+        "expectedOutput": "7",
+        "isHidden": true
+      },
+      {
+        "input": "5\n4 3 2 1 4",
+        "expectedOutput": "4 3 2 1",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-tron-hai-danh-sach-sap-xep",
+    "title": "Trộn hai danh sách đã sắp xếp",
+    "type": "CODE_TEXT",
+    "difficulty": "HARD",
+    "description": "Dòng đầu là số lượng phần tử N của danh sách A. Dòng hai gồm N số nguyên. Dòng ba là số lượng phần tử M của danh sách B. Dòng bốn gồm M số nguyên. In ra danh sách hợp nhất của A và B theo thứ tự tăng dần (giữ cả phần tử trùng lặp), các số cách nhau bởi dấu cách. Nếu kết quả rỗng (N = 0 và M = 0), in ra dòng trống.",
+    "starterCode": "n = int(input())\na = list(map(int, input().split()))\nm = int(input())\nb = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\na = list(map(int, input().split()))\nm = int(input())\nb = list(map(int, input().split()))\nket_qua = sorted(a + b)\nprint(' '.join(map(str, ket_qua)))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\n1 3 5\n3\n2 4 6",
+        "expectedOutput": "1 2 3 4 5 6",
+        "isHidden": false
+      },
+      {
+        "input": "2\n1 1\n1\n1",
+        "expectedOutput": "1 1 1",
+        "isHidden": false
+      },
+      {
+        "input": "0\n\n3\n1 2 3",
+        "expectedOutput": "1 2 3",
+        "isHidden": true
+      },
+      {
+        "input": "0\n\n0\n\n",
+        "expectedOutput": "",
+        "isHidden": true
+      },
+      {
+        "input": "4\n-3 -1 0 2\n2\n-2 1",
+        "expectedOutput": "-3 -2 -1 0 1 2",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-bang-cuu-chuong",
+    "title": "In bảng cửu chương",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Nhập một số nguyên N (2 <= N <= 9). In ra 10 dòng bảng cửu chương N, mỗi dòng theo định dạng \"N x i = KetQua\" với i chạy từ 1 đến 10.",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nfor i in range(1, 11):\n    print(f\"{n} x {i} = {n * i}\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "2",
+        "expectedOutput": "2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18\n2 x 10 = 20",
+        "isHidden": false
+      },
+      {
+        "input": "9",
+        "expectedOutput": "9 x 1 = 9\n9 x 2 = 18\n9 x 3 = 27\n9 x 4 = 36\n9 x 5 = 45\n9 x 6 = 54\n9 x 7 = 63\n9 x 8 = 72\n9 x 9 = 81\n9 x 10 = 90",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-dem-so-chu-so",
+    "title": "Đếm số chữ số của một số nguyên",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Nhập một số nguyên N (có thể âm). In ra số lượng chữ số của N (không tính dấu âm).",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = abs(int(input()))\nif n == 0:\n    print(1)\nelse:\n    dem = 0\n    while n > 0:\n        n //= 10\n        dem += 1\n    print(dem)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "12345",
+        "expectedOutput": "5",
+        "isHidden": false
+      },
+      {
+        "input": "0",
+        "expectedOutput": "1",
+        "isHidden": false
+      },
+      {
+        "input": "-987",
+        "expectedOutput": "3",
+        "isHidden": true
+      },
+      {
+        "input": "7",
+        "expectedOutput": "1",
+        "isHidden": true
+      },
+      {
+        "input": "1000000",
+        "expectedOutput": "7",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-so-hoan-thien",
+    "title": "Số hoàn thiện (Perfect Number)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Nhập một số nguyên dương N. Một số được gọi là \"hoàn thiện\" nếu nó bằng tổng các ước số dương của nó (không tính chính nó). In ra \"YES\" nếu N là số hoàn thiện, ngược lại in ra \"NO\". Ví dụ: 6 = 1 + 2 + 3 là số hoàn thiện.",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\ntong = 0\nfor i in range(1, n):\n    if n % i == 0:\n        tong += i\nprint(\"YES\" if tong == n else \"NO\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "6",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "28",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "1",
+        "expectedOutput": "NO",
+        "isHidden": true
+      },
+      {
+        "input": "10",
+        "expectedOutput": "NO",
+        "isHidden": true
+      },
+      {
+        "input": "496",
+        "expectedOutput": "YES",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-ma-tran-doi-xung",
+    "title": "Kiểm tra ma trận đối xứng",
+    "type": "CODE_TEXT",
+    "difficulty": "HARD",
+    "description": "Nhập số nguyên dương N (kích thước ma trận vuông N x N, N <= 20). N dòng tiếp theo, mỗi dòng gồm N số nguyên cách nhau bởi dấu cách, biểu diễn ma trận. Ma trận được gọi là \"đối xứng\" nếu phần tử ở hàng i cột j luôn bằng phần tử ở hàng j cột i (đối xứng qua đường chéo chính), với mọi i, j. In ra \"YES\" nếu ma trận đối xứng, ngược lại in ra \"NO\".",
+    "starterCode": "n = int(input())\nmatrix = [list(map(int, input().split())) for _ in range(n)]\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nmatrix = [list(map(int, input().split())) for _ in range(n)]\ndoi_xung = True\nfor i in range(n):\n    for j in range(n):\n        if matrix[i][j] != matrix[j][i]:\n            doi_xung = False\nprint(\"YES\" if doi_xung else \"NO\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "2\n1 2\n2 1",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "2\n1 2\n3 1",
+        "expectedOutput": "NO",
+        "isHidden": false
+      },
+      {
+        "input": "1\n5",
+        "expectedOutput": "YES",
+        "isHidden": true
+      },
+      {
+        "input": "3\n1 2 3\n2 5 6\n3 6 9",
+        "expectedOutput": "YES",
+        "isHidden": true
+      },
+      {
+        "input": "3\n1 2 3\n2 5 6\n4 6 9",
+        "expectedOutput": "NO",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-ham-kiem-tra-nguyen-to",
+    "title": "Viết hàm kiểm tra số nguyên tố",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Viết hàm is_prime(n) trả về True nếu n là số nguyên tố, False nếu không. Chương trình đọc một số nguyên N, gọi hàm is_prime(N) và in \"YES\" nếu True, \"NO\" nếu False.",
+    "starterCode": "def is_prime(n):\n    # Viết code của bạn ở đây\n    pass\n\nn = int(input())\nprint(\"YES\" if is_prime(n) else \"NO\")\n",
+    "solutionCode": "def is_prime(n):\n    if n < 2:\n        return False\n    for i in range(2, int(n ** 0.5) + 1):\n        if n % i == 0:\n            return False\n    return True\n\nn = int(input())\nprint(\"YES\" if is_prime(n) else \"NO\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "7",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "8",
+        "expectedOutput": "NO",
+        "isHidden": false
+      },
+      {
+        "input": "1",
+        "expectedOutput": "NO",
+        "isHidden": true
+      },
+      {
+        "input": "2",
+        "expectedOutput": "YES",
+        "isHidden": true
+      },
+      {
+        "input": "997",
+        "expectedOutput": "YES",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-ham-tinh-giai-thua",
+    "title": "Hàm tính giai thừa có kiểm tra đầu vào",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Viết hàm factorial(n) trả về giai thừa của n (n! = 1*2*...*n, quy ước 0! = 1). Nếu n âm, hàm trả về -1 (giá trị báo lỗi). Chương trình đọc một số nguyên N, gọi hàm và in kết quả trả về.",
+    "starterCode": "def factorial(n):\n    # Viết code của bạn ở đây\n    pass\n\nn = int(input())\nprint(factorial(n))\n",
+    "solutionCode": "def factorial(n):\n    if n < 0:\n        return -1\n    ket_qua = 1\n    for i in range(2, n + 1):\n        ket_qua *= i\n    return ket_qua\n\nn = int(input())\nprint(factorial(n))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "5",
+        "expectedOutput": "120",
+        "isHidden": false
+      },
+      {
+        "input": "0",
+        "expectedOutput": "1",
+        "isHidden": false
+      },
+      {
+        "input": "-3",
+        "expectedOutput": "-1",
+        "isHidden": true
+      },
+      {
+        "input": "1",
+        "expectedOutput": "1",
+        "isHidden": true
+      },
+      {
+        "input": "10",
+        "expectedOutput": "3628800",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-ham-quy-doi-diem-chu",
+    "title": "Hàm tái sử dụng: quy đổi điểm chữ",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Viết hàm xep_loai(diem) trả về chuỗi xếp loại theo quy tắc: diem >= 9 -> \"A\"; 8 <= diem < 9 -> \"B\"; 6.5 <= diem < 8 -> \"C\"; 5 <= diem < 6.5 -> \"D\"; diem < 5 -> \"F\". Dòng đầu là số lượng N điểm số. Dòng hai gồm N số thực cách nhau bởi dấu cách. Với mỗi điểm, in ra kết quả xep_loai tương ứng, mỗi kết quả trên một dòng, theo đúng thứ tự đầu vào.",
+    "starterCode": "def xep_loai(diem):\n    # Viết code của bạn ở đây\n    pass\n\nn = int(input())\ndiems = list(map(float, input().split()))\nfor d in diems:\n    print(xep_loai(d))\n",
+    "solutionCode": "def xep_loai(diem):\n    if diem >= 9:\n        return \"A\"\n    if diem >= 8:\n        return \"B\"\n    if diem >= 6.5:\n        return \"C\"\n    if diem >= 5:\n        return \"D\"\n    return \"F\"\n\nn = int(input())\ndiems = list(map(float, input().split()))\nfor d in diems:\n    print(xep_loai(d))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\n9.5 7 4",
+        "expectedOutput": "A\nC\nF",
+        "isHidden": false
+      },
+      {
+        "input": "1\n5",
+        "expectedOutput": "D",
+        "isHidden": false
+      },
+      {
+        "input": "4\n9 8.9 8 6.5",
+        "expectedOutput": "A\nB\nB\nC",
+        "isHidden": true
+      },
+      {
+        "input": "2\n0 10",
+        "expectedOutput": "F\nA",
+        "isHidden": true
+      },
+      {
+        "input": "1\n4.999",
+        "expectedOutput": "F",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-ham-de-quy-dem-xuat-hien",
+    "title": "Hàm đệ quy: đếm số lần xuất hiện trong danh sách",
+    "type": "CODE_TEXT",
+    "difficulty": "HARD",
+    "description": "Viết hàm đệ quy dem(nums, x) trả về số lần giá trị x xuất hiện trong danh sách nums (không dùng list.count(), không dùng vòng lặp for/while — chỉ dùng đệ quy: kiểm tra phần tử đầu danh sách, rồi gọi lại hàm cho phần còn lại). Dòng đầu là số lượng phần tử N. Dòng hai gồm N số nguyên. Dòng ba là giá trị X cần đếm. In ra kết quả dem(nums, X).",
+    "starterCode": "def dem(nums, x):\n    # Viết code của bạn ở đây (chỉ dùng đệ quy, không dùng for/while)\n    pass\n\nn = int(input())\nnums = list(map(int, input().split()))\nx = int(input())\nprint(dem(nums, x))\n",
+    "solutionCode": "def dem(nums, x):\n    if len(nums) == 0:\n        return 0\n    dau = 1 if nums[0] == x else 0\n    return dau + dem(nums[1:], x)\n\nn = int(input())\nnums = list(map(int, input().split()))\nx = int(input())\nprint(dem(nums, x))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "5\n1 2 2 3 2\n2",
+        "expectedOutput": "3",
+        "isHidden": false
+      },
+      {
+        "input": "4\n1 2 3 4\n5",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "input": "1\n9\n9",
+        "expectedOutput": "1",
+        "isHidden": true
+      },
+      {
+        "input": "6\n-1 -1 0 1 -1 2\n-1",
+        "expectedOutput": "3",
+        "isHidden": true
+      },
+      {
+        "input": "0\n\n5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-oan-tu-ti",
+    "title": "Mô phỏng oẳn tù tì (Kéo Búa Bao)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Nhập vào 2 dòng, mỗi dòng là lựa chọn của người chơi 1 và người chơi 2 (một trong 3 giá trị: \"keo\", \"bua\", \"bao\"). In ra \"P1\" nếu người chơi 1 thắng, \"P2\" nếu người chơi 2 thắng, \"HOA\" nếu hòa. Quy tắc: keo thắng bao, bua thắng keo, bao thắng bua.",
+    "starterCode": "p1 = input()\np2 = input()\n# Viết code của bạn ở đây\n",
+    "solutionCode": "p1 = input()\np2 = input()\nthang = {\"keo\": \"bao\", \"bua\": \"keo\", \"bao\": \"bua\"}\nif p1 == p2:\n    print(\"HOA\")\nelif thang[p1] == p2:\n    print(\"P1\")\nelse:\n    print(\"P2\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "keo\nbao",
+        "expectedOutput": "P1",
+        "isHidden": false
+      },
+      {
+        "input": "bua\nbua",
+        "expectedOutput": "HOA",
+        "isHidden": false
+      },
+      {
+        "input": "bao\nbua",
+        "expectedOutput": "P1",
+        "isHidden": true
+      },
+      {
+        "input": "keo\nbua",
+        "expectedOutput": "P2",
+        "isHidden": true
+      },
+      {
+        "input": "bao\nkeo",
+        "expectedOutput": "P2",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-mo-phong-thang-may",
+    "title": "Mô phỏng thang máy đơn giản",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Thang máy bắt đầu ở tầng 1 trong một tòa nhà có các tầng từ 1 đến 10. Dòng đầu là số lượng lệnh N. Dòng hai gồm N lệnh cách nhau bởi dấu cách, mỗi lệnh là \"UP\" (lên 1 tầng) hoặc \"DOWN\" (xuống 1 tầng). Nếu lệnh khiến thang máy vượt quá tầng 10 hoặc xuống dưới tầng 1 thì bỏ qua lệnh đó (thang máy đứng yên). Sau khi thực hiện hết N lệnh, in ra tầng hiện tại của thang máy.",
+    "starterCode": "n = int(input())\nlenh = input().split() if n > 0 else []\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nlenh = input().split() if n > 0 else []\ntang = 1\nfor l in lenh:\n    if l == \"UP\" and tang < 10:\n        tang += 1\n    elif l == \"DOWN\" and tang > 1:\n        tang -= 1\nprint(tang)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\nUP UP DOWN",
+        "expectedOutput": "2",
+        "isHidden": false
+      },
+      {
+        "input": "2\nDOWN DOWN",
+        "expectedOutput": "1",
+        "isHidden": false
+      },
+      {
+        "input": "0\n",
+        "expectedOutput": "1",
+        "isHidden": true
+      },
+      {
+        "input": "15\nUP UP UP UP UP UP UP UP UP UP UP UP DOWN DOWN DOWN",
+        "expectedOutput": "7",
+        "isHidden": true
+      },
+      {
+        "input": "4\nDOWN UP UP DOWN",
+        "expectedOutput": "2",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-mo-phong-tui-do",
+    "title": "Mô phỏng túi đồ trong game nhập vai",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Một túi đồ có sức chứa tối đa C vật phẩm (C là số nguyên dương). Dòng đầu là C. Dòng hai là số lượng lệnh N. N dòng tiếp theo, mỗi dòng là một lệnh: \"ADD <ten>\" (thêm vật phẩm nếu túi chưa đầy, nếu đầy thì bỏ qua) hoặc \"REMOVE <ten>\" (xóa vật phẩm nếu có trong túi, nếu không có thì bỏ qua). Sau khi xử lý hết lệnh, in ra danh sách vật phẩm còn lại trong túi theo đúng thứ tự đã thêm vào, mỗi tên trên một dòng. Nếu túi rỗng, không in gì cả.",
+    "starterCode": "c = int(input())\nn = int(input())\ntui = []\nfor _ in range(n):\n    lenh = input().split()\n    # Viết code của bạn ở đây\n    pass\n",
+    "solutionCode": "c = int(input())\nn = int(input())\ntui = []\nfor _ in range(n):\n    lenh = input().split()\n    hanh_dong = lenh[0]\n    ten = lenh[1]\n    if hanh_dong == \"ADD\":\n        if len(tui) < c:\n            tui.append(ten)\n    elif hanh_dong == \"REMOVE\":\n        if ten in tui:\n            tui.remove(ten)\nfor vat_pham in tui:\n    print(vat_pham)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\n3\nADD kiem\nADD khien\nADD thuoc",
+        "expectedOutput": "kiem\nkhien\nthuoc",
+        "isHidden": false
+      },
+      {
+        "input": "2\n4\nADD kiem\nADD khien\nADD thuoc\nREMOVE khien",
+        "expectedOutput": "kiem",
+        "isHidden": false
+      },
+      {
+        "input": "1\n1\nREMOVE kiem",
+        "expectedOutput": "",
+        "isHidden": true
+      },
+      {
+        "input": "2\n5\nADD a\nADD b\nADD c\nREMOVE a\nADD c",
+        "expectedOutput": "b\nc",
+        "isHidden": true
+      },
+      {
+        "input": "5\n0",
+        "expectedOutput": "",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "day14-mo-phong-tran-dau",
+    "title": "Mô phỏng trận đấu theo lượt",
+    "type": "CODE_TEXT",
+    "difficulty": "HARD",
+    "description": "Hai nhân vật đánh nhau, thay phiên nhau ra đòn. Dòng đầu gồm 2 số: máu ban đầu và sát thương mỗi đòn của nhân vật 1 (cách nhau bởi dấu cách). Dòng hai tương tự cho nhân vật 2. Nhân vật 1 đánh trước, sau đó tới nhân vật 2, rồi lại nhân vật 1... cứ thế xen kẽ. Mỗi lượt, người đánh làm đối thủ mất máu đúng bằng sát thương của mình. Ai bị trừ máu xuống 0 hoặc thấp hơn thì thua ngay lúc đó (không cần chờ đối thủ đánh thêm). In ra \"P1\" nếu nhân vật 1 thắng, \"P2\" nếu nhân vật 2 thắng.",
+    "starterCode": "hp1, atk1 = map(int, input().split())\nhp2, atk2 = map(int, input().split())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "hp1, atk1 = map(int, input().split())\nhp2, atk2 = map(int, input().split())\nluot_p1 = True\nwhile True:\n    if luot_p1:\n        hp2 -= atk1\n        if hp2 <= 0:\n            print(\"P1\")\n            break\n    else:\n        hp1 -= atk2\n        if hp1 <= 0:\n            print(\"P2\")\n            break\n    luot_p1 = not luot_p1",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "10 5\n10 3",
+        "expectedOutput": "P1",
+        "isHidden": false
+      },
+      {
+        "input": "5 1\n100 50",
+        "expectedOutput": "P2",
+        "isHidden": false
+      },
+      {
+        "input": "1 1\n1 1",
+        "expectedOutput": "P1",
+        "isHidden": true
+      },
+      {
+        "input": "1 1\n100 1",
+        "expectedOutput": "P2",
+        "isHidden": true
+      },
+      {
+        "input": "10 10\n10 1",
+        "expectedOutput": "P1",
+        "isHidden": true
+      }
+    ]
+  }
+]

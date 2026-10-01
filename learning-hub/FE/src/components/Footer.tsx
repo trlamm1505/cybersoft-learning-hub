@@ -1,11 +1,12 @@
 import React from 'react';
+import { Zap } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
     <footer className="border-t border-slate-800/80 bg-slate-950/90 py-8 px-4 mt-12">
       <div className="max-w-7xl mx-auto flex flex-col gap-3 items-center text-center">
         <div className="font-bold text-base text-slate-100 flex items-center gap-2">
-          <span>⚡ CyberSoft Learning & Contest Hub</span>
+          <span className="flex items-center gap-1.5"><Zap size={16} strokeWidth={2.25} /> CyberSoft Learning & Contest Hub</span>
           <span className="text-xs bg-indigo-900/60 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded-full font-mono">FE Student UI v0.1</span>
         </div>
         <p className="text-xs text-slate-400 max-w-xl leading-relaxed">

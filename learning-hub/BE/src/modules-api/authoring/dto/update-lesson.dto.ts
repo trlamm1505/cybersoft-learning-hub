@@ -1,5 +1,11 @@
-import { TestCaseDto, QuizQuestionDto, LessonHintsDto } from './create-lesson.dto';
+import {
+  TestCaseDto,
+  QuizQuestionDto,
+  LessonHintsDto,
+} from './create-lesson.dto';
 
+// authorId KHÔNG có trong DTO — không cho client sửa lại chủ sở hữu qua
+// update (cùng lý do với CreateLessonDto).
 export class UpdateLessonDto {
   title?: string;
   slug?: string;
@@ -12,7 +18,6 @@ export class UpdateLessonDto {
   solutionCode?: string;
   difficulty?: string;
   points?: number;
-  authorId?: string;
   testCases?: TestCaseDto[];
   quizQuestions?: QuizQuestionDto[];
   hints?: LessonHintsDto;

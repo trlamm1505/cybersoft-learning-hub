@@ -1,4 +1,5 @@
 import React from 'react';
+import { ClipboardList } from 'lucide-react';
 import type { QuestionItem } from '../types/quiz';
 
 interface QuestionNavigatorProps {
@@ -23,7 +24,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs transition-colors">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-          <span>📋 Danh Sách Câu Hỏi</span>
+          <ClipboardList size={16} /> <span>Danh Sách Câu Hỏi</span>
         </h3>
         <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
           Đã chọn {answeredCount}/{totalCount}

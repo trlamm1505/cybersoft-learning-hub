@@ -2,6 +2,7 @@ import axiosClient from '../common/configAxios';
 import type {
   ExerciseListItem,
   ExerciseDetail,
+  ExerciseFullDetail,
   RunCodeResponse,
   SubmitCodeResponse,
   SubmitAckResponse,
@@ -28,6 +29,15 @@ export const exerciseApi = {
   },
 
   /**
+   * GET /api/exercises/:slug/full — CHỈ giáo viên, có solutionCode thật và
+   * testCases không bị lọc hidden. Dùng để import 1 bài đã có sẵn trong
+   * ngân hàng đề vào form soạn thảo bài thi.
+   */
+  getExerciseFull: async (slug: string): Promise<ExerciseFullDetail> => {
+    return await axiosClient.get(`/exercises/${slug}/full`);
+  },
+
+  /**
    * POST /api/exercises/:slug/run — ad-hoc run with custom stdin, no grading
    */
   runCode: async (slug: string, code: string, stdin: string): Promise<RunCodeResponse> => {
@@ -37,6 +47,7 @@ export const exerciseApi = {
   /**
    * POST /api/exercises/:slug/submit — enqueues code for grading, returns immediately.
    * Poll getSubmission() with the returned submissionId until a terminal status.
+   * Bắt buộc đăng nhập (JwtAuthGuard) — userId lấy từ token, không gửi từ client.
    */
   submitCode: async (slug: string, code: string): Promise<SubmitAckResponse> => {
     return await axiosClient.post(`/exercises/${slug}/submit`, { code });

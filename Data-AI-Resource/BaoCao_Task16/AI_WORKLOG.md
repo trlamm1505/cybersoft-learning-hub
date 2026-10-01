@@ -205,43 +205,11 @@ sentence_window_boundary         | 147      | 102.79     | 100.0    % | 80.2721 
 
 ---
 
-## 5. Kịch Bản Thuyết Trình Bảo Vệ 3 Phút (3-Minute Defense Pitch)
+## 5. Bốn Tầng Năng lực AI theo chuẩn CyberSoft (Four AI Tiers)
 
-**Mở đầu (0:00 - 0:45) — Bài toán & Ý nghĩa Chiến lược:**
-> *"Kính thưa anh/chị Hội đồng Chuyên môn, hôm nay em xin báo cáo kết quả thực hiện Task 16: Xây dựng Ingest và Chunking Pipeline – lớp hạ tầng then chốt mở màn cho Tuần 4 về RAG và Trợ lý Học tập Thông minh (AI Tutor) tại CyberSoft Academy.  
-> Trong một hệ thống RAG thực tế, việc nạp tài liệu thô và cắt đoạn bừa bãi sẽ phá hủy cấu trúc văn bản, dẫn đến việc mô hình AI bị ảo giác, trả lời sai lệch chính sách hoặc trích dẫn nguồn không tồn tại. Mục tiêu của em là xây dựng một đường ống có thể tái lập (Reproducible Indexed Corpus), bảo tồn trọn vẹn ngữ cảnh nguồn gốc, và bảo đảm tính lũy đẳng (Idempotency) tuyệt đối."*
-
-**Thân bài (0:45 - 2:00) — Điểm nhấn Kỹ thuật & Bằng chứng Thực nghiệm:**
-> *"Em đã giải quyết trọn vẹn bài toán qua 4 giải pháp kỹ thuật cốt lõi:  
-> Thứ nhất, em xây dựng động cơ nạp đa định dạng thuần Python hỗ trợ Markdown Frontmatter, PDF và Text mà không phụ thuộc các thư viện cồng kềnh như LangChain.  
-> Thứ hai, em đã thử nghiệm và so sánh định lượng 3 chiến lược chunking trên toàn bộ 23 tài liệu học liệu số: Fixed-Size, Markdown Header-Aware và Sentence-Window. Kết quả thực nghiệm chứng minh chiến lược Markdown Header-Aware vượt trội hoàn toàn với tỷ lệ bảo tồn tiêu đề đạt 100%, tính toàn vẹn ranh giới câu đạt 97.8%, và tỷ lệ trùng lặp dữ liệu tối ưu ở mức 1.00x so với 1.46x của Sentence-Window.  
-> Thứ ba, về tính lũy đẳng, em thiết lập cơ chế băm nội dung SHA-256 hai tầng kết hợp State Store. Khi chạy lại pipeline, hệ thống tự động nhận diện và bỏ qua 100% các file không đổi, phát sinh đúng 0 duplicate chunks.  
-> Thứ tư, hệ thống có khả năng cô lập lỗi tự động, bắt toàn bộ các tệp hỏng vào `logs/ingestion_errors.log` mà không làm sập tiến trình chung."*
-
-**Kết luận (2:00 - 3:00) — Làm chủ AI & Sẵn sàng cho Cột mốc Tiếp theo:**
-> *"Trong quá trình thực hiện, AI đã đề xuất em dùng LangChain và cắt văn bản cố định theo ký tự. Bằng việc phân tích rủi ro về dependency bloat và hiện tượng xé rách câu văn tiếng Việt, em đã bác bỏ các đề xuất này, tự thiết kế cấu trúc breadcrumbs và hệ thống băm độc lập. Toàn bộ mã nguồn đã vượt qua 16/16 bài kiểm thử Pytest tự động và kịch bản demo 4 giai đoạn với Exit Code 0.  
-> 91 chunks chuẩn hóa sinh ra hôm nay đã sẵn sàng để ngày mai (Ngày 17), em tích hợp Vector Index và xây dựng Retriever Baseline. Em xin cảm ơn và sẵn sàng trả lời các câu hỏi phản biện ạ!"*
-
----
-
-## 6. Bộ Câu Hỏi Phản Biện Chuyên Sâu (Defense Q&A Preparation)
-
-### Câu hỏi 1: Vì sao em chọn băm nội dung (content hashing) bằng SHA-256 thay vì dùng timestamp sửa đổi của file (`mtime`)?
-**Trả lời:**
-`mtime` phụ thuộc vào hệ điều hành và hệ thống tệp (filesystem). Khi đồng đội kéo mã nguồn qua `git clone` hoặc checkout giữa các nhánh, timestamp của file sẽ được cập nhật lại theo thời điểm pull dù nội dung bên trong không hề thay đổi, dẫn đến việc pipeline hiểu lầm là file bị sửa đổi và re-chunk/re-embed toàn bộ, gây lãng phí chi phí API. Hơn nữa, băm SHA-256 nội dung chuẩn hóa (`text.strip()`) là giá trị xác định tuyệt đối (deterministic): cùng một nội dung sẽ luôn cho ra cùng một mã hash 64 ký tự duy nhất bất kể file nằm ở đâu hay thời gian nào.
-
-### Câu hỏi 2: Trong chiến lược `MarkdownHeaderChunker`, nếu gặp một section quá dài (ví dụ giảng viên viết một mục dài 5.000 từ mà không chia nhỏ tiêu đề), hệ thống của em xử lý thế nào?
-**Trả lời:**
-Trong lớp `MarkdownHeaderChunker`, em đã cài đặt tham số `max_section_chars` (mặc định 1.200 ký tự, tương đương ~300 tokens – kích thước lý tưởng cho mô hình embedding). Nếu một section vượt quá ngưỡng này, thuật toán sẽ kích hoạt cơ chế fallback: phân tách section đó thành các đoạn văn nhỏ (`paragraphs`) hoặc nhóm câu, nhưng điểm đặc biệt là **vẫn giữ nguyên toàn bộ mảng `heading_hierarchy` (breadcrumbs)** gắn vào metadata của từng sub-chunk. Nhờ đó, tính toàn vẹn ngữ cảnh cha-con vẫn được bảo tồn 100%.
-
-### Câu hỏi 3: Tính lũy đẳng (Idempotency) được chứng minh như thế nào trong mã nguồn?
-**Trả lời:**
-Tính lũy đẳng được thể hiện ở hai cấp độ:
-1. **Cấp độ File**: Khi chạy lại, `StateStore.determine_status(doc_id, current_hash)` so sánh hash hiện tại với hash trong `state_store.json`. Nếu trạng thái là `UNCHANGED` và không có cờ `--force`, pipeline bỏ qua không xử lý lại file đó (`res.files_skipped == 23`, `res.files_ingested == 0`).
-2. **Cấp độ Chunk**: ID của mỗi chunk được sinh theo quy tắc tất định `{doc_id}_{strategy}_{chunk_idx:03d}` và nội dung chunk có mã hash riêng `content_hash`. Khi chạy lại lần 2 với cùng input, tập hợp chunk hashes sinh ra hoàn toàn trùng khớp với lần 1, không tạo thêm bản ghi rác nào và số lượng chunks được duy trì nguyên vẹn (`res.total_chunks == 0` chunks mới).
-
-### Câu hỏi 4: Khi xử lý tệp tiếng Việt, em đã giải quyết bài toán mã hóa Unicode trên Windows như thế nào?
-**Trả lời:**
-Trên hệ điều hành Windows, PowerShell mặc định sử dụng bảng mã `cp1252`, rất dễ bị lỗi `UnicodeEncodeError` khi terminal in các ký tự tiếng Việt có dấu. Em đã chủ động xử lý ở hai chốt chặn:
-1. Trong toàn bộ mã nguồn đọc/ghi file, luôn chỉ định rõ ràng `encoding="utf-8"`.
-2. Trong tất cả các file script CLI (`demo_day16_workflow.py`, `run_ingestion.py`, `run_chunk_comparison.py`), em đều thêm đoạn mã kiểm tra và cấu hình lại luồng xuất chuẩn: `if sys.stdout.encoding != "utf-8": sys.stdout.reconfigure(encoding="utf-8")`. Nhờ đó, toàn bộ tiến trình chạy mượt mà trên cả Windows, Linux và macOS.
+| Tầng Năng Lực AI | Biểu Hiện Trong Quá Trình Thực Hiện Task 16 | Minh Chứng Kỹ Thuật Cụ Thể |
+| :--- | :--- | :--- |
+| **Tầng 1: Prompting & Context Ingestion** | Nạp toàn bộ bối cảnh hệ thống tài liệu quy chế CyberSoft (23 tài liệu: Markdown, PDF, TXT), đặc tả kỹ thuật 3 chiến lược chunking và yêu cầu bảo toàn ngữ cảnh breadcrumbs vào LLM. | Prompt chi tiết phân vai Lead RAG Ingestion Architect; yêu cầu thiết kế pipeline đa định dạng, trích xuất metadata chuẩn hóa và thuật toán phân đoạn theo tiêu đề Markdown. |
+| **Tầng 2: Harness Engineering & Guardrails** | Xây dựng dàn khung kiểm soát chặt chẽ: State Store SHA-256 bảo đảm tính lũy thừa (Idempotency 100%), cơ chế cô lập lỗi và ghi log tệp hỏng `ingestion_errors.log`, bảo toàn breadcrumbs ngữ cảnh phân cấp. | Bộ kiểm thử `test_idempotency_and_hashing.py` và `test_loader_error_handling.py` bảo đảm hệ thống vận hành bền bỉ, không trùng lặp dữ liệu, không crash khi gặp file hỏng; `test_zero_hardcoded_personal_paths.py` chặn 100% đường dẫn tuyệt đối cá nhân. |
+| **Tầng 3: Evaluation & Ground-Truth Calibration** | Thiết lập khung thực nghiệm đối chuẩn định lượng (Empirical Benchmark) so sánh 3 chiến lược chunking trên 4 chỉ số: số lượng chunks, độ dài token trung bình, tỷ lệ giữ nguyên tiêu đề (Header Integrity %) và tỷ lệ bảo toàn ranh giới câu (Sentence Boundary %). | Báo cáo thực nghiệm chứng minh chiến lược Markdown Header-Aware vượt trội tuyệt đối: 100% Header Integrity, 97.8% Boundary Integrity, sinh ra đúng 91 chunks chuẩn hóa sẵn sàng cho việc lập chỉ mục. |
+| **Tầng 4: Autonomous AI-Native & System Integration** | Tự động hóa toàn diện quy trình nạp dữ liệu qua kịch bản demo 4 giai đoạn độc lập (Cold start, Idempotency re-run, Incremental update, Fault isolation), xuất bản dữ liệu chuẩn hóa `chunks_markdown_header_semantic.jsonl`. | Kịch bản `demo_ingestion_workflow.py` chạy qua 4 giai đoạn tự động đạt Exit Code 0; bộ kiểm thử Pytest 16/16 tests PASS tuyệt đối trong 0.72 giây. |

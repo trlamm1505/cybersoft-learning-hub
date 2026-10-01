@@ -13,10 +13,11 @@ import type {
 export const quizApi = {
   /**
    * 1. Start Attempt (Khởi tạo bài thi trắc nghiệm)
-   * POST /api/quiz/start
+   * POST /api/quiz/start — userId không còn gửi trong body, Backend lấy từ
+   * Bearer token (đã gắn tự động qua interceptor của axiosClient).
    */
-  startQuiz: async (userId: string, testId: string): Promise<QuizStartResponse> => {
-    return await axiosClient.post('/quiz/start', { userId, testId });
+  startQuiz: async (testId: string, category?: string): Promise<QuizStartResponse> => {
+    return await axiosClient.post('/quiz/start', { testId, category });
   },
 
   /**
@@ -32,15 +33,14 @@ export const quizApi = {
 
   /**
    * 3. Review Attempt (Xem lại bài làm & Giải thích chi tiết)
-   * GET /api/quiz/:attemptId/review?userId=...&policy=...
+   * GET /api/quiz/:attemptId/review?policy=... — userId lấy từ Bearer token.
    */
   reviewQuiz: async (
     attemptId: string,
-    userId: string,
     policy: string = 'AFTER_SUBMISSION'
   ): Promise<QuizReviewResponse> => {
     return await axiosClient.get(`/quiz/${attemptId}/review`, {
-      params: { userId, policy },
+      params: { policy },
     });
   },
 };

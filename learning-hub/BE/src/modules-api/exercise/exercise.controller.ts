@@ -1,7 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ExerciseService } from './exercise.service';
 import { RunCodeDto } from './dto/run-code.dto';
 import { SubmitCodeDto } from './dto/submit-code.dto';
+import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
+import { RolesGuard } from '../../common/auth/roles.guard';
+import { Roles } from '../../common/auth/roles.decorator';
+import { CurrentUser } from '../../common/auth/current-user.decorator';
+import type { JwtPayload } from '../../common/auth/jwt.strategy';
 
 @Controller('exercises')
 export class ExerciseController {
@@ -13,6 +18,18 @@ export class ExerciseController {
   @Get()
   async findAll() {
     return this.exerciseService.findAll();
+  }
+
+  /**
+   * GET /api/exercises/:slug/full — CHỈ giáo viên, trả về đầy đủ
+   * solutionCode và toàn bộ testCases (kể cả hidden), dùng để import 1
+   * exercise có sẵn vào form soạn thảo bài thi.
+   */
+  @Get(':slug/full')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER')
+  async findBySlugFull(@Param('slug') slug: string) {
+    return this.exerciseService.findBySlugFull(slug);
   }
 
   /**
@@ -40,10 +57,16 @@ export class ExerciseController {
   }
 
   /**
-   * POST /api/exercises/:slug/submit
+   * POST /api/exercises/:slug/submit — bắt buộc đăng nhập, userId lấy từ token
+   * (không còn nhận từ body, tránh mạo danh học viên khác).
    */
   @Post(':slug/submit')
-  async submitCode(@Param('slug') slug: string, @Body() dto: SubmitCodeDto) {
-    return this.exerciseService.submitCode(slug, dto);
+  @UseGuards(JwtAuthGuard)
+  async submitCode(
+    @Param('slug') slug: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: SubmitCodeDto,
+  ) {
+    return this.exerciseService.submitCode(slug, dto, user.sub);
   }
 }

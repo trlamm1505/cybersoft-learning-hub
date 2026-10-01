@@ -1,0 +1,589 @@
+{
+  "problem": "kiem-tra-so-nguyen-to",
+  "suite": "hardened",
+  "timeLimitMs": 2000,
+  "tests": {
+    "total": 10,
+    "hidden": 8,
+    "addedByQA": 6
+  },
+  "reference": {
+    "status": "AC",
+    "passedCount": 10,
+    "totalCount": 10,
+    "hiddenPassed": 8,
+    "hiddenTotal": 8,
+    "maxTimeMs": 36
+  },
+  "summary": {
+    "total": 16,
+    "valid": 15,
+    "killed": 15,
+    "survived": 0,
+    "equivalent": 1,
+    "invalid": 0,
+    "mutationScore": 100,
+    "threshold": 80,
+    "pass": true,
+    "byType": {
+      "Boundary error": {
+        "total": 2,
+        "killed": 2,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Off-by-one": {
+        "total": 2,
+        "killed": 2,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Missing edge case": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Wrong condition": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Wrong operator": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Hard-code sample": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Input parsing": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Wrong rounding": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Wrong output format": {
+        "total": 4,
+        "killed": 3,
+        "survived": 0,
+        "equivalent": 1,
+        "invalid": 0
+      },
+      "Slow algorithm": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      },
+      "Over-simplified heuristic": {
+        "total": 1,
+        "killed": 1,
+        "survived": 0,
+        "equivalent": 0,
+        "invalid": 0
+      }
+    },
+    "killedBy": {
+      "SAMPLE": 6,
+      "HIDDEN": 8,
+      "TIMEOUT": 1
+    },
+    "survivors": [],
+    "unexpected": [],
+    "flags": []
+  },
+  "mutants": [
+    {
+      "id": "MUT-01",
+      "type": "Boundary error",
+      "description": "Đổi biên `x < 2` thành `x < 1` (số 1 bị coi là nguyên tố)",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "7/8",
+      "hiddenFailed": [
+        1
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 34,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "if x < 2:",
+          "replace": "if x < 1:"
+        }
+      ]
+    },
+    {
+      "id": "MUT-02",
+      "type": "Off-by-one",
+      "description": "Cận vòng lặp `int(x ** 0.5) + 1` bỏ mất `+ 1` (không thử ước bằng đúng căn n)",
+      "expected": "KILLED",
+      "gapHint": "Không có test nào là bình phương của một số nguyên tố nên cận vòng lặp thiếu 1 đơn vị vẫn AC.",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "4/8",
+      "hiddenFailed": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 44,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "int(x ** 0.5) + 1",
+          "replace": "int(x ** 0.5)"
+        }
+      ]
+    },
+    {
+      "id": "MUT-03",
+      "type": "Missing edge case",
+      "description": "Bỏ hẳn nhánh `if x < 2: return False` (không xử lý n < 2)",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "7/8",
+      "hiddenFailed": [
+        1
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 37,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "    if x < 2:\n        return False\n",
+          "replace": ""
+        }
+      ]
+    },
+    {
+      "id": "MUT-04",
+      "type": "Wrong condition",
+      "description": "Điều kiện chia hết `x % i == 0` thành `x % i == 1`",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "5/8",
+      "hiddenFailed": [
+        2,
+        4,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 34,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "if x % i == 0:",
+          "replace": "if x % i == 1:"
+        }
+      ]
+    },
+    {
+      "id": "MUT-05",
+      "type": "Wrong operator",
+      "description": "Toán tử `%` thành `//` trong phép kiểm tra chia hết",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "4/8",
+      "hiddenFailed": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 34,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "if x % i == 0:",
+          "replace": "if x // i == 0:"
+        }
+      ]
+    },
+    {
+      "id": "MUT-06",
+      "type": "Hard-code sample",
+      "description": "Chỉ đúng với input của sample (7 -> YES, còn lại NO)",
+      "expected": "KILLED",
+      "gapHint": "Số lượng hidden test quá ít để phân biệt hard-code với lời giải thật.",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "5/8",
+      "hiddenFailed": [
+        2,
+        3,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 36,
+      "expectedMatch": true
+    },
+    {
+      "id": "MUT-07",
+      "type": "Input parsing",
+      "description": "Chỉ đọc chữ số đầu tiên của input (`int(input().strip()[0])`)",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "6/8",
+      "hiddenFailed": [
+        2,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 43,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "n = int(input())",
+          "replace": "n = int(input().strip()[0])"
+        }
+      ]
+    },
+    {
+      "id": "MUT-08",
+      "type": "Wrong rounding",
+      "description": "Cận vòng lặp dùng làm tròn `int(x ** 0.5 + 0.5)` thay vì `int(x ** 0.5) + 1`",
+      "expected": "KILLED",
+      "gapHint": "Cùng nhóm lỗ hổng với MUT-02: thiếu test là bình phương của số nguyên tố.",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "5/8",
+      "hiddenFailed": [
+        4,
+        5,
+        7
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 42,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "int(x ** 0.5) + 1",
+          "replace": "int(x ** 0.5 + 0.5)"
+        }
+      ]
+    },
+    {
+      "id": "MUT-09",
+      "type": "Wrong output format",
+      "description": "In `Yes`/`No` thay vì `YES`/`NO` (sai chữ hoa/thường)",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1,
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "0/8",
+      "hiddenFailed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 56,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "print(\"YES\" if is_prime(n) else \"NO\")",
+          "replace": "print(\"Yes\" if is_prime(n) else \"No\")"
+        }
+      ]
+    },
+    {
+      "id": "MUT-10",
+      "type": "Slow algorithm",
+      "description": "Vòng lặp thử chia tới `x - 1` (O(n)) thay vì tới căn n (O(sqrt n))",
+      "expected": "TIMEOUT",
+      "gapHint": "Không có test n rất lớn nên thuật toán O(n) chậm vẫn AC; đề cũng chưa có constraints để thêm test hiệu năng một cách công bằng.",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "7/8",
+      "hiddenFailed": [
+        8
+      ],
+      "hasTimeout": true,
+      "judgeStatus": "TLE",
+      "killed": true,
+      "killedBy": "TIMEOUT",
+      "maxTimeMs": 2005,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "range(2, int(x ** 0.5) + 1)",
+          "replace": "range(2, x)"
+        }
+      ]
+    },
+    {
+      "id": "MUT-11",
+      "type": "Wrong output format",
+      "description": "In thêm dòng debug `input = <n>` trước kết quả",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1,
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "0/8",
+      "hiddenFailed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 38,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "print(\"YES\"",
+          "replace": "print(\"input =\", n)\nprint(\"YES\""
+        }
+      ]
+    },
+    {
+      "id": "MUT-12",
+      "type": "Wrong output format",
+      "description": "In thêm nhãn: `Result: YES`",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        1,
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "0/8",
+      "hiddenFailed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 36,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "print(\"YES\" if is_prime(n) else \"NO\")",
+          "replace": "print(\"Result:\", \"YES\" if is_prime(n) else \"NO\")"
+        }
+      ]
+    },
+    {
+      "id": "MUT-13",
+      "type": "Wrong output format",
+      "description": "Thừa khoảng trắng và dòng trống Ở CUỐI output",
+      "expected": "EQUIVALENT",
+      "gapHint": "",
+      "status": "EQUIVALENT",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "PASS",
+      "hiddenPassed": "8/8",
+      "hiddenFailed": [],
+      "hasTimeout": false,
+      "judgeStatus": "AC",
+      "killed": false,
+      "killedBy": null,
+      "maxTimeMs": 56,
+      "expectedMatch": true,
+      "equivalentReason": "Judge trim stdout trước khi so sánh (judge-queue.service.ts dòng 123: .replace(/\\r\\n/g,'\\n').trim()) - khoảng trắng/xuống dòng thừa Ở CUỐI được bỏ qua theo thiết kế.",
+      "patch": [
+        {
+          "find": "print(\"YES\" if is_prime(n) else \"NO\")",
+          "replace": "print(\"YES\" if is_prime(n) else \"NO\", end=\"  \\n\\n\")"
+        }
+      ]
+    },
+    {
+      "id": "MUT-14",
+      "type": "Off-by-one",
+      "description": "Vòng lặp bắt đầu từ 3 thay vì 2 (bỏ qua phép thử chia cho 2)",
+      "expected": "KILLED",
+      "gapHint": "",
+      "status": "KILLED",
+      "sampleResult": "FAIL",
+      "sampleFailed": [
+        2
+      ],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "7/8",
+      "hiddenFailed": [
+        4
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "SAMPLE",
+      "maxTimeMs": 41,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "range(2, int(x ** 0.5) + 1)",
+          "replace": "range(3, int(x ** 0.5) + 1)"
+        }
+      ]
+    },
+    {
+      "id": "MUT-15",
+      "type": "Over-simplified heuristic",
+      "description": "Coi mọi số lẻ > 1 là nguyên tố",
+      "expected": "KILLED",
+      "gapHint": "Không có test nào là số lẻ hợp số nên heuristic 'lẻ = nguyên tố' vẫn AC.",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "4/8",
+      "hiddenFailed": [
+        3,
+        5,
+        6,
+        7
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 74,
+      "expectedMatch": true
+    },
+    {
+      "id": "MUT-16",
+      "type": "Boundary error",
+      "description": "Đổi `x < 2` thành `x <= 2` (n = 2 bị coi là không nguyên tố)",
+      "expected": "KILLED",
+      "gapHint": "Không có test cho số nguyên tố chẵn duy nhất.",
+      "status": "KILLED",
+      "sampleResult": "PASS",
+      "sampleFailed": [],
+      "hiddenResult": "FAIL",
+      "hiddenPassed": "7/8",
+      "hiddenFailed": [
+        3
+      ],
+      "hasTimeout": false,
+      "judgeStatus": "WA",
+      "killed": true,
+      "killedBy": "HIDDEN",
+      "maxTimeMs": 41,
+      "expectedMatch": true,
+      "patch": [
+        {
+          "find": "if x < 2:",
+          "replace": "if x <= 2:"
+        }
+      ]
+    }
+  ]
+}

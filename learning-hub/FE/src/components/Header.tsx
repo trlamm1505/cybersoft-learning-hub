@@ -1,11 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  BookOpen,
+  FileText,
+  ClipboardList,
+  Code2,
+  Puzzle,
+  Trophy,
+  Wrench,
+  Moon,
+  Sun,
+  Menu,
+  GraduationCap,
+  Sparkles,
+  FlaskConical,
+  BarChart3,
+  User,
+  ChevronDown,
+  LogOut,
+} from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 
 interface HeaderProps {
   isLightTheme: boolean;
   onToggleTheme: () => void;
-  onOpenGuide: () => void;
   userRole: 'student' | 'teacher';
   authUser: AuthUser | null;
   onLogout: () => void;
@@ -14,14 +32,27 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   isLightTheme,
   onToggleTheme,
-  onOpenGuide,
   userRole,
   authUser,
   onLogout,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const avatarMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Click bên ngoài cụm avatar/dropdown thì tự đóng menu.
+  useEffect(() => {
+    if (!avatarMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (avatarMenuRef.current && !avatarMenuRef.current.contains(e.target as Node)) {
+        setAvatarMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [avatarMenuOpen]);
 
   const getActiveTab = () => {
     const path = location.pathname;
@@ -31,8 +62,12 @@ export const Header: React.FC<HeaderProps> = ({
       if (search.includes('view=contests')) return 'teacher-contests';
       return 'authoring';
     }
+    if (path.startsWith('/problem-generator')) return 'problem-generator';
     if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
+    if (path.startsWith('/progress')) return 'progress';
+    if (path.startsWith('/tester-labs')) return 'tester-labs';
+    if (path.startsWith('/block-puzzle')) return 'block-puzzle';
     if (path.startsWith('/quiz')) return 'quiz';
     if (path.startsWith('/detail')) return 'detail';
     return 'catalog';
@@ -57,15 +92,15 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center gap-3 text-[var(--text-main)] font-extrabold text-lg tracking-tight bg-transparent border-none cursor-pointer text-left shrink-0"
           aria-label="Trang chủ CyberSoft Learning Hub"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-lg shadow-md shadow-indigo-500/20">
-            ⚡
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+            <GraduationCap size={18} strokeWidth={2.25} />
           </div>
           <div className="flex items-center">
             <span>CyberSoft</span>
             <span className="text-cyan-600 dark:text-cyan-400 ml-1">Hub</span>
             {userRole === 'teacher' ? (
               <span className="text-[10px] bg-amber-600 text-white font-bold px-2 py-0.5 rounded-full ml-2 uppercase tracking-wide flex items-center gap-1 shadow-xs">
-                👨‍🏫 Teacher Studio
+                Teacher Studio
               </span>
             ) : (
               <span className="text-[10px] bg-indigo-600 text-white font-semibold px-1.5 py-0.5 rounded ml-2 uppercase">
@@ -84,11 +119,13 @@ export const Header: React.FC<HeaderProps> = ({
               aria-label="Điều hướng Học viên"
             >
               {[
-                { key: 'catalog', label: 'Danh mục khóa học', icon: '📚', path: '/catalog' },
-                { key: 'detail', label: 'Chi tiết bài học', icon: '📖', path: '/detail' },
-                { key: 'quiz', label: 'Thi Trắc Nghiệm', icon: '📝', path: '/quiz' },
-                { key: 'playground', label: 'Code Playground', icon: '🧑‍💻', path: '/playground' },
-                { key: 'contests', label: 'Cuộc Thi & Lịch Thi', icon: '🏆', path: '/contests' },
+                { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
+                { key: 'detail', label: 'Chi tiết bài học', Icon: FileText, path: '/detail' },
+                { key: 'quiz', label: 'Thi Trắc Nghiệm', Icon: ClipboardList, path: '/quiz' },
+                { key: 'playground', label: 'Code Playground', Icon: Code2, path: '/playground' },
+                { key: 'block-puzzle', label: 'Block Puzzle', Icon: Puzzle, path: '/block-puzzle' },
+                { key: 'contests', label: 'Cuộc Thi & Lịch Thi', Icon: Trophy, path: '/contests' },
+                { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -101,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
                       }`}
                       onClick={() => handleNavigate(item.path)}
                     >
-                      <span aria-hidden="true">{item.icon}</span>
+                      <item.Icon size={15} strokeWidth={2} aria-hidden="true" />
                       <span>{item.label}</span>
                     </button>
                   </li>
@@ -115,9 +152,11 @@ export const Header: React.FC<HeaderProps> = ({
               aria-label="Điều hướng Giảng viên"
             >
               {[
-                { key: 'authoring', label: 'Soạn Thảo Bài Thi', icon: '🛠️', path: '/authoring' },
-                { key: 'teacher-library', label: 'Xem Các Bài Thi', icon: '📋', path: '/authoring?view=library' },
-                { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', icon: '🏆', path: '/authoring?view=contests' },
+                { key: 'authoring', label: 'Soạn Thảo Bài Thi', Icon: Wrench, path: '/authoring' },
+                { key: 'teacher-library', label: 'Xem Các Bài Thi', Icon: ClipboardList, path: '/authoring?view=library' },
+                { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
+                { key: 'problem-generator', label: 'AI Tạo Đề', Icon: Sparkles, path: '/problem-generator' },
+                { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -130,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
                       }`}
                       onClick={() => handleNavigate(item.path)}
                     >
-                      <span aria-hidden="true">{item.icon}</span>
+                      <item.Icon size={15} strokeWidth={2} aria-hidden="true" />
                       <span>{item.label}</span>
                     </button>
                   </li>
@@ -143,33 +182,93 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Header Actions & Auth — single row, compact pill controls, consistent height */}
         <div className="flex items-center gap-2 shrink-0">
           <button
-            onClick={onOpenGuide}
-            className="hidden sm:inline-flex items-center h-8 px-3.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-[10px] transition-all cursor-pointer whitespace-nowrap"
-            aria-label="Mở hướng dẫn chụp ảnh responsive"
-            title="Hướng dẫn nghiệm thu Responsive"
-          >
-            📸 HD Responsive
-          </button>
-
-          <button
             onClick={onToggleTheme}
-            className="inline-flex items-center justify-center h-8 w-8 text-sm text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-[10px] transition-all cursor-pointer"
+            className="inline-flex items-center justify-center h-8 w-8 text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-[10px] transition-all cursor-pointer"
             aria-label={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
             title={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
           >
-            {isLightTheme ? '🌙' : '☀️'}
+            {isLightTheme ? <Moon size={16} strokeWidth={2} /> : <Sun size={16} strokeWidth={2} />}
           </button>
 
           {/* Separator between utility controls and auth actions */}
           <div className="hidden sm:block w-px h-6 bg-[var(--border-color)]" aria-hidden="true" />
 
           {authUser ? (
-            <button
-              onClick={onLogout}
-              className="hidden sm:inline-flex items-center h-8 px-3.5 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-[10px] transition-all cursor-pointer whitespace-nowrap"
-            >
-              Đăng xuất
-            </button>
+            <div className="relative hidden sm:block" ref={avatarMenuRef}>
+              <button
+                onClick={() => setAvatarMenuOpen((prev) => !prev)}
+                className="flex items-center gap-1.5 cursor-pointer bg-transparent border-none"
+                aria-haspopup="menu"
+                aria-expanded={avatarMenuOpen}
+                aria-label="Menu tài khoản"
+              >
+                <span className="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--border-color)] bg-gradient-to-br from-indigo-600 to-cyan-500 text-white text-sm font-bold shrink-0">
+                  {(authUser.fullName || authUser.email).trim().charAt(0).toUpperCase()}
+                </span>
+                <ChevronDown
+                  size={14}
+                  strokeWidth={2.5}
+                  className={`text-[var(--text-muted)] transition-transform ${avatarMenuOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
+
+              {avatarMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 border border-[var(--border-color)] rounded-xl shadow-lg z-50 overflow-hidden"
+                >
+                  <div className="px-4 py-3 border-b border-[var(--border-color)]">
+                    <p className="text-sm font-semibold text-[var(--text-main)] truncate">
+                      {authUser.fullName || authUser.email}
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)] truncate">{authUser.email}</p>
+                    <span className="inline-flex items-center mt-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-indigo-600/10 text-indigo-600 dark:text-indigo-400">
+                      {userRole === 'teacher' ? 'Giảng viên' : 'Học viên'}
+                    </span>
+                  </div>
+
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setAvatarMenuOpen(false);
+                      handleNavigate('/profile');
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-colors bg-transparent border-none cursor-pointer text-left"
+                  >
+                    <User size={15} strokeWidth={2} />
+                    Thông tin cá nhân
+                  </button>
+
+                  {userRole === 'student' && (
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        setAvatarMenuOpen(false);
+                        handleNavigate('/progress');
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-colors bg-transparent border-none cursor-pointer text-left"
+                    >
+                      <BarChart3 size={15} strokeWidth={2} />
+                      Tiến độ học tập
+                    </button>
+                  )}
+
+                  <div className="border-t border-[var(--border-color)]" />
+
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setAvatarMenuOpen(false);
+                      onLogout();
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors bg-transparent border-none cursor-pointer text-left"
+                  >
+                    <LogOut size={15} strokeWidth={2} />
+                    Đăng xuất
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
               <button
@@ -193,7 +292,7 @@ export const Header: React.FC<HeaderProps> = ({
             aria-expanded={mobileMenuOpen}
             aria-label="Toggle Mobile Menu"
           >
-            ☰
+            <Menu size={18} strokeWidth={2} />
           </button>
         </div>
       </div>
@@ -207,7 +306,7 @@ export const Header: React.FC<HeaderProps> = ({
           {userRole === 'student' ? (
             <>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'catalog'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -217,10 +316,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                📚 Danh mục khóa học
+                <BookOpen size={16} strokeWidth={2} /> Danh mục khóa học
               </button>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'detail'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -230,10 +329,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                📖 Chi tiết bài học
+                <FileText size={16} strokeWidth={2} /> Chi tiết bài học
               </button>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'quiz'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -243,10 +342,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                📝 Thi Trắc Nghiệm
+                <ClipboardList size={16} strokeWidth={2} /> Thi Trắc Nghiệm
               </button>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'playground'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -256,10 +355,23 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                🧑‍💻 Code Playground
+                <Code2 size={16} strokeWidth={2} /> Code Playground
               </button>
               <button
-                className={`text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'block-puzzle'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/block-puzzle');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <Puzzle size={16} strokeWidth={2} /> Block Puzzle
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'contests'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -269,13 +381,39 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                🏆 Cuộc Thi & Lịch Thi
+                <Trophy size={16} strokeWidth={2} /> Cuộc Thi & Lịch Thi
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'tester-labs'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/tester-labs');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <FlaskConical size={16} strokeWidth={2} /> Tester Lab
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'progress'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/progress');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <BarChart3 size={16} strokeWidth={2} /> Tiến Độ Của Tôi
               </button>
             </>
           ) : (
             <>
               <button
-                className={`text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'authoring'
                     ? 'text-indigo-600 dark:text-cyan-400 font-bold'
                     : 'text-[var(--text-main)]'
@@ -285,10 +423,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                🛠️ Soạn Thảo Bài Thi
+                <Wrench size={16} strokeWidth={2} /> Soạn Thảo Bài Thi
               </button>
               <button
-                className={`text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'teacher-library'
                     ? 'text-cyan-600 dark:text-cyan-400 font-bold'
                     : 'text-[var(--text-main)]'
@@ -298,10 +436,10 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                📋 Xem Các Bài Thi
+                <ClipboardList size={16} strokeWidth={2} /> Xem Các Bài Thi
               </button>
               <button
-                className={`text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'teacher-contests'
                     ? 'text-amber-600 dark:text-amber-400 font-bold'
                     : 'text-[var(--text-main)]'
@@ -311,7 +449,33 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                 }}
               >
-                🏆 Quản Lý Cuộc Thi
+                <Trophy size={16} strokeWidth={2} /> Quản Lý Cuộc Thi
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'problem-generator'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/problem-generator');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <Sparkles size={16} strokeWidth={2} /> AI Tạo Đề
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'tester-labs'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/tester-labs');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <FlaskConical size={16} strokeWidth={2} /> Tester Lab
               </button>
             </>
           )}
@@ -320,8 +484,9 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="pt-3 mt-1 border-t border-[var(--border-color)] flex flex-col gap-2">
             {authUser ? (
               <>
-                <span className="text-xs font-semibold text-[var(--text-muted)]">
-                  {userRole === 'teacher' ? '👨‍🏫' : '🎓'} {authUser.fullName} ({authUser.email})
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)]">
+                  {userRole === 'teacher' ? <Wrench size={13} strokeWidth={2} /> : <GraduationCap size={13} strokeWidth={2} />}
+                  {authUser.fullName || authUser.email} ({authUser.email})
                 </span>
                 <button
                   onClick={() => {

@@ -8,6 +8,19 @@ export interface ExerciseListItem {
   points: number;
   starterCode: string;
   timeLimitMs: number;
+  tags?: string[];
+  prerequisiteSlug?: string;
+  gradeBand?: string;
+  topic?: string;
+  orderInTopic?: number;
+  // Cờ trạng thái tính sẵn ở BE (ExerciseService.findAll) để hiển thị badge
+  // Draft/Ready/Validated trên bank picker — không phải nội dung thật của
+  // testCases/solutionCode (route này không trả field đó để không lộ đáp án).
+  hasSolution?: boolean;
+  testCaseCount?: number;
+  // Có mặt khi bài đã từng được publish qua một Lesson (Teacher Authoring),
+  // tức đã qua bước "Chọn từ Ngân hàng đề -> Xuất bản" ít nhất 1 lần.
+  sourceLessonSlug?: string;
 }
 
 export interface ExerciseTestCase {
@@ -19,6 +32,33 @@ export interface ExerciseTestCase {
 export interface ExerciseDetail extends ExerciseListItem {
   testCases: ExerciseTestCase[];
   hiddenTestCount: number;
+  hints?: {
+    hint1?: string;
+    hint2?: string;
+    hint3?: string;
+  };
+}
+
+// Bản đầy đủ CHỈ giáo viên xem được (GET /exercises/:slug/full) — có
+// solutionCode thật và testCases KHÔNG bị lọc hidden, khác ExerciseDetail
+// (bản học viên xem, luôn ẩn đáp án/test ẩn).
+export interface ExerciseFullDetail {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  type: string;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  points: number;
+  starterCode: string;
+  solutionCode?: string;
+  testCases: ExerciseTestCase[];
+  tags?: string[];
+  hints?: {
+    hint1?: string;
+    hint2?: string;
+    hint3?: string;
+  };
 }
 
 export interface RunCodeResponse {

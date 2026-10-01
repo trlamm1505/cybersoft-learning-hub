@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BookOpen, Clapperboard, Target, Clock, ClipboardList, UserCog, FileText, ArrowLeft, ArrowRight, PartyPopper } from 'lucide-react';
 import type { Lesson } from '../types/course';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 import { ObjectiveList } from '../components/ObjectiveList';
@@ -33,9 +34,9 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
           <li>
             <button
               onClick={onBackToCatalog}
-              className="text-indigo-600 dark:text-cyan-400 font-semibold hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1 text-indigo-600 dark:text-cyan-400 font-semibold hover:underline cursor-pointer"
             >
-              📚 Danh mục bài học
+              <BookOpen size={13} /> Danh mục bài học
             </button>
           </li>
           <li aria-hidden="true">/</li>
@@ -80,7 +81,7 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
               ></iframe>
             ) : (
               <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gradient-to-br from-slate-900 to-indigo-950 text-white">
-                <div className="text-4xl mb-2">🎬</div>
+                <Clapperboard size={40} className="mb-2" strokeWidth={1.75} />
                 <h3 className="text-base font-bold text-white mb-1">Khung phát bài học mẫu #{currentLesson.lessonNumber}</h3>
                 <p className="text-xs text-slate-300 max-w-md mb-4 leading-relaxed">
                   Video mẫu thực hành bài học: <strong>{currentLesson.title}</strong> ({currentLesson.durationText}).
@@ -102,19 +103,19 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
           {/* Metadata Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[var(--bg-main)] p-4 rounded-xl border border-[var(--border-color)] mb-5" aria-label="Thông số bài học">
             <div className="flex flex-col gap-1">
-              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">🎯 Độ khó</span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider"><Target size={12} /> Độ khó</span>
               <span><DifficultyBadge difficulty={currentLesson.difficulty} /></span>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">⏱ Thời lượng</span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider"><Clock size={12} /> Thời lượng</span>
               <span className="text-sm font-semibold text-indigo-600 dark:text-cyan-400">{currentLesson.durationText}</span>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">📋 Tiên quyết</span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider"><ClipboardList size={12} /> Tiên quyết</span>
               <span className="text-sm font-semibold text-[var(--text-main)]">{currentLesson.prerequisites.length} Yêu cầu</span>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">👨‍🏫 Giảng viên</span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider"><UserCog size={12} /> Giảng viên</span>
               <span className="text-xs font-semibold text-[var(--text-main)]">{currentLesson.instructor.name}</span>
             </div>
           </div>
@@ -122,7 +123,7 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
           {/* Section 1: Learning Objectives */}
           <section className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 mb-5 shadow-xs" aria-labelledby="section-objectives">
             <h2 id="section-objectives" className="flex items-center gap-2 text-base font-bold text-[var(--text-main)] pb-3 mb-3 border-b border-[var(--border-color)]">
-              🎯 Mục tiêu bài học (Learning Objectives)
+              <Target size={16} /> Mục tiêu bài học (Learning Objectives)
             </h2>
             <ObjectiveList objectives={currentLesson.objectives} />
           </section>
@@ -130,7 +131,7 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
           {/* Section 2: Prerequisites */}
           <section className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 mb-5 shadow-xs" aria-labelledby="section-prerequisites">
             <h2 id="section-prerequisites" className="flex items-center gap-2 text-base font-bold text-[var(--text-main)] pb-3 mb-3 border-b border-[var(--border-color)]">
-              📋 Điều kiện tiên quyết (Prerequisites)
+              <ClipboardList size={16} /> Điều kiện tiên quyết (Prerequisites)
             </h2>
             <PrerequisiteCard prerequisites={currentLesson.prerequisites} />
           </section>
@@ -138,7 +139,7 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
           {/* Section 3: Detailed Content */}
           <section className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 mb-5 shadow-xs" aria-labelledby="section-content">
             <h2 id="section-content" className="flex items-center gap-2 text-base font-bold text-[var(--text-main)] pb-3 mb-3 border-b border-[var(--border-color)]">
-              📖 Nội dung hướng dẫn chi tiết
+              <FileText size={16} /> Nội dung hướng dẫn chi tiết
             </h2>
             <div className="font-mono text-xs text-[var(--text-main)] bg-[var(--bg-main)] p-4 rounded-xl border border-[var(--border-color)] leading-relaxed whitespace-pre-wrap">
               {currentLesson.contentMarkdown}
@@ -150,30 +151,30 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
             {prevLesson ? (
               <button
                 onClick={() => { setVideoError(false); onSelectLesson(prevLesson.id); }}
-                className="px-4 py-2 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-xl transition-all"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[var(--text-main)] bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 border border-[var(--border-color)] rounded-xl transition-all"
                 aria-label={`Bài trước: ${prevLesson.title}`}
               >
-                ← Bài {prevLesson.lessonNumber}
+                <ArrowLeft size={14} /> Bài {prevLesson.lessonNumber}
               </button>
             ) : (
               <div />
             )}
 
-            <button onClick={onBackToCatalog} className="px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-cyan-400 hover:bg-indigo-50 dark:hover:bg-cyan-500/10 border border-indigo-200 dark:border-cyan-500/40 rounded-xl transition-all">
-              📋 Danh mục
+            <button onClick={onBackToCatalog} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-cyan-400 hover:bg-indigo-50 dark:hover:bg-cyan-500/10 border border-indigo-200 dark:border-cyan-500/40 rounded-xl transition-all">
+              <ClipboardList size={14} /> Danh mục
             </button>
 
             {nextLesson ? (
               <button
                 onClick={() => { setVideoError(false); onSelectLesson(nextLesson.id); }}
-                className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all"
                 aria-label={`Bài tiếp theo: ${nextLesson.title}`}
               >
-                Bài {nextLesson.lessonNumber} →
+                Bài {nextLesson.lessonNumber} <ArrowRight size={14} />
               </button>
             ) : (
-              <button onClick={onBackToCatalog} className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition-all">
-                🎉 Hoàn thành khóa học
+              <button onClick={onBackToCatalog} className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition-all">
+                <PartyPopper size={14} /> Hoàn thành khóa học
               </button>
             )}
           </div>

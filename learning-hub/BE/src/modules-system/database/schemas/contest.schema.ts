@@ -24,7 +24,8 @@ export class ContestProblem {
   order: number;
 }
 
-export const ContestProblemSchema = SchemaFactory.createForClass(ContestProblem);
+export const ContestProblemSchema =
+  SchemaFactory.createForClass(ContestProblem);
 
 @Schema({ _id: false })
 export class ContestRegistration {
@@ -38,7 +39,8 @@ export class ContestRegistration {
   registeredAt: Date;
 }
 
-export const ContestRegistrationSchema = SchemaFactory.createForClass(ContestRegistration);
+export const ContestRegistrationSchema =
+  SchemaFactory.createForClass(ContestRegistration);
 
 @Schema({ timestamps: true, collection: 'contests' })
 export class Contest {
@@ -71,6 +73,11 @@ export class Contest {
 
   @Prop({ type: String, default: 'teacher-1' })
   authorId: string;
+
+  // Optional override for the leaderboard freeze window; when unset the leaderboard
+  // computes it from durationMinutes (see LeaderboardService.getConfig).
+  @Prop({ type: Number })
+  freezeMinutes?: number;
 }
 
 export const ContestSchema = SchemaFactory.createForClass(Contest);

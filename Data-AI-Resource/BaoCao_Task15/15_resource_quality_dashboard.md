@@ -2,10 +2,9 @@
 
 **Dự án**: CyberSoft Data & AI Lab  
 **Đầu việc**: NGÀY 15 — Dashboard theo dõi chất lượng tài nguyên (`cybersoft-resource-observability-dashboard`)  
-**Giai đoạn**: Tuần 3 — Project Bank và Phân Tích  
 **Vai trò phụ trách**: Data & AI Resource Engineer (Đào Trung Kiên)  
-**Phiên bản**: v0.1.0  
-**Ngày hoàn thiện**: 2026-09-19  
+**Phiên bản**: v1.0.0  
+**Ngày hoàn thiện**: 2026-09-21  
 
 ---
 
@@ -84,11 +83,10 @@ Kiến trúc hệ thống giám sát chất lượng tài nguyên được thi�
 ### 2.2. Cấu Trúc Cây Thư Mục Bàn Giao Toàn Diện
 ```
 cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/
-├── 15_resource_quality_dashboard.md       # Bản đặc tả kỹ thuật chi tiết toàn diện (>20KB)
-├── README.md                              # Báo cáo tổng quan bàn giao, hướng dẫn CLI và bảng DoD
-├── AI_WORKLOG.md                          # Nhật ký phối hợp AI minh bạch, thẩm định 6 bẫy AI & kịch bản 3 phút
+├── 15_resource_quality_dashboard.md       # Bản đặc tả kỹ thuật chi tiết toàn diện Task 15
+├── README.md                              # Báo cáo tổng quan bàn giao & hướng dẫn thực thi
+├── AI_WORKLOG.md                          # Nhật ký phối hợp AI & thẩm định 3 cột theo chuẩn CyberSoft
 ├── Picture_15_Detail.png                  # Sơ đồ kiến trúc Dashboard, Metric Engine & Layout giao diện
-├── Picture_15-Detail.png                  # Bản sao sơ đồ đồng bộ liên kết tài liệu
 ├── requirements.txt                       # Danh mục thư viện phụ thuộc (Streamlit, Pandas, Pytest...)
 ├── catalog/
 │   ├── metric_definitions.json            # Từ điển 10 chỉ số chất lượng tài nguyên chuẩn hóa
@@ -166,6 +164,8 @@ $$\text{RQI} = 0.20 \times \text{QG} + 0.15 \times \text{SV} + 0.15 \times \text
 
 ## 5. TÍNH NĂNG VÀ TRẢI NGHIỆM GIAO DIỆN STREAMLIT DASHBOARD v0.1
 
+![Ảnh Demo Giao Diện Tổng Quan Dashboard](./Picture_15_Demo_Dashboard.png)
+
 ### 5.1. 5 Thẻ Chỉ Số KPI Điều Hành (Executive KPI Metric Cards)
 * **Tổng Tài Nguyên Được Giám Sát**: `8 / 8` tài nguyên (4 Datasets từ Registry Task 10 và 4 Projects/Capstones từ Tasks 11-14).
 * **Tổng Bản Ghi / Đề Mục Đánh Giá**: `14,854` bản ghi dữ liệu và câu hỏi kiểm thử được quản lý.
@@ -173,14 +173,21 @@ $$\text{RQI} = 0.20 \times \text{QG} + 0.15 \times \text{SV} + 0.15 \times \text
 * **Tỷ Lệ Vượt Qua Kiểm Thử Tự Động (Test Pass Rate)**: `99.0%` (chỉ 1 tệp dirty dataset bị đánh fail có chủ đích).
 * **Mức Độ Tuân Thủ Chống Rò Rỉ Đáp Án (Zero-Leakage Compliance)**: `100.0%` (toàn bộ các đồ án học viên đều phân tách vật lý tuyệt đối).
 
-### 5.2. Phân Tích Cắt Lát Đa Chiều (Multi-Dimensional Slicing)
+### 5.2. Phân Tích Cắt Lát Đa Chiều & Bảng Danh Mục Tài Nguyên (Resource Inventory Catalog)
+
+![Ảnh Demo Bảng Danh Mục Tài Nguyên Giám Sát](./Picture_15_Demo_Catalog.png)
+
 Sidebar cung cấp các bộ lọc hoạt động tức thời:
 * **Lọc theo Chuyên ngành**: Lựa chọn hiển thị riêng `Data Analyst` (5 tài nguyên), `AI Engineer` (2 tài nguyên) hoặc `Shared / Foundation` (1 tài nguyên).
 * **Lọc theo Lĩnh vực**: `Retail E-Commerce` (4 tài nguyên), `HR Operations` (1 tài nguyên), `Logistics & Operations` (1 tài nguyên), `NLP & Knowledge Systems` (2 tài nguyên).
 * **Lọc theo Cấp độ & Xếp hạng Tier**: Lọc riêng các tài nguyên `Beginner`, `Intermediate`, `Advanced` hoặc chỉ hiển thị các tài nguyên thuộc `Gold Tier` hoặc `Quarantined`.
 * **Thanh trượt RQI tối thiểu & Tìm kiếm toàn văn**: Cho phép tìm kiếm nhanh theo mã hiệu, tên, từ khóa kỹ thuật (ví dụ: `RAG`, `Inventory`, `Star Schema`).
+* **Xuất dữ liệu ngoại tuyến**: Nút bấm tải JSON Snapshot và tải Catalog CSV trực tiếp trên giao diện.
 
 ### 5.3. Bảng Điều Khiển Drill-Down & Bóc Tách Lỗi Chuyên Sâu (Audit Inspector)
+
+![Ảnh Demo Tính Năng Bóc Tách Lỗi Vi Phạm & Siêu Dữ Liệu](./Picture_15_Demo_Drilldown.png)
+
 Khi lựa chọn một tài nguyên bất kỳ trong danh mục, giao diện mở rộng 4 tab phân tích:
 1. **Tab 1: Siêu Dữ Liệu (Metadata)**: Xem toàn bộ thông số định danh, phiên bản, giấy phép, tác giả, đường dẫn tương đối tới mã nguồn và danh sách tệp đính kèm.
 2. **Tab 2: Bảng Điểm 7 Trụ Cột**: Bảng đo lường chi tiết điểm số thành phần (Quality Gate, Schema Validity, Completeness, Anti-Leakage, Test Pass Rate, Rubric Objectivity, Business Integrity và RQI).
@@ -222,7 +229,7 @@ python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/scripts/demo_dashbo
 ```powershell
 pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task15/tests/ -v
 ```
-*Kết quả thực tế*: **16/16 test cases PASS 100% trong 0.80 giây**.
+*Kết quả thực tế*: **16/16 test cases PASS 100% trong 0.38 giây**.
 
 ---
 

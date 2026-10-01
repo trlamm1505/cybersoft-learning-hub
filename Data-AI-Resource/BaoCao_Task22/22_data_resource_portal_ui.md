@@ -6,7 +6,7 @@
 **Vai trò**: Data & AI Resource Engineer (Đào Trung Kiên)  
 **Trạng thái**:  **ĐÃ HOÀN THÀNH 100% THEO ĐẶC TẢ VÀ TIÊU CHÍ NGHIỆM THU (DoD)**  
 **Ngày thực hiện**: 2026-09-30  
-- **Link Video Demo (Google Drive)**: [Xem Video Demo](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link)  
+**Link Video Demo (Google Drive)**: [Xem Video Demo](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link)  
 
 ---
 
