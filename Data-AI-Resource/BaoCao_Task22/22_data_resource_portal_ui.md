@@ -6,6 +6,7 @@
 **Vai trò**: Data & AI Resource Engineer (Đào Trung Kiên)  
 **Trạng thái**:  **ĐÃ HOÀN THÀNH 100% THEO ĐẶC TẢ VÀ TIÊU CHÍ NGHIỆM THU (DoD)**  
 **Ngày thực hiện**: 2026-09-30  
+- **Link Video Demo (Google Drive)**: [Xem Video Demo](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link)  
 
 ---
 
@@ -163,7 +164,7 @@ Theo tiêu chí nghiệm thu DoD, hệ thống đã thiết kế và tự độn
 
 > [!NOTE]
 > - Bản đặc tả chi tiết từng bước thao tác, dữ liệu đầu vào và nhật ký đo lường được lưu trữ riêng tại: [`usability_test_script.md`](./usability_test_script.md).
-> - Kịch bản thuyết trình video demo 3 phút được lưu trữ tại tệp độc lập: [`DEMO_SCRIPT_3_MINUTES.md`](./DEMO_SCRIPT_3_MINUTES.md).
+> - Kịch bản thuyết trình video demo 3 phút: [`DEMO_SCRIPT_3_MINUTES.md`](./DEMO_SCRIPT_3_MINUTES.md) • **Video Demo thực tế (Google Drive)**: [Xem tại đây](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link).
 
 ---
 

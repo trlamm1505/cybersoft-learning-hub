@@ -6,6 +6,7 @@
 **Vai trò**: Data & AI Resource Engineer (Đào Trung Kiên)  
 **Trạng thái**:  **ĐÃ HOÀN THÀNH 100% THEO ĐẶC TẢ VÀ TIÊU CHÍ NGHIỆM THU (DoD)**  
 **Ngày thực hiện**: 2026-09-30  
+- **Link Video Demo (Google Drive)**: [Xem Video Demo](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link)  
 
 ---
 
@@ -220,7 +221,7 @@ pytest tests/ -v
 | **7** | **Đánh giá độ hữu ích 1-5 sao** | Form đánh giá 1-5 sao, nhận xét sư phạm, tính điểm trung bình và lưu bền vững. | Lưu vào `feedback_store.json`, cập nhật rating real-time |  **PASSED** |
 | **8** | **5 Kịch bản Usability Benchmark** | Bộ đo lường tự động thực thi 5 kịch bản thực tế của Giảng viên hoàn thành < 60s. | **5/5 kịch bản PASS trong 0.1411 giây** |  **PASSED** |
 | **9** | **Bộ kiểm thử Pytest 100%** | Kiểm thử tự động bao phủ toàn bộ chức năng tìm kiếm, xem trước, chặn tải và feedback. | **19/19 tests PASS 100%** trong 0.77 giây |  **PASSED** |
-| **10** | **Kịch bản Video Demo & Báo cáo Word** | Tách riêng tệp `DEMO_SCRIPT_3_MINUTES.md`, hoàn thiện đặc tả kỹ thuật và tệp Word chuẩn. | Đã bàn giao đầy đủ tệp docx và các tệp markdown |  **PASSED** |
+| **10** | **Video Demo & Báo cáo Word** | Video demo thực tế và kịch bản 3 phút độc lập `DEMO_SCRIPT_3_MINUTES.md`. | [Xem Video Demo (Google Drive)](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link) & Tệp docx |  **PASSED** |
 
 ---
 

@@ -1,5 +1,45 @@
 [
   {
+    "id": "fbk-6f937a88",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Đào Trung Kiên",
+    "role": "instructor",
+    "comment": "Tập dữ liệu rất sạch, cấu trúc 3NF hoàn chỉnh, học viên thực hành SQL đạt kết quả 100%!",
+    "usefulness_aspects": [
+      "clean_data",
+      "schema_3nf",
+      "pedagogy_ready"
+    ],
+    "created_at": "2026-09-30T20:31:22.629421Z"
+  },
+  {
+    "id": "fbk-88e0caf7",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 1,
+    "reviewer_name": "TS. Đào Trung Kiên",
+    "role": "qa_engineer",
+    "comment": "hhhhhh",
+    "usefulness_aspects": [
+      "clean_data",
+      "pedagogy_ready"
+    ],
+    "created_at": "2026-09-30T20:30:55.798748Z"
+  },
+  {
+    "id": "fbk-3b59d34c",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Đào Trung Kiên",
+    "role": "qa_engineer",
+    "comment": "Dataset ổn ko có vấn đề gì",
+    "usefulness_aspects": [
+      "clean_data",
+      "pedagogy_ready"
+    ],
+    "created_at": "2026-09-30T20:30:29.866464Z"
+  },
+  {
     "id": "fbk-051cba31",
     "dataset_id": "ds-retail-ecommerce-sales-v1",
     "rating": 5,

@@ -5,3 +5,9 @@ venv/
 **/.pytest_cache/
 **/.ruff_cache/
 *.pyc
+
+# Video recordings (uploaded to Cloud/Drive instead of Git)
+*.mkv
+*.mp4
+*.avi
+*.mov
