@@ -25,7 +25,7 @@ Bước vào Ngày 22 của Tuần 5 (Sản phẩm hóa), phân hệ CyberSoft D
 - **Mô hình suy luận**: Gemini 3.8 Flash (High-efficiency reasoning & code generation).
 - **Nguyên tắc làm chủ AI (Human-in-the-Loop)**:
   * AI đóng vai trò trợ lý tăng tốc dựng khung giao diện HTML/CSS/Tailwind và gợi ý cấu trúc Pydantic schemas.
-  * Kỹ sư con người giữ toàn quyền thiết kế logic kiểm soát quyền tải (Access Gatekeeper), thẩm định kiến trúc dữ liệu 3NF, cấu hình các tiêu chí nghiệm thu DoD và kiểm chứng thực nghiệm 100% bằng bộ kịch bản đo lường tự động.
+  * Kỹ sư con người giữ toàn quyền thiết kế logic kiểm soát quyền tải (Access Gatekeeper), thẩm định kiến trúc dữ liệu 3NF, cấu hình các tiêu chí nghiệm thu DoD và kiểm chứng thực nghiệm 100% bằng bộ công cụ đo lường tự động.
 
 ---
 
@@ -40,8 +40,8 @@ Bước vào Ngày 22 của Tuần 5 (Sản phẩm hóa), phân hệ CyberSoft D
 | **05** | Lưu trữ mã băm SHA-256 dưới dạng chuỗi ẩn trong mã nguồn, không hiển thị cho người dùng. | Học viên và giảng viên không có cách nào đối soát tính toàn vẹn của tệp sau khi tải về máy. | **Minh bạch hóa**: Hiển thị hộp mã băm SHA-256 64 ký tự hex kèm nút **Copy to Clipboard** và truyền kèm header HTTP `X-Checksum-SHA256` khi tải tệp. |
 | **06** | Lưu điểm đánh giá 1-5 sao vào bộ nhớ tạm in-memory mà không ghi xuống file. | Khi máy chủ khởi động lại hoặc redeploy, toàn bộ phản hồi quý báu của giảng viên sẽ bị mất sạch. | **Bền vững hóa**: Lưu trữ toàn bộ các review vào tệp JSON `data/feedback_store.json`, tự động load lại khi máy chủ khởi động và lưu vết thời gian ISO 8601. |
 | **07** | Nhận xét feedback cho phép gửi chuỗi rỗng và không giới hạn độ dài ký tự. | Dễ dẫn đến spam dữ liệu rác hoặc làm vỡ giao diện khi người dùng dán văn bản quá dài. | **Ràng buộc Pydantic v2**: Bắt buộc `rating` nằm trong đoạn `[1, 5]`, nhận xét `comment` tối thiểu 5 ký tự và tối đa 1.000 ký tự qua `FeedbackCreateRequest`. |
-| **08** | Không cung cấp script kiểm thử độ khả dụng tự động, chỉ đề xuất test thủ công bằng tay. | Không thể đưa vào pipeline CI/CD và không có số liệu định lượng chính xác để chứng minh tiêu chí "hoàn thành dưới 1 phút". | **Tự động hóa toàn diện**: Viết `scripts/run_usability_eval.py` và endpoint `/usability-benchmark` đo lường chính xác mili-giây cho cả 5 kịch bản thực tế của giảng viên. |
-| **09** | Để kịch bản video demo 3 phút gộp chung vào tài liệu báo cáo kỹ thuật `.md`. | Làm loãng nội dung kỹ thuật chuyên sâu và gây bất tiện cho người quay video khi phải cuộn trang tìm kiếm kịch bản. | **Tách riêng biệt**: Tạo tệp độc lập [`DEMO_SCRIPT_3_MINUTES.md`](./DEMO_SCRIPT_3_MINUTES.md) với phân cảnh theo từng giây, thao tác kỹ thuật và lời thoại thuyết minh chuẩn mực. |
+| **08** | Không cung cấp script kiểm thử độ khả dụng tự động, chỉ đề xuất test thủ công bằng tay. | Không thể đưa vào pipeline CI/CD và không có số liệu định lượng chính xác để chứng minh tiêu chí "hoàn thành dưới 1 phút". | **Tự động hóa toàn diện**: Viết `scripts/run_usability_eval.py` và endpoint `/usability-benchmark` đo lường chính xác mili-giây cho cả 5 ca sử dụng thực tế của giảng viên. |
+| **09** | Bỏ qua việc đo lường thời gian thao tác thực tế của người dùng trên giao diện. | Không có số liệu định lượng để chứng minh tiêu chí "tìm và tải trong dưới 60 giây" của DoD. | **Xây dựng Usability Benchmark tự động**: Triển khai `scripts/run_usability_eval.py` đo lường nano-giây 5 ca sử dụng thực tế của giảng viên, ghi nhận thời gian trung bình chỉ 0.028s (vượt xa chỉ tiêu < 60s). |
 | **10** | Viết test Pytest chỉ kiểm tra mã HTTP 200 mà bỏ qua trường hợp chặn tải 403. | Bỏ sót điều kiện nghiệm thu cốt lõi của bài toán sản phẩm hóa Ngày 22. | **Bao phủ 100%**: Xây dựng test suite 19 bài test, trong đó có `test_access_rules.py` xác thực nghiêm ngặt mã lỗi 403 và mã định danh `DATASET_UNPUBLISHED_RESTRICTED`. |
 
 ---
@@ -57,7 +57,7 @@ Bước vào Ngày 22 của Tuần 5 (Sản phẩm hóa), phân hệ CyberSoft D
 7. **Bẫy "Unverified Checksums" (Mã băm ảo tưởng)**: AI sinh mã SHA-256 giả lập không khớp với nội dung file. *Cách tránh*: Dùng thư viện `hashlib.sha256` tính toán mã băm thực tế từ từng file CSV.
 8. **Bẫy "No Live Feedback Recalculation" (Quên cập nhật điểm số)**: AI lưu feedback nhưng giữ nguyên rating cũ của dataset. *Cách tránh*: Viết hàm `get_dataset_rating_stats` tự động tính lại trung bình cộng.
 9. **Bẫy "Flaky Usability Timing" (Đo lường thời gian thiếu chính xác)**: AI dùng `time.time()` thay vì `time.perf_counter()`. *Cách tránh*: Dùng `time.perf_counter()` cho độ phân giải nano-giây.
-10. **Bẫy "Merged Documentation" (Gộp chung tài liệu)**: AI gộp kịch bản video vào đặc tả kỹ thuật. *Cách tránh*: Tách riêng `DEMO_SCRIPT_3_MINUTES.md` theo chỉ đạo của người dùng.
+10. **Bẫy "Subjective Usability Claims" (Khẳng định độ khả dụng cảm tính)**: AI cho rằng giao diện dễ dùng mà không có bằng chứng đo lường. *Cách tránh*: Đo lường định lượng chính xác từng ca sử dụng với `time.perf_counter()`, lưu vết kết quả kiểm thử tự động.
 
 ---
 
@@ -65,9 +65,9 @@ Bước vào Ngày 22 của Tuần 5 (Sản phẩm hóa), phân hệ CyberSoft D
 
 Trong toàn bộ quá trình thực hiện Task 22, tôi đã vận dụng nhuần nhuyễn mô hình Bốn Tầng Năng Lực AI:
 - **Tầng 1 — Trợ lý cú pháp (Syntax Assistant)**: Sử dụng AI để sinh nhanh các mẫu HTML modal Tailwind CSS, các class icon Phosphor Icons và khai báo kiểu dữ liệu Pydantic.
-- **Tầng 2 — Tăng tốc sinh mã khung (Scaffolding Acceleration)**: Dùng AI hỗ trợ sinh khung router `/portal` và các kịch bản test Pytest cơ sở.
+- **Tầng 2 — Tăng tốc sinh mã khung (Scaffolding Acceleration)**: Dùng AI hỗ trợ sinh khung router `/portal` và các test suites Pytest cơ sở.
 - **Tầng 3 — Thẩm định & Phản biện kỹ thuật (Critical Architecture Review)**: Bác bỏ việc dùng framework React/Next.js nặng nề; yêu cầu bổ sung Access Gatekeeper 403 Forbidden; thiết kế chi tiết bảng Schema Inspector 3NF; bắt buộc tính mã băm SHA-256 thực tế.
-- **Tầng 4 — Điều phối hệ sinh thái & Làm chủ giải pháp (Ecosystem Orchestration)**: Tự tay liên kết giao diện Web SPA với FastAPI backend, thiết kế bộ đo lường 5 kịch bản Usability Benchmark tự động đạt chuẩn DoD trong 0.14 giây, và xuất bản tệp Word báo cáo chính thức Ngày 22 không còn sót bất kỳ vết tích nào của Ngày 21.
+- **Tầng 4 — Điều phối hệ sinh thái & Làm chủ giải pháp (Ecosystem Orchestration)**: Tự tay liên kết giao diện Web SPA với FastAPI backend, thiết kế bộ đo lường 5 ca sử dụng Usability Benchmark tự động đạt chuẩn DoD trong 0.14 giây, và xuất bản tệp Word báo cáo chính thức Ngày 22 đạt chuẩn 100%.
 
 ---
 
@@ -82,98 +82,3 @@ Trong toàn bộ quá trình thực hiện Task 22, tôi đã vận dụng nhu�
 - **Hiện tượng**: Khi gọi API download từ giao diện web, mã băm `X-Checksum-SHA256` trong header không đọc được bởi JavaScript client.
 - **Nguyên nhân gốc rễ**: Theo chuẩn bảo mật CORS của trình duyệt, các header tùy biến (custom headers) không được hiển thị cho client script nếu không được khai báo trong `Access-Control-Expose-Headers`.
 - **Giải pháp xử lý**: Thêm header `"Access-Control-Expose-Headers": "X-Checksum-SHA256, X-Dataset-ID"` vào phản hồi của endpoint `GET /download`. Client JS đọc được mã băm trực tiếp.
-
----
-
-## 7. ĐỘC LẬP KIỂM CHỨNG: LỆNH CHẠY TEST VÀ KẾT QUẢ THỰC TẾ
-
-### 1. Lệnh Kiểm thử Độ khả dụng Tự động (Usability Benchmark)
-```powershell
-python scripts/run_usability_eval.py
-```
-- **Kết quả**: 5/5 kịch bản hoàn thành xuất sắc trong **0.1411 giây** (vượt xa chỉ tiêu DoD < 60 giây). Exit code: 0.
-
-### 2. Lệnh Kiểm thử Tích hợp Pytest
-```powershell
-pytest tests/ -v
-```
-- **Kết quả**: **19/19 tests PASS 100%** trong 0.77 giây. Bao phủ đầy đủ tìm kiếm, lọc đa tiêu chí, xem trước schema 3NF, chặn tải 403 bản nháp và hệ thống feedback 1-5 sao. Exit code: 0.
-
----
-
-## 8. GIẢI THÍCH MÃ NGUỒN NGẪU NHIÊN & MINH CHỨNG LÀM CHỦ AI (CODE EXPLANATION & HUMAN REFACTORING)
-
-Đáp ứng tiêu chí *"Giải thích ngẫu nhiên một đoạn code/schema/test và sửa một thay đổi nhỏ mà không sao chép nguyên câu trả lời AI"*:
-
-### 8.1. Đoạn mã ngẫu nhiên được lựa chọn thẩm định: Hàm `validate_and_prepare_download`
-Trích xuất từ tệp `src/services/portal_service.py` (Dòng 230 - 275):
-
-```python
-def validate_and_prepare_download(self, dataset_id: str) -> tuple[Path, str, str]:
-    """Enforce Access Rules: Block unpublished dataset downloads and return file."""
-    if dataset_id not in self.datasets:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=ErrorEnvelope(
-                success=False,
-                error=ErrorPayload(
-                    code="DATASET_NOT_FOUND",
-                    message=f"Không tìm thấy tập dữ liệu với mã '{dataset_id}'",
-                    request_id=f"req-{uuid.uuid4().hex[:8]}",
-                ),
-            ).model_dump(),
-        )
-
-    ds = self.datasets[dataset_id]
-
-    # CORE ACCESS RULE: Unpublished/Draft datasets CANNOT be downloaded
-    if not ds.get("is_published", False):
-        request_id = f"req-{uuid.uuid4().hex[:8]}"
-        payload = ErrorEnvelope(
-            success=False,
-            error=ErrorPayload(
-                code="DATASET_UNPUBLISHED_RESTRICTED",
-                message="Quy tắc bảo vệ: Không được phép tải tập dữ liệu chưa xuất bản chính thức (Trạng thái: draft/review). Vui lòng đợi quản trị viên phê duyệt!",
-                details=[
-                    ErrorDetail(
-                        field="publication_status",
-                        issue=f"Dataset '{dataset_id}' có trạng thái '{ds.get('publication_status')}', vi phạm điều kiện nghiệm thu DoD!",
-                    )
-                ],
-                request_id=request_id,
-            ),
-        )
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=payload.model_dump(),
-        )
-
-    csv_file = DATASETS_DIR / ds["filename"]
-    if not csv_file.exists():
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=ErrorEnvelope(
-                success=False,
-                error=ErrorPayload(
-                    code="DATASET_FILE_NOT_FOUND",
-                    message=f"Tệp dữ liệu vật lý {ds['filename']} chưa được sẵn sàng trên máy chủ",
-                    request_id=f"req-{uuid.uuid4().hex[:8]}",
-                ),
-            ).model_dump(),
-        )
-
-    self.download_counts[dataset_id] = self.download_counts.get(dataset_id, 0) + 1
-    return csv_file, ds["filename"], ds["checksum_sha256"]
-```
-
-### 8.2. Giải thích cơ chế kỹ thuật & Quyết định tinh chỉnh của Kỹ sư
-1. **Bản chất đoạn code**:
-   - Đây là thành phần **Access Gatekeeper** (Cổng kiểm soát quyền truy cập) giữ vai trò then chốt trong việc bảo vệ dữ liệu. Hàm này kiểm tra tính hợp lệ của dataset ID, xác thực trạng thái phát hành (`is_published`), kiểm tra sự tồn tại của tệp vật lý trên đĩa cứng, và trả về bộ ba `(đường dẫn file, tên file, mã băm SHA-256)` để `FileResponse` đóng gói và gửi về cho client.
-2. **Điểm AI gợi ý sai lệch & Quyết định sửa đổi của con người**:
-   - **Gợi ý ban đầu của AI**: AI đề xuất chỉ trả về một thông báo lỗi dạng JSON thông thường với HTTP status 200 kèm `{"status": "error", "msg": "Cannot download"}`, hoặc chuyển hướng trình duyệt về trang chủ.
-   - **Phản biện của Kỹ sư**: Cách tiếp cận này vi phạm nguyên tắc thiết kế RESTful API và vi phạm trực tiếp tiêu chí nghiệm thu DoD. Client/QA Automation script sẽ nhận mã HTTP 200 và tưởng rằng request thành công.
-   - **Thay đổi của Kỹ sư**:
-     * Bắt buộc ném ngoại lệ `HTTPException` với đúng mã trạng thái HTTP **`403 Forbidden`**.
-     * Đóng gói thông báo trong cấu trúc **`Uniform Error Envelope`** với mã lỗi định danh duy nhất `DATASET_UNPUBLISHED_RESTRICTED`.
-     * Tự động sinh `request_id` để tiện cho việc tra vết log trong môi trường phân tán.
-     * Bổ sung bộ đếm `download_counts` tự động tăng khi tải thành công nhằm phục vụ thống kê phân tích số liệu trên Portal.
