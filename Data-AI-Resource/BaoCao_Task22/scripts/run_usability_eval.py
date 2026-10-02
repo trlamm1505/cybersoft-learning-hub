@@ -38,7 +38,7 @@ def run_benchmark():
     scenarios = [
         {
             "id": 1,
-            "name": "Kịch bản 1: Tìm kiếm & Lọc dataset bán hàng theo từ khóa và lĩnh vực Retail",
+            "name": "Ca 1: Tìm kiếm & Lọc dataset bán hàng theo từ khóa và lĩnh vực Retail",
             "action": lambda: client.get(
                 "/api/v1/portal/datasets?q=bán hàng&domain=Retail"
             ),
@@ -48,7 +48,7 @@ def run_benchmark():
         },
         {
             "id": 2,
-            "name": "Kịch bản 2: Xem trước dữ liệu mẫu (10 dòng) & Tra cứu lược đồ cột (Schema Inspector)",
+            "name": "Ca 2: Xem trước dữ liệu mẫu (10 dòng) & Tra cứu lược đồ cột (Schema Inspector)",
             "action": lambda: client.get(
                 "/api/v1/portal/datasets/ds-retail-ecommerce-sales-v1/preview?limit=10"
             ),
@@ -59,7 +59,7 @@ def run_benchmark():
         },
         {
             "id": 3,
-            "name": "Kịch bản 3: Kiểm tra chất lượng dữ liệu (Tier A - 98.5%), License & Mã băm SHA-256",
+            "name": "Ca 3: Kiểm tra chất lượng dữ liệu (Tier A - 98.5%), License & Mã băm SHA-256",
             "action": lambda: client.get(
                 "/api/v1/portal/datasets/ds-retail-ecommerce-sales-v1"
             ),
@@ -70,7 +70,7 @@ def run_benchmark():
         },
         {
             "id": 4,
-            "name": "Kịch bản 4: Kiểm tra Access Rules - Thử tải bản nháp chưa xuất bản (Chặn 403 Forbidden)",
+            "name": "Ca 4: Kiểm tra Access Rules - Thử tải bản nháp chưa xuất bản (Chặn 403 Forbidden)",
             "action": lambda: client.get(
                 "/api/v1/portal/datasets/ds-cyber-ai-student-survey-draft/download"
             ),
@@ -80,7 +80,7 @@ def run_benchmark():
         },
         {
             "id": 5,
-            "name": "Kịch bản 5: Tải tập dữ liệu chính thức thành công & Gửi đánh giá độ hữu ích 5 sao",
+            "name": "Ca 5: Tải tập dữ liệu chính thức thành công & Gửi đánh giá độ hữu ích 5 sao",
             "action": lambda: (
                 client.get(
                     "/api/v1/portal/datasets/ds-retail-ecommerce-sales-v1/download"
@@ -110,7 +110,7 @@ def run_benchmark():
     total_time = 0.0
     all_passed = True
 
-    print(f"{'ID':<4} | {'Kịch Bản':<50} | {'Thời Gian':<12} | {'Trạng Thái':<10}")
+    print(f"{'ID':<4} | {'Ca Kiểm Thử':<50} | {'Thời Gian':<12} | {'Trạng Thái':<10}")
     print("-" * 82)
 
     for sc in scenarios:
@@ -130,7 +130,7 @@ def run_benchmark():
 
     print("-" * 82)
     print(
-        f"Tổng thời gian hoàn thành 5 kịch bản: {total_time:.4f} giây (Ngưỡng cam kết DoD: < 60.00 giây)"
+        f"Tổng thời gian hoàn thành 5 ca kiểm thử: {total_time:.4f} giây (Ngưỡng cam kết DoD: < 60.00 giây)"
     )
     print(
         f"Kết quả chung cuộc: {'100% PASS — ĐẠT CHUẨN NGHIỆM THU DoD' if all_passed else 'FAILED'}"

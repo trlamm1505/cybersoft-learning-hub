@@ -26,7 +26,7 @@ Trong quá trình vận hành giảng dạy các khóa học Data Analyst, Data 
 - **Tiêu chí nghiệm thu (DoD)**:
   1. *Tìm được theo từ khóa và bộ lọc*: Tìm kiếm tức thì, lọc đa chiều theo Domain, Level, License.
   2. *Không download bản chưa publish*: Chặn triệt để tải tập dữ liệu ở trạng thái draft/review với mã lỗi `403 Forbidden` (`DATASET_UNPUBLISHED_RESTRICTED`).
-  3. *5 kịch bản usability pass*: 100% kịch bản kiểm thử độ khả dụng của giảng viên hoàn thành trong < 60 giây.
+  3. *5 ca kiểm thử usability pass*: 100% ca kiểm thử độ khả dụng của giảng viên hoàn thành trong < 60 giây.
   4. *Thu nhận feedback hữu ích 1-5 sao*: Tích hợp form đánh giá và cập nhật điểm số theo thời gian thực.
 
 ### 1.3. Sơ đồ Kiến trúc Cổng Tài nguyên & Luồng Tương tác UX
@@ -149,22 +149,22 @@ Nhằm xây dựng vòng lặp phản hồi cải tiến liên tục cho tài ng
 
 ---
 
-## 6. BỘ KỊCH BẢN KIỂM THỬ ĐỘ KHẢ DỤNG (USABILITY BENCHMARK - 5 SCENARIOS)
+## 6. BỘ ĐO LƯỜNG ĐỘ KHẢ DỤNG TỰ ĐỘNG (USABILITY BENCHMARK - 5 SCENARIOS)
 
-Theo tiêu chí nghiệm thu DoD, hệ thống đã thiết kế và tự động hóa **5 Kịch Bản Kiểm Thử Độ Khả Dụng Thực Tế** của Giảng viên. Toàn bộ 5 kịch bản được thực thi và xác nhận hoàn thành vượt mức cam kết thời gian:
+Theo tiêu chí nghiệm thu DoD, hệ thống đã thiết kế và tự động hóa **5 Ca Kiểm Thử Độ Khả Dụng Thực Tế** của Giảng viên. Toàn bộ 5 ca kiểm thử được thực thi và xác nhận hoàn thành vượt mức cam kết thời gian:
 
-| Kịch Bản | Mục Tiêu Giảng Viên | Ngưỡng Cam Kết DoD | Thời Gian Thực Tế | Trạng Thái |
+| Ca Kiểm Thử | Mục Tiêu Giảng Viên | Ngưỡng Cam Kết DoD | Thời Gian Thực Tế | Trạng Thái |
 | :---: | :--- | :---: | :---: | :---: |
 | **01** | Tìm kiếm & lọc dataset bán hàng theo từ khóa và Domain Retail | < 60.0 s | **26.02 ms** |  **PASS** |
 | **02** | Xem trước 10 dòng mẫu & kiểm tra Schema Inspector 3NF | < 60.0 s | **16.96 ms** |  **PASS** |
 | **03** | Kiểm tra chất lượng dữ liệu Tier A, License & mã băm SHA-256 | < 60.0 s | **8.01 ms** |  **PASS** |
 | **04** | Kiểm tra Access Rules: Chặn tải bản nháp với mã 403 Forbidden | < 60.0 s | **28.41 ms** |  **PASS** |
 | **05** | Tải tập dữ liệu chính thức và gửi feedback hữu ích 5/5 sao | < 60.0 s | **61.66 ms** |  **PASS** |
-| **TỔNG** | **Toàn bộ quy trình trải nghiệm 5 kịch bản của Giảng viên** | **< 300.0 s** | **141.06 ms (0.141s)** |  **100% PASS** |
+| **TỔNG** | **Toàn bộ quy trình trải nghiệm 5 ca kiểm thử của Giảng viên** | **< 300.0 s** | **141.06 ms (0.141s)** |  **100% PASS** |
 
 > [!NOTE]
-> - Bản đặc tả chi tiết từng bước thao tác, dữ liệu đầu vào và nhật ký đo lường được lưu trữ riêng tại: [`usability_test_script.md`](./usability_test_script.md).
-> - Kịch bản thuyết trình video demo 3 phút: [`DEMO_SCRIPT_3_MINUTES.md`](./DEMO_SCRIPT_3_MINUTES.md) • **Video Demo thực tế (Google Drive)**: [Xem tại đây](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link).
+> - Bộ đo lường tự động được thực thi qua script độc lập: `python scripts/run_usability_eval.py`.
+> - Video Demo thực tế (Google Drive): [Xem tại đây](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link).
 
 ---
 
@@ -181,7 +181,7 @@ Toàn bộ các chức năng của giao diện đều được hỗ trợ bởi 
 | `POST` | `/api/v1/portal/datasets/{id}/feedback` | Gửi đánh giá độ hữu ích 1-5 sao và nhận xét thực tế | `200 OK`, `422 Unprocessable` |
 | `GET` | `/api/v1/portal/datasets/{id}/feedback` | Xem danh sách đánh giá và điểm số hữu ích trung bình | `200 OK` |
 | `GET` | `/api/v1/portal/stats` | Thống kê tổng số datasets, lượt tải và rating toàn portal | `200 OK` |
-| `POST` | `/api/v1/portal/usability-benchmark` | Chạy tự động hóa 5 kịch bản đo lường độ khả dụng | `200 OK` |
+| `POST` | `/api/v1/portal/usability-benchmark` | Chạy tự động hóa 5 ca đo lường độ khả dụng | `200 OK` |
 
 ### Tích hợp Lập trình bằng Python SDK Client Mẫu
 ```python
@@ -252,7 +252,7 @@ tests/test_usability_scenarios.py::test_all_five_usability_scenarios_pass PASSED
 | **Độ trễ Trích xuất Bản xem trước** | $< 50\text{ ms}$ | $16.9\text{ ms}$ |  Đạt chuẩn SLA |
 | **Tỷ lệ Chặn tải Bản nháp Chưa publish** | $100.0\%$ | $100.0\%$ (HTTP 403 Forbidden) |  Đạt chuẩn DoD |
 | **Điểm Hữu ích Trung bình** | $\ge 4.5 / 5.0$ | $4.85 / 5.0\text{ sao}$ |  Đạt chuẩn sư phạm |
-| **Thời gian Hoàn thành 5 Kịch bản Usability** | $< 60.0\text{ s}$ | $0.1411\text{ giây}$ |  Vượt SLA 425 lần |
+| **Thời gian Hoàn thành 5 Ca Kiểm thử Usability** | $< 60.0\text{ s}$ | $0.1411\text{ giây}$ |  Vượt SLA 425 lần |
 | **Tỷ lệ bao phủ Kiểm thử (Pytest)** | $100\%$ endpoints | $19/19\text{ tests } (100\%)$ |  Đạt chuẩn DoD |
 | **Chi phí Vận hành Dịch vụ Portal** | Tối thiểu hóa | $\$0.00\text{ USD}$ (100% On-premise) |  Tối ưu tuyệt đối |
 

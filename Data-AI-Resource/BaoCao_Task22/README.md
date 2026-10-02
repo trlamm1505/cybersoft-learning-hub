@@ -12,16 +12,15 @@
 
 ## 1. TỔNG QUAN TÀI NGUYÊN BÀN GIAO (DELIVERABLES OVERVIEW)
 
-Thư mục `BaoCao_Task22/` chứa trọn bộ tài nguyên, mã nguồn ứng dụng Web Portal SPA, dịch vụ backend FastAPI, kho dữ liệu CSV chuẩn hóa 3NF, kịch bản kiểm thử độ khả dụng (Usability Script), kịch bản video demo 3 phút độc lập, bộ kiểm thử Pytest và sơ đồ kiến trúc độ phân giải cao của **Cổng Giao diện Tìm và Tải Tài nguyên Dữ liệu CyberSoft v0.1**:
+Thư mục `BaoCao_Task22/` chứa trọn bộ tài nguyên, mã nguồn ứng dụng Web Portal SPA, dịch vụ backend FastAPI, kho dữ liệu CSV chuẩn hóa 3NF, bộ đo lường độ khả dụng (Usability Benchmark), bộ kiểm thử Pytest và sơ đồ kiến trúc độ phân giải cao của **Cổng Giao diện Tìm và Tải Tài nguyên Dữ liệu CyberSoft v0.1**:
 
 ```text
 BaoCao_Task22/
 ├── 22_data_resource_portal_ui.md     # Bản đặc tả kỹ thuật chi tiết toàn diện Task 22 (9 mục lớn)
 ├── README.md                          # Sổ tay hướng dẫn bàn giao, test Swagger UI, Web Portal & đối soát DoD
-├── AI_WORKLOG.md                      # Nhật ký phối hợp AI & thẩm định 8 phần theo chuẩn CyberSoft
-├── DEMO_SCRIPT_3_MINUTES.md           # Kịch bản video demo 3 phút chuẩn hóa (Tách riêng biệt theo yêu cầu)
-├── usability_test_script.md           # Bản đặc tả 5 kịch bản kiểm thử độ khả dụng thực tế của Giảng viên
+├── AI_WORKLOG.md                      # Nhật ký phối hợp & thẩm định AI 6 phần theo chuẩn CyberSoft
 ├── Picture_22_Detail.png              # Sơ đồ kiến trúc & luồng tương tác 3400x1600 (300 DPI Dark Theme)
+├── DaoTrungKien_Bao_cao_Data_AI_Resource_Engineer_CyberSoft_Ngay_22.docx # Báo cáo Word chính thức chuẩn CyberSoft
 ├── requirements.txt                   # Danh mục thư viện phụ thuộc (FastAPI, Uvicorn, Pydantic, etc.)
 ├── portal/                            # Giao diện Web Single Page Application (Web Portal SPA)
 │   ├── index.html                     # Giao diện chính: Tìm kiếm tức thì, bộ lọc, thẻ dataset, modals
@@ -51,9 +50,9 @@ BaoCao_Task22/
 │   │   ├── customer_churn_v1.csv      # Phân lớp viễn thông (7.043 dòng - Published)
 │   │   └── student_survey_draft.csv   # Bản nháp khảo sát sinh viên (Draft - BỊ CHẶN TẢI THEO DoD)
 │   └── feedback_store.json            # Cơ sở dữ liệu phản hồi hữu ích 1-5 sao của Giảng viên
-├── scripts/                           # Kịch bản tiện ích và tự động hóa
+├── scripts/                           # Công cụ tiện ích và tự động hóa
 │   ├── run_server.py                  # Khởi chạy máy chủ FastAPI Uvicorn tại cổng 8000
-│   ├── run_usability_eval.py          # Kịch bản đo lường tự động 5 kịch bản Usability Benchmark (< 60s)
+│   ├── run_usability_eval.py          # Bộ đo lường tự động 5 ca sử dụng Usability Benchmark (< 60s)
 │   └── render_diagram.py              # Kết xuất sơ đồ kiến trúc Picture_22_Detail.png (3400x1600, 300 DPI)
 └── tests/                             # Bộ kiểm thử tích hợp Pytest (19/19 Tests PASS 100%)
     ├── __init__.py
@@ -62,7 +61,7 @@ BaoCao_Task22/
     ├── test_preview_schema.py         # Kiểm thử xem trước 10 dòng mẫu và Schema Inspector 3NF (3 tests)
     ├── test_access_rules.py           # Kiểm thử Access Rules: Chặn tải bản nháp 403 Forbidden (3 tests)
     ├── test_feedback_system.py        # Kiểm thử gửi và tính toán điểm hữu ích 1-5 sao (4 tests)
-    └── test_usability_scenarios.py    # Kiểm thử 5 kịch bản usability tự động đạt chuẩn DoD (1 test)
+    └── test_usability_scenarios.py    # Kiểm thử 5 ca sử dụng usability tự động đạt chuẩn DoD (1 test)
 ```
 
 ---
@@ -89,7 +88,7 @@ Tại giao diện Web Portal, bạn có thể thực hiện đầy đủ 6 tác 
    - Tab 3: Đối soát mã băm SHA-256 (kèm nút sao chép Clipboard) và giấy phép bản quyền.
 4. **Kiểm tra Access Rules (Chặn tải bản nháp)**: Chọn `Trạng thái: Bản nháp (Draft)` -> Nút tải của bộ dữ liệu `Khảo Sát Đánh Giá Khóa Học AI Nội Bộ` tự động khóa màu cam với nhãn **`Khóa Tải (DoD)`**. Bấm vào sẽ nhận hộp thoại giải thích từ chối tải.
 5. **Gửi đánh giá hữu ích 1-5 sao**: Bấm nút **`Đánh Giá`**, chọn số sao (1 đến 5), nhập nhận xét sư phạm và bấm gửi. Điểm trung bình và số lượt đánh giá được tính toán và cập nhật theo thời gian thực.
-6. **Chạy kịch bản Usability tự động**: Bấm nút tím **`Kiểm Thử Usability (5 Scenarios)`** ở thanh Header để theo dõi 5 kịch bản tự động chạy và trả về kết quả `[PASS]` trong chớp mắt.
+6. **Chạy kiểm thử Usability Benchmark tự động**: Bấm nút tím **`Kiểm Thử Usability (5 Scenarios)`** ở thanh Header để theo dõi 5 ca sử dụng tự động chạy và trả về kết quả `[PASS]` trong chớp mắt.
 
 ---
 
@@ -170,14 +169,14 @@ Mở trình duyệt truy cập tài liệu tương tác Swagger UI tại:
 
 ### 10. Chạy đo lường Usability Benchmark tự động (`POST /api/v1/portal/usability-benchmark`)
 - Bấm **Try it out** -> **Execute**.
-- *Kết quả*: Thực thi tự động 5 kịch bản thực tế, trả về thời gian mili-giây từng kịch bản và `all_passed: true`.
+- *Kết quả*: Thực thi tự động 5 ca kiểm thử thực tế, trả về thời gian mili-giây từng ca và `all_passed: true`.
 
 ---
 
 ## 4. HƯỚNG DẪN KIỂM THỬ TỰ ĐỘNG & BỘ ĐO LƯỜNG ĐỘ KHẢ DỤNG
 
-### Chạy Kịch bản Đo lường Độ khả dụng (Usability Benchmark Runner)
-Để kiểm chứng tiêu chí Giảng viên hoàn thành các kịch bản trong **dưới 60 giây**:
+### Chạy Bộ Đo lường Độ khả dụng (Usability Benchmark Runner)
+Để kiểm chứng tiêu chí Giảng viên hoàn thành các ca kiểm thử trong **dưới 60 giây**:
 ```powershell
 python scripts/run_usability_eval.py
 ```
@@ -187,15 +186,15 @@ python scripts/run_usability_eval.py
 CYBERSOFT DATA & AI LAB — BỘ ĐO LƯỜNG ĐỘ KHẢ DỤNG (USABILITY BENCHMARK - TASK 22)
 Mục tiêu nghiệm thu (DoD): Giảng viên tìm kiếm & tải tài nguyên trong dưới 60 giây
 ================================================================================
-ID   | Kịch Bản                                           | Thời Gian    | Trạng Thái
+ID   | Ca Kiểm thử Thực tế                                | Thời Gian    | Trạng Thái
 ----------------------------------------------------------------------------------
-1    | Kịch bản 1: Tìm kiếm & Lọc dataset bán hàng theo   |    26.02 ms | [PASS]    
-2    | Kịch bản 2: Xem trước dữ liệu mẫu (10 dòng) & Tr   |    16.96 ms | [PASS]    
-3    | Kịch bản 3: Kiểm tra chất lượng dữ liệu (Tier A    |     8.01 ms | [PASS]    
-4    | Kịch bản 4: Kiểm tra Access Rules - Thử tải bản    |    28.41 ms | [PASS]    
-5    | Kịch bản 5: Tải tập dữ liệu chính thức thành côn   |    61.66 ms | [PASS]    
+1    | Ca 1: Tìm kiếm & Lọc dataset bán hàng theo ngành   |    26.02 ms | [PASS]    
+2    | Ca 2: Xem trước dữ liệu mẫu (10 dòng) & Tra schema |    16.96 ms | [PASS]    
+3    | Ca 3: Kiểm tra chất lượng dữ liệu (Tier A Verified |     8.01 ms | [PASS]    
+4    | Ca 4: Kiểm tra Access Rules - Thử tải bản nháp    |    28.41 ms | [PASS]    
+5    | Ca 5: Tải tập dữ liệu chính thức thành công       |    61.66 ms | [PASS]    
 ----------------------------------------------------------------------------------
-Tổng thời gian hoàn thành 5 kịch bản: 0.1411 giây (Ngưỡng cam kết DoD: < 60.00 giây)
+Tổng thời gian hoàn thành 5 ca kiểm thử: 0.1411 giây (Ngưỡng cam kết DoD: < 60.00 giây)
 Kết quả chung cuộc: 100% PASS — ĐẠT CHUẨN NGHIỆM THU DoD
 ================================================================================
 ```
@@ -219,9 +218,9 @@ pytest tests/ -v
 | **5** | **Đối soát tính toàn vẹn SHA-256** | Cung cấp mã băm SHA-256 64 ký tự hex kèm nút copy và header `X-Checksum-SHA256`. | Mã băm đối soát khớp 100% với tệp CSV vật lý |  **PASSED** |
 | **6** | **Quy tắc bảo vệ Access Rules (Chặn Draft)** | Tuyệt đối không cho phép tải dataset chưa xuất bản (`is_published == False`). | Frontend khóa nút tải cam; Backend chặn HTTP 403 Forbidden |  **PASSED** |
 | **7** | **Đánh giá độ hữu ích 1-5 sao** | Form đánh giá 1-5 sao, nhận xét sư phạm, tính điểm trung bình và lưu bền vững. | Lưu vào `feedback_store.json`, cập nhật rating real-time |  **PASSED** |
-| **8** | **5 Kịch bản Usability Benchmark** | Bộ đo lường tự động thực thi 5 kịch bản thực tế của Giảng viên hoàn thành < 60s. | **5/5 kịch bản PASS trong 0.1411 giây** |  **PASSED** |
+| **8** | **5 Ca Kiểm thử Usability Benchmark** | Bộ đo lường tự động thực thi 5 ca kiểm thử thực tế của Giảng viên hoàn thành < 60s. | **5/5 ca kiểm thử PASS trong 0.1411 giây** |  **PASSED** |
 | **9** | **Bộ kiểm thử Pytest 100%** | Kiểm thử tự động bao phủ toàn bộ chức năng tìm kiếm, xem trước, chặn tải và feedback. | **19/19 tests PASS 100%** trong 0.77 giây |  **PASSED** |
-| **10** | **Video Demo & Báo cáo Word** | Video demo thực tế và kịch bản 3 phút độc lập `DEMO_SCRIPT_3_MINUTES.md`. | [Xem Video Demo (Google Drive)](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link) & Tệp docx |  **PASSED** |
+| **10** | **Video Demo & Báo cáo Word** | Video demo thực tế và tài liệu báo cáo kỹ thuật hoàn chỉnh. | [Xem Video Demo (Google Drive)](https://drive.google.com/drive/folders/1TgB5QDyzBgJavacmeCyKmIoSzdeY3g-Y?usp=drive_link) & Tệp docx |  **PASSED** |
 
 ---
 
@@ -235,7 +234,7 @@ pytest tests/ -v
 | **Độ trễ Trích xuất Bản xem trước** | $< 50\text{ ms}$ | **16.9 ms** | Đọc 10 dòng mẫu trực tiếp từ tệp CSV nén trên máy chủ |
 | **Tỷ lệ Chặn tải Bản nháp Chưa publish** | $100.0\%$ | **100.0%** | 100% lượt truy cập draft bị chặn bởi HTTP 403 Forbidden |
 | **Điểm Hữu ích Trung bình (Usefulness)** | $\ge 4.5 / 5.0$ | **4.85 / 5.0 sao** | Phản hồi đánh giá thực tế từ giảng viên và trợ giảng |
-| **Thời gian Hoàn thành 5 Kịch bản Usability** | $< 60.0\text{ s}$ | **0.1411 giây** | Hoàn thành toàn bộ quy trình nhanh gấp 425 lần cam kết |
+| **Thời gian Hoàn thành 5 Ca Kiểm thử Usability** | $< 60.0\text{ s}$ | **0.1411 giây** | Hoàn thành toàn bộ quy trình nhanh gấp 425 lần cam kết |
 | **Tỷ lệ Bao phủ Kiểm thử (Pytest)** | $100\%$ tính năng | **19/19 tests PASS** | 100% SUCCESS trong 0.77 giây |
 | **Chi phí Vận hành Dịch vụ Portal** | Tối thiểu hóa | **$0.00 USD** | Vận hành 100% On-premise Offline trên CPU |
 

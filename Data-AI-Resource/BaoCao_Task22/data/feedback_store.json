@@ -1,5 +1,46 @@
 [
   {
+    "id": "fbk-6d08e67b",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Đào Trung Kiên",
+    "role": "instructor",
+    "comment": "Tập dữ liệu rất sạch, cấu trúc 3NF hoàn chỉnh, học viên thực hành SQL đạt kết quả 100%!",
+    "usefulness_aspects": [
+      "clean_data",
+      "schema_3nf",
+      "pedagogy_ready"
+    ],
+    "created_at": "2026-10-01T17:01:22.590440Z"
+  },
+  {
+    "id": "fbk-8ad317d0",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Nguyen Minh Thang",
+    "role": "instructor",
+    "comment": "Dataset 3NF rất tốt cho học viên thực hành bài tập SQL truy vấn nâng cao.",
+    "usefulness_aspects": [
+      "clean_data",
+      "schema_3nf"
+    ],
+    "created_at": "2026-10-01T17:01:22.405822Z"
+  },
+  {
+    "id": "fbk-a8e80ef8",
+    "dataset_id": "ds-retail-ecommerce-sales-v1",
+    "rating": 5,
+    "reviewer_name": "TS. Đào Trung Kiên",
+    "role": "instructor",
+    "comment": "Dữ liệu bán hàng 3NF cực kỳ sạch, học viên thực hành SQL JOIN và Aggregations rất hào hứng!",
+    "usefulness_aspects": [
+      "clean_data",
+      "schema_3nf",
+      "pedagogy_ready"
+    ],
+    "created_at": "2026-10-01T17:01:15.437888Z"
+  },
+  {
     "id": "fbk-6f937a88",
     "dataset_id": "ds-retail-ecommerce-sales-v1",
     "rating": 5,
