@@ -16,7 +16,11 @@ import { TesterLabListPage } from './pages/TesterLabListPage';
 import { TesterLabDetailPage } from './pages/TesterLabDetailPage';
 import { DaLabListPage } from './pages/DaLabListPage';
 import { DaLabWorkspacePage } from './pages/DaLabWorkspacePage';
+import { AiLabListPage } from './pages/AiLabListPage';
+import { StudentRoute } from './components/StudentRoute';
+import { AiLabWorkspacePage } from './pages/AiLabWorkspacePage';
 import { TeacherReviewQueue } from './components/TeacherReviewQueue';
+import { TeacherLabSubmissionsPage } from './pages/TeacherLabSubmissionsPage';
 import { ContestListPage } from './pages/ContestListPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -26,7 +30,10 @@ import { AgeGroupModal } from './components/AgeGroupModal';
 import type { Lesson } from './types/course';
 import type { LessonAuthoring } from './types/authoring';
 import type { AuthUser, AuthResponse } from './types/auth';
+import { isStaff } from './types/auth';
 import { authoringApi } from './axios/authoringApi';
+import { authApi } from './axios/authApi';
+import { AUTH_USER_KEY, clearAuthSession, getStoredToken, isTokenExpired } from './common/authSession';
 import './styles/main.css';
 
 const mapAuthoringToCourseLesson = (al: LessonAuthoring, index: number): Lesson => ({
@@ -74,17 +81,41 @@ export function App() {
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
-    const saved = localStorage.getItem('app_auth_user');
-    if (!saved) return null;
+    // Không có token hoặc token đã hết hạn thì bản user lưu sẵn là vô nghĩa.
+    const token = getStoredToken();
+    const saved = localStorage.getItem(AUTH_USER_KEY);
+    if (!token || isTokenExpired(token) || !saved) {
+      clearAuthSession();
+      return null;
+    }
     try {
       return JSON.parse(saved) as AuthUser;
     } catch {
       return null;
     }
   });
+  // Vai trò lưu trong localStorage có thể bị sửa tay: xác thực lại với BE
+  // (GET /auth/me) trước khi render các trang phân quyền.
+  const [authVerified, setAuthVerified] = useState(() => !getStoredToken());
+  useEffect(() => {
+    if (!getStoredToken()) return;
+    authApi
+      .me()
+      .then((me) => {
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(me));
+        setAuthUser(me);
+      })
+      .catch((err) => {
+        // 401 đã được interceptor xử lý (xoá phiên, về /login). Lỗi mạng: giữ phiên
+        // đã lưu, mọi API vẫn được BE kiểm tra quyền theo token.
+        if (err?.response?.status === 401) setAuthUser(null);
+      })
+      .finally(() => setAuthVerified(true));
+  }, []);
   // Role hiện được suy ra từ tài khoản đã đăng nhập; mặc định 'student' khi chưa đăng nhập
   // (giữ trải nghiệm xem trước hiện có cho khách chưa có tài khoản).
-  const userRole: 'student' | 'teacher' = authUser?.role === 'TEACHER' ? 'teacher' : 'student';
+  // TEACHER và ADMIN cùng dùng giao diện giảng viên (ma trận quyền chung với BE).
+  const userRole: 'student' | 'teacher' = isStaff(authUser?.role) ? 'teacher' : 'student';
 
   // Fetch teacher lessons from BE on load
   const fetchTeacherLessons = useCallback(async () => {
@@ -158,8 +189,9 @@ export function App() {
 
   const handleAuthSuccess = (auth: AuthResponse) => {
     localStorage.setItem('token', auth.accessToken);
-    localStorage.setItem('app_auth_user', JSON.stringify(auth.user));
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(auth.user));
     setAuthUser(auth.user);
+    setAuthVerified(true);
   };
 
   // Modal chọn nhóm tuổi bắt buộc hiện ngay khi một tài khoản STUDENT chưa
@@ -181,8 +213,7 @@ export function App() {
     // Tiến độ đó phải được GIỮ LẠI để lần sau đăng nhập đúng tài khoản này
     // vẫn thấy đúng những gì đã hoàn thành; namespace theo id đã đủ để tách
     // biệt giữa các tài khoản khác nhau trên cùng trình duyệt, không cần xoá.
-    localStorage.removeItem('token');
-    localStorage.removeItem('app_auth_user');
+    clearAuthSession();
     setAuthUser(null);
     navigate('/catalog');
   };
@@ -205,6 +236,14 @@ export function App() {
       return updated;
     });
   };
+
+  if (!authVerified) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-[var(--text-muted)]">
+        Đang kiểm tra phiên đăng nhập...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -296,7 +335,7 @@ export function App() {
           <Route
             path="/authoring"
             element={
-              authUser?.role === 'TEACHER' ? (
+              isStaff(authUser?.role) ? (
                 <TeacherAuthoringPage
                   onLessonSaved={handleLessonSaved}
                   onLessonDeleted={handleLessonDeleted}
@@ -309,7 +348,7 @@ export function App() {
           <Route
             path="/problem-generator"
             element={
-              authUser?.role === 'TEACHER' ? (
+              isStaff(authUser?.role) ? (
                 <TeacherProblemGeneratorPage />
               ) : (
                 <Navigate to={authUser ? '/catalog' : '/login'} replace />
@@ -337,7 +376,7 @@ export function App() {
           <Route
             path="/teacher/review-queue"
             element={
-              authUser?.role === 'TEACHER' ? (
+              isStaff(authUser?.role) ? (
                 <TeacherReviewQueue />
               ) : (
                 <Navigate to={authUser ? '/catalog' : '/login'} replace />
@@ -345,12 +384,30 @@ export function App() {
             }
           />
           <Route
+            path="/teacher/lab-submissions"
+            element={
+              isStaff(authUser?.role) ? (
+                <TeacherLabSubmissionsPage />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
+            }
+          />
+          <Route
             path="/da-labs"
-            element={authUser ? <DaLabListPage /> : <Navigate to="/login" replace />}
+            element={<StudentRoute authUser={authUser}><DaLabListPage /></StudentRoute>}
           />
           <Route
             path="/da-labs/:slug"
-            element={authUser ? <DaLabWorkspacePage isDark={!isLightTheme} /> : <Navigate to="/login" replace />}
+            element={<StudentRoute authUser={authUser}><DaLabWorkspacePage isDark={!isLightTheme} /></StudentRoute>}
+          />
+          <Route
+            path="/ai-labs"
+            element={<StudentRoute authUser={authUser}><AiLabListPage /></StudentRoute>}
+          />
+          <Route
+            path="/ai-labs/:slug"
+            element={<StudentRoute authUser={authUser}><AiLabWorkspacePage /></StudentRoute>}
           />
           <Route
             path="/profile"

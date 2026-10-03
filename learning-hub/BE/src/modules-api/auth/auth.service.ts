@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
@@ -274,6 +274,20 @@ export class AuthService {
     );
 
     return `C${String(counter.seq).padStart(STUDENT_CODE_DIGITS, '0')}`;
+  }
+
+  /**
+   * Hồ sơ tài khoản theo token, đọc từ DB: FE dùng để xác thực lại vai trò khi
+   * khởi động thay vì tin bản lưu trong localStorage. Tài khoản đã bị xoá thì 401.
+   */
+  async getProfile(userId: string) {
+    const user = Types.ObjectId.isValid(userId)
+      ? await this.userModel.findById(userId)
+      : null;
+    if (!user) {
+      throw new UnauthorizedException('Phiên đăng nhập không còn hợp lệ.');
+    }
+    return this.buildAuthResponse(user).user;
   }
 
   private buildAuthResponse(user: UserDocument) {

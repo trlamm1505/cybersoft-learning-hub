@@ -1,3 +1,6 @@
+import { Throttle } from '@nestjs/throttler';
+import { RATE_LIMITS } from '../../common/security/app-throttler.guard';
+import { isStaff } from '../../common/auth/roles';
 import {
   Body,
   Controller,
@@ -26,6 +29,7 @@ export class CoachController {
    * liệu context do client tự gửi lên. Bắt buộc đăng nhập, userId lấy từ token.
    */
   @Post('chat')
+  @Throttle(RATE_LIMITS.coachChat)
   async chat(@Body() dto: CoachChatDto, @CurrentUser() user: JwtPayload) {
     return this.coachService.chat(dto, user.sub);
   }
@@ -43,7 +47,7 @@ export class CoachController {
 
   /**
    * GET /api/coach/history/:userId/:exerciseSlug
-   * Lịch sử hội thoại AI Coach của học viên — chỉ chủ tài khoản (hoặc TEACHER)
+   * Lịch sử hội thoại AI Coach của học viên — chỉ chủ tài khoản (hoặc giảng viên, quản trị viên)
    * mới được xem, tránh đọc trộm lịch sử hỏi-đáp của học viên khác.
    */
   @Get('history/:userId/:exerciseSlug')
@@ -52,7 +56,7 @@ export class CoachController {
     @Param('exerciseSlug') exerciseSlug: string,
     @CurrentUser() user: JwtPayload,
   ) {
-    if (userId !== user.sub && user.role !== 'TEACHER') {
+    if (userId !== user.sub && !isStaff(user.role)) {
       throw new ForbiddenException('Bạn không có quyền xem lịch sử này');
     }
     return this.coachService.getHistory(userId, exerciseSlug);

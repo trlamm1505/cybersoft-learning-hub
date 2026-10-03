@@ -1,6 +1,7 @@
 import React from 'react';
 import { User, Mail, IdCard, GraduationCap, Users } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
+import { ROLE_LABEL } from '../types/auth';
 
 interface ProfilePageProps {
   authUser: AuthUser;
@@ -59,7 +60,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ authUser }) => {
         <InfoRow
           icon={<Users size={16} />}
           label="Vai trò"
-          value={authUser.role === 'TEACHER' ? 'Giảng viên' : 'Học viên'}
+          value={ROLE_LABEL[authUser.role] ?? authUser.role}
         />
         {authUser.studentCode && (
           <InfoRow icon={<IdCard size={16} />} label="Mã học viên" value={authUser.studentCode} />

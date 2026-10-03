@@ -75,7 +75,7 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       // Prefixed so a teacher quiz slug (e.g. "python-basic") can never collide
       // with a SYSTEM_QUIZZES id of the same name — each stays independently selectable.
       id: `teacher-${l.slug || l._id || ''}`,
-      title: l.title.replace(/^[🧑‍💻📝👨‍🏫\s]+/, '').trim(),
+      title: l.title.replace(/^[🧑\u200D💻📝👨\u200D🏫\s]+/, '').trim(),
       description: l.description || l.learningOutcome || 'Bài trắc nghiệm tạo bởi Giảng viên',
       questionCount: l.quizQuestions.length,
       timeLimitMinutes: 20,
@@ -258,7 +258,7 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
         answers: studentAnswers,
       });
 
-      const reviewRes = await quizApi.reviewQuiz(quizData.attemptId, 'AFTER_SUBMISSION');
+      const reviewRes = await quizApi.reviewQuiz(quizData.attemptId);
       setReviewData(reviewRes);
       setStage('RESULT');
     } catch (err: any) {

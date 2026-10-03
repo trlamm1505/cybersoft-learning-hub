@@ -4,13 +4,11 @@ import {
   Get,
   Body,
   Param,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { StartAttemptDto } from './dto/start-attempt.dto';
 import { SubmitAttemptDto } from './dto/submit-attempt.dto';
-import type { ReviewPolicyType } from './dto/review-attempt.dto';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
@@ -57,12 +55,8 @@ export class QuizController {
   async reviewAttempt(
     @CurrentUser() user: JwtPayload,
     @Param('attemptId') attemptId: string,
-    @Query('policy') policy?: string,
   ) {
-    return this.quizService.reviewAttempt(
-      attemptId,
-      user.sub,
-      policy as ReviewPolicyType,
-    );
+    // Không nhận `policy` từ client: policy đọc từ attempt đã lưu phía server.
+    return this.quizService.reviewAttempt(attemptId, user.sub);
   }
 }

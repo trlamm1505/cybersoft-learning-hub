@@ -26,6 +26,7 @@ import { contestSubmissionApi } from '../axios/contestSubmissionApi';
 import type { ContestProblemForStudent } from '../axios/contestSubmissionApi';
 import { leaderboardApi } from '../axios/leaderboardApi';
 import { useToast } from './Toast';
+import { PENDING_SCORE_LABEL, countPendingScores, formatProblemScore } from './contestResultFormat';
 
 export interface ContestProblemResult {
   problemId: string;
@@ -38,6 +39,8 @@ export interface ContestProblemResult {
   submittedAt: string;
   userCode?: string;
   quizAnswers?: Record<number, string>;
+  /** Quiz nộp trong lúc thi: điểm chỉ công bố khi contest kết thúc. */
+  pendingScore?: boolean;
 }
 
 export interface ContestAttemptResult {
@@ -398,7 +401,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         slug: currentProblem.slug,
         title: currentProblem.title,
         type: 'coding',
-        score: graded.score,
+        score: graded.score ?? 0,
         maxPoints: graded.maxPoints,
         details: `Đạt ${graded.passedCount}/${graded.totalCount} Test cases (${graded.score}/${graded.maxPoints}đ) — ${graded.verdict}`,
         submittedAt: new Date().toISOString(),
@@ -450,9 +453,12 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         slug: currentProblem.slug,
         title: currentProblem.title,
         type: 'quiz',
-        score: graded.score,
+        score: graded.score ?? 0,
         maxPoints: graded.maxPoints,
-        details: `Đúng ${graded.passedCount}/${graded.totalCount} câu trắc nghiệm (${graded.score}/${graded.maxPoints}đ)`,
+        pendingScore: graded.resultHidden,
+        details: graded.resultHidden
+          ? `Đã ghi nhận ${graded.totalCount} câu trắc nghiệm. Kết quả công bố sau khi cuộc thi kết thúc.`
+          : `Đúng ${graded.passedCount}/${graded.totalCount} câu trắc nghiệm (${graded.score}/${graded.maxPoints}đ)`,
         submittedAt: new Date().toISOString(),
         quizAnswers: userAns,
       };
@@ -569,6 +575,11 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
             <div className="text-5xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
               {finalResult.totalScore} <span className="text-xl font-bold text-[var(--text-muted)]">/ {finalResult.maxScore}</span>
             </div>
+            {countPendingScores(finalResult.problemResults) > 0 && (
+              <div className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                Chưa gồm {countPendingScores(finalResult.problemResults)} bài trắc nghiệm: {PENDING_SCORE_LABEL.toLowerCase()}
+              </div>
+            )}
             <div className="inline-block self-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300">
               Tỷ lệ chính xác: {finalResult.percentage}%
             </div>
@@ -663,8 +674,14 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                       </span>
                     </td>
                     <td className="px-4 py-3.5 text-[var(--text-muted)] font-medium">{pr.details}</td>
-                    <td className="px-4 py-3.5 text-right font-black text-emerald-600 dark:text-emerald-400 font-mono text-sm">
-                      {pr.score} / {pr.maxPoints}đ
+                    <td
+                      className={`px-4 py-3.5 text-right font-black text-sm ${
+                        pr.pendingScore
+                          ? 'text-amber-600 dark:text-amber-400 font-sans text-xs'
+                          : 'text-emerald-600 dark:text-emerald-400 font-mono'
+                      }`}
+                    >
+                      {formatProblemScore(pr)}
                     </td>
                   </tr>
                 ))}
@@ -800,7 +817,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                     {isSubmitted ? (
                       <span className="font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-                        Đã nộp ({result.score} / {result.maxPoints}đ)
+                        Đã nộp ({formatProblemScore(result)})
                       </span>
                     ) : (
                       <span className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">

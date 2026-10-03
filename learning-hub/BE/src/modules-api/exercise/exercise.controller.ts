@@ -1,3 +1,5 @@
+import { Throttle } from '@nestjs/throttler';
+import { RATE_LIMITS } from '../../common/security/app-throttler.guard';
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ExerciseService } from './exercise.service';
 import { RunCodeDto } from './dto/run-code.dto';
@@ -21,13 +23,13 @@ export class ExerciseController {
   }
 
   /**
-   * GET /api/exercises/:slug/full — CHỈ giáo viên, trả về đầy đủ
+   * GET /api/exercises/:slug/full — CHỈ giảng viên/quản trị viên, trả về đầy đủ
    * solutionCode và toàn bộ testCases (kể cả hidden), dùng để import 1
    * exercise có sẵn vào form soạn thảo bài thi.
    */
   @Get(':slug/full')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('TEACHER')
+  @Roles('TEACHER', 'ADMIN')
   async findBySlugFull(@Param('slug') slug: string) {
     return this.exerciseService.findBySlugFull(slug);
   }
@@ -44,6 +46,8 @@ export class ExerciseController {
    * POST /api/exercises/:slug/run
    */
   @Post(':slug/run')
+  @UseGuards(JwtAuthGuard)
+  @Throttle(RATE_LIMITS.codeRun)
   async runCode(@Param('slug') slug: string, @Body() dto: RunCodeDto) {
     return this.exerciseService.runCode(slug, dto);
   }
@@ -52,6 +56,7 @@ export class ExerciseController {
    * POST /api/exercises/check-syntax — standalone syntax check (CE), no exercise/DB lookup needed.
    */
   @Post('check-syntax')
+  @UseGuards(JwtAuthGuard)
   async checkSyntax(@Body() dto: RunCodeDto) {
     return this.exerciseService.checkSyntax(dto.code);
   }

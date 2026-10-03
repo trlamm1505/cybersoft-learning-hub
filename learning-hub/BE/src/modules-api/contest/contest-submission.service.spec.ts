@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ContestSubmissionService } from './contest-submission.service';
 import { Contest } from '../../modules-system/database/schemas/contest.schema';
 import { Lesson } from '../../modules-system/database/schemas/lesson.schema';
@@ -40,6 +40,7 @@ describe('ContestSubmissionService', () => {
     startTime,
     endTime,
     problems: [quizProblem, codingProblem],
+    registrations: [{ studentId: 'student-1', studentName: 'Nguyen Van A' }],
   };
 
   const quizLesson = {
@@ -69,6 +70,7 @@ describe('ContestSubmissionService', () => {
     };
     mockSubmissionModel = {
       create: jest.fn().mockResolvedValue({}),
+      exists: jest.fn().mockResolvedValue(null),
     };
     mockUserModel = {
       findById: jest.fn().mockReturnValue({
@@ -138,6 +140,7 @@ describe('ContestSubmissionService', () => {
   });
 
   describe('submit — quiz grading', () => {
+    // [M4] Điểm quiz được chấm và LƯU phía server; response trong lúc thi không lộ đúng/sai.
     it('grades quiz submissions server-side from Lesson.quizQuestions, ignoring any client-supplied correctness', async () => {
       const result = await service.submit(
         '507f1f77bcf86cd799439011',
@@ -145,10 +148,10 @@ describe('ContestSubmissionService', () => {
         'student-1',
       );
 
-      expect(result.verdict).toBe('AC');
-      expect(result.score).toBe(100);
-      expect(result.passedCount).toBe(1);
-      expect(result.totalCount).toBe(1);
+      expect(mockSubmissionModel.create).toHaveBeenCalledWith(
+        expect.objectContaining({ verdict: 'AC', score: 100, passedCount: 1, totalCount: 1 }),
+      );
+      expect(result).toMatchObject({ verdict: 'SUBMITTED', score: null, passedCount: null, resultHidden: true });
     });
 
     it('scores 0 / WA when the selected answer is wrong', async () => {
@@ -158,8 +161,55 @@ describe('ContestSubmissionService', () => {
         'student-1',
       );
 
-      expect(result.verdict).toBe('WA');
-      expect(result.score).toBe(0);
+      expect(mockSubmissionModel.create).toHaveBeenCalledWith(
+        expect.objectContaining({ verdict: 'WA', score: 0 }),
+      );
+      expect(result.score).toBeNull();
+    });
+
+    it('[M4] quiz chỉ được nộp một lần trong thời gian thi', async () => {
+      mockSubmissionModel.exists.mockResolvedValue({ _id: 'old' });
+
+      await expect(
+        service.submit('507f1f77bcf86cd799439011', { problemSlug: 'quiz-1', quizAnswers: { '0': 'B' } }, 'student-1'),
+      ).rejects.toThrow('chỉ được nộp một lần');
+      expect(mockSubmissionModel.create).not.toHaveBeenCalled();
+    });
+
+    it('[M4] sau khi cuộc thi kết thúc thì trả kết quả chi tiết', async () => {
+      mockContestModel.findOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ ...mockContestObj, endTime: new Date(Date.now() - 1000) }),
+      });
+
+      const result = await service.submit(
+        '507f1f77bcf86cd799439011',
+        { problemSlug: 'quiz-1', quizAnswers: { '0': 'B' } },
+        'student-1',
+      );
+
+      expect(result).toMatchObject({ verdict: 'AC', score: 100, resultHidden: false });
+    });
+  });
+
+  describe('[M4] kiểm tra đăng ký', () => {
+    it('học viên chưa đăng ký không nộp được bài', async () => {
+      await expect(
+        service.submit('507f1f77bcf86cd799439011', { problemSlug: 'code-1', code: 'print(1)' }, 'student-lạ'),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+      expect(mockSubmissionModel.create).not.toHaveBeenCalled();
+    });
+
+    it('học viên chưa đăng ký không xem được đề; giảng viên xem được', async () => {
+      await expect(
+        service.getProblemForStudent('507f1f77bcf86cd799439011', 'quiz-1', { sub: 'student-lạ', role: 'STUDENT' }),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+
+      const problem = await service.getProblemForStudent('507f1f77bcf86cd799439011', 'quiz-1', {
+        sub: 'teacher-1',
+        role: 'TEACHER',
+      });
+      expect(problem.slug).toBe('quiz-1');
+      expect(JSON.stringify(problem)).not.toContain('isCorrect');
     });
   });
 

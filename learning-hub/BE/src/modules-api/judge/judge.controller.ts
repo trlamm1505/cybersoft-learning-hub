@@ -1,3 +1,4 @@
+import { isStaff } from '../../common/auth/roles';
 import {
   Controller,
   ForbiddenException,
@@ -25,7 +26,7 @@ export class JudgeController {
 
   /**
    * GET /api/exercises/submissions/:id — polled by the frontend until a terminal status.
-   * Bắt buộc đăng nhập và chỉ chủ sở hữu bài nộp (hoặc TEACHER) mới được xem, tránh
+   * Bắt buộc đăng nhập và chỉ chủ sở hữu bài nộp (hoặc giảng viên, quản trị viên) mới được xem, tránh
    * đoán ID để đọc trộm kết quả/code của học viên khác.
    * Hidden test input/expectedOutput/actualOutput are never persisted for hidden test cases
    * in the first place (stripped at write time in JudgeQueueService), so a plain lean() read
@@ -48,7 +49,7 @@ export class JudgeController {
     if (!submission)
       throw new NotFoundException(`Không tìm thấy bài nộp "${id}"`);
 
-    if (submission.userId !== user.sub && user.role !== 'TEACHER') {
+    if (submission.userId !== user.sub && !isStaff(user.role)) {
       throw new ForbiddenException('Bạn không có quyền xem bài nộp này');
     }
 

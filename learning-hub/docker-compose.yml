@@ -1,0 +1,62 @@
+# Postgres Sandbox cho DA Lab (bản mô phỏng DB cô lập do TTS 01 cấp phát).
+# Tự bật khi chạy `npm run dev` ở thư mục learning-hub (scripts/ensure-sandbox.js),
+# hoặc bật riêng: npm run docker:up
+# Learning Hub chỉ kết nối bằng lab_reader (chỉ đọc, statement_timeout 5s, tối đa
+# 20 kết nối; tạo trong 02-lab-reader.sh). POSTGRES_DB phải là sales_v1 vì các
+# script khởi tạo cấp quyền theo tên DB này.
+#
+# Biến cấu hình đặt trong learning-hub/.env (xem .env.example): Compose tự đọc
+# file này, mock data-service cũng đọc nó để dựng sandbox_db_url, nên mật khẩu
+# lab_reader chỉ khai báo một nơi. Mặc định bên dưới phải khớp
+# BE/src/common/config/sandbox-env.ts (có test kiểm tra).
+#
+# Mật khẩu mặc định bên dưới CHỈ dành cho máy local. Production dùng thêm
+# docker-compose.prod.yml (bắt buộc đặt mật khẩu, không mở cổng ra ngoài):
+#   npm run docker:up:prod
+services:
+  postgres-sandbox:
+    image: postgres:16-alpine
+    container_name: da-sandbox-sales-v1
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sales_v1
+      POSTGRES_USER: ${SANDBOX_DB_OWNER:-sandbox_owner}
+      POSTGRES_PASSWORD: ${SANDBOX_DB_OWNER_PASSWORD:-sandbox_owner_pw}
+      LAB_READER_PASSWORD: ${LAB_READER_PASSWORD:-lab_reader_pw}
+    # Chỉ nghe trên loopback: máy khác trong mạng không kết nối được sandbox.
+    ports:
+      - '127.0.0.1:${SANDBOX_DB_PORT:-55432}:5432'
+    volumes:
+      - ./BE/mock-data-service/sandbox/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./BE/mock-data-service/sandbox/02-lab-reader.sh:/docker-entrypoint-initdb.d/02-lab-reader.sh:ro
+      - sandbox-data:/var/lib/postgresql/data
+    # Giới hạn tài nguyên: truy vấn nặng của học viên không làm treo máy chủ.
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+          pids: 200
+        reservations:
+          memory: 256M
+    shm_size: 128m
+    command:
+      - postgres
+      - -c
+      - max_connections=40
+      - -c
+      - shared_buffers=128MB
+      - -c
+      - work_mem=4MB
+      - -c
+      - temp_file_limit=256MB
+      - -c
+      - idle_in_transaction_session_timeout=30s
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d sales_v1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sandbox-data:

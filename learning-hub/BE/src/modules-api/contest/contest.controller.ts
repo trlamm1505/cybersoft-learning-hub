@@ -22,6 +22,7 @@ import { RolesGuard } from '../../common/auth/roles.guard';
 import { Roles } from '../../common/auth/roles.decorator';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
+import { StudentOnlyGuard } from '../../common/auth/student-only.guard';
 
 @Controller('contests')
 export class ContestController {
@@ -104,17 +105,21 @@ export class ContestController {
     return this.contestService.registerContest(id, user.sub);
   }
 
+  /** Bắt buộc đăng nhập; học viên phải đăng ký cuộc thi (kiểm tra ở service). */
   @Get(':id/problems/:slug')
+  @UseGuards(JwtAuthGuard)
   async getProblemForStudent(
     @Param('id') id: string,
     @Param('slug') slug: string,
+    @CurrentUser() user: JwtPayload,
   ) {
-    return this.contestSubmissionService.getProblemForStudent(id, slug);
+    return this.contestSubmissionService.getProblemForStudent(id, slug, user);
   }
 
+  /** Chỉ học viên đã đăng ký mới được nộp; giảng viên/quản trị viên bị chặn 403. */
   @Post(':id/submissions')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StudentOnlyGuard)
   async submitProblem(
     @Param('id') id: string,
     @CurrentUser() user: JwtPayload,

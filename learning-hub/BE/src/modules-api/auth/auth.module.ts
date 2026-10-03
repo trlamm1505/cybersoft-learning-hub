@@ -6,6 +6,7 @@ import { CommonAuthModule } from '../../common/auth/common-auth.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { MailService } from './mail.service';
+import { jwtSecretFrom } from '../../common/auth/jwt-secret';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { MailService } from './mail.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'dev-secret-key',
+        secret: jwtSecretFrom(configService),
         signOptions: { expiresIn: '7d' },
       }),
     }),

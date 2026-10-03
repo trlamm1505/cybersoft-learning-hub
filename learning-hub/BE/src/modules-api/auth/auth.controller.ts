@@ -1,4 +1,6 @@
-import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { RATE_LIMITS } from '../../common/security/app-throttler.guard';
+import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -27,6 +29,7 @@ export class AuthController {
    * Route: POST /api/auth/login
    */
   @Post('login')
+  @Throttle(RATE_LIMITS.login)
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
@@ -37,6 +40,16 @@ export class AuthController {
    * (lấy userId từ token) để không ai đặt hộ nhóm tuổi cho tài khoản khác.
    * Route: PUT /api/auth/age-group
    */
+  /**
+   * Hồ sơ của tài khoản đang đăng nhập (vai trò đọc từ DB).
+   * Route: GET /api/auth/me
+   */
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@CurrentUser() user: JwtPayload) {
+    return this.authService.getProfile(user.sub);
+  }
+
   @Put('age-group')
   @UseGuards(JwtAuthGuard)
   async setAgeGroup(

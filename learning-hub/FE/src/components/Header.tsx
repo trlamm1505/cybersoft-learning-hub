@@ -15,13 +15,19 @@ import {
   Sparkles,
   FlaskConical,
   Database,
+  BrainCircuit,
   ClipboardCheck,
+  ListChecks,
   BarChart3,
   User,
   ChevronDown,
   LogOut,
 } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
+import { ROLE_LABEL } from '../types/auth';
+
+/** Mục chỉ dành cho học viên; khớp StudentRoute trong App.tsx. */
+const STUDENT_ONLY_TABS = new Set(['da-labs', 'ai-labs']);
 
 interface HeaderProps {
   isLightTheme: boolean;
@@ -70,7 +76,9 @@ export const Header: React.FC<HeaderProps> = ({
     if (path.startsWith('/progress')) return 'progress';
     if (path.startsWith('/tester-labs')) return 'tester-labs';
     if (path.startsWith('/da-labs')) return 'da-labs';
+    if (path.startsWith('/ai-labs')) return 'ai-labs';
     if (path.startsWith('/teacher/review-queue')) return 'review-queue';
+    if (path.startsWith('/teacher/lab-submissions')) return 'lab-submissions';
     if (path.startsWith('/block-puzzle')) return 'block-puzzle';
     if (path.startsWith('/quiz')) return 'quiz';
     if (path.startsWith('/detail')) return 'detail';
@@ -78,6 +86,8 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const activeTab = getActiveTab();
+  // AI Lab, DA Lab là trang làm bài: chỉ tài khoản STUDENT thấy (ADMIN cũng dùng menu học viên).
+  const isStudent = authUser?.role === 'STUDENT';
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -131,7 +141,10 @@ export const Header: React.FC<HeaderProps> = ({
                 { key: 'contests', label: 'Cuộc Thi & Lịch Thi', Icon: Trophy, path: '/contests' },
                 { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
                 { key: 'da-labs', label: 'DA Lab', Icon: Database, path: '/da-labs' },
-              ].map((item) => {
+                { key: 'ai-labs', label: 'AI Lab', Icon: BrainCircuit, path: '/ai-labs' },
+              ]
+                .filter((item) => isStudent || !STUDENT_ONLY_TABS.has(item.key))
+                .map((item) => {
                 const isActive = activeTab === item.key;
                 return (
                   <li key={item.key} className="h-full">
@@ -162,8 +175,8 @@ export const Header: React.FC<HeaderProps> = ({
                 { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
                 { key: 'problem-generator', label: 'AI Tạo Đề', Icon: Sparkles, path: '/problem-generator' },
                 { key: 'review-queue', label: 'Chấm Insight', Icon: ClipboardCheck, path: '/teacher/review-queue' },
+                { key: 'lab-submissions', label: 'Bài nộp Lab', Icon: ListChecks, path: '/teacher/lab-submissions' },
                 { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
-                { key: 'da-labs', label: 'DA Lab', Icon: Database, path: '/da-labs' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -230,7 +243,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </p>
                     <p className="text-xs text-[var(--text-muted)] truncate">{authUser.email}</p>
                     <span className="inline-flex items-center mt-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-indigo-600/10 text-indigo-600 dark:text-indigo-400">
-                      {userRole === 'teacher' ? 'Giảng viên' : 'Học viên'}
+                      {ROLE_LABEL[authUser.role] ?? authUser.role}
                     </span>
                   </div>
 
@@ -403,19 +416,36 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <FlaskConical size={16} strokeWidth={2} /> Tester Lab
               </button>
-              <button
-                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
-                  activeTab === 'da-labs'
-                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
-                    : 'text-[var(--text-muted)]'
-                }`}
-                onClick={() => {
-                  handleNavigate('/da-labs');
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <Database size={16} strokeWidth={2} /> DA Lab
-              </button>
+              {isStudent && (
+                <>
+                <button
+                  className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                    activeTab === 'da-labs'
+                      ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                      : 'text-[var(--text-muted)]'
+                  }`}
+                  onClick={() => {
+                    handleNavigate('/da-labs');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <Database size={16} strokeWidth={2} /> DA Lab
+                </button>
+                <button
+                  className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                    activeTab === 'ai-labs'
+                      ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                      : 'text-[var(--text-muted)]'
+                  }`}
+                  onClick={() => {
+                    handleNavigate('/ai-labs');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <BrainCircuit size={16} strokeWidth={2} /> AI Lab
+                </button>
+                </>
+              )}
               <button
                 className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'progress'
@@ -499,6 +529,19 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               <button
                 className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'lab-submissions'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/teacher/lab-submissions');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <ListChecks size={16} strokeWidth={2} /> Bài nộp Lab
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'tester-labs'
                     ? 'text-indigo-600 dark:text-cyan-400 font-bold'
                     : 'text-[var(--text-main)]'
@@ -509,19 +552,6 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
               >
                 <FlaskConical size={16} strokeWidth={2} /> Tester Lab
-              </button>
-              <button
-                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
-                  activeTab === 'da-labs'
-                    ? 'text-indigo-600 dark:text-cyan-400 font-bold'
-                    : 'text-[var(--text-main)]'
-                }`}
-                onClick={() => {
-                  handleNavigate('/da-labs');
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <Database size={16} strokeWidth={2} /> DA Lab
               </button>
             </>
           )}

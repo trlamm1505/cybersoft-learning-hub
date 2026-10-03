@@ -1,10 +1,25 @@
 export type AgeGroup = '3-5' | '6-9' | '10-12';
 
+export type UserRole = 'STUDENT' | 'TEACHER' | 'ADMIN';
+
+/**
+ * Ma trận quyền dùng chung với BE (BE/src/common/auth/roles.ts): STAFF =
+ * giảng viên + quản trị viên, dùng giao diện soạn đề / chấm bài. Chỉ STUDENT
+ * làm bài thực hành.
+ */
+export const isStaff = (role: string | undefined): boolean => role === 'TEACHER' || role === 'ADMIN';
+
+export const ROLE_LABEL: Record<UserRole, string> = {
+  STUDENT: 'Học viên',
+  TEACHER: 'Giảng viên',
+  ADMIN: 'Quản trị viên',
+};
+
 export interface AuthUser {
   id: string;
   email: string;
   fullName: string;
-  role: 'STUDENT' | 'TEACHER';
+  role: UserRole;
   ageGroup?: AgeGroup;
   studentCode?: string;
 }

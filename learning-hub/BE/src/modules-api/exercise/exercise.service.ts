@@ -100,7 +100,14 @@ export class ExerciseService {
     const exercise = await this.exerciseModel.findOne({ slug }).lean();
     const timeLimitMs = exercise?.timeLimitMs ?? 2000;
 
-    const result = await runPythonCode(dto.code, dto.stdin ?? '', timeLimitMs);
+    // Chạy thử là request tương tác: hàng đợi đầy thì từ chối ngay, không xếp hàng vô hạn.
+    const result = await runPythonCode(
+      dto.code,
+      dto.stdin ?? '',
+      timeLimitMs,
+      undefined,
+      { rejectWhenBusy: true },
+    );
     return this.toRunResponse(result);
   }
 

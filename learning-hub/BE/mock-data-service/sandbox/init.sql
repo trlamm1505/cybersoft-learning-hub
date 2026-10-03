@@ -120,12 +120,5 @@ INSERT INTO order_details VALUES
   ('DTL_0023', 'ORD_014', 'PROD_04', 2, 790000, 0, 1580000),
   ('DTL_0024', 'ORD_015', 'PROD_02', 1, 7990000, 0, 7990000);
 
--- Quyền chỉ đọc cho tài khoản mà Learning Hub dùng để chạy SQL của học viên.
-CREATE ROLE lab_reader LOGIN PASSWORD 'lab_reader_pw' NOSUPERUSER NOCREATEDB NOCREATEROLE CONNECTION LIMIT 20;
-REVOKE ALL ON DATABASE sales_v1 FROM PUBLIC;
-GRANT CONNECT ON DATABASE sales_v1 TO lab_reader;
-REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-GRANT USAGE ON SCHEMA public TO lab_reader;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO lab_reader;
-ALTER ROLE lab_reader SET default_transaction_read_only = on;
-ALTER ROLE lab_reader SET statement_timeout = '5s';
+-- Tài khoản chỉ đọc lab_reader (mật khẩu lấy từ biến môi trường LAB_READER_PASSWORD)
+-- được tạo trong 02-lab-reader.sh, chạy ngay sau file này.

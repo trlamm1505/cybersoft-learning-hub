@@ -127,6 +127,10 @@ describe('QuizService Unit & Integration Tests', () => {
           expect(opt).not.toHaveProperty('isCorrect');
         });
       });
+      // [C1] Policy chốt phía server lúc bắt đầu, không phụ thuộc client.
+      expect(mockQuizAttemptModel.create).toHaveBeenCalledWith(
+        expect.objectContaining({ reviewPolicy: 'AFTER_SUBMISSION' }),
+      );
     });
   });
 
@@ -194,12 +198,13 @@ describe('QuizService Unit & Integration Tests', () => {
         _id: new Types.ObjectId(validAttemptId),
         userId: new Types.ObjectId(validUserId),
         status: 'GRADED',
+        reviewPolicy: 'NEVER',
       };
 
       mockQuizAttemptModel.findOne.mockResolvedValue(mockAttemptDoc);
 
       await expect(
-        service.reviewAttempt(validAttemptId, validUserId, 'NEVER'),
+        service.reviewAttempt(validAttemptId, validUserId),
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -208,12 +213,42 @@ describe('QuizService Unit & Integration Tests', () => {
         _id: new Types.ObjectId(validAttemptId),
         userId: new Types.ObjectId(validUserId),
         status: 'IN_PROGRESS',
+        reviewPolicy: 'AFTER_SUBMISSION',
       };
 
       mockQuizAttemptModel.findOne.mockResolvedValue(mockAttemptDoc);
 
       await expect(
-        service.reviewAttempt(validAttemptId, validUserId, 'AFTER_SUBMISSION'),
+        service.reviewAttempt(validAttemptId, validUserId),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('3.2b [C1] Bài đang IN_PROGRESS không bao giờ lộ đáp án, kể cả policy đã lưu là IMMEDIATE', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue({
+        _id: new Types.ObjectId(validAttemptId),
+        userId: new Types.ObjectId(validUserId),
+        status: 'IN_PROGRESS',
+        reviewPolicy: 'IMMEDIATE',
+      });
+
+      await expect(
+        service.reviewAttempt(validAttemptId, validUserId),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockQuestionModel.find).not.toHaveBeenCalled();
+    });
+
+    it('3.2c [C1] AFTER_DEADLINE: đã nộp nhưng chưa hết giờ làm bài thì chưa xem được đáp án', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue({
+        _id: new Types.ObjectId(validAttemptId),
+        userId: new Types.ObjectId(validUserId),
+        status: 'GRADED',
+        reviewPolicy: 'AFTER_DEADLINE',
+        startedAt: new Date(),
+        timeLimitSeconds: 1800,
+      });
+
+      await expect(
+        service.reviewAttempt(validAttemptId, validUserId),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -238,11 +273,7 @@ describe('QuizService Unit & Integration Tests', () => {
 
       mockQuizAttemptModel.findOne.mockResolvedValue(mockAttemptDoc);
 
-      const review = await service.reviewAttempt(
-        validAttemptId,
-        validUserId,
-        'AFTER_SUBMISSION',
-      );
+      const review = await service.reviewAttempt(validAttemptId, validUserId);
 
       expect(review).toBeDefined();
       expect(review.status).toBe('GRADED');
