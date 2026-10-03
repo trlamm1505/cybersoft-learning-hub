@@ -57,7 +57,7 @@ export class Exercise {
 
   @Prop({
     type: String,
-    enum: ['QUIZ', 'CODE_BLOCK', 'CODE_TEXT', 'SQL_LAB', 'DA_INSIGHT'],
+    enum: ['QUIZ', 'CODE_BLOCK', 'CODE_TEXT', 'SQL_LAB', 'DA_INSIGHT', 'AI_LAB'],
     default: 'CODE_TEXT',
   })
   type: string;
@@ -144,6 +144,12 @@ export class Exercise {
 
   @Prop({ type: [InsightRubricCriterionSchema], default: undefined })
   insightRubric?: InsightRubricCriterion[];
+
+  // Đặc tả chấm bài AI_LAB (kỹ thuật prompt, model cho phép, ngân sách
+  // cost/latency), xem modules-api/ai-labs/ai-lab.types.ts. `resource_id`
+  // của bài AI_LAB là mã evaluation set của TTS 01.
+  @Prop({ type: Object })
+  aiLabSpec?: object;
 }
 
 export const ExerciseSchema = SchemaFactory.createForClass(Exercise);

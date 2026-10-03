@@ -63,3 +63,52 @@ export interface DatasetContract {
 
 /** Bản an toàn để trả cho FE: bỏ `sandbox_db_url`. */
 export type PublicDatasetContract = Omit<DatasetContract, 'sandbox_db_url'>;
+
+/**
+ * Evaluation set RAG của TTS 01 (bộ câu hỏi Day 08, golden set Day 14/20).
+ * OpenAPI v1.0 chưa có route này: `GET /api/v1/registry/evaluation-sets/{id}`
+ * là PHẦN MỞ RỘNG đề xuất cho v1.1, cùng envelope với Registry. Tên trường
+ * câu hỏi giữ đúng như `rag_eval_questions.json` / `golden_rag_eval_v1.json`.
+ */
+export type EvalExpectedBehavior = 'ANSWER' | 'ABSTAIN';
+
+export interface RegistryEvalItem {
+  question_id: string;
+  query: string;
+  /** vd `standard_qa`, `ambiguous_multihop`, `unanswerable_out_of_domain`, `adversarial_injection`. */
+  category: string;
+  expected_behavior: EvalExpectedBehavior;
+  ground_truth_answer: string;
+  /** Các câu trả lời chuẩn khác cũng được chấp nhận (nếu có). */
+  alternative_answers?: string[];
+  expected_doc_ids?: string[];
+}
+
+export interface RegistryEvaluationSet {
+  id: string;
+  name: string;
+  version?: string;
+  corpus_id: string;
+  items: RegistryEvalItem[];
+}
+
+export interface EvaluationItem {
+  question_id: string;
+  query: string;
+  category: string;
+  expected_behavior: EvalExpectedBehavior;
+  /** Mọi đáp án chuẩn được chấp nhận; chấm lấy độ khớp cao nhất. */
+  ground_truths: string[];
+  expected_doc_ids: string[];
+}
+
+/** Hợp đồng nội bộ cho AI Lab. Chứa đáp án chuẩn: chỉ dùng ở backend. */
+export interface EvaluationSetContract {
+  resource_id: string;
+  name: string;
+  version: string;
+  corpus_id: string;
+  /** sha256 của câu hỏi + đáp án chuẩn, ghi vào run manifest để tái lập. */
+  checksum: string;
+  items: EvaluationItem[];
+}

@@ -2,12 +2,16 @@ import {
   BadGatewayException,
   BadRequestException,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import type { HttpService } from '@nestjs/axios';
 import type { ConfigService } from '@nestjs/config';
 import { AxiosError, AxiosHeaders } from 'axios';
 import { of, throwError } from 'rxjs';
-import { DatasetIntegrationService } from './dataset-integration.service';
+import {
+  DATA_SERVICE_DOWN_MESSAGE,
+  DatasetIntegrationService,
+} from './dataset-integration.service';
 
 const DETAIL = {
   id: 'ds-retail-ecommerce-sales-v1',
@@ -107,6 +111,42 @@ describe('DatasetIntegrationService', () => {
     ).rejects.toBeInstanceOf(BadGatewayException);
   });
 
+  it('máy chủ dữ liệu chưa bật (không có phản hồi) thành 503 với thông báo rõ ràng', async () => {
+    const err = new AxiosError('connect ECONNREFUSED 127.0.0.1:8010', 'ECONNREFUSED');
+    http.get.mockReturnValue(throwError(() => err));
+
+    const promise = service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+    await expect(promise).rejects.toBeInstanceOf(ServiceUnavailableException);
+    await expect(promise).rejects.toThrow(DATA_SERVICE_DOWN_MESSAGE);
+  });
+
+  it.each([
+    ['ECONNABORTED', 'phản hồi quá lâu'],
+    ['ETIMEDOUT', 'phản hồi quá lâu'],
+    ['ENOTFOUND', 'Không kết nối được máy chủ dữ liệu'],
+  ])('[L1] lỗi %s không có phản hồi -> 503 "%s"', async (code, message) => {
+    http.get.mockReturnValue(throwError(() => new AxiosError('fail', code)));
+
+    const promise = service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+    await expect(promise).rejects.toBeInstanceOf(ServiceUnavailableException);
+    await expect(promise).rejects.toThrow(message);
+  });
+
+  it('Registry trả lỗi 5xx (có phản hồi) vẫn là 502, không nhầm với chưa bật', async () => {
+    const err = new AxiosError('Server Error', '500', undefined, undefined, {
+      status: 500,
+      statusText: 'Internal Server Error',
+      headers: {},
+      config: { headers: new AxiosHeaders() },
+      data: {},
+    });
+    http.get.mockReturnValue(throwError(() => err));
+
+    await expect(
+      service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1'),
+    ).rejects.toBeInstanceOf(BadGatewayException);
+  });
+
   it('Registry v1.0 thiếu data_dictionary/sandbox_db_url thì báo rõ, không tự dựng schema', async () => {
     const { data_dictionary: _dd, sandbox_db_url: _url, ...v10 } = DETAIL;
     http.get.mockReturnValue(of({ data: { success: true, data: v10 } }));
@@ -114,5 +154,66 @@ describe('DatasetIntegrationService', () => {
     await expect(
       service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1'),
     ).rejects.toThrow('data_dictionary');
+  });
+
+  describe('fetchEvaluationSet (AI Lab, mở rộng v1.1)', () => {
+    const EVAL = {
+      id: 'eval-cs-faq-basic-v1',
+      name: 'FAQ cơ bản',
+      version: 'v1.0',
+      corpus_id: 'corpus-cybersoft-academic-v1',
+      items: [
+        {
+          question_id: 'Q010',
+          query: 'Cần tham gia bao nhiêu % buổi học?',
+          category: 'standard_qa',
+          expected_behavior: 'ANSWER',
+          ground_truth_answer: 'Tối thiểu 80% tổng số buổi học.',
+          alternative_answers: ['Ít nhất 80% số buổi.'],
+          expected_doc_ids: ['CS-POL-003'],
+        },
+      ],
+    };
+
+    beforeEach(() => {
+      http.get.mockReturnValue(of({ data: { success: true, data: EVAL } }));
+    });
+
+    it('gọi route evaluation-sets kèm X-API-Key, gộp đáp án chuẩn thành ground_truths và có checksum', async () => {
+      const set = await service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+
+      expect(http.get).toHaveBeenCalledWith(
+        'http://data-service.test/api/v1/registry/evaluation-sets/eval-cs-faq-basic-v1',
+        expect.objectContaining({ headers: { 'X-API-Key': 'test-key' } }),
+      );
+      expect(set.items[0].ground_truths).toEqual([
+        'Tối thiểu 80% tổng số buổi học.',
+        'Ít nhất 80% số buổi.',
+      ]);
+      expect(set.checksum).toMatch(/^[0-9a-f]{64}$/);
+      expect(set.corpus_id).toBe('corpus-cybersoft-academic-v1');
+    });
+
+    it('cache evaluation set riêng với dataset', async () => {
+      await service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+      await service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+
+      expect(http.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('câu hỏi thiếu đáp án chuẩn thì báo lỗi, không chấm thiếu', async () => {
+      http.get.mockReturnValue(
+        of({
+          data: {
+            success: true,
+            data: { ...EVAL, items: [{ ...EVAL.items[0], ground_truth_answer: '', alternative_answers: [] }] },
+          },
+        }),
+      );
+
+      await expect(service.fetchEvaluationSet('eval-cs-faq-basic-v1')).rejects.toBeInstanceOf(
+        BadGatewayException,
+      );
+    });
   });
 });
