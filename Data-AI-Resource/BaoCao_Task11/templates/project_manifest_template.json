@@ -1,0 +1,270 @@
+{
+  "$schema": "https://cybersoft.edu.vn/schemas/project.schema.json",
+  "metadata": {
+    "id": "project-template-id",
+    "title": "Tên Dự Án Học Viên Chuẩn Hóa",
+    "domain": "retail_ecommerce",
+    "level": "intermediate",
+    "target_role": "data_analyst",
+    "estimated_hours": 12,
+    "version": "1.0.0",
+    "author": "CyberSoft Data & AI Lab",
+    "created_date": "2026-09-14",
+    "tags": ["sql", "python", "data_cleaning", "eda", "dashboard"]
+  },
+  "business_context": {
+    "company_name": "Doanh Nghiệp Bán Lẻ Mẫu CyberSoft",
+    "industry": "Retail & E-commerce",
+    "problem_statement": "Doanh nghiệp cần xây dựng hệ thống báo cáo phân tích hiệu quả kinh doanh và hành vi khách hàng nhằm giảm tỷ lệ rời bỏ và tối ưu doanh thu.",
+    "business_objectives": [
+      "Xác định xu hướng doanh thu và biên lợi nhuận theo từng nhóm sản phẩm",
+      "Phân nhóm khách hàng theo mô hình RFM để cá nhân hóa chiến dịch tiếp thị",
+      "Phát hiện các điểm nghẽn trong khâu hoàn tất đơn hàng"
+    ],
+    "target_stakeholders": [
+      "Giám đốc Kinh doanh (Chief Commercial Officer)",
+      "Trưởng phòng Tiếp thị (Marketing Lead)",
+      "Bộ phận Vận hành Kho vận (Operations Manager)"
+    ]
+  },
+  "datasets": [
+    {
+      "dataset_id": "ds-orders",
+      "name": "Bảng Đơn Hàng (Orders)",
+      "file_path": "data/orders.csv",
+      "format": "csv",
+      "description": "Chứa thông tin giao dịch đơn hàng bán lẻ.",
+      "record_count": 1000,
+      "columns": [
+        {"name": "order_id", "type": "VARCHAR(36)", "description": "Mã định danh đơn hàng", "primary_key": true},
+        {"name": "customer_id", "type": "VARCHAR(36)", "description": "Mã khách hàng", "foreign_key": "customers.customer_id"},
+        {"name": "order_date", "type": "TIMESTAMP", "description": "Thời điểm đặt hàng"},
+        {"name": "order_status", "type": "VARCHAR(20)", "description": "Trạng thái đơn hàng (completed, cancelled, returned)"},
+        {"name": "total_amount", "type": "DECIMAL(12,2)", "description": "Tổng giá trị đơn hàng"}
+      ],
+      "known_data_issues": [
+        "Có 3% giá trị null ở order_status do lỗi đồng bộ hệ thống",
+        "Định dạng ngày tháng có lẫn lộn giữa ISO 8601 và DD/MM/YYYY"
+      ]
+    }
+  ],
+  "requirements": {
+    "total_core_points": 70,
+    "total_extension_points": 30,
+    "core_tasks": [
+      {
+        "task_id": "TASK-01",
+        "name": "Làm sạch và tiền xử lý dữ liệu (Data Cleaning)",
+        "description": "Phát hiện và xử lý trùng lặp, xử lý giá trị null, chuẩn hóa kiểu dữ liệu ngày tháng.",
+        "points": 20,
+        "learning_outcomes": ["Thành thạo kỹ thuật làm sạch dữ liệu trong Pandas/SQL", "Xử lý dữ liệu khuyết thiếu theo chuẩn"],
+        "expected_outputs": ["clean_orders.csv", "cleaning_report.md"]
+      },
+      {
+        "task_id": "TASK-02",
+        "name": "Phân tích Khám phá EDA & Tính toán KPI Kinh doanh",
+        "description": "Thực hiện truy vấn SQL/Python tính toán Doanh thu, Tỷ lệ hủy đơn, Giá trị trung bình đơn hàng (AOV).",
+        "points": 25,
+        "learning_outcomes": ["Tính toán chính xác các chỉ số KPI thương mại điện tử", "Truy vấn GROUP BY và Window Functions"],
+        "expected_outputs": ["kpi_summary.json", "eda_queries.sql"]
+      },
+      {
+        "task_id": "TASK-03",
+        "name": "Xây dựng Trực quan hóa Báo cáo (Executive Dashboard)",
+        "description": "Thiết kế tối thiểu 4 biểu đồ trực quan hóa doanh thu theo thời gian, cơ cấu sản phẩm và hiệu suất khu vực.",
+        "points": 25,
+        "learning_outcomes": ["Thiết kế trực quan hóa dữ liệu theo chuẩn UX/UI", "Phân tích insight kinh doanh cho Ban Giám đốc"],
+        "expected_outputs": ["dashboard_mockup.png / dashboard.pbix", "executive_summary.md"]
+      }
+    ],
+    "extension_tasks": [
+      {
+        "task_id": "TASK-EXT-01",
+        "name": "Phân khúc Khách hàng RFM (Recency, Frequency, Monetary)",
+        "description": "Xây dựng ma trận RFM và phân chia tập khách hàng thành 5 nhóm chiến lược (Champions, Loyal, At Risk, Lost, New).",
+        "points": 15,
+        "learning_outcomes": ["Ứng dụng mô hình RFM trong bài toán Retention", "Kỹ thuật tính quantile và gán nhãn phân khúc"],
+        "expected_outputs": ["rfm_segments.csv", "rfm_analysis.py"]
+      },
+      {
+        "task_id": "TASK-EXT-02",
+        "name": "Dự báo Xu hướng Doanh thu bằng Time Series đơn giản",
+        "description": "Dự báo doanh thu 30 ngày tới sử dụng Moving Average hoặc Exponential Smoothing.",
+        "points": 15,
+        "learning_outcomes": ["Khai phá chuỗi thời gian cơ bản", "Đánh giá sai số dự báo MAE/RMSE"],
+        "expected_outputs": ["revenue_forecast.csv", "forecast_plot.png"]
+      }
+    ]
+  },
+  "kpis": {
+    "business_kpis": [
+      {
+        "kpi_id": "KPI-REV",
+        "name": "Tổng Doanh Thu Hợp Lệ (Net Revenue)",
+        "formula": "SUM(total_amount) WHERE order_status = 'completed'",
+        "expected_value": 1245670.0,
+        "unit": "USD",
+        "tolerance_pct": 0.05
+      },
+      {
+        "kpi_id": "KPI-AOV",
+        "name": "Giá Trị Trung Bình Đơn Hàng (Average Order Value)",
+        "formula": "Net Revenue / COUNT(DISTINCT order_id WHERE order_status = 'completed')",
+        "expected_value": 85.45,
+        "unit": "USD",
+        "tolerance_pct": 0.1
+      }
+    ],
+    "technical_kpis": [
+      {
+        "kpi_id": "TECH-CLEAN-RATE",
+        "name": "Tỷ Lệ Bản Ghi Sạch Sau Tiền Xử Lý",
+        "formula": "Clean Records / Total Raw Records * 100",
+        "expected_value": 97.2,
+        "unit": "%",
+        "tolerance_pct": 0.5
+      }
+    ]
+  },
+  "rubrics": {
+    "total_points": 100,
+    "categories": [
+      {
+        "category_id": "CAT-CLEANING",
+        "name": "Chất lượng Làm sạch & Tiền xử lý dữ liệu",
+        "weight": 20,
+        "criteria": [
+          {
+            "criterion_id": "CRIT-01",
+            "name": "Xử lý triệt để trùng lặp và null values",
+            "max_points": 20,
+            "quantitative_metric": "Loại bỏ 100% bản ghi trùng PK; tỷ lệ null ở order_status được imputation hoặc phân loại chính xác đạt 100%.",
+            "scoring_levels": [
+              {"level": "exemplary", "points": 20, "descriptor": "Xử lý sạch 100% duplicate và null; có log giải thích phương pháp imputation hợp lý."},
+              {"level": "proficient", "points": 16, "descriptor": "Loại bỏ được duplicate, nhưng chỉ drop null thay vì xử lý có phương pháp."},
+              {"level": "developing", "points": 10, "descriptor": "Còn sót duplicate hoặc làm mất dữ liệu hợp lệ vượt quá 5%."},
+              {"level": "unsatisfactory", "points": 0, "descriptor": "Không tiền xử lý hoặc giữ nguyên dữ liệu lỗi."}
+            ]
+          }
+        ]
+      },
+      {
+        "category_id": "CAT-ANALYSIS",
+        "name": "Độ chính xác Tính toán & Phân tích KPI",
+        "weight": 50,
+        "criteria": [
+          {
+            "criterion_id": "CRIT-02",
+            "name": "Tính toán chỉ số Doanh thu & AOV",
+            "max_points": 25,
+            "quantitative_metric": "Doanh thu Net và AOV tính toán sai lệch <= 0.05% so với ground truth.",
+            "scoring_levels": [
+              {"level": "exemplary", "points": 25, "descriptor": "Kết quả khớp hoàn toàn với Ground Truth trong dung sai cho phép."},
+              {"level": "proficient", "points": 20, "descriptor": "Sai lệch trong khoảng 0.05% - 1.0% do hiểu nhầm logic lọc trạng thái đơn."},
+              {"level": "developing", "points": 12, "descriptor": "Tính sai công thức hoặc sai lệch từ 1% đến 10%."},
+              {"level": "unsatisfactory", "points": 0, "descriptor": "Không tính được KPI hoặc sai số > 10%."}
+            ]
+          },
+          {
+            "criterion_id": "CRIT-03",
+            "name": "Trực quan hóa & Insight thương mại",
+            "max_points": 25,
+            "quantitative_metric": "Đủ tối thiểu 4 biểu đồ đúng chuẩn (Line cho Trend, Bar cho Category, Scatter/Treemap) kèm 3 đề xuất định lượng.",
+            "scoring_levels": [
+              {"level": "exemplary", "points": 25, "descriptor": "Đủ 4 biểu đồ chuẩn xác, có nhãn rõ ràng, kèm 3 khuyến nghị kinh doanh sắc bén."},
+              {"level": "proficient", "points": 20, "descriptor": "Đủ 4 biểu đồ nhưng khuyến nghị còn chung chung."},
+              {"level": "developing", "points": 12, "descriptor": "Chỉ có 2-3 biểu đồ, nhãn trục thiếu đơn vị đo."},
+              {"level": "unsatisfactory", "points": 0, "descriptor": "Dưới 2 biểu đồ hoặc chọn sai loại biểu đồ."}
+            ]
+          }
+        ]
+      },
+      {
+        "category_id": "CAT-EXTENSION",
+        "name": "Nhiệm vụ Nâng cao & Mở rộng",
+        "weight": 30,
+        "criteria": [
+          {
+            "criterion_id": "CRIT-04",
+            "name": "Phân khúc RFM và Khuyến nghị Tiếp thị",
+            "max_points": 15,
+            "quantitative_metric": "Phân khúc chính xác tối thiểu 4 nhóm khách hàng với ngưỡng R, F, M định lượng rõ ràng.",
+            "scoring_levels": [
+              {"level": "exemplary", "points": 15, "descriptor": "Phân loại đầy đủ các nhóm RFM, có đề xuất chiến dịch marketing cụ thể cho từng nhóm."},
+              {"level": "proficient", "points": 12, "descriptor": "Tính được điểm R, F, M nhưng phân nhóm chưa đủ 4 phân khúc."},
+              {"level": "developing", "points": 8, "descriptor": "Chỉ tính được R hoặc F hoặc M đơn lẻ."},
+              {"level": "unsatisfactory", "points": 0, "descriptor": "Không hoàn thành phần RFM."}
+            ]
+          },
+          {
+            "criterion_id": "CRIT-05",
+            "name": "Dự báo Chuỗi Thời gian Doanh thu",
+            "max_points": 15,
+            "quantitative_metric": "Xây dựng mô hình chuỗi thời gian có tính toán sai số MAE/RMSE và xuất file dự báo 30 ngày.",
+            "scoring_levels": [
+              {"level": "exemplary", "points": 15, "descriptor": "Dự báo đầy đủ 30 ngày kèm khoảng tin cậy và sai số MAE/RMSE định lượng."},
+              {"level": "proficient", "points": 12, "descriptor": "Dự báo được 30 ngày nhưng không đánh giá sai số mô hình."},
+              {"level": "developing", "points": 8, "descriptor": "Dự báo thiếu số ngày hoặc sai logic tích lũy."},
+              {"level": "unsatisfactory", "points": 0, "descriptor": "Không thực hiện dự báo."}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": 1,
+      "tier_name": "Conceptual & Business Logic Hints",
+      "task_hints": {
+        "TASK-01": "Hãy nhớ rằng các đơn hàng có trạng thái 'cancelled' không được tính vào doanh thu thực nhận của doanh nghiệp.",
+        "TASK-02": "AOV là chỉ số phản ánh mức chi tiêu trung bình trên mỗi lần mua hàng thành công, không tính đơn hủy.",
+        "TASK-EXT-01": "Recency được tính bằng số ngày kể từ lần mua hàng gần nhất của khách đến ngày chốt sổ phân tích."
+      }
+    },
+    {
+      "tier": 2,
+      "tier_name": "Technical Implementation & Syntax Hints",
+      "task_hints": {
+        "TASK-01": "Sử dụng pd.to_datetime(df['order_date'], format='mixed') trong Pandas hoặc CAST/STRPTIME trong SQL.",
+        "TASK-02": "Dùng SUM(CASE WHEN order_status = 'completed' THEN total_amount ELSE 0 END) trong SQL.",
+        "TASK-EXT-01": "Sử dụng hàm pd.qcut() chia quintile (1-5) cho các chỉ số Recency, Frequency, Monetary."
+      }
+    },
+    {
+      "tier": 3,
+      "tier_name": "Edge Cases & Data Anomalies",
+      "task_hints": {
+        "TASK-01": "Chú ý một số đơn hàng có total_amount âm do hệ thống ghi nhận hoàn tiền (refund); cần tách riêng khỏi đơn bán hàng mới.",
+        "TASK-02": "Có một số khách hàng có nhiều đơn cùng 1 giây (đơn trùng lặp kỹ thuật), cần kiểm tra PK (order_id).",
+        "TASK-EXT-01": "Khách hàng mới chỉ mua 1 lần nhưng giá trị cực lớn cần đưa vào nhóm tiềm năng cao thay vì chỉ nhìn vào Frequency."
+      }
+    }
+  ],
+  "expected_artifacts": [
+    {
+      "artifact_id": "ART-01",
+      "name": "Mã nguồn Làm sạch & Phân tích",
+      "type": "code",
+      "file_pattern": "src/analysis.*\\.py",
+      "required": true,
+      "description": "File mã nguồn Python hoàn chỉnh xử lý dữ liệu và tính toán KPI."
+    },
+    {
+      "artifact_id": "ART-02",
+      "name": "File Truy Vấn SQL",
+      "type": "sql",
+      "file_pattern": "queries/.*\\.sql",
+      "required": true,
+      "description": "Các câu truy vấn SQL trích xuất dữ liệu và tổng hợp KPI."
+    },
+    {
+      "artifact_id": "ART-03",
+      "name": "Báo Cáo Tóm Tắt Nghiệp Vụ",
+      "type": "report",
+      "file_pattern": "reports/executive_summary\\.md",
+      "required": true,
+      "description": "Báo cáo trình bày insight và khuyến nghị hành động cho ban giám đốc."
+    }
+  ]
+}

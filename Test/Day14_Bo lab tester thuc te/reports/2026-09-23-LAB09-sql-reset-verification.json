@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-09-23T08:08:13.209444+07:00",
+  "database": "D:\\thuctap\\cybersoft-learning-hub\\Test\\Day14_Bo lab tester thuc te\\data\\day14_snapshot.sqlite",
+  "buggy": {
+    "duplicateEmails": [
+      {
+        "emailKey": "student1@day14.test",
+        "count": 2
+      }
+    ],
+    "orphanAttempts": [
+      {
+        "attemptId": "a2",
+        "userId": "missing-user"
+      }
+    ]
+  },
+  "clean": {
+    "duplicateEmails": [],
+    "orphanAttempts": []
+  },
+  "restoredBuggy": {
+    "duplicateEmails": [
+      {
+        "emailKey": "student1@day14.test",
+        "count": 2
+      }
+    ],
+    "orphanAttempts": [
+      {
+        "attemptId": "a2",
+        "userId": "missing-user"
+      }
+    ]
+  },
+  "pass": true
+}

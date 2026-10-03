@@ -1,0 +1,11 @@
+# Override cho production: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# - Bắt buộc đặt mật khẩu qua biến môi trường (thiếu là dừng, không dùng giá trị mặc định).
+# - Không publish cổng ra host: backend chạy cùng mạng Docker kết nối qua tên dịch vụ
+#   postgres-sandbox:5432 (sandbox_db_url do Registry cấp phải trỏ tới địa chỉ này).
+services:
+  postgres-sandbox:
+    environment:
+      POSTGRES_USER: ${SANDBOX_DB_OWNER:?Phải đặt SANDBOX_DB_OWNER}
+      POSTGRES_PASSWORD: ${SANDBOX_DB_OWNER_PASSWORD:?Phải đặt SANDBOX_DB_OWNER_PASSWORD}
+      LAB_READER_PASSWORD: ${LAB_READER_PASSWORD:?Phải đặt LAB_READER_PASSWORD}
+    ports: !reset []

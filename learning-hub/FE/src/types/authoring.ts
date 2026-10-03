@@ -24,12 +24,45 @@ export interface LessonHints {
   hint3?: string;
 }
 
+export interface BlockCommand {
+  key: string;
+  label: string;
+  icon?: string;
+}
+
+export interface BlockPosition {
+  x: number;
+  y: number;
+}
+
+export interface BlockStartPosition extends BlockPosition {
+  direction: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
+}
+
+export interface BlockPuzzleConfig {
+  // Nhóm nhiều bài "ải" vào cùng một game trên màn hình chọn game của Block
+  // Puzzle — nhiều bài chia sẻ cùng gameId sẽ xuất hiện chung một thẻ game.
+  gameId: string;
+  gameTitle: string;
+  storyText: string;
+  gridWidth: number;
+  gridHeight: number;
+  startPosition: BlockStartPosition;
+  goalPosition: BlockPosition;
+  obstacles: BlockPosition[];
+  availableBlocks: BlockCommand[];
+  maxBlocks: number;
+  concept: 'sequence' | 'loop' | 'condition';
+  successMessage: string;
+  order: number;
+}
+
 export interface LessonAuthoring {
   _id?: string;
   title: string;
   slug: string;
   description?: string;
-  type: 'coding' | 'quiz';
+  type: 'coding' | 'quiz' | 'block';
   status: 'draft' | 'published';
   learningOutcome: string;
   content?: string;
@@ -41,6 +74,7 @@ export interface LessonAuthoring {
   testCases: TestCase[];
   quizQuestions: QuizQuestion[];
   hints?: LessonHints;
+  blockPuzzle?: BlockPuzzleConfig;
   createdAt?: string;
   updatedAt?: string;
 }

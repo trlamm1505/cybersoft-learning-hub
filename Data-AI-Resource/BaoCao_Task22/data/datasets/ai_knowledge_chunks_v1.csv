@@ -1,0 +1,7 @@
+chunk_id,document_title,heading,token_count,modality,created_date
+CS-TXT-001_chk_000,Giao trinh RAG Toan Dien,1. Tong quan kien truc Retrieval Augmented Generation,245,text,2026-09-15
+CS-TXT-001_chk_001,Giao trinh RAG Toan Dien,2. Chien luoc phan doan van ban Document Chunking,310,text,2026-09-15
+CS-TXT-001_chk_002,Giao trinh RAG Toan Dien,3. Vector Embeddings va Indexing voi FAISS,280,text,2026-09-16
+CS-TXT-001_chk_003,Giao trinh RAG Toan Dien,4. Hybrid Search ket hop BM25 va Vector qua RRF,355,text,2026-09-17
+CS-TXT-001_chk_004,Giao trinh RAG Toan Dien,5. Guardrails va Co che Safe Abstention cho AI Tutor,412,text,2026-09-18
+CS-TXT-001_chk_005,Giao trinh RAG Toan Dien,6. Khung danh gia chat luong RAG Evaluation Harness,388,text,2026-09-19

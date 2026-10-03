@@ -1,0 +1,56 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /opt/pyvenv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.13.5', 'Platform': 'Linux-6.18.35-x86_64-with-glibc2.41', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.13.0', 'ddtrace': '4.4.0', 'Faker': '40.1.2', 'asyncio': '1.3.0', 'cov': '7.0.0', 'json-report': '1.5.0', 'metadata': '3.1.1'}, 'PLATFORM': 'linux/amd64', 'CI': 'true'}
+rootdir: /mnt/data/Day07_Authentication_Authorization_Tests
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.13.0, ddtrace-4.4.0, Faker-40.1.2, asyncio-1.3.0, cov-7.0.0, json-report-1.5.0, metadata-3.1.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 42 items
+
+tests/test_admin_permissions.py::test_admin_can_read_audit PASSED        [  2%]
+tests/test_admin_permissions.py::test_teacher_cannot_read_audit PASSED   [  4%]
+tests/test_admin_permissions.py::test_student_cannot_read_audit PASSED   [  7%]
+tests/test_admin_permissions.py::test_unauthenticated_user_cannot_read_audit PASSED [  9%]
+tests/test_exercise_permissions.py::test_teacher_can_create_exercise_in_own_class PASSED [ 11%]
+tests/test_exercise_permissions.py::test_teacher_cannot_create_exercise_cross_class PASSED [ 14%]
+tests/test_exercise_permissions.py::test_student_cannot_create_exercise PASSED [ 16%]
+tests/test_exercise_permissions.py::test_admin_can_create_exercise_any_class PASSED [ 19%]
+tests/test_exercise_permissions.py::test_missing_token_cannot_create_exercise PASSED [ 21%]
+tests/test_exercise_permissions.py::test_only_admin_can_delete_exercise PASSED [ 23%]
+tests/test_exercise_permissions.py::test_teacher_cannot_delete_exercise PASSED [ 26%]
+tests/test_exercise_permissions.py::test_student_cannot_delete_exercise PASSED [ 28%]
+tests/test_profile_rbac.py::test_student_can_view_own_profile PASSED     [ 30%]
+tests/test_profile_rbac.py::test_student_cannot_view_other_student_same_class PASSED [ 33%]
+tests/test_profile_rbac.py::test_student_cannot_view_cross_class_profile PASSED [ 35%]
+tests/test_profile_rbac.py::test_teacher_can_view_student_in_own_class PASSED [ 38%]
+tests/test_profile_rbac.py::test_teacher_cannot_view_student_cross_class PASSED [ 40%]
+tests/test_profile_rbac.py::test_admin_can_view_student_any_class PASSED [ 42%]
+tests/test_profile_rbac.py::test_class_path_mismatch_does_not_leak_student PASSED [ 45%]
+tests/test_security_regression.py::test_all_sensitive_get_endpoints_require_authentication PASSED [ 47%]
+tests/test_security_regression.py::test_401_error_schema_is_consistent PASSED [ 50%]
+tests/test_security_regression.py::test_403_error_schema_is_consistent PASSED [ 52%]
+tests/test_security_regression.py::test_error_response_does_not_echo_bearer_token PASSED [ 54%]
+tests/test_security_regression.py::test_idor_regression_student_a_cannot_read_student_b_submission PASSED [ 57%]
+tests/test_submission_idor.py::test_student_can_view_own_submission PASSED [ 59%]
+tests/test_submission_idor.py::test_student_cannot_view_other_submission_same_class PASSED [ 61%]
+tests/test_submission_idor.py::test_student_cannot_view_cross_class_submission PASSED [ 64%]
+tests/test_submission_idor.py::test_teacher_can_view_submission_in_own_class PASSED [ 66%]
+tests/test_submission_idor.py::test_teacher_cannot_view_cross_class_submission PASSED [ 69%]
+tests/test_submission_idor.py::test_admin_can_view_submission_any_class PASSED [ 71%]
+tests/test_submission_idor.py::test_unknown_submission_returns_404_without_leaking_other_data PASSED [ 73%]
+tests/test_token_security.py::test_student_valid_token_can_read_me PASSED [ 76%]
+tests/test_token_security.py::test_teacher_valid_token_can_read_me PASSED [ 78%]
+tests/test_token_security.py::test_admin_valid_token_can_read_me PASSED  [ 80%]
+tests/test_token_security.py::test_missing_token_is_401 PASSED           [ 83%]
+tests/test_token_security.py::test_wrong_auth_scheme_is_401 PASSED       [ 85%]
+tests/test_token_security.py::test_expired_token_is_401 PASSED           [ 88%]
+tests/test_token_security.py::test_tampered_token_is_401 PASSED          [ 90%]
+tests/test_token_security.py::test_malformed_token_is_401 PASSED         [ 92%]
+tests/test_token_security.py::test_unknown_user_in_signed_token_is_401 PASSED [ 95%]
+tests/test_token_security.py::test_sensitive_headers_are_redacted_before_logging PASSED [ 97%]
+tests/test_token_security.py::test_cookie_is_redacted_before_logging PASSED [100%]
+
+- generated xml file: /mnt/data/Day07_Authentication_Authorization_Tests/reports/junit.xml -
+============================== 42 passed in 0.17s ==============================

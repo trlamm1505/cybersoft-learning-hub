@@ -1,0 +1,145 @@
+{
+  "info": {
+    "_postman_id": "day14-lab04-demo6-auth",
+    "name": "LAB-04 - Demo6 Auth API",
+    "description": "Sinh từ OpenAPI demo6 ngày 23/09/2026. Không chứa credential/token. Điền environment trước khi chạy login/register.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Swagger spec (read-only)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api-hospital.cybersoft.edu.vn/swagger/v1/swagger.json",
+          "protocol": "https",
+          "host": [
+            "api-hospital",
+            "cybersoft",
+            "edu",
+            "vn"
+          ],
+          "path": [
+            "swagger",
+            "v1",
+            "swagger.json"
+          ]
+        }
+      }
+    },
+    {
+      "name": "02 - MedicalService public list (read-only)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{demo6Api}}/MedicalService",
+          "host": [
+            "{{demo6Api}}"
+          ],
+          "path": [
+            "MedicalService"
+          ]
+        }
+      }
+    },
+    {
+      "name": "03 - Auth login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{demo6Username}}\",\n  \"password\": \"{{demo6Password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{demo6Api}}/Auth/login",
+          "host": [
+            "{{demo6Api}}"
+          ],
+          "path": [
+            "Auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "04 - Auth login wrong password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{demo6Username}}\",\n  \"password\": \"wrong-day14\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{demo6Api}}/Auth/login",
+          "host": [
+            "{{demo6Api}}"
+          ],
+          "path": [
+            "Auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "05 - Auth register template (creates data)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{demo6Username}}\",\n  \"password\": \"{{demo6Password}}\",\n  \"fullName\": \"{{demo6FullName}}\",\n  \"email\": \"{{demo6Email}}\",\n  \"address\": \"{{demo6Address}}\",\n  \"status\": \"{{demo6Status}}\",\n  \"phone\": \"{{demo6Phone}}\",\n  \"gender\": \"{{demo6Gender}}\",\n  \"dateOfBirth\": \"{{demo6DateOfBirth}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{demo6Api}}/Auth/register",
+          "host": [
+            "{{demo6Api}}"
+          ],
+          "path": [
+            "Auth",
+            "register"
+          ]
+        },
+        "description": "Chỉ chạy khi đã chuẩn bị test data và kế hoạch cleanup. Schema lấy trực tiếp từ OpenAPI."
+      }
+    }
+  ]
+}

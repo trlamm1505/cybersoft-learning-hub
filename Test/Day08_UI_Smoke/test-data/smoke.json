@@ -1,0 +1,7 @@
+{
+  "question": "Một cộng một bằng bao nhiêu?", "correctAnswer": "Hai", "wrongAnswer": "Ba", "explanation": "Một cộng một bằng hai.",
+  "codeCases": [
+    { "name": "code đúng", "code": "a=int(input())\nb=int(input())\nprint(a+b)\n", "status": "AC", "label": "Đạt tất cả test (Accepted)", "passed": 2 },
+    { "name": "code sai", "code": "print(0)\n", "status": "WA", "label": "Kết quả sai (Wrong Answer)", "passed": 0 }
+  ]
+}

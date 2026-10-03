@@ -1,0 +1,5 @@
+"Check","Actual","Expected","Result","Evidence"
+"danhGia in 0..10","0 out-of-range / 33","0 out-of-range","PASS","reports/2026-09-23-LAB07-data-check.json"
+"Normalized movie name unique","0 duplicate groups","0 duplicate groups","PASS","reports/2026-09-23-LAB07-data-check.json"
+"moTa not blank","0 blank","0 blank","PASS","reports/2026-09-23-LAB07-data-check.json"
+"trailer not blank","0 blank","0 blank","PASS","reports/2026-09-23-LAB07-data-check.json"

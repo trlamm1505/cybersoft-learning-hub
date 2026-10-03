@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearAuthSession } from './authSession';
 
 // Get Base URL from Vite environment variable or fallback to NestJS Backend API endpoint
 const BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api';
@@ -46,9 +47,19 @@ axiosClient.interceptors.response.use(
       const { status, data } = error.response as { status: number; data: any };
 
       switch (status) {
-        case 401:
+        case 401: {
           console.warn('⚠️ [Axios 401]: Access token expired or invalid.');
+          // Sai mật khẩu ở form đăng nhập/đăng ký cũng trả 401: để form tự báo lỗi.
+          const url: string = error.config?.url ?? '';
+          const isAuthForm = /\/auth\/(login|register|forgot-password|reset-password)/.test(url);
+          if (!isAuthForm) {
+            clearAuthSession();
+            if (window.location.pathname !== '/login') {
+              window.location.assign('/login?expired=1');
+            }
+          }
           break;
+        }
         case 403:
           console.warn('⚠️ [Axios 403]: Access Forbidden - insufficient permissions.');
           break;

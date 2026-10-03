@@ -1,0 +1,153 @@
+{
+  "timestamp": "2026-09-28 04:48:59",
+  "total_queries": 15,
+  "answered_count": 12,
+  "answer_rate_percent": 80.0,
+  "total_citations": 36,
+  "valid_citations": 36,
+  "citation_precision_percent": 100.0,
+  "hallucinated_citations_count": 0,
+  "latency_stats": {
+    "mean_ms": 19.61,
+    "p50_ms": 10.11,
+    "p95_ms": 123.93
+  },
+  "operating_cost_usd": 0.0,
+  "details": [
+    {
+      "id": "GQA-01",
+      "query": "Chính sách chuyên cần của CyberSoft quy định sinh viên được vắng tối đa bao nhiêu buổi?",
+      "status": "ANSWERED",
+      "confidence": 0.4497,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 123.93
+    },
+    {
+      "id": "GQA-02",
+      "query": "Tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone của học viên CyberSoft gồm những tiêu chí nào?",
+      "status": "ANSWERED",
+      "confidence": 0.6643,
+      "citations_count": 3,
+      "doc_matched": true,
+      "latency_ms": 11.82
+    },
+    {
+      "id": "GQA-03",
+      "query": "Quy định về thời hạn và thủ tục bảo lưu khóa học tại CyberSoft như thế nào?",
+      "status": "ANSWERED",
+      "confidence": 0.6791,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 8.74
+    },
+    {
+      "id": "GQA-04",
+      "query": "Hướng dẫn cài đặt môi trường WSL2 và Ubuntu 22.04 LTS cho học viên?",
+      "status": "ANSWERED",
+      "confidence": 0.4789,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 8.8
+    },
+    {
+      "id": "GQA-05",
+      "query": "Quy chuẩn định dạng code Python và kiểm tra PEP8 trong các bài tập lab?",
+      "status": "ANSWERED",
+      "confidence": 0.425,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 9.15
+    },
+    {
+      "id": "GQA-06",
+      "query": "Lớp học online tương tác trực tiếp qua Zoom hay nền tảng nào?",
+      "status": "ANSWERED",
+      "confidence": 0.7406,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 10.0
+    },
+    {
+      "id": "GQA-07",
+      "query": "Yêu cầu đầu vào và kiến thức tiên quyết của khóa học Data AI Engineer?",
+      "status": "ANSWERED",
+      "confidence": 0.7839,
+      "citations_count": 3,
+      "doc_matched": true,
+      "latency_ms": 10.11
+    },
+    {
+      "id": "GQA-08",
+      "query": "Hậu quả và hình thức xử lý khi học viên vi phạm bản quyền tài liệu hoặc đạo văn đồ án?",
+      "status": "ANSWERED",
+      "confidence": 0.434,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 10.05
+    },
+    {
+      "id": "GQA-09",
+      "query": "Cấu hình Visual Studio Code và các extension cần thiết cho lập trình Python?",
+      "status": "ANSWERED",
+      "confidence": 0.7199,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 9.5
+    },
+    {
+      "id": "GQA-10",
+      "query": "Các vật dụng bị cấm mang vào phòng thi kiểm tra trực tiếp tại CyberSoft?",
+      "status": "ABSTAIN",
+      "confidence": 0.3491,
+      "citations_count": 0,
+      "doc_matched": false,
+      "latency_ms": 7.96
+    },
+    {
+      "id": "GQA-11",
+      "query": "Quy trình nộp bài tập lớn và hạn chót submission qua hệ thống LMS CyberSoft?",
+      "status": "ANSWERED",
+      "confidence": 0.3926,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 14.66
+    },
+    {
+      "id": "GQA-12",
+      "query": "Quy định về việc chuyển đổi ca học hoặc học bù khi sinh viên có việc đột xuất?",
+      "status": "ANSWERED",
+      "confidence": 0.4135,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 15.69
+    },
+    {
+      "id": "GQA-13",
+      "query": "Các tiêu chí chấm điểm bài kiểm tra giữa kỳ trắc nghiệm và thực hành?",
+      "status": "ABSTAIN",
+      "confidence": 0.3462,
+      "citations_count": 0,
+      "doc_matched": false,
+      "latency_ms": 24.28
+    },
+    {
+      "id": "GQA-14",
+      "query": "Cách thiết lập Git và SSH key để clone repository bài tập từ CyberSoft GitLab?",
+      "status": "ABSTAIN",
+      "confidence": 0.3108,
+      "citations_count": 0,
+      "doc_matched": false,
+      "latency_ms": 17.67
+    },
+    {
+      "id": "GQA-15",
+      "query": "Mô hình triển khai Docker và Docker Compose cho các dịch vụ Lab?",
+      "status": "ANSWERED",
+      "confidence": 0.4251,
+      "citations_count": 3,
+      "doc_matched": false,
+      "latency_ms": 11.84
+    }
+  ]
+}

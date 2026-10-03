@@ -1,4 +1,5 @@
 import React from 'react';
+import { Ban, Timer, XCircle, CheckCircle2, AlertTriangle, Loader2, type LucideIcon } from 'lucide-react';
 import type { RunCodeResponse } from '../types/exercise';
 
 interface OutputPanelProps {
@@ -9,14 +10,14 @@ interface OutputPanelProps {
 function classifyResult(result: RunCodeResponse): {
   label: string;
   tone: 'success' | 'error' | 'warning';
-  icon: string;
+  Icon: LucideIcon;
   hint: string;
 } {
   if (result.blocked) {
     return {
       label: 'Bị chặn vì lý do bảo mật',
       tone: 'error',
-      icon: '🚫',
+      Icon: Ban,
       hint: 'Code của bạn dùng module/hàm không được phép (ví dụ: os, sys, subprocess, open...). Hãy chỉ dùng input()/print() và các thư viện tính toán thông thường.',
     };
   }
@@ -24,7 +25,7 @@ function classifyResult(result: RunCodeResponse): {
     return {
       label: 'Quá thời gian cho phép (Timeout)',
       tone: 'warning',
-      icon: '⏱️',
+      Icon: Timer,
       hint: 'Chương trình chạy quá lâu — có thể do vòng lặp vô hạn. Hãy kiểm tra lại điều kiện dừng vòng lặp.',
     };
   }
@@ -32,15 +33,40 @@ function classifyResult(result: RunCodeResponse): {
     return {
       label: 'Lỗi khi chạy chương trình (Runtime Error)',
       tone: 'error',
-      icon: '❌',
+      Icon: XCircle,
       hint: 'Xem chi tiết lỗi ở phần Stderr bên dưới để biết dòng nào gây lỗi.',
     };
   }
+  if (result.matchedTestCase) {
+    return result.matchedTestCase.passed
+      ? {
+          label: 'Khớp với đáp án mẫu',
+          tone: 'success',
+          Icon: CheckCircle2,
+          hint: 'STDIN trùng với một test case mẫu và output khớp đáp án. Vẫn nên bấm "Submit" để chấm điểm chính thức trên đầy đủ test case (kể cả test ẩn).',
+        }
+      : {
+          label: 'Sai so với đáp án mẫu',
+          tone: 'error',
+          Icon: XCircle,
+          hint: `STDIN trùng với một test case mẫu nhưng output KHÔNG khớp đáp án đúng ("${result.matchedTestCase.expectedOutput}"). Hãy kiểm tra lại logic code.`,
+        };
+  }
+
+  if (!result.stdout.trim()) {
+    return {
+      label: 'Chạy xong — chương trình không in ra gì',
+      tone: 'warning',
+      Icon: AlertTriangle,
+      hint: 'Không có lỗi runtime, nhưng chương trình chưa in kết quả nào ra Stdout. Đây không phải là xác nhận đáp án đúng — hãy bấm "Submit" để chấm điểm thật.',
+    };
+  }
+
   return {
-    label: 'Chạy thành công',
+    label: 'Chạy xong, không có lỗi',
     tone: 'success',
-    icon: '✅',
-    hint: 'Chương trình đã chạy xong không có lỗi.',
+    Icon: CheckCircle2,
+    hint: 'Chương trình chạy không lỗi runtime. Đây chưa phải kết quả chấm điểm — hãy bấm "Submit" để kiểm tra đáp án có đúng hay không.',
   };
 }
 
@@ -54,7 +80,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ result, isRunning }) =
   if (isRunning) {
     return (
       <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] p-4 text-sm text-[var(--text-muted)] flex items-center gap-2">
-        <span className="animate-spin">⏳</span> Đang chạy code...
+        <Loader2 size={16} className="animate-spin" /> Đang chạy code...
       </div>
     );
   }
@@ -62,7 +88,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ result, isRunning }) =
   if (!result) {
     return (
       <div className="rounded-xl border border-dashed border-[var(--border-color)] bg-[var(--bg-main)] p-4 text-sm text-[var(--text-muted)]">
-        Nhấn "▶ Run" để chạy thử code của bạn.
+        Nhấn "Run" để chạy thử code của bạn.
       </div>
     );
   }
@@ -71,8 +97,8 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ result, isRunning }) =
 
   return (
     <div className="space-y-3">
-      <div className={`rounded-xl border p-3 flex items-start gap-2 text-sm font-medium ${toneClasses[status.tone]}`}>
-        <span className="text-lg leading-none">{status.icon}</span>
+      <div className={`rounded-xl border p-3 flex items-start gap-2.5 text-sm font-medium ${toneClasses[status.tone]}`}>
+        <status.Icon size={18} strokeWidth={2} className="shrink-0 mt-0.5" />
         <div>
           <div>{status.label}</div>
           <div className="text-xs font-normal opacity-80 mt-0.5">{status.hint}</div>

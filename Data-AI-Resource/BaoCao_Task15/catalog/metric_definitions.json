@@ -1,0 +1,133 @@
+{
+  "schema_version": "1.0.0",
+  "framework": "CyberSoft Resource Quality & Observability Framework (CRQOF)",
+  "version": "v0.1.0",
+  "last_updated": "2026-09-19T08:00:00Z",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "composite_index": {
+    "name": "Resource Quality Index (RQI)",
+    "code": "RQI",
+    "range": [0.0, 100.0],
+    "target_threshold": 90.0,
+    "description": "Chỉ số đo lường chất lượng tài nguyên tổng hợp có trọng số kết hợp 7 trụ cột kỹ thuật, áp dụng đồng nhất cho cả Dataset Registry và Project Bank.",
+    "formula": "RQI = 0.20 * QG + 0.15 * SV + 0.15 * CP + 0.15 * AL + 0.15 * TPR + 0.10 * RO + 0.10 * BI",
+    "tier_thresholds": {
+      "Gold": 95.0,
+      "Silver": 85.0,
+      "Bronze": 70.0,
+      "Quarantine": 0.0
+    }
+  },
+  "metrics": [
+    {
+      "id": "METRIC-01",
+      "code": "QG",
+      "name": "Quality Gate Score",
+      "category": "Data Integrity",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 80.0,
+      "description": "Tỷ lệ kiểm tra chất lượng dữ liệu vượt qua các bài test ràng buộc (Khóa chính duy nhất, khóa ngoại toàn vẹn, dải giá trị hợp lệ, không chứa bản ghi bẫy chưa xử lý).",
+      "formula": "(passed_checks / total_checks) * 100"
+    },
+    {
+      "id": "METRIC-02",
+      "code": "SV",
+      "name": "Schema Validity Score",
+      "category": "Contract Compliance",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 100.0,
+      "description": "Độ tuân thủ hợp đồng schema JSON/YAML (JSON Schema Draft 2020-12) và định dạng dữ liệu đầu vào theo manifest đã công bố.",
+      "formula": "100.0 if schema_valid else 0.0"
+    },
+    {
+      "id": "METRIC-03",
+      "code": "CP",
+      "name": "Resource Completeness Score",
+      "category": "Curriculum Readiness",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 85.0,
+      "description": "Tỷ lệ hiện diện đầy đủ của các thành phần bắt buộc cấu thành tài nguyên: Dữ liệu (Data), Đặc tả (Brief/Spec), Khung sườn (Starter Kit), Đáp án & Barem (Solutions/Rubric), và Kiểm thử (Tests).",
+      "formula": "(present_required_artifacts / total_required_artifacts) * 100"
+    },
+    {
+      "id": "METRIC-04",
+      "code": "AL",
+      "name": "Anti-Leakage Compliance Score",
+      "category": "Security & Pedagogy",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 100.0,
+      "description": "Chỉ số an toàn phòng vệ rò rỉ đáp án (Zero Answer Leakage). Đảm bảo 100% không để lộ ground truth, nhãn phân loại, hay reasoning vào thư mục học viên (student_edition).",
+      "formula": "100.0 if zero_leakage_verified else 0.0"
+    },
+    {
+      "id": "METRIC-05",
+      "code": "TPR",
+      "name": "Test Pass Rate",
+      "category": "Automated Reliability",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 100.0,
+      "description": "Tỷ lệ vượt qua toàn bộ các ca kiểm thử tự động độc lập qua Pytest suite đính kèm tài nguyên.",
+      "formula": "(passed_pytest_cases / total_pytest_cases) * 100"
+    },
+    {
+      "id": "METRIC-06",
+      "code": "RO",
+      "name": "Rubric Objectivity Score",
+      "category": "Assessment Quality",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 90.0,
+      "description": "Tỷ lệ các tiêu chí trong barem chấm điểm (Rubric 100đ) có ngưỡng số học định lượng và tiêu chí kiểm chứng khách quan thay vì nhận xét cảm tính.",
+      "formula": "(quantitative_criteria_points / total_rubric_points) * 100"
+    },
+    {
+      "id": "METRIC-07",
+      "code": "BI",
+      "name": "Business Integrity & Triangulation",
+      "category": "Domain Accuracy",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 90.0,
+      "description": "Độ chính xác nghiệp vụ được xác thực chéo qua đa phương pháp (Đối soát số học 3 chiều Delta = 0, Ground Truth Precision trong RAG, hoặc cân bằng kế toán kho).",
+      "formula": "100.0 - (relative_triangulation_error_percent)"
+    },
+    {
+      "id": "METRIC-08",
+      "code": "DC",
+      "name": "Documentation & Scaffolding Coverage",
+      "category": "Pedagogy",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 80.0,
+      "description": "Mức độ bao phủ của hệ thống giàn giáo sư phạm: Từ điển dữ liệu, gợi ý 3 phân tầng (Tiered Hints), cẩm nang bẫy lỗi kinh điển (Common Pitfalls) và hướng dẫn giải (Solution Manual).",
+      "formula": "(scaffolding_docs_present / expected_scaffolding_docs) * 100"
+    },
+    {
+      "id": "METRIC-09",
+      "code": "PB",
+      "name": "Performance & Latency Budget Compliance",
+      "category": "Operations",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 80.0,
+      "description": "Mức độ tuân thủ trần độ trễ P95 (<= 1,500 ms) và ngân sách token chi phí thực thi (< 0.050 USD / 1,000 queries) đối với các module tính toán và AI.",
+      "formula": "100.0 if (p95_latency <= max_latency and cost <= max_cost) else 50.0"
+    },
+    {
+      "id": "METRIC-10",
+      "code": "PII",
+      "name": "Privacy & PII Safety Score",
+      "category": "Data Governance",
+      "unit": "Percentage (%)",
+      "range": [0.0, 100.0],
+      "passing_threshold": 100.0,
+      "description": "Độ an toàn bảo mật dữ liệu, xác nhận dữ liệu đã được làm sạch hoặc ẩn danh hóa thông tin định danh cá nhân nhạy cảm (PII Safe).",
+      "formula": "100.0 if pii_safe else 0.0"
+    }
+  ]
+}

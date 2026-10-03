@@ -1,0 +1,172 @@
+[
+  {
+    "content": "Giá trị nào của thuộc tính `grid-template-columns` giúp tự động chia các cột responsive mà không cần viết quá nhiều Media Queries?",
+    "codeSnippet": "grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));",
+    "category": "CSS3",
+    "difficulty": "MEDIUM",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "auto-fit kết hợp minmax()",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "flex-wrap: wrap",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "grid-auto-flow: dense",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "repeat(12, 1fr)",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Cú pháp `repeat(auto-fit, minmax(280px, 1fr))` trong CSS Grid cho phép các cột tự động co giãn và xuống hàng linh hoạt dựa trên kích thước khung nhìn.",
+    "tags": [
+      "CSS3",
+      "CSS Grid",
+      "Responsive"
+    ]
+  },
+  {
+    "content": "Thẻ HTML5 Semantic nào dưới đây thích hợp nhất để bọc thanh điều hướng liên kết chính của trang web?",
+    "category": "HTML5",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "<section>",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "<nav>",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "<aside>",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "<header>",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Thẻ `<nav>` trong HTML5 được thiết kế chuyên biệt để chứa các liên kết điều hướng (Navigation links), giúp Screen Readers và công cụ tìm kiếm hiểu rõ cấu trúc menu trang.",
+    "tags": [
+      "HTML5",
+      "Semantic",
+      "Accessibility"
+    ]
+  },
+  {
+    "content": "Trong Python, từ khóa nào được dùng để gán giá trị cho một biến?",
+    "category": "Python",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "let",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "var",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "=",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "const",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Python không cần từ khóa khai báo biến — chỉ cần dùng dấu `=` để gán giá trị, ví dụ `x = 5`.",
+    "tags": [
+      "Python",
+      "Variables"
+    ]
+  },
+  {
+    "content": "Quy tắc quan trọng nào cần tuân thủ khi viết Custom Hook trong React?",
+    "category": "React",
+    "difficulty": "MEDIUM",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Tên hàm phải bắt đầu bằng từ khóa \"use\"",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Phải trả về một phần tử JSX",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Chỉ được gọi bên trong vòng lặp if",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "Phải khai báo trong tệp index.html",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Custom Hook trong React là hàm JavaScript có tên bắt đầu bằng `use` và có thể gọi các Hooks khác của React.",
+    "tags": [
+      "React",
+      "Custom Hooks",
+      "Architecture"
+    ]
+  },
+  {
+    "content": "Trong Mongoose, phương thức nào giúp tự động thay thế các ID liên kết (`ObjectId`) bằng dữ liệu đầy đủ từ Document của Collection tham chiếu?",
+    "category": "Database",
+    "difficulty": "MEDIUM",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "join()",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "populate()",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "lookup()",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "include()",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Phương thức `.populate()` trong Mongoose cho phép bạn tham chiếu tới các document ở collection khác tương tự như JOIN trong SQL.",
+    "tags": [
+      "Database",
+      "Mongoose",
+      "Populate"
+    ]
+  }
+]

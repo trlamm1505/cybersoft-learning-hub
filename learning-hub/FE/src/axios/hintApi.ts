@@ -7,10 +7,11 @@ import type { GetHintsResponse, UnlockHintPayload, UnlockHintResponse } from '..
  */
 export const hintApi = {
   /**
-   * GET /api/hints/exercise/:slug?userId=...
+   * GET /api/hints/exercise/:slug — trạng thái "đã mở" tính theo user thật lấy
+   * từ Bearer token (OptionalJwtAuthGuard), không còn gửi userId qua query string.
    */
-  getHintsByExercise: async (exerciseSlug: string, userId: string = 'student-demo'): Promise<GetHintsResponse> => {
-    return await axiosClient.get(`/hints/exercise/${exerciseSlug}?userId=${userId}`);
+  getHintsByExercise: async (exerciseSlug: string): Promise<GetHintsResponse> => {
+    return await axiosClient.get(`/hints/exercise/${exerciseSlug}`);
   },
 
   /**

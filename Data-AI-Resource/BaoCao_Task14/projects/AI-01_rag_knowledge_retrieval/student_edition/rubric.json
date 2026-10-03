@@ -1,0 +1,148 @@
+{
+  "rubric_id": "RUBRIC-AI-01-2026",
+  "project_id": "AI-01_rag_knowledge_retrieval",
+  "project_title": "CyberSoft Enterprise RAG Knowledge Retrieval System",
+  "version": "1.0",
+  "total_points": 100,
+  "core_points": 70,
+  "extension_points": 30,
+  "criteria": [
+    {
+      "id": "RET-01",
+      "category": "Retrieval Performance",
+      "type": "Core",
+      "name": "Retrieval Recall@5",
+      "max_points": 15,
+      "evaluation_type": "automated",
+      "metric": "recall_at_5",
+      "target_threshold": 0.80,
+      "scoring_rules": [
+        {"condition": "recall_at_5 >= 0.80", "points": 15, "description": "Recall@5 đạt chuẩn từ 80% trở lên trên 60 câu hỏi answerable."},
+        {"condition": "0.70 <= recall_at_5 < 0.80", "points": 10, "description": "Recall@5 đạt mức cơ bản từ 70% đến dưới 80%."},
+        {"condition": "0.60 <= recall_at_5 < 0.70", "points": 5, "description": "Recall@5 đạt mức tối thiểu từ 60% đến dưới 70%."},
+        {"condition": "recall_at_5 < 0.60", "points": 0, "description": "Recall@5 dưới 60%, chưa đạt chuẩn đầu ra hành nghề."}
+      ]
+    },
+    {
+      "id": "RET-02",
+      "category": "Retrieval Performance",
+      "type": "Core",
+      "name": "Mean Reciprocal Rank (MRR)",
+      "max_points": 15,
+      "evaluation_type": "automated",
+      "metric": "mrr",
+      "target_threshold": 0.75,
+      "scoring_rules": [
+        {"condition": "mrr >= 0.75", "points": 15, "description": "Tài liệu chính xác nằm ở vị trí top 1 hoặc top 2 (MRR >= 0.75)."},
+        {"condition": "0.65 <= mrr < 0.75", "points": 10, "description": "MRR ở mức khá (0.65 đến dưới 0.75)."},
+        {"condition": "0.50 <= mrr < 0.65", "points": 5, "description": "MRR đạt mức tối thiểu (0.50 đến dưới 0.65)."},
+        {"condition": "mrr < 0.50", "points": 0, "description": "MRR dưới 0.50, vị trí tài liệu đúng bị đẩy lùi quá sâu."}
+      ]
+    },
+    {
+      "id": "RET-03",
+      "category": "Retrieval Performance",
+      "type": "Core",
+      "name": "Context Precision",
+      "max_points": 10,
+      "evaluation_type": "automated",
+      "metric": "context_precision",
+      "target_threshold": 0.75,
+      "scoring_rules": [
+        {"condition": "context_precision >= 0.75", "points": 10, "description": "Tỷ lệ đoạn văn liên quan trong top-k ngữ cảnh đưa vào LLM >= 75%."},
+        {"condition": "0.60 <= context_precision < 0.75", "points": 6, "description": "Context precision đạt từ 60% đến dưới 75%."},
+        {"condition": "context_precision < 0.60", "points": 0, "description": "Ngữ cảnh chứa quá nhiều đoạn nhiễu rác, lãng phí token và gây hallucination."}
+      ]
+    },
+    {
+      "id": "GEN-01",
+      "category": "Generation Quality",
+      "type": "Core",
+      "name": "Faithfulness (Groundedness)",
+      "max_points": 15,
+      "evaluation_type": "automated",
+      "metric": "faithfulness",
+      "target_threshold": 0.85,
+      "scoring_rules": [
+        {"condition": "faithfulness >= 0.85", "points": 15, "description": "100% tuyên bố quan trọng trong câu trả lời có bằng chứng từ ngữ cảnh (>= 85%)."},
+        {"condition": "0.75 <= faithfulness < 0.85", "points": 10, "description": "Faithfulness đạt từ 75% đến dưới 85%."},
+        {"condition": "faithfulness < 0.75", "points": 0, "description": "Xuất hiện tình trạng bịa đặt thông tin (hallucination) nghiêm trọng."}
+      ]
+    },
+    {
+      "id": "GEN-02",
+      "category": "Generation Quality",
+      "type": "Core",
+      "name": "Answer Relevance",
+      "max_points": 15,
+      "evaluation_type": "automated",
+      "metric": "answer_relevance",
+      "target_threshold": 0.80,
+      "scoring_rules": [
+        {"condition": "answer_relevance >= 0.80", "points": 15, "description": "Câu trả lời tập trung trực diện vào câu hỏi của người dùng, không lan man."},
+        {"condition": "0.70 <= answer_relevance < 0.80", "points": 10, "description": "Answer relevance đạt từ 70% đến dưới 80%."},
+        {"condition": "answer_relevance < 0.70", "points": 0, "description": "Câu trả lời lạc đề hoặc trả lời không đúng trọng tâm."}
+      ]
+    },
+    {
+      "id": "CIT-01",
+      "category": "Citation & Abstention Guardrails",
+      "type": "Extension",
+      "name": "Citation Precision & Recall (Citation F1)",
+      "max_points": 8,
+      "evaluation_type": "automated",
+      "metric": "citation_f1",
+      "target_threshold": 0.80,
+      "scoring_rules": [
+        {"condition": "citation_f1 >= 0.80", "points": 8, "description": "Trích dẫn chính xác định danh tài liệu và điều khoản theo cú pháp [doc_id#section_id]."},
+        {"condition": "0.65 <= citation_f1 < 0.80", "points": 5, "description": "Trích dẫn được doc_id nhưng sai section_id hoặc thiếu trích dẫn phụ."},
+        {"condition": "citation_f1 < 0.65", "points": 0, "description": "Không trích nguồn hoặc trích dẫn nguồn sai lệch."}
+      ]
+    },
+    {
+      "id": "ABS-01",
+      "category": "Citation & Abstention Guardrails",
+      "type": "Extension",
+      "name": "Abstention Accuracy on Out-of-Domain & Adversarial Queries",
+      "max_points": 7,
+      "evaluation_type": "automated",
+      "metric": "abstain_accuracy",
+      "target_threshold": 0.85,
+      "scoring_rules": [
+        {"condition": "abstain_accuracy >= 0.85", "points": 7, "description": "Từ chối trả lời chính xác >= 85% trên 40 câu hỏi không có trong tài liệu và câu hỏi bẫy."},
+        {"condition": "0.70 <= abstain_accuracy < 0.85", "points": 4, "description": "Từ chối trả lời từ 70% đến dưới 85%."},
+        {"condition": "abstain_accuracy < 0.70", "points": 0, "description": "Bị đánh lừa và cố tình bịa thông tin khi người dùng hỏi tài liệu ngoài phạm vi."}
+      ]
+    },
+    {
+      "id": "PRF-01",
+      "category": "Latency & Cost Efficiency",
+      "type": "Extension",
+      "name": "P95 End-to-End Latency",
+      "max_points": 8,
+      "evaluation_type": "automated",
+      "metric": "p95_latency_ms",
+      "target_threshold": 1500,
+      "scoring_rules": [
+        {"condition": "p95_latency_ms <= 1500", "points": 8, "description": "Thời gian phản hồi P95 toàn chu trình RAG dưới 1.500 ms."},
+        {"condition": "1500 < p95_latency_ms <= 2500", "points": 4, "description": "Thời gian phản hồi P95 từ 1.500 ms đến 2.500 ms."},
+        {"condition": "p95_latency_ms > 2500", "points": 0, "description": "Độ trễ quá lớn (> 2.500 ms), không đáp ứng yêu cầu người dùng cuối."}
+      ]
+    },
+    {
+      "id": "PRF-02",
+      "category": "Latency & Cost Efficiency",
+      "type": "Extension",
+      "name": "Cost per 1,000 Queries Budget",
+      "max_points": 7,
+      "evaluation_type": "automated",
+      "metric": "cost_per_1k_usd",
+      "target_threshold": 0.05,
+      "scoring_rules": [
+        {"condition": "cost_per_1k_usd <= 0.050", "points": 7, "description": "Chi phí tiêu hao token cho 1.000 lượt truy vấn tối ưu <= 0.050 USD."},
+        {"condition": "0.050 < cost_per_1k_usd <= 0.080", "points": 4, "description": "Chi phí tiêu hao token từ 0.050 USD đến 0.080 USD."},
+        {"condition": "cost_per_1k_usd > 0.080", "points": 0, "description": "Nhồi nhét ngữ cảnh quá dài, chi phí token vượt ngưỡng cho phép."}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "version": "v0.1-baseline",
+  "timestamp": "2026-09-20T10:00:00Z",
+  "description": "Baseline RAG: Simple Dense Retriever + Vanilla Prompt (No RRF, No Reranker, No Abstention Gate)",
+  "dataset_name": "golden_rag_eval_v1.json",
+  "total_queries": 30,
+  "metrics": {
+    "retrieval": {
+      "recall_at_5": 0.8125,
+      "precision_at_5": 0.65,
+      "hit_rate_at_5": 0.8667,
+      "mrr": 0.7241
+    },
+    "generation": {
+      "citation_precision": 0.8421,
+      "citation_recall": 0.78,
+      "groundedness_score": 0.825,
+      "abstention_accuracy": 0.75,
+      "hallucinated_citations_count": 6
+    },
+    "operational": {
+      "latency_mean_ms": 34.2,
+      "latency_p50_ms": 28.5,
+      "latency_p95_ms": 85.2,
+      "cost_usd": 0.015
+    }
+  }
+}

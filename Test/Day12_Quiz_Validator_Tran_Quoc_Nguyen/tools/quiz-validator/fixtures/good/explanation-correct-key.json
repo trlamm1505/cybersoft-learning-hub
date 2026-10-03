@@ -1,0 +1,29 @@
+[
+  {
+    "content": "Câu hỏi mẫu hợp lệ dùng để kiểm tra rule.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "<link>",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "<a>",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "<href>",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Đáp án đúng là `B` vì thẻ `<a>` dùng để tạo liên kết trong HTML.",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

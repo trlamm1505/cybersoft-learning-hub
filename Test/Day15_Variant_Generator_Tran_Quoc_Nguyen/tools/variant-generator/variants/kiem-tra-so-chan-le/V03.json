@@ -1,0 +1,61 @@
+{
+  "variantId": "kiem-tra-so-chan-le-V03",
+  "sourceId": "kiem-tra-so-chan-le",
+  "sourceVersion": "1.0",
+  "variantVersion": "1.0",
+  "sourceType": "CODING",
+  "parameters": {
+    "n": [
+      2,
+      999999,
+      -999998,
+      17
+    ]
+  },
+  "generationMethod": "ai-selected-parameters + program-recomputed-answer (python3/node, khong tin truc tiep AI)",
+  "content": {
+    "slug": "kiem-tra-so-chan-le-v03",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 3)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "2",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "999999",
+        "expectedOutput": "Lẻ",
+        "isHidden": false
+      },
+      {
+        "input": "-999998",
+        "expectedOutput": "Chẵn",
+        "isHidden": true
+      },
+      {
+        "input": "17",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      }
+    ]
+  },
+  "__testCaseNotes": [
+    "n=2",
+    "n=999999",
+    "n=-999998",
+    "n=17"
+  ],
+  "validationStatus": "PENDING",
+  "humanReview": {
+    "equivalenceAccepted": null,
+    "reviewer": "",
+    "notes": "",
+    "reviewedAt": ""
+  }
+}

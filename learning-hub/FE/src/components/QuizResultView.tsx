@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trophy, BookOpen, CheckCircle2, XCircle, Lightbulb, GraduationCap } from 'lucide-react';
 import type { QuizReviewResponse } from '../types/quiz';
 
 interface QuizResultViewProps {
@@ -21,7 +22,11 @@ export const QuizResultView: React.FC<QuizResultViewProps> = ({ reviewData, onRe
         />
 
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 bg-slate-50 dark:bg-slate-800 shadow-inner">
-          <span className="text-4xl">{isPassed ? '🏆' : '📚'}</span>
+          {isPassed ? (
+            <Trophy size={36} className="text-amber-500" strokeWidth={2} />
+          ) : (
+            <BookOpen size={36} className="text-indigo-500" strokeWidth={2} />
+          )}
         </div>
 
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-slate-100 mb-2">
@@ -75,7 +80,7 @@ export const QuizResultView: React.FC<QuizResultViewProps> = ({ reviewData, onRe
       {/* Review Questions List with Pedagogical Explanations */}
       <div className="space-y-6">
         <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-          <span>💡 Xem Lại Đáp Án & Giải Thích Chi Tiết</span>
+          <Lightbulb size={20} className="text-amber-500" /> Xem Lại Đáp Án & Giải Thích Chi Tiết
         </h3>
 
         {reviewData.questions.map((q, idx) => {
@@ -94,13 +99,14 @@ export const QuizResultView: React.FC<QuizResultViewProps> = ({ reviewData, onRe
                   Câu {idx + 1}
                 </span>
                 <span
-                  className={`text-xs font-bold px-3 py-1 rounded-full ${
+                  className={`inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full ${
                     q.isCorrect
                       ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
                       : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
                   }`}
                 >
-                  {q.isCorrect ? '✓ Đúng (+10 điểm)' : '✗ Sai (0 điểm)'}
+                  {q.isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+                  {q.isCorrect ? 'Đúng (+10 điểm)' : 'Sai (0 điểm)'}
                 </span>
               </div>
 
@@ -138,7 +144,7 @@ export const QuizResultView: React.FC<QuizResultViewProps> = ({ reviewData, onRe
               {q.explanation && (
                 <div className="mt-4 p-4 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 text-sm text-indigo-950 dark:text-indigo-200">
                   <div className="font-bold text-indigo-700 dark:text-indigo-300 mb-1 flex items-center gap-1.5">
-                    <span>📘 Giải thích từ Giảng viên:</span>
+                    <GraduationCap size={15} /> Giải thích từ Giảng viên:
                   </div>
                   <p className="leading-relaxed">{q.explanation}</p>
                 </div>
