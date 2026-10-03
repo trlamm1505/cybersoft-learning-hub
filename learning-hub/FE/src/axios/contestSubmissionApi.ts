@@ -31,12 +31,14 @@ export interface ContestProblemForStudent {
 }
 
 export interface SubmitContestProblemResult {
-  verdict: 'AC' | 'WA' | 'PARTIAL' | 'CE' | 'TLE' | 'RE';
-  score: number;
+  /** SUBMITTED: quiz trong lúc thi, đã lưu nhưng chưa công bố đúng/sai. */
+  verdict: 'AC' | 'WA' | 'PARTIAL' | 'CE' | 'TLE' | 'RE' | 'SUBMITTED';
+  score: number | null;
   maxPoints: number;
-  passedCount: number;
+  passedCount: number | null;
   totalCount: number;
   isLate: boolean;
+  resultHidden: boolean;
 }
 
 /**

@@ -28,6 +28,9 @@ import type { LessonAuthoring } from '../types/authoring';
 import type { AuthUser } from '../types/auth';
 import { TERMINAL_SUBMISSION_STATUSES } from '../types/exercise';
 
+/** Khách chưa đăng nhập bấm Chạy / Nộp bài (bước kiểm tra cú pháp chạy trong Nộp bài). */
+const GUEST_RUN_MESSAGE = 'Vui lòng đăng nhập để thực thi code trên hệ thống';
+
 const POLL_INTERVAL_MS = 700;
 const POLL_TIMEOUT_MS = 15000;
 
@@ -383,11 +386,17 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
 
   useEffect(() => stopPolling, []);
 
+  // Chạy code và kiểm tra cú pháp đều cần đăng nhập (BE trả 401 cho khách):
+  // báo trước bằng toast vàng rồi mới chuyển sang trang đăng nhập.
+  const redirectGuestToLogin = () => {
+    showToast(GUEST_RUN_MESSAGE, 'warning');
+    navigate('/login');
+  };
+
   const handleRun = async () => {
     if (!selectedSlug) return;
     if (!authUser) {
-      showToast('Vui lòng đăng nhập để chạy thử code.', 'info');
-      navigate('/login');
+      redirectGuestToLogin();
       return;
     }
     setIsRunning(true);
@@ -424,8 +433,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
   const handleSubmit = async () => {
     if (!selectedSlug) return;
     if (!authUser) {
-      showToast('Vui lòng đăng nhập để nộp bài.', 'info');
-      navigate('/login');
+      redirectGuestToLogin();
       return;
     }
     stopPolling();

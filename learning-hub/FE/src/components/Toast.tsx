@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import { CheckCircle2, XCircle, Info, X } from 'lucide-react';
+import { CheckCircle2, XCircle, Info, X, AlertTriangle } from 'lucide-react';
 
-export type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 interface ToastState {
   id: number;
@@ -21,6 +21,7 @@ const TOAST_STYLE: Record<ToastType, { bg: string; Icon: typeof CheckCircle2 }> 
   success: { bg: 'bg-emerald-600 border-emerald-500', Icon: CheckCircle2 },
   error: { bg: 'bg-red-600 border-red-500', Icon: XCircle },
   info: { bg: 'bg-indigo-600 border-indigo-500', Icon: Info },
+  warning: { bg: 'bg-amber-500 border-amber-400', Icon: AlertTriangle },
 };
 
 /**

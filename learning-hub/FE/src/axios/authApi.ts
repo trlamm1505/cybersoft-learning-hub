@@ -1,5 +1,6 @@
 import axiosClient from '../common/configAxios';
 import type {
+  AuthUser,
   AuthResponse,
   RegisterPayload,
   LoginPayload,
@@ -26,6 +27,13 @@ export const authApi = {
    */
   login: async (payload: LoginPayload): Promise<AuthResponse> => {
     return await axiosClient.post('/auth/login', payload);
+  },
+
+  /**
+   * GET /api/auth/me — hồ sơ theo token (vai trò đọc từ DB), dùng khi khởi động app.
+   */
+  me: async (): Promise<AuthUser> => {
+    return await axiosClient.get('/auth/me');
   },
 
   /**

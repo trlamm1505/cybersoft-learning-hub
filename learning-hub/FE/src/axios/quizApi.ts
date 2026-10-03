@@ -33,15 +33,10 @@ export const quizApi = {
 
   /**
    * 3. Review Attempt (Xem lại bài làm & Giải thích chi tiết)
-   * GET /api/quiz/:attemptId/review?policy=... — userId lấy từ Bearer token.
+   * GET /api/quiz/:attemptId/review — userId lấy từ Bearer token; policy do server quyết định.
    */
-  reviewQuiz: async (
-    attemptId: string,
-    policy: string = 'AFTER_SUBMISSION'
-  ): Promise<QuizReviewResponse> => {
-    return await axiosClient.get(`/quiz/${attemptId}/review`, {
-      params: { policy },
-    });
+  reviewQuiz: async (attemptId: string): Promise<QuizReviewResponse> => {
+    return await axiosClient.get(`/quiz/${attemptId}/review`);
   },
 };
 
