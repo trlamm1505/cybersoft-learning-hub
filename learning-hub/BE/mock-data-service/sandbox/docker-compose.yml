@@ -1,0 +1,15 @@
+# Sandbox Postgres mô phỏng DB cô lập do TTS 01 cấp phát cho lab SQL.
+# Chạy: docker compose -f mock-data-service/sandbox/docker-compose.yml up -d
+# Learning Hub chỉ kết nối bằng tài khoản lab_reader (chỉ đọc) qua sandbox_db_url.
+services:
+  da-sandbox-db:
+    image: postgres:16-alpine
+    container_name: da-sandbox-sales-v1
+    environment:
+      POSTGRES_DB: sales_v1
+      POSTGRES_USER: sandbox_owner
+      POSTGRES_PASSWORD: sandbox_owner_pw
+    ports:
+      - '55432:5432'
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
