@@ -64,6 +64,16 @@ export class QuizAttempt {
 
   @Prop({ type: Number, default: 100 })
   maxScore: number; // Maximum possible score
+
+  // Chính sách xem đáp án, chốt phía server lúc bắt đầu làm bài. Client không
+  // được tự chọn (trước đây đọc từ query string nên học viên xem được đáp án
+  // khi bài còn đang làm).
+  @Prop({
+    type: String,
+    enum: ['IMMEDIATE', 'AFTER_SUBMISSION', 'AFTER_DEADLINE', 'NEVER'],
+    default: 'AFTER_SUBMISSION',
+  })
+  reviewPolicy: string;
 }
 
 export const QuizAttemptSchema = SchemaFactory.createForClass(QuizAttempt);

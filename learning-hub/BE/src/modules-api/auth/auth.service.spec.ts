@@ -299,4 +299,32 @@ describe('AuthService', () => {
       expect(result.message).toContain('thành công');
     });
   });
+
+  describe('[L2] getProfile — vai trò đọc lại từ DB theo token', () => {
+    it('trả hồ sơ với role hiện tại trong DB, không kèm token hay mật khẩu', async () => {
+      mockUserModel.findById.mockResolvedValue({
+        _id: '507f1f77bcf86cd799439011',
+        email: 'gv@x.vn',
+        fullName: 'Giảng viên',
+        role: 'TEACHER',
+        passwordHash: 'hash',
+      });
+
+      const me = await service.getProfile('507f1f77bcf86cd799439011');
+
+      expect(me).toMatchObject({ id: '507f1f77bcf86cd799439011', role: 'TEACHER' });
+      expect(me).not.toHaveProperty('accessToken');
+      expect(JSON.stringify(me)).not.toContain('hash');
+    });
+
+    it('tài khoản không còn tồn tại hoặc id hỏng thì 401', async () => {
+      mockUserModel.findById.mockResolvedValue(null);
+      await expect(service.getProfile('507f1f77bcf86cd799439011')).rejects.toThrow(
+        'Phiên đăng nhập không còn hợp lệ',
+      );
+      await expect(service.getProfile('khong-phai-id')).rejects.toThrow(
+        'Phiên đăng nhập không còn hợp lệ',
+      );
+    });
+  });
 });

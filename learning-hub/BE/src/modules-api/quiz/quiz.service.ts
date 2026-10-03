@@ -16,7 +16,8 @@ import {
 } from '../../modules-system/database/schemas/quiz-attempt.schema';
 import { StartAttemptDto } from './dto/start-attempt.dto';
 import { SubmitAttemptDto } from './dto/submit-attempt.dto';
-import { ReviewPolicyType } from './dto/review-attempt.dto';
+import { DEFAULT_REVIEW_POLICY } from './dto/review-attempt.dto';
+import type { ReviewPolicyType } from './dto/review-attempt.dto';
 import { seededShuffle } from '../../common/helper/prng.helper';
 
 @Injectable()
@@ -96,6 +97,7 @@ export class QuizService {
       status: 'IN_PROGRESS',
       score: 0,
       maxScore,
+      reviewPolicy: DEFAULT_REVIEW_POLICY,
     });
 
     return this.formatSanitizedQuestions(newAttempt);
@@ -210,13 +212,10 @@ export class QuizService {
 
   /**
    * 3. Review Attempt (Xem kết quả & Giải thích chi tiết):
-   * Kiểm tra Review Policy để quyết định có trả về đáp án đúng và phần giải thích hay không
+   * Policy đọc từ attempt đã lưu (chốt phía server lúc bắt đầu), không nhận từ
+   * client. Bài còn IN_PROGRESS thì KHÔNG BAO GIỜ trả đáp án, bất kể policy.
    */
-  async reviewAttempt(
-    attemptId: string,
-    userId: string,
-    policy: ReviewPolicyType = 'AFTER_SUBMISSION',
-  ) {
+  async reviewAttempt(attemptId: string, userId: string) {
     if (!Types.ObjectId.isValid(attemptId) || !Types.ObjectId.isValid(userId)) {
       throw new BadRequestException(
         'ID lượt thi hoặc người dùng không hợp lệ.',
@@ -232,29 +231,33 @@ export class QuizService {
       throw new NotFoundException('Không tìm thấy lượt làm bài thi này.');
     }
 
-    // Enforce Review Policy
+    if (attempt.status === 'IN_PROGRESS') {
+      throw new BadRequestException(
+        'Bạn phải nộp bài thi trước khi xem đáp án và giải thích chi tiết.',
+      );
+    }
+
+    const policy = (attempt.reviewPolicy ??
+      DEFAULT_REVIEW_POLICY) as ReviewPolicyType;
     switch (policy) {
       case 'NEVER':
         throw new ForbiddenException(
           'Giảng viên đã tắt chức năng xem giải thích cho bài thi này.',
         );
 
-      case 'AFTER_SUBMISSION':
-        if (attempt.status === 'IN_PROGRESS') {
-          throw new BadRequestException(
-            'Bạn phải nộp bài thi trước khi xem đáp án và giải thích chi tiết.',
-          );
-        }
-        break;
-
-      case 'AFTER_DEADLINE':
-        if (attempt.status === 'IN_PROGRESS') {
+      case 'AFTER_DEADLINE': {
+        const deadline =
+          new Date(attempt.startedAt).getTime() +
+          (attempt.timeLimitSeconds ?? 0) * 1000;
+        if (Date.now() < deadline) {
           throw new BadRequestException(
             'Chưa đến thời điểm được xem đáp án (sau Hạn nộp đề thi).',
           );
         }
         break;
+      }
 
+      case 'AFTER_SUBMISSION':
       case 'IMMEDIATE':
       default:
         break;

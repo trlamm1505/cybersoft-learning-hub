@@ -4,6 +4,10 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { scanPythonForViolations } from './python-guard.helper';
+import {
+  ConcurrencyLimitExceededError,
+  getCodeRunnerLimiter,
+} from './concurrency-limiter';
 
 export interface RunResult {
   stdout: string;
@@ -202,6 +206,7 @@ export async function runPythonCode(
   stdin: string,
   timeoutMs: number = DEFAULT_TIMEOUT_MS,
   memoryLimitMb: number = DEFAULT_MEMORY_LIMIT_MB,
+  { rejectWhenBusy = false }: { rejectWhenBusy?: boolean } = {},
 ): Promise<RunResult> {
   const violations = await scanPythonForViolations(code);
   if (violations.length > 0) {
@@ -218,6 +223,34 @@ export async function runPythonCode(
     };
   }
 
+  // Giới hạn số container/tiến trình chạy đồng thời trên host.
+  try {
+    return await getCodeRunnerLimiter().run(
+      () => executePython(code, stdin, timeoutMs, memoryLimitMb),
+      { rejectWhenBusy },
+    );
+  } catch (err) {
+    if (err instanceof ConcurrencyLimitExceededError) {
+      return {
+        stdout: '',
+        stderr: '',
+        exitCode: null,
+        timedOut: false,
+        executionTimeMs: 0,
+        blocked: true,
+        blockedReason: err.message,
+      };
+    }
+    throw err;
+  }
+}
+
+async function executePython(
+  code: string,
+  stdin: string,
+  timeoutMs: number,
+  memoryLimitMb: number,
+): Promise<RunResult> {
   const runDir = fs.mkdtempSync(path.join(os.tmpdir(), 'code-runner-'));
   const scriptFile = `${randomUUID()}.py`;
   const scriptPath = path.join(runDir, scriptFile);

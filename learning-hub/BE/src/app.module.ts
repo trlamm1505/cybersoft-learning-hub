@@ -1,4 +1,10 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
+import {
+  AppThrottlerGuard,
+  DEFAULT_RATE_LIMIT,
+} from './common/security/app-throttler.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './modules-system/database/database.module';
@@ -16,9 +22,12 @@ import { ProblemGeneratorModule } from './modules-api/problem-generator/problem-
 import { RecommendationModule } from './modules-api/recommendation/recommendation.module';
 import { TesterLabsModule } from './modules-api/tester-labs/tester-labs.module';
 import { DaLabsModule } from './modules-api/da-labs/da-labs.module';
+import { AiLabsModule } from './modules-api/ai-labs/ai-labs.module';
 
 @Module({
   imports: [
+    // Rate limit toàn cục (theo user nếu có JWT, theo IP nếu chưa đăng nhập).
+    ThrottlerModule.forRoot([DEFAULT_RATE_LIMIT]),
     DatabaseModule,
     QuizModule,
     ExerciseModule,
@@ -34,8 +43,9 @@ import { DaLabsModule } from './modules-api/da-labs/da-labs.module';
     RecommendationModule,
     TesterLabsModule,
     DaLabsModule,
+    AiLabsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: AppThrottlerGuard }],
 })
 export class AppModule {}

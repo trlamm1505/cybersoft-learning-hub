@@ -17,6 +17,8 @@ import {
   DaLabSubmission,
   DaLabSubmissionDocument,
 } from '../../modules-system/database/schemas/da-lab-submission.schema';
+import type { DaLabSubmissionStatus } from '../../modules-system/database/schemas/da-lab-submission.schema';
+import { MAX_SQL_LENGTH } from './sql-guard';
 import {
   User,
   UserDocument,
@@ -108,16 +110,55 @@ export class DaLabsService implements OnModuleInit {
     return this.sqlGrader.run(lab.resource_id!, this.requireText(sql, 'sql'));
   }
 
-  async submitSql(slug: string, sql: string) {
+  /**
+   * Chấm bài SQL và lưu vào da_lab_submissions (type SQL). Mỗi học viên một
+   * bản ghi cho mỗi bài: giữ câu SQL gần nhất, điểm gần nhất, điểm cao nhất và
+   * số lần nộp, nên nộp liên tục không sinh bản ghi vô hạn. Câu bị lớp chặn
+   * từ chối (REJECTED) không được lưu.
+   */
+  async submitSql(slug: string, sql: string, userId: string) {
     const lab = await this.getFullLab(slug, 'SQL_LAB');
-    return this.sqlGrader.grade(
+    const studentSql = this.requireText(sql, 'sql');
+    const result = await this.sqlGrader.grade(
       {
         resource_id: lab.resource_id!,
         solutionCode: lab.solutionCode!,
         points: lab.points,
       },
-      this.requireText(sql, 'sql'),
+      studentSql,
     );
+    if (result.status === 'REJECTED') return result;
+
+    const exerciseId = String((lab as any)._id);
+    const fields = {
+      content: studentSql.slice(0, MAX_SQL_LENGTH),
+      status: 'GRADED' as const,
+      score: result.score,
+      maxScore: result.maxScore,
+      aiExplanation: `${result.status}: ${result.feedback}`,
+    };
+    const existing = await this.submissionModel.findOne({
+      userId,
+      exerciseId,
+      type: 'SQL',
+    });
+    if (existing) {
+      Object.assign(existing, fields);
+      existing.attemptCount = (existing.attemptCount ?? 1) + 1;
+      existing.bestScore = Math.max(existing.bestScore ?? 0, result.score);
+      await existing.save();
+    } else {
+      await this.submissionModel.create({
+        userId,
+        exerciseId,
+        exerciseSlug: lab.slug,
+        type: 'SQL',
+        ...fields,
+        attemptCount: 1,
+        bestScore: result.score,
+      });
+    }
+    return result;
   }
 
   /**
@@ -156,18 +197,38 @@ export class DaLabsService implements OnModuleInit {
     }
 
     const graded = result.status === 'GRADED';
-    const saved = await this.submissionModel.create({
-      userId,
-      exerciseId: String((lab as any)._id),
-      exerciseSlug: lab.slug,
+    const exerciseId = String((lab as any)._id);
+    const fields = {
       // Bài quá dài đã bị grader từ chối; chỉ lưu phần đầu để giới hạn kích thước bản ghi.
       content: content.slice(0, MAX_INSIGHT_CHARS * 2),
-      status: graded ? 'GRADED' : 'PENDING_REVIEW',
+      status: (graded ? 'GRADED' : 'PENDING_REVIEW') as DaLabSubmissionStatus,
       score: graded ? result.score : 0,
       maxScore: result.maxScore,
       aiExplanation: result.feedback,
       criteria: result.criteria,
+    };
+    // Bài cũ còn đang chờ giảng viên chấm thì ghi đè (giảng viên chỉ chấm bản
+    // mới nhất); bài đã chấm giữ nguyên làm lịch sử.
+    const pending = await this.submissionModel.findOne({
+      userId,
+      exerciseId,
+      type: { $ne: 'SQL' },
+      status: 'PENDING_REVIEW',
     });
+    let saved: { _id: unknown };
+    if (pending) {
+      Object.assign(pending, fields);
+      pending.attemptCount = (pending.attemptCount ?? 1) + 1;
+      saved = await pending.save();
+    } else {
+      saved = await this.submissionModel.create({
+        userId,
+        exerciseId,
+        exerciseSlug: lab.slug,
+        type: 'INSIGHT',
+        ...fields,
+      });
+    }
 
     return {
       ...result,
@@ -292,6 +353,58 @@ export class DaLabsService implements OnModuleInit {
               insightRubric: exercise.insightRubric ?? [],
             }
           : { id: p.exerciseId, slug: p.exerciseSlug },
+      };
+    });
+  }
+
+  /**
+   * Danh sách bài nộp DA Lab cho giảng viên (mới cập nhật trước), lọc theo loại.
+   * Bản ghi cũ không có `type` được tính là INSIGHT.
+   */
+  async listLabSubmissions(type?: string, limit = 200) {
+    const filter: Record<string, unknown> =
+      type === 'SQL'
+        ? { type: 'SQL' }
+        : type === 'INSIGHT'
+          ? { type: { $ne: 'SQL' } }
+          : {};
+    const docs = await this.submissionModel
+      .find(filter)
+      .sort({ updatedAt: -1 })
+      .limit(limit)
+      .lean();
+    if (docs.length === 0) return [];
+
+    const userIds = [...new Set(docs.map((d) => d.userId))];
+    const exerciseIds = [...new Set(docs.map((d) => d.exerciseId))];
+    const [users, exercises] = await Promise.all([
+      this.userModel.find({ _id: { $in: userIds } }).select('fullName email').lean(),
+      this.exerciseModel.find({ _id: { $in: exerciseIds } }).select('title slug').lean(),
+    ]);
+    const userById = new Map(users.map((u) => [String(u._id), u]));
+    const exerciseById = new Map(exercises.map((e) => [String(e._id), e]));
+
+    return docs.map((d: any) => {
+      const user = userById.get(d.userId);
+      const exercise = exerciseById.get(d.exerciseId);
+      return {
+        id: String(d._id),
+        type: d.type ?? 'INSIGHT',
+        status: d.status,
+        score: d.score,
+        bestScore: d.bestScore ?? d.score,
+        maxScore: d.maxScore,
+        attemptCount: d.attemptCount ?? 1,
+        content: d.content,
+        aiExplanation: d.aiExplanation,
+        teacherComment: d.teacherComment,
+        updatedAt: d.updatedAt,
+        student: user
+          ? { id: d.userId, fullName: user.fullName, email: user.email }
+          : { id: d.userId },
+        exercise: exercise
+          ? { id: d.exerciseId, slug: exercise.slug, title: exercise.title }
+          : { id: d.exerciseId, slug: d.exerciseSlug },
       };
     });
   }

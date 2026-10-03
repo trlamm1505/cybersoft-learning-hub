@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -19,7 +20,10 @@ import {
   ContestSubmissionDocument,
   ContestSubmissionVerdict,
 } from '../../modules-system/database/schemas/contest-submission.schema';
-import { User, UserDocument } from '../../modules-system/database/schemas/user.schema';
+import {
+  User,
+  UserDocument,
+} from '../../modules-system/database/schemas/user.schema';
 import {
   checkPythonSyntax,
   runPythonCode,
@@ -68,8 +72,19 @@ export class ContestSubmissionService {
     return problem;
   }
 
-  async getProblemForStudent(contestId: string, problemSlug: string) {
+  /**
+   * Đề bài chỉ cho học viên đã đăng ký xem; giảng viên/quản trị viên xem để
+   * kiểm tra đề (không nộp bài được, xem StudentOnlyGuard ở controller).
+   */
+  async getProblemForStudent(
+    contestId: string,
+    problemSlug: string,
+    viewer: { sub: string; role: string },
+  ) {
     const contest = await this.findContestOrThrow(contestId);
+    if (viewer.role === 'STUDENT') {
+      this.assertRegistered(contest, viewer.sub);
+    }
     const now = new Date();
     if (now < contest.startTime) {
       throw new BadRequestException(
@@ -120,18 +135,39 @@ export class ContestSubmissionService {
     };
   }
 
-  async submit(contestId: string, dto: SubmitContestProblemDto, studentId: string) {
+  async submit(
+    contestId: string,
+    dto: SubmitContestProblemDto,
+    studentId: string,
+  ) {
     if (!dto.problemSlug || !dto.problemSlug.trim()) {
       throw new BadRequestException('Thiếu mã đề bài (problemSlug)!');
     }
 
     const contest = await this.findContestOrThrow(contestId);
+    this.assertRegistered(contest, studentId);
     const problem = this.findProblemOrThrow(contest, dto.problemSlug);
 
     const now = new Date();
     const isLate = now > contest.endTime;
     if (now < contest.startTime) {
       throw new BadRequestException('Cuộc thi chưa bắt đầu. Chưa thể nộp bài.');
+    }
+
+    // Quiz chấm ngay và leaderboard hiện điểm trực tiếp: cho nộp nhiều lần là
+    // dò được đáp án. Trong thời gian thi, mỗi câu quiz chỉ được nộp một lần.
+    if (problem.type === 'quiz' && !isLate) {
+      const already = await this.contestSubmissionModel.exists({
+        contestId: String(contest._id),
+        problemSlug: problem.slug,
+        studentId,
+        isLate: false,
+      });
+      if (already) {
+        throw new BadRequestException(
+          'Bài trắc nghiệm trong cuộc thi chỉ được nộp một lần.',
+        );
+      }
     }
 
     const lesson = problem.lessonId
@@ -143,7 +179,10 @@ export class ContestSubmissionService {
         ? await this.gradeQuiz(problem, lesson, dto.quizAnswers ?? {})
         : await this.gradeCoding(problem, lesson, dto.code ?? '');
 
-    const user = await this.userModel.findById(studentId).select('fullName').lean();
+    const user = await this.userModel
+      .findById(studentId)
+      .select('fullName')
+      .lean();
     const studentName = user?.fullName || 'Học viên';
 
     await this.contestSubmissionModel.create({
@@ -163,6 +202,20 @@ export class ContestSubmissionService {
       isLate,
     });
 
+    // Không trả kết quả chi tiết của quiz khi cuộc thi chưa kết thúc: điểm đã
+    // được lưu và hiện trên leaderboard, nhưng response không cho biết đúng/sai.
+    if (problem.type === 'quiz' && !isLate) {
+      return {
+        verdict: 'SUBMITTED' as const,
+        passedCount: null,
+        totalCount: graded.totalCount,
+        score: null,
+        maxPoints: problem.points,
+        isLate,
+        resultHidden: true,
+      };
+    }
+
     return {
       verdict: graded.verdict,
       passedCount: graded.passedCount,
@@ -170,7 +223,19 @@ export class ContestSubmissionService {
       score: graded.score,
       maxPoints: problem.points,
       isLate,
+      resultHidden: false,
     };
+  }
+
+  private assertRegistered(contest: ContestDocument, studentId: string) {
+    const registered = (contest.registrations ?? []).some(
+      (r) => r.studentId === studentId,
+    );
+    if (!registered) {
+      throw new ForbiddenException(
+        'Bạn chưa đăng ký cuộc thi này nên không thể xem đề hay nộp bài.',
+      );
+    }
   }
 
   private async gradeCoding(

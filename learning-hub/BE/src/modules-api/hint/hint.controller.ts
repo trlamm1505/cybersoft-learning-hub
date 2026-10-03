@@ -1,8 +1,11 @@
+import { isStaff } from '../../common/auth/roles';
 import { Controller, ForbiddenException, Get, Param, Post, Body, UseGuards } from '@nestjs/common';
 import { HintService } from './hint.service';
 import { UnlockHintDto } from './dto/unlock-hint.dto';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../../common/auth/optional-jwt-auth.guard';
+import { RolesGuard } from '../../common/auth/roles.guard';
+import { Roles } from '../../common/auth/roles.decorator';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 
@@ -39,7 +42,7 @@ export class HintController {
 
   /**
    * GET /api/hints/history/:userId
-   * Lịch sử mở gợi ý của học viên — chỉ chủ tài khoản (hoặc TEACHER) mới được xem.
+   * Lịch sử mở gợi ý của học viên — chỉ chủ tài khoản (hoặc giảng viên, quản trị viên) mới được xem.
    */
   @Get('history/:userId')
   @UseGuards(JwtAuthGuard)
@@ -47,7 +50,7 @@ export class HintController {
     @Param('userId') userId: string,
     @CurrentUser() user: JwtPayload,
   ) {
-    if (userId !== user.sub && user.role !== 'TEACHER') {
+    if (userId !== user.sub && !isStaff(user.role)) {
       throw new ForbiddenException('Bạn không có quyền xem lịch sử gợi ý này');
     }
     return this.hintService.getUserHintHistory(userId);
@@ -55,18 +58,24 @@ export class HintController {
 
   /**
    * POST /api/hints/seed
-   * Endpoint khởi tạo/seed 30 hint mẫu cho 10 bài tập.
+   * Endpoint khởi tạo/seed 30 hint mẫu cho 10 bài tập. Ghi đè nội dung và chi
+   * phí gợi ý nên chỉ ADMIN được gọi.
    */
   @Post('seed')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async seedHints() {
     return this.hintService.seedHints();
   }
 
   /**
    * GET /api/hints/sample-30
-   * Trả về dữ liệu 30 hint mẫu phục vụ kiểm thử.
+   * Trả về dữ liệu 30 hint mẫu phục vụ kiểm thử. Có nội dung gợi ý chưa mở khóa
+   * nên chỉ ADMIN được xem.
    */
   @Get('sample-30')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async get30SampleHints() {
     return this.hintService.get30SampleHints();
   }

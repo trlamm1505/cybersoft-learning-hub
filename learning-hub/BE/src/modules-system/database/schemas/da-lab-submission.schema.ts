@@ -10,6 +10,9 @@ export type DaLabSubmissionDocument = DaLabSubmission & Document;
  */
 export type DaLabSubmissionStatus = 'GRADED' | 'PENDING_REVIEW';
 
+/** SQL: bài SQL chấm tự động. INSIGHT: bài nhận định (AI chấm / giảng viên chấm tay). */
+export type DaLabSubmissionType = 'SQL' | 'INSIGHT';
+
 /**
  * Bài nộp Insight của DA Lab. Tách khỏi `submissions` (của Judge Python)
  * để MasteryService/Recommendation không đọc nhầm bài DA, giống cách
@@ -26,9 +29,21 @@ export class DaLabSubmission {
   @Prop({ required: true, type: String })
   exerciseSlug: string;
 
-  /** Câu trả lời Insight của học viên. */
+  /** Bản ghi cũ (trước Day 23) không có trường này và đều là INSIGHT. */
+  @Prop({ type: String, enum: ['SQL', 'INSIGHT'], default: 'INSIGHT', index: true })
+  type: DaLabSubmissionType;
+
+  /** Câu trả lời Insight, hoặc câu SQL của lần nộp gần nhất. */
   @Prop({ required: true, type: String })
   content: string;
+
+  /** Số lần nộp gộp vào bản ghi này (SQL: mọi lần; Insight: các lần ghi đè bài đang chờ chấm). */
+  @Prop({ type: Number, default: 1 })
+  attemptCount: number;
+
+  /** Bài SQL: điểm cao nhất qua các lần nộp. */
+  @Prop({ type: Number })
+  bestScore?: number;
 
   @Prop({
     required: true,

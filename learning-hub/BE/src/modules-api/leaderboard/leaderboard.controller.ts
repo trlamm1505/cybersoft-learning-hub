@@ -1,3 +1,4 @@
+import { isStaff } from '../../common/auth/roles';
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { LeaderboardService } from './leaderboard.service';
 import { OptionalJwtAuthGuard } from '../../common/auth/optional-jwt-auth.guard';
@@ -23,7 +24,7 @@ export class LeaderboardController {
     @Query('asTeacher') asTeacher: string | undefined,
     @CurrentUser() user?: JwtPayload,
   ) {
-    const isAuthenticatedTeacher = user?.role === 'TEACHER';
+    const isAuthenticatedTeacher = isStaff(user?.role);
     return this.leaderboardService.computeLeaderboard(id, {
       asTeacher: asTeacher === 'true' && isAuthenticatedTeacher,
     });
