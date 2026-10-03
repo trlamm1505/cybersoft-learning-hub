@@ -22,7 +22,78 @@ export interface SyntaxCheckResult {
 }
 
 const DEFAULT_TIMEOUT_MS = 2000;
+const DEFAULT_MEMORY_LIMIT_MB = 128;
 const MAX_OUTPUT_BYTES = 64 * 1024; // 64KB stdout/stderr cap
+
+// Docker sandbox. `timeout` bên trong container đo đúng thời gian chạy code;
+// phía host chờ thêm DOCKER_STARTUP_GRACE_MS cho thời gian khởi động container
+// rồi mới `docker kill`, để overhead khởi động không bị tính thành TLE.
+const DOCKER_STARTUP_GRACE_MS = 5000;
+const DEFAULT_SANDBOX_IMAGE = 'python:3.12-slim';
+const EXIT_CODE_TIMEOUT = 124; // coreutils `timeout`
+const EXIT_CODE_SIGKILL = 137; // cgroup OOM killer
+const EXIT_CODE_DOCKER_ERROR = 125; // docker run không tạo được container
+
+type SandboxMode = 'docker' | 'local';
+
+/**
+ * Đọc mỗi lần chạy (không cache lúc load module) để giá trị từ `.env`, do
+ * ConfigModule nạp vào process.env khi app khởi động, luôn có hiệu lực.
+ * Mặc định `docker`; Jest đặt `local` qua jest.setup-env.ts.
+ */
+function resolveSandboxMode(): SandboxMode {
+  return process.env.PYTHON_SANDBOX === 'local' ? 'local' : 'docker';
+}
+
+export function buildDockerRunArgs(opts: {
+  containerName: string;
+  runDir: string;
+  scriptFile: string;
+  timeoutMs: number;
+  memoryLimitMb: number;
+  image?: string;
+}): string[] {
+  const seconds = (Math.max(opts.timeoutMs, 100) / 1000).toFixed(1);
+  return [
+    'run',
+    '--rm',
+    '-i',
+    '--name',
+    opts.containerName,
+    '--network',
+    'none',
+    '--memory',
+    `${opts.memoryLimitMb}m`,
+    '--memory-swap',
+    `${opts.memoryLimitMb}m`,
+    '--cpus',
+    '1',
+    '--pids-limit',
+    '64',
+    '--read-only',
+    '--tmpfs',
+    '/tmp:rw,size=16m',
+    '--cap-drop',
+    'ALL',
+    '--security-opt',
+    'no-new-privileges',
+    '--user',
+    '65534:65534',
+    '-v',
+    `${opts.runDir}:/sandbox:ro`,
+    '-w',
+    '/sandbox',
+    opts.image ?? DEFAULT_SANDBOX_IMAGE,
+    'timeout',
+    seconds,
+    'python',
+    '-I',
+    '-B',
+    '-X',
+    'utf8',
+    `/sandbox/${opts.scriptFile}`,
+  ];
+}
 
 // Sai số cho phép khi so token là số thực — đủ nhỏ để không che giấu lỗi
 // logic thật (ví dụ nhầm công thức ra sai hẳn kết quả), chỉ hấp thụ sai số
@@ -114,10 +185,14 @@ const PYTHON_BIN = resolvePythonBin();
 
 /**
  * Runs untrusted Python source against a single stdin payload.
- * Isolation strategy (no Docker available on this host):
+ * Isolation strategy:
  *  - real Python AST guard (python-guard.helper.ts) rejects dangerous
  *    imports/calls/dunder-attribute access before anything runs
- *  - `python -I` (isolated mode: ignores env vars / user site-packages)
+ *  - PYTHON_SANDBOX=docker (mặc định): chạy trong `docker run --rm` không
+ *    mạng, giới hạn RAM/swap, CPU, số tiến trình, root filesystem chỉ đọc,
+ *    bỏ mọi capability, user nobody; mã nguồn mount chỉ đọc. Docker không
+ *    chạy thì trả lỗi rõ, KHÔNG âm thầm chạy trên host.
+ *  - PYTHON_SANDBOX=local (dev/test): `python -I` trên host như trước
  *  - execution cwd is a fresh temp dir per run, deleted immediately after
  *  - hard wall-clock timeout kills the process tree
  *  - stdout/stderr are truncated to MAX_OUTPUT_BYTES to bound memory
@@ -126,6 +201,7 @@ export async function runPythonCode(
   code: string,
   stdin: string,
   timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  memoryLimitMb: number = DEFAULT_MEMORY_LIMIT_MB,
 ): Promise<RunResult> {
   const violations = await scanPythonForViolations(code);
   if (violations.length > 0) {
@@ -143,9 +219,12 @@ export async function runPythonCode(
   }
 
   const runDir = fs.mkdtempSync(path.join(os.tmpdir(), 'code-runner-'));
-  const scriptPath = path.join(runDir, `${randomUUID()}.py`);
+  const scriptFile = `${randomUUID()}.py`;
+  const scriptPath = path.join(runDir, scriptFile);
   fs.writeFileSync(scriptPath, code, 'utf-8');
 
+  const mode = resolveSandboxMode();
+  const containerName = `code-runner-${randomUUID()}`;
   const startedAt = Date.now();
 
   try {
@@ -163,11 +242,28 @@ export async function runPythonCode(
       // so this must be a CLI flag, not an env var — without it, non-ASCII
       // output (Vietnamese exercise text included) crashes with
       // UnicodeEncodeError against cp1252.
-      const child = spawn(PYTHON_BIN, ['-I', '-B', '-X', 'utf8', scriptPath], {
-        cwd: runDir,
-        env: minimalEnv,
-        windowsHide: true,
-      });
+      // Docker client cần biến môi trường của host (DOCKER_HOST, cấu hình
+      // Docker Desktop...), nhưng code học viên chạy trong container nên
+      // không thấy chúng.
+      const child =
+        mode === 'docker'
+          ? spawn(
+              'docker',
+              buildDockerRunArgs({
+                containerName,
+                runDir,
+                scriptFile,
+                timeoutMs,
+                memoryLimitMb,
+                image: process.env.PYTHON_SANDBOX_IMAGE || undefined,
+              }),
+              { cwd: runDir, windowsHide: true },
+            )
+          : spawn(PYTHON_BIN, ['-I', '-B', '-X', 'utf8', scriptPath], {
+              cwd: runDir,
+              env: minimalEnv,
+              windowsHide: true,
+            });
 
       let stdout = '';
       let stderr = '';
@@ -175,13 +271,26 @@ export async function runPythonCode(
       let settled = false;
       let peakMemoryMb: number | undefined;
 
-      const timer = setTimeout(() => {
-        timedOut = true;
-        child.kill('SIGKILL');
-      }, timeoutMs);
+      const timer = setTimeout(
+        () => {
+          timedOut = true;
+          child.kill('SIGKILL');
+          // Giết docker client không dừng container; dừng thẳng theo tên.
+          if (mode === 'docker') {
+            spawn('docker', ['kill', containerName], {
+              windowsHide: true,
+              stdio: 'ignore',
+            }).on('error', () => undefined);
+          }
+        },
+        mode === 'docker' ? timeoutMs + DOCKER_STARTUP_GRACE_MS : timeoutMs,
+      );
 
-      const memorySampler = child.pid
-        ? setInterval(() => {
+      // Trong Docker, RAM do cgroup `--memory` chặn cứng; đo PID của docker
+      // client trên host không phản ánh bộ nhớ của code học viên.
+      const memorySampler =
+        mode === 'local' && child.pid
+          ? setInterval(() => {
             sampleProcessMemoryMb(child.pid as number).then((mb) => {
               if (
                 mb !== undefined &&
@@ -207,7 +316,10 @@ export async function runPythonCode(
         if (memorySampler) clearInterval(memorySampler);
         resolve({
           stdout: '',
-          stderr: `Không thể khởi chạy Python: ${err.message}`,
+          stderr:
+            mode === 'docker'
+              ? `Sandbox Docker chưa sẵn sàng (không tìm thấy lệnh docker): ${err.message}`
+              : `Không thể khởi chạy Python: ${err.message}`,
           exitCode: null,
           timedOut: false,
           executionTimeMs: Date.now() - startedAt,
@@ -220,7 +332,7 @@ export async function runPythonCode(
         settled = true;
         clearTimeout(timer);
         if (memorySampler) clearInterval(memorySampler);
-        resolve({
+        const result: RunResult = {
           stdout: stdout.slice(0, MAX_OUTPUT_BYTES),
           stderr: stderr.slice(0, MAX_OUTPUT_BYTES),
           exitCode,
@@ -228,7 +340,8 @@ export async function runPythonCode(
           executionTimeMs: Date.now() - startedAt,
           blocked: false,
           peakMemoryMb,
-        });
+        };
+        resolve(mode === 'docker' ? interpretDockerExit(result, memoryLimitMb) : result);
       });
 
       child.stdin.write(stdin ?? '');
@@ -243,6 +356,39 @@ export async function runPythonCode(
       retryDelay: 100,
     });
   }
+}
+
+const DOCKER_UNAVAILABLE_PATTERN =
+  /docker daemon|error during connect|dockerDesktopLinuxEngine|Unable to find image|pull access denied/i;
+
+/** Dịch mã thoát của `docker run` + `timeout` về đúng ngữ nghĩa RunResult. */
+export function interpretDockerExit(
+  result: RunResult,
+  memoryLimitMb: number,
+): RunResult {
+  if (result.timedOut) return result;
+  if (result.exitCode === EXIT_CODE_TIMEOUT) {
+    return { ...result, timedOut: true };
+  }
+  if (result.exitCode === EXIT_CODE_SIGKILL) {
+    return {
+      ...result,
+      stderr: `${result.stderr}MemoryError: chương trình vượt giới hạn bộ nhớ ${memoryLimitMb}MB.`,
+    };
+  }
+  if (
+    result.exitCode === EXIT_CODE_DOCKER_ERROR ||
+    (result.exitCode !== 0 &&
+      !result.stdout &&
+      DOCKER_UNAVAILABLE_PATTERN.test(result.stderr))
+  ) {
+    return {
+      ...result,
+      exitCode: null,
+      stderr: `Sandbox Docker chưa sẵn sàng, chưa chạy được bài. Chi tiết: ${result.stderr.trim()}`,
+    };
+  }
+  return result;
 }
 
 const MEMORY_SAMPLE_INTERVAL_MS = 100;
