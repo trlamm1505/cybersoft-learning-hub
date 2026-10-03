@@ -196,6 +196,12 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
                 <span className="font-semibold">Bước tiếp theo: </span>
                 {debugResult.nextStep}
               </p>
+              {debugResult.aiExplanation && (
+                <p className="text-[var(--text-main)] leading-relaxed whitespace-pre-wrap">
+                  <span className="font-semibold">Gợi ý từ AI: </span>
+                  {debugResult.aiExplanation}
+                </p>
+              )}
               {debugResult.loopLimitReached && (
                 <div className="pt-1.5 mt-1.5 border-t border-amber-500/30 text-[10px] text-amber-700 dark:text-amber-300 flex items-center gap-1">
                   <ShieldAlert size={11} /> Đã chạm giới hạn vòng lặp đồng hành
