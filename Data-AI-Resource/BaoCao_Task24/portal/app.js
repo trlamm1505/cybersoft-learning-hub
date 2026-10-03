@@ -113,6 +113,7 @@ async function loadInitialData() {
     if (manJson.success) {
       state.manifests = manJson.data;
       renderReleaseSelector();
+      renderDAG();
     }
 
     // 3. Fetch Changelog
@@ -198,6 +199,39 @@ function createNodeCard(node) {
   return card;
 }
 
+// Create a Release Manifest Card Element for Lane 4
+function createReleaseCard(manifest) {
+  const card = document.createElement('div');
+  card.className = 'pipeline-node-card type-release';
+  card.id = `release-${manifest.release_id}`;
+
+  const compCount = Object.keys(manifest.components || {}).length;
+
+  card.innerHTML = `
+    <div class="card-row-top">
+      <span class="badge-type release">RELEASE</span>
+      <span class="node-version">${manifest.version}</span>
+    </div>
+    <div class="node-title">📦 ${manifest.release_name}</div>
+    <div class="node-desc-text" title="${manifest.description || manifest.release_notes || ''}">
+      ${manifest.description || manifest.release_notes || 'Bản phát hành chuẩn CyberSoft Data & AI Lab'}
+    </div>
+    <div class="card-row-bottom">
+      <span class="tag-state active" style="background:rgba(59,130,246,0.2);color:#60a5fa;">PUBLISHED</span>
+      <span class="node-edges-stat" title="Số thành phần bất biến cấu thành">
+        🧩 ${compCount} comps
+      </span>
+    </div>
+  `;
+
+  card.addEventListener('click', () => {
+    const tabBtn = document.querySelector('.tab-btn[data-tab="tab-manifests"]');
+    if (tabBtn) tabBtn.click();
+    selectRelease(manifest.release_id);
+  });
+  return card;
+}
+
 // Render Pipeline 4-Lane View
 function renderPipelineView() {
   const filtered = getFilteredNodes();
@@ -223,6 +257,21 @@ function renderPipelineView() {
       laneProducts.appendChild(card);
     }
   });
+
+  // Also render Release Manifests into Lane 4 (Bài Tập & Bản Phát Hành)
+  const typeFilter = document.getElementById('filter-type').value;
+  if ((typeFilter === 'all' || typeFilter === 'exercise') && state.manifests && state.manifests.length > 0) {
+    const searchTxt = document.getElementById('dag-search-input').value.toLowerCase().trim();
+    state.manifests.forEach(m => {
+      if (searchTxt) {
+        const matchName = (m.release_name || '').toLowerCase().includes(searchTxt);
+        const matchTag = (m.version || '').toLowerCase().includes(searchTxt);
+        const matchHash = (m.holistic_checksum || '').toLowerCase().includes(searchTxt);
+        if (!matchName && !matchTag && !matchHash) return;
+      }
+      laneProducts.appendChild(createReleaseCard(m));
+    });
+  }
 
   // Empty hints for lanes if all filtered out
   [laneDatasets, laneModels, laneIndices, laneProducts].forEach(lane => {

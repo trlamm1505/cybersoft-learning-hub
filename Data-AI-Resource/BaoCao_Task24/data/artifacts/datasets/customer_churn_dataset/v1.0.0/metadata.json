@@ -16,8 +16,8 @@
     "telecom",
     "classification"
   ],
-  "deprecation_reason": "Nâng cấp cấu trúc dữ liệu viễn thông sang chuẩn hợp nhất v2.0.0.",
-  "superseded_by": "dataset_customer_churn_dataset_v2.0.0",
-  "sunset_date": "2026-12-31T23:59:59Z",
+  "deprecation_reason": "Chuyển đổi sang mô hình dự báo rời bỏ hợp nhất.",
+  "superseded_by": "dataset_customer_churn_v2.0.0",
+  "sunset_date": "2026-12-31T00:00:00Z",
   "extra_metadata": {}
 }

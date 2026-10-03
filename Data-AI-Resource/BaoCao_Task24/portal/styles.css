@@ -24,6 +24,28 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-light) rgba(15, 23, 42, 0.6);
+}
+
+/* CUSTOM SLEEK SCROLLBARS FOR CHROME / SAFARI / EDGE */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
 }
 
 body {
@@ -365,8 +387,9 @@ select:focus, input:focus {
 /* DAG LAYOUT */
 .dag-layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 350px;
   gap: 1.25rem;
+  align-items: start;
 }
 
 .dag-canvas-container {
@@ -375,13 +398,16 @@ select:focus, input:focus {
   border-radius: 8px;
   padding: 1rem;
   min-height: 540px;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 /* PIPELINE 4-LANE VIEW */
 .pipeline-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(260px, 1fr));
   gap: 1rem;
+  min-width: 1080px;
 }
 
 .pipeline-lane {
@@ -427,7 +453,7 @@ select:focus, input:focus {
   flex-direction: column;
   gap: 0.75rem;
   overflow-y: auto;
-  max-height: 600px;
+  max-height: 620px;
 }
 
 /* PIPELINE CARD */
@@ -461,12 +487,21 @@ select:focus, input:focus {
 .pipeline-node-card.type-index { border-left-color: var(--accent-green); }
 .pipeline-node-card.type-evaluation { border-left-color: var(--accent-amber); }
 .pipeline-node-card.type-exercise { border-left-color: var(--accent-cyan); }
+.pipeline-node-card.type-release {
+  border-left-color: #60a5fa;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.85) 100%);
+}
+.pipeline-node-card.type-release:hover {
+  border-color: #60a5fa;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+}
 
 .card-row-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.35rem;
+  gap: 0.4rem;
 }
 
 .node-title {
@@ -475,6 +510,7 @@ select:focus, input:focus {
   color: #fff;
   line-height: 1.3;
   margin-bottom: 0.35rem;
+  word-break: break-word;
 }
 
 .node-desc-text {
@@ -496,18 +532,22 @@ select:focus, input:focus {
   color: var(--text-muted);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   padding-top: 0.35rem;
+  gap: 0.4rem;
 }
 
 .node-edges-stat {
   display: inline-flex;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0.35rem;
   font-family: var(--font-mono);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* GRID VIEW */
 .dag-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 0.85rem;
 }
 
@@ -518,6 +558,8 @@ select:focus, input:focus {
   text-transform: uppercase;
   padding: 0.15rem 0.45rem;
   border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .badge-type.dataset { background: rgba(59, 130, 246, 0.18); color: #60a5fa; }
@@ -526,11 +568,14 @@ select:focus, input:focus {
 .badge-type.index { background: rgba(16, 185, 129, 0.18); color: #34d399; }
 .badge-type.evaluation { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
 .badge-type.exercise { background: rgba(6, 182, 212, 0.18); color: #22d3ee; }
+.badge-type.release { background: rgba(59, 130, 246, 0.22); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
 
 .node-version {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   color: #cbd5e1;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tag-state {
@@ -1058,4 +1103,38 @@ select:focus, input:focus {
   color: var(--text-muted);
   display: flex;
   justify-content: space-between;
+}
+
+/* RESPONSIVE BREAKPOINTS */
+@media (max-width: 1200px) {
+  .dag-layout {
+    grid-template-columns: 1fr;
+  }
+  .dag-sidebar {
+    max-height: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .manifests-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .header-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .main-content {
+    padding: 1rem;
+  }
+  .pane-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
