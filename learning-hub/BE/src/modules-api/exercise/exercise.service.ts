@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -29,8 +33,10 @@ export class ExerciseService {
   ) {}
 
   async findAll() {
+    // Bài DA lab (có resource_id) chấm trên sandbox SQL ở module da-labs,
+    // không dùng được trong ngân hàng đề Python nên không liệt kê ở đây.
     const exercises = await this.exerciseModel
-      .find()
+      .find({ resource_id: { $exists: false } })
       .select(
         'title slug description type difficulty points starterCode timeLimitMs tags prerequisiteSlug gradeBand topic orderInTopic testCases solutionCode sourceLessonSlug',
       )
@@ -108,6 +114,10 @@ export class ExerciseService {
     const exercise = await this.exerciseModel.findOne({ slug }).lean();
     if (!exercise)
       throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
+    // Bài DA Lab nộp qua /da-labs/:slug/submit (SQL), không qua judge Python.
+    if (exercise.resource_id || exercise.type === 'SQL_LAB' || exercise.type === 'DA_INSIGHT') {
+      throw new BadRequestException('Invalid submission type');
+    }
 
     const submission = await this.submissionModel.create({
       exerciseId: String((exercise as any)._id),

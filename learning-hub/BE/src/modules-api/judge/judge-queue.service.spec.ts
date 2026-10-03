@@ -277,6 +277,48 @@ describe('JudgeQueueService', () => {
     expect(runSpy).not.toHaveBeenCalled();
   });
 
+  it.each([
+    [
+      'bài DA Lab (có resource_id, không có test case)',
+      { _id: exerciseId, slug: 'da-sql-01', type: 'SQL_LAB', resource_id: 'ds-retail-ecommerce-sales-v1', testCases: [] },
+      'Invalid submission type',
+    ],
+    [
+      'bài Python không có test case',
+      { _id: exerciseId, slug: 'no-tests', type: 'CODE_TEXT', testCases: [] },
+      'Bài tập thiếu Test Cases, không thể chấm điểm',
+    ],
+    [
+      'bài Python thiếu hẳn field testCases',
+      { _id: exerciseId, slug: 'no-field', type: 'CODE_TEXT' },
+      'Bài tập thiếu Test Cases, không thể chấm điểm',
+    ],
+  ])('không bao giờ chấm AC cho %s: FAILED và không chạy code', async (_name, exercise, message) => {
+    const submissionId = new Types.ObjectId().toString();
+    const submissionModel = makeFakeSubmissionModel({
+      [submissionId]: {
+        _id: submissionId,
+        exerciseId,
+        status: JudgeStatus.QUEUED,
+        code: 'print("anything")',
+        attempts: 0,
+      },
+    });
+    const service = await buildService(
+      submissionModel,
+      makeFakeExerciseModel(exercise),
+    );
+    syntaxSpy = jest.spyOn(codeRunner, 'checkPythonSyntax');
+    runSpy = jest.spyOn(codeRunner, 'runPythonCode');
+
+    await (service as any).gradeOne(submissionId);
+
+    const finalDoc = submissionModel.__store.get(submissionId);
+    expect(finalDoc.status).toBe(JudgeStatus.FAILED);
+    expect(finalDoc.errorMessage).toBe(message);
+    expect(runSpy).not.toHaveBeenCalled();
+  });
+
   it('does not double-grade when gradeOne is invoked twice concurrently for the same id', async () => {
     const submissionId = new Types.ObjectId().toString();
     const submissionModel = makeFakeSubmissionModel({

@@ -450,3 +450,68 @@ describe('AuthoringService', () => {
     });
   });
 });
+
+describe('AuthoringService — bài DA Lab không lọt vào luồng lesson Python', () => {
+  let service: AuthoringService;
+  let mockLessonModel: any;
+  let mockExerciseModel: any;
+  const teacher = { sub: 't1', role: 'TEACHER' };
+  const daExercise = {
+    _id: 'da-id-1',
+    slug: 'da-sql-01',
+    title: 'Đơn hàng giá trị cao',
+    type: 'SQL_LAB',
+    resource_id: 'ds-retail-ecommerce-sales-v1',
+  };
+
+  const chain = (value: any) => ({
+    sort: jest.fn().mockReturnThis(),
+    lean: jest.fn().mockReturnThis(),
+    exec: jest.fn().mockResolvedValue(value),
+  });
+
+  beforeEach(async () => {
+    mockLessonModel = jest.fn();
+    mockLessonModel.find = jest.fn().mockReturnValue(chain([]));
+    mockLessonModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+    mockExerciseModel = {
+      find: jest.fn().mockReturnValue(chain([])),
+      findById: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(daExercise) }),
+      findByIdAndDelete: jest.fn().mockReturnValue({ exec: jest.fn() }),
+      deleteOne: jest.fn(),
+    };
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthoringService,
+        { provide: getModelToken(Lesson.name), useValue: mockLessonModel },
+        { provide: getModelToken(Exercise.name), useValue: mockExerciseModel },
+      ],
+    }).compile();
+    service = module.get<AuthoringService>(AuthoringService);
+  });
+
+  it.each([true, false])(
+    'findAll(forStudent=%s) chỉ gộp exercise không có resource_id',
+    async (forStudent) => {
+      await service.findAll(forStudent);
+
+      expect(mockExerciseModel.find).toHaveBeenCalledWith(
+        expect.objectContaining({ resource_id: { $exists: false } }),
+      );
+    },
+  );
+
+  it('updateLesson không chuyển bài DA thành lesson coding, không xoá exercise gốc', async () => {
+    await expect(
+      service.updateLesson('da-id-1', { status: 'published' } as any, teacher),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(mockExerciseModel.deleteOne).not.toHaveBeenCalled();
+  });
+
+  it('deleteLesson không xoá bài DA qua đường exercise mồ côi', async () => {
+    await expect(service.deleteLesson('da-id-1', teacher)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(mockExerciseModel.findByIdAndDelete).not.toHaveBeenCalled();
+  });
+});

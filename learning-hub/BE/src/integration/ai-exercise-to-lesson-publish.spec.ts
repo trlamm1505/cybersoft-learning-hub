@@ -27,6 +27,10 @@ import { AuthoringService } from '../modules-api/authoring/authoring.service';
 import { Exercise } from '../modules-system/database/schemas/exercise.schema';
 import { Lesson } from '../modules-system/database/schemas/lesson.schema';
 
+// Luồng đầy đủ chạy validator Python thật cho bài AI sinh; khi Jest chạy
+// nhiều worker song song, mức 5s mặc định bị vượt dù logic đúng.
+jest.setTimeout(15000);
+
 /**
  * Fake Mongoose Model tối giản: lưu document trong một mảng in-memory,
  * implement đúng subset các method 2 service thật sự gọi
@@ -49,6 +53,9 @@ function createFakeModel<T extends { _id?: string }>() {
       }
       if (value && typeof value === 'object' && '$in' in (value as any)) {
         return (value as any).$in.includes(doc[key]);
+      }
+      if (value && typeof value === 'object' && '$exists' in (value as any)) {
+        return (doc[key] !== undefined) === (value as any).$exists;
       }
       return doc[key] === value;
     });

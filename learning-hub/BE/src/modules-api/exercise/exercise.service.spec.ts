@@ -97,3 +97,53 @@ describe('ExerciseService.findAll — hasSolution/testCaseCount badge fields', (
     expect(result[0].sourceLessonSlug).toBe('bai-da-publish');
   });
 });
+
+describe('ExerciseService.submitCode — chặn nộp Python vào bài DA Lab', () => {
+  let service: ExerciseService;
+  const mockExerciseModel = { findOne: jest.fn() };
+  const mockSubmissionModel = { create: jest.fn() };
+  const mockJudge = { enqueue: jest.fn() };
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ExerciseService,
+        { provide: getModelToken(Exercise.name), useValue: mockExerciseModel },
+        { provide: getModelToken(Submission.name), useValue: mockSubmissionModel },
+        { provide: JudgeQueueService, useValue: mockJudge },
+      ],
+    }).compile();
+    service = module.get<ExerciseService>(ExerciseService);
+  });
+
+  it.each([
+    { slug: 'da-sql-01', type: 'SQL_LAB', resource_id: 'ds-retail-ecommerce-sales-v1' },
+    { slug: 'da-insight-01', type: 'DA_INSIGHT', resource_id: 'ds-retail-ecommerce-sales-v1' },
+  ])('$slug: BadRequestException, không tạo submission, không vào hàng đợi', async (exercise) => {
+    mockExerciseModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(exercise) });
+
+    await expect(service.submitCode(exercise.slug, { code: 'print(1)' } as any, 'u1')).rejects.toThrow(
+      'Invalid submission type',
+    );
+    expect(mockSubmissionModel.create).not.toHaveBeenCalled();
+    expect(mockJudge.enqueue).not.toHaveBeenCalled();
+  });
+
+  it('bài Python bình thường vẫn được nộp và vào hàng đợi', async () => {
+    mockExerciseModel.findOne.mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        _id: 'ex1',
+        slug: 'tinh-tong',
+        type: 'CODE_TEXT',
+        testCases: [{ input: '1', expectedOutput: '1' }],
+      }),
+    });
+    mockSubmissionModel.create.mockResolvedValue({ _id: 'sub1' });
+
+    const res = await service.submitCode('tinh-tong', { code: 'print(1)' } as any, 'u1');
+
+    expect(res).toEqual({ submissionId: 'sub1', status: 'QUEUED' });
+    expect(mockJudge.enqueue).toHaveBeenCalledWith('sub1');
+  });
+});

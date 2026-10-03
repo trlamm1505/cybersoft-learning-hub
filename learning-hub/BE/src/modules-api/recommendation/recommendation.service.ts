@@ -31,8 +31,10 @@ export class RecommendationService {
     const [tagMastery, solvedExerciseIds, exercises] = await Promise.all([
       this.masteryService.getTagMastery(userId),
       this.masteryService.getSolvedExerciseIds(userId),
+      // Chỉ gợi ý bài Python: bài DA Lab (có resource_id) học viên không
+      // làm được ở Playground và không nộp được qua judge Python.
       this.exerciseModel
-        .find()
+        .find({ resource_id: { $exists: false } })
         .select('title slug difficulty tags prerequisiteSlug')
         .lean(),
     ]);
