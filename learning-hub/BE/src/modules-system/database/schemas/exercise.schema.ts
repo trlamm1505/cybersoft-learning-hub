@@ -24,6 +24,26 @@ export class ExerciseTestCase {
 export const ExerciseTestCaseSchema =
   SchemaFactory.createForClass(ExerciseTestCase);
 
+/** Tiêu chí rubric của bài DA_INSIGHT (chấm bằng LLM, xem da-labs/insight-guardrails.ts). */
+@Schema({ _id: false })
+export class InsightRubricCriterion {
+  @Prop({ required: true, type: String })
+  id: string;
+
+  @Prop({ required: true, type: String })
+  title: string;
+
+  @Prop({ required: true, type: Number })
+  maxPoints: number;
+
+  @Prop({ required: true, type: String })
+  description: string;
+}
+
+export const InsightRubricCriterionSchema = SchemaFactory.createForClass(
+  InsightRubricCriterion,
+);
+
 @Schema({ timestamps: true, collection: 'exercises' })
 export class Exercise {
   @Prop({ required: true, type: String, trim: true })
@@ -37,7 +57,7 @@ export class Exercise {
 
   @Prop({
     type: String,
-    enum: ['QUIZ', 'CODE_BLOCK', 'CODE_TEXT', 'SQL_LAB'],
+    enum: ['QUIZ', 'CODE_BLOCK', 'CODE_TEXT', 'SQL_LAB', 'DA_INSIGHT'],
     default: 'CODE_TEXT',
   })
   type: string;
@@ -114,6 +134,16 @@ export class Exercise {
 
   @Prop({ type: String })
   overrideReason?: string;
+
+  // Mã dataset trong Dataset Registry của Data & AI Resource (TTS 01), vd
+  // `ds-retail-ecommerce-sales-v1`. Bài lab DA không lưu cấu trúc bảng hay dữ
+  // liệu: mọi thứ lấy qua DatasetIntegrationService theo mã này. Giữ tên
+  // snake_case đúng như trong hợp đồng API giữa hai bên.
+  @Prop({ type: String, index: true })
+  resource_id?: string;
+
+  @Prop({ type: [InsightRubricCriterionSchema], default: undefined })
+  insightRubric?: InsightRubricCriterion[];
 }
 
 export const ExerciseSchema = SchemaFactory.createForClass(Exercise);

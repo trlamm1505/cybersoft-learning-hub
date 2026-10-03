@@ -32,6 +32,10 @@ import {
   TesterLabSubmission,
   TesterLabSubmissionSchema,
 } from './schemas/tester-lab-submission.schema';
+import {
+  DaLabSubmission,
+  DaLabSubmissionSchema,
+} from './schemas/da-lab-submission.schema';
 
 @Module({
   imports: [
@@ -67,6 +71,7 @@ import {
         name: TesterLabSubmission.name,
         schema: TesterLabSubmissionSchema,
       },
+      { name: DaLabSubmission.name, schema: DaLabSubmissionSchema },
     ]),
   ],
   exports: [MongooseModule],
