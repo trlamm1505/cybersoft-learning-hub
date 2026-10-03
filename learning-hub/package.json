@@ -1,0 +1,18 @@
+{
+  "name": "learning-hub",
+  "private": true,
+  "scripts": {
+    "predev": "node scripts/ensure-sandbox.js",
+    "dev": "concurrently -n mock,api,web -c yellow,cyan,magenta \"npm:dev:mock\" \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:mock": "npm --prefix BE run mock:data-service",
+    "dev:api": "npm --prefix BE run start:dev",
+    "dev:web": "npm --prefix FE run dev",
+    "sandbox": "node scripts/ensure-sandbox.js",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:up:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  }
+}
