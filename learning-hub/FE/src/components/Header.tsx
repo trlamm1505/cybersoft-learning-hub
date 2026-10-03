@@ -14,6 +14,8 @@ import {
   GraduationCap,
   Sparkles,
   FlaskConical,
+  Database,
+  ClipboardCheck,
   BarChart3,
   User,
   ChevronDown,
@@ -67,6 +69,8 @@ export const Header: React.FC<HeaderProps> = ({
     if (path.startsWith('/playground')) return 'playground';
     if (path.startsWith('/progress')) return 'progress';
     if (path.startsWith('/tester-labs')) return 'tester-labs';
+    if (path.startsWith('/da-labs')) return 'da-labs';
+    if (path.startsWith('/teacher/review-queue')) return 'review-queue';
     if (path.startsWith('/block-puzzle')) return 'block-puzzle';
     if (path.startsWith('/quiz')) return 'quiz';
     if (path.startsWith('/detail')) return 'detail';
@@ -126,6 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
                 { key: 'block-puzzle', label: 'Block Puzzle', Icon: Puzzle, path: '/block-puzzle' },
                 { key: 'contests', label: 'Cuộc Thi & Lịch Thi', Icon: Trophy, path: '/contests' },
                 { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
+                { key: 'da-labs', label: 'DA Lab', Icon: Database, path: '/da-labs' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -156,7 +161,9 @@ export const Header: React.FC<HeaderProps> = ({
                 { key: 'teacher-library', label: 'Xem Các Bài Thi', Icon: ClipboardList, path: '/authoring?view=library' },
                 { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
                 { key: 'problem-generator', label: 'AI Tạo Đề', Icon: Sparkles, path: '/problem-generator' },
+                { key: 'review-queue', label: 'Chấm Insight', Icon: ClipboardCheck, path: '/teacher/review-queue' },
                 { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
+                { key: 'da-labs', label: 'DA Lab', Icon: Database, path: '/da-labs' },
               ].map((item) => {
                 const isActive = activeTab === item.key;
                 return (
@@ -398,6 +405,19 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               <button
                 className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'da-labs'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
+                    : 'text-[var(--text-muted)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/da-labs');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <Database size={16} strokeWidth={2} /> DA Lab
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-medium text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'progress'
                     ? 'text-indigo-600 dark:text-cyan-400 font-semibold'
                     : 'text-[var(--text-muted)]'
@@ -466,6 +486,19 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               <button
                 className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'review-queue'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/teacher/review-queue');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <ClipboardCheck size={16} strokeWidth={2} /> Chấm Insight
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
                   activeTab === 'tester-labs'
                     ? 'text-indigo-600 dark:text-cyan-400 font-bold'
                     : 'text-[var(--text-main)]'
@@ -476,6 +509,19 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
               >
                 <FlaskConical size={16} strokeWidth={2} /> Tester Lab
+              </button>
+              <button
+                className={`flex items-center gap-2 text-sm font-bold text-left transition-colors bg-transparent border-none cursor-pointer ${
+                  activeTab === 'da-labs'
+                    ? 'text-indigo-600 dark:text-cyan-400 font-bold'
+                    : 'text-[var(--text-main)]'
+                }`}
+                onClick={() => {
+                  handleNavigate('/da-labs');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <Database size={16} strokeWidth={2} /> DA Lab
               </button>
             </>
           )}

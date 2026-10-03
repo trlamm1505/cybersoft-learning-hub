@@ -378,7 +378,8 @@ export class AuthoringService implements OnModuleInit {
       // (gọi qua createLesson) đồng bộ ngược lại đúng slug, thay vì trả 404
       // khó hiểu cho một hàng trông y hệt lesson sửa được bình thường trên UI.
       const exercise = await this.exerciseModel.findById(id).exec();
-      if (!exercise) {
+      // Bài DA Lab không phải lesson 'coding': không cho chuyển đổi tại đây.
+      if (!exercise || exercise.resource_id) {
         throw new NotFoundException(`Không tìm thấy bài học với ID: ${id}`);
       }
 
@@ -461,8 +462,13 @@ export class AuthoringService implements OnModuleInit {
     // danh sách, đánh dấu `sourceCollection: 'exercise'` để FE phân biệt
     // được nguồn khi cần (ví dụ ẩn nút Import JSON không áp dụng được).
     const lessonSlugs = new Set(lessons.map((l) => l.slug));
+    // Bài DA Lab (có resource_id) chấm bằng SQL trên sandbox ở module
+    // da-labs, không phải bài Python: không được map thành lesson 'coding'.
     const orphanExercises = await this.exerciseModel
-      .find({ slug: { $nin: Array.from(lessonSlugs) } })
+      .find({
+        slug: { $nin: Array.from(lessonSlugs) },
+        resource_id: { $exists: false },
+      })
       .sort({ createdAt: -1 })
       .lean()
       .exec();
@@ -678,7 +684,8 @@ export class AuthoringService implements OnModuleInit {
     // khi báo "không tìm thấy" — nếu không, trang Library sẽ không thể xoá
     // được những bài nó vừa gộp thêm vào chính danh sách của mình.
     const exercise = await this.exerciseModel.findById(id).exec();
-    if (!exercise) {
+    // Bài DA Lab không hiện trong Library nên cũng không xoá qua đường này.
+    if (!exercise || exercise.resource_id) {
       throw new NotFoundException(`Không tìm thấy bài học với ID: ${id}`);
     }
     await this.exerciseModel.findByIdAndDelete(id).exec();

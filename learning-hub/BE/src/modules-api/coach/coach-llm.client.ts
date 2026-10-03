@@ -24,7 +24,7 @@ export function estimateTokens(text: string): number {
 // Các loại lỗi runtime/syntax Python phổ biến mà học viên hay dán nguyên
 // traceback vào khung chat thay vì tự diễn đạt lại bằng lời. Nhận diện để
 // trả lời đúng trọng tâm loại lỗi, thay vì echo nguyên văn traceback.
-const ERROR_PATTERNS: Array<{ match: RegExp; kind: string; explain: string }> =
+export const ERROR_PATTERNS: Array<{ match: RegExp; kind: string; explain: string }> =
   [
     {
       match: /SyntaxError:.*was never closed|SyntaxError:.*unexpected EOF/i,
@@ -63,6 +63,18 @@ const ERROR_PATTERNS: Array<{ match: RegExp; kind: string; explain: string }> =
         'Các dòng code trong cùng một khối (if/for/while/def) cần thụt lề đều nhau. Kiểm tra lại có dòng nào lẫn tab và space, hoặc thụt lề không khớp khối cha.',
     },
   ];
+
+// Dùng chung cho StubLlmClient và AiCoachPreprocessor để hai nơi trả cùng một câu mẫu.
+export function buildErrorTracebackReply(
+  exerciseTitle: string,
+  errorHit: { kind: string; explain: string },
+): string {
+  return (
+    `Mình thấy bạn đang gặp ${errorHit.kind} khi chạy bài "${exerciseTitle}". ` +
+    `${errorHit.explain} ` +
+    `Bạn thử soát lại đúng dòng được traceback chỉ ra trước, nếu vẫn bí thì mở thêm gợi ý theo tầng để có hướng cụ thể hơn.`
+  );
+}
 
 /**
  * Implementation mặc định khi chưa cấu hình API key của nhà cung cấp model
@@ -154,12 +166,7 @@ export class StubLlmClient implements LlmClient {
     context: CoachContext,
     errorHit: { kind: string; explain: string },
   ): string {
-    const { exercise } = context;
-    return (
-      `Mình thấy bạn đang gặp ${errorHit.kind} khi chạy bài "${exercise.title}". ` +
-      `${errorHit.explain} ` +
-      `Bạn thử soát lại đúng dòng được traceback chỉ ra trước, nếu vẫn bí thì mở thêm gợi ý theo tầng để có hướng cụ thể hơn.`
-    );
+    return buildErrorTracebackReply(context.exercise.title, errorHit);
   }
 
   private buildAskingForAnswerReply(context: CoachContext): string {

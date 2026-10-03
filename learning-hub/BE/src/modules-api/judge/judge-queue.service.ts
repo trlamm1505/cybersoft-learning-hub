@@ -108,6 +108,38 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
         return;
       }
 
+      // Lớp bảo vệ thứ hai sau ExerciseService.submitCode (bắt cả bài nộp
+      // đã vào hàng đợi trước khi có guard): judge này chỉ chấm Python.
+      // Không ném BadRequestException vì đây là luồng nền, không còn HTTP
+      // request; ghi FAILED để không bao giờ ra AC.
+      if (
+        exercise.resource_id ||
+        exercise.type === 'SQL_LAB' ||
+        exercise.type === 'DA_INSIGHT'
+      ) {
+        await this.finish(submissionId, {
+          status: JudgeStatus.FAILED,
+          errorMessage: 'Invalid submission type',
+          passedCount: 0,
+          totalCount: 0,
+          results: [],
+        });
+        return;
+      }
+
+      // Bài không có test case thì không có căn cứ chấm: trước đây gán AC,
+      // làm học viên "giải" được bài mà không cần code đúng.
+      if (!exercise.testCases?.length) {
+        await this.finish(submissionId, {
+          status: JudgeStatus.FAILED,
+          errorMessage: 'Bài tập thiếu Test Cases, không thể chấm điểm',
+          passedCount: 0,
+          totalCount: 0,
+          results: [],
+        });
+        return;
+      }
+
       const syntaxCheck = await checkPythonSyntax(claimed.code);
       if (!syntaxCheck.ok) {
         await this.finish(submissionId, {
@@ -132,6 +164,7 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
           claimed.code,
           tc.input,
           exercise.timeLimitMs,
+          tc.memoryLimitMb ?? exercise.memoryLimitMb,
         );
 
         if (run.blocked) {
@@ -183,7 +216,6 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
       }
 
       const passedCount = results.filter((r) => r.passed).length;
-      if (testCases.length === 0) status = JudgeStatus.AC;
 
       await this.finish(submissionId, {
         status,

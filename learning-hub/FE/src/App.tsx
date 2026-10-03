@@ -14,6 +14,9 @@ import { LearnerProgressPage } from './pages/LearnerProgressPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { TesterLabListPage } from './pages/TesterLabListPage';
 import { TesterLabDetailPage } from './pages/TesterLabDetailPage';
+import { DaLabListPage } from './pages/DaLabListPage';
+import { DaLabWorkspacePage } from './pages/DaLabWorkspacePage';
+import { TeacherReviewQueue } from './components/TeacherReviewQueue';
 import { ContestListPage } from './pages/ContestListPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -330,6 +333,24 @@ export function App() {
           <Route
             path="/tester-labs/:labCode"
             element={authUser ? <TesterLabDetailPage isStudent={authUser.role === 'STUDENT'} /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/teacher/review-queue"
+            element={
+              authUser?.role === 'TEACHER' ? (
+                <TeacherReviewQueue />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
+            }
+          />
+          <Route
+            path="/da-labs"
+            element={authUser ? <DaLabListPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/da-labs/:slug"
+            element={authUser ? <DaLabWorkspacePage isDark={!isLightTheme} /> : <Navigate to="/login" replace />}
           />
           <Route
             path="/profile"

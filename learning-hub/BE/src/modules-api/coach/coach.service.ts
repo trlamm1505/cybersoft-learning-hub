@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  Optional,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -29,7 +30,7 @@ import {
   buildInjectionRefusalReply,
   detectPromptInjection,
 } from './coach-injection-guard';
-import { buildGreetingReply, detectGreeting } from './coach-canned-replies';
+import { AiCoachPreprocessor } from './ai-coach-preprocessor';
 import { estimateTokens } from './coach-llm.client';
 import type { LlmClient } from './coach-llm.client';
 import { COACH_LLM_CLIENT } from './coach.constants';
@@ -37,6 +38,12 @@ import { CoachChatDto } from './dto/coach-chat.dto';
 import { analyzeDebugLoop, MAX_DEBUG_LOOPS } from './coach-debug-loop';
 import { DebugLoopTestInput } from './coach-debug-loop.types';
 import { DebugLoopDto } from './dto/debug-loop.dto';
+import {
+  buildDebugPrompt,
+  COACH_DEBUG_EXPLAINER,
+  DEBUG_FALLBACK_REPLY,
+} from './coach-debug-explainer';
+import type { DebugExplainer } from './coach-debug-explainer';
 
 // Giới hạn token theo lượt gọi (input context + output) — điều kiện nghiệm
 // thu yêu cầu "có logging và giới hạn token". Ngưỡng này chặn context phình
@@ -60,6 +67,7 @@ export const SYSTEM_PROMPT = [
 @Injectable()
 export class CoachService {
   private readonly logger = new Logger(CoachService.name);
+  private readonly preprocessor = new AiCoachPreprocessor();
 
   constructor(
     private readonly contextBuilder: CoachContextBuilder,
@@ -70,6 +78,10 @@ export class CoachService {
     private readonly exerciseModel: Model<ExerciseDocument>,
     @InjectModel(Submission.name)
     private readonly submissionModel: Model<SubmissionDocument>,
+    // Không cấu hình GEMINI_API_KEY thì Debug Loop chỉ dùng phân tích rule-based như Day 17.
+    @Optional()
+    @Inject(COACH_DEBUG_EXPLAINER)
+    private readonly debugExplainer?: DebugExplainer,
   ) {}
 
   async chat(dto: CoachChatDto, userId: string) {
@@ -103,40 +115,6 @@ export class CoachService {
       message,
       estimateTokens(message),
     );
-
-    // Lời chào đơn giản không cần "hiểu" gì cả — trả lời cứng, KHÔNG gọi
-    // llmClient.chat(). Đặt ở CoachService (không phải trong StubLlmClient)
-    // để hành vi này giữ nguyên dù ngày mai đổi sang client gọi model thật
-    // (Gemini/Anthropic...) — câu chào không bao giờ tốn quota gọi API.
-    if (detectGreeting(message)) {
-      const greeting = buildGreetingReply(context.exercise.title);
-      const greetingTokens = estimateTokens(greeting.reply!);
-
-      await this.logMessage(
-        userId,
-        exerciseSlug,
-        'assistant',
-        greeting.reply!,
-        greetingTokens,
-      );
-
-      return {
-        exerciseSlug,
-        reply: greeting.reply!,
-        policy: {
-          allowFullSolution: context.policy.allowFullSolution,
-          maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
-          blocked: false,
-          reason: undefined,
-        },
-        usage: {
-          promptTokens: promptTokenEstimate,
-          completionTokens: greetingTokens,
-          maxPromptTokens: MAX_PROMPT_TOKENS,
-          maxCompletionTokens: MAX_COMPLETION_TOKENS,
-        },
-      };
-    }
 
     // Chặn ở tầng input trước khi user message được đưa vào prompt gửi model:
     // không phụ thuộc hoàn toàn vào việc model tự chống injection (xem
@@ -173,6 +151,38 @@ export class CoachService {
         usage: {
           promptTokens: promptTokenEstimate,
           completionTokens: refusalTokens,
+          maxPromptTokens: MAX_PROMPT_TOKENS,
+          maxCompletionTokens: MAX_COMPLETION_TOKENS,
+        },
+      };
+    }
+
+    // Chào hỏi, tạm biệt, cảm ơn và lỗi tĩnh cơ bản: trả lời mẫu, KHÔNG gọi
+    // llmClient.chat(), để không tốn quota Gemini. Chạy SAU bộ chặn injection.
+    const canned = this.preprocessor.tryHandle(message, context.exercise.title);
+    if (canned) {
+      const cannedTokens = estimateTokens(canned.reply);
+
+      await this.logMessage(
+        userId,
+        exerciseSlug,
+        'assistant',
+        canned.reply,
+        cannedTokens,
+      );
+
+      return {
+        exerciseSlug,
+        reply: canned.reply,
+        policy: {
+          allowFullSolution: context.policy.allowFullSolution,
+          maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
+          blocked: false,
+          reason: undefined,
+        },
+        usage: {
+          promptTokens: promptTokenEstimate,
+          completionTokens: cannedTokens,
           maxPromptTokens: MAX_PROMPT_TOKENS,
           maxCompletionTokens: MAX_COMPLETION_TOKENS,
         },
@@ -254,7 +264,7 @@ export class CoachService {
 
     const exercise = await this.exerciseModel
       .findOne({ slug: exerciseSlug })
-      .select('_id title')
+      .select('_id title description')
       .lean();
     if (!exercise) {
       throw new NotFoundException(`Không tìm thấy bài tập "${exerciseSlug}"`);
@@ -325,6 +335,14 @@ export class CoachService {
     };
 
     const result = analyzeDebugLoop(debugInput, { attemptsSoFar });
+    const aiExplanation = await this.explainWithGemini(
+      userId,
+      exerciseSlug,
+      (exercise as any).description ?? '',
+      submission.code ?? '',
+      debugInput,
+      result.errorCategory,
+    );
 
     const summaryForLog =
       `[debug-loop] category=${result.errorCategory} loop=${result.loopCount}/${result.maxLoops} ` +
@@ -341,7 +359,40 @@ export class CoachService {
       exerciseSlug,
       submissionId,
       ...result,
+      ...(aiExplanation ? { aiExplanation } : {}),
     };
+  }
+
+  /**
+   * Gợi ý ngắn từ Gemini, bổ sung cho phân tích rule-based. Bỏ qua bài đã AC
+   * và lỗi cú pháp (rule-based đã đủ) để tiết kiệm quota. Đầu ra vẫn đi qua
+   * checkCoachResponsePolicy để chặn lời giải đầy đủ hoặc lộ test ẩn.
+   */
+  private async explainWithGemini(
+    userId: string,
+    exerciseSlug: string,
+    description: string,
+    code: string,
+    debugInput: DebugLoopTestInput,
+    errorCategory: string,
+  ): Promise<string | undefined> {
+    if (!this.debugExplainer) return undefined;
+    if (errorCategory === 'PASSED' || errorCategory === 'COMPILE_SYNTAX') {
+      return undefined;
+    }
+
+    const reply = await this.debugExplainer.explain(
+      buildDebugPrompt(description, code, debugInput),
+    );
+    if (reply === DEBUG_FALLBACK_REPLY) return reply;
+
+    const context = await this.contextBuilder.build(userId, exerciseSlug);
+    const policyCheck = checkCoachResponsePolicy(reply, context);
+    if (!policyCheck.allowed) {
+      this.logger.warn(`Gợi ý Debug Loop bị chặn bởi policy: ${policyCheck.reason}`);
+      return policyCheck.sanitizedContent ?? DEBUG_FALLBACK_REPLY;
+    }
+    return reply;
   }
 
   async getHistory(userId: string, exerciseSlug: string) {

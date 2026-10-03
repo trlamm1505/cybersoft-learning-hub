@@ -15,6 +15,7 @@ import { BlockPuzzleModule } from './modules-api/block-puzzle/block-puzzle.modul
 import { ProblemGeneratorModule } from './modules-api/problem-generator/problem-generator.module';
 import { RecommendationModule } from './modules-api/recommendation/recommendation.module';
 import { TesterLabsModule } from './modules-api/tester-labs/tester-labs.module';
+import { DaLabsModule } from './modules-api/da-labs/da-labs.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { TesterLabsModule } from './modules-api/tester-labs/tester-labs.module';
     ProblemGeneratorModule,
     RecommendationModule,
     TesterLabsModule,
+    DaLabsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
