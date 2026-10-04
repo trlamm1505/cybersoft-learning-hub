@@ -89,18 +89,24 @@ BaoCao_Task24/
 
 ## 2. HƯỚNG DẪN THỰC THI & TRẢI NGHIỆM TRÊN TRÌNH DUYỆT WEB
 
+> [!TIP]
+> **Ngữ cảnh làm việc**: Khuyến nghị mở PowerShell trực tiếp tại thư mục dự án:  
+> `cd Data-AI-Resource/BaoCao_Task24`
+
 ### Bước 1: Khởi động máy chủ Lineage & Versioning System
-Mở PowerShell tại thư mục `cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task24/`:
+Chạy lệnh từ thư mục `BaoCao_Task24/`:
 ```powershell
 python scripts/run_server.py
 ```
+*(Nếu đang đứng tại thư mục gốc repository `cybersoft-learning-hub/`: `python Data-AI-Resource/BaoCao_Task24/scripts/run_server.py`)*
+
 Máy chủ khởi chạy thành công tại địa chỉ: **`http://localhost:8000`**
 
 ### Bước 2: Trải nghiệm Giao diện Web Lineage Explorer (SPA)
 Mở trình duyệt Web (Chrome, Edge) và truy cập:
-👉 **[http://localhost:8000/portal/](http://localhost:8000/portal/)** (hoặc truy cập trang chủ [http://localhost:8000/](http://localhost:8000/))
+👉 **[http://localhost:8000/portal/](http://localhost:8000/portal/)** (hoặc trang chủ [http://localhost:8000/](http://localhost:8000/))
 
-Tại giao diện Web Explorer, bạn có thể thực hiện đầy đủ 5 tác vụ:
+Tại giao diện Web Explorer, bạn có thể thực hiện đầy đủ 6 tác vụ:
 1. **Khám phá Đồ Thị Nguồn Gốc (Lineage DAG)**: Duyệt các thẻ tài nguyên, lọc theo 6 nhóm (Dataset, Prompt, Model, Index, Evaluation, Exercise) hoặc theo trạng thái vòng đời (Active, Deprecated, Retired).
 2. **Truy Vết Nguồn Gốc Bài Tập (Provenance Backtrace)**: Bấm nút **`🎯 Truy Vết Nguồn Gốc Bài Tập (DoD)`** trên thanh công cụ để mở hộp thoại phân tích chi tiết: Hệ thống hiển thị 4 Dataset nguồn, 1 Model LLM, 1 Prompt template và 11 tuyến đường dẫn nhân quả ngược về nguồn.
 3. **Kiểm Tra Bản Đồ Phát Hành (Release Manifests)**: Chuyển sang Tab *Bản Đồ Phát Hành*, đối chiếu giữa `v1.0.0` (13 components) và `v1.1.0` (16 components) kèm mã kiểm tra toàn vẹn (holistic checksum).
@@ -113,9 +119,12 @@ Tại giao diện Web Explorer, bạn có thể thực hiện đầy đủ 5 tá
 ## 3. LỆNH KIỂM THỬ ĐỘC LẬP & ĐỐI SOÁT TIÊU CHÍ DoD
 
 ### 3.1. Chạy Bộ Đánh Giá Độc Lập DoD
+Chạy trực tiếp từ thư mục `BaoCao_Task24/`:
 ```powershell
-python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task24/scripts/run_lineage_eval.py
+python scripts/run_lineage_eval.py
 ```
+*(Nếu đứng từ thư mục gốc repository: `python Data-AI-Resource/BaoCao_Task24/scripts/run_lineage_eval.py`)*
+
 **Kết quả thực tế**:
 - 5/5 bước kiểm thử đạt chuẩn 100%.
 - BƯỚC 1: Truy vết 100% thành công về tận gốc dữ liệu, model và prompt.
@@ -126,11 +135,14 @@ python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task24/scripts/run_lineage
 - **Exit Code**: `0`
 
 ### 3.2. Chạy Bộ Kiểm Thử Tự Động Pytest
+Chạy trực tiếp từ thư mục `BaoCao_Task24/`:
 ```powershell
-pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task24/tests/ -v
+pytest -v
 ```
+*(Nếu đứng từ thư mục gốc repository: `pytest Data-AI-Resource/BaoCao_Task24/tests/ -v`)*
+
 **Kết quả thực tế**:
-- **24/24 tests PASS 100%** trong **0.67 giây**.
+- **24/24 tests PASS 100%** trong **0.96 giây**.
 - 0 lỗi, 0 cảnh báo.
 
 ---
