@@ -125,54 +125,6 @@ body {
   color: var(--text-muted);
 }
 
-.header-right {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.badge-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: 1px solid transparent;
-}
-
-.status-worm {
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.3);
-}
-
-.status-release {
-  background: rgba(59, 130, 246, 0.12);
-  color: #60a5fa;
-  border-color: rgba(59, 130, 246, 0.3);
-}
-
-.status-dod {
-  background: rgba(245, 158, 11, 0.12);
-  color: #fbbf24;
-  border-color: rgba(245, 158, 11, 0.3);
-}
-
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.pulse-dot.green {
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
-}
-
 /* METRICS BAR */
 .metrics-bar {
   display: grid;
@@ -1125,10 +1077,6 @@ select:focus, input:focus {
   .app-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-  .header-right {
-    width: 100%;
-    justify-content: flex-start;
   }
   .main-content {
     padding: 1rem;
