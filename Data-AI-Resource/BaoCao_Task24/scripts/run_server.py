@@ -13,4 +13,5 @@ from src.config import config
 
 if __name__ == "__main__":
     print(f"Starting {config.app_name} on http://localhost:{config.port} ...")
-    uvicorn.run("src.main:app", host="127.0.0.1", port=config.port, reload=False)
+    uvicorn.run("src.main:app", host="127.0.0.1", port=config.port, reload=False, app_dir=str(BASE_DIR))
+

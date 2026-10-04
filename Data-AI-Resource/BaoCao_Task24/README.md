@@ -89,17 +89,11 @@ BaoCao_Task24/
 
 ## 2. HƯỚNG DẪN THỰC THI & TRẢI NGHIỆM TRÊN TRÌNH DUYỆT WEB
 
-> [!TIP]
-> **Ngữ cảnh làm việc**: Khuyến nghị mở PowerShell trực tiếp tại thư mục dự án:  
-> `cd Data-AI-Resource/BaoCao_Task24`
-
 ### Bước 1: Khởi động máy chủ Lineage & Versioning System
-Chạy lệnh từ thư mục `BaoCao_Task24/`:
+Chạy lệnh từ PowerShell:
 ```powershell
-python scripts/run_server.py
+python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task24/scripts/run_server.py
 ```
-*(Nếu đang đứng tại thư mục gốc repository `cybersoft-learning-hub/`: `python Data-AI-Resource/BaoCao_Task24/scripts/run_server.py`)*
-
 Máy chủ khởi chạy thành công tại địa chỉ: **`http://localhost:8000`**
 
 ### Bước 2: Trải nghiệm Giao diện Web Lineage Explorer (SPA)
@@ -119,12 +113,9 @@ Tại giao diện Web Explorer, bạn có thể thực hiện đầy đủ 6 tá
 ## 3. LỆNH KIỂM THỬ ĐỘC LẬP & ĐỐI SOÁT TIÊU CHÍ DoD
 
 ### 3.1. Chạy Bộ Đánh Giá Độc Lập DoD
-Chạy trực tiếp từ thư mục `BaoCao_Task24/`:
 ```powershell
-python scripts/run_lineage_eval.py
+python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task24/scripts/run_lineage_eval.py
 ```
-*(Nếu đứng từ thư mục gốc repository: `python Data-AI-Resource/BaoCao_Task24/scripts/run_lineage_eval.py`)*
-
 **Kết quả thực tế**:
 - 5/5 bước kiểm thử đạt chuẩn 100%.
 - BƯỚC 1: Truy vết 100% thành công về tận gốc dữ liệu, model và prompt.
@@ -135,12 +126,9 @@ python scripts/run_lineage_eval.py
 - **Exit Code**: `0`
 
 ### 3.2. Chạy Bộ Kiểm Thử Tự Động Pytest
-Chạy trực tiếp từ thư mục `BaoCao_Task24/`:
 ```powershell
-pytest -v
+pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task24/tests/ -v
 ```
-*(Nếu đứng từ thư mục gốc repository: `pytest Data-AI-Resource/BaoCao_Task24/tests/ -v`)*
-
 **Kết quả thực tế**:
 - **24/24 tests PASS 100%** trong **0.96 giây**.
 - 0 lỗi, 0 cảnh báo.
