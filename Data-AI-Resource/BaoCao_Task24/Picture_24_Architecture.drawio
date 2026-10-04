@@ -1,93 +1,93 @@
-<mxfile host="Electron" modified="2026-10-04T14:50:00.000Z" agent="CyberSoft DrawIO" version="21.6.8" type="device">
-  <diagram id="lineage-versioning-task24" name="Lineage &amp; Versioning Architecture Detailed Paths">
-    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1300" background="#0B0F19" math="0" shadow="0">
+<mxfile host="Electron" modified="2026-10-04T17:10:00.000Z" agent="CyberSoft DrawIO" version="21.6.8" type="device">
+  <diagram id="lineage-versioning-task24" name="Lineage Architecture Clean">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" background="#0B0F19" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
         <!-- Header Title Banner -->
-        <mxCell id="header" value="CYBERSOFT DATA &amp; AI LAB — KIẾN TRÚC LINEAGE DAG &amp; LƯU TRỮ BẤT BIẾN (WORM) v0.1&#xa;Bản đồ phân tầng nhân quả, đường dẫn lưu trữ bất biến và mã kiểm tra toàn vẹn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#06B6D4;strokeWidth=2;fontColor=#FFFFFF;fontSize=16;fontStyle=1;align=center;" vertex="1" parent="1">
-          <mxGeometry x="40" y="25" width="1720" height="70" as="geometry" />
+        <mxCell id="header" value="CYBERSOFT DATA &amp; AI LAB — HỆ THỐNG THEO DÕI NGUỒN GỐC DỮ LIỆU &amp; PHIÊN BẢN (LINEAGE &amp; WORM) v0.1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#06B6D4;strokeWidth=2;fontColor=#FFFFFF;fontSize=16;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="25" width="1720" height="60" as="geometry" />
         </mxCell>
 
         <!-- Column 1: Root Datasets -->
-        <mxCell id="col1" value="CỘT 1: NGUỒN GỐC DỮ LIỆU (ROOT DATASETS)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#3B82F6;fontColor=#60A5FA;fontSize=13;fontStyle=1;startSize=40;" vertex="1" parent="1">
-          <mxGeometry x="40" y="115" width="410" height="1140" as="geometry" />
+        <mxCell id="col1" value="1 • DỮ LIỆU NGUỒN GỐC&#xa;ROOT DATASETS" style="swimlane;whiteSpace=wrap;html=1;horizontal=1;startSize=55;fillColor=#1E293B;strokeColor=#3B82F6;strokeWidth=2;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="110" width="410" height="1020" as="geometry" />
         </mxCell>
-        <mxCell id="ds_retail" value="&lt;b&gt;Retail Sales Dataset v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/datasets/retail_sales_dataset/v1.0.0/retail_sales.csv&#xa;🔑 SHA-256: 9342b483b2c5cd57...&#xa;ℹ️ 3NF Multi-table Sales Data (Core Root)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#E2E8F0;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col1">
-          <mxGeometry x="15" y="55" width="380" height="95" as="geometry" />
+        <mxCell id="ds_retail" value="&lt;b&gt;Retail Sales Dataset&lt;/b&gt;&#xa;Type: 3NF Relational Sales&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: 9342b483..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#E2E8F0;fontSize=12;align=center;" vertex="1" parent="col1">
+          <mxGeometry x="25" y="75" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="ds_hr" value="&lt;b&gt;HR Attendance Dataset v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/datasets/hr_attendance_dataset/v1.0.0/hr_attendance.csv&#xa;🔑 SHA-256: abf5e7b20c73f686...&#xa;ℹ️ Employees, Shifts, Leaves Data (Core Root)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#E2E8F0;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col1">
-          <mxGeometry x="15" y="170" width="380" height="95" as="geometry" />
+        <mxCell id="ds_hr" value="&lt;b&gt;HR Attendance Dataset&lt;/b&gt;&#xa;Type: HR &amp; Shifts Management&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: abf5e7b2..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#E2E8F0;fontSize=12;align=center;" vertex="1" parent="col1">
+          <mxGeometry x="25" y="180" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="ds_churn" value="&lt;b&gt;Customer Churn Dataset v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/datasets/customer_churn_dataset/v1.0.0/customer_churn.csv&#xa;🔑 SHA-256: 8965f90eba608ba3...&#xa;ℹ️ Telecom Churn Classification Data (Core Root)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#E2E8F0;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col1">
-          <mxGeometry x="15" y="285" width="380" height="95" as="geometry" />
+        <mxCell id="ds_churn" value="&lt;b&gt;Customer Churn Dataset&lt;/b&gt;&#xa;Type: Telecom Classification&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: 8965f90e..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#3B82F6;fontColor=#E2E8F0;fontSize=12;align=center;" vertex="1" parent="col1">
+          <mxGeometry x="25" y="285" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="ds_chunks_v1" value="&lt;b&gt;AI Chunks Corpus v1.0.0&lt;/b&gt; [DEPRECATED]&#xa;📂 Path: data/artifacts/datasets/ai_knowledge_chunks_corpus/v1.0.0/knowledge_chunks_v1.csv&#xa;🔑 SHA-256: 7a6cc90f7f958520...&#xa;⚠️ 81 sections RAG (Sắp hết hạn 2026-12-31)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2A1E17;strokeColor=#F59E0B;fontColor=#FBBF24;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col1">
-          <mxGeometry x="15" y="400" width="380" height="95" as="geometry" />
+        <mxCell id="ds_chunks_v1" value="&lt;b&gt;AI Chunks Corpus v1.0.0&lt;/b&gt;&#xa;Type: 81 Sections RAG Corpus&#xa;Version: v1.0.0 | Status: Deprecated&#xa;SHA-256: 7a6cc90f..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2A1E17;strokeColor=#F59E0B;fontColor=#FBBF24;fontSize=12;align=center;" vertex="1" parent="col1">
+          <mxGeometry x="25" y="390" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="ds_chunks_v2" value="&lt;b&gt;AI Chunks Multi-Hop v1.1.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/datasets/ai_knowledge_chunks_corpus_multi_hop/v1.1.0/knowledge_chunks_v2.csv&#xa;🔑 SHA-256: 37feb015e8ac56e6...&#xa;✨ Multi-hop Context, Anti-leakage Corpus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#132B25;strokeColor=#10B981;fontColor=#34D399;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col1">
-          <mxGeometry x="15" y="515" width="380" height="95" as="geometry" />
+        <mxCell id="ds_chunks_v2" value="&lt;b&gt;AI Chunks Multi-Hop&lt;/b&gt;&#xa;Type: Multi-hop Anti-leakage Context&#xa;Version: v1.1.0 | Status: Active&#xa;SHA-256: 37feb015..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#132B25;strokeColor=#10B981;fontColor=#34D399;fontSize=12;align=center;" vertex="1" parent="col1">
+          <mxGeometry x="25" y="495" width="360" height="80" as="geometry" />
         </mxCell>
 
         <!-- Column 2: Prompts & Models -->
-        <mxCell id="col2" value="CỘT 2: CHỈ DẪN PROMPTS &amp; MÔ HÌNH AI" style="swimlane;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#8B5CF6;fontColor=#C084FC;fontSize=13;fontStyle=1;startSize=40;" vertex="1" parent="1">
-          <mxGeometry x="475" y="115" width="410" height="1140" as="geometry" />
+        <mxCell id="col2" value="2 • CHỈ DẪN PROMPT &amp; MÔ HÌNH AI&#xa;PROMPTS &amp; MODELS" style="swimlane;whiteSpace=wrap;html=1;horizontal=1;startSize=55;fillColor=#1E293B;strokeColor=#8B5CF6;strokeWidth=2;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="475" y="110" width="410" height="1020" as="geometry" />
         </mxCell>
-        <mxCell id="m_emb" value="&lt;b&gt;BGE Small Embedder v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/models/bge_small_english_embedder/v1.0.0/model_card.json&#xa;🔑 SHA-256: 56c8a813e32ff6a4...&#xa;ℹ️ Dense 384-dim Sentence Transformer Checkpoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#EC4899;fontColor=#F472B6;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col2">
-          <mxGeometry x="15" y="55" width="380" height="95" as="geometry" />
+        <mxCell id="m_emb" value="&lt;b&gt;BGE Small Embedder&lt;/b&gt;&#xa;Type: Dense 384-dim Sentence Transformer&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: 56c8a813..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#EC4899;fontColor=#F472B6;fontSize=12;align=center;" vertex="1" parent="col2">
+          <mxGeometry x="25" y="75" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="m_llm" value="&lt;b&gt;Gemini 3.8 Flash Checkpoint v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/models/gemini_3.8_flash_checkpoint/v1.0.0/llm_config.json&#xa;🔑 SHA-256: 88bf84358136ef5e...&#xa;ℹ️ Generator LLM: Context 1M, Temp 0.2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#EC4899;fontColor=#F472B6;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col2">
-          <mxGeometry x="15" y="170" width="380" height="95" as="geometry" />
+        <mxCell id="m_llm" value="&lt;b&gt;Gemini 3.8 Flash Checkpoint&lt;/b&gt;&#xa;Type: Generator LLM (Offline Config)&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: 88bf8435..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#EC4899;fontColor=#F472B6;fontSize=12;align=center;" vertex="1" parent="col2">
+          <mxGeometry x="25" y="180" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="p_gen_v1" value="&lt;b&gt;Exercise Generator Prompt v1.0.0&lt;/b&gt; [DEPRECATED]&#xa;📂 Path: data/artifacts/prompts/exercise_generator_system_prompt/v1.0.0/system_prompt_v1.txt&#xa;🔑 SHA-256: 6ad80a463dd21415...&#xa;⚠️ Few-shot Bloom Taxonomy (Bị thay thế bởi v1.1.0)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2A1E17;strokeColor=#F59E0B;fontColor=#FBBF24;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col2">
-          <mxGeometry x="15" y="285" width="380" height="95" as="geometry" />
+        <mxCell id="p_gen_v1" value="&lt;b&gt;Exercise Generator Prompt&lt;/b&gt;&#xa;Type: Few-shot Bloom Taxonomy&#xa;Version: v1.0.0 | Status: Deprecated&#xa;SHA-256: 6ad80a46..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2A1E17;strokeColor=#F59E0B;fontColor=#FBBF24;fontSize=12;align=center;" vertex="1" parent="col2">
+          <mxGeometry x="25" y="285" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="p_gen_v2" value="&lt;b&gt;Exercise Generator Prompt Enh v1.1.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/prompts/exercise_generator_system_prompt_enhanced/v1.1.0/system_prompt_v2.txt&#xa;🔑 SHA-256: e11291d7f1bf8263...&#xa;✨ SQL Feasibility &amp; Sandbox Verified Lead Prompt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#132B25;strokeColor=#10B981;fontColor=#34D399;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col2">
-          <mxGeometry x="15" y="400" width="380" height="95" as="geometry" />
+        <mxCell id="p_gen_v2" value="&lt;b&gt;Exercise Generator Prompt Enh&lt;/b&gt;&#xa;Type: SQL Feasibility &amp; Sandbox Verified&#xa;Version: v1.1.0 | Status: Active&#xa;SHA-256: e11291d7..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#132B25;strokeColor=#10B981;fontColor=#34D399;fontSize=12;align=center;" vertex="1" parent="col2">
+          <mxGeometry x="25" y="390" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="p_tutor" value="&lt;b&gt;RAG Tutor Grounding Prompt v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/prompts/rag_tutor_grounding_prompt/v1.0.0/tutor_prompt_v1.txt&#xa;🔑 SHA-256: dd5880a0533c5231...&#xa;ℹ️ Grounded Context, Strict Refusal on Insufficient Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#8B5CF6;fontColor=#C084FC;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col2">
-          <mxGeometry x="15" y="515" width="380" height="95" as="geometry" />
+        <mxCell id="p_tutor" value="&lt;b&gt;RAG Tutor Grounding Prompt&lt;/b&gt;&#xa;Type: Grounded Citations &amp; Strict Refusal&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: dd5880a0..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#8B5CF6;fontColor=#C084FC;fontSize=12;align=center;" vertex="1" parent="col2">
+          <mxGeometry x="25" y="495" width="360" height="80" as="geometry" />
         </mxCell>
 
         <!-- Column 3: Indices & Evaluations -->
-        <mxCell id="col3" value="CỘT 3: CHỈ MỤC &amp; ĐÁNH GIÁ (INDICES &amp; EVALS)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#10B981;fontColor=#34D399;fontSize=13;fontStyle=1;startSize=40;" vertex="1" parent="1">
-          <mxGeometry x="910" y="115" width="410" height="1140" as="geometry" />
+        <mxCell id="col3" value="3 • CHỈ MỤC &amp; ĐÁNH GIÁ&#xa;INDICES &amp; EVALUATIONS" style="swimlane;whiteSpace=wrap;html=1;horizontal=1;startSize=55;fillColor=#1E293B;strokeColor=#10B981;strokeWidth=2;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="910" y="110" width="410" height="1020" as="geometry" />
         </mxCell>
-        <mxCell id="idx_bm25" value="&lt;b&gt;BM25 Knowledge Chunks Index v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/indexs/bm25_knowledge_chunks_index/v1.0.0/bm25_meta.json&#xa;🔑 SHA-256: c9eecfe7b8961212...&#xa;ℹ️ Sparse Lexical Term Inverted Index" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#10B981;fontColor=#E2E8F0;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col3">
-          <mxGeometry x="15" y="55" width="380" height="95" as="geometry" />
+        <mxCell id="idx_bm25" value="&lt;b&gt;BM25 Knowledge Chunks Index&lt;/b&gt;&#xa;Type: Sparse Lexical Inverted Index&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: c9eecfe7..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#10B981;fontColor=#E2E8F0;fontSize=12;align=center;" vertex="1" parent="col3">
+          <mxGeometry x="25" y="75" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="idx_faiss" value="&lt;b&gt;FAISS Retail Sales Index v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/indexs/faiss_retail_sales_index/v1.0.0/faiss_meta.json&#xa;🔑 SHA-256: a4aba96de08e402f...&#xa;ℹ️ Dense Vector Flat-IP Similarity Index" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#10B981;fontColor=#E2E8F0;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col3">
-          <mxGeometry x="15" y="170" width="380" height="95" as="geometry" />
+        <mxCell id="idx_faiss" value="&lt;b&gt;FAISS Retail Sales Index&lt;/b&gt;&#xa;Type: Dense Vector Flat-IP Similarity&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: a4aba96d..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#10B981;fontColor=#E2E8F0;fontSize=12;align=center;" vertex="1" parent="col3">
+          <mxGeometry x="25" y="180" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="idx_hybrid" value="&lt;b&gt;Hybrid RAG Search Index v1.1.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/indexs/hybrid_rag_search_index/v1.1.0/hybrid_meta.json&#xa;🔑 SHA-256: 7a00359f70b3f53c...&#xa;✨ Hybrid Dense FAISS + Sparse BM25 Reciprocal Rank Fusion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#132B25;strokeColor=#10B981;fontColor=#34D399;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col3">
-          <mxGeometry x="15" y="285" width="380" height="95" as="geometry" />
+        <mxCell id="idx_hybrid" value="&lt;b&gt;Hybrid RAG Search Index&lt;/b&gt;&#xa;Type: Dense FAISS + Sparse BM25 Fusion&#xa;Version: v1.1.0 | Status: Active&#xa;SHA-256: 7a00359f..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#132B25;strokeColor=#10B981;fontColor=#34D399;fontSize=12;align=center;" vertex="1" parent="col3">
+          <mxGeometry x="25" y="285" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="eval_gen" value="&lt;b&gt;Generator Feasibility Eval v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/evaluations/exercise_generator_feasibility_evaluation/v1.0.0/&#xa;🔑 SHA-256: c7562ace68465cbf...&#xa;📊 Round 1: 84%, Round 2: 100%, Thang Bloom: Đạt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#F59E0B;fontColor=#E2E8F0;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col3">
-          <mxGeometry x="15" y="400" width="380" height="95" as="geometry" />
+        <mxCell id="eval_gen" value="&lt;b&gt;Generator Feasibility Eval&lt;/b&gt;&#xa;Type: SQL Execution Feasibility (100%)&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: c7562ace..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#F59E0B;fontColor=#E2E8F0;fontSize=12;align=center;" vertex="1" parent="col3">
+          <mxGeometry x="25" y="390" width="360" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="eval_rag" value="&lt;b&gt;RAG Benchmark 100 Eval v1.0.0&lt;/b&gt; [ACTIVE]&#xa;📂 Path: data/artifacts/evaluations/rag_benchmark_100_evaluation/v1.0.0/&#xa;🔑 SHA-256: 88aed7019e26fbf7...&#xa;📊 Precision@3: 94%, MRR: 0.91, Hallucination: 0%" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#F59E0B;fontColor=#E2E8F0;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col3">
-          <mxGeometry x="15" y="515" width="380" height="95" as="geometry" />
+        <mxCell id="eval_rag" value="&lt;b&gt;RAG Benchmark 100 Eval&lt;/b&gt;&#xa;Type: Quality Test (P@3 94%, 0% Hallucination)&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: 88aed701..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A233A;strokeColor=#F59E0B;fontColor=#E2E8F0;fontSize=12;align=center;" vertex="1" parent="col3">
+          <mxGeometry x="25" y="495" width="360" height="80" as="geometry" />
         </mxCell>
 
         <!-- Column 4: Deliverables & Releases -->
-        <mxCell id="col4" value="CỘT 4: HỌC LIỆU BÀN GIAO &amp; BẢN PHÁT HÀNH" style="swimlane;whiteSpace=wrap;html=1;fillColor=#131B2E;strokeColor=#EC4899;fontColor=#F472B6;fontSize=13;fontStyle=1;startSize=40;" vertex="1" parent="1">
-          <mxGeometry x="1345" y="115" width="415" height="1140" as="geometry" />
+        <mxCell id="col4" value="4 • BẢN PHÁT HÀNH &amp; HOÀN TÁC&#xa;RELEASES &amp; ROLLBACK" style="swimlane;whiteSpace=wrap;html=1;horizontal=1;startSize=55;fillColor=#1E293B;strokeColor=#EC4899;strokeWidth=2;fontColor=#FFFFFF;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1345" y="110" width="415" height="1020" as="geometry" />
         </mxCell>
-        <mxCell id="ex_bank" value="🎯 &lt;b&gt;Approved Exercise Bank 20 v1.0.0&lt;/b&gt;&#xa;📂 Path: data/artifacts/exercises/approved_exercise_bank_20/v1.0.0/approved_bank_20.json&#xa;🔑 SHA-256: 8f6af4147a643e35...&#xa;✨ Ngân hàng 20 bài tập thực hành chuẩn CyberSoft Lab&#xa;🔗 Truy vết ngược 100% về 4 Datasets, Model và Prompt qua 11 đường dẫn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102E3B;strokeColor=#06B6D4;strokeWidth=3;fontColor=#22D3EE;fontSize=11;fontStyle=1;align=left;spacingLeft=10;" vertex="1" parent="col4">
-          <mxGeometry x="15" y="55" width="385" height="115" as="geometry" />
+        <mxCell id="ex_bank" value="🎯 &lt;b&gt;Approved Exercise Bank 20&lt;/b&gt;&#xa;Type: 20 Verified Student Exercises&#xa;Version: v1.0.0 | Status: Active&#xa;SHA-256: 8f6af414..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102E3B;strokeColor=#06B6D4;strokeWidth=3;fontColor=#22D3EE;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="col4">
+          <mxGeometry x="25" y="75" width="365" height="85" as="geometry" />
         </mxCell>
-        <mxCell id="rel_v10" value="📦 &lt;b&gt;Release Manifest v1.0.0&lt;/b&gt; (Baseline)&#xa;📂 Path: data/releases/release_manifest_v1.0.0.json&#xa;🧩 Components: 13 WORM artifacts&#xa;🔒 Checksum: 20577462c080d8cbdfa00d6d06cfe6ddccad46deedb52bf2280551558e48dfb0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A2744;strokeColor=#3B82F6;fontColor=#93C5FD;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col4">
-          <mxGeometry x="15" y="195" width="385" height="95" as="geometry" />
+        <mxCell id="rel_v10" value="📦 &lt;b&gt;Release Manifest v1.0.0&lt;/b&gt;&#xa;Baseline Release (13 Components)&#xa;Status: Published&#xa;Checksum: 20577462..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A2744;strokeColor=#3B82F6;fontColor=#93C5FD;fontSize=12;align=center;" vertex="1" parent="col4">
+          <mxGeometry x="25" y="190" width="365" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="rel_v11" value="📦 &lt;b&gt;Release Manifest v1.1.0&lt;/b&gt; (Enhanced)&#xa;📂 Path: data/releases/release_manifest_v1.1.0.json&#xa;🧩 Components: 16 WORM artifacts (+3 New, -2 Deprecated)&#xa;🔒 Checksum: fa096099dc46141c4f529884566c7f407764724036f0ec4d2f0980562eef62a9" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#132B25;strokeColor=#10B981;fontColor=#34D399;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col4">
-          <mxGeometry x="15" y="315" width="385" height="95" as="geometry" />
+        <mxCell id="rel_v11" value="📦 &lt;b&gt;Release Manifest v1.1.0&lt;/b&gt;&#xa;Enhanced Release (16 Components)&#xa;Status: Published&#xa;Checksum: fa096099..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#132B25;strokeColor=#10B981;fontColor=#34D399;fontSize=12;align=center;" vertex="1" parent="col4">
+          <mxGeometry x="25" y="300" width="365" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="rollback" value="🔄 &lt;b&gt;Tài Liệu Hướng Dẫn Hoàn Tác (Rollback Note)&lt;/b&gt;&#xa;📂 Path: data/releases/rollback_note_v1.1.0_to_v1.0.0.md&#xa;📋 Kế hoạch: PLN-ROLLBACK-v1.1.0-v1.0.0 (5 bước thực thi)&#xa;🛡️ Trạng thái: SẠCH SẼ, TUYỆT ĐỐI 0 TỪ CẤM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#231936;strokeColor=#8B5CF6;strokeWidth=2;fontColor=#C084FC;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="col4">
-          <mxGeometry x="15" y="435" width="385" height="105" as="geometry" />
+        <mxCell id="rollback" value="🔄 &lt;b&gt;Hướng Dẫn Hoàn Tác (Rollback Note)&lt;/b&gt;&#xa;Quy trình khôi phục an toàn v1.1.0 ➔ v1.0.0&#xa;Target: Baseline | Risk: Low&#xa;Trạng thái: 0 từ cấm" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#231936;strokeColor=#8B5CF6;strokeWidth=2;fontColor=#C084FC;fontSize=12;align=center;" vertex="1" parent="col4">
+          <mxGeometry x="25" y="410" width="365" height="85" as="geometry" />
         </mxCell>
 
-        <!-- Directed Causal Edges (Lineage DAG) -->
+        <!-- Directed Causal Edges -->
         <mxCell id="e_retail_ex" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#06B6D4;strokeWidth=2;" edge="1" parent="1" source="ds_retail" target="ex_bank">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
