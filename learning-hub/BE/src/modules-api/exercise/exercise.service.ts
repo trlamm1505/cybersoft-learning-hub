@@ -17,6 +17,7 @@ import {
   checkPythonSyntax,
   runPythonCode,
 } from '../../common/helper/code-runner.helper';
+import { IntegrityService } from '../integrity/integrity.service';
 import { JudgeQueueService } from '../judge/judge-queue.service';
 import { JudgeStatus } from '../judge/judge-status.enum';
 import { RunCodeDto } from './dto/run-code.dto';
@@ -30,6 +31,7 @@ export class ExerciseService {
     @InjectModel(Submission.name)
     private readonly submissionModel: Model<SubmissionDocument>,
     private readonly judgeQueueService: JudgeQueueService,
+    private readonly integrityService: IntegrityService,
   ) {}
 
   async findAll() {
@@ -126,10 +128,19 @@ export class ExerciseService {
       throw new BadRequestException('Invalid submission type');
     }
 
+    // Tín hiệu liêm chính chỉ để giảng viên xem: không ảnh hưởng chấm điểm hay hàng đợi.
+    const integrity = await this.integrityService.evaluate(
+      exercise as any,
+      userId,
+      dto.code,
+      dto.integrity,
+    );
+
     const submission = await this.submissionModel.create({
       exerciseId: String((exercise as any)._id),
       userId,
       code: dto.code,
+      integrity,
       status: JudgeStatus.QUEUED,
       passedCount: 0,
       totalCount: (exercise.testCases ?? []).length,

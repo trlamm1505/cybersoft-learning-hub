@@ -3,6 +3,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { ExerciseService } from './exercise.service';
 import { Exercise } from '../../modules-system/database/schemas/exercise.schema';
 import { Submission } from '../../modules-system/database/schemas/submission.schema';
+import { IntegrityService } from '../integrity/integrity.service';
 import { JudgeQueueService } from '../judge/judge-queue.service';
 
 describe('ExerciseService.findAll — hasSolution/testCaseCount badge fields', () => {
@@ -20,6 +21,7 @@ describe('ExerciseService.findAll — hasSolution/testCaseCount badge fields', (
         { provide: getModelToken(Exercise.name), useValue: mockExerciseModel },
         { provide: getModelToken(Submission.name), useValue: {} },
         { provide: JudgeQueueService, useValue: {} },
+        { provide: IntegrityService, useValue: {} },
       ],
     }).compile();
 
@@ -103,6 +105,7 @@ describe('ExerciseService.submitCode — chặn nộp Python vào bài DA Lab', 
   const mockExerciseModel = { findOne: jest.fn() };
   const mockSubmissionModel = { create: jest.fn() };
   const mockJudge = { enqueue: jest.fn() };
+  const mockIntegrity = { evaluate: jest.fn().mockResolvedValue({ flag: 'NONE' }) };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -112,6 +115,7 @@ describe('ExerciseService.submitCode — chặn nộp Python vào bài DA Lab', 
         { provide: getModelToken(Exercise.name), useValue: mockExerciseModel },
         { provide: getModelToken(Submission.name), useValue: mockSubmissionModel },
         { provide: JudgeQueueService, useValue: mockJudge },
+        { provide: IntegrityService, useValue: mockIntegrity },
       ],
     }).compile();
     service = module.get<ExerciseService>(ExerciseService);
@@ -145,5 +149,22 @@ describe('ExerciseService.submitCode — chặn nộp Python vào bài DA Lab', 
 
     expect(res).toEqual({ submissionId: 'sub1', status: 'QUEUED' });
     expect(mockJudge.enqueue).toHaveBeenCalledWith('sub1');
+  });
+  it('lưu tín hiệu liêm chính cùng bài nộp nhưng KHÔNG đổi trạng thái chấm (vẫn QUEUED, không điểm)', async () => {
+    mockExerciseModel.findOne.mockReturnValue({
+      lean: jest.fn().mockResolvedValue({ _id: 'ex1', slug: 'de', type: 'CODE_TEXT', testCases: [] }),
+    });
+    const flagged = { flag: 'REVIEW', reviewStatus: 'NEEDS_REVIEW' };
+    mockIntegrity.evaluate.mockResolvedValueOnce(flagged);
+    mockSubmissionModel.create.mockResolvedValue({ _id: 'sub2' });
+
+    const res = await service.submitCode('de', { code: 'print(1)', integrity: {} } as any, 'u1');
+
+    const created = mockSubmissionModel.create.mock.calls[0][0];
+    expect(created.integrity).toBe(flagged);
+    expect(created.status).toBe('QUEUED');
+    expect(created.passedCount).toBe(0);
+    expect(res.status).toBe('QUEUED');
+    expect(mockJudge.enqueue).toHaveBeenCalledWith('sub2');
   });
 });
