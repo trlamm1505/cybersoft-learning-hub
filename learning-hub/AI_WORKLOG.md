@@ -1,679 +1,750 @@
-# AI Work Log Ngày 23: Bộ lab AI Engineer (prompt, embeddings, RAG evaluation)
+# AI Work Log Ngày 24: Integrity và chống gian lận cơ bản
 
 ## Thông tin chung
 
 | Mục | Nội dung |
 |---|---|
 | Người thực hiện | Dương Chí Việt |
-| Ngày | 3 tháng 10 năm 2026 |
-| Nhánh | feature/learning-hub-day23 |
-| Công cụ, model | Claude Code; Việc 1 chạy trên Claude Sonnet 5.5, Việc 2 đến 12 chạy trên Claude Opus 5.5; không sử dụng subagent trong ngày |
-| Phạm vi quyền | Đọc và ghi trong thư mục learning-hub; chỉ đọc bộ RAG eval Day 08 (`Data-AI-Resource/BaoCao_Task08`), golden set và OpenAPI Day 21 (`Data-AI-Resource/BaoCao_Task21`) của Thực tập sinh số 1, không sửa file nào trong `Data-AI-Resource` |
-| Dữ liệu nhạy cảm | Không có sự cố. Mọi chuỗi giống API key dùng trong test đều là key giả. Tài khoản tạm dùng để kiểm thử động đều bị xoá ngay sau khi chạy. File `.env` không bị commit; mật khẩu sandbox chỉ đặt qua biến môi trường |
+| Ngày | 5 tháng 10 năm 2026 |
+| Nhánh | feature/learning-hub-day24 |
+| Công cụ, model | Claude Code chạy trên Claude Sonnet 5.5 trong cả ngày; không sử dụng subagent |
+| Phạm vi quyền | Đọc và ghi trong thư mục learning-hub. Với `Data-AI-Resource` của Thực tập sinh số 1 chỉ đọc; riêng Việc 11, AI chạy thử server Day 21 của Số 1 trong một môi trường Python tạm ở thư mục tạm của hệ thống, không sửa file nào trong `Data-AI-Resource` và đã xoá môi trường đó sau khi thử |
+| Dữ liệu nhạy cảm | Có một sự cố nhỏ: ở Việc 8, AI đọc `BE/.env` bằng lệnh lọc chưa kỹ nên mật khẩu ứng dụng Gmail hiện ra trong kết quả lệnh của phiên làm việc. Giá trị này không được ghi vào file nào và không bị commit; cần đổi mật khẩu ứng dụng Gmail. Các lần đọc `.env` sau đó đều che giá trị. Khóa API mẫu của server Số 1 (`cybersoft-student-public-key-101`) là khóa mẫu công khai trong mã nguồn của Số 1. Mọi tài khoản và dữ liệu tạm dùng để kiểm thử động đều bị xoá ngay sau khi chạy |
 
 ## Mục lục các việc trong ngày
 
 | Số thứ tự | Tên việc | Trạng thái |
 |---|---|---|
-| 1 | Tạo nhánh feature/learning-hub-day23 từ main đã cập nhật | Đạt |
-| 2 | Bộ 8 AI Lab: evaluation set của Số 1, chặn API key, chấm chất lượng và chi phí, giao diện, unit test | Đạt |
-| 3 | Chạy dự án để kiểm thử | Đạt |
-| 4 | Kiểm tra việc chấm có thật sự lấy evaluation set từ Số 1 | Đạt, không cần sửa |
-| 5 | Lỗi 503 khi chưa bật mock server và khóa quyền nộp bài theo vai trò | Đạt |
-| 6 | Chặn điều hướng FE cho giảng viên và Docker Compose cho Postgres Sandbox | Đạt |
-| 7 | Tự động bật sandbox bằng một lệnh `npm run dev` | Đạt |
-| 8 | Dọn file compose cũ, container cũ và đưa package-lock vào git | Đạt |
-| 9 | Rà soát bảo mật và QA toàn bộ learning-hub, chỉ báo cáo | Đạt |
-| 10 | Sửa 18 lỗi từ báo cáo rà soát | Đạt |
-| 11 | Xử lý 5 vấn đề còn tồn đọng sau đợt sửa | Đạt |
-| 12 | Cập nhật AI Work Log Ngày 23 | Đạt |
+| 1 | Tạo nhánh feature/learning-hub-day24 từ main đã cập nhật | Đạt |
+| 2 | Tín hiệu liêm chính v0.1: dòng thời gian, rời màn hình, so khớp mã nguồn, hàng chờ xem xét | Đạt |
+| 3 | Viết tóm tắt Day 24 và chạy dự án để kiểm thử thủ công | Đạt |
+| 4 | Giải thích vì sao rời tab không thấy phản ứng | Đạt, không sửa file |
+| 5 | Làm lại quản lý cuộc thi, phối hợp trắc nghiệm và Code Playground, tích hợp chống gian lận, rà lỗi hai vai trò | Đạt |
+| 6 | Tạo docs/day11/tomtat.md từ báo cáo | Đạt |
+| 7 | Sáng và tối, responsive, thanh điều hướng có dropdown | Đạt |
+| 8 | DA Lab và AI Lab không cần mock thủ công, tự bật Docker, triển khai trọn bộ bằng Docker | Đạt |
+| 9 | Dựng môi trường trên máy mới bằng một lệnh | Đạt |
+| 10 | Ghi cơ chế liên kết với Số 1 vào docs/day22/tomtat.md | Đạt |
+| 11 | Làm rõ cách liên kết với Số 1: server Day 21, Postgres và việc cần nhờ | Đạt |
+| 12 | Đánh giá thiết kế tích hợp qua API và soạn tin nhắn gửi Số 1 | Đạt |
+| 13 | Ghi ghi chú theo dõi chờ Số 1 vào docs/day22/tomtat.md | Đạt |
+| 14 | Viết lại phần liên kết trong docs/day22/tomtat.md theo văn phong tài liệu | Đạt |
+| 15 | Làm lại trang thông tin cá nhân: avatar và biểu đồ hoạt động | Đạt |
+| 16 | Soạn docs/day24/policy_draft.md | Đạt |
+| 17 | Cập nhật AI Work Log Ngày 24 | Đạt |
 
 ---
 
-## Việc 1: Tạo nhánh feature/learning-hub-day23 từ main đã cập nhật
+## Việc 1: Tạo nhánh feature/learning-hub-day24 từ main đã cập nhật
 
-> "tạo branch hub day23 r kéo main về"
->
-> "đồng bộ chứ"
+> "tạo branch hub day 24 (cùng định dạng tên) và kéo main về, làm xong đợi tôi ra lệnh"
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Main đã có PR Day 22 được merge, nên nhánh Day 23 phải tạo từ main mới nhất và đặt tên theo cùng quy ước với các ngày trước.
+Day 23 đã được merge nên nhánh Day 24 phải tạo từ main mới nhất, đặt tên theo quy ước `feature/learning-hub-dayNN` như các ngày trước. "Đợi tôi ra lệnh" nghĩa là không làm thêm việc gì sau khi tạo nhánh.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Không tạo file. AI chuyển sang `main`, `git pull` (fast-forward 26 commit, tới `957768d` Merge PR #92 Day 22) rồi tạo nhánh. Lần đầu AI đặt tên `hub-day23`, khác quy ước. Sau chỉ dẫn thứ hai, AI đổi tên thành `feature/learning-hub-day23`.
+Không tạo file. AI chuyển sang `main`, `git pull` (fast-forward lên `bdd7dd3`, kéo thêm nhánh `feature/data-ai-day24` của Số 1), tạo nhánh `feature/learning-hub-day24` và dừng. Lần này tên nhánh đúng quy ước ngay từ đầu.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: tên nhánh phải theo quy ước sẵn có của repo ngay từ đầu, không đặt theo nguyên văn câu lệnh.
+Điều học được: ghi rõ "cùng định dạng tên" trong prompt giúp AI không đặt sai tên như ở Day 23.
 
 ---
 
-## Việc 2: Bộ 8 AI Lab: evaluation set của Số 1, chặn API key, chấm chất lượng và chi phí, giao diện, unit test
+## Việc 2: Tín hiệu liêm chính v0.1: dòng thời gian, rời màn hình, so khớp mã nguồn, hàng chờ xem xét
 
-> "Đóng vai là một Senior Fullstack Engineer. Tôi là Thực tập sinh số 02, dự án Learning & Contest Hub (NestJS, React). Hệ thống hiện tại đang có các luồng chạy độc lập và ổn định: Code Python (Docker Sandbox) và SQL/DA Lab (Postgres Sandbox).
+> "NGÀY 24 - Integrity và chống gian lận cơ bản
+> Giai đoạn: Tuần 5 - Tester/Data/AI courses  |  Kết quả chính: Có tín hiệu hỗ trợ giám sát, không kết luận máy móc.
+> Việc phải làm
+> •	Ghi attempt timeline, focus events ở mức phù hợp và similarity flag.
+> •	Thiết kế policy minh bạch.
+> •	Tạo review queue cho giảng viên.
+> Bàn giao cuối ngày
+> •	Integrity signals v0.1
+> •	Policy draft
+> •	Review UI
+> Điều kiện nghiệm thu
+> •	Không tự động kết tội.
+> •	Thu thập tối thiểu và có thông báo.
+> •	Có false-positive test cases.
+> Kiến thức nhận lại
+> •	Responsible analytics
+> •	Privacy by design
+> •	Human review
+> Bằng chứng sử dụng và làm chủ AI
+> •	Cập nhật AI_WORKLOG: bài toán trước AI, công cụ đã dùng (Codex/Antigravity/khác), chỉ dẫn chính, diff và quyết định của bản thân.
+> •	Chạy test/checklist độc lập với kết luận của AI; đính kèm lệnh chạy và kết quả.
+> •	Giải thích ngẫu nhiên một đoạn code/schema/test và sửa một thay đổi nhỏ mà không sao chép nguyên câu trả lời AI."
 >
-> Hôm nay tôi cần thực thi NGÀY 23.
+> "Thực hiện toàn bộ yêu cầu kỹ thuật của NGÀY 24: "Integrity và chống gian lận cơ bản" vào dự án learning-hub/. Sửa trực tiếp vào mã nguồn, không tạo bất kỳ tệp tài liệu nào (doc sẽ làm cuối buổi). Đảm bảo toàn bộ test hiện có tiếp tục xanh, viết thêm test mới và typecheck sạch 100%.
 >
-> 📖 NGUYÊN VĂN YÊU CẦU NGÀY 23:
-> "Giai đoạn: Tuần 5 - Tester/Data/AI courses | Kết quả chính: Có bài prompt, embeddings và RAG evaluation.
-> Việc phải làm:
-> - Tạo 8 lab tăng dần.
-> - Lưu prompt/model/config cùng submission.
-> - Gắn evaluation set và cost/latency.
-> Điều kiện nghiệm thu:
-> - Kết quả tái lập ở mức cấu hình.
-> - Không để API key trong submission.
-> - Chấm cả chất lượng và chi phí."
+> NGUYÊN TẮC CỐT LÕI BẮT BUỘC:
+> - Không tự động kết tội: Hệ thống chỉ thu thập tín hiệu khách quan (Integrity signals) để hỗ trợ giảng viên giám sát, tuyệt đối không tự động trừ điểm, không hủy bài và không tự kết luận học viên gian lận.
+> - Thu thập tối thiểu và minh bạch: Chỉ ghi nhận các sự kiện cần thiết, có thông báo rõ ràng cho học viên trước khi làm bài.
+> - Giảng viên là người quyết định cuối cùng (Human-in-the-loop).
 >
-> 🚨 RÀNG BUỘC KIẾN TRÚC & MÔI TRƯỜNG:
-> - CHỈ code trong thư mục `learning-hub/`. KHÔNG tạo/sửa file markdown báo cáo hay AI_WORKLOG trong prompt này để tiết kiệm token.
-> - KHÔNG làm gãy các luồng cũ. Sử dụng collection độc lập cho AI Lab.
-> - LIÊN KẾT VỚI SỐ 1: Bắt buộc dùng `DatasetIntegrationService` gọi API mock để kéo `evaluation_set` (do Số 1 tạo ở Day 08, 14) về làm căn cứ chấm điểm.
+> CÁC HẠNG MỤC TRIỂN KHAI:
 >
-> Hãy viết code thực thi toàn diện Day 23:
+> 1. Cơ sở dữ liệu và Backend:
+> - Mở rộng cấu trúc dữ liệu bài nộp để lưu trữ các tín hiệu giám sát:
+>   + Dòng thời gian làm bài: thời điểm bắt đầu, các mốc chỉnh sửa mã nguồn, thời điểm nộp bài và tổng thời lượng thao tác thực tế.
+>   + Sự kiện chuyển đổi cửa sổ/tab: ghi nhận thời điểm rời màn hình làm bài, thời điểm quay lại và khoảng thời gian rời đi ở mức tối thiểu.
+>   + Cờ tương đồng mã nguồn: điểm số tương đồng (0 đến 1), liên kết bài nộp bị trùng lặp và cờ đánh dấu cần xem xét.
+>   + Trạng thái xử lý: trạng thái bình thường, trạng thái cần xem xét và trạng thái đã duyệt; kèm trường lưu quyết định thủ công cùng ghi chú của giảng viên.
+> - Thuật toán so khớp độ tương đồng mã nguồn:
+>   + Chuẩn hóa mã nguồn (loại bỏ chú thích, khoảng trắng thừa, định dạng cơ bản) trước khi so sánh.
+>   + Đánh giá độ tương đồng so với các bài nộp khác của cùng bài tập; gắn cờ nếu vượt ngưỡng nghi vấn nhưng không tự ý đổi điểm số.
+> - API:
+>   + Nhận và lưu trữ dữ liệu tín hiệu giám sát từ phía client gửi lên.
+>   + Danh sách hàng chờ duyệt bài cho giảng viên: lọc và lấy các bài nộp có cờ nghi vấn.
+>   + Cập nhật kết luận duyệt bài của giảng viên: ghi nhận người duyệt, kết luận và lý do.
 >
-> **1. Database & Tích hợp (Backend NestJS):**
-> - **Schema mới:** Tạo `AiLabSubmission` (collection `ai_lab_submissions`). Các trường: `userId`, `exerciseId`, `prompt`, `model`, `config` (JSON lưu temp, maxTokens...), `runManifest` (log chạy), `qualityScore`, `cost`, `latency`, `status`.
-> - **Seed Dữ liệu:** Nạp 8 bài lab AI Engineer (type: `AI_LAB`). Mỗi bài gán một `resource_id` tương ứng với bộ RAG Corpus/Evaluation Set của Số 1.
-> - **Tích hợp:** Mở rộng `DatasetIntegrationService` thêm hàm mock fetch `evaluation_set` (chứa questions và ground_truths) từ Số 1.
+> 2. Giao diện người dùng (Frontend):
+> - Màn hình làm bài của học viên:
+>   + Hiển thị thông báo minh bạch ngay đầu trang: nêu rõ việc hệ thống ghi nhận thời gian làm bài và số lần chuyển đổi cửa sổ nhằm đảm bảo tính công bằng, dữ liệu chỉ dùng để giảng viên xem xét.
+>   + Lắng nghe sự kiện rời cửa sổ làm bài ở mức tối thiểu và gửi kèm vào dữ liệu nộp bài.
+> - Màn hình duyệt bài của giảng viên:
+>   + Xây dựng giao diện hàng chờ xem xét tính trung thực dành cho giảng viên.
+>   + Danh sách bài nộp hiển thị rõ: học viên, bài tập, thời gian thao tác, số lần rời màn hình, điểm tương đồng mã nguồn và trạng thái cờ.
+>   + Màn hình/modal chi tiết: hiển thị dòng thời gian làm bài, bảng so sánh đoạn mã nghi vấn (nếu có cờ tương đồng), cùng form để giảng viên nhập nhận xét và đưa ra kết luận duyệt.
 >
-> **2. Bảo mật & Chấm điểm (AI Lab Grader):**
-> - **Security Guard (Chống lộ Key):** Viết Custom Validator/Pipe kiểm tra payload nộp bài. Dùng Regex quét chặn đứng BẤT KỲ chuỗi nào giống API Key (vd: bắt đầu bằng `sk-...` của OpenAI, `AIza...` của Google). Ném `BadRequestException("Không được để lộ API Key trong submission")`.
-> - **Scoring Engine (`AiLabGraderService`):**
->   + Fetch `evaluation_set` từ Số 1.
->   + Tính `qualityScore`: Dựa trên tỷ lệ khớp (mock) giữa câu trả lời sinh ra từ prompt của học viên với `ground_truths`.
->   + Tính `cost` & `latency`: Giả lập tính toán dựa trên độ dài `prompt` và cấu hình `config`.
->   + Trừ điểm (penalty) tổng nếu `cost` hoặc `latency` vượt ngưỡng cho phép của bài toán.
+> 3. Kiểm thử tự động (Unit & Integration Tests):
+> - Viết test bao phủ các luồng: lưu trữ tín hiệu giám sát đúng cấu trúc, phân quyền giảng viên xem hàng chờ và học viên không xem được dữ liệu của người khác.
+> - Bắt buộc có các ca kiểm thử cho trường hợp nhận diện nhầm (False-Positive Cases):
+>   + Học viên chuyển tab trong thời gian ngắn hoặc số lần ít (dưới ngưỡng) -> Không gắn cờ nghi vấn.
+>   + Hai bài làm dùng chung mã khung khởi tạo mẫu -> Thuật toán không đánh dấu nhầm là sao chép.
+>   + Thời gian nộp bài nhanh đối với bài dễ -> Chỉ ghi nhận mốc thời gian, không tự động hủy bài hay trừ điểm.
 >
-> **3. Frontend (React/Tailwind) - UI & UX:**
-> - **UI AiLabWorkspacePage:**
->   + Cột trái: Đề bài và Preview một phần `evaluation_set` (kéo từ API) để học viên biết test case.
->   + Cột phải: Form chọn `model`, thanh trượt điều chỉnh `config` (temperature, maxTokens), và Textarea gõ `prompt`.
->   + Nút Submit: "Chạy & Đánh giá".
-> - **UX Kết quả:** Render bảng `Run Manifest` hiển thị 3 thông số: Điểm chất lượng, Chi phí (Cost) và Độ trễ (Latency). Báo lỗi Toast đỏ ngay lập tức nếu API Key bị chặn.
+> BÁO CÁO KẾT QUẢ:
+> - Báo cáo các chức năng đã triển khai.
+> - Số lượng bài test mới, tổng số test xanh hiện tại và xác nhận kết quả typecheck, build.
+> - Liệt kê các tệp đã tạo mới hoặc chỉnh sửa."
 >
-> **4. Unit Tests (Jest):**
-> - Viết test trong `ai-lab-grader.service.spec.ts`:
->   + Case 1: Bị chặn thành công khi nộp chuỗi chứa `sk-12345...`.
->   + Case 2: Chấm điểm kết hợp (tính đúng điểm quality và trừ điểm khi cost/latency quá ngưỡng quy định)."
+> "lưu ý ko cập nhât doc (doc đợi xong hết mới làm để tiết kiệm quota)"
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Learning Hub chỉ giữ `resource_id`; câu hỏi và đáp án chuẩn là dữ liệu của Số 1 và phải đi qua `DatasetIntegrationService`. "Tái lập ở mức cấu hình" nghĩa là cùng prompt, model, config và evaluation set thì luôn ra cùng điểm. Bài AI Lab không được lọt vào luồng Python cũ.
+Tín hiệu chỉ để giảng viên xem xét, không bao giờ làm thay đổi điểm hay trạng thái chấm. "Thu thập tối thiểu" nghĩa là không ghi phím bấm hay nội dung gõ, chỉ ghi thời điểm và độ dài mã. Hai bài chung mã khung không được coi là sao chép nên phải loại mã khung trước khi so. Dòng "không tạo tệp tài liệu" nghĩa là chưa viết doc hay AI_WORKLOG trong lượt này.
 
 ### Context, tài liệu, file, constraint đã cung cấp
 
 AI đọc ở chế độ chỉ đọc:
-- `BaoCao_Task08/data/eval_qa/rag_eval_questions.json` và `eval_schema.md` (100 câu, trường `question_id`, `query`, `type`, `ground_truth_answer`, `citations`).
-- `BaoCao_Task21/data/golden_rag_eval_v1.json` (nhóm `standard_qa`, `ambiguous_multihop`, `unanswerable_out_of_domain`, `adversarial_injection`, `expected_behavior` ANSWER/ABSTAIN).
-- `BaoCao_Task21/contracts/openapi.json`: chưa có route evaluation set.
+- Backend: schema `Submission`, `ExerciseService.submitCode`, các controller `teacher/*` và `RolesGuard`, `StudentOnlyGuard`, `AppThrottlerGuard`.
+- Frontend: `CodePlaygroundPage.tsx`, `TeacherLabSubmissionsPage.tsx`, `Header.tsx`, `App.tsx` để bắt chước cách dựng trang giảng viên.
 
 ### Chỉ dẫn chính và các vòng phản hồi quan trọng
 
-- **Route mới cho Số 1:** OpenAPI v1.0 chưa có route evaluation set. AI đề xuất `GET /api/v1/registry/evaluation-sets/{id}` là phần mở rộng v1.1, giống cách Day 22 đề xuất `data_dictionary`; route này cần Số 1 xác nhận.
-- **Mô phỏng thay cho LLM thật:** không gọi LLM thật. Câu trả lời được mô phỏng từ đáp án chuẩn, theo các yếu tố sau:
-  - các kỹ thuật prompt nhận ra được trong prompt,
-  - năng lực của model,
-  - temperature và maxTokens,
-  - với bài RAG: xác suất truy xuất trúng, tính theo embedding model và topK.
-- **Tái lập:** mọi bước ngẫu nhiên dùng seed lấy từ prompt, model, config và checksum của evaluation set.
-- **Hiệu chỉnh ngưỡng:** AI chạy grader trên fixture với nhiều cấu hình. Lab 4 với prompt trơn và lab 7 với cấu hình truy xuất kém vẫn đạt, nên AI nâng ngưỡng đạt của lab 4 đến 6 lên 70 và lab 7, 8 lên 75.
+- **Nơi lưu tín hiệu:** gắn trường `integrity` vào bản ghi `Submission` của luồng judge, tách khỏi các trường điểm; API đọc bài nộp của học viên không trả trường này.
+- **Thuật toán so khớp:** chuẩn hóa mã, loại các dòng trùng với mã khung của đề, tách token rồi tính Jaccard trên tập 3 token liên tiếp; mã quá ngắn (dưới 20 token) không so; không so học viên với chính họ; tối đa 200 bài gần nhất.
+- **Ngưỡng:** tương đồng từ 0,8; hoặc rời màn hình từ 5 lần và tổng từ 180 giây (cần cả hai điều kiện để hạn chế nhận diện nhầm).
+- **Không tin client:** thời điểm nộp luôn lấy theo giờ máy chủ, thời điểm bắt đầu không được lớn hơn thời điểm nộp, thời gian rời tối đa bị chặn bằng tổng thời gian làm bài, số sự kiện tối đa 50.
+- **Duyệt:** ba kết luận, bắt buộc có lý do; chỉ ghi vào các trường `integrity.*`.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
 | Nhóm | File chính | Ghi chú |
 |---|---|---|
-| Tích hợp Số 1 | `dataset-integration.service.ts`, `dataset-contract.types.ts` | Thêm `fetchEvaluationSet`; gom phần gọi HTTP dùng chung; tính checksum sha256 của câu hỏi và đáp án chuẩn; câu thiếu đáp án thì báo lỗi |
-| Mock Số 1 | `mock-data-service/evaluation-set-fixture.ts`, `server.ts` | 8 evaluation set, câu hỏi chép nguyên văn từ Day 08 và golden set Day 20/21 |
-| Lưu trữ | `ai-lab-submission.schema.ts`, `exercise.schema.ts` | Collection `ai_lab_submissions`; thêm type `AI_LAB` và `aiLabSpec` |
-| Bộ lab | `data/initial-ai-labs.ts` | 8 bài tăng dần: zero-shot, định dạng, few-shot, RAG grounding, từ chối câu ngoài phạm vi, chống câu bẫy và injection, embeddings và topK, RAG end-to-end |
-| Chấm | `ai-lab-grader.service.ts`, `ai-lab.catalog.ts` | Chất lượng là F1 theo từng câu so với ground truth; cost và latency mô phỏng theo bảng giá; mỗi lần vượt ngân sách trừ 20% điểm tối đa; run manifest ghi phiên bản grader, checksum, đơn giá và seed |
-| Chặn key | `secret-guard.ts` | `NoSecretsPipe` ở controller, grader kiểm tra lại lần nữa; thông báo lỗi không lặp lại chuỗi key |
-| API | `ai-labs.controller.ts`, `ai-labs.service.ts`, `ai-labs.module.ts` | Danh sách lab, đề, preview 3 câu không có đáp án chuẩn, nộp bài, lần chạy gần nhất |
-| Giao diện | `AiLabListPage.tsx`, `AiLabWorkspacePage.tsx`, `aiLabApi.ts`, `types/aiLab.ts`, `App.tsx`, `Header.tsx` | Cột trái là đề và preview, cột phải là form; bảng Run Manifest; toast đỏ khi có key, kiểm tra ngay ở trình duyệt |
-| Test | `ai-lab-grader.service.spec.ts`, phần mới trong `dataset-integration.service.spec.ts` | Case 1, Case 2, tái lập, kiểm tra đầu vào |
+| Backend lõi | `modules-api/integrity/`: `integrity.config.ts`, `code-similarity.ts`, `integrity-signals.ts`, `integrity.service.ts`, `integrity.controller.ts`, `integrity.module.ts` | Ngưỡng cấu hình riêng một file; chuẩn hóa mã; dựng tín hiệu; hàng chờ, chi tiết, duyệt |
+| Lưu trữ, nộp bài | `submission.schema.ts`, `exercise.service.ts`, `exercise.module.ts`, `dto/submit-code.dto.ts`, `app.module.ts` | Thêm `integrity`; nộp bài gọi `evaluate` nhưng vẫn đưa bài vào hàng đợi chấm như cũ |
+| Frontend | `common/integrityTracker.ts`, `components/IntegrityNotice.tsx`, `pages/TeacherIntegrityQueuePage.tsx`, `pages/integrityFormat.ts`, `axios/integrityApi.ts`, `types/integrity.ts`, `CodePlaygroundPage.tsx`, `Header.tsx`, `App.tsx` | Thông báo minh bạch đầu trang; bộ ghi tín hiệu tối thiểu; trang hàng chờ với modal so sánh hai đoạn mã |
+| Test | `code-similarity.spec.ts`, `integrity-signals.spec.ts`, `integrity.service.spec.ts`, `integrityTracker.test.ts`, `integrityFormat.test.ts`, test mới trong `exercise.service.spec.ts` | Có 3 ca nhận diện nhầm theo đề, cộng thêm ca bài ngắn và ca không so với chính mình |
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-- **Test:** 35 test mới xanh; toàn bộ BE 477/477; typecheck BE và FE sạch.
-- **Kiểm thử động:** chạy smoke test bằng HTTP thật với mock server và backend. Prompt đủ kỹ thuật được PASSED 23.7/25; nộp lại cùng cấu hình cho manifest giống hệt; `gemini-2.5-pro` với topK 8 bị trừ cả cost lẫn latency; key `sk-` bị 400; bài AI Lab không lọt vào danh sách DA Lab và ngân hàng đề Python.
+- **Lệnh chạy:** `npx tsc --noEmit -p tsconfig.json` và `npx jest` ở BE; `npx tsc -b`, `npx vitest run`, `npm run build` ở FE.
+- **Kết quả:** 34 test mới ở BE (BE tổng 644 xanh, 58 suite); 12 test mới ở FE (FE tổng 28 xanh, 7 file); typecheck và build của cả hai sạch; `oxlint` không có cảnh báo mới.
+- **Ca nhận diện nhầm:** chuyển tab 2 lần mỗi lần 20 giây không gắn cờ; 8 lần mỗi lần 5 giây (tổng 40 giây) không gắn cờ; hai bài chỉ giống nhau ở mã khung có điểm 0; nộp sau 8 giây chỉ ghi mốc, không có lý do, không có kết luận.
 
 **Lỗi AI mắc phải:**
-- Test cắt câu trả lời theo `maxTokens` bị fail, vì đáp án mẫu quá ngắn nên không bao giờ vượt 32 token. AI đổi test sang prompt không giới hạn độ dài.
-- `tsc` báo lỗi vì trường `model` trùng tên với method `Document.model()` của Mongoose. AI chuyển sang inject `Model<AiLabSubmission>` kiểu raw.
+- Hai lần dùng heredoc dài trong bash bị vỡ cú pháp (`unexpected EOF`), chưa file nào được tạo. AI chuyển sang ghi file bằng công cụ ghi file.
+- Một bản ghi file bằng script làm mất dấu `\` trong `code-similarity.ts` (`'\\'` thành `'\'`). `tsc` báo `TS1002: Unterminated string literal`; AI sửa lại và đọc kỹ dòng đó.
+- Một test FE kỳ vọng sai: mốc chỉnh sửa đầu tiên được ghi ngay lập tức chứ không đợi 30 giây. AI sửa test cho đúng hành vi đã thiết kế.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-**Điều học được:** hiệu chỉnh ngưỡng chấm bằng cách chạy grader trên dữ liệu thật trước khi chốt seed giúp tránh bài quá dễ.
+**Điều học được:** ngưỡng đặt theo kiểu "cả hai điều kiện" làm giảm nhận diện nhầm, nhưng cần dữ liệu thật để chỉnh.
 
 **Điều chưa chắc:**
-- Số 1 chưa xác nhận route evaluation set v1.1.
-- Chất lượng hiện là mô phỏng, chưa gọi LLM thật.
+- Tín hiệu mới áp dụng cho bài code qua judge; bài giảng viên soạn (chấm phía client) và DA/AI Lab chưa có.
+- Bài nộp trước Day 24 không có `integrity` nên không vào hàng chờ.
 
 ---
 
-## Việc 3: Chạy dự án để kiểm thử
+## Việc 3: Viết tóm tắt Day 24 và chạy dự án để kiểm thử thủ công
 
-> "run du an cho toi test dã"
+> "1. Tạo file docs/day24/tomtat.md, tổng hợp lại toàn bộ nội dung mà bạn vừa báo cáo ở phản hồi trước (chi tiết về những gì đã làm, nguyên lý hoạt động, cấu trúc dữ liệu, thuật toán so khớp, công nghệ sử dụng, danh sách file mới/sửa và các ca kiểm thử false-positive). và run dự án lên để tôi test thủ công"
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Cần bật đủ mock Số 1, backend và frontend để tự kiểm thử trên trình duyệt.
+Báo cáo ở phản hồi trước phải được chuyển thành tài liệu có cấu trúc. Cần bật backend và web để tự kiểm thử trên trình duyệt; MongoDB local đã chạy sẵn.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Không sửa file. AI bật mock server, backend (watch mode) và Vite chạy nền, rồi đưa kịch bản thử: chặn key, prompt tốt và prompt trơn, phạt ngân sách, tái lập.
+Tạo `docs/day24/tomtat.md` gồm 11 mục: mục tiêu, công nghệ, nguyên lý, cấu trúc dữ liệu, thuật toán, API, giao diện, kiểm thử, danh sách file, giới hạn và cách thử thủ công. AI chạy `npm run dev:api` và `npm run dev:web` ở nền, chỉ bật hai tiến trình này vì mock và sandbox Docker chỉ cần cho DA Lab.
 
 ### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
 
-**Lỗi AI mắc phải:** cổng 3000 và 8010 vẫn bị hai tiến trình node từ lần smoke test ở Việc 2 giữ, vì lệnh dừng tác vụ chỉ dừng `npm` chứ không dừng tiến trình con. AI tra tiến trình theo cổng, xác nhận đúng là tiến trình của mình rồi mới tắt và chạy lại.
+- **Kiểm tra:** cổng 5173 trả web; cổng 3000 trả `Nest application successfully started`, `GET /api` hoạt động.
+
+**Lỗi AI mắc phải:**
+- Lệnh chờ bằng `sleep` bị công cụ chặn, và một lệnh `Monitor` kết thúc sớm khi log mới chỉ có dòng biên dịch. AI chuyển sang vòng lặp kiểm tra cổng.
+- Vì thế bước đầu tưởng API đã sẵn sàng, nhưng cổng 3000 chưa nghe: biên dịch xong chưa có nghĩa là ứng dụng đã khởi động.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: dừng một tác vụ `npm` chạy nền không đảm bảo tiến trình con cũng dừng; phải kiểm tra cổng sau khi dừng.
+Điều học được: dòng "Found 0 errors" của chế độ watch chỉ báo biên dịch xong; phải kiểm tra cổng đang nghe mới biết ứng dụng đã chạy.
 
 ---
 
-## Việc 4: Kiểm tra việc chấm có thật sự lấy evaluation set từ Số 1
+## Việc 4: Giải thích vì sao rời tab không thấy phản ứng
 
-> "Kiểm tra lại toàn bộ mã nguồn của Day 23 (đặc biệt là AiLabGraderService và luồng seed dữ liệu).
->
-> Hãy trả lời trung thực và sửa code nếu vi phạm:
-> 1. Luồng chấm điểm hiện tại có đang thực sự gọi qua DatasetIntegrationService để fetch dữ liệu từ mock server của Thực tập sinh số 1 (GET /api/v1/registry/evaluation-sets/{id}) không?
-> 2. Hay bạn đang tự bịa ra dữ liệu (hardcode các mảng câu hỏi, ground_truths, json ảo) trực tiếp ngay bên trong file service?
->
-> Nếu đang tự hardcode dữ liệu để chấm điểm:
-> - Xóa ngay phần hardcode.
-> - Sửa lại code bắt buộc phải lấy resource_id của bài lab, gọi qua DatasetIntegrationService để kéo tập đánh giá từ máy chủ của Số 1 về làm chuẩn đối chiếu.
-> - Đảm bảo mã nguồn chỉ đóng vai trò xử lý logic chấm điểm, còn dữ liệu gốc phải hoàn toàn phụ thuộc vào hệ thống của Số 1."
+> "sao tôi out tab vẫn ko sao"
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Phải chứng minh bằng code và bằng hệ thống đang chạy, không chỉ khẳng định.
+Tôi mong thấy cảnh báo khi rời tab, nhưng thiết kế là ghi nhận âm thầm và chỉ gắn cờ khi vượt ngưỡng.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Không sửa file vì không có vi phạm. Bằng chứng:
-
-| Kiểm tra | Kết quả |
-|---|---|
-| Grep `src/` (trừ file test) | Không có mã câu `Q0xx`, `EVAL-` hay nội dung đáp án; `src/` không import fixture của mock |
-| Chấm khi mock đang bật | Checksum trong manifest `7df9bba820cedebf` khớp với checksum tự tính từ dữ liệu mock trả về |
-| Tắt mock rồi chấm bài chưa có trong cache | HTTP 502, không có dữ liệu dự phòng |
-
-AI nêu rõ các điểm cần biết:
-- Fixture trong `mock-data-service/` là bản chép dữ liệu của Số 1, nằm phía "server Số 1".
-- Grader có chuỗi cố định để mô phỏng câu trả lời sai, nhưng đó không phải đáp án chuẩn.
-- Evaluation set được cache 60 giây.
+Không sửa file. AI giải thích ba lý do: việc ghi nhận không hiện cảnh báo cho học viên; một lần rời tab không gắn cờ vì ngưỡng là từ 5 lần và 180 giây; tín hiệu chỉ gửi khi bấm nộp. AI cũng chỉ ra giới hạn thật: chỉ nghe `visibilitychange` nên không bắt được trường hợp chuyển sang cửa sổ ứng dụng khác khi trình duyệt vẫn hiện, và đề xuất thêm `blur`/`focus` cùng ngưỡng hạ thấp qua biến môi trường để thử.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
-Điều học được: cách chứng minh nhanh nhất là tắt nguồn dữ liệu rồi xem hệ thống có lỗi hay âm thầm dùng dữ liệu khác.
+Điều học được: một giới hạn của giải pháp cần được nói rõ ngay khi người dùng gặp hiện tượng "không có gì xảy ra". Phần `blur`/`focus` được thêm ở Việc 5 và Việc 7.
 
 ---
 
-## Việc 5: Lỗi 503 khi chưa bật mock server và khóa quyền nộp bài theo vai trò
+## Việc 5: Làm lại quản lý cuộc thi, phối hợp trắc nghiệm và Code Playground, tích hợp chống gian lận, rà lỗi hai vai trò
 
-> "Đóng vai kỹ sư phần mềm. Rà soát lại toàn bộ mã nguồn hiện tại và xử lý ngay 2 lỗi logic nghiêm trọng sau. Trả về mã nguồn trực tiếp, không giải thích dài dòng, không dùng từ ngữ thảo mai, không dùng ký tự đặc biệt. Yêu cầu giữ nguyên các bài kiểm thử đang xanh và viết thêm bài kiểm thử cho luồng khóa quyền.
->
-> 1. Khắc phục lỗi kết nối máy chủ dữ liệu giả lập (Mock Server / Sandbox DB):
-> - Lỗi hiện tại: Khi chưa bật máy chủ giả lập của người số 1, hệ thống báo "Sandbox DB của Data & AI Resource đang không kết nối được" nhưng không tự phục hồi hoặc không báo lỗi rõ ràng cho luồng AI Lab.
-> - Xử lý:
->   + Cập nhật package.json, thêm lệnh chạy tự động bằng công cụ concurrently để khởi động máy chủ giả lập cùng lúc với máy chủ backend.
->   + Thêm cơ chế bắt lỗi ở dịch vụ tích hợp dữ liệu. Nếu gọi API thất bại do máy chủ tắt, trả về lỗi 503 Service Unavailable kèm thông báo "Máy chủ dữ liệu giả lập chưa được bật", hiển thị thông báo đỏ rõ ràng trên giao diện thay vì lỗi chung chung.
->
-> 2. Ràng buộc cực mạnh quyền nộp bài (Role-based Access Control):
-> - Lỗi hiện tại: Vai trò giảng viên vẫn có thể gọi API nộp bài thực hành, gây sai lệch logic nghiệp vụ.
-> - Xử lý: Rà soát toàn bộ các bộ điều khiển nhận bài nộp (của AI Lab và DA Lab). Bổ sung lớp bảo vệ phân quyền (Role Guard).
-> - Cài đặt cứng: Chỉ tài khoản có vai trò "Học viên" mới được phép nộp bài. Nếu tài khoản "Giảng viên" hoặc "Quản trị viên" gọi API này, chặn ngay từ vòng xác thực, ném lỗi 403 Forbidden kèm thông báo "Tài khoản giảng viên không được phép làm bài thực hành".
-> - Ẩn nút "Chạy & Đánh giá" trên giao diện nếu tài khoản đang đăng nhập không phải là Học viên.
->
-> Thực thi ngay và cập nhật mã nguồn."
+> "oke chuẩn rồi, nhưng làm lại cái quản lý cuộc thi  ui ux đơn giản dễ dùng + phối hợp bài trắc nghiệm + code play luôn xong chèn thêm cái chống gian lận này vào cuộc thi luôn với xem hiện tại cái phần cuộc thi cả role giảng viên + học viên có lỗi j không"
 
 ### Điều tôi hiểu trước khi gọi AI
 
-Thông báo "Sandbox DB..." trong đề là lỗi của Postgres sandbox Docker, khác với lỗi tắt mock server; cần tách hai trường hợp. Chạy thử SQL không phải là nộp bài.
+Cần ba việc: đơn giản hóa giao diện quản lý cuộc thi và cho phép ghép trắc nghiệm với bài Code Playground trong cùng một cuộc thi; đưa tín hiệu liêm chính vào cuộc thi; và rà soát lỗi thật ở cả hai vai trò trước khi sửa, chứ không đoán.
 
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+### Context, tài liệu, file, constraint đã cung cấp
 
-- **503 khi mock tắt:** `dataset-integration.service.ts` trả 503 "Máy chủ dữ liệu giả lập chưa được bật" khi không có phản hồi; mock có phản hồi lỗi 5xx thì vẫn trả 502.
-- **Lệnh chạy chung:** `BE/package.json` có thêm `dev` chạy mock và api bằng `concurrently`.
-- **Khóa quyền nộp bài:** `common/auth/student-only.guard.ts` mới, gắn vào `POST /ai-labs/:slug/submit`, `POST /da-labs/:slug/submit` và `POST /da-labs/:slug/insight`.
-- **FE:** ẩn nút nộp bài với tài khoản không phải học viên.
-- **Giữ nguyên:** `POST /da-labs/:slug/run` vẫn mở cho giảng viên, vì đó là chạy thử chứ không nộp bài.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-- **Test:** 16 test mới, trong đó `student-only.guard.spec.ts` chạy qua HTTP trên cả hai controller; toàn bộ 493/493 xanh.
-- **Kiểm thử động:** giảng viên gọi cả 3 route đều nhận 403 đúng thông báo; tắt mock thì 3 route trả 503.
-
-**Lỗi AI mắc phải:** lệnh `dev` đầu tiên dùng cờ `-k`, nên khi tắt mock để thử thì API cũng tắt theo và không trả được 503. AI phát hiện khi kịch bản kiểm thử báo `ECONNREFUSED` tới cổng 3000, rồi bỏ cờ `-k`.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: tuỳ chọn tiện lợi như `-k` có thể làm hỏng chính kịch bản lỗi mà mình muốn xử lý.
-
----
-
-## Việc 6: Chặn điều hướng FE cho giảng viên và Docker Compose cho Postgres Sandbox
-
-> "Đóng vai kỹ sư phần mềm. Yêu cầu điều chỉnh lại luồng điều hướng giao diện và thiết lập môi trường triển khai (deploy) cho Sandbox. Trả về mã nguồn trực tiếp, cực kỳ ngắn gọn, không giải thích dài dòng.
->
-> 1. Xử lý luồng điều hướng giao diện (Frontend Router & Navigation):
-> - Lỗi hiện tại: Giảng viên vẫn thấy menu và truy cập được vào trang làm bài (Workspace) của AI Lab và DA Lab giống hệt học viên, chỉ bị ẩn nút nộp bài. Thiết kế này sai ý đồ nghiệp vụ.
-> - Xử lý:
->   + Sửa tệp cấu hình thanh điều hướng (Header/Sidebar): Ẩn hoàn toàn các mục "AI Lab" và "DA Lab" nếu tài khoản đăng nhập không có vai trò STUDENT.
->   + Sửa bộ định tuyến (Router): Bọc các đường dẫn /ai-labs và /da-labs bằng một lớp bảo vệ (ví dụ: StudentRouteGuard). Nếu tài khoản Giảng viên hoặc Quản trị viên cố tình truy cập bằng đường dẫn trực tiếp, tự động chuyển hướng (redirect) về trang tổng quan của giảng viên hoặc trang chủ, không cho phép kết xuất (render) giao diện làm bài.
->
-> 2. Tự động hóa triển khai Postgres Sandbox (Docker Compose):
-> - Vấn đề: Việc bật Sandbox bằng lệnh Docker thủ công không khả thi khi triển khai lên máy chủ thực tế.
-> - Xử lý: Tạo tệp docker-compose.yml ở thư mục gốc của dự án. Khai báo các dịch vụ sau:
->   + Dịch vụ postgres-sandbox: Sử dụng image postgres (hoặc image tương ứng đang dùng), thiết lập các biến môi trường cần thiết, ánh xạ cổng và cấu hình giới hạn tài nguyên (cpus, mem_limit) để chống treo máy chủ khi học viên truy vấn dữ liệu lớn.
->   + Thêm một lệnh "docker:up": "docker-compose up -d" vào tệp package.json gốc để đồng bộ luồng khởi động."
-
-### Điều tôi hiểu trước khi gọi AI
-
-Header đang xếp ADMIN vào menu học viên, nên phải kiểm tra theo vai trò thật chứ không theo nhóm giao diện. `init.sql` cấp quyền theo tên DB `sales_v1`, nên không được đổi tên DB.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-- **Chặn route:** `FE/src/components/StudentRoute.tsx` mới, bọc 4 route lab.
-- **Menu:** `Header.tsx` ẩn hai mục ở menu giảng viên; ở menu học viên chỉ hiện khi vai trò là `STUDENT`.
-- **Dọn prop thừa:** bỏ prop `isStudent` thêm ở Việc 5, vì route đã chặn từ ngoài.
-- **Sandbox:** `learning-hub/docker-compose.yml` với giới hạn 1 CPU, 512 MB, 200 pids, `temp_file_limit` và healthcheck; `learning-hub/package.json` có lệnh `docker:up`.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-Chạy `docker:up`, kiểm tra trên sandbox thật:
-- healthcheck báo healthy, giới hạn tài nguyên có hiệu lực;
-- `lab_reader` đọc được dữ liệu, lệnh `CREATE TABLE` bị chặn;
-- nộp DA SQL qua backend đạt ACCEPTED 10/10.
-
-**Lỗi AI mắc phải:** container mới trùng tên với container cũ đang dừng, tạo từ compose cũ trong `BE/mock-data-service/sandbox/`. AI kiểm tra nhãn compose của container cũ, xác nhận nguồn gốc rồi đổi tên nó thành `-old` thay vì xoá, sau đó hỏi lại việc xoá.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều chưa chắc: việc chuyển hướng mới chỉ kiểm bằng typecheck, chưa thử trên trình duyệt.
-
----
-
-## Việc 7: Tự động bật sandbox bằng một lệnh `npm run dev`
-
-> "Đóng vai Senior Fullstack & DevOps Engineer. Hãy thực thi toàn bộ các yêu cầu sau trực tiếp vào mã nguồn, không giải thích lý thuyết dông dài:
->
-> 1. Chặn điều hướng và bảo vệ route phía Frontend (React):
-> - Thanh điều hướng (Header/Navbar): Ẩn hoàn toàn các mục "AI Lab" và "DA Lab" nếu người dùng không có vai trò STUDENT.
-> - Route Guard: Tạo StudentRouteGuard (hoặc bọc Router). Nếu INSTRUCTOR hoặc ADMIN truy cập trực tiếp vào các đường dẫn /ai-labs, /ai-labs/:slug, /da-labs, /da-labs/:slug, lập tức chuyển hướng (redirect) về /instructor/queue (hoặc /), không cho hiển thị giao diện làm bài.
->
-> 2. Tự động hóa 100% Docker Sandbox ở Local (Không bật thủ công, 1 lệnh ăn ngay):
-> - Tạo tệp docker-compose.yml ở thư mục gốc chứa dịch vụ postgres-sandbox: dùng postgres:16-alpine (hoặc image phù hợp với cấu hình hiện tại), ánh xạ cổng tương ứng (vd 5433:5432), giới hạn tài nguyên (cpus: '1.0', memory: 512M) và khai báo healthcheck (pg_isready).
-> - Viết một script tự động kiểm tra và khởi động container (ví dụ: scripts/ensure-sandbox.sh hoặc scripts/ensure-sandbox.js dùng Node.js):
->   + Kiểm tra Docker daemon và trạng thái container postgres-sandbox.
->   + Nếu chưa chạy: Tự động chạy docker compose up -d postgres-sandbox và chờ container sẵn sàng kết nối trước khi trả về.
->   + Nếu container đã chạy: Bỏ qua và tiếp tục.
->   + Nếu máy không bật Docker: In cảnh báo rõ ràng ra terminal nhưng không làm crash toàn bộ tiến trình nếu chạy các phần không dùng đến Postgres.
-> - Cấu hình vào package.json gốc / backend: Tích hợp script này thành tiền điều kiện (predev hoặc gắn vào lệnh npm run dev). Đảm bảo lập trình viên chỉ cần gõ đúng 1 lệnh npm run dev duy nhất là tự động: kiểm tra/bật docker sandbox -> chạy mock server -> chạy backend -> chạy frontend.
->
-> 3. Kiểm thử:
-> - Đảm bảo toàn bộ test hiện có (493/493) vẫn xanh.
-> - Typecheck cả Backend và Frontend đều sạch lỗi."
-
-### Điều tôi hiểu trước khi gọi AI
-
-Phần chặn route đã làm ở Việc 6, chỉ còn đích chuyển hướng. Dự án không có vai trò `INSTRUCTOR` mà dùng `TEACHER`, và hàng chờ giảng viên là `/teacher/review-queue`. Cổng sandbox phải giữ 55432 vì `sandbox_db_url` của mock đang trỏ vào đó.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-- **Chuyển hướng:** `StudentRoute.tsx` đưa giảng viên về `/teacher/review-queue`, ADMIN về `/`.
-- **Compose:** đổi sang cú pháp `deploy.resources.limits`.
-- **Script:** `scripts/ensure-sandbox.js` (Node, chạy trên cả Windows và Linux) không bao giờ thoát mã lỗi khác 0, để không chặn các dịch vụ khác.
-- **Lệnh chung:** `learning-hub/package.json` có `predev`, và `dev` chạy mock, api, web bằng `concurrently`; `BE/package.json` cũng có `predev`.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-- **Script sandbox, thử ở 3 trạng thái:** container đang chạy thì bỏ qua; container đã dừng thì khởi động lại và chờ healthy; không có Docker (bỏ `docker` khỏi PATH) thì in cảnh báo và thoát 0.
-- **Một lệnh duy nhất:** `npm run dev` lên đủ 4 dịch vụ.
-- **Test:** 493/493 xanh, typecheck sạch.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: tên vai trò và đường dẫn trong đề có thể không khớp với code thật; phải đối chiếu rồi nói rõ cách hiểu.
-
----
-
-## Việc 8: Dọn file compose cũ, container cũ và đưa package-lock vào git
-
-> "Thực thi các quyết định kỹ thuật từ phần lưu ý, làm trực tiếp và không tạo bất kỳ file tài liệu/doc nào:
->
-> 1. Xóa file: Xóa tệp BE/mock-data-service/sandbox/docker-compose.yml để tránh xung đột với docker-compose.yml ở thư mục gốc.
-> 2. Dọn Docker container cũ: Chạy lệnh gỡ bỏ container da-sandbox-sales-v1-old (nếu còn tồn tại trên Docker daemon).
-> 3. Quản lý git: Giữ lại và đưa file package-lock.json ở thư mục gốc learning-hub/ vào theo dõi git (git add package-lock.json).
-> 4. Kiểm tra lại: Xác nhận lại trạng thái hệ thống sau khi dọn dẹp, đảm bảo lệnh npm run dev vẫn khởi động đủ 4 dịch vụ bình thường."
->
-> "làm đi"
-
-### Điều tôi hiểu trước khi gọi AI
-
-`init.sql` vẫn được compose ở thư mục gốc dùng nên phải giữ. Nếu thiếu `package.json` gốc thì `package-lock.json` không có tác dụng.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-- `git rm` file compose cũ.
-- Container `-old` đã không còn trên Docker. Nhật ký sự kiện Docker cho thấy nó bị xoá lúc 18:00:22, không phải do lệnh nào trong phiên.
-- `git add` file `package-lock.json`, và theo chỉ dẫn "làm đi", thêm cả `package.json` gốc.
-- Không sửa `AI_WORKLOG.md` Day 22 dù có nhắc tới file cũ, đúng yêu cầu không đụng tài liệu.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-`npm run dev` chạy lại từ đầu: sandbox healthy, mock 200, api 401 khi chưa đăng nhập, web 200.
-
-**Lỗi AI mắc phải:** lệnh `grep -r` đầu tiên quét cả `node_modules` lồng nhau nên quá thời gian chờ. AI dừng lệnh đó và dùng công cụ Grep có loại trừ `node_modules`.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: không kết luận "đã gỡ" khi đối tượng đã biến mất từ trước; tra nhật ký để biết ai gỡ và gỡ lúc nào.
-
----
-
-## Việc 9: Rà soát bảo mật và QA toàn bộ learning-hub, chỉ báo cáo
-
-> "Đóng vai trò là một Principal Security Engineer kết hợp Lead QA Auditor. Hãy thực hiện một đợt rà soát và kiểm thử tĩnh/động toàn diện trên toàn bộ mã nguồn của dự án trong thư mục `learning-hub/`.
->
-> MỤC TIÊU: Đóng vai kẻ tấn công và người dùng khó tính nhất để "vạch lá tìm sâu", phát hiện mọi lỗ hổng bảo mật, lỗi logic nghiệp vụ, góc khuất rò rỉ dữ liệu và sự bất nhất trong trải nghiệm UI/UX.
->
-> QUY TẮC BẮT BUỘC:
-> 1. TUYỆT ĐỐI KHÔNG TỰ Ý SỬA CODE. Chỉ đọc mã nguồn, phân tích luồng và xuất ra báo cáo danh sách lỗi.
-> 2. Phân loại lỗi theo 4 cấp độ: [CRITICAL], [HIGH], [MEDIUM], [LOW].
-> 3. Mỗi lỗi bắt buộc phải chỉ rõ: Tên tệp & dòng code (nếu có), Kịch bản phát sinh lỗi (How to reproduce), Rủi ro tiềm ẩn và Hướng đề xuất xử lý.
->
-> Hãy rà soát kỹ lưỡng qua 5 khía cạnh sau:
->
-> ---
->
-> ### 1. Phân quyền, Điều hướng & Lỗ hổng RBAC (Auth & Access Control)
-> - Rà soát toàn bộ Controller phía Backend (NestJS): Có endpoint nào bị sót Guard (`JwtAuthGuard`, `RolesGuard`, `StudentOnlyGuard`) không?
-> - Lỗ hổng IDOR / BOLA: Một học viên có thể xem/sửa bài nộp (`ai_lab_submissions`, `da_lab_submissions`, `submissions`) của học viên khác bằng cách đổi ID trong URL/payload không?
-> - Giảng viên (`TEACHER`) và Quản trị viên (`ADMIN`): Có route nào họ vô tình bị chặn chức năng cần thiết, hoặc ngược lại, có thể can thiệp trái phép vào bài nộp của học viên không?
-> - Phía Frontend (React Router & UI):
->   + Kiểm tra toàn bộ router, Header, Sidebar: Còn trang nào hoặc nút bấm nào lộ diện cho sai đối tượng không?
->   + Nếu người dùng chưa đăng nhập hoặc có role không hợp lệ nhập trực tiếp URL trên thanh địa chỉ trình duyệt, cơ chế Redirect có xử lý triệt để không hay vẫn render ngầm component rồi mới đá ra?
->
-> ### 2. Bảo mật dữ liệu & Cơ chế chặn mã nhạy cảm (Security Guards & Regex)
-> - Kiểm tra tính bền vững của bộ lọc chặn API Key (`NoSecretsPipe` và hàm validate FE):
->   + Có thể bypass bộ lọc regex này bằng các biến thể không? (Ví dụ: key nằm trong JSON lồng sâu, key bị ngắt dòng, key dùng dấu ngoặc kép, base64 encode, hoặc key của các provider mới nổi)?
->   + Grader có bao giờ vô tình log toàn bộ payload chứa API key bị chặn ra file log/console của server không?
-> - Nguy cơ lộ đáp án (Data Leakage):
->   + Endpoint xem trước đề bài (`GET /ai-labs/:slug` hoặc danh sách lab) có vô tình trả về `ground_truth_answer` hoặc toàn bộ câu hỏi ẩn của `evaluation_set` về Frontend không? Kiểm tra payload mạng trả về học viên.
->
-> ### 3. Môi trường Thực thi & Tấn công Sandbox (Sandbox Resilience)
-> - Postgres Sandbox (DA Lab):
->   + Có truy vấn SQL độc hại nào vượt qua được lớp regex chặn (DROP, DELETE, ALTER) bằng cách dùng comment (`--`, `/* */`), sub-query, hoặc hàm hệ thống (vd: `pg_sleep()`, `COPY TO`, gọi system shell) để chiếm quyền hoặc làm treo container không?
->   + Cơ chế giới hạn tài nguyên (timeout, cpus, memory 512M): Nếu một học viên gửi truy vấn đệ quy hoặc cartesian product (JOIN vô tận), Postgres sandbox có làm treo máy chủ host không?
-> - Lỗi kết nối dịch vụ (Failure Handling):
->   + Nếu mock data-service phản hồi chậm (slow network) hoặc trả về mã lỗi 500, cơ chế cache 60s và xử lý 502/503 có bị sập cả server Backend (unhandled promise rejection) không?
->
-> ### 4. Tính đúng đắn của Thuật toán Chấm điểm (Scoring Integrity & Edge Cases)
-> - Tính tất định (Determinism): Có bất kỳ yếu tố nào (như thứ tự Object keys trong JSON stringify, timezone máy chủ, hoặc bộ sinh số ngẫu nhiên) làm cho cùng một prompt/config sinh ra điểm khác nhau giữa các lần chạy không?
-> - Đánh giá ngân sách (Cost/Latency Penalty):
->   + Nếu học viên nộp prompt rỗng, prompt siêu dài (vượt 6000 ký tự), hoặc config có giá trị âm (`temperature = -1`, `maxTokens = 0`), backend xử lý ra sao? Có crash grader không?
->
-> ### 5. Giao diện người dùng & Trải nghiệm thực tế (UI/UX Edge Cases)
-> - Trạng thái tải và báo lỗi (Loading / Error States):
->   + Khi mất kết nối Sandbox hoặc Mock Service, giao diện có hiển thị Empty State/Toast rõ ràng không, hay bị màn hình trắng (White Screen of Death / Unhandled Runtime Error)?
-> - Trạng thái nộp bài (Double Submit):
->   + Nút "Chạy & Đánh giá" có bị disable khi đang gửi request không? Nếu học viên click liên tục nhiều lần thì hệ thống có tạo ra hàng loạt bản ghi trùng lặp trong DB không?
->
-> ---
->
-> XUẤT BÁO CÁO:
-> Trình bày kết quả rà soát dưới dạng danh mục rõ ràng, chỉ ra chính xác các điểm yếu đang tồn tại trong hệ thống."
-
-### Điều tôi hiểu trước khi gọi AI
-
-Không sửa code. Mỗi lỗi nặng phải được tái hiện bằng request thật nếu làm được, và phải dọn mọi dữ liệu tạm.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-Không sửa file. Báo cáo gồm 18 lỗi: 1 CRITICAL, 4 HIGH, 7 MEDIUM, 6 LOW. Các lỗi chính đã tái hiện:
-
-| Mức | Vấn đề | Bằng chứng |
-|---|---|---|
-| CRITICAL C1 | Học viên xem được đáp án quiz khi bài còn đang làm | `GET /quiz/:id/review?policy=IMMEDIATE` trả 200 kèm `isCorrect: true` |
-| HIGH H1 | Người chưa đăng nhập chạy được code Python | Request không token chạy 2,5 giây trong container |
-| HIGH H2 | `POST /hints/seed` không có guard | Đọc code; không chạy thử vì là thao tác ghi |
-| HIGH H3 | Nhồi từ khóa vẫn được điểm AI Lab cao | Prompt vô nghĩa 123 ký tự đạt 23.9/25 |
-| HIGH H4 | Sandbox mở ra `0.0.0.0` với superuser mật khẩu mặc định | `docker port` và `rolsuper = t` |
-| MEDIUM | Vượt lớp chặn SQL bằng chuỗi `E''`; `pg_stat_activity` lộ câu SQL của session khác; không có rate limit; lỗ hổng contest; SQL không được lưu; quyền ADMIN lệch giữa BE và FE; bộ lọc key bị vượt | `set_config` được thực thi trên sandbox thật; danh sách biến thể key lọt qua |
-
-Báo cáo cũng liệt kê các điểm đã kiểm tra và không có lỗi: IDOR, path traversal của Tester Lab, rò rỉ đáp án AI Lab, đầu vào sai, tính tất định, XSS.
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-**Lỗi AI mắc phải:** lần thử C1 đầu tiên dùng `testId` không hợp lệ nên nhận 400 ngay ở bước bắt đầu bài thi. AI đọc lại service, lấy đúng `testId` mà FE dùng rồi mới tái hiện được.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-Điều học được: tham số do client gửi lên mà quyết định quyền xem dữ liệu là một dạng lỗ hổng phân quyền, dù endpoint đã có guard.
-
----
-
-## Việc 10: Sửa 18 lỗi từ báo cáo rà soát
-
-> "Đóng vai Principal Fullstack & Security Engineer. Hãy tiếp nhận báo cáo kiểm toán bảo mật và QA gồm 18 lỗi (C1, H1-H4, M1-M7, L1-L6) trong learning-hub/.
->
-> Nhiệm vụ của bạn là sửa triệt để tất cả 18 lỗi này theo đúng thứ tự ưu tiên, bảo đảm toàn bộ 493 test hiện tại tiếp tục xanh, viết thêm unit/integration test cho các lỗ hổng đã vá, và kiểm tra xem có phát sinh lỗi mới nào không.
->
-> YÊU CẦU THỰC THI CHI TIẾT:
->
-> === NHÓM 1: BẢO MẬT PHÂN QUYỀN & CHỐNG GIAN LẬN (C1, H1, H2, M4, M6) ===
-> 1. C1 (CRITICAL - Lộ đáp án Quiz):
->    - quiz.controller.ts & quiz.service.ts: Bỏ hoàn toàn việc đọc `policy` từ query string client gửi lên. Đọc policy trực tiếp từ cấu hình bài thi lưu trong DB.
->    - Chặn tuyệt đối: Khi bài thi đang IN_PROGRESS, không trả về `isCorrect`, `explanation` hay đáp án chuẩn ở bất kỳ endpoint nào.
-> 2. H1 (HIGH - Chạy code Python vô tội vạ):
->    - exercise.controller.ts: Gắn JwtAuthGuard cho POST /exercises/:slug/run và POST /exercises/check-syntax.
->    - Thêm giới hạn số tiến trình container chạy đồng thời trong code-runner.helper.ts.
-> 3. H2 (HIGH - Seed hint không guard):
->    - hint.controller.ts: Thêm @UseGuards(JwtAuthGuard, RolesGuard) và @Roles('ADMIN') cho POST /hints/seed và bảo vệ GET /hints/sample-30.
-> 4. M4 (MEDIUM - Lỗ hổng Contest):
->    - contest.controller.ts & contest-submission.service.ts: Bắt buộc đăng nhập (JwtAuthGuard) và kiểm tra danh sách đăng ký trước khi nộp bài. Áp dụng StudentOnlyGuard cho route nộp bài. Với quiz trong contest, không trả đáp án chi tiết khi contest chưa kết thúc.
-> 5. M6 (MEDIUM - Lệch quyền ADMIN):
->    - Thống nhất ma trận quyền giữa BE và FE. Cập nhật AuthUser.role trên FE hỗ trợ ADMIN. Cấp quyền cho ADMIN truy cập các trang quản trị/giảng viên (hàng chờ chấm, danh sách đề) thay vì bị đẩy vào menu học viên.
->
-> === NHÓM 2: CÔ LẬP SANDBOX & CHẶN SQL INJECTION (H4, M1, M2) ===
-> 6. H4 (HIGH - Lộ cổng Sandbox & Superuser ra Internet):
->    - docker-compose.yml: Đổi cấu hình port Postgres sandbox thành bind local duy nhất: '127.0.0.1:55432:5432'.
->    - Chuyển mật khẩu sandbox_owner và lab_reader sang biến môi trường (có fallback an toàn ở local), không để lộ mật khẩu mặc định khi build production.
-> 7. M1 (MEDIUM - Bypass SQL Guard bằng escape string E''):
->    - sql-guard.ts: Cải tiến logic tách chuỗi và comment. Chuẩn hóa chuỗi trước khi kiểm tra (xử lý escape sequences E'...\'...' và thứ tự strip comment/literal chuẩn xác) để chặn đứng các hàm bị cấm như set_config, pg_sleep kể cả khi bị bọc trong literal.
-> 8. M2 (MEDIUM - Soi trộm truy vấn qua pg_stat_activity):
->    - init.sql: Thu hồi (REVOKE) quyền SELECT trên pg_stat_activity và các view hệ thống trong schema pg_catalog đối với role lab_reader.
->    - Thêm pg_stat_activity vào blacklist của sql-guard.ts như một lớp phòng thủ thứ hai.
->
-> === NHÓM 3: BỘ LỌC BẢO MẬT & ĐÁNH GIÁ CHẤM ĐIỂM (H3, M3, M7, L4, L5) ===
-> 9. H3 (HIGH - Nhồi từ khóa gian lận điểm AI Lab):
->    - ai-lab-grader.service.ts: Bổ sung lớp kiểm tra cấu trúc prompt: Phạt nặng hoặc từ chối chấm nếu prompt chỉ là một chuỗi từ khóa rời rạc không thành câu hoàn chỉnh, độ dài bất thường (< 20 từ nhưng chứa 8 từ khóa).
->    - Ẩn từ khóa regex chính xác khỏi phần mô tả đề bài trên Frontend.
-> 10. M7 & L5 (MEDIUM/LOW - Lỗ hổng bộ lọc API Key & Lệch FE/BE):
->     - Đưa toàn bộ SECRET_PATTERNS vào một file dùng chung (libs/shared hoặc common). Cả FE và BE cùng import từ file này.
->     - Chuẩn hóa chuỗi trước khi quét: Xóa ký tự zero-width, gộp khoảng trắng thừa.
->     - Bổ sung patterns: Stripe (sk_live_), Groq (gsk_), xAI (xai-), Slack (xoxb-), Azure (32 hex token). Quét đệ quy JSON payload không giới hạn độ sâu.
-> 11. M3 & L6 (MEDIUM/LOW - Rate Limiting & Chống Spam):
->     - Cài đặt @nestjs/throttler toàn cục. Giới hạn chặt hơn cho /auth/login, /coach/chat, /ai-labs/:slug/submit, /da-labs/:slug/run.
->     - Chống spam tạo submission vô tận: Cập nhật hoặc lưu phiên bản cao nhất, ghi đè submission đang chấm dở nếu có.
-> 12. L4 (LOW - Tính tất định phụ thuộc Catalog):
->     - Đưa hash của bảng giá ai-lab.catalog.ts vào quá trình sinh seed trong ai-lab-grader.service.ts.
->
-> === NHÓM 4: BỔ SUNG NGHIỆP VỤ & TRẢI NGHIỆM FRONTEND (M5, L1, L2, L3) ===
-> 13. M5 (MEDIUM - Lưu bài nộp SQL DA Lab & Giao diện giảng viên):
->     - da-labs.service.ts: Lưu bài nộp SQL thành công vào da_lab_submissions với trường `type: 'SQL'`.
->     - Tạo endpoint cho giảng viên xem danh sách bài nộp của học viên ở cả DA Lab và AI Lab.
-> 14. L1 (LOW - Thông báo lỗi 503 chính xác):
->     - dataset-integration.service.ts: Phân biệt rõ ECONNREFUSED ("Máy chủ dữ liệu giả lập chưa được bật") và ETIMEDOUT ("Máy chủ dữ liệu phản hồi quá lâu").
-> 15. L2 (LOW - Xử lý 401 & Token hết hạn ở FE):
->     - configAxios.ts: Thêm Interceptor bắt lỗi 401, tự động xóa token/thông tin user trong localStorage và điều hướng về trang /login.
->     - Tránh tin tưởng tuyệt đối vào role từ localStorage: xác thực lại với token khi khởi tạo app.
-> 16. L3 (LOW - Race condition khi đổi bài lab):
->     - AiLabWorkspacePage.tsx: Thêm cleanup flag hoặc AbortController trong useEffect để tránh việc dữ liệu bài cũ ghi đè lên bài mới khi chuyển trang nhanh.
->
-> === KIỂM THỬ VÀ BÁO CÁO ===
-> - Chạy toàn bộ test suites (`npm test` ở cả BE và FE). Viết test bổ sung cho các lỗ hổng vừa sửa.
-> - Chạy typecheck ở cả BE và FE.
-> - Xuất báo cáo ngắn gọn:
->   1. Bảng tổng kết trạng thái fix của 18 lỗi (từ C1 đến L6).
->   2. Số lượng bài test mới và tổng số test xanh hiện tại.
->   3. Báo cáo các lỗi mới, rủi ro hồi quy (regression) hoặc điểm bất thường phát sinh trong quá trình fix (nếu có)."
-
-### Điều tôi hiểu trước khi gọi AI
-
-- **Quiz:** hệ thống không có collection bài thi, nên policy được chốt vào bản ghi lượt làm bài lúc bắt đầu.
-- **Contest:** leaderboard hiện điểm trực tiếp, nên chỉ ẩn response thì vẫn dò được đáp án; cần giới hạn số lần nộp quiz.
-- **Rate limit:** cả lớp thường dùng chung một NAT, nên phải đếm theo user chứ không theo IP.
-- **File dùng chung:** đặt ở `shared/` thư mục gốc sẽ làm thay đổi `rootDir` và cấu trúc thư mục build của BE.
+AI đọc toàn bộ phần cuộc thi: `contest.controller.ts`, `contest.service.ts`, `contest-submission.service.ts`, `contest.schema.ts`, `leaderboard.service.ts`, các spec hiện có, `TeacherContestAuthoring.tsx` (674 dòng), `ContestListPage.tsx` (677 dòng), `ContestExamWorkspace.tsx` (1184 dòng), `initial-contests.ts`. AI cũng truy vấn MongoDB thật (bằng script tạm) để xem dữ liệu cuộc thi, bài, câu hỏi.
 
 ### Chỉ dẫn chính và các vòng phản hồi quan trọng
 
-- **M1:** khi viết lại bộ quét SQL, AI phát hiện thêm hai đường vượt cùng loại là `"pg_sleep"(…)` và `U&"…"`, và chặn luôn.
-- **M4:** AI thêm quy tắc mỗi câu quiz chỉ nộp một lần trong lúc thi, vì leaderboard trực tiếp.
-- **M7/L5:** file mẫu dùng chung đặt ở `BE/src/common/security/`; FE import qua `server.fs.allow` của Vite.
-- **L2:** AI thêm `GET /auth/me` để FE xác thực lại vai trò khi khởi động.
-- **FE test:** FE chưa có test runner, AI thêm Vitest.
+Lỗi thật AI tìm thấy và đưa vào sửa:
 
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-| Nhóm | File chính |
-|---|---|
-| Phân quyền | `quiz-attempt.schema.ts`, `quiz.service.ts`, `quiz.controller.ts`, `exercise.controller.ts`, `hint.controller.ts`, `contest.controller.ts`, `contest-submission.service.ts`, `common/auth/roles.ts`, các controller coach, judge, leaderboard; FE: `types/auth.ts`, `App.tsx`, `Header.tsx`, `StudentRoute.tsx`, `LoginPage.tsx`, `ProfilePage.tsx`, `ContestExamWorkspace.tsx` |
-| Sandbox | `docker-compose.yml` bind `127.0.0.1`, `docker-compose.prod.yml` mới, `sandbox/02-lab-reader.sh` mới, `init.sql`, `.gitattributes`, `sql-guard.ts` viết lại |
-| Bộ lọc và chấm | `common/security/secret-patterns.ts` dùng chung, `secret-guard.ts`, `ai-lab-grader.service.ts`, `initial-ai-labs.ts` (gợi ý chỉ mô tả ý định), `ai-labs.service.ts` |
-| Rate limit, chống spam | `common/security/app-throttler.guard.ts`, `app.module.ts`, `common/helper/concurrency-limiter.ts`, `code-runner.helper.ts`, hai schema bài nộp |
-| Nghiệp vụ, FE | `da-labs.service.ts`, `da-labs.controller.ts`, endpoint giảng viên, `TeacherLabSubmissionsPage.tsx`, `auth.service.ts` và `auth.controller.ts` (`/auth/me`), `common/authSession.ts`, `configAxios.ts`, `AiLabWorkspacePage.tsx` |
-
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-- **Test:** BE từ 493 lên 587; FE 10 test mới; typecheck sạch; `vite build` qua.
-- **Test cũ phải sửa có chủ đích:** 3 test quiz (đổi chữ ký hàm `reviewAttempt`) và 2 test quiz contest (response không còn trả điểm, chuyển sang kiểm tra điểm được lưu).
-- **Kiểm thử động trên hệ thống thật:**
-  - C1: 400.
-  - H1: 401.
-  - H2: không token 401, giảng viên 403.
-  - M1 và M2: bị REJECTED.
-  - H3: prompt nhồi từ khóa FAILED.
-  - M3: request thứ 11 bị 429.
-  - L6: nộp 2 lần vẫn chỉ có 1 bản ghi.
-- **Sandbox dựng lại:** `lab_reader` bị từ chối khi đọc `pg_stat_activity`.
-
-**Lỗi AI mắc phải:**
-- Hai lần chỉnh file bằng Python làm mất dấu `\` trong regex. Một lần biến `\b` thành ký tự backspace, khiến lớp chặn từ khóa SQL âm thầm vô hiệu. Phát hiện nhờ `tsc` và đọc lại file.
-- Công cụ tự đổi `​` thành ký tự vô hình thật trong regex và trong test. AI quét toàn bộ file đã sửa rồi ghi lại bằng `chr(92)`.
-- Lần kiểm thử M1 đầu tiên tưởng là lớp chặn bị lọt, nhưng thực ra script gửi sai câu SQL (mất `\`). Gửi lại đúng câu qua file JSON thì bị chặn.
-- Heredoc dài trong bash bị vỡ. AI chuyển sang ghi script ra file trong scratchpad rồi chạy.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-**Điều học được:** sau mỗi lần chỉnh code bằng script, phải đọc lại đúng dòng có ký tự escape; một regex sai vẫn biên dịch được và test có thể không bắt được.
-
-**Điều chưa chắc:**
-- Rate limit lưu trong bộ nhớ, chạy nhiều instance thì cần Redis.
-- Máy khác phải dựng lại volume sandbox thì phần thu hồi quyền mới có hiệu lực.
-
----
-
-## Việc 11: Xử lý 5 vấn đề còn tồn đọng sau đợt sửa
-
-> "Đóng vai Principal Fullstack & Security Engineer. Từ báo cáo rà soát và các điểm cấn phát sinh ở lượt sửa trước, hãy xử lý triệt để 5 vấn đề kỹ thuật và trải nghiệm người dùng còn tồn đọng sau đây. Yêu cầu sửa trực tiếp vào mã nguồn, giữ toàn bộ 597 test tiếp tục xanh, viết thêm test mới và typecheck sạch 100%.
->
-> 1. Nâng cấp bộ lọc mã bí mật (Secret Guard) & Dọn dẹp ký tự lạ:
-> - Base64 Secret Detection: Bổ sung bước giải mã các chuỗi có định dạng Base64 hợp lệ trong prompt/config trước khi chạy qua bộ quét regex. Nếu chuỗi sau khi giải mã chứa các mẫu key cấm (sk-, gsk_, xai-, AIza...), lập tức chặn và báo lỗi 400.
-> - Dọn dẹp tệp FE/src/pages/QuizTakingPage.tsx: Xóa triệt để ký tự vô hình (zero-width character) ở dòng 78 hoặc các vị trí liên quan.
->
-> 2. Khắc phục lỗ hổng bypass Rate Limiting qua Token rác:
-> - Tại Guard / Interceptor xử lý rate limit (Throttler):
->   + Nếu có header Authorization, bắt buộc phải giải mã và xác thực chữ ký (verify) của JWT qua JwtService.
->   + Nếu token hợp lệ: Lấy user.id (sub) làm định danh đếm.
->   + Nếu không có token, token hết hạn, hoặc token giả/sai chữ ký: Tuyệt đối không lấy chuỗi rác làm key đếm, mà bắt buộc fallback về địa chỉ IP của client (req.ip).
->
-> 3. Cải thiện trải nghiệm người dùng (UX) cho Contest và Playground:
-> - Contest Quiz Result (FE): Tại màn hình tổng kết kết quả contest, nếu bài nộp là quiz chưa kết thúc, thay thế con số "0 điểm" bằng trạng thái/nhãn rõ ràng: "Đang chờ công bố điểm khi contest kết thúc" (hoặc "Pending contest end"), không gây hiểu lầm là bị điểm 0.
-> - Playground Guest Redirect (FE): Khi khách chưa đăng nhập bấm nút "Chạy" hoặc "Kiểm tra cú pháp", hiển thị thông báo toast màu vàng: "Vui lòng đăng nhập để thực thi code trên hệ thống" trước khi điều hướng sang trang /login.
->
-> 4. Khôi phục cơ chế ML Experiment Tracking cho AI Lab:
-> - Thay vì chỉ ghi đè duy nhất 1 bản ghi làm mất dấu lịch sử thử nghiệm, cập nhật collection ai_lab_submissions:
->   + Giữ lại tối đa 5 lần chạy gần nhất dưới dạng mảng (capped history: [runManifest, promptHash, score, createdAt]).
->   + Vẫn duy trì các trường tóm tắt: bestQualityScore, latestSubmission, totalAttempts để phục vụ truy vấn nhanh.
->   + Đảm bảo không phình to cơ sở dữ liệu vô hạn mà học viên vẫn xem lại được lịch sử 5 lần thử nghiệm gần nhất trên UI.
->
-> 5. Đồng bộ cấu hình biến môi trường Sandbox (DRY Config):
-> - Tập trung hóa LAB_READER_PASSWORD trong .env và .env.example.
-> - Cập nhật luồng cấu hình để chuỗi kết nối Sandbox (kể cả mock service URL) tự động nội suy biến mật khẩu này từ process.env.LAB_READER_PASSWORD (kèm giá trị mặc định an toàn cho môi trường test local), tránh việc đổi một nơi làm lệch kết nối nơi khác.
->
-> BÁO CÁO KẾT QUẢ:
-> - Báo cáo trạng thái xử lý của 5 mục trên.
-> - Tổng số test hiện tại (BE + FE) và xác nhận kết quả kiểm tra typecheck.
-> - Liệt kê các file đã chỉnh sửa."
->
-> "tiep tuc di toi lko an xoa claude"
-
-### Điều tôi hiểu trước khi gọi AI
-
-- **ZWJ ở dòng 78:** hai ký tự này là phần nối của emoji 🧑‍💻 và 👨‍🏫 trong regex bỏ emoji đầu tiêu đề. Xoá hẳn sẽ làm sót ký tự ẩn ở đầu tiêu đề, nên đổi thành escape `‍` tường minh.
-- **Playground:** không có nút "Kiểm tra cú pháp" riêng; bước này chạy bên trong "Nộp bài".
-- **JWT secret:** guard rate limit phải dùng đúng secret dùng để ký token, nếu không mọi token thật sẽ bị coi là giả.
-- **Phiên bị ngắt:** phiên bị ngắt giữa chừng ở mục 1; chỉ dẫn thứ hai là để làm tiếp. AI kiểm tra lại trạng thái file trước khi làm tiếp.
-
-### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
-
-| Mục | File chính | Ghi chú |
+| Mức | Lỗi | Bằng chứng |
 |---|---|---|
-| 1 | `secret-patterns.ts`, `QuizTakingPage.tsx` | Giải mã base64 (cả URL-safe, tối đa 2 lớp), chỉ quét khi kết quả là văn bản đọc được; dùng `atob`/`TextDecoder` nên vẫn dùng chung với FE |
-| 2 | `app-throttler.guard.ts`, `common/auth/jwt-secret.ts` mới, `jwt.strategy.ts`, `auth.module.ts` | Verify chữ ký JWT; token không hợp lệ thì đếm theo IP; JWT secret gom về một chỗ dùng chung cho 3 nơi |
-| 3 | `contestResultFormat.ts` mới, `ContestExamWorkspace.tsx`, `Toast.tsx` (kiểu `warning`), `CodePlaygroundPage.tsx` | Nhãn "Đang chờ công bố điểm khi contest kết thúc"; toast vàng rồi mới chuyển sang `/login` |
-| 4 | `ai-lab-submission.schema.ts`, `ai-labs.service.ts`, `aiLabHistory.ts` mới, `AiLabWorkspacePage.tsx`, `types/aiLab.ts`, trang và API giảng viên | `history` cắt bằng `$push` + `$slice: -5`; thêm `totalAttempts`, `bestQualityScore`, `latestSubmission`; chuyển đổi bản ghi cũ; UI có nút Xem và Dùng lại |
-| 5 | `common/config/sandbox-env.ts` mới, `mock-data-service/server.ts`, `.env.example` mới, `.env` local, comment trong `docker-compose.yml` | Một nguồn là `learning-hub/.env`; mock dựng `sandbox_db_url` từ biến môi trường, mã hóa ký tự đặc biệt trong mật khẩu |
+| Nghiêm trọng | Danh sách cuộc thi rỗng cho cả giảng viên và học viên: bộ lọc bản nháp bị đảo (khách thấy bản nháp, người đăng nhập kể cả giảng viên lại không thấy) | DB chỉ còn 1 cuộc thi ở trạng thái nháp |
+| Nghiêm trọng | Đồng hồ cá nhân và khóa "mỗi người một lượt" nằm ở localStorage, xóa dữ liệu trình duyệt là thi lại được | Đọc `ContestExamWorkspace.tsx` |
+| Nghiêm trọng | Đề không có test case bị chấm AC full điểm cho mọi bài làm; cuộc thi mẫu trỏ tới bài không tồn tại | Đọc `gradeCoding`; so slug mẫu với DB |
+| Cao | API công khai trả cả danh sách tên và ID học viên đã đăng ký | Đọc `findOne`, `findAll` |
+| Cao | Giảng viên đăng ký thi được | `registerContest` không có `StudentOnlyGuard` |
+| Trung bình | Body gửi lên ghi đè tuỳ ý (`Object.assign`), sửa tiêu đề làm mất thời lượng cá nhân, xóa cuộc thi để lại dữ liệu mồ côi, nộp bài không có giới hạn tốc độ, sau khi cuộc thi bắt đầu vẫn đổi được giờ và đề | Đọc service |
+| Giao diện | Tổng điểm gắn cứng 100, số thí sinh hiển thị sai, câu trắc nghiệm có đoạn code không hiện đoạn code, chữ nói "nộp lại được" nhưng nút bị khóa, không có nút về danh sách bài | Đọc component |
 
-### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
-
-- **Test:** BE 610/610 và FE 16/16, tổng 626 (trước là 597); typecheck sạch; `vite build` qua.
-- **Test chống lệch cấu hình:** báo đỏ nếu giá trị mặc định ở compose, `.env.example` và code khác nhau.
-- **Kiểm thử động trên hệ thống thật:**
-  - key `sk-` mã hóa base64 bị 400;
-  - chạy 6 lần thì DB giữ đúng 5 lần mới nhất, `totalAttempts=6`;
-  - 11 token rác khác nhau cho 10 lần 401 rồi 429, học viên thật vẫn 200;
-  - chạy SQL qua URL dựng từ `.env` thành công.
-- **Kiểm tra trước khi sửa:** AI kiểm tra lại regex dòng 78 cho kết quả giống hệt trước và sau khi đổi.
-
-**Lỗi AI mắc phải:**
-- Công cụ lại tự đổi `�` thành ký tự thật; AI ghi lại bằng `chr(92)` như ở Việc 10.
-- Lệnh in tiếng Việt bằng Python lỗi do bảng mã console Windows, làm script dừng sau khi đã tạo tài khoản tạm. AI chạy lại với `PYTHONIOENCODING=utf-8`; script có bước xoá tài khoản ở `finally` nên tài khoản đã được dọn.
-- Tiến trình cũ từ phiên bị ngắt vẫn giữ 3 cổng. AI xác nhận đúng là tiến trình của dự án rồi mới tắt.
-
-### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
-
-**Điều học được:**
-- Một ký tự "lạ" có thể đang có chức năng; phải hiểu nó làm gì trước khi xoá.
-- Mọi script kiểm thử có tạo dữ liệu đều phải dọn trong `finally`.
-
-**Điều chưa chắc:**
-- Base64 lồng 3 lớp trở lên vẫn lọt.
-- Giao diện contest và Playground chưa được bấm thử trên trình duyệt.
-
----
-
-## Việc 12: Cập nhật AI Work Log Ngày 23
-
-> "cập nhật AI work log cho day 23 (ghi đè lên đúng format, mỗi việc đều ghi prompt của tôi) nhớ đúng format nha"
-
-### Điều tôi hiểu trước khi gọi AI
-
-Ghi đè nội dung Day 22 bằng Day 23, giữ đúng cấu trúc các ngày trước: bảng thông tin chung, mục lục, rồi mỗi việc có prompt nguyên văn và các mục con. Bản Day 22 vẫn còn trong lịch sử Git.
+Thiết kế AI đề xuất và tôi chấp nhận:
+- Lượt thi do máy chủ giữ (`contest_attempts`): giờ bắt đầu, hạn nộp, đã nộp hay chưa; mỗi học viên một lượt.
+- Đề có ba nguồn: bài tự soạn, bài Code Playground, hoặc phần trắc nghiệm ghép từ ngân hàng câu hỏi.
+- Quản lý theo 3 bước (thông tin, đề thi, giám sát và xuất bản), có lưu nháp ở mọi bước.
+- Tín hiệu liêm chính nằm trên lượt thi, bật hoặc tắt theo từng cuộc thi, giữ nguyên nguyên tắc không tự kết luận.
 
 ### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
 
-Ghi đè `AI_WORKLOG.md`. Nguyên văn prompt của từng việc được trích từ hội thoại; số liệu test và kết quả kiểm thử lấy từ kết quả chạy thật trong ngày.
+| Nhóm | File chính | Ghi chú |
+|---|---|---|
+| Backend mới | `contest-attempt.schema.ts`, `contest-attempt.service.ts`, `contest-manage.service.ts`, `contest-problem-content.service.ts`, `dto/finish-contest.dto.ts`, `data/seed-contests.ts` | Bắt đầu, nộp, kết quả của chính học viên; kết quả theo thí sinh; ngân hàng câu hỏi và bài; nạp lại cuộc thi mẫu |
+| Backend sửa | `contest.service.ts` (viết lại), `contest-submission.service.ts`, `contest.controller.ts`, `contest.module.ts`, `contest.schema.ts`, các DTO, `database.module.ts`, `app-throttler.guard.ts`, `initial-contests.ts`, `package.json` | Danh sách trắng trường, kiểm tra đề, bản nháp, chặn sửa đề sau khi bắt đầu, dọn dữ liệu khi xóa, giới hạn tốc độ nộp bài |
+| Frontend mới | `components/contest-manager/` (`ContestEditor.tsx`, `ProblemPicker.tsx`, `ContestResultsPanel.tsx`, `contestForm.ts`, `resultsFormat.ts`), `contestAttemptResult.ts`, `IntegrityReviewModal.tsx` (tách từ trang hàng chờ để dùng chung), `hooks/useIntegrityTracker.ts` | Trình soạn 3 bước; chọn đề; bảng kết quả có xuất CSV; hook ghi tín hiệu dùng cho cả cuộc thi và Playground |
+| Frontend sửa | `TeacherContestAuthoring.tsx` (viết lại), `ContestExamWorkspace.tsx`, `ContestListPage.tsx`, `types/contest.ts`, `contestApi.ts`, `contestSubmissionApi.ts`, `CodePlaygroundPage.tsx` | Đồng hồ và khóa lượt thi lấy từ máy chủ; thông báo liêm chính trước và trong phòng thi; hiện đoạn code của câu trắc nghiệm |
+| Test | `contest.service.spec.ts`, `contest-submission.service.spec.ts` (viết lại), `contest-attempt.service.spec.ts`, `contest-manage.service.spec.ts` (mới), `contestForm.test.ts`, `resultsFormat.test.ts`, `contestAttemptResult.test.ts` | Có ca đề không test case bị từ chối, bản nháp ẩn với học viên, chặn sửa đề sau khi bắt đầu, ca nhận diện nhầm ở cấp lượt thi |
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+- **Lệnh chạy:** `npx jest`, `npx tsc --noEmit -p tsconfig.json`, `npm run build` ở BE; `npx vitest run`, `npx tsc -b`, `npm run build` ở FE.
+- **Kết quả:** BE từ 644 lên 716 (60 suite); FE từ 28 lên 52 (10 file); typecheck và build sạch; `oxlint` không có cảnh báo mới.
+- **Kiểm thử động qua HTTP thật (script tạm, đã dọn):**
+  - Khách và học viên không thấy bản nháp, giảng viên thấy; danh sách học viên không còn trường `registrations`.
+  - Tạo cuộc thi ghép trắc nghiệm ngân hàng và bài Code Playground; xuất bản không có đề bị 400; bài không tồn tại bị 400.
+  - Chưa đăng ký thì vào thi bị 403; giảng viên đăng ký bị 403; xem đề trước khi bấm vào thi bị 400; gọi vào thi hai lần trả cùng giờ bắt đầu.
+  - Nộp code đúng nhận AC 70/70; nộp trắc nghiệm lần hai bị 400; nộp sau khi đã chốt bài thi bị 400; giảng viên xem được kết quả, học viên gọi nhận 403.
+  - Sau khi cuộc thi bắt đầu, đổi tên được nhưng đổi danh sách đề bị 400.
+  - Kịch bản chép bài với ba học viên tạm: bài B chép bài A (đổi tên biến, thêm chú thích) bị gắn cờ 86%; bài C làm khác và chuyển tab 2 lần không bị gắn cờ.
+
+**Lỗi AI mắc phải:**
+- Lại gặp lỗi heredoc bash nên chuyển sang ghi file bằng công cụ ghi file.
+- `tsc` báo kiểu sai ở bộ lọc bản nháp (`{ $ne: string }`); AI đổi sang `Record<string, unknown>`.
+- AI viết một DTO duyệt thừa rồi nhận ra đã có sẵn kiểu dùng chung và xoá đi.
+- Lần xoá tài khoản tạm đầu tiên trả 0 vì biểu thức khớp phân biệt chữ hoa thường; AI chạy lại không phân biệt và xoá đủ 3 tài khoản.
+- Trong kịch bản kiểm thử ban đầu, các sự kiện rời màn hình giả dài hơn thời gian thực nên tổng bị cắt về thời gian làm bài và không gắn cờ. Đây là hành vi đúng (chống client khai khống), không phải lỗi.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+**Điều học được:** đọc dữ liệu thật trong DB trước khi kết luận cho thấy ngay lỗi nghiêm trọng nhất (danh sách trống do bộ lọc đảo), thứ mà chỉ đọc code khó thấy.
+
+**Điều chưa chắc:**
+- Việc nạp lại cuộc thi mẫu bằng `npm run seed:contests` xoá và tạo lại 4 cuộc thi mẫu, kể cả bản nháp mẫu cũ.
+- Bài nộp sau mới được so với bài nộp trước, nên với cặp bài giống nhau chỉ bài nộp sau bị gắn cờ.
+
+---
+
+## Việc 6: Tạo docs/day11/tomtat.md từ báo cáo
+
+> "(kèm đoạn nội dung dán từ báo cáo trước: mục "Quản lý cuộc thi mới (giảng viên)" và mục "Chống gian lận trong cuộc thi")
+>
+> tạo doc day11 cóp này vào tomtat.md"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Nội dung dán là phần báo cáo về quản lý cuộc thi, cần đưa nguyên vào tài liệu của Day 11 (ngày làm cuộc thi), ở thư mục `docs/day11`.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Tạo `docs/day11/tomtat.md` với hai mục như đoạn dán. AI chỉ thêm tiêu đề và đổi "Mình dùng chung" thành "Dùng chung" cho hợp văn tài liệu; còn lại giữ nguyên. Thư mục `docs/day11` chưa tồn tại nên được tạo mới.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều chưa chắc: `docs/day24/tomtat.md` vẫn là bản của lượt trước, chưa cập nhật phần cuộc thi.
+
+---
+
+## Việc 7: Sáng và tối, responsive, thanh điều hướng có dropdown
+
+> "hiện tại light mode và darkmode thật sự không được tối ưu, vào khi cái bảng code nhìn ko thấy đang gõ code j luôn, thứ 2 repónive cho mọi thiết bị, nav 3 bị mất chỗ thì làm dropdown"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Có ba vấn đề: màu sáng và tối không nhất quán; trình soạn code khi gõ không thấy chữ; giao diện chưa phù hợp mọi thiết bị, thanh điều hướng thiếu chỗ nên cần gom bớt mục vào dropdown.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+AI đọc `styles/main.css`, `App.tsx`, `CodeEditor.tsx`, `Header.tsx` và các trang chính. Công cụ đo: Chrome headless điều khiển bằng `puppeteer-core` cài trong thư mục tạm, chụp ảnh ở 1366, 820 và 390 px, ở cả hai giao diện, kèm bộ đo tương phản và tràn ngang trên 21 trang.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+- **Nguyên nhân sáng/tối:** biến thể `dark:` của Tailwind mặc định theo cài đặt hệ điều hành chứ không theo nút đổi giao diện của ứng dụng; chụp ảnh ở tổ hợp app sáng với máy tối cho thấy chip tối trên thẻ sáng. Sửa bằng một khai báo biến thể `dark` theo class `theme-dark`, cộng `color-scheme`.
+- **Nguyên nhân không thấy chữ khi gõ:** phòng thi cuộc thi truyền cờ theme sai (kiểm tra class `dark` trong khi ứng dụng dùng `theme-dark`) nên editor luôn ở theme sáng; theme sáng của thư viện gần như rỗng nên chữ kế thừa màu trang, tức chữ gần trắng trên nền trắng khi ứng dụng ở giao diện tối. Sửa: editor tự theo giao diện ứng dụng và có theme sáng tường minh.
+- **Thanh điều hướng:** chia theo chiều rộng thật của từng mục, mục không đủ chỗ vào dropdown "Thêm"; mục đang mở luôn hiện sẵn; menu di động dùng chung danh sách.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+| Nhóm | File chính | Ghi chú |
+|---|---|---|
+| Giao diện | `styles/main.css`, `CodeEditor.tsx`, `components/editorTheme.ts`, `hooks/useIsDarkTheme.ts`, `pages/DaLabWorkspacePage.tsx`, `ContestExamWorkspace.tsx`, `CodePlaygroundPage.tsx` | Biến thể `dark`, theme editor tường minh và tự cập nhật khi đổi giao diện |
+| Điều hướng | `components/OverflowNav.tsx`, `components/navOverflow.ts`, `Header.tsx` (viết lại) | Danh sách mục khai báo một chỗ dùng cho desktop và di động |
+| Màu và tương phản | Khoảng 23 file `.tsx`, `Footer.tsx` | Nâng màu nút xanh lá, cyan, cam từ `-600` lên `-700` (trắng trên `-600` chỉ đạt 3,2 đến 3,6); chữ phụ, badge, nút Xóa theo cả hai giao diện |
+| Responsive | `ContestExamWorkspace.tsx`, `ProblemPicker.tsx`, `ContestEditor.tsx` | Thanh tiêu đề phòng thi xếp dọc trên điện thoại; sửa tràn ngang |
+| Test | `components/navOverflow.test.ts` | 8 test cho phép tính chia mục và dropdown |
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+- **Lệnh chạy:** `node shot.mjs`, `node audit.mjs`, `node flows.mjs`, `node editorcheck.mjs` (script tạm), cùng `npx tsc -b`, `npx vitest run`, `npm run build`.
+- **Kết quả:**
+  - Độ tương phản chữ của trình soạn code: 17,9 (sáng) và 6,6 (tối) ở cả 4 tổ hợp app và máy, đổi giao diện khi đang mở thì editor đổi theo.
+  - Lần đo đầu báo 97 trên 126 lượt có vấn đề, nhưng bộ đo lúc đó đọc sai màu `oklch` của Tailwind. Sau khi sửa bộ đo và các màu, còn 9 lượt (3 loại), đã sửa tiếp; chưa chạy lại toàn bộ 126 lượt sau lần sửa cuối, chỉ chạy lại các luồng cuộc thi và hồ sơ.
+  - Không còn trang nào tràn ngang ở 3 kích thước.
+  - FE 60 test xanh (11 file); `tsc` và build sạch.
+
+**Lỗi AI mắc phải:**
+- Thước đo ẩn của thanh điều hướng (dùng để đo chiều rộng từng mục) làm trang cuộn ngang; bộ đo tràn ngang bắt được và AI bọc thước đo vào khung 0x0.
+- Bộ đo tương phản ban đầu đọc sai màu `oklch`; AI đổi sang quy đổi màu qua canvas.
+- Các lần tự động hóa đầu chọn nhầm nút điều hướng thay vì thẻ bài tập; AI sửa bộ chọn.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+**Điều học được:** nhìn ảnh chụp thật và đo bằng công cụ cho thấy nguyên nhân gốc (biến thể `dark:` theo hệ điều hành), nhanh hơn nhiều so với sửa từng màu.
+
+**Điều chưa chắc:** bộ đo bỏ qua chữ nằm trên nền gradient (như banner đầu trang), phần đó chỉ xem bằng mắt qua ảnh chụp.
+
+---
+
+## Việc 8: DA Lab và AI Lab không cần mock thủ công, tự bật Docker, triển khai trọn bộ bằng Docker
+
+> "vấn đề là giờ cái da lab với ai lab Máy chủ dữ liệu giả lập chưa được bật, Máy chủ dữ liệu giả lập chưa được bật, giờ làm sao, vấn đề phải liên kết với data của ng số 1 mà giờ cứ như v phải làm thủ công, vấn đề làm chung nữa docker local mà còn ko auto bật mai mốt còn khó deploy"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Lỗi xuất hiện vì bản tôi đang chạy chỉ bật backend và web, không bật mock của Số 1. Gốc vấn đề rộng hơn: backend phụ thuộc một tiến trình mock riêng, Docker không tự bật, và việc triển khai thật phụ thuộc nhiều bước thủ công.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+AI đọc `docker-compose.yml`, `scripts/ensure-sandbox.js`, `dataset-integration.service.ts`, `mock-data-service/server.ts`, `.env.example`, `BE/.env` (xem lưu ý dữ liệu nhạy cảm ở đầu file), và đọc mã server Day 21 của Số 1 để biết nó có những route nào.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+- **Nguồn dữ liệu có ba chế độ:** để trống `DATA_SERVICE_BASE_URL` thì backend dùng bản dữ liệu tích hợp sẵn (chuyển fixture vào `src/integration/local-registry/`); có địa chỉ thì gọi server thật; thêm `DATA_SERVICE_FALLBACK=embedded` thì tự rơi về bản tích hợp khi server tắt (chỉ nên dùng khi dev).
+- **Nối với dữ liệu thật của Số 1:** server Day 21 hiện chưa có `data_dictionary`, `sandbox_db_url` và route `evaluation-sets`; vì thế mặc định là bản tích hợp.
+- **Docker:** `ensure-sandbox.js` tự mở Docker Desktop (Windows và macOS), tự bật MongoDB nếu máy chưa có; hook `prestart:dev` để bật backend theo cách nào cũng có sandbox.
+- **Triển khai:** Dockerfile cho backend và frontend, nginx chuyển tiếp `/api`, và profile `full` trong compose.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+| Nhóm | File chính | Ghi chú |
+|---|---|---|
+| Registry tích hợp | `integration/local-registry/` (3 file, chuyển bằng `git mv`), `dataset-integration.service.ts`, `main.ts` | `describeSource()`, chế độ embedded và dự phòng; thông báo lỗi mới chỉ rõ cách xử lý |
+| Chẩn đoán | `app.controller.ts` (`GET /api/health/dependencies`), `app.module.ts`, `scripts/doctor.js` | Báo nguồn dữ liệu đang dùng và Postgres sandbox có nghe cổng không |
+| Tự bật hạ tầng | `scripts/ensure-sandbox.js`, `package.json` (gốc và BE) | Tự mở Docker Desktop, bật `mongo-dev` khi cổng 27017 trống |
+| Triển khai | `BE/Dockerfile`, `FE/Dockerfile`, `FE/nginx.conf`, hai file `.dockerignore`, `docker-compose.yml`, `docker-compose.prod.yml`, `tsconfig.build.json`, `jwt-secret.ts` | Profile `full`; backend từ chối khởi động ở production nếu thiếu `JWT_SECRET` |
+| Test | 11 test mới ở `dataset-integration.service.spec.ts`, 2 ở `app.controller.spec.ts`, `jwt-secret.spec.ts` (3 test) | Ba chế độ, 404 không bị nhầm với lỗi máy chủ, fallback chỉ áp dụng khi không có phản hồi |
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+- **Lệnh chạy:** `npx jest`, `npx tsc --noEmit -p tsconfig.json`, `npm run build`, `node scripts/doctor.js`, `docker compose config`, `docker build -f BE/Dockerfile .`, `docker build -f FE/Dockerfile .`.
+- **Kết quả:**
+  - BE từ 716 lên 732 test (61 suite).
+  - Với backend đang chạy: DA Lab trả dataset và chạy SQL (`SELECT COUNT(*) FROM orders` ra 15); AI Lab trả bộ câu hỏi; `doctor` báo mọi mục sẵn sàng.
+  - Dựng hai image thành công; chạy thử trong mạng Docker riêng: backend `healthy`, nginx chuyển tiếp `/api`, đường dẫn con của SPA trả 200, sandbox truy cập được bằng tên dịch vụ, DA Lab, AI Lab và chạy Python đều đúng. Đã xoá container, mạng và image thử.
+
+**Lỗi AI mắc phải:**
+- Dùng cú pháp bắt buộc biến (`:?`) cho `JWT_SECRET` trong compose làm lệnh `docker compose up` thường (chỉ bật sandbox khi dev) lỗi, vì Compose nội suy cả dịch vụ không thuộc profile. Phát hiện bằng `docker compose config`; AI chuyển yêu cầu bắt buộc sang file production và sang backend.
+- Phát hiện `npm run start:prod` trỏ sai đường dẫn (`dist/main` trong khi build xuất `dist/src/main`); sửa bằng cách loại thư mục mock khỏi cấu hình build.
+- Script `doctor.js` gọi `process.exit` làm Node trên Windows báo lỗi assertion; đổi sang `process.exitCode`.
+- Lệnh đọc `BE/.env` che khóa chưa đủ (xem mục dữ liệu nhạy cảm).
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+**Điều học được:** nên tách "nguồn dữ liệu" khỏi "tiến trình phụ phải bật", và mọi khóa bắt buộc nên được kiểm tra ở nơi chạy thật chứ không ở file dùng chung.
+
+**Điều chưa chắc:**
+- Dữ liệu tích hợp sẵn vẫn là bản mô phỏng; chưa nối được dữ liệu thật của Số 1.
+- Chạy Python trong container dùng chế độ `local` với kiểm tra AST và giới hạn; nếu cần cách ly mạnh hơn khi lên production thật thì phải cân nhắc lại.
+
+---
+
+## Việc 9: Dựng môi trường trên máy mới bằng một lệnh
+
+> "nhưng mà setup máy mới thì như nào, tại dự án nhiều người làm chung"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Máy mới thiếu file mẫu cấu hình, MongoDB, và dữ liệu mẫu; các lệnh seed hiện có xoá dữ liệu cũ nên không thể chạy tay lên CSDL đã có dữ liệu.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+AI đọc `README.md` (còn nội dung từ Day 6), các script seed, `.gitignore`, `.github/workflows/ci.yml`, và xác nhận `BE/.env` bị chặn commit nên người mới không có file mẫu.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+- **Lệnh `npm run setup` an toàn:** kiểm tra Node (từ 20.12) và Docker; tạo `.env` từ file mẫu và sinh `JWT_SECRET` ngẫu nhiên, không ghi đè file đã có; cài thư viện nếu thiếu; bật MongoDB và Postgres sandbox; kéo image Python; nạp dữ liệu mẫu **chỉ khi CSDL còn trống**.
+- **`npm run seed:all`** là lệnh nạp lại có xoá dữ liệu, tách riêng và có ghi chú cảnh báo.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+| Nhóm | File chính | Ghi chú |
+|---|---|---|
+| Script | `scripts/setup.js`, `scripts/lib/setup-helpers.js`, `scripts/lib/setup-helpers.test.js`, `scripts/ensure-sandbox.js` | Hàm thuần tách riêng để kiểm thử |
+| Cấu hình mẫu | `BE/.env.example`, `FE/.env.example`, `.nvmrc`, `docker-compose.yml` (dịch vụ `mongo-dev`, profile `dev`), `package.json` (`engines`, `setup`, `seed:all`, `test:scripts`) | Khóa Gemini, Gmail để trống thì tính năng tương ứng tạm tắt |
+| Tài liệu | `README.md` (mục "Bắt Đầu Nhanh"), `.github/workflows/ci.yml` | CI chuyển sang Node 20 và 22, thêm bước chạy test script |
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+- **Lệnh chạy:** `node --test scripts/lib/*.test.js`; giả lập máy mới bằng cách sao chép dự án sang thư mục tạm (không có `.env`, không `node_modules`, dùng liên kết tới thư viện có sẵn) rồi chạy `node scripts/setup.js`.
+- **Kết quả:**
+  - 8 test script xanh.
+  - Trên CSDL đã có dữ liệu: setup giữ nguyên, không seed.
+  - Trên CSDL trống: nạp đủ 4 bộ (người dùng, bài tập, câu hỏi, cuộc thi mẫu); chạy lần hai không seed lại.
+  - Đã xoá CSDL tạm và thư mục tạm; CSDL thật còn nguyên.
+
+**Lỗi AI mắc phải:**
+- Heredoc bash chứa nhiều ký tự đặc biệt lại vỡ; AI chuyển sang công cụ ghi file.
+- Một test `tcpOpenSync` ban đầu viết sai vì tiến trình con chặn vòng lặp; AI sửa theo hành vi thật (kết nối hoàn tất ở tầng hệ điều hành).
+- `node --test scripts/lib` không nhận thư mục trên Node mới; đổi sang mẫu `scripts/lib/*.test.js`.
+- Cảnh báo `DEP0190` khi gọi npm qua shell; AI chuyển sang gọi bằng `npm_execpath`.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+**Điều học được:** lệnh dựng môi trường phải coi dữ liệu có sẵn là thứ không được đụng tới.
+
+**Điều chưa chắc:**
+- Mới thử trên Windows, chưa thử macOS hoặc Linux; bước `npm ci` chưa chạy thật vì dùng thư viện có sẵn.
+- `.github/workflows/ci.yml` nằm trong `learning-hub/` trong khi git root là thư mục cha, nên GitHub có thể không chạy workflow này; chưa kiểm tra.
+
+---
+
+## Việc 10: Ghi cơ chế liên kết với Số 1 vào docs/day22/tomtat.md
+
+> "trong docs/day22 tạo tomtat.md tương tự nãy h nói cách liên kết với số 1 đi ghi tương tự, tại tôi chưa hiểu nguyên lý, hiện tại 2 ng làm local nữa chả hiểu call api kiểu j"
+>
+> "khó hiểu quá với toàn tên file đọc k hiểu"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Tôi cần hiểu nguyên lý hai hệ thống nói chuyện với nhau, đặc biệt khi cả hai cùng chạy trên máy cá nhân. Tài liệu `docs/day22/tomtat.md` đã có sẵn 3 đoạn tóm tắt Day 22 nên phần mới phải thêm vào cuối.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+AI giữ nguyên ba đoạn cũ và thêm mục giải thích liên kết: luồng khi học viên mở DA Lab, và bảng ba tình huống chạy (cùng máy, cùng mạng, đưa lên máy chủ), trong đó nhấn mạnh `localhost` chỉ trỏ về chính máy đang chạy. Bản đầu có quá nhiều đường dẫn và tên file nên tôi không đọc được. Lượt thứ hai, AI viết lại bằng lời đơn giản, dùng hình ảnh quán ăn và kho nguyên liệu, bảng ba thứ cần để gọi (địa chỉ, khóa, dữ liệu trả về), và chỉ còn nhắc `BE/.env`, `npm run doctor`.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: tài liệu giải thích nguyên lý cho người mới phải hạn chế tên file và thuật ngữ. Cách ví von ở lượt này sau đó bị tôi đánh giá là chưa chuyên nghiệp (xem Việc 14).
+
+---
+
+## Việc 11: Làm rõ cách liên kết với Số 1: server Day 21, Postgres và việc cần nhờ
+
+> "nhưng hiện tại kiểu tôi clone src data số 1 về tự tôi run server của day số 1 à"
+>
+> "rồi bây giờ làm sao"
+>
+> "đường dẫn kết nối Postgres  nhưng mà cái này ng ta có làm k hay mình tự làm r kêu ng ta bổ sung"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Tôi muốn biết trong thực tế dùng dữ liệu của Số 1 nghĩa là gì: có phải tự chạy server của họ không, ai làm Postgres, và việc gì cần nhờ họ bổ sung.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+AI chỉ đọc `Data-AI-Resource` (Task 06, 21, 24) bằng lệnh đọc và tìm kiếm, không sửa file nào.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+- **Chạy thử thật server Day 21 của Số 1:** tạo môi trường Python tạm, cài thư viện, chạy ở cổng 8099. Kết quả: dataset `ds-retail-ecommerce-sales-v1` có, nhưng không có `data_dictionary`, không có `sandbox_db_url`, route `evaluation-sets` trả 404.
+- **Trỏ backend của tôi vào server đó** (bản backend phụ cổng 3998): DA Lab trả 502 "chưa có data_dictionary"; AI Lab trả 404.
+- **Ai làm Postgres:** tìm trong `Data-AI-Resource` không có Docker hay Postgres nào, chỉ có 5 file CSV của dataset bán hàng (200 khách hàng, 50 sản phẩm, 20 nhân viên, 1.000 đơn, 1.803 dòng chi tiết) và file mô tả bảng. `git log` cho thấy `init.sql` và Postgres trên máy do chính tôi tạo ở Day 22; tên bảng và cột khớp với CSV của Số 1 nhưng chỉ có khoảng 15 đơn hàng tổng hợp.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Không sửa file. AI tắt tiến trình tạm theo cổng, xoá môi trường Python tạm và xác nhận `Data-AI-Resource` không bị thay đổi (`git status`). AI khuyến nghị: tôi giữ Postgres, Số 1 chỉ cấp dữ liệu và API; đề xuất nạp CSV bằng tay bị tôi bác bỏ ở Việc 12.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+- **Lệnh chạy:** `python -m venv`, `pip install`, chạy `uvicorn` với `src.main:app`, `curl` với khóa mẫu của Số 1, `git log --format='%h %an %s' -- init.sql`.
+- **Kết quả:** như mô tả ở trên; backend của tôi đang chạy không bị ảnh hưởng.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+**Điều học được:** muốn biết "đã có chưa" thì chạy thử thật, không đoán từ tài liệu.
+
+**Điều chưa chắc:** việc Số 1 thiếu ba phần dựa trên bản mã Day 21 hiện có trong repo; cần hỏi lại họ để biết đã làm chưa.
+
+---
+
+## Việc 12: Đánh giá thiết kế tích hợp qua API và soạn tin nhắn gửi Số 1
+
+> "Không copy CSV thủ công vào database. Tiêu chí nghiệm thu của dự án bắt buộc hệ thống phải tích hợp tự động qua API và data contract, không sao chép dữ liệu tĩnh bằng tay.
+>
+> Thống nhất thiết kế kỹ thuật như sau:
+> 1. Phân định trách nhiệm:
+> - Số 1 (Data & AI Resource): Chịu trách nhiệm lưu trữ dataset, metadata, schema/data_dictionary và cấp API lấy dữ liệu.
+> - Phía chúng ta (Learning Hub): Chịu trách nhiệm quản lý Postgres Sandbox và runner thực thi truy vấn.
+>
+> 2. Luồng tích hợp tự động:
+> - Backend của chúng ta sẽ gọi API của Số 1 để lấy schema/data_dictionary vẽ UI động, và lấy bộ evaluation-set để chấm điểm AI Lab.
+> - Đối với dữ liệu SQL: Viết kịch bản Ingestion tự động fetch dữ liệu từ API của Số 1 nạp vào Postgres Sandbox khi khởi tạo môi trường, thay vì copy file tĩnh bằng tay.
+>
+> Hiện tại giữ nguyên bản mô phỏng nội bộ để hoàn thành kiểm thử Ngày 24. Không sửa thư mục của Số 1. Hãy soạn cho tôi một tin nhắn ngắn gọn, chính xác để gửi Số 1 yêu cầu bổ sung đúng 2 API endpoint/response còn thiếu (data_dictionary và evaluation-sets).
+>
+> đánh giá cách làm này xem"
+>
+> "day21 còn thiếu
+> 1.GET /api/v1/registry/datasets/{id}: thêm trường data_dictionary gồm danh sách bảng, mỗi bảng có danh sách cột (tên, kiểu dữ liệu, nullable, khóa chính, khóa ngoại, mô tả). Phần này bạn đã có file từ Task 06, chỉ cần trả thêm vào response. 
+> 2.Route mới GET /api/v1/registry/evaluation-sets/{id}: mỗi câu có question_id, query, ground_truth_answer, expected_behavior để bên mình chấm AI Lab.   3.Route lấy dữ liệu từng bảng của dataset (phân trang hoặc tải dạng file, kèm current_version và checksum_sha256) để bên mình nạp vào Postgres Sandbox.  h nhắn cho số 1 như vnha"
+>
+> "r giờ phải chờ số 1 sửa à, mình bị trễ theo r"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Thiết kế mới được thống nhất: Số 1 giữ dữ liệu và API, tôi giữ Postgres và việc nạp tự động qua API. Tôi cần đánh giá thiết kế, có tin nhắn đúng cho Số 1, và biết việc của tôi có bị chặn không.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Không sửa file. Đánh giá của AI:
+- **Đúng:** phân chia trách nhiệm; nạp qua API thay vì copy tay; giữ bản mô phỏng cho Day 24.
+- **Thiếu một thứ quan trọng:** chỉ xin hai endpoint thì không nạp được dữ liệu SQL, vì `data_dictionary` chỉ mô tả bảng, không chứa dòng dữ liệu. Server Day 21 chỉ trả vài dòng mẫu. Cần endpoint thứ ba lấy dữ liệu từng bảng; tôi đã tự viết ra endpoint này trong tin nhắn thứ hai.
+- **Điều kiện cho phần nạp tự động:** nạp theo phiên bản và checksum để chạy lại không hỏng; tách tài khoản ghi và tài khoản chỉ đọc; kiểm tra tên bảng và cột đến từ API; khóa cứng phiên bản dữ liệu cho từng bài lab; chọn bản `clean` hay `dirty`.
+
+Tin nhắn gửi Số 1: AI soạn bản đầu có 3 mục; tôi bổ sung nội dung thật cho từng mục, AI ghép thêm câu hỏi chọn `clean` hay `dirty`, câu nói Postgres do bên tôi quản lý, và ba câu hỏi về thời gian, địa chỉ server chung, khóa API. Về việc chờ: AI khẳng định tôi không bị chặn vì có thể viết sẵn phía mình và thử trên server mô phỏng, đồng thời đề xuất gửi kèm cấu trúc response gợi ý cho route thứ ba.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+**Điều học được:** khi viết yêu cầu cho nhóm khác, phải tự kiểm tra xem danh sách yêu cầu có đủ để toàn bộ luồng chạy được không.
+
+**Điều chưa chắc:** Số 1 chưa trả lời về thời gian và địa chỉ server chung.
+
+---
+
+## Việc 13: Ghi ghi chú theo dõi chờ Số 1 vào docs/day22/tomtat.md
+
+> "ghi lại note này vào day22 đi có khi 2 3 ngày nữa số 1 xong r sửa"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Số 1 có thể xong sau 2 đến 3 ngày. Cần ghi lại trạng thái và việc phải làm khi họ xong để không phải nhớ lại.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+AI thêm vào cuối `docs/day22/tomtat.md` mục "Ghi chú theo dõi: đang chờ số 1 bổ sung API (ghi ngày 05/10/2026)": tình hình hiện tại, ba việc đã nhờ, bảng ai làm gì, việc làm trong lúc chờ, sáu bước khi Số 1 xong và các lưu ý. AI ghi rõ những việc "làm trong lúc chờ" chưa được thực hiện vì tôi chưa ra lệnh.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều chưa chắc: phần nạp dữ liệu tự động vẫn chưa được viết; hiện vẫn là bản mô phỏng.
+
+---
+
+## Việc 14: Viết lại phần liên kết trong docs/day22/tomtat.md theo văn phong tài liệu
+
+> "cai tomtat.md khúc dau noi don gian lien ket nhu nao thoi, ko co can vd thực tế đâu vì tài liệu mà ghi v nó ko chuyên nghiệp, ngôn ngữ thì quá mức ko nghiêm túc"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Ví dụ đời thường và lời văn thân mật không phù hợp với một tài liệu kỹ thuật. Phần đầu chỉ cần nêu ngắn gọn cơ chế liên kết.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+AI viết lại `docs/day22/tomtat.md` giữ nguyên ba đoạn tóm tắt Day 22 ở đầu. Phần mới "Cơ chế liên kết với Thực tập sinh số 1" chỉ gồm: nguyên tắc tích hợp qua REST API theo hợp đồng dữ liệu; luồng 4 bước khi học viên mở DA Lab và cách AI Lab lấy bộ câu hỏi; bảng chọn nguồn dữ liệu bằng `DATA_SERVICE_BASE_URL`; một câu về `localhost`. Phần theo dõi được chuyển sang văn phong trung tính: bảng yêu cầu ba endpoint, bảng phân công, kế hoạch trong lúc chờ, các bước khi Số 1 xong, lưu ý; bỏ cách xưng hô cá nhân và mục lặp.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+Điều học được: phân biệt văn bản giải thích cho bản thân với tài liệu nộp; tài liệu nộp không dùng ví dụ đời thường.
+
+---
+
+## Việc 15: Làm lại trang thông tin cá nhân: avatar và biểu đồ hoạt động
+
+> "Cập nhật lại giao diện trang thông tin cá nhân (Profile Page) theo layout mới, giữ nguyên logic lấy dữ liệu hiện có và đảm bảo typecheck sạch:
+>
+> 1. Khu vực Header cá nhân (bên trên):
+> - Cho phép cập nhật avatar:
+>   + Hiển thị avatar hiện tại (nếu chưa có thì giữ avatar chữ cái mặc định).
+>   + Cho phép bấm vào icon camera nhỏ/hover trên avatar để chọn ảnh tải lên (hoặc nhập URL ảnh avatar), có preview và lưu vào profile.
+> - Tên và email giữ hiển thị cạnh avatar như hiện tại.
+>
+> 2. Bố cục bên dưới chia thành 2 cột (dùng grid/flex responsive, trên desktop chia 2 cột cân đối):
+>
+> - CỘT TRÁI (Thông tin cá nhân):
+>   + Thiết kế tối giản, sạch sẽ: KHÔNG dùng nút bấm (button), KHÔNG dùng các icon ô vuông bo tròn to viền xung quanh như hiện tại.
+>   + Trình bày dạng các dòng kẻ ngang (kiểu ô ly / table rows đơn giản): Mỗi thông tin là một hàng ngăn cách nhau bằng border kẻ ngang mảnh (`border-b border-slate-700/50` hoặc tương đương).
+>   + Mỗi hàng gồm nhãn bên trái (màu chữ phụ mờ) và giá trị bên phải (chữ trắng/sáng rõ ràng):
+>     * Họ và tên
+>     * Email
+>     * Vai trò
+>     * Mã học viên
+>     * Nhóm tuổi
+>
+> - CỘT PHẢI (Biểu đồ hoạt động - Activity Heatmap):
+>   + Thiết kế dạng ma trận các ô vuông nhỏ màu xanh giống biểu đồ commit trên GitHub (GitHub Contribution Graph).
+>   + Thể hiện hoạt động nộp bài / học tập theo các ngày trong tuần và các tháng qua độ đậm nhạt của màu xanh (từ xám đậm không hoạt động đến các cấp độ xanh lá/xanh cyan đậm dần).
+>   + Hiển thị tổng số lượt nộp bài / hoạt động và thanh chú thích cấp độ (Less -> More) ở góc dưới.
+>   + Dữ liệu hoạt động: Tận dụng dữ liệu lịch sử nộp bài / attempts hiện có của học viên để tổng hợp thành heatmap, có fallback dữ liệu mẫu hợp lý nếu chưa có lượt nộp nào.
+>
+> Giữ đúng tông màu dark theme hiện tại của CyberSoft Hub, đảm bảo giao diện hiển thị gọn gàng, không phá vỡ các trang khác."
+
+### Điều tôi hiểu trước khi gọi AI
+
+Phải giữ logic dữ liệu hiện có (dòng nào hiện, dòng nào ẩn). Avatar cần chỗ lưu trên hồ sơ, nên cần thêm API. Biểu đồ hoạt động cần dữ liệu lượt nộp thật, hiện chưa có API tổng hợp theo ngày. Dữ liệu mẫu chỉ là phương án dự phòng và phải được ghi rõ là mẫu.
+
+### Context, tài liệu, file, constraint đã cung cấp
+
+AI đọc `ProfilePage.tsx`, `authApi.ts`, `types/auth.ts`, `user.schema.ts`, `auth.service.ts`, `auth.controller.ts`, controller `learner` và các schema nộp bài (`Submission`, `QuizAttempt`, `ContestSubmission`, `DaLabSubmission`, `AiLabSubmission`, `TesterLabSubmission`) để biết trường ngày và trường định danh của từng nguồn.
+
+### Chỉ dẫn chính và các vòng phản hồi quan trọng
+
+- **Avatar:** nhận URL http(s) hoặc ảnh PNG, JPEG, WebP đã thu nhỏ ở trình duyệt; từ chối SVG và giao thức nguy hiểm; giới hạn dưới 100 KB của body JSON mặc định nên không phải nới giới hạn toàn hệ thống.
+- **Hoạt động:** `GET /api/learner/activity` cộng lượt nộp từ 6 nguồn theo ngày, chia theo múi giờ của trình duyệt, chỉ trả dữ liệu của chính người gọi, chỉ học viên gọi được.
+- **Dữ liệu mẫu:** hiện khi chưa có lượt nộp nào, kèm nhãn "Dữ liệu mẫu"; xác định theo ngày nên không nhấp nháy.
+- **Chỉnh sau khi xem ảnh thật:** bản đầu 53 tuần làm các tuần gần nhất (dữ liệu hôm nay) bị cuộn mất, ô quá nhỏ, nhãn thứ lệch hàng và chữ nhãn tháng làm tràn ngang. AI đổi sang 40 tuần (khoảng 9 tháng, ô khoảng 10 px), căn nhãn thứ cố định bên trái, căn nhãn tháng sát mép phải về bên phải và tự cuộn tới tuần mới nhất trên màn hình hẹp.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+| Nhóm | File chính | Ghi chú |
+|---|---|---|
+| Backend avatar | `modules-api/auth/avatar.ts`, `dto/set-avatar.dto.ts`, `auth.service.ts`, `auth.controller.ts`, `user.schema.ts` | `PUT /api/auth/avatar`; hồ sơ trả về có kèm avatar |
+| Backend hoạt động | `modules-api/learner-activity/` (`activity-window.ts`, service, controller, module), `app.module.ts` | Gộp theo ngày bằng aggregation, chọn múi giờ, một nguồn lỗi không làm mất biểu đồ |
+| Frontend | `pages/ProfilePage.tsx` (viết lại), `components/profile/` (`ActivityHeatmap.tsx`, `heatmapModel.ts`, `AvatarEditor.tsx`, `avatarImage.ts`), `components/UserAvatar.tsx`, `Header.tsx`, `App.tsx`, `types/auth.ts`, `types/learner.ts`, `authApi.ts`, `learnerApi.ts` | Avatar hiển thị cả ở thanh header; giảng viên không có biểu đồ nên trang một cột |
+| Test | `avatar.spec.ts`, `learner-activity.service.spec.ts`, 5 test mới trong `auth.service.spec.ts`, `heatmapModel.test.ts`, `avatarImage.test.ts` | Gồm ca đổi giờ chia ngày theo múi giờ, từ chối SVG và `javascript:`, phân quyền |
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+- **Lệnh chạy:** `npx tsc --noEmit -p tsconfig.json`, `npx jest`, `npm run build` ở BE; `npx tsc -b`, `npx vitest run`, `npm run build`, `npx oxlint` ở FE; script `profile.mjs` điều khiển Chrome thật.
+- **Kết quả:** BE từ 732 lên 755 test (63 suite); FE từ 60 lên 79 (13 file); typecheck và build sạch; không có cảnh báo lint mới.
+- **Kiểm thử bằng trình duyệt thật (học viên tạm, giao diện sáng và tối, ba kích thước):**
+  - Không tràn ngang, không thiếu tương phản, ở cả học viên có dữ liệu, học viên không có dữ liệu và giảng viên.
+  - Nhập URL `javascript:` bị từ chối; tải ảnh 600x400 được thu nhỏ thành 256x256 JPEG khoảng 6 KB; lưu thành công, avatar hiện ở header, `GET /api/auth/me` trả avatar, ảnh còn sau khi tải lại trang; xóa ảnh thì cả giao diện và máy chủ đều xóa.
+  - `GET /api/learner/activity` của học viên có 4 lượt nộp trả đúng 4 lượt trong ngày hôm nay; học viên chưa nộp trả danh sách rỗng; giảng viên bị 403.
+  - Đã xoá 13 tài khoản và 16 bài nộp tạm.
+
+**Lỗi AI mắc phải:**
+- Hai file `activityHeatmap.ts` và `ActivityHeatmap.tsx` chỉ khác chữ hoa thường, gây xung đột trên Windows (`tsc` báo `TS1149`) và Vite báo trang trắng vì còn nhớ tên file cũ. AI đổi tên file logic thành `heatmapModel.ts` và khởi động lại web dev.
+- Biểu đồ 53 tuần bị cắt mất tuần cuối, nhãn thứ lệch hàng và chữ tràn; phát hiện nhờ xem ảnh chụp thật, các test đơn vị không bắt được.
+- Test dùng biểu thức tuỳ chọn không dùng kết quả bị `oxlint` cảnh báo; AI viết lại bằng `if`.
+- Một test kỳ vọng sai ngày bắt đầu cửa sổ 371 ngày; AI tính lại bằng Node và sửa số trong test.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+**Điều học được:** tên file chỉ khác chữ hoa thường dễ gây lỗi trên Windows; giao diện dạng lưới phải được xem bằng ảnh chụp thật chứ không chỉ test logic.
+
+**Điều chưa chắc:**
+- Ảnh avatar lưu thẳng trong MongoDB dưới dạng chuỗi nhỏ; khi triển khai thật có thể cần kho lưu file riêng.
+- DA Lab, AI Lab, Tester Lab gộp theo từng bài nên chỉ tính lần nộp đầu tiên của mỗi bài.
+
+---
+
+## Việc 16: Soạn docs/day24/policy_draft.md
+
+> "Tạo tệp docs/day24/policy_draft.md trình bày bản thảo chính sách giám sát tính trung thực trong học tập và thi đấu cho nền tảng CyberSoft Learning & Contest Hub theo đúng tinh thần Ngày 24: Responsible Analytics, Privacy by Design và Human-in-the-loop.
+>
+> Yêu cầu định dạng và văn phong:
+> - Văn phong rõ ràng, minh bạch, chuyên nghiệp, không dùng từ ngữ tự cao, không dùng emoji, không mở ngoặc đơn giải thích tiếng Anh bừa bãi.
+> - Trình bày dạng Markdown với cấu trúc đề mục gãy gọn.
+>
+> Nội dung bắt buộc bao gồm các phần:
+> 1. Mục đích và Phạm vi:
+> - Đảm bảo môi trường học tập và thi đấu công bằng cho học viên.
+> - Dữ liệu thu thập chỉ phục vụ mục đích hỗ trợ giảng viên nắm bắt tiến độ và xem xét các trường hợp bất thường, không dùng để xếp loại tự động.
+>
+> 2. Dữ liệu thu thập tối thiểu (Privacy by Design):
+> - Dòng thời gian làm bài: Thời điểm bắt đầu, các mốc thời gian lưu mã nguồn thưa, thời điểm nộp bài và thời gian thao tác thực tế.
+> - Sự kiện chuyển đổi cửa sổ/tab: Chỉ ghi nhận số lần và tổng thời lượng rời màn hình làm bài ở mức tối thiểu.
+> - Độ tương đồng mã nguồn: Tính toán trên mã nguồn bài nộp sau khi đã loại trừ hoàn toàn các đoạn mã khởi tạo mẫu.
+> - Cam kết không thu thập: Không quay màn hình, không truy cập webcam/micro, không đọc tiến trình chạy ngầm hay lịch sử duyệt web ngoài phạm vi bài thi.
+>
+> 3. Nguyên tắc vận hành cốt lõi (Không tự động kết tội):
+> - Hệ thống tuyệt đối không tự ý trừ điểm, không hủy kết quả bài làm và không tự động gắn nhãn học viên là gian lận.
+> - Mọi cờ cảnh báo (flag) chỉ là tín hiệu tham khảo để đưa bài nộp vào hàng chờ xem xét.
+> - Giảng viên là người có thẩm quyền duy nhất đánh giá bối cảnh, đối chiếu mã nguồn và đưa ra kết luận cuối cùng (Human-in-the-loop).
+>
+> 4. Quy trình xử lý và Quyền giải trình của học viên:
+> - Các trường hợp cờ cảnh báo được giảng viên tiếp nhận qua hàng chờ chuyên biệt và đánh giá độc lập.
+> - Khi có nghi vấn, giảng viên sẽ trao đổi trực tiếp để học viên giải thích giải thuật hoặc quá trình thực hiện bài làm.
+> - Học viên có quyền giải trình rõ ràng và yêu cầu xem xét lại kết quả nếu nhận thấy có sự nhầm lẫn kỹ thuật (false-positive)."
+
+### Điều tôi hiểu trước khi gọi AI
+
+Chính sách phải khớp với những gì hệ thống thật sự làm, không hứa nhiều hơn. Ba nguyên tắc cần xuyên suốt: chỉ thu thập tối thiểu, không tự động kết luận, giảng viên quyết định cuối cùng.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Tạo `docs/day24/policy_draft.md` với 4 phần theo yêu cầu: mục đích và phạm vi; dữ liệu thu thập tối thiểu (kèm bảng cách ghi nhận từng loại dữ liệu và danh sách cam kết không thu thập); nguyên tắc không tự động kết luận (kèm điều kiện đưa bài vào hàng chờ và các trường hợp không bao giờ bị gắn cờ); quy trình xử lý và quyền giải trình. AI thêm mục 5 "Phạm vi triển khai hiện tại và nội dung cần xác định" để không hứa quá khả năng: chưa có chức năng nộp giải trình trực tuyến, học viên chưa tự xem được tín hiệu về mình, thời hạn lưu trữ cần được nhà trường quyết định, các ngưỡng là giá trị khởi đầu.
+
+### Test, metric, checklist dùng để kiểm chứng, lỗi AI mắc phải và cách phát hiện
+
+- **Cách kiểm tra:** AI đối chiếu từng con số và khẳng định trong tài liệu với mã nguồn (ngưỡng 0,8, 5 lần và 180 giây, tối đa 50 sự kiện, mốc lưu mã không quá 30 giây một mốc, thời điểm nộp luôn do máy chủ ghi, học viên không truy cập được hàng chờ).
+
+**Lỗi AI mắc phải:** viết nhầm "quyền riêng tính" thay cho "quyền riêng tư" ở dòng mở đầu; AI phát hiện khi đọc lại và sửa.
+
+### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
+
+**Điều học được:** chính sách nên có một mục ghi rõ những gì chưa làm được để tránh cam kết vượt quá hệ thống.
+
+**Điều chưa chắc:** nếu bản nộp chỉ gồm đúng 4 phần thì phải bỏ mục 5 và bỏ chỗ nhắc quyền giải trình ở mục 4.2, vì hệ thống chưa có chức năng giải trình trực tuyến.
+
+---
+
+## Việc 17: Cập nhật AI Work Log Ngày 24
+
+> "oke ghi đè ai work log làm day24 theo đúng format (quan trọng, ko làm khác), mỗi công việc đều ghi đúng prompt gốc của tôi (tương tự day23)"
+
+### Điều tôi hiểu trước khi gọi AI
+
+Ghi đè nội dung Day 23 bằng Day 24, giữ đúng cấu trúc các ngày trước: bảng thông tin chung, mục lục, rồi mỗi việc có prompt nguyên văn và các mục con. Bản Day 23 vẫn còn trong lịch sử Git.
+
+### File hoặc diff do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+Ghi đè `AI_WORKLOG.md`. AI đọc lại toàn bộ log Day 23 để lấy đúng khung (tiêu đề, bảng thông tin chung, mục lục, các mục con theo từng việc). Nguyên văn prompt của từng việc được trích từ hội thoại; số liệu test và kết quả kiểm thử lấy từ kết quả chạy thật trong ngày. Với hai prompt có đoạn dán là văn bản do AI viết ở lượt trước (Việc 6), AI chỉ ghi chú nội dung đoạn dán thay vì chép lại.
 
 ### Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
 Điều chưa chắc:
-- Số 1 chưa xác nhận route evaluation set v1.1.
-- Toàn bộ thay đổi Day 23 chưa được commit và chưa mở PR.
+- Toàn bộ thay đổi Day 24 chưa được commit và chưa mở PR.
+- Số 1 chưa trả lời về thời gian bổ sung ba phần còn thiếu của server Day 21; phần nạp dữ liệu tự động từ API chưa viết.
+- Mật khẩu ứng dụng Gmail từng hiện trong kết quả một lệnh nên cần được đổi.
