@@ -1,0 +1,380 @@
+{
+  "docs_only_patterns": [
+    "*.md",
+    "*.docx",
+    "*.xlsx",
+    "*.pptx",
+    "*.pdf",
+    "*.png",
+    "*.jpg",
+    "*.jpeg",
+    "*.gif",
+    "*.svg",
+    "*.webp",
+    "*.ico",
+    "Test/*/reports/*",
+    "learning-hub/docs/*",
+    "LICENSE",
+    ".gitignore"
+  ],
+  "docs_only_exceptions": [
+    "Test/*/samples/*",
+    "Test/*/fixtures/*",
+    "Test/*/real-content/*"
+  ],
+  "secret_scan_allowlist": [
+    {
+      "pattern": "Data-AI-Resource/BaoCao_Task19/scripts/demo_day19_workflow.py",
+      "rules": [
+        "openai_key"
+      ],
+      "reason": "Fixture chứa secret GIẢ để test chính bộ phát hiện secret/guardrail; đã xem tay ngày 05/10/2026."
+    },
+    {
+      "pattern": "Data-AI-Resource/BaoCao_Task19/tests/test_guardrails.py",
+      "rules": [
+        "openai_key"
+      ],
+      "reason": "Fixture chứa secret GIẢ để test chính bộ phát hiện secret/guardrail; đã xem tay ngày 05/10/2026."
+    },
+    {
+      "pattern": "learning-hub/BE/src/common/security/secret-patterns.spec.ts",
+      "rules": [
+        "google_api_key",
+        "openai_key",
+        "github_token",
+        "aws_access_key"
+      ],
+      "reason": "Fixture chứa secret GIẢ để test chính bộ phát hiện secret/guardrail; đã xem tay ngày 05/10/2026."
+    },
+    {
+      "pattern": "learning-hub/BE/src/modules-api/ai-labs/ai-lab-grader.service.spec.ts",
+      "rules": [
+        "google_api_key",
+        "openai_key",
+        "github_token",
+        "aws_access_key"
+      ],
+      "reason": "Fixture chứa secret GIẢ để test chính bộ phát hiện secret/guardrail; đã xem tay ngày 05/10/2026."
+    },
+    {
+      "pattern": "learning-hub/FE/src/common/secretPatterns.test.ts",
+      "rules": [
+        "openai_key"
+      ],
+      "reason": "Fixture chứa secret GIẢ để test chính bộ phát hiện secret/guardrail; đã xem tay ngày 05/10/2026."
+    },
+    {
+      "pattern": "learning-hub/docs/day23/dapan.md",
+      "rules": [
+        "openai_key",
+        "assigned_secret"
+      ],
+      "reason": "Ví dụ minh họa trong đáp án Day 23, không phải khóa thật; đã xem tay ngày 05/10/2026."
+    },
+    {
+      "pattern": "learning-hub/BE/src/common/config/sandbox-env.spec.ts",
+      "rules": [
+        "url_with_credentials"
+      ],
+      "reason": "URL Postgres localhost của sandbox test; đã xem tay ngày 05/10/2026."
+    },
+    {
+      "pattern": "Test/Day08_UI_Smoke/playwright.config.ts",
+      "rules": [
+        "assigned_secret"
+      ],
+      "reason": "JWT secret chỉ dùng cho server test cục bộ của Playwright; đã xem tay ngày 05/10/2026."
+    }
+  ],
+  "advisories": [
+    {
+      "id": "api-contract-mock",
+      "patterns": [
+        "learning-hub/BE/src/*.controller.ts",
+        "learning-hub/BE/src/*.dto.ts"
+      ],
+      "message": "Controller/DTO của BE thay đổi. Bộ contract test Ngày 6 chạy trên API mô phỏng (FastAPI `app.py`), KHÔNG gọi BE NestJS thật nên không tự phát hiện được thay đổi này. Người review cần đối chiếu response mới với `Test/Day06_API_Contract_Tests/contracts/` và cập nhật contract nếu đổi có chủ ý."
+    }
+  ],
+  "gates": [
+    {
+      "id": "frontend_quality",
+      "name": "Frontend unit test và build",
+      "patterns": [
+        "learning-hub/FE/*"
+      ],
+      "setup": [
+        [
+          "npm",
+          "ci",
+          "--prefix",
+          "learning-hub/FE"
+        ]
+      ],
+      "commands": [
+        [
+          "npm",
+          "--prefix",
+          "learning-hub/FE",
+          "test",
+          "--",
+          "--run"
+        ],
+        [
+          "npm",
+          "--prefix",
+          "learning-hub/FE",
+          "run",
+          "build"
+        ]
+      ],
+      "remediation": "Chạy `npm test` và `npm run build` trong learning-hub/FE ở máy local, sửa test hoặc lỗi TypeScript rồi push commit mới."
+    },
+    {
+      "id": "backend_quality",
+      "name": "Backend unit test và build",
+      "patterns": [
+        "learning-hub/BE/*"
+      ],
+      "setup": [
+        [
+          "npm",
+          "ci",
+          "--prefix",
+          "learning-hub/BE"
+        ]
+      ],
+      "commands": [
+        [
+          "npm",
+          "--prefix",
+          "learning-hub/BE",
+          "test",
+          "--",
+          "--runInBand"
+        ],
+        [
+          "npm",
+          "--prefix",
+          "learning-hub/BE",
+          "run",
+          "build"
+        ]
+      ],
+      "remediation": "Chạy `npm test` và `npm run build` trong learning-hub/BE ở máy local, đọc log test thất bại và sửa trước khi yêu cầu review."
+    },
+    {
+      "id": "api_contract_mock",
+      "name": "API contract test (mock Ngày 6)",
+      "patterns": [
+        "Test/Day06_API_Contract_Tests/*"
+      ],
+      "cwd": "Test/Day06_API_Contract_Tests",
+      "setup": [
+        [
+          "python",
+          "-m",
+          "pip",
+          "install",
+          "-q",
+          "-r",
+          "requirements.txt"
+        ]
+      ],
+      "commands": [
+        [
+          "python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "-p",
+          "no:cacheprovider"
+        ]
+      ],
+      "remediation": "So sánh response của mock với contract trong contracts/, cập nhật code hoặc contract có review; không bỏ assertion để làm test pass."
+    },
+    {
+      "id": "auth_security_mock",
+      "name": "Auth/authorization test (mock Ngày 7)",
+      "patterns": [
+        "Test/Day07_Authentication_Tests_Tran Quoc Nguyen/*"
+      ],
+      "cwd": "Test/Day07_Authentication_Tests_Tran Quoc Nguyen",
+      "setup": [
+        [
+          "python",
+          "-m",
+          "pip",
+          "install",
+          "-q",
+          "-r",
+          "requirements.txt"
+        ]
+      ],
+      "commands": [
+        [
+          "python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "-p",
+          "no:cacheprovider"
+        ]
+      ],
+      "remediation": "Mở test thất bại, xác định là lỗi phân quyền thật hay lỗi test; không nới lỏng assertion 401/403."
+    },
+    {
+      "id": "content_lint_tool",
+      "name": "Content lint - test của công cụ",
+      "patterns": [
+        "Test/Day11_Content_Lint_Tran_Quoc_Nguyen/*"
+      ],
+      "commands": [
+        [
+          "node",
+          "--test",
+          "Test/Day11_Content_Lint_Tran_Quoc_Nguyen/tools/content-lint/tests/content-lint.test.js"
+        ]
+      ],
+      "remediation": "Sửa rule/parser của content-lint theo test thất bại rồi chạy lại."
+    },
+    {
+      "id": "content_lint_real",
+      "name": "Content lint - bài học thật (BE + FE)",
+      "blocking": false,
+      "patterns": [
+        "learning-hub/BE/src/data/initial-data.ts",
+        "learning-hub/FE/src/data/mockLessons.ts"
+      ],
+      "commands": [
+        [
+          "node",
+          "Test/Day11_Content_Lint_Tran_Quoc_Nguyen/tools/content-lint/real-content/extract-from-ts.js",
+          "be",
+          "learning-hub/BE/src/data/initial-data.ts",
+          "{tmp}/be-lessons.json"
+        ],
+        [
+          "node",
+          "Test/Day11_Content_Lint_Tran_Quoc_Nguyen/tools/content-lint/real-content/extract-from-ts.js",
+          "fe",
+          "learning-hub/FE/src/data/mockLessons.ts",
+          "{tmp}/fe-lessons.json"
+        ],
+        [
+          "node",
+          "Test/Day11_Content_Lint_Tran_Quoc_Nguyen/tools/content-lint/content-lint.js",
+          "{tmp}/be-lessons.json",
+          "{tmp}/fe-lessons.json",
+          "--fail-on",
+          "error"
+        ]
+      ],
+      "remediation": "Sửa bài học theo mã rule CTxxx trong log (ví dụ CT004: thiếu learningOutcome). Gate này là advisory vì dữ liệu BE hiện có sẵn lỗi CT004 từ trước."
+    },
+    {
+      "id": "quiz_validator_tool",
+      "name": "Quiz validator - test của công cụ",
+      "patterns": [
+        "Test/Day12_Quiz_Validator_Tran_Quoc_Nguyen/*"
+      ],
+      "commands": [
+        [
+          "node",
+          "--test",
+          "Test/Day12_Quiz_Validator_Tran_Quoc_Nguyen/tools/quiz-validator/tests/quiz-validator.test.js"
+        ]
+      ],
+      "remediation": "Sửa rule/parser của quiz-validator theo test thất bại rồi chạy lại bộ test Ngày 12."
+    },
+    {
+      "id": "quiz_content",
+      "name": "Quiz validator - câu hỏi thật của BE",
+      "patterns": [
+        "learning-hub/BE/src/data/initial-quiz-questions.ts"
+      ],
+      "commands": [
+        [
+          "node",
+          "Test/Day12_Quiz_Validator_Tran_Quoc_Nguyen/tools/quiz-validator/real-content/extract-quiz-from-ts.js",
+          "learning-hub/BE/src/data/initial-quiz-questions.ts",
+          "{tmp}/quiz-questions.json"
+        ],
+        [
+          "node",
+          "Test/Day12_Quiz_Validator_Tran_Quoc_Nguyen/tools/quiz-validator/quiz-validator.js",
+          "{tmp}/quiz-questions.json",
+          "--fail-on",
+          "error"
+        ]
+      ],
+      "remediation": "Sửa câu hỏi/đáp án theo mã rule QVxxx mức ERROR trong log (thiếu đáp án đúng, option trùng, nội dung rỗng...) rồi chạy lại."
+    },
+    {
+      "id": "coding_validator_tool",
+      "name": "Coding problem validator - test của công cụ",
+      "patterns": [
+        "Test/Day13_Coding_Problem_Validator_Tran_Quoc_Nguyen/*"
+      ],
+      "commands": [
+        [
+          "node",
+          "--test",
+          "Test/Day13_Coding_Problem_Validator_Tran_Quoc_Nguyen/tools/coding-problem-validator/tests/coding-problem-validator.test.js"
+        ]
+      ],
+      "remediation": "Kiểm tra fixture, expected output và hidden test; sửa validator hoặc fixture theo test thất bại."
+    },
+    {
+      "id": "coding_content",
+      "name": "Coding problem validator - bài coding thật của BE",
+      "patterns": [
+        "learning-hub/BE/src/data/initial-exercises*.ts",
+        "learning-hub/BE/src/data/seed-exercises.ts"
+      ],
+      "commands": [
+        [
+          "node",
+          "Test/Day13_Coding_Problem_Validator_Tran_Quoc_Nguyen/tools/coding-problem-validator/real-content/extract-exercises-from-ts.js",
+          "--be-data-dir",
+          "learning-hub/BE/src/data",
+          "--out-dir",
+          "{tmp}/exercises"
+        ],
+        [
+          "node",
+          "Test/Day13_Coding_Problem_Validator_Tran_Quoc_Nguyen/tools/coding-problem-validator/coding-problem-validator.js",
+          "validate",
+          "{tmp}/exercises",
+          "--out-dir",
+          "{tmp}/exercises-report",
+          "--fail-on",
+          "error"
+        ]
+      ],
+      "remediation": "Sửa đề/test case theo mã rule CPxxx mức ERROR (reference solution không AC, thiếu hidden test...); sửa dữ liệu bài coding thay vì nới lỏng validator."
+    },
+    {
+      "id": "pr_quality_self_test",
+      "name": "PR Quality Bot self-test",
+      "patterns": [
+        ".github/workflows/*",
+        "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/*"
+      ],
+      "commands": [
+        [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests"
+        ]
+      ],
+      "remediation": "Sửa mapping/script hoặc test Ngày 22; chạy `python -m unittest discover -s Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests` đến khi exit code 0 rồi mới push."
+    }
+  ]
+}
