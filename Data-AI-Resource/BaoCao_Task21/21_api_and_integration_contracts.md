@@ -186,6 +186,20 @@ client.download_dataset_table(
 - File Environment: `contracts/cybersoft_local.postman_environment.json`
 - Đóng gói sẵn 10 requests mẫu phân nhóm theo 5 chuyên đề, cấu hình sẵn biến môi trường `base_url`, `student_api_key`, `qa_api_key`, `admin_api_key`.
 
+### 6.3. Bộ tài nguyên DDL & Dữ liệu nạp PostgreSQL Sandbox (Data Sandbox Provisioning)
+Nhằm hỗ trợ toàn diện phân hệ TTS 02 (Learning Hub) nạp dữ liệu vào cơ sở dữ liệu quan hệ PostgreSQL Sandbox, Task 21 đóng gói trọn bộ các tệp script `.sql` hoàn chỉnh:
+- **Bản CLEAN (Chuẩn 3NF, đầy đủ khóa chính PK, khóa ngoại FK, Index)**:
+  * `data/postgres_sandbox_retail_sales_clean.sql` (Task 06: 5 bảng, 3.073 dòng).
+  * `data/postgres_sandbox_hr_operations_clean.sql` (Task 07: 5 bảng, 6.481 dòng).
+  * `data/postgres_sandbox_students_clean.sql` (Task 05: 1 bảng, 25 dòng).
+  * `data/postgres_sandbox_inventory_clean.sql` (Task 13: 6 bảng, 2.000+ dòng).
+- **Bản DIRTY (Lược đồ Staging nới lỏng để nạp dữ liệu lỗi cho học viên làm bài tập dọn rác)**:
+  * `data/postgres_sandbox_retail_sales_dirty.sql` (bảng `raw_*`).
+  * `data/postgres_sandbox_hr_operations_dirty.sql` (bảng `raw_*`).
+- **Tệp MASTER ALL-IN-ONE (`data/postgres_sandbox_all_datasets_master_clean.sql` - 1.33 MB)**:
+  * Tích hợp trọn vẹn cả 4 bộ dữ liệu trên thành một tệp duy nhất.
+  * Phân tách thành 4 schema độc lập (`retail.*`, `hr.*`, `education.*`, `inventory.*`) tránh triệt để xung đột trùng tên bảng (`employees`, `products`), thiết lập sẵn `SET search_path TO retail, hr, education, inventory, public;`.
+
 ---
 
 ## 7. KẾT QUẢ KIỂM THỬ TỰ ĐỘNG HÓA PYTEST INTEGRATION SUITE

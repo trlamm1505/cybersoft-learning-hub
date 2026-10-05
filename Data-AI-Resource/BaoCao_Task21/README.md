@@ -57,14 +57,24 @@ BaoCao_Task21/
 │       └── quality_service.py              # Data Quality inspection & RAG Eval benchmarks
 ├── data/                                   # Dữ liệu học liệu & kiểm thử phục vụ API
 │   ├── chunks_markdown_header_semantic.jsonl # 91 chunks giáo trình chuẩn hóa
-│   └── golden_rag_eval_v1.json             # 30 ca kiểm thử vàng version hóa
+│   ├── golden_rag_eval_v1.json             # 30 ca kiểm thử vàng version hóa
+│   ├── postgres_sandbox_retail_sales_clean.sql  # SQL nạp Postgres Task 06 Clean (3.073 dòng)
+│   ├── postgres_sandbox_retail_sales_dirty.sql  # SQL nạp Postgres Task 06 Dirty (Staging)
+│   ├── postgres_sandbox_hr_operations_clean.sql # SQL nạp Postgres Task 07 Clean (6.481 dòng)
+│   ├── postgres_sandbox_hr_operations_dirty.sql # SQL nạp Postgres Task 07 Dirty (Staging)
+│   ├── postgres_sandbox_students_clean.sql      # SQL nạp Postgres Task 05 Clean
+│   ├── postgres_sandbox_students_dirty.sql      # SQL nạp Postgres Task 05 Dirty
+│   ├── postgres_sandbox_inventory_clean.sql     # SQL nạp Postgres Task 13 Clean
+│   ├── postgres_sandbox_inventory_dirty.sql     # SQL nạp Postgres Task 13 Dirty
+│   └── postgres_sandbox_all_datasets_master_clean.sql # MASTER ALL-IN-ONE (1.33 MB - 4 Schemas)
 ├── indexes/                                # Chỉ mục vector & BM25 nén (Task 16-20)
 ├── scripts/                                # Kịch bản tiện ích
 │   ├── run_server.py                       # Khởi chạy máy chủ FastAPI Uvicorn
 │   ├── export_openapi.py                   # Xuất hợp đồng OpenAPI JSON/YAML & Postman collection
+│   ├── export_all_datasets_to_postgres.py  # Master script xuất toàn bộ datasets sang PostgreSQL
 │   ├── demo_client.py                      # Kịch bản demo kiểm chứng tích hợp 5 giai đoạn
 │   └── render_diagram.py                   # Kết xuất sơ đồ kiến trúc 3400x1900 (300 DPI)
-└── tests/                                  # Bộ kiểm thử tích hợp (29/29 Tests PASS 100%)
+└── tests/                                  # Bộ kiểm thử tích hợp (40/40 Tests PASS 100%)
     ├── __init__.py
     ├── conftest.py                         # TestClient fixture, 4 vai trò mock headers
     ├── test_health.py                      # Kiểm thử health và info (3 tests)
@@ -295,7 +305,42 @@ python Data-AI-Resource/BaoCao_Task21/scripts/demo_client.py
 
 ---
 
-## 3. BẢNG CHECKLIST TIÊU CHÍ NGHIỆM THU (DEFINITION OF DONE)
+---
+
+## 3. TÀI NGUYÊN NẠP POSTGRESQL SANDBOX CHO TTS 02 (SQL SCRIPTS)
+
+Nhằm phục vụ phân hệ **TTS 02 (Learning Hub)** đổ dữ liệu vào môi trường cơ sở dữ liệu quan hệ **Postgres Sandbox** để học viên thực hành truy vấn SQL và AI Lab chạy đối soát, toàn bộ dữ liệu từ các Task trước đã được chuyển đổi hoàn tất thành các tệp `.sql` độc lập và một tệp **Master All-in-One**:
+
+### 3.1. Bảng danh mục tệp SQL sẵn sàng nạp Sandbox
+
+| STT | Bộ dữ liệu (Dataset) | Kế thừa từ | File Bản CLEAN (Sạch chuẩn 3NF) | File Bản DIRTY (Lỗi Staging) | Chi tiết bảng & Số dòng |
+| :---: | :--- | :---: | :--- | :--- | :--- |
+| **1** | **Bán lẻ E-Commerce** (`sales_v1`) | **Task 06** | `data/postgres_sandbox_retail_sales_clean.sql` *(294 KB)* | `data/postgres_sandbox_retail_sales_dirty.sql` *(311 KB)* | **5 bảng (3.073 dòng)**:<br>`customers` (200), `employees` (20), `products` (50), `orders` (1000), `order_details` (1803) |
+| **2** | **Nhân sự & Chấm công** (`HR_ops_v1`) | **Task 07** | `data/postgres_sandbox_hr_operations_clean.sql` *(642 KB)* | `data/postgres_sandbox_hr_operations_dirty.sql` *(668 KB)* | **5 bảng (6.481 dòng)**:<br>`employees` (250), `attendance` (5092), `kpi_evaluations` (654), `training_records` (450), `turnovers` (35) |
+| **3** | **Học viên & Kiểm định** (`students_record`) | **Task 05** | `data/postgres_sandbox_students_clean.sql` *(2.8 KB)* | `data/postgres_sandbox_students_dirty.sql` *(4.0 KB)* | **1 bảng (25 dòng)**:<br>`students` / `raw_students` |
+| **4** | **Quản lý Kho & Chuỗi cung ứng** (`DA-02`) | **Task 13** | `data/postgres_sandbox_inventory_clean.sql` *(388 KB)* | `data/postgres_sandbox_inventory_dirty.sql` *(398 KB)* | **6 bảng**:<br>`warehouses`, `products`, `purchase_orders`, `movements`, `dispatches`, `audits` |
+| ⭐ | **MASTER ALL-IN-ONE (Trọn gói cả 4 datasets)** | **Task 05, 06, 07, 13** | **`data/postgres_sandbox_all_datasets_master_clean.sql`** *(1.33 MB)* | *(N/A)* | **17 bảng toàn học viện** phân chia 4 Schema namespaces (`retail.*`, `hr.*`, `education.*`, `inventory.*`) |
+
+### 3.2. Cấu trúc Schema trong file Master All-In-One:
+File Master gom trọn vẹn cả 4 tasks và giải quyết triệt để xung đột trùng tên bảng bằng **PostgreSQL Schemas**:
+1. `retail.*` (Task 06): Chứa 5 bảng bán lẻ thương mại điện tử.
+2. `hr.*` (Task 07): Chứa 5 bảng nhân sự, chấm công và đánh giá KPI.
+3. `education.*` (Task 05): Chứa bảng hồ sơ học viên.
+4. `inventory.*` (Task 13): Chứa 6 bảng kho bãi và luân chuyển hàng hóa.
+Cuối file tự động đặt: `SET search_path TO retail, hr, education, inventory, public;` giúp học viên truy vấn dễ dàng.
+
+### 3.3. Hướng dẫn nạp vào Postgres Sandbox trong 1 dòng lệnh:
+```bash
+# Nạp riêng bộ Bán lẻ:
+psql -h localhost -p 5432 -U postgres -d sandbox_db -f Data-AI-Resource/BaoCao_Task21/data/postgres_sandbox_retail_sales_clean.sql
+
+# Hoặc nạp trọn bộ cả 4 datasets (Master):
+psql -h localhost -p 5432 -U postgres -d sandbox_db -f Data-AI-Resource/BaoCao_Task21/data/postgres_sandbox_all_datasets_master_clean.sql
+```
+
+---
+
+## 4. BẢNG CHECKLIST TIÊU CHÍ NGHIỆM THU (DEFINITION OF DONE)
 
 | STT | Tiêu chí Nghiệm thu (DoD Criteria) | Mô tả Chi tiết & Yêu cầu Kỹ thuật | Kết quả Đối soát Thực tế | Trạng thái |
 | :---: | :--- | :--- | :--- | :--- | :---: |
@@ -312,24 +357,24 @@ python Data-AI-Resource/BaoCao_Task21/scripts/demo_client.py
 
 ---
 
-## 4. TỔNG HỢP CHỈ SỐ BENCHMARK & SLA HIỆU NĂNG
+## 5. TỔNG HỢP CHỈ SỐ BENCHMARK & SLA HIỆU NĂNG
 
 ### Bảng Chỉ Số SLA Đo Lường Thực Tế
 
 | Chỉ số Đo lường | Cam kết SLA | Kết quả Đo đạc Thực tế | Nhận xét Hiệu năng Kỹ thuật |
-| :--- | :---: | :---: | :--- |
+| :--- | :--- | :--- | :--- |
 | **Độ sẵn sàng (Uptime)** | $\ge 99.9\%$ | **100.0%** | Dịch vụ hoạt động liên tục, không gián đoạn |
 | **Độ trễ Health & Info** | $< 20\text{ ms}$ | **1.2 ms - 2.5 ms** | Phản hồi tức thì |
 | **Độ trễ Semantic Search** | $< 100\text{ ms}$ | **58.21 ms** | Tìm kiếm lai BM25 + Vector RRF siêu tốc |
 | **Độ trễ AI Tutor RAG** | $< 250\text{ ms}$ | **186.40 ms** | Trả lời nhanh chóng kèm trích dẫn chính xác |
 | **Độ trễ đuôi phân vị 95 ($p_{95}$)** | $< 100\text{ ms}$ | **36.98 ms** | Duy trì mốc chuẩn đo đạc của Task 20 |
 | **Điểm trung thực (Groundedness)** | $\ge 85.0\%$ | **92.00%** | Tuyệt đối không bịa đặt nguồn học liệu |
-| **Tỷ lệ bao phủ kiểm thử (Pytest)** | $100\%$ endpoints | **29/29 bài test PASS** | 100% SUCCESS trong 1.51 giây |
+| **Tỷ lệ bao phủ kiểm thử (Pytest)** | $100\%$ endpoints | **40/40 bài test PASS** | 100% SUCCESS trong 2.11 giây |
 | **Chi phí vận hành** | Tối thiểu hóa | **$0.00 USD** | Vận hành 100% On-premise Offline trên CPU |
 
 ---
 
-## 5. KẾ HOẠCH BÀN GIAO CHO NGÀY 22 (GIAO DIỆN TÌM VÀ TẢI TÀI NGUYÊN)
+## 6. KẾ HOẠCH BÀN GIAO CHO NGÀY 22 (GIAO DIỆN TÌM VÀ TẢI TÀI NGUYÊN)
 
 Việc hoàn thành Task 21 đặt nền móng hợp đồng API vững chắc cho bước tiếp theo của Tuần 5:
 1. **Xây dựng Giao diện Web Portal (Data Resource Portal UI)**: Kết nối trực tiếp vào các API `/api/v1/registry/datasets` và `/api/v1/search/semantic`.
