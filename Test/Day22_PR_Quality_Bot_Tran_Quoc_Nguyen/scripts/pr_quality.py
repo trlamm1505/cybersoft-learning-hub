@@ -43,6 +43,11 @@ MAX_FINDINGS_LISTED = 20     # số security finding liệt kê
 MAX_REPORT_CHARS = 60000     # dưới giới hạn 65 536 ký tự của 1 comment/summary GitHub
 MAX_SCAN_BYTES = 2_000_000
 
+# Giá trị là BIỂU THỨC CODE (gọi hàm, tham chiếu biến/thuộc tính) thì không phải secret viết cứng:
+#   JWT_SECRET: h.generateSecret() }      jwtSecret = config.jwt.secret;      JWT_SECRET: secretFromEnv,
+# Tên biến đứng cuối dòng và không có chữ số (một định danh thuần chữ) cũng coi là code.
+_CODE_EXPR = r"(?![A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*\s*(?:\(|[,;)}\]]))(?![A-Za-z_$.]+\s*$)"
+
 _PLACEHOLDER = r"(?!\$\{|\$\(|<|\{|your[_-]|example|test|dummy|changeme|xxx|\*\*\*|process\.env|os\.environ)"
 
 SECRET_PATTERNS = {
@@ -54,7 +59,8 @@ SECRET_PATTERNS = {
     "postman_api_key": re.compile(r"\bPMAK-[A-Za-z0-9]{20,}-[A-Za-z0-9]{20,}\b"),
     "assigned_secret": re.compile(
         r"(?i)\b(?:POSTMAN_API_KEY|GEMINI_API_KEY|OPENAI_API_KEY|ANTHROPIC_API_KEY|JWT_SECRET|TOKENCYBERSOFT)"
-        r"\s*[:=]\s*[\"']?" + _PLACEHOLDER + r"[^\s\"']{16,}"
+        r"\s*[:=]\s*(?:[\"']" + _PLACEHOLDER + r"|" + _PLACEHOLDER + _CODE_EXPR + r")[^\s\"']{16,}",
+        re.MULTILINE,
     ),
     "url_with_credentials": re.compile(
         r"(?i)\b(?:mongodb(?:\+srv)?|postgres(?:ql)?|mysql|redis|amqp)://"

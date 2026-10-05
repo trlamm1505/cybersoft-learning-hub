@@ -70,7 +70,7 @@ Vì vậy PR của nhóm Data xanh **không có nghĩa** là retriever, hybrid s
 |---|---|
 | Day06, Day07 | Bộ pytest của ngày đó |
 | Day11, Day12, Day13 | Test của công cụ ngày đó |
-| Day22 hoặc bất kỳ workflow nào | 36 test tự kiểm của bot |
+| Day22 hoặc bất kỳ workflow nào | 38 test tự kiểm của bot |
 | Các ngày khác (Day3, 5, 8, 14, 15...) | Chưa có test → WARN |
 
 ### Chỉ sửa tài liệu
