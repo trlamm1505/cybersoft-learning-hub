@@ -1,0 +1,24 @@
+{
+  "id": "prompt_exercise_generator_system_prompt_v1.0.0",
+  "name": "Exercise Generator System Prompt",
+  "artifact_type": "prompt",
+  "version": "v1.0.0",
+  "state": "deprecated",
+  "description": "Prompt định hướng mô hình AI sinh bài tập theo thang Bloom có vài ví dụ mẫu (Few-shot).",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.262498+00:00",
+  "file_path": "data/artifacts/prompts/exercise_generator_system_prompt/v1.0.0/system_prompt_v1.txt",
+  "file_size_bytes": 115,
+  "content_hash": "6ad80a463dd21415c7ae0ffff001e86c5eef4876d42b02e3acb5d48dd2cb6bdc",
+  "upstream_ids": [],
+  "tags": [
+    "prompt",
+    "bloom",
+    "curriculum",
+    "few_shot"
+  ],
+  "deprecation_reason": "Nâng cấp lên prompt v1.1.0 có hộp cát kiểm chứng khả thi thực thi.",
+  "superseded_by": "prompt_exercise_generator_system_prompt_enhanced_v1.1.0",
+  "sunset_date": "2026-11-30T23:59:59Z",
+  "extra_metadata": {}
+}

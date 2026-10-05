@@ -1,0 +1,216 @@
+{
+  "release_id": "rel_v1.1.0",
+  "version": "v1.1.0",
+  "release_name": "CyberSoft Data & AI Lab Enhanced Release",
+  "release_date": "2026-10-01T18:37:47.492474+00:00",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "description": "Bản phát hành nâng cao v1.1.0 tích hợp Hybrid Search Index, Knowledge Chunks v1.1.0 và Generator Prompt v1.1.0.",
+  "holistic_checksum": "fa096099dc46141c19c28d80755de74fb2cc1429f783f8f904c146595c222e74",
+  "components": {
+    "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0": {
+      "artifact_id": "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+      "name": "AI Knowledge Chunks Corpus Multi-Hop",
+      "artifact_type": "dataset",
+      "version": "v1.1.0",
+      "content_hash": "37feb015e8ac56e65151a6b3ad4b2699812ab80e2947826c166c982b36d885b3",
+      "state": "active",
+      "storage_path": "data/artifacts/datasets/ai_knowledge_chunks_corpus_multi_hop/v1.1.0/knowledge_chunks_v2.csv",
+      "upstream_ids": [
+        "dataset_ai_knowledge_chunks_corpus_v1.0.0"
+      ]
+    },
+    "dataset_ai_knowledge_chunks_corpus_v1.0.0": {
+      "artifact_id": "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+      "name": "AI Knowledge Chunks Corpus",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "content_hash": "7a6cc90f7f958520da40df0bd41b1bc44f139a25781ebed47e84673cc7729042",
+      "state": "deprecated",
+      "storage_path": "data/artifacts/datasets/ai_knowledge_chunks_corpus/v1.0.0/knowledge_chunks_v1.csv",
+      "upstream_ids": []
+    },
+    "dataset_customer_churn_dataset_v1.0.0": {
+      "artifact_id": "dataset_customer_churn_dataset_v1.0.0",
+      "name": "Customer Churn Dataset",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "content_hash": "8965f90eba608ba353c141f27248a8ef461a0ea86e80063fc6a94d7368aef9ec",
+      "state": "active",
+      "storage_path": "data/artifacts/datasets/customer_churn_dataset/v1.0.0/customer_churn.csv",
+      "upstream_ids": []
+    },
+    "dataset_hr_attendance_dataset_v1.0.0": {
+      "artifact_id": "dataset_hr_attendance_dataset_v1.0.0",
+      "name": "HR Attendance Dataset",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "content_hash": "abf5e7b20c73f68630d6a7e61b818f6b687d0b9f99984c31543771e78c0bfa6f",
+      "state": "active",
+      "storage_path": "data/artifacts/datasets/hr_attendance_dataset/v1.0.0/hr_attendance.csv",
+      "upstream_ids": []
+    },
+    "dataset_retail_sales_dataset_v1.0.0": {
+      "artifact_id": "dataset_retail_sales_dataset_v1.0.0",
+      "name": "Retail Sales Dataset",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "content_hash": "9342b483b2c5cd575a825c2aaa1979e5f242b8a6e26acbb8b7740e5a054b0692",
+      "state": "active",
+      "storage_path": "data/artifacts/datasets/retail_sales_dataset/v1.0.0/retail_sales.csv",
+      "upstream_ids": []
+    },
+    "evaluation_exercise_generator_feasibility_evaluation_v1.0.0": {
+      "artifact_id": "evaluation_exercise_generator_feasibility_evaluation_v1.0.0",
+      "name": "Exercise Generator Feasibility Evaluation",
+      "artifact_type": "evaluation",
+      "version": "v1.0.0",
+      "content_hash": "c7562ace68465cbf4b51f778b31631e379e3ee7b4dadfbb0578f9a7cc77d1323",
+      "state": "active",
+      "storage_path": "data/artifacts/evaluations/exercise_generator_feasibility_evaluation/v1.0.0/generator_eval_results.json",
+      "upstream_ids": [
+        "dataset_retail_sales_dataset_v1.0.0",
+        "dataset_hr_attendance_dataset_v1.0.0",
+        "dataset_customer_churn_dataset_v1.0.0",
+        "prompt_exercise_generator_system_prompt_v1.0.0",
+        "model_gemini_3.8_flash_checkpoint_v1.0.0"
+      ]
+    },
+    "evaluation_rag_benchmark_100_evaluation_v1.0.0": {
+      "artifact_id": "evaluation_rag_benchmark_100_evaluation_v1.0.0",
+      "name": "RAG Benchmark 100 Evaluation",
+      "artifact_type": "evaluation",
+      "version": "v1.0.0",
+      "content_hash": "88aed7019e26fbf77092fe8d78afefd4fb318973ac4621e7b132d5ff35a0582b",
+      "state": "active",
+      "storage_path": "data/artifacts/evaluations/rag_benchmark_100_evaluation/v1.0.0/rag_benchmark_results.json",
+      "upstream_ids": [
+        "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+        "prompt_rag_tutor_grounding_prompt_v1.0.0",
+        "model_bge_small_english_embedder_v1.0.0",
+        "model_gemini_3.8_flash_checkpoint_v1.0.0",
+        "index_bm25_knowledge_chunks_index_v1.0.0"
+      ]
+    },
+    "exercise_approved_exercise_bank_20_v1.0.0": {
+      "artifact_id": "exercise_approved_exercise_bank_20_v1.0.0",
+      "name": "Approved Exercise Bank 20",
+      "artifact_type": "exercise",
+      "version": "v1.0.0",
+      "content_hash": "8f6af4147a643e35acac28bb94d6d861daf47cd85b0207e2e72afceb2c175851",
+      "state": "active",
+      "storage_path": "data/artifacts/exercises/approved_exercise_bank_20/v1.0.0/approved_bank_20.json",
+      "upstream_ids": [
+        "dataset_retail_sales_dataset_v1.0.0",
+        "dataset_hr_attendance_dataset_v1.0.0",
+        "dataset_customer_churn_dataset_v1.0.0",
+        "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+        "prompt_exercise_generator_system_prompt_v1.0.0",
+        "model_gemini_3.8_flash_checkpoint_v1.0.0",
+        "evaluation_exercise_generator_feasibility_evaluation_v1.0.0"
+      ]
+    },
+    "index_bm25_knowledge_chunks_index_v1.0.0": {
+      "artifact_id": "index_bm25_knowledge_chunks_index_v1.0.0",
+      "name": "BM25 Knowledge Chunks Index",
+      "artifact_type": "index",
+      "version": "v1.0.0",
+      "content_hash": "c9eecfe7b89612123cd7dc05a14136ba4a78048518ec21bfde84337fc19ceec1",
+      "state": "active",
+      "storage_path": "data/artifacts/indexs/bm25_knowledge_chunks_index/v1.0.0/bm25_meta.json",
+      "upstream_ids": [
+        "dataset_ai_knowledge_chunks_corpus_v1.0.0"
+      ]
+    },
+    "index_faiss_retail_sales_index_v1.0.0": {
+      "artifact_id": "index_faiss_retail_sales_index_v1.0.0",
+      "name": "FAISS Retail Sales Index",
+      "artifact_type": "index",
+      "version": "v1.0.0",
+      "content_hash": "a4aba96de08e402f3a29795298017538d1085dca9f176df1fdfb5a96c4c4be42",
+      "state": "active",
+      "storage_path": "data/artifacts/indexs/faiss_retail_sales_index/v1.0.0/faiss_meta.json",
+      "upstream_ids": [
+        "dataset_retail_sales_dataset_v1.0.0",
+        "model_bge_small_english_embedder_v1.0.0"
+      ]
+    },
+    "index_hybrid_rag_search_index_v1.1.0": {
+      "artifact_id": "index_hybrid_rag_search_index_v1.1.0",
+      "name": "Hybrid RAG Search Index",
+      "artifact_type": "index",
+      "version": "v1.1.0",
+      "content_hash": "7a00359f70b3f53cac83fb6463e0debc20c8a4e1d1461f3107138c19ac3880a1",
+      "state": "active",
+      "storage_path": "data/artifacts/indexs/hybrid_rag_search_index/v1.1.0/hybrid_meta.json",
+      "upstream_ids": [
+        "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+        "model_bge_small_english_embedder_v1.0.0",
+        "index_bm25_knowledge_chunks_index_v1.0.0"
+      ]
+    },
+    "model_bge_small_english_embedder_v1.0.0": {
+      "artifact_id": "model_bge_small_english_embedder_v1.0.0",
+      "name": "BGE Small English Embedder",
+      "artifact_type": "model",
+      "version": "v1.0.0",
+      "content_hash": "56c8a813e32ff6a4081d4556800ecfc7e6637c5cfe6ba72dc058cda79bf8a123",
+      "state": "active",
+      "storage_path": "data/artifacts/models/bge_small_english_embedder/v1.0.0/model_card.json",
+      "upstream_ids": []
+    },
+    "model_gemini_3.8_flash_checkpoint_v1.0.0": {
+      "artifact_id": "model_gemini_3.8_flash_checkpoint_v1.0.0",
+      "name": "Gemini 3.8 Flash Checkpoint",
+      "artifact_type": "model",
+      "version": "v1.0.0",
+      "content_hash": "88bf84358136ef5e792e68c8fa083d2f6eeb824a8bbd46a0252bb249e4e5ff6a",
+      "state": "active",
+      "storage_path": "data/artifacts/models/gemini_3.8_flash_checkpoint/v1.0.0/llm_config.json",
+      "upstream_ids": []
+    },
+    "prompt_exercise_generator_system_prompt_enhanced_v1.1.0": {
+      "artifact_id": "prompt_exercise_generator_system_prompt_enhanced_v1.1.0",
+      "name": "Exercise Generator System Prompt Enhanced",
+      "artifact_type": "prompt",
+      "version": "v1.1.0",
+      "content_hash": "e11291d7f1bf82636a367888e706b700f24370fe23e27f12ead7457165b529cd",
+      "state": "active",
+      "storage_path": "data/artifacts/prompts/exercise_generator_system_prompt_enhanced/v1.1.0/system_prompt_v2.txt",
+      "upstream_ids": [
+        "prompt_exercise_generator_system_prompt_v1.0.0"
+      ]
+    },
+    "prompt_exercise_generator_system_prompt_v1.0.0": {
+      "artifact_id": "prompt_exercise_generator_system_prompt_v1.0.0",
+      "name": "Exercise Generator System Prompt",
+      "artifact_type": "prompt",
+      "version": "v1.0.0",
+      "content_hash": "6ad80a463dd21415c7ae0ffff001e86c5eef4876d42b02e3acb5d48dd2cb6bdc",
+      "state": "deprecated",
+      "storage_path": "data/artifacts/prompts/exercise_generator_system_prompt/v1.0.0/system_prompt_v1.txt",
+      "upstream_ids": []
+    },
+    "prompt_rag_tutor_grounding_prompt_v1.0.0": {
+      "artifact_id": "prompt_rag_tutor_grounding_prompt_v1.0.0",
+      "name": "RAG Tutor Grounding Prompt",
+      "artifact_type": "prompt",
+      "version": "v1.0.0",
+      "content_hash": "dd5880a0533c52311494161405a2e0fc480f10df102224ef17e88013c8dcc166",
+      "state": "active",
+      "storage_path": "data/artifacts/prompts/rag_tutor_grounding_prompt/v1.0.0/tutor_prompt_v1.txt",
+      "upstream_ids": []
+    }
+  },
+  "component_counts": {
+    "dataset": 5,
+    "evaluation": 2,
+    "exercise": 1,
+    "index": 3,
+    "model": 2,
+    "prompt": 3
+  },
+  "git_branch": "feature/data-ai-day24",
+  "git_tag": "v1.1.0-release",
+  "release_notes": "Nâng cấp chỉ mục tìm kiếm Hybrid RRF, bộ dữ liệu tri thức Multi-Hop và quy trình deprecation chuẩn hóa.",
+  "metadata": {}
+}
