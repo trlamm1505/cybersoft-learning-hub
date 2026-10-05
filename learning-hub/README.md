@@ -42,94 +42,69 @@ Dự án **CyberSoft Learning & Contest Hub** là hệ thống quản lý học 
 
 ---
 
-## 💻 Yêu Cầu Hệ Thống (Prerequisites)
+## 🚀 Bắt Đầu Nhanh (máy mới, làm việc nhóm)
 
-* **Node.js**: Phiên bản `18.x` trở lên (Khuyên dùng Node.js 20+ LTS).
-* **MongoDB**: MongoDB Server Local (Cổng `27017`) hoặc **MongoDB Atlas**.
-* **Git**: Trình quản lý mã nguồn Git.
+Cần cài sẵn: **Node.js 20.12+** (khuyên dùng 22, xem `.nvmrc`), **Git** và **Docker Desktop** (để chạy MongoDB, Postgres sandbox cho DA Lab và bài Python của học viên). Không cần tự cài MongoDB.
 
----
-
-## 🛠️ Hướng Dẫn Khởi Chạy Chi Tiết (Getting Started)
-
-### 📥 1. Clone Dự Án Về Máy
 ```bash
 git clone https://github.com/trlamm1505/cybersoft-learning-hub.git
 cd cybersoft-learning-hub/learning-hub
+npm run setup      # dựng môi trường (một lần, chạy lại bao nhiêu lần cũng an toàn)
+npm run dev        # chạy backend + web
 ```
 
----
+Mở **http://localhost:5173**. Tài khoản mẫu (mật khẩu `123456`): `teacher@gmail.com` (giảng viên), `student@gmail.com` (học viên).
 
-### ⚙️ 2. Hướng Dẫn Chạy Backend Service (`BE`)
+`npm run setup` làm gì:
 
-Mở Terminal tại thư mục `learning-hub`:
+| Bước | Việc làm | An toàn |
+|---|---|---|
+| 1 | Kiểm tra Node, Docker | chỉ đọc |
+| 2 | Tạo `.env` và `BE/.env` từ file mẫu, **sinh `JWT_SECRET` ngẫu nhiên cho máy bạn** | không ghi đè file đã có |
+| 3 | Cài thư viện (`npm ci`) ở root, `BE`, `FE` nếu thiếu | bỏ qua thư mục đã cài |
+| 4 | Bật MongoDB (chỉ khi máy chưa có) và Postgres sandbox, kéo image Python | bỏ qua cái đã chạy |
+| 5 | Nạp dữ liệu mẫu (người dùng, bài tập, câu hỏi, cuộc thi) | **chỉ khi CSDL còn trống**, không bao giờ đè dữ liệu thật |
 
-1. **Di chuyển vào thư mục Backend:**
-   ```bash
-   cd BE
-   ```
+Lệnh hay dùng:
 
-2. **Cài đặt thư viện dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+npm run doctor        # kiểm tra Docker, backend, MongoDB, nguồn dữ liệu, sandbox, web và chỉ cách sửa
+npm run sandbox       # bật lại Postgres sandbox (tự mở Docker Desktop nếu chưa mở)
+npm run seed:all      # nạp lại dữ liệu mẫu — XÓA dữ liệu cũ trong CSDL (dùng khi muốn làm mới)
+npm run test:scripts  # test các script dựng môi trường
+```
 
-3. **Cấu hình biến môi trường (`.env`):**
-   Tạo tệp `.env` tại thư mục `BE/` (hoặc sao chép từ `.env.example`):
-   ```env
-   # Database Connection (MongoDB Local hoặc Atlas)
-   DATABASE_URL="mongodb://localhost:27017/<your_database_name>"
+**Khóa bí mật (không commit):** `BE/.env` được `.gitignore` chặn. Hai khóa tùy chọn để trống thì tính năng tương ứng tạm tắt, phần còn lại vẫn chạy:
+- `GEMINI_API_KEY`: AI Coach, sinh đề, chấm Insight/AI Lab. Xin khóa của chính bạn hoặc xin nhóm qua kênh riêng, **không dán lên chat chung**.
+- `GMAIL_USER` / `GMAIL_APP_PASSWORD`: email đặt lại mật khẩu.
 
-   # App Port
-   PORT=3000
+**Dữ liệu DA Lab / AI Lab:** mặc định dùng dữ liệu tích hợp sẵn trong backend nên không phải bật server nào. Muốn dùng server thật của Data & AI Resource (TTS 01), đặt `DATA_SERVICE_BASE_URL=http://localhost:8000` trong `BE/.env`.
 
-   # JWT Secret Key
-   JWT_SECRET="<your_jwt_secret_key>"
-   ```
+**Mỗi người một CSDL riêng:** MongoDB chạy trên máy từng người, nên dữ liệu bạn tạo khi thử không ảnh hưởng người khác. Muốn dùng chung một CSDL thì đặt `DATABASE_URL` trong `BE/.env` trỏ tới MongoDB chung (Atlas hoặc máy chủ nhóm).
 
-4. **Nạp dữ liệu Quiz Engine 20 câu hỏi trắc nghiệm:**
-   ```bash
-   npm run seed:quiz
-   ```
+### Chạy trọn bộ bằng Docker (deploy / demo)
 
-5. **Khởi động Backend Server:**
-   ```bash
-   npm run start:dev
-   ```
-   👉 **Backend REST API Server chạy tại:** `http://localhost:3000/api`
+```bash
+# đặt JWT_SECRET (và GEMINI_API_KEY nếu có) trong learning-hub/.env, rồi:
+npm run docker:full        # MongoDB + Postgres sandbox + backend + web (nginx), web ở http://localhost:8080
+npm run docker:full:down
+```
 
-6. **Chạy bộ kiểm thử Jest Test Suite:**
-   ```bash
-   npm run test
-   ```
+Production: `npm run docker:up:prod` (bắt buộc đặt mật khẩu và `JWT_SECRET`, không mở cổng sandbox ra ngoài).
 
----
+### Chạy thủ công từng phần (khi cần)
 
-### 🎨 3. Hướng Dẫn Chạy Frontend Service (`FE`)
+```bash
+npm --prefix BE install && npm --prefix FE install
+cp BE/.env.example BE/.env          # điền JWT_SECRET
+npm run docker:up                   # Postgres sandbox (và MongoDB: docker compose --profile dev up -d mongo-dev)
+npm --prefix BE run seed && npm --prefix BE run seed:exercises && npm --prefix BE run seed:quiz && npm --prefix BE run seed:contests
+npm run dev:api     # http://localhost:3000/api
+npm run dev:web     # http://localhost:5173
+```
 
-Mở thêm **1 tab Terminal mới** tại thư mục `learning-hub`:
-
-1. **Di chuyển vào thư mục Frontend:**
-   ```bash
-   cd FE
-   ```
-
-2. **Cài đặt thư viện dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Cấu hình biến môi trường (`.env`):**
-   Tạo tệp `.env` tại thư mục `FE/` (hoặc sao chép từ `.env.example`):
-   ```env
-   VITE_API_URL=http://localhost:3000/api
-   ```
-
-4. **Khởi động Frontend Dev Server:**
-   ```bash
-   npm run dev
-   ```
-   👉 **Frontend Web App chạy tại:** `http://localhost:5173`
+### Gặp lỗi?
+Chạy `npm run doctor` trước: nó kiểm tra từng phần và in cách sửa. Các lỗi hay gặp: Docker chưa mở (`npm run sandbox` sẽ tự mở), cổng 27017 đã có MongoDB khác (dùng luôn, không cần container), thiếu `GEMINI_API_KEY` (chỉ tắt tính năng AI).
 
 ---
 
