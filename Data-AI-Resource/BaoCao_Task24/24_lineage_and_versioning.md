@@ -1,12 +1,11 @@
-# CYBERSOFT DATA & AI LAB — ĐẶC TẢ KỸ THUẬT TASK 24
-## HỆ THỐNG THEO DÕI NGUỒN GỐC DỮ LIỆU & QUẢN LÝ PHIÊN BẢN (DATA LINEAGE & ARTIFACT VERSIONING v0.1)
+# BÁO CÁO KỸ THUẬT CHUYÊN SÂU — NGÀY 24
+## THEO DÕI NGUỒN GỐC DỮ LIỆU & QUẢN LÝ PHIÊN BẢN (LINEAGE & WORM STORE v0.1)
 
-> **Dự án**: CyberSoft Data & AI Lab  
-> **Đầu việc**: NGÀY 24 — Theo dõi lineage và phiên bản (`cybersoft-lineage-tracker`)  
-> **Người thực hiện**: Đào Trung Kiên — Data & AI Resource Engineer  
-> **Giai đoạn**: Tuần 5 - Sản phẩm hóa (Productization)  
-> **Trạng thái**:  **ĐÃ HOÀN THÀNH 100% THEO ĐẶC TẢ VÀ TIÊU CHÍ NGHIỆM THU (DoD)**  
-> **Phiên bản báo cáo**: v1.0 — 2026-10-02  
+**Dự án**: CyberSoft Data & AI Lab  
+**Đầu việc**: NGÀY 24 — Theo dõi lineage và phiên bản (`cybersoft-lineage-tracker`)  
+**Vai trò**: Data & AI Resource Engineer (Đào Trung Kiên)  
+**Trạng thái**:  **ĐÃ HOÀN THÀNH 100% THEO ĐẶC TẢ VÀ TIÊU CHÍ NGHIỆM THU (DoD)**  
+**Ngày thực hiện**: 2026-10-02  
 
 ---
 
@@ -99,6 +98,30 @@ Kết quả thực nghiệm trên Ngân hàng 20 bài tập (`exercise_approved_
 - Xác định chính xác **1 mô hình sinh**: `model_gemini_3.8_flash_checkpoint_v1.0.0`.
 - Xác định chính xác **1 prompt chỉ dẫn**: `prompt_exercise_generator_system_prompt_v1.0.0`.
 - Tổng cộng tìm thấy **11 tuyến đường dẫn nhân quả** độc lập với độ sâu đồ thị bằng 2.
+
+### 3.3. Bảng Ma Trận Các Tuyến Mũi Tên Kết Nối Nhân Quả (Directed Causal Edges)
+Mọi mũi tên trên sơ đồ kiến trúc `Picture_24_Detail.png` đều có hướng đi vật lý xác định và nhãn giải thích trực tiếp:
+
+| STT | Nút Bắt Đầu (Source) | Nút Kết Thúc (Target) | Hướng Mũi Tên | Nhãn Hiển Thị (Label) | Giải Thích Quan Hệ Kiến Trúc |
+| :-- | :--- | :--- | :--- | :--- | :--- |
+| **01** | `ds_retail` (Cột 1) | `ex_bank` (Cột 4) | Cột 1 ➔ Cột 4 | `Schema bán lẻ 3NF` | Cung cấp cấu trúc bảng transactions, stores để sinh đề thi |
+| **02** | `ds_hr` (Cột 1) | `ex_bank` (Cột 4) | Cột 1 ➔ Cột 4 | `Schema ca trực nhân sự` | Cung cấp lược đồ chấm công & ca kíp nhân sự để sinh đề thi |
+| **03** | `ds_churn` (Cột 1) | `ex_bank` (Cột 4) | Cột 1 ➔ Cột 4 | `Schema viễn thông rời mạng` | Cung cấp lược đồ thuê bao viễn thông để sinh đề thi phân loại |
+| **04** | `ds_chunks_v1` (Cột 1) | `ds_chunks_v2` (Cột 1) | Trên ➔ Dưới (Cột 1) | `Nâng cấp Multi-Hop` | Nâng cấp cấu trúc phân đoạn tri thức chống rò rỉ đáp án |
+| **05** | `ds_chunks_v1` (Cột 1) | `idx_bm25` (Cột 3) | Cột 1 ➔ Cột 3 | `Chỉ mục từ khóa Sparse` | Xây dựng bộ chỉ mục BM25 Okapi từ phân đoạn tri thức v1 |
+| **06** | `ds_chunks_v2` (Cột 1) | `idx_hybrid` (Cột 3) | Cột 1 ➔ Cột 3 | `Chỉ mục tri thức đa bước` | Cung cấp phân đoạn nâng cao cho bộ chỉ mục tìm kiếm lai |
+| **07** | `m_emb` (Cột 2) | `idx_faiss` (Cột 3) | Cột 2 ➔ Cột 3 | `Vector hóa 384 chiều Flat-IP` | Embedder tạo chỉ mục tương đồng vector cho bảng bán lẻ |
+| **08** | `m_emb` (Cột 2) | `idx_hybrid` (Cột 3) | Cột 2 ➔ Cột 3 | `Vector hóa ngữ nghĩa Dense` | Embedder tạo vector dense cho tìm kiếm lai RRF |
+| **09** | `p_gen_v1` (Cột 2) | `p_gen_v2` (Cột 2) | Trên ➔ Dưới (Cột 2) | `Bổ sung SQLite Sandbox` | Nâng cấp prompt sinh đề có quy chuẩn kiểm tra tính khả thi |
+| **10** | `p_gen_v2` (Cột 2) | `ex_bank` (Cột 4) | Cột 2 ➔ Cột 4 | `Chỉ dẫn Few-shot sinh đề` | Định hình cấu trúc câu hỏi, test cases và thang đo Bloom |
+| **11** | `m_llm` (Cột 2) | `ex_bank` (Cột 4) | Cột 2 ➔ Cột 4 | `LLM suy luận sinh 20 bài` | Gemini 3.8 Flash thực hiện suy luận sinh 20 bài tập thực hành |
+| **12** | `p_tutor` (Cột 2) | `eval_rag` (Cột 3) | Cột 2 ➔ Cột 3 | `Chỉ dẫn chống ảo giác` | Chỉ dẫn trích nguồn làm tiêu chuẩn đối soát benchmark |
+| **13** | `idx_hybrid` (Cột 3) | `eval_rag` (Cột 3) | Trên ➔ Dưới (Cột 3) | `Ngữ cảnh truy xuất đối soát` | Cung cấp top đoạn tri thức để kiểm tra độ chính xác RAG |
+| **14** | `ex_bank` (Cột 4) | `eval_gen` (Cột 3) | Cột 4 ➔ Cột 3 (Ngược) | `Kiểm thử SQLite Sandbox` | Đưa 20 bài tập vào kiểm thử thực thi SQL in-memory (100% Pass) |
+| **15** | `ex_bank` (Cột 4) | `rel_v10` (Cột 4) | Trên ➔ Dưới (Cột 4) | `Đóng gói Baseline v1.0.0` | Đưa 20 bài tập vào bản phát hành nền tảng v1.0.0 |
+| **16** | `ex_bank` (Cột 4) | `rel_v11` (Cột 4) | Trên ➔ Dưới (Cột 4) | `Kế thừa Enhanced v1.1.0` | Duy trì bài tập đã duyệt trong bản nâng cao v1.1.0 |
+| **17** | `rel_v11` (Cột 4) | `rollback` (Cột 4) | Trên ➔ Dưới (Cột 4) | `Kế hoạch hoàn tác an toàn` | Đường nét đứt (dashed): Quy trình khôi phục an toàn về v1.0.0 |
+| **18** | `rel_v11` (Cột 4) | `lifecycle` (Cột 4) | Trên ➔ Dưới (Cột 4) | `Tuân thủ chính sách WORM` | Áp dụng máy trạng thái DRAFT ➔ ACTIVE ➔ DEPRECATED |
 
 ---
 
