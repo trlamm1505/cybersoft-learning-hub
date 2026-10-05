@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CodeMirror from '@uiw/react-codemirror';
 import { sql as sqlLang, PostgreSQL } from '@codemirror/lang-sql';
+import { lightEditorTheme } from '../components/editorTheme';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -183,7 +184,7 @@ const MySubmissionPanel: React.FC<{ submission: MyDaSubmission }> = ({ submissio
       </div>
 
       {graded ? (
-        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+        <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
           <CheckCircle2 size={20} />
           <span className="text-2xl font-bold">
             {submission.score}/{submission.maxScore}
@@ -368,7 +369,7 @@ export const DaLabWorkspacePage: React.FC<{ isDark: boolean }> = ({ isDark }) =>
               value={code}
               height={isInsight ? '200px' : '320px'}
               theme={isDark ? 'dark' : 'light'}
-              extensions={[sqlLang({ dialect: PostgreSQL })]}
+              extensions={isDark ? [sqlLang({ dialect: PostgreSQL })] : [sqlLang({ dialect: PostgreSQL }), lightEditorTheme]}
               onChange={setCode}
             />
           </div>

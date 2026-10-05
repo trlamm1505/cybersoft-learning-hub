@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/*
+ * Biến thể `dark:` của Tailwind mặc định theo cài đặt của HỆ ĐIỀU HÀNH
+ * (prefers-color-scheme), không theo nút đổi giao diện của app. Khi hai thứ
+ * lệch nhau (app Sáng + máy Tối hoặc ngược lại) nhiều thành phần bị sai màu.
+ * Ép `dark:` chỉ áp dụng khi app đang ở giao diện Tối (class .theme-dark).
+ */
+@custom-variant dark (&:where(.theme-dark, .theme-dark *));
+
 @layer base {
   :root {
     /* Default Light Theme Variables */
@@ -9,7 +17,8 @@
     --bg-input: #ffffff;
     --border-color: #e2e8f0;
     --text-main: #0f172a;
-    --text-muted: #64748b;
+    --text-muted: #556277;
+    color-scheme: light;
   }
 
   .theme-dark {
@@ -21,6 +30,7 @@
     --border-color: #243049;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
+    color-scheme: dark;
   }
 
   body {
