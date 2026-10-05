@@ -30,6 +30,7 @@ from src.services.pii_scanner import pii_scanner  # noqa: E402
 from src.services.injection_guard import injection_guard  # noqa: E402
 from src.services.file_security import PathTraversalError, file_security  # noqa: E402
 from src.services.threat_engine import threat_engine  # noqa: E402
+from src.services.release_scanner import release_scanner  # noqa: E402
 
 
 def evaluate():
@@ -38,10 +39,10 @@ def evaluate():
     print("=" * 80)
 
     stages_passed = 0
-    total_stages = 5
+    total_stages = 6
 
     # STAGE 1: PII Scanner & Zero Real PII
-    print("\n[CHẶNG 1/5] Kiểm định PII Scanner & Đảm bảo Không rò rỉ PII thật...")
+    print("\n[CHẶNG 1/6] Kiểm định PII Scanner & Đảm bảo Không rò rỉ PII thật...")
     synthetic_file = TASK_ROOT / "data" / "test_payloads" / "synthetic_pii_dataset.json"
     with open(synthetic_file, "r", encoding="utf-8") as f:
         synth_data = json.load(f)
@@ -74,7 +75,7 @@ def evaluate():
         )
 
     # STAGE 2: Prompt Injection Defense
-    print("\n[CHẶNG 2/5] Kiểm định Bộ Phòng Vệ Prompt Injection & Jailbreak Defense...")
+    print("\n[CHẶNG 2/6] Kiểm định Bộ Phòng Vệ Prompt Injection & Jailbreak Defense...")
     injection_file = (
         TASK_ROOT / "data" / "test_payloads" / "prompt_injection_samples.json"
     )
@@ -108,7 +109,7 @@ def evaluate():
 
     # STAGE 3: Path Traversal & Secure File Upload Guard
     print(
-        "\n[CHẶNG 3/5] Kiểm định Path Traversal Sandboxing & Secure File Upload Guard..."
+        "\n[CHẶNG 3/6] Kiểm định Path Traversal Sandboxing & Secure File Upload Guard..."
     )
     traversal_payloads = [
         "../../etc/passwd",
@@ -150,7 +151,7 @@ def evaluate():
 
     # STAGE 4: STRIDE Threat Model & Security Quality Gate
     print(
-        "\n[CHẶNG 4/5] Đánh giá Mô hình Mối đe dọa (STRIDE) & Chốt chặn Security Quality Gate..."
+        "\n[CHẶNG 4/6] Đánh giá Mô hình Mối đe dọa (STRIDE) & Chốt chặn Security Quality Gate..."
     )
     tm = threat_engine.get_threat_model()
     gate = threat_engine.evaluate_quality_gate()
@@ -169,7 +170,7 @@ def evaluate():
         )
 
     # STAGE 5: Test Suite Coverage (>= 15 security cases)
-    print("\n[CHẶNG 5/5] Đối soát Quy mô Bộ kiểm thử Bảo mật (DoD >= 15 cases)...")
+    print("\n[CHẶNG 5/6] Đối soát Quy mô Bộ kiểm thử Bảo mật (DoD >= 15 cases)...")
     suite_file = TASK_ROOT / "data" / "security_test_suite.json"
     with open(suite_file, "r", encoding="utf-8") as f:
         suite_data = json.load(f)
@@ -186,6 +187,61 @@ def evaluate():
         print(
             f"  -> FAIL: Số ca kiểm thử {total_cases} chưa đạt mức tối thiểu {min_required}."
         )
+
+    # STAGE 6: Task 24 Release Security Quality Gate
+    print(
+        "\n[CHẶNG 6/6] Thẩm định An ninh Bản phát hành Task 24 (Release Security Gate)..."
+    )
+    task24_manifest = (
+        TASK_ROOT.parent
+        / "BaoCao_Task24"
+        / "data"
+        / "releases"
+        / "release_manifest_v1.1.0.json"
+    )
+    tampered_manifest = (
+        TASK_ROOT / "data" / "test_payloads" / "tampered_release_manifest.json"
+    )
+
+    stage6_ok = False
+    if task24_manifest.exists():
+        report_v110 = release_scanner.scan_release_manifest(task24_manifest)
+        report_tampered = release_scanner.scan_release_manifest(
+            tampered_manifest, artifacts_base_dir=TASK_ROOT
+        )
+
+        valid_v110 = (
+            report_v110.status == "PASSED"
+            and report_v110.integrity_verified_count == 16
+            and report_v110.hash_tampered_count == 0
+            and report_v110.pii_violations_count == 0
+            and report_v110.injection_violations_count == 0
+        )
+        valid_tampered = (
+            report_tampered.status == "BLOCKED"
+            and report_tampered.quality_gate_passed is False
+            and report_tampered.hash_tampered_count >= 1
+            and report_tampered.pii_violations_count >= 1
+            and report_tampered.injection_violations_count >= 1
+        )
+
+        if valid_v110 and valid_tampered:
+            print(
+                "  -> PASS: Bản phát hành Task 24 v1.1.0 toàn vẹn (16/16 components passed, SHA-256 đối soát chuẩn)."
+            )
+            print(
+                f"  -> PASS: Chốt chặn an ninh đã khóa chặt bản phát hành giả mạo ({report_tampered.status}: {len(report_tampered.findings)} vi phạm phát hiện)."
+            )
+            stage6_ok = True
+        else:
+            print(
+                f"  -> FAIL: Kiểm thử thẩm định phát hành không đạt (v110_valid: {valid_v110}, tampered_valid: {valid_tampered})."
+            )
+    else:
+        print(f"  -> FAIL: Không tìm thấy manifest Task 24 tại {task24_manifest}")
+
+    if stage6_ok:
+        stages_passed += 1
 
     # Summary
     print("\n" + "=" * 80)

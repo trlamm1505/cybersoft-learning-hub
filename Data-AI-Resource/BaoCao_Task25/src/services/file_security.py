@@ -38,7 +38,12 @@ class FileSecurityService:
         Blocks '../', '..\\', null bytes, URL encoded traversal '%2e%2e', and absolute roots.
         """
         # 1. Null byte check
-        if "\x00" in requested_path or "%00" in requested_path:
+        if (
+            "\x00" in requested_path
+            or "%00" in requested_path
+            or "\\u0000" in requested_path
+            or "\\0" in requested_path
+        ):
             raise PathTraversalError(
                 "NULL_BYTE_INJECTION_DETECTED: Chuỗi đường dẫn chứa ký tự null cấm."
             )

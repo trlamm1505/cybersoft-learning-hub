@@ -54,3 +54,24 @@ def test_zero_real_pii_clean_text(pii_service: PIIScannerService):
     assert res.risk_score == 0
     assert res.sanitized_text == clean_text
     assert res.is_safe_for_demo is True
+
+
+def test_detect_phone_with_delimiters(pii_service: PIIScannerService):
+    text = "Liên hệ qua SĐT 0912 345 678 hoặc số quốc tế +84.988.776.655."
+    res = pii_service.scan_text(text, mask_mode="mask")
+    assert res.total_entities_found == 2
+    assert "0912***678" in res.sanitized_text or "0912" in res.sanitized_text
+
+
+def test_cmnd_context_and_reject_standalone_numbers(pii_service: PIIScannerService):
+    # Chuỗi chứa CMND có ngữ cảnh: phải bắt được
+    text_with_cmnd = "Thông tin xác minh nhân thân, CMND: 025123456 cấp tại TP.HCM."
+    res_cmnd = pii_service.scan_text(text_with_cmnd, mask_mode="mask")
+    assert res_cmnd.total_entities_found == 1
+    assert "02*****56" in res_cmnd.sanitized_text
+
+    # Chuỗi chứa số 9 chữ số thông thường (tiền tệ, mã đơn): KHÔNG được nhận diện nhầm là CMND
+    text_invoice = "Đơn hàng DH100234 có tổng giá trị thanh toán là 150000000 VND."
+    res_invoice = pii_service.scan_text(text_invoice, mask_mode="mask")
+    assert res_invoice.total_entities_found == 0
+    assert res_invoice.sanitized_text == text_invoice

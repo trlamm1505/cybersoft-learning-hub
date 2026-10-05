@@ -24,34 +24,34 @@ Tuy nhiên, trước khi chính thức chuyển giao sang Tuần 6 để tích h
 
 ### 1.3. Mục tiêu cam kết & Tiêu chí nghiệm thu (DoD)
 - **DoD 1: Không có PII thật trong demo (Zero Real PII)**: Xây dựng công cụ quét dữ liệu riêng tư (PII Scanner & Masking Engine) tự động phát hiện số điện thoại Việt Nam, email, CCCD/CMND, API Keys và JWT Token; cam kết 100% dữ liệu thử nghiệm trong demo là dữ liệu giả lập tổng hợp (synthetic data).
-- **DoD 2: Tối thiểu 15 ca kiểm thử bảo mật (Security Test Cases)**: Thiết lập bộ kiểm thử toàn diện bao phủ cả 5 phân hệ (PII Sanitization, Prompt Injection Defense, Path Traversal Sandboxing, File Upload Integrity, Threat Quality Gate). Thực tế đạt **26 ca kiểm thử có cấu trúc và 37 bài test Pytest tự động** (vượt 146% chỉ tiêu).
-- **DoD 3: Lỗi mức cao được sửa hoặc chặn release**: Hoàn thiện toàn bộ các bản vá bảo mật (Fixes Merged) cho 10 mối đe dọa STRIDE; thiết lập chốt chặn **Security Quality Gate** tự động khóa bản phát hành nếu còn bất kỳ lỗ hổng Critical hoặc High nào chưa được vá.
-- **DoD 4: Bàn giao toàn diện hệ sinh thái**: Cung cấp đầy đủ Bản đặc tả Threat Model (`threat_model.md`), Báo cáo kiểm thử bảo mật (`security_test_report.md`), Giao diện Web Inspector SPA (`portal/`), Bộ mã nguồn backend FastAPI, Sơ đồ kiến trúc độ phân giải cao (`Picture_25_Detail.png`), CLI Evaluator 5 chặng (`scripts/run_security_eval.py`) và Báo cáo kỹ thuật Word chính thức.
+- **DoD 2: Tối thiểu 15 ca kiểm thử bảo mật (Security Test Cases)**: Thiết lập bộ kiểm thử toàn diện bao phủ cả 6 phân hệ (PII Sanitization, Prompt Injection Defense, Path Traversal Sandboxing, File Upload Integrity, Release Security Scanner, Threat Quality Gate). Thực tế đạt **26 ca kiểm thử có cấu trúc và 73 bài test Pytest tự động** (vượt 386% chỉ tiêu).
+- **DoD 3: Lỗi mức cao được sửa hoặc chặn release**: Hoàn thiện toàn bộ các bản vá bảo mật (Fixes Merged) cho 10 mối đe dọa STRIDE; thiết lập chốt chặn **Security Quality Gate** tự động khóa bản phát hành nếu còn bất kỳ lỗ hổng Critical hoặc High nào chưa được vá; đối soát và thẩm định thành công 16 tài nguyên phát hành của Task 24.
+- **DoD 4: Bàn giao toàn diện hệ sinh thái**: Cung cấp đầy đủ Bản đặc tả Threat Model (`threat_model.md`), Báo cáo kiểm thử bảo mật (`security_test_report.md`), Giao diện Web Inspector SPA (`portal/`), Bộ mã nguồn backend FastAPI, Sơ đồ kiến trúc độ phân giải cao (`Picture_25_Detail.png`), CLI Evaluator 6 chặng (`scripts/run_security_eval.py`) và Báo cáo kỹ thuật Word chính thức tại thư mục gốc workspace.
 
 ---
 
 ## 2. KIẾN TRÚC TỔNG THỂ HỆ THỐNG PHÒNG VỆ (SYSTEM ARCHITECTURE)
 
-Hệ thống được thiết kế theo mô hình phòng vệ chiều sâu (Defense-in-Depth) với 4 trụ cột an ninh độc lập và bổ trợ lẫn nhau:
+Hệ thống được thiết kế theo mô hình phòng vệ chiều sâu (Defense-in-Depth) với 4 trụ cột an ninh kết hợp Chốt Chặn Thẩm Định Bản Phát Hành Task 24 (Release Quality Gate):
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                    CYBERSOFT SECURITY & PRIVACY GUARD ARCHITECTURE (TASK 25)                           │
 ├─────────────────────┬───────────────────────┬──────────────────────────┬───────────────────────────────┤
-│ TRỤ CỘT 1: PII &    │ TRỤ CỘT 2: PROMPT     │ TRỤ CỘT 3: FILE SECURITY │ TRỤ CỘT 4: STRIDE MODEL &     │
-│ PRIVACY ENGINEERING │ INJECTION DEFENSE     │ & PATH SANDBOXING        │ SECURITY QUALITY GATE         │
+│ TRỤ CỘT 1: PII &    │ TRỤ CỘT 2: PROMPT     │ TRỤ CỘT 3: FILE SECURITY │ TRỤ CỘT 4: RELEASE GATE &     │
+│ PRIVACY ENGINEERING │ INJECTION DEFENSE     │ & PATH SANDBOXING        │ STRIDE QUALITY GATE           │
 ├─────────────────────┼───────────────────────┼──────────────────────────┼───────────────────────────────┤
-│ • Phone VN (+84/09x)│ • Direct Override     │ • Path Traversal Jail    │ • STRIDE 6 Trụ Cột           │
-│   (Regex Đối soát)  │   (Chặn Ignore Rules) │   (Chặn ../, ..\, %00)   │   (Spoofing -> EoP)           │
-│ • Email Học viên    │ • Roleplay Jailbreak  │ • Extension Whitelist    │ • Thang Điểm DREAD           │
-│   (RFC 5322 Regex)  │   (Chặn DAN Mode)     │   (.json, .csv, .parquet)│   (Ma trận 10 Threats)        │
-│ • CCCD 12 Số / CMND │ • System Prompt Probe │ • Magic Bytes Sniffing   │ • Quality Gate Engine         │
-│   (Chip & Giấy cũ)  │   (Chặn Leak Lệnh ẩn) │   (Chặn PE MZ, ELF, Sh)  │   (Khóa Release nếu có lỗi)   │
-│ • API Key & Tokens  │ • Delimiter Hijacking │ • Upload Size Limit      │ • Trạng Thái Nghiệm Thu:      │
-│   (sk-proj, AIza,   │   (Chặn <|im_start|>) │   (10MB Max chống DoS)   │   PASSED (100% Đã vá /        │
-│    JWT Bearer Token)│ • Indirect Exfiltration│ • Zip Slip Prevention   │   Giảm thiểu an toàn)         │
-│ • Masking & Redact  │   (Chặn Markdown Link)│   (Duyệt Entry Zip an    │ • 37/37 Pytest Tests PASS     │
-│   (Zero Real PII)   │ • False Positives: 0% │    toàn trước giải nén)  │   (Thời gian chạy: 2.15s)     │
+│ • Phone VN (+84/09x)│ • Direct Override     │ • Path Traversal Jail    │ • Quét Gói Phát Hành Task 24  │
+│   (Regex Đối soát)  │   (Chặn Ignore Rules) │   (Chặn ../, ..\, %00)   │   (16/16 Artifacts Khớp Hash) │
+│ • Email Học viên    │ • Roleplay Jailbreak  │ • Extension Whitelist    │ • STRIDE 6 Trụ Cột (10 Mối)   │
+│   (RFC 5322 Regex)  │   (Chặn DAN Mode)     │   (.json, .csv, .parquet)│ • Thang Điểm DREAD Chuẩn Hóa  │
+│ • CCCD 12 Số / CMND │ • System Prompt Probe │ • Magic Bytes Sniffing   │ • Hard Block Khi Giả Mạo      │
+│   (Context Capturing│   (Chặn Leak Lệnh ẩn) │   (Chặn PE MZ, ELF, Sh)  │   (Khóa Release nếu có lỗi)   │
+│    chống bắt nhầm)  │ • Song ngữ Anh - Việt │ • Upload Size Limit      │ • Trạng Thái Nghiệm Thu:      │
+│ • API Key & Tokens  │ • Delimiter Hijacking │   (10MB Max chống DoS)   │   PASSED (100% Đã vá /        │
+│   (sk-proj, AIza,   │ • Indirect Exfil      │ • Zip Slip Prevention   │   Giảm thiểu an toàn)         │
+│    JWT Bearer Token)│ • False Positives: 0% │   (Quét Entry Zip)       │ • 73/73 Pytest Tests PASS     │
+│ • Masking & Redact  │ • Lọc Chỉ Thị Độc Hại │ • Null Byte Guard        │   (Thời gian chạy: 1.11s)     │
 └─────────────────────┴───────────────────────┴──────────────────────────┴───────────────────────────────┘
 ```
 

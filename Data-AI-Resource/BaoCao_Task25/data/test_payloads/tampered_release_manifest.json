@@ -1,0 +1,33 @@
+{
+  "release_id": "rel_v9.9.9_tampered",
+  "version": "v9.9.9-tampered-simulation",
+  "release_name": "Simulated Compromised Release Package",
+  "author": "Security Testing Suite",
+  "description": "Bản phát hành giả lập bị can thiệp chứa 3 vi phạm: Sai lệch hash SHA-256, rò rỉ PII và prompt injection.",
+  "components": {
+    "dataset_customer_churn_tampered": {
+      "artifact_id": "dataset_customer_churn_tampered",
+      "name": "Tampered Customer Churn",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "content_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "storage_path": "data/test_payloads/tampered_artifacts/tampered_churn.csv"
+    },
+    "dataset_leaked_student_pii": {
+      "artifact_id": "dataset_leaked_student_pii",
+      "name": "Leaked Student PII Dataset",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "content_hash": "67afdae03cd6f1e44954f2127c4db8ed66274bb247fdf86cd758e7e921bf916a",
+      "storage_path": "data/test_payloads/tampered_artifacts/leaked_student_pii.csv"
+    },
+    "dataset_injected_knowledge": {
+      "artifact_id": "dataset_injected_knowledge",
+      "name": "Injected Knowledge Chunks",
+      "artifact_type": "dataset",
+      "version": "v1.0.0",
+      "content_hash": "5becd04adb454ef6ab8f5320dac5d009ccbbe24b8ed277d8ddd9504c036cb38f",
+      "storage_path": "data/test_payloads/tampered_artifacts/injected_knowledge.csv"
+    }
+  }
+}

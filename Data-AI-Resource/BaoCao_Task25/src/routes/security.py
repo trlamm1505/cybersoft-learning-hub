@@ -1,6 +1,7 @@
-"""Security API endpoints router."""
-
+from pathlib import Path
+from typing import Optional
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
+from pydantic import BaseModel
 from src.schemas.security import (
     PIIScanRequest,
     PIIScanResponse,
@@ -14,6 +15,7 @@ from src.services.pii_scanner import pii_scanner
 from src.services.injection_guard import injection_guard
 from src.services.file_security import file_security, PathTraversalError
 from src.services.threat_engine import threat_engine
+from src.services.release_scanner import release_scanner, ReleaseScanAuditReport
 
 router = APIRouter(prefix="/api/security", tags=["Security & Privacy"])
 
@@ -95,3 +97,32 @@ def get_threat_model():
 def evaluate_quality_gate():
     """Evaluates the Security Quality Gate to determine if software release is allowed."""
     return threat_engine.evaluate_quality_gate()
+
+
+class ReleaseScanApiRequest(BaseModel):
+    version: Optional[str] = "v1.1.0"
+    manifest_type: Optional[str] = "official"  # "official" or "tampered"
+
+
+@router.post("/scan-release", response_model=ReleaseScanAuditReport)
+def scan_release(request: Optional[ReleaseScanApiRequest] = None):
+    """Scans Task 24 release manifest and all artifacts for integrity, PII, and injection."""
+    req = request or ReleaseScanApiRequest()
+    if req.manifest_type == "tampered":
+        manifest_path = Path(
+            "Data-AI-Resource/BaoCao_Task25/data/test_payloads/tampered_release_manifest.json"
+        )
+        artifacts_base = Path("Data-AI-Resource/BaoCao_Task25")
+    elif req.version == "v1.0.0":
+        manifest_path = Path(
+            "Data-AI-Resource/BaoCao_Task24/data/releases/release_manifest_v1.0.0.json"
+        )
+        artifacts_base = None
+    else:
+        manifest_path = Path(
+            "Data-AI-Resource/BaoCao_Task24/data/releases/release_manifest_v1.1.0.json"
+        )
+        artifacts_base = None
+    return release_scanner.scan_release_manifest(
+        manifest_path, artifacts_base_dir=artifacts_base
+    )
