@@ -22,6 +22,8 @@ export interface AuthUser {
   role: UserRole;
   ageGroup?: AgeGroup;
   studentCode?: string;
+  /** URL ảnh hoặc data URL ảnh đã thu nhỏ; thiếu thì dùng avatar chữ cái. */
+  avatar?: string;
 }
 
 export interface AuthResponse {

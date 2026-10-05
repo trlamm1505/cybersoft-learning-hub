@@ -33,3 +33,12 @@ export interface RecommendedExercise {
 export interface LearnerRecommendations {
   recommendations: RecommendedExercise[];
 }
+
+/** Lượt nộp bài theo ngày (chỉ các ngày có hoạt động), dùng vẽ biểu đồ hoạt động ở trang cá nhân. */
+export interface LearnerActivity {
+  from: string;
+  to: string;
+  total: number;
+  activeDays: number;
+  days: Array<{ date: string; count: number }>;
+}
