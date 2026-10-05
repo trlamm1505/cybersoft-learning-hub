@@ -60,6 +60,7 @@ Chỉ dẫn: "kiểm tra Day22 có đúng yêu cầu kế hoạch không" rồi 
 | 9 | "Không spam" mới chỉ là một câu trong tài liệu | Đọc workflow | Giới hạn log/report, `concurrency`, rule `unbounded_pr_comment`, test |
 | 10 | So khớp pattern khác nhau giữa Windows và Linux; report in đường dẫn Python của máy | Đọc code | `fnmatchcase`; hiển thị lệnh gốc |
 | 11 | Claude viết chú thích "không thể approve, merge" trong workflow làm chính rule chống approve báo nhầm | Test `test_repo_workflow_is_read_only_and_cannot_approve` FAIL | Siết regex về `event: APPROVE` / `--approve` / `createReview(` |
+| 12 | Rule `assigned_secret` báo oan trên PR #99 của nhóm Learning Hub: dòng `JWT_SECRET: h.generateSecret()` trong `learning-hub/scripts/setup.js` (code sinh khóa lúc chạy, không phải khóa viết cứng) làm check đỏ | Report của run 37287770405; đọc dòng 76 của file | Regex bỏ qua giá trị là biểu thức code (gọi hàm, tham chiếu biến); thêm 2 test (không báo oan biểu thức code, vẫn bắt khóa viết cứng); quét lại toàn bộ file của PR #99: 0 finding. Bộ test hiện có 38 test. Đổi Node của workflow từ 20 lên 22 theo `.nvmrc` của nhóm (vitest báo không hỗ trợ Node 20) |
 
 Lệnh kiểm chứng và kết quả:
 

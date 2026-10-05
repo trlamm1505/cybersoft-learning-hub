@@ -24,7 +24,7 @@ So khớp phân biệt hoa/thường và giống nhau trên Windows lẫn Linux.
 | `Test/Day06_API_Contract_Tests/*` | API contract test (mock) | blocking | pytest trong thư mục Day06 |
 | `Test/Day07_Authentication_Tests_Tran Quoc Nguyen/*` | Auth/authorization test (mock) | blocking | pytest trong thư mục Day07 |
 | `Test/Day11_.../*`, `Test/Day12_.../*`, `Test/Day13_.../*` | Test của từng công cụ | blocking | `node --test` của công cụ tương ứng |
-| `.github/workflows/*`, `Test/Day22_.../*` | PR Quality Bot self-test | blocking | 36 unit test của bot |
+| `.github/workflows/*`, `Test/Day22_.../*` | PR Quality Bot self-test | blocking | 38 unit test của bot |
 
 File dữ liệu của BE kích hoạt đồng thời gate Backend và gate nội dung tương ứng; đây là chủ ý.
 

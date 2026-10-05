@@ -13,13 +13,13 @@ Mỗi thay đổi trong Pull Request nhận phản hồi tự động, đúng ph
 3. Report Markdown/JSON có log đã che secret, giới hạn độ dài, có hướng khắc phục khi lỗi.
 4. Rule phát hiện secret, workflow nguy hiểm và comment spam; bot chỉ có quyền đọc.
 5. GitHub Actions chạy khi có PR vào `main`, đưa report vào Job Summary và artifact, hủy run cũ khi push liên tiếp.
-6. 36 unit test cho bot.
+6. 38 unit test cho bot.
 
 ## Kết quả kiểm thử (05/10/2026, chạy local)
 
 | Hạng mục | Kết quả |
 |---|---|
-| Unit test của bot | 36/36 PASS |
+| Unit test của bot | 38/38 PASS |
 | Gate mock Ngày 6, Ngày 7 chạy qua bot | PASS (37 và 42 test) |
 | Gate công cụ Ngày 11, 12, 13 chạy qua bot | PASS |
 | Quiz thật (60 câu) và bài coding thật (30 bài) | PASS, 0 ERROR |

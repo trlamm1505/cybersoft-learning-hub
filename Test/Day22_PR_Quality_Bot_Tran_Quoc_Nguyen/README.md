@@ -12,7 +12,7 @@ Mỗi pull request được kiểm tra tự động theo đúng phần đã thay
 | Change-impact mapping | `config/change-impact-map.json`, giải thích trong `CHANGE_IMPACT_MAPPING.md` |
 | Quy tắc FAIL/WARN/PASS cho từng nhóm | `PR_RULES.md` |
 | Sample PR demo | `SAMPLE_PR_DEMO.md` + 3 report mẫu trong `reports/samples/` |
-| Test của chính bot | `tests/test_pr_quality.py` (36 test) |
+| Test của chính bot | `tests/test_pr_quality.py` (38 test) |
 | Báo cáo | `DAY22_REPORT.md`, `Bao_Cao_Ngay_22_PR_Quality_Bot_Tran_Quoc_Nguyen.docx` |
 | Bằng chứng dùng AI | `AI_WORKLOG.md` |
 

@@ -107,6 +107,20 @@ class SecurityTests(unittest.TestCase):
     def test_placeholders_are_not_reported(self):
         self.assertEqual([], self.scan(".env.example", "JWT_SECRET=changeme_please_replace_this\nGEMINI_API_KEY=${GEMINI_API_KEY}\nOPENAI_API_KEY=<your key here>"))
 
+    def test_code_expressions_are_not_reported_as_hardcoded_secrets(self):
+        # PR #99: `fill: { JWT_SECRET: h.generateSecret() }` trong scripts/setup.js bị báo oan.
+        name = "JWT" + "_SECRET"
+        for line in (f"fill: {{ {name}: h.generateSecret() }}", f"const {name} = config.jwt.secret;",
+                     f"{name}: secretFromEnvironment,", f"{name} = loadSecretFromVault(path)", f"  {name}: readJwtSecretFromFile"):
+            self.assertEqual([], self.scan("scripts/setup.js", line), line)
+
+    def test_literal_secret_values_are_still_reported(self):
+        name = "JWT" + "_SECRET"
+        value = "kR7" + "xQ2mLp9" + "vTz4" + "Hs8dWn3c"
+        for line in (f"{name}={value}", f'{name}: "{value}"', f"{name}: {value}", f"{name} = '{value}';",
+                     f'{name}: "superlongsecretvaluewithoutdigits"'):
+            self.assertIn("assigned_secret", self.scan("deploy/app.yml", line), line)
+
     def test_findings_never_contain_the_secret_value(self):
         with tempfile.TemporaryDirectory() as temp:
             (Path(temp) / "x.txt").write_text(f"{ENV_NAME}={FAKE_OPENAI}", encoding="utf-8")
