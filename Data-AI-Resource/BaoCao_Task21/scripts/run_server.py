@@ -14,5 +14,6 @@ if __name__ == "__main__":
     print(f"Starting CyberSoft Data & AI API Service on http://{HOST}:{PORT}")
     print(f"Interactive Swagger Docs: http://{HOST}:{PORT}/docs")
     print(f"Interactive ReDoc: http://{HOST}:{PORT}/redoc")
-    print(f"OpenAPI Specification JSON: http://{HOST}:{PORT}/api/v1/openapi.json")
-    uvicorn.run("src.main:app", host=HOST, port=PORT, reload=True)
+    uvicorn.run(
+        "src.main:app", host=HOST, port=PORT, reload=True, app_dir=str(BASE_DIR)
+    )

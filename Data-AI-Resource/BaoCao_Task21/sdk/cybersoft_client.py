@@ -143,6 +143,54 @@ class CyberSoftDataAIClient:
         """Get project rubric, objectives, and deliverables."""
         return self._request("GET", f"/api/v1/registry/projects/{project_id}")
 
+    def list_evaluation_sets(self) -> dict[str, Any]:
+        """List benchmark evaluation sets for AI Lab automated grading."""
+        return self._request("GET", "/api/v1/registry/evaluation-sets")
+
+    def get_evaluation_set(self, eval_set_id: str) -> dict[str, Any]:
+        """Get evaluation set questions and ground-truth answers for AI Lab grading."""
+        return self._request("GET", f"/api/v1/registry/evaluation-sets/{eval_set_id}")
+
+    def list_dataset_tables(self, dataset_id: str) -> dict[str, Any]:
+        """List available tables for a dataset."""
+        return self._request("GET", f"/api/v1/registry/datasets/{dataset_id}/tables")
+
+    def get_dataset_table_data(
+        self,
+        dataset_id: str,
+        table_name: str,
+        variant: str = "clean",
+        page: int = 1,
+        page_size: int = 50,
+    ) -> dict[str, Any]:
+        """Get paginated rows of a dataset table ('clean' for Postgres Sandbox or 'dirty' for testing)."""
+        params = {"variant": variant, "page": page, "page_size": page_size}
+        return self._request(
+            "GET",
+            f"/api/v1/registry/datasets/{dataset_id}/tables/{table_name}",
+            params=params,
+        )
+
+    def download_dataset_table(
+        self,
+        dataset_id: str,
+        table_name: str,
+        variant: str = "clean",
+        save_path: str | None = None,
+    ) -> bytes:
+        """Download table directly as CSV bytes (optionally saving to file)."""
+        params = {"variant": variant, "download": True}
+        data = self._request(
+            "GET",
+            f"/api/v1/registry/datasets/{dataset_id}/tables/{table_name}",
+            params=params,
+        )
+        if save_path and isinstance(data, (bytes, str)):
+            content = data if isinstance(data, bytes) else data.encode("utf-8")
+            with open(save_path, "wb") as f:
+                f.write(content)
+        return data
+
     # 3. Semantic Search
     def search_semantic(
         self,
