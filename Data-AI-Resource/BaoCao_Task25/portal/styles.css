@@ -226,18 +226,26 @@ h1 {
   font-size: 16px;
   font-weight: 700;
   color: #F1F5F9;
+  white-space: nowrap;
 }
 
 .panel-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px;
+  width: 100%;
+}
+
+.panel-left, .panel-right {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .two-col-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px;
+  width: 100%;
 }
 
 /* Forms & Inputs */
@@ -371,13 +379,23 @@ textarea:focus, .input-text:focus {
 .entity-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 12px;
   background: #0D1322;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 6px;
   border-left: 3px solid var(--accent-cyan);
   font-size: 12px;
   font-family: var(--font-mono);
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+.entity-row .entity-text {
+  flex: 1;
+  min-width: 0;
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 /* Tables */

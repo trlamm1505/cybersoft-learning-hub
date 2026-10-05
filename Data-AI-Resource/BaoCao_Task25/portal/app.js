@@ -3,8 +3,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   loadThreatModel();
-  loadSamplePII(1);
-  loadSampleInj('override');
 });
 
 // Tab Switcher
@@ -97,7 +95,7 @@ async function runPIIScan() {
         const div = document.createElement('div');
         div.className = 'entity-row';
         div.innerHTML = `
-          <span><strong>[${ent.entity_type.toUpperCase()}]</strong> ${escapeHtml(ent.raw_value)}</span>
+          <span class="entity-text"><strong>[${ent.entity_type.toUpperCase()}]</strong> ${escapeHtml(ent.raw_value)}</span>
           <span class="badge ${ent.risk_level === 'CRITICAL' ? 'badge-danger' : 'badge-warning'}">${ent.risk_level}</span>
         `;
         listContainer.appendChild(div);
