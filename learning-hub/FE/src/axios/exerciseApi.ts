@@ -8,6 +8,7 @@ import type {
   SubmitAckResponse,
   CheckSyntaxResponse,
 } from '../types/exercise';
+import type { IntegrityClientPayload } from '../types/integrity';
 
 /**
  * Exercise / Code Playground API Service Layer
@@ -49,8 +50,12 @@ export const exerciseApi = {
    * Poll getSubmission() with the returned submissionId until a terminal status.
    * Bắt buộc đăng nhập (JwtAuthGuard) — userId lấy từ token, không gửi từ client.
    */
-  submitCode: async (slug: string, code: string): Promise<SubmitAckResponse> => {
-    return await axiosClient.post(`/exercises/${slug}/submit`, { code });
+  submitCode: async (
+    slug: string,
+    code: string,
+    integrity?: IntegrityClientPayload | null,
+  ): Promise<SubmitAckResponse> => {
+    return await axiosClient.post(`/exercises/${slug}/submit`, integrity ? { code, integrity } : { code });
   },
 
   /**
