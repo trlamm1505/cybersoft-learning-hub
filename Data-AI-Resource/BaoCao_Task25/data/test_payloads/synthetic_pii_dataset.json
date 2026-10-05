@@ -1,0 +1,34 @@
+{
+  "dataset_name": "CyberSoft Synthetic Student Registration Records (Zero Real PII)",
+  "purpose": "Kiểm thử PII Scanner & Privacy Masking v0.1",
+  "disclaimer": "100% dữ liệu dưới đây là dữ liệu giả định tổng hợp phục vụ kiểm thử an toàn thông tin, không chứa bất kỳ thông tin thực tế nào của cá nhân hay tổ chức.",
+  "records": [
+    {
+      "student_id": "HV-SYNTH-001",
+      "full_name": "Nguyễn Văn Giả Định",
+      "email": "nguyen.vangiadinh.synthetic@cybersoft.example.org",
+      "phone_number": "0912999888",
+      "identity_card_cccd": "079199000111",
+      "class_code": "DATA-ENG-K25",
+      "notes": "Học viên đăng ký học bổng Data & AI Lab, liên hệ qua email hoặc SĐT 0912999888."
+    },
+    {
+      "student_id": "HV-SYNTH-002",
+      "full_name": "Trần Thị Mẫu Thử",
+      "email": "tranthi.mauthu.fake@cybersoft.example.org",
+      "phone_number": "+84988777666",
+      "identity_card_cccd": "001095000222",
+      "class_code": "RAG-TUTOR-K12",
+      "notes": "Cần hỗ trợ học phí, hồ sơ CCCD số 001095000222 đã nộp bản sao."
+    },
+    {
+      "student_id": "HV-SYNTH-003",
+      "full_name": "Lê Hoàng Tổng Hợp",
+      "email": "lehoang.tonghop.mock@cybersoft.example.org",
+      "phone_number": "0777123456",
+      "identity_card_cccd": "048197000333",
+      "class_code": "AI-OPS-K08",
+      "notes": "Tài khoản tích hợp mock key sk-proj-mocktestingfakekey1234567890abcdef."
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSoft Security & Privacy Inspector — Task 25</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-group">
+        <div class="shield-icon">🛡️</div>
+        <div>
+          <h1>CYBERSOFT SECURITY & PRIVACY GUARD</h1>
+          <p class="subtitle">Data & AI Resource Engineer — Task 25: Kiểm thử bảo mật & dữ liệu riêng tư (v0.1)</p>
+        </div>
+      </div>
+      <div class="status-badge-group">
+        <span class="badge badge-success" id="gateBadge">QUALITY GATE: PASSED</span>
+        <span class="badge badge-cyber" id="piiZeroBadge">ZERO REAL PII: 100%</span>
+      </div>
+    </header>
+
+    <!-- Top KPI Bar -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Tổng Mối Đe Dọa (STRIDE)</div>
+        <div class="kpi-value">10/10</div>
+        <div class="kpi-sub text-success">100% Đã vá & Giảm thiểu</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Lỗ hổng High / Critical Mở</div>
+        <div class="kpi-value text-success" id="kpiOpenHighCrit">0</div>
+        <div class="kpi-sub">Không chặn bản phát hành</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Ca Kiểm Thử Tự Động</div>
+        <div class="kpi-value">37 / 37</div>
+        <div class="kpi-sub text-cyan">100% PASS (DoD >= 15 cases)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Trạng Thái Release</div>
+        <div class="kpi-value text-success">ALLOWED</div>
+        <div class="kpi-sub">Sẵn sàng tích hợp Tuần 6</div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="tab-pii">🔍 Quét & Che Giấu PII</button>
+      <button class="tab-btn" data-tab="tab-injection">⚔️ Phòng Vệ Prompt Injection</button>
+      <button class="tab-btn" data-tab="tab-file">📁 An Toàn Tệp & Sandbox</button>
+      <button class="tab-btn" data-tab="tab-threat">📋 Ma Trận STRIDE & Quality Gate</button>
+    </nav>
+
+    <!-- Tab 1: PII Scanner -->
+    <main class="tab-content active" id="tab-pii">
+      <div class="panel-layout">
+        <div class="card panel-left">
+          <div class="card-header">
+            <h3>Dữ Liệu Đầu Vào Cần Kiểm Định</h3>
+            <div class="btn-group">
+              <button class="btn btn-sm" onclick="loadSamplePII(1)">Mẫu Học Viên 1</button>
+              <button class="btn btn-sm" onclick="loadSamplePII(2)">Mẫu Key & CCCD</button>
+              <button class="btn btn-sm" onclick="clearPIIInput()">Xóa</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <textarea id="piiInputText" rows="9" placeholder="Nhập văn bản, dữ liệu đăng ký hoặc đoạn trích dataset cần quét..."></textarea>
+          </div>
+          <div class="action-bar">
+            <div class="mode-select">
+              <label><input type="radio" name="maskMode" value="mask" checked> Che giấu một phần (Masking)</label>
+              <label><input type="radio" name="maskMode" value="redact"> Thay nhãn đỏ (Redaction)</label>
+            </div>
+            <button class="btn btn-primary" onclick="runPIIScan()">🚀 Quét & Khử Nhiễm PII</button>
+          </div>
+        </div>
+
+        <div class="card panel-right">
+          <div class="card-header">
+            <h3>Kết Quả Khử Nhiễm (Sanitized Output)</h3>
+            <span class="badge" id="piiRiskBadge">Chờ quét...</span>
+          </div>
+          <div class="sanitized-box" id="piiSanitizedResult">
+            Nhấn "Quét & Khử Nhiễm PII" để xem kết quả...
+          </div>
+          <div class="detected-entities">
+            <h4>Danh sách thực thể nhạy cảm phát hiện:</h4>
+            <div id="piiEntitiesList" class="entities-container">
+              <span class="text-muted">Chưa có phát hiện nào.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Tab 2: Prompt Injection -->
+    <section class="tab-content" id="tab-injection">
+      <div class="panel-layout">
+        <div class="card panel-left">
+          <div class="card-header">
+            <h3>Thử Nghiệm Câu Hỏi Người Dùng / Prompt</h3>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-danger-outline" onclick="loadSampleInj('override')">Direct Override</button>
+              <button class="btn btn-sm btn-danger-outline" onclick="loadSampleInj('dan')">DAN Jailbreak</button>
+              <button class="btn btn-sm btn-danger-outline" onclick="loadSampleInj('leak')">System Probe</button>
+              <button class="btn btn-sm btn-success-outline" onclick="loadSampleInj('benign')">Câu Hỏi Hợp Lệ</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <textarea id="injInputPrompt" rows="8" placeholder="Nhập prompt thử nghiệm..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="runInjectionCheck()">🛡️ Phân Tích Mối Đe Dọa Prompt</button>
+        </div>
+
+        <div class="card panel-right">
+          <div class="card-header">
+            <h3>Đánh Giá Bộ Phòng Vệ (Defense Engine)</h3>
+            <span class="badge" id="injActionBadge">Chờ phân tích...</span>
+          </div>
+          <div class="defense-details" id="injResultBox">
+            <p class="text-muted">Chọn mẫu tấn công hoặc nhập prompt rồi nhấn nút kiểm tra.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: File & Path Security -->
+    <section class="tab-content" id="tab-file">
+      <div class="two-col-grid">
+        <!-- Path Traversal Sub-panel -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Kiểm Định Vượt Thư Mục (Path Traversal Jail)</h3>
+          </div>
+          <p class="desc-text">Thử nghiệm gửi các chuỗi đường dẫn tương đối hoặc ký tự null để cố gắng thoát khỏi Sandbox an toàn.</p>
+          <div class="form-group">
+            <label>Đường dẫn tài nguyên yêu cầu:</label>
+            <input type="text" id="traversalInput" value="../../etc/passwd" class="input-text">
+          </div>
+          <div class="quick-links">
+            <button class="btn btn-xs" onclick="setPath('../../etc/passwd')">../../etc/passwd</button>
+            <button class="btn btn-xs" onclick="setPath('..\\..\\Windows\\System32\\cmd.exe')">..\\Windows\\cmd.exe</button>
+            <button class="btn btn-xs" onclick="setPath('data.json%00.exe')">data.json%00.exe</button>
+            <button class="btn btn-xs" onclick="setPath('sample_safe_resource.txt')">sample_safe_resource.txt</button>
+          </div>
+          <button class="btn btn-primary mt-2" onclick="testPathTraversal()">🔒 Kiểm Tra Đường Dẫn</button>
+          <div class="result-box mt-2" id="traversalResultBox">Chưa có yêu cầu nào.</div>
+        </div>
+
+        <!-- File Upload Guard Sub-panel -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Kiểm Soát Tải Lên Tệp Tin (Upload Guard)</h3>
+          </div>
+          <p class="desc-text">Đối soát phần mở rộng, kích thước giới hạn (10MB) và phân tích Magic Bytes chống ngụy trang tệp độc hại.</p>
+          <div class="form-group">
+            <input type="file" id="fileUploadInput" class="file-input">
+          </div>
+          <div class="quick-links">
+            <button class="btn btn-xs" onclick="testMockUpload('fake_pe')">Giả Mạo PE (.json)</button>
+            <button class="btn btn-xs" onclick="testMockUpload('double_ext')">Double Ext (.csv.exe)</button>
+            <button class="btn btn-xs" onclick="testMockUpload('clean_json')">Tệp JSON Hợp Lệ</button>
+          </div>
+          <button class="btn btn-primary mt-2" onclick="uploadActualFile()">📤 Tải Lên & Kiểm Định</button>
+          <div class="result-box mt-2" id="uploadResultBox">Chưa có tệp nào được tải lên.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: STRIDE Threat Matrix -->
+    <section class="tab-content" id="tab-threat">
+      <div class="card">
+        <div class="card-header">
+          <h3>Ma Trận Phân Tích Mối Đe Dọa STRIDE & Quality Gate (Task 25)</h3>
+          <button class="btn btn-sm btn-outline" onclick="loadThreatModel()">🔄 Làm mới</button>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mã</th>
+                <th>STRIDE</th>
+                <th>Tên Mối Đe Dọa</th>
+                <th>Thành Phần</th>
+                <th>Mức Độ</th>
+                <th>Trạng Thái</th>
+                <th>Biện Pháp Giảm Thiểu</th>
+              </tr>
+            </thead>
+            <tbody id="threatTableBody">
+              <!-- Loaded via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div>CyberSoft Data & AI Lab © 2026 — Đào Trung Kiên (Data & AI Resource Engineer)</div>
+      <div class="footer-links">
+        <span>FastAPI v1.0.0</span> • <span>RESTful API</span> • <span>Zero Real PII</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
