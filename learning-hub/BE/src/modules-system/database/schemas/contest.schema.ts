@@ -5,8 +5,22 @@ export type ContestDocument = Contest & Document;
 
 @Schema({ _id: false })
 export class ContestProblem {
+  /**
+   * Nguồn đề: 'lesson' (bài giảng viên soạn, qua lessonId), 'exercise' (Code
+   * Playground, qua exerciseSlug) hoặc 'bank' (phần trắc nghiệm ghép từ ngân
+   * hàng câu hỏi, qua questionIds). Dữ liệu cũ không có trường này là 'lesson'.
+   */
+  @Prop({ type: String, enum: ['lesson', 'exercise', 'bank'], default: 'lesson' })
+  source?: 'lesson' | 'exercise' | 'bank';
+
   @Prop({ type: String })
   lessonId?: string;
+
+  @Prop({ type: String })
+  exerciseSlug?: string;
+
+  @Prop({ type: [String], default: undefined })
+  questionIds?: string[];
 
   @Prop({ required: true, type: String })
   title: string;
@@ -78,6 +92,14 @@ export class Contest {
   // computes it from durationMinutes (see LeaderboardService.getConfig).
   @Prop({ type: Number })
   freezeMinutes?: number;
+
+  /**
+   * Bật tín hiệu liêm chính (Day 24): thời gian làm bài, lần rời màn hình,
+   * tương đồng mã. Chỉ để giảng viên xem xét, không tự trừ điểm. Học viên
+   * được thông báo trước khi vào thi.
+   */
+  @Prop({ type: Boolean, default: true })
+  integrityEnabled: boolean;
 }
 
 export const ContestSchema = SchemaFactory.createForClass(Contest);

@@ -1,7 +1,16 @@
+/**
+ * Đề seed trỏ tới dữ liệu có thật: bài Code Playground (`exerciseSlug`) hoặc
+ * phần trắc nghiệm ghép từ ngân hàng câu hỏi (`bankCategory` + `bankCount`,
+ * được ContestService.seedSampleContests đổi thành `questionIds` lúc seed).
+ */
 export interface InitialContestProblem {
   title: string;
   slug: string;
   type: 'coding' | 'quiz';
+  source: 'exercise' | 'bank';
+  exerciseSlug?: string;
+  bankCategory?: string;
+  bankCount?: number;
   points: number;
   order: number;
 }
@@ -23,6 +32,7 @@ export interface InitialContestData {
   authorId: string;
   problems: InitialContestProblem[];
   registrations: InitialContestRegistration[];
+  integrityEnabled?: boolean;
 }
 
 export function getInitialContests(): InitialContestData[] {
@@ -57,16 +67,20 @@ export function getInitialContests(): InitialContestData[] {
       authorId: 'teacher-1',
       problems: [
         {
-          title: 'Tính tổng N số nguyên đầu tiên',
-          slug: 'sum-first-n-numbers',
+          title: 'Tính tổng hai số nguyên',
+          slug: 'tinh-tong-hai-so-nguyen',
           type: 'coding',
+          source: 'exercise',
+          exerciseSlug: 'tinh-tong-hai-so-nguyen',
           points: 100,
           order: 1,
         },
         {
-          title: 'Kiểm tra chuỗi Palindrome chuẩn',
-          slug: 'check-palindrome-string',
+          title: 'Kiểm tra chuỗi Palindrome',
+          slug: 'kiem-tra-palindrome',
           type: 'coding',
+          source: 'exercise',
+          exerciseSlug: 'kiem-tra-palindrome',
           points: 100,
           order: 2,
         },
@@ -74,17 +88,14 @@ export function getInitialContests(): InitialContestData[] {
           title: 'Trắc nghiệm Kiến thức Python Core',
           slug: 'python-core-quiz',
           type: 'quiz',
+          source: 'bank',
+          bankCategory: 'Python',
+          bankCount: 5,
           points: 50,
           order: 3,
         },
       ],
-      registrations: [
-        {
-          studentId: 'student-demo',
-          studentName: 'Học viên Demo',
-          registeredAt: new Date(now.getTime() - 30 * 60 * 1000),
-        },
-      ],
+      registrations: [],
     },
     {
       title: 'Fullstack Speedrun Hackathon 2026',
@@ -98,16 +109,21 @@ export function getInitialContests(): InitialContestData[] {
       authorId: 'teacher-1',
       problems: [
         {
-          title: 'Đảo ngược mảng số nguyên',
-          slug: 'reverse-integer-array',
+          title: 'Đảo ngược chuỗi',
+          slug: 'dao-nguoc-chuoi',
           type: 'coding',
+          source: 'exercise',
+          exerciseSlug: 'dao-nguoc-chuoi',
           points: 100,
           order: 1,
         },
         {
-          title: 'Trắc nghiệm Lập trình Web ES6 & React',
-          slug: 'standard-web',
+          title: 'Trắc nghiệm HTML5 & CSS3',
+          slug: 'trac-nghiem-web',
           type: 'quiz',
+          source: 'bank',
+          bankCategory: 'HTML5',
+          bankCount: 5,
           points: 100,
           order: 2,
         },
@@ -129,6 +145,8 @@ export function getInitialContests(): InitialContestData[] {
           title: 'Sắp xếp danh sách tăng dần',
           slug: 'sap-xep-tang-dan',
           type: 'coding',
+          source: 'exercise',
+          exerciseSlug: 'sap-xep-tang-dan',
           points: 100,
           order: 1,
         },
@@ -136,17 +154,13 @@ export function getInitialContests(): InitialContestData[] {
           title: 'Ước chung lớn nhất (GCD)',
           slug: 'uoc-chung-lon-nhat',
           type: 'coding',
+          source: 'exercise',
+          exerciseSlug: 'uoc-chung-lon-nhat',
           points: 100,
           order: 2,
         },
       ],
-      registrations: [
-        {
-          studentId: 'student-demo',
-          studentName: 'Học viên Demo',
-          registeredAt: new Date(startTime3.getTime() - 60 * 60 * 1000),
-        },
-      ],
+      registrations: [],
     },
     {
       title: 'Kỳ Thi Thử Đánh Giá Năng Lực Lập Trình (Draft)',
@@ -163,6 +177,8 @@ export function getInitialContests(): InitialContestData[] {
           title: 'Tổng đường chéo ma trận vuông',
           slug: 'tong-duong-cheo-ma-tran',
           type: 'coding',
+          source: 'exercise',
+          exerciseSlug: 'tong-duong-cheo-ma-tran',
           points: 100,
           order: 1,
         },
@@ -170,4 +186,30 @@ export function getInitialContests(): InitialContestData[] {
       registrations: [],
     },
   ];
+}
+
+/**
+ * Đề seed phần trắc nghiệm chỉ khai báo chủ đề + số câu; lúc seed lấy câu hỏi
+ * thật trong ngân hàng. Chủ đề chưa có câu hỏi thì bỏ đề đó (cuộc thi vẫn tạo
+ * được với các đề còn lại).
+ */
+export async function resolveSeedProblems(
+  contests: InitialContestData[],
+  findQuestionIds: (category: string, limit: number) => Promise<string[]>,
+): Promise<InitialContestData[]> {
+  for (const c of contests) {
+    const problems: Array<InitialContestProblem & { questionIds?: string[] }> = [];
+    for (const p of c.problems) {
+      if (p.source === 'bank') {
+        const ids = await findQuestionIds(p.bankCategory ?? '', p.bankCount ?? 5);
+        if (ids.length === 0) continue;
+        const { bankCategory: _c, bankCount: _n, ...rest } = p;
+        problems.push({ ...rest, questionIds: ids });
+      } else {
+        problems.push(p);
+      }
+    }
+    c.problems = problems.map((p, i) => ({ ...p, order: i + 1 }));
+  }
+  return contests;
 }

@@ -1,7 +1,10 @@
 export class ContestProblemDto {
+  source?: 'lesson' | 'exercise' | 'bank';
   lessonId?: string;
+  exerciseSlug?: string;
+  questionIds?: string[];
   title: string;
-  slug: string;
+  slug?: string;
   type?: 'coding' | 'quiz';
   points?: number;
   order?: number;
@@ -18,4 +21,5 @@ export class CreateContestDto {
   durationMinutes?: number;
   problems?: ContestProblemDto[];
   status?: 'draft' | 'published';
+  integrityEnabled?: boolean;
 }
