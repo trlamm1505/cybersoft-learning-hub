@@ -22,17 +22,17 @@ const KIND_META: Record<
   REMEDIATION: {
     label: 'Ôn lại',
     icon: <Wrench size={16} />,
-    badgeClass: 'bg-rose-500/15 text-rose-500 border-rose-500/30',
+    badgeClass: 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30',
   },
   PROGRESSION: {
     label: 'Đi tiếp',
     icon: <TrendingUp size={16} />,
-    badgeClass: 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
+    badgeClass: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30',
   },
   EXPLORATION: {
     label: 'Khám phá',
     icon: <Compass size={16} />,
-    badgeClass: 'bg-sky-500/15 text-sky-500 border-sky-500/30',
+    badgeClass: 'bg-sky-500/15 text-sky-700 dark:text-sky-400 border-sky-500/30',
   },
 };
 

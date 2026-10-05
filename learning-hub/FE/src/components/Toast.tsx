@@ -18,7 +18,7 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 const TOAST_DURATION_MS = 3000;
 
 const TOAST_STYLE: Record<ToastType, { bg: string; Icon: typeof CheckCircle2 }> = {
-  success: { bg: 'bg-emerald-600 border-emerald-500', Icon: CheckCircle2 },
+  success: { bg: 'bg-emerald-700 border-emerald-500', Icon: CheckCircle2 },
   error: { bg: 'bg-red-600 border-red-500', Icon: XCircle },
   info: { bg: 'bg-indigo-600 border-indigo-500', Icon: Info },
   warning: { bg: 'bg-amber-500 border-amber-400', Icon: AlertTriangle },

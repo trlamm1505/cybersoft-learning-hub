@@ -23,6 +23,9 @@ import { RecommendationModule } from './modules-api/recommendation/recommendatio
 import { TesterLabsModule } from './modules-api/tester-labs/tester-labs.module';
 import { DaLabsModule } from './modules-api/da-labs/da-labs.module';
 import { AiLabsModule } from './modules-api/ai-labs/ai-labs.module';
+import { IntegrityModule } from './modules-api/integrity/integrity.module';
+import { LearnerActivityModule } from './modules-api/learner-activity/learner-activity.module';
+import { DatasetIntegrationModule } from './integration/dataset-integration.module';
 
 @Module({
   imports: [
@@ -44,6 +47,9 @@ import { AiLabsModule } from './modules-api/ai-labs/ai-labs.module';
     TesterLabsModule,
     DaLabsModule,
     AiLabsModule,
+    IntegrityModule,
+    LearnerActivityModule,
+    DatasetIntegrationModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: AppThrottlerGuard }],

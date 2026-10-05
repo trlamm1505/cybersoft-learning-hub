@@ -22,6 +22,8 @@ import { TestResultsPanel } from '../components/TestResultsPanel';
 import { HintPanel } from '../components/HintPanel';
 import { CoachPanel } from '../components/CoachPanel';
 import { useToast } from '../components/Toast';
+import { IntegrityNotice } from '../components/IntegrityNotice';
+import { useIntegrityTracker } from '../hooks/useIntegrityTracker';
 import exerciseApi from '../axios/exerciseApi';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
 import type { LessonAuthoring } from '../types/authoring';
@@ -46,7 +48,7 @@ const DIFFICULTY_BADGE: Record<string, string> = {
   HARD: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
 };
 
-export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, teacherLessons = [], authUser }) => {
+export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherLessons = [], authUser }) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [exercises, setExercises] = useState<ExerciseListItem[]>([]);
@@ -386,6 +388,15 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
 
   useEffect(() => stopPolling, []);
 
+  // Bắt đầu một phiên ghi nhận mỗi khi mở một bài tập trong trình soạn thảo.
+  // Ghi tín hiệu làm bài ở mức tối thiểu (thời gian, lần rời màn hình); xem IntegrityNotice.
+  const integrityTrackerRef = useIntegrityTracker(view === 'editor' && !!exercise, exercise?.slug ?? '');
+
+  const handleCodeChange = (value: string) => {
+    setCode(value);
+    integrityTrackerRef.current.markEdit(Date.now(), value.length);
+  };
+
   // Chạy code và kiểm tra cú pháp đều cần đăng nhập (BE trả 401 cho khách):
   // báo trước bằng toast vàng rồi mới chuyển sang trang đăng nhập.
   const redirectGuestToLogin = () => {
@@ -536,7 +547,11 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
     }
 
     try {
-      const initialAck = await exerciseApi.submitCode(selectedSlug, code);
+      const initialAck = await exerciseApi.submitCode(
+        selectedSlug,
+        code,
+        integrityTrackerRef.current.snapshot(Date.now()),
+      );
 
       const startTime = Date.now();
       pollIntervalRef.current = setInterval(async () => {
@@ -711,7 +726,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
                     #{item.orderInTopic ?? idx + 1}
                   </span>
                   {completed ? (
-                    <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    <CheckCircle2 size={18} className="text-emerald-700 dark:text-emerald-400" strokeWidth={2} />
                   ) : unlocked ? (
                     <Unlock size={18} className="text-[var(--text-muted)]" strokeWidth={2} />
                   ) : (
@@ -757,6 +772,8 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
         </div>
       </div>
 
+      <IntegrityNotice />
+
       {/* Main Grid: Code Editor Left vs Output/Hints Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Problem & Code Editor */}
@@ -788,7 +805,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
                 <button
                   onClick={handleSubmit}
                   disabled={isRunning || isSubmitting}
-                  className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
                   {isSubmitting ? 'Đang chấm...' : 'Submit'}
@@ -798,8 +815,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
 
             <CodeEditor
               value={code}
-              onChange={setCode}
-              isDark={isDark ?? false}
+              onChange={handleCodeChange}
               height="350px"
             />
 
@@ -846,7 +862,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ isDark, 
               onClick={() => setActiveResultTab('hint')}
               className={`flex-1 py-1.5 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeResultTab === 'hint'
-                  ? 'bg-amber-600 text-white shadow-xs font-bold'
+                  ? 'bg-amber-700 text-white shadow-xs font-bold'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >

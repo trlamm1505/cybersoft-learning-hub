@@ -6,6 +6,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SetAvatarDto } from './dto/set-avatar.dto';
 import { SetAgeGroupDto } from './dto/set-age-group.dto';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
@@ -48,6 +49,13 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async me(@CurrentUser() user: JwtPayload) {
     return this.authService.getProfile(user.sub);
+  }
+
+  /** Cập nhật ảnh đại diện của chính mình. Route: PUT /api/auth/avatar */
+  @Put('avatar')
+  @UseGuards(JwtAuthGuard)
+  async setAvatar(@CurrentUser() user: JwtPayload, @Body() dto: SetAvatarDto) {
+    return this.authService.setAvatar(user.sub, dto?.avatar);
   }
 
   @Put('age-group')

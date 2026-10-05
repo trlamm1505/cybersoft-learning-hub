@@ -9,4 +9,5 @@ export class UpdateContestDto {
   durationMinutes?: number;
   problems?: ContestProblemDto[];
   status?: 'draft' | 'published';
+  integrityEnabled?: boolean;
 }

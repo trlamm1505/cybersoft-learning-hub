@@ -334,7 +334,7 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
                       <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-1 leading-snug">
                         {quiz.title}
                       </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mb-4">
                         {quiz.description}
                       </p>
                     </div>
@@ -362,13 +362,13 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
 
               <div className="grid grid-cols-2 gap-4 text-left mb-6 max-w-md mx-auto">
                 <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">Số lượng câu hỏi</span>
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium block">Số lượng câu hỏi</span>
                   <span className="text-base font-bold text-slate-800 dark:text-slate-100">
                     {activeTopic.questionCount} Câu trắc nghiệm
                   </span>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">Thời gian làm bài</span>
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium block">Thời gian làm bài</span>
                   <span className="text-base font-bold text-indigo-600 dark:text-indigo-400">
                     {activeTopic.timeLimitMinutes} Phút
                   </span>
@@ -402,7 +402,7 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
             <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
               <div>
                 <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100">{activeTopic.title}</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Mã lượt thi: {quizData.attemptId.slice(-8)}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Mã lượt thi: {quizData.attemptId.slice(-8)}</p>
               </div>
 
               <QuizTimer initialSeconds={quizData.timeLimitSeconds} onTimeExpired={handleTimeExpired} />
@@ -468,7 +468,7 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
               <Download size={26} strokeWidth={2} />
             </div>
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Xác nhận nộp bài thi?</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mb-6">
               Bạn đã hoàn thành{' '}
               <strong className="text-indigo-600 dark:text-cyan-400 font-bold">
                 {Object.keys(answersMap).length}/{quizData?.questions.length || 0}

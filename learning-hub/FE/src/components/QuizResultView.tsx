@@ -41,28 +41,28 @@ export const QuizResultView: React.FC<QuizResultViewProps> = ({ reviewData, onRe
         {/* Score Numbers Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto mb-8">
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-1">Điểm Số</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">Điểm Số</span>
             <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
               {reviewData.score} / {reviewData.maxScore}
             </span>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-1">Tỷ Lệ Đạt</span>
-            <span className={`text-2xl font-black ${isPassed ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">Tỷ Lệ Đạt</span>
+            <span className={`text-2xl font-black ${isPassed ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
               {percentage}%
             </span>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-1">Số Câu Đúng</span>
-            <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">Số Câu Đúng</span>
+            <span className="text-2xl font-black text-emerald-700 dark:text-emerald-400">
               {reviewData.questions.filter((q) => q.isCorrect).length} / {reviewData.questions.length}
             </span>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block mb-1">Trạng Thái</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block mb-1">Trạng Thái</span>
             <span className="text-sm font-bold text-slate-700 dark:text-slate-300 block mt-1">
               {reviewData.status}
             </span>
@@ -133,7 +133,7 @@ export const QuizResultView: React.FC<QuizResultViewProps> = ({ reviewData, onRe
                         <span className="font-bold w-6">{opt.key}.</span>
                         <span>{opt.text}</span>
                       </div>
-                      {isCorrectAnswer && <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Đáp án đúng</span>}
+                      {isCorrectAnswer && <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">Đáp án đúng</span>}
                       {isUserChoice && !isCorrectAnswer && <span className="text-xs font-bold text-rose-600 dark:text-rose-400">Bạn đã chọn</span>}
                     </div>
                   );

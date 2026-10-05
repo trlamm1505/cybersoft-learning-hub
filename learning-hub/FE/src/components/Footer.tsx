@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
         <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
           Hệ thống đào tạo Lập trình Thực chiến CyberSoft Academy. Tối ưu giao diện trải nghiệm học viên với Tailwind CSS v4 trên cả máy tính và thiết bị di động.
         </p>
-        <div className="text-[11px] text-slate-500 mt-2">
+        <div className="text-[11px] text-slate-400 mt-2">
           © 2026 CyberSoft Academy. All rights reserved. Đạt chuẩn Accessibility (WCAG 2.1 AA).
         </div>
       </div>

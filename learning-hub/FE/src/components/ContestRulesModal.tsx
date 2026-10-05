@@ -44,7 +44,7 @@ export const ContestRulesModal: React.FC<ContestRulesModalProps> = ({ contestId,
           </button>
         </div>
 
-        {error && <p className="text-xs text-red-500 font-semibold">{error}</p>}
+        {error && <p className="text-xs text-red-600 dark:text-red-400 font-semibold">{error}</p>}
 
         {!rules && !error && (
           <p className="text-xs text-[var(--text-muted)]">Đang tải quy chế...</p>

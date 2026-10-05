@@ -28,6 +28,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { MailService } from './mail.service';
+import { checkAvatar } from './avatar';
 
 type AgeGroup = '3-5' | '6-9' | '10-12';
 
@@ -129,6 +130,27 @@ export class AuthService {
     await user.save();
 
     return { ageGroup: user.ageGroup };
+  }
+
+  /**
+   * Cập nhật ảnh đại diện của CHÍNH tài khoản đang đăng nhập (userId từ token).
+   * Giá trị rỗng/null là xóa ảnh để quay về avatar chữ cái mặc định.
+   */
+  async setAvatar(
+    userId: string,
+    avatar: unknown,
+  ): Promise<{ avatar: string | null }> {
+    const checked = checkAvatar(avatar);
+    if (!checked.ok) throw new BadRequestException(checked.message);
+
+    const user = Types.ObjectId.isValid(userId)
+      ? await this.userModel.findById(userId)
+      : null;
+    if (!user) throw new NotFoundException('Không tìm thấy tài khoản.');
+
+    user.avatar = checked.value ?? undefined;
+    await user.save();
+    return { avatar: user.avatar ?? null };
   }
 
   /**
@@ -307,6 +329,7 @@ export class AuthService {
         role: user.role,
         ageGroup: user.ageGroup,
         studentCode: user.studentCode,
+        avatar: user.avatar,
       },
     };
   }

@@ -30,7 +30,7 @@ export const PrerequisiteCard: React.FC<PrerequisiteCardProps> = ({ prerequisite
             <div className="font-semibold text-sm text-[var(--text-main)] flex items-center gap-2">
               <span>{item.title}</span>
               {item.isCompleted && (
-                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                <span className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">
                   (Đã đáp ứng)
                 </span>
               )}

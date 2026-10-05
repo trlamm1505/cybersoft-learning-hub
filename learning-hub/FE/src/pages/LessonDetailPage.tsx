@@ -173,7 +173,7 @@ export const LessonDetailPage: React.FC<LessonDetailPageProps> = ({
                 Bài {nextLesson.lessonNumber} <ArrowRight size={14} />
               </button>
             ) : (
-              <button onClick={onBackToCatalog} className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition-all">
+              <button onClick={onBackToCatalog} className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl shadow-md transition-all">
                 <PartyPopper size={14} /> Hoàn thành khóa học
               </button>
             )}

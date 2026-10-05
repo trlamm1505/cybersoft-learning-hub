@@ -21,7 +21,7 @@ const TIER_META = [
     name: 'Khái niệm',
     subTitle: 'Định hướng tư duy',
     Icon: Lightbulb,
-    badgeColor: 'border-amber-500/40 text-amber-600 dark:text-amber-300 bg-amber-500/10',
+    badgeColor: 'border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10',
   },
   {
     level: 2,
@@ -265,7 +265,7 @@ export const HintPanel: React.FC<HintPanelProps> = ({
         </div>
       )}
       {successMsg && (
-        <div className="mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 p-3 text-xs sm:text-sm flex items-center gap-1.5">
+        <div className="mb-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 p-3 text-xs sm:text-sm flex items-center gap-1.5">
           <CheckCircle2 size={14} className="shrink-0" /> {successMsg}
         </div>
       )}
@@ -310,7 +310,7 @@ export const HintPanel: React.FC<HintPanelProps> = ({
                 <span
                   className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${
                     isUnlocked
-                      ? 'border-emerald-500/40 text-emerald-600 dark:text-emerald-300 bg-emerald-500/10'
+                      ? 'border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-500/10'
                       : 'border-[var(--border-color)] text-[var(--text-muted)] bg-[var(--bg-card)]'
                   }`}
                 >
@@ -351,7 +351,7 @@ export const HintPanel: React.FC<HintPanelProps> = ({
             <div className="mt-2 text-sm leading-relaxed text-[var(--text-main)] space-y-3">
               {activeLevel === 1 && (
                 <div className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[var(--text-main)]">
-                  <div className="text-xs font-semibold text-amber-600 dark:text-amber-300 mb-1 flex items-center gap-1.5">
+                  <div className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-1 flex items-center gap-1.5">
                     <ShieldCheck size={13} />
                     <span>Kiểm duyệt Khái niệm (Không chứa code)</span>
                   </div>

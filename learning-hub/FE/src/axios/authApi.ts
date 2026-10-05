@@ -45,6 +45,13 @@ export const authApi = {
   },
 
   /**
+   * PUT /api/auth/avatar — đặt ảnh đại diện (URL hoặc data URL đã thu nhỏ); null để xóa.
+   */
+  setAvatar: async (avatar: string | null): Promise<{ avatar: string | null }> => {
+    return await axiosClient.put('/auth/avatar', { avatar });
+  },
+
+  /**
    * POST /api/auth/forgot-password
    */
   forgotPassword: async (payload: ForgotPasswordPayload): Promise<{ message: string }> => {

@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import type { ContestItem, ContestStatusResponse } from '../types/contest';
 import type { AuthUser } from '../types/auth';
+import { isStaff } from '../types/auth';
+import { IntegrityNotice } from '../components/IntegrityNotice';
 import { contestApi } from '../axios/contestApi';
 import { ContestExamWorkspace } from '../components/ContestExamWorkspace';
 import { ContestLeaderboard } from '../components/ContestLeaderboard';
@@ -132,11 +134,8 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
       return;
     }
     if (!contest._id && !contest.slug) return;
-    const contestId = contest._id || contest.slug;
-    const attemptKey = `app_contest_results_${studentId}_${contestId}`;
-    const hasAttempted = localStorage.getItem(attemptKey);
-
-    if (hasAttempted) {
+    // Đã có lượt thi (do máy chủ giữ): vào thẳng phòng thi để xem bảng điểm / làm tiếp.
+    if (contest.myAttemptStatus && contest.myAttemptStatus !== 'NOT_STARTED') {
       startExamSession(contest);
       return;
     }
@@ -251,7 +250,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 backdrop-blur-sm">
             <Trophy size={14} />
-            <span>Ngày 11 — Contest & Lịch Thi Server Time Guard</span>
+            <span>Cuộc thi & Lịch thi theo giờ máy chủ</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
             Đấu Trường Lập Trình & Kỳ Thi Cuộc Thi CyberSoft
@@ -313,7 +312,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
             onClick={() => setActiveTab('ongoing')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
               activeTab === 'ongoing'
-                ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
+                ? 'bg-emerald-700 text-white border-emerald-600 shadow-md'
                 : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-emerald-400'
             }`}
           >
@@ -323,7 +322,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
             onClick={() => setActiveTab('upcoming')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
               activeTab === 'upcoming'
-                ? 'bg-amber-600 text-white border-amber-600 shadow-md'
+                ? 'bg-amber-700 text-white border-amber-600 shadow-md'
                 : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-amber-400'
             }`}
           >
@@ -415,30 +414,19 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                   </div>
 
                   {/* Registered or Completed Badge */}
-                  {(() => {
-                    const cId = c._id || c.slug;
-                    const saved = localStorage.getItem(`app_contest_results_${studentId}_${cId}`);
-                    if (saved) {
-                      try {
-                        const parsed = JSON.parse(saved);
-                        return (
-                          <span className="px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-xs shrink-0 flex items-center gap-1">
-                            <Target size={13} /> Đã Hoàn Thành ({parsed.totalScore}/{parsed.maxScore}đ)
-                          </span>
-                        );
-                      } catch {
-                        /* ignore */
-                      }
-                    }
-                    if (isRegistered) {
-                      return (
-                        <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800 shrink-0 flex items-center gap-1">
-                          <CheckCircle2 size={13} /> Đã Đăng Ký
-                        </span>
-                      );
-                    }
-                    return null;
-                  })()}
+                  {c.myAttemptStatus === 'FINISHED' ? (
+                    <span className="px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-700 text-white shadow-xs shrink-0 flex items-center gap-1">
+                      <Target size={13} /> Đã Nộp Bài Thi
+                    </span>
+                  ) : c.myAttemptStatus === 'IN_PROGRESS' ? (
+                    <span className="px-2.5 py-1 rounded-xl text-xs font-black bg-sky-600 text-white shadow-xs shrink-0 flex items-center gap-1">
+                      <Timer size={13} /> Đang Làm Bài
+                    </span>
+                  ) : isRegistered ? (
+                    <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800 shrink-0 flex items-center gap-1">
+                      <CheckCircle2 size={13} /> Đã Đăng Ký
+                    </span>
+                  ) : null}
                 </div>
 
                 {/* Description */}
@@ -477,13 +465,13 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                   <div className="flex items-center justify-between text-xs font-bold text-[var(--text-main)]">
                     <span className="flex items-center gap-1"><FileEdit size={13} /> Cấu trúc đề thi ({c.problems?.length || 0} bài thi)</span>
                     <span className="text-[var(--text-muted)] font-normal flex items-center gap-1">
-                      <Users size={13} /> {c.registrations?.length || 0} thí sinh
+                      <Users size={13} /> {c.registrationsCount ?? 0} thí sinh
                     </span>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
                     <span className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
-                      <Trophy size={12} /> Tổng điểm: 100 điểm
+                      <Trophy size={12} /> Tổng điểm: {(c.problems ?? []).reduce((sum, p) => sum + (p.points ?? 0), 0)} điểm
                     </span>
                     <span className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-[var(--bg-main)] text-[var(--text-muted)] border border-[var(--border-color)] flex items-center gap-1">
                       <Lock size={12} /> Bảo mật thông tin đề thi cho đến khi vào phòng thi
@@ -493,11 +481,15 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
 
                 {/* Action Buttons Footer */}
                 <div className="pt-2 grid grid-cols-3 gap-3">
-                  {!isRegistered && !isEnded ? (
+                  {isStaff(authUser?.role) ? (
+                    <div className="px-3 py-2.5 text-xs font-bold rounded-2xl bg-slate-200 dark:bg-slate-800 text-[var(--text-muted)] text-center flex items-center justify-center gap-1.5 border border-[var(--border-color)]">
+                      <Lock size={13} /> Dành cho học viên
+                    </div>
+                  ) : !isRegistered && !isEnded ? (
                     <button
                       type="button"
                       onClick={() => handleRegister(c._id!, c.title)}
-                      className="w-full px-3 py-2.5 text-xs font-bold rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white transition-all cursor-pointer shadow-xs border-none text-center flex items-center justify-center gap-1.5"
+                      className="w-full px-3 py-2.5 text-xs font-bold rounded-2xl bg-cyan-700 hover:bg-cyan-800 text-white transition-all cursor-pointer shadow-xs border-none text-center flex items-center justify-center gap-1.5"
                     >
                       <FileEdit size={13} /> Đăng ký tham gia
                     </button>
@@ -522,17 +514,16 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                     className={`w-full px-3 py-2.5 text-xs font-black rounded-2xl transition-all cursor-pointer shadow-xs border-none text-center flex items-center justify-center gap-1.5 ${
                       isOngoing
                         ? isRegistered
-                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30'
-                          : 'bg-amber-600 hover:bg-amber-700 text-white'
+                          ? 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-emerald-600/30'
+                          : 'bg-amber-700 hover:bg-amber-800 text-white'
                         : isUpcoming
-                        ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                        ? 'bg-amber-700 hover:bg-amber-800 text-white'
                         : 'bg-slate-600 hover:bg-slate-700 text-white'
                     }`}
                   >
                     {(() => {
-                      const cId = c._id || c.slug;
-                      const hasResult = localStorage.getItem(`app_contest_results_${studentId}_${cId}`);
-                      if (hasResult) return <><BarChart3 size={14} /> Xem Bảng Điểm</>;
+                      if (c.myAttemptStatus === 'FINISHED') return <><BarChart3 size={14} /> Xem Bảng Điểm</>;
+                      if (c.myAttemptStatus === 'IN_PROGRESS' && isOngoing) return <><Rocket size={14} /> Tiếp Tục Làm Bài</>;
                       if (isOngoing) return isRegistered ? <><Rocket size={14} /> Vào Thi Ngay</> : <><Lock size={14} /> Đăng Ký Trước Để Vào Thi</>;
                       if (isUpcoming) return <><Lock size={14} /> Kiểm Tra Lịch Thi</>;
                       return <><Eye size={14} /> Xem Chi Tiết</>;
@@ -613,11 +604,19 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                 <p className="leading-relaxed">{selectedContestGuard.message}</p>
               </div>
 
+              {selectedContestGuard.isAllowedToJoin && selectedContestGuard.integrityEnabled !== false && <IntegrityNotice />}
+              {selectedContestGuard.isAllowedToJoin && selectedContestGuard.durationMinutes ? (
+                <p className="text-[11px] text-[var(--text-muted)]">
+                  Bấm "Vào Làm Bài" là đồng hồ <strong>{selectedContestGuard.durationMinutes} phút</strong> của bạn bắt đầu chạy (do máy chủ tính,
+                  tối đa đến giờ đóng đề) và mỗi người chỉ có một lượt thi.
+                </p>
+              ) : null}
+
               {/* Exact Server Timestamps */}
               <div className="bg-[var(--bg-main)] p-4 rounded-2xl border border-[var(--border-color)] space-y-2 font-mono">
                 <div className="flex justify-between">
                   <span className="text-[var(--text-muted)] flex items-center gap-1"><Clock size={12} /> Giờ máy chủ Server:</span>
-                  <span className="font-bold text-cyan-600 dark:text-cyan-400">
+                  <span className="font-bold text-cyan-700 dark:text-cyan-400">
                     {new Date(selectedContestGuard.serverTime).toLocaleString('vi-VN')}
                   </span>
                 </div>
@@ -655,7 +654,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                       startExamSession(targetContest);
                     }
                   }}
-                  className="px-5 py-2.5 text-xs font-black rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer shadow-md border-none flex items-center gap-1.5"
+                  className="px-5 py-2.5 text-xs font-black rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white transition-all cursor-pointer shadow-md border-none flex items-center gap-1.5"
                 >
                   <Rocket size={14} /> Vào Làm Bài Thi Trực Tiếp
                 </button>

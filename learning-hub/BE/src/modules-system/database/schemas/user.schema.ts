@@ -41,6 +41,10 @@ export class User {
   // TEACHER/ADMIN (không có field này) không vi phạm unique index.
   @Prop({ type: String, unique: true, sparse: true })
   studentCode?: string;
+
+  // Ảnh đại diện: URL http(s) hoặc data URL png/jpeg/webp đã thu nhỏ (xem modules-api/auth/avatar.ts).
+  @Prop({ type: String })
+  avatar?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

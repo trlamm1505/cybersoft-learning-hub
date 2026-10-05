@@ -241,7 +241,7 @@ const PlacedBlockItem: React.FC<{
         <button
           type="button"
           onClick={() => onRemove(b.instanceId)}
-          className="text-red-500 hover:text-red-700 cursor-pointer border-none bg-transparent font-black ml-auto flex items-center"
+          className="text-red-600 dark:text-red-400 hover:text-red-700 cursor-pointer border-none bg-transparent font-black ml-auto flex items-center"
           aria-label="Xóa khối"
         >
           <X size={14} strokeWidth={2.5} />
@@ -769,7 +769,7 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                   <div className="text-xs text-[var(--text-muted)] mt-0.5">{game.lessons.length} bài</div>
                 </div>
                 <div className="mt-auto pt-2 border-t border-[var(--border-color)] flex items-center justify-between text-xs font-bold">
-                  <span className={isGameDone ? 'text-emerald-600 dark:text-emerald-400' : 'text-[var(--text-muted)]'}>
+                  <span className={isGameDone ? 'text-emerald-700 dark:text-emerald-400' : 'text-[var(--text-muted)]'}>
                     {isGameDone ? 'Đã hoàn thành' : `Tiến độ: ${gameCompletedCount}/${game.lessons.length}`}
                   </span>
                 </div>
@@ -970,7 +970,7 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                       type="button"
                       onClick={handleRun}
                       disabled={placed.length === 0 || isAnimating}
-                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md cursor-pointer border-none disabled:opacity-50 flex items-center gap-1.5"
+                      className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black shadow-md cursor-pointer border-none disabled:opacity-50 flex items-center gap-1.5"
                     >
                       {isAnimating ? (
                         <>
@@ -1032,7 +1032,7 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                             <button
                               type="button"
                               onClick={goToNextLesson}
-                              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md cursor-pointer border-none animate-pulse flex items-center gap-1.5"
+                              className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black shadow-md cursor-pointer border-none animate-pulse flex items-center gap-1.5"
                             >
                               Bài Tiếp Theo
                               <ArrowRight size={14} strokeWidth={2.5} />

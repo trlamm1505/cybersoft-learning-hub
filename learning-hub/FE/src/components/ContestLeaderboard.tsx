@@ -127,7 +127,7 @@ export const ContestLeaderboard: React.FC<ContestLeaderboardProps> = ({ contestI
                 <td className="px-4 py-3.5 text-right font-mono">{row.solvedCount}</td>
                 <td className="px-4 py-3.5 text-right font-mono">{row.timeMinutes}</td>
                 <td className="px-4 py-3.5 text-right font-mono">{row.penaltyMinutes}</td>
-                <td className="px-4 py-3.5 text-right font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                <td className="px-4 py-3.5 text-right font-black text-emerald-700 dark:text-emerald-400 font-mono">
                   {row.totalScore}
                 </td>
               </tr>

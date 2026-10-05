@@ -9,8 +9,8 @@
 import express from 'express';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
-import { buildRegistryFixture } from './registry-fixture';
-import { EVALUATION_SETS } from './evaluation-set-fixture';
+import { buildRegistryFixture } from '../src/integration/local-registry/registry-fixture';
+import { EVALUATION_SETS } from '../src/integration/local-registry/evaluation-set-fixture';
 import {
   buildSandboxDbUrl,
   loadSharedEnvFiles,

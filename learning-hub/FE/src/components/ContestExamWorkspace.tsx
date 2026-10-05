@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Trophy,
   Clock,
@@ -19,7 +19,12 @@ import {
   Download,
   Play,
 } from 'lucide-react';
-import type { ContestItem, ContestProblem } from '../types/contest';
+import type { ContestAttemptView, ContestItem, ContestProblem } from '../types/contest';
+import { contestApi } from '../axios/contestApi';
+import { IntegrityNotice } from './IntegrityNotice';
+import { useIntegrityTracker } from '../hooks/useIntegrityTracker';
+import { buildAttemptResult, submittedResultsByIndex } from './contestAttemptResult';
+import type { ContestAttemptResult, ContestProblemResult } from './contestAttemptResult';
 import { CodeEditor } from './CodeEditor';
 import { exerciseApi } from '../axios/exerciseApi';
 import { contestSubmissionApi } from '../axios/contestSubmissionApi';
@@ -28,32 +33,7 @@ import { leaderboardApi } from '../axios/leaderboardApi';
 import { useToast } from './Toast';
 import { PENDING_SCORE_LABEL, countPendingScores, formatProblemScore } from './contestResultFormat';
 
-export interface ContestProblemResult {
-  problemId: string;
-  slug?: string;
-  title: string;
-  type: 'coding' | 'quiz';
-  score: number;
-  maxPoints: number;
-  details: string;
-  submittedAt: string;
-  userCode?: string;
-  quizAnswers?: Record<number, string>;
-  /** Quiz nộp trong lúc thi: điểm chỉ công bố khi contest kết thúc. */
-  pendingScore?: boolean;
-}
-
-export interface ContestAttemptResult {
-  contestId: string;
-  contestTitle: string;
-  studentId: string;
-  studentName: string;
-  completedAt: string;
-  totalScore: number;
-  maxScore: number;
-  percentage: number;
-  problemResults: ContestProblemResult[];
-}
+export type { ContestAttemptResult, ContestProblemResult } from './contestAttemptResult';
 
 interface ContestExamWorkspaceProps {
   contest: ContestItem;
@@ -80,19 +60,6 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   onExit,
 }) => {
   const contestId = contest._id || contest.slug;
-  const storageKey = `app_contest_results_${studentId}_${contestId}`;
-
-  // Check existing result for single attempt rule. Đọc nguyên trạng — không tự "chuẩn hoá" lại
-  // maxScore về 100, vì từ nay maxScore phản ánh đúng tổng điểm thật của contest (có thể khác 100).
-  const existingResult: ContestAttemptResult | null = useMemo(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      if (!saved) return null;
-      return JSON.parse(saved) as ContestAttemptResult;
-    } catch {
-      return null;
-    }
-  }, [storageKey]);
 
   // LocalStorage keys for ongoing exam state persistence
   const viewModeKey = `app_contest_viewmode_${studentId}_${contestId}`;
@@ -221,8 +188,20 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   };
 
   // Live timer tick
-  const [now, setNow] = useState<Date>(new Date());
-  const [finalResult, setFinalResult] = useState<ContestAttemptResult | null>(existingResult);
+  // Đồng hồ theo giờ MÁY CHỦ: lệch giờ máy học viên không làm sai hạn nộp.
+  const clockOffsetRef = useRef(0);
+  const serverNow = () => new Date(Date.now() + clockOffsetRef.current);
+  const [now, setNow] = useState<Date>(() => serverNow());
+  const [finalResult, setFinalResult] = useState<ContestAttemptResult | null>(null);
+
+  // Lượt thi do máy chủ giữ (giờ bắt đầu, hạn nộp, đã nộp hay chưa). Không còn dựa vào localStorage
+  // nên xóa dữ liệu trình duyệt hay đổi máy không cấp thêm giờ hay cho thi lại.
+  const [session, setSession] = useState<{ status: 'loading' | 'ready' | 'error'; message?: string }>({ status: 'loading' });
+  const [attempt, setAttempt] = useState<ContestAttemptView | null>(null);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const finishingRef = useRef(false);
+  const integrityOn = contest.integrityEnabled !== false;
+  const trackerRef = useIntegrityTracker(session.status === 'ready' && !!attempt && !attempt.finishedAt && integrityOn, contestId);
 
   // Hạng thật trên bảng xếp hạng (thay cho nhãn suy diễn theo % điểm cũ) — lấy từ cùng
   // nguồn dữ liệu leaderboard công khai, không tự tính lại ở client.
@@ -248,7 +227,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   const { showToast } = useToast();
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
+    const timer = setInterval(() => setNow(serverNow()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -300,47 +279,68 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     }
   }, [activeProblemIdx, currentProblem, currentLessonDetail, userCodes, stdins]);
 
-  // Track exact timestamp when student started this exam session (for individual duration countdown)
-  const startKey = `app_contest_start_${studentId}_${contestId}`;
-  const [attemptStartTime] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem(startKey);
-      if (saved) return parseInt(saved);
-      const nowTs = Date.now();
-      localStorage.setItem(startKey, nowTs.toString());
-      return nowTs;
-    } catch {
-      return Date.now();
-    }
-  });
+  // Hạn nộp của riêng học viên do máy chủ tính: min(giờ vào thi + thời lượng, giờ đóng đề).
+  const deadlineMs = attempt ? Date.parse(attempt.deadlineAt) : null;
 
-  // Student individual timer logic: durationMinutes countdown starting when user enters exam, capped by contest endTime
   const timeRemainingText = useMemo(() => {
-    const durationMs = (contest.durationMinutes || 90) * 60 * 1000;
-    const studentDeadline = attemptStartTime + durationMs;
-    const contestEndTime = new Date(contest.endTime).getTime();
-    const effectiveDeadline = Math.min(studentDeadline, contestEndTime);
-
-    const diffSec = Math.floor((effectiveDeadline - now.getTime()) / 1000);
+    if (deadlineMs === null) return '--:--';
+    const diffSec = Math.floor((deadlineMs - now.getTime()) / 1000);
     if (diffSec <= 0) return '00:00 (Đã Hết Giờ Làm Bài)';
     const hours = Math.floor(diffSec / 3600);
     const mins = Math.floor((diffSec % 3600) / 60);
     const secs = diffSec % 60;
     return `${hours > 0 ? `${hours}h ` : ''}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }, [attemptStartTime, contest.durationMinutes, contest.endTime, now]);
+  }, [deadlineMs, now]);
 
-  // Auto-submit when time expires
+  // Hết giờ: tự nộp bài thi (máy chủ ghi nhận lý do TIMEOUT).
   useEffect(() => {
-    if (finalResult) return;
-    const durationMs = (contest.durationMinutes || 90) * 60 * 1000;
-    const studentDeadline = attemptStartTime + durationMs;
-    const contestEndTime = new Date(contest.endTime).getTime();
-    const effectiveDeadline = Math.min(studentDeadline, contestEndTime);
-
-    if (now.getTime() >= effectiveDeadline) {
-      handleFinalSubmitContest();
+    if (finalResult || deadlineMs === null || !attempt || attempt.finishedAt) return;
+    if (now.getTime() >= deadlineMs) {
+      void finalizeAttempt();
     }
-  }, [now, attemptStartTime, contest.durationMinutes, contest.endTime, finalResult]);
+  }, [now, deadlineMs, finalResult, attempt]);
+
+  const applyServerState = (mine: Awaited<ReturnType<typeof contestApi.getMyAttempt>>) => {
+    if (!mine.attempt) return false;
+    clockOffsetRef.current = Date.parse(mine.attempt.serverTime) - Date.now();
+    setNow(serverNow());
+    setAttempt(mine.attempt);
+    if (mine.attempt.finishedAt) {
+      setFinalResult(buildAttemptResult({ id: contestId, title: contest.title }, { id: studentId, name: studentName }, mine));
+      clearSessionStorage();
+    } else {
+      // Tiến độ đã nộp lấy từ máy chủ (khôi phục khi tải lại trang hoặc đổi máy).
+      setProblemResults(submittedResultsByIndex(contest.problems || [], mine));
+    }
+    return true;
+  };
+
+  // Vào phòng thi: lấy lượt thi của mình; chưa có thì bắt đầu (máy chủ kiểm tra đăng ký + giờ thi).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        let mine = await contestApi.getMyAttempt(contestId);
+        if (!mine.attempt) {
+          await contestApi.startAttempt(contestId);
+          mine = await contestApi.getMyAttempt(contestId);
+        }
+        if (cancelled) return;
+        applyServerState(mine);
+        setSession({ status: 'ready' });
+      } catch (err: any) {
+        if (cancelled) return;
+        setSession({
+          status: 'error',
+          message: err?.response?.data?.message || 'Không thể vào phòng thi. Vui lòng thử lại.',
+        });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contestId]);
 
   // Handle ad-hoc code run (STDIN input -> Stdout)
   const handleRunCode = async () => {
@@ -388,6 +388,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
       const graded = await contestSubmissionApi.submit(contestId, {
         problemSlug: currentProblem.slug,
         code,
+        integrity: integrityOn ? trackerRef.current.snapshot(Date.now()) : null,
       });
 
       if (graded.isLate) {
@@ -408,14 +409,22 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         userCode: code,
       };
 
-      const updatedResults = { ...problemResults, [activeProblemIdx]: resObj };
+      // Nộp lại bài code: máy chủ tính điểm cao nhất, nên giữ kết quả tốt hơn ở màn hình.
+      const previous = problemResults[activeProblemIdx];
+      const keep = previous && previous.score > resObj.score;
+      const updatedResults = {
+        ...problemResults,
+        [activeProblemIdx]: keep
+          ? { ...previous, details: `${previous.details} · Lần nộp mới (${resObj.score}/${resObj.maxPoints}đ) thấp hơn nên giữ điểm cao nhất.` }
+          : resObj,
+      };
       setProblemResults(updatedResults);
 
       const completedCount = Object.keys(updatedResults).length;
       if (completedCount >= problems.length) {
         showToast('Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
         setTimeout(() => {
-          handleFinalSubmitContestWithResults(updatedResults);
+          void finalizeAttempt();
         }, 1000);
       } else {
         showToast(`Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
@@ -440,6 +449,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
       const graded = await contestSubmissionApi.submit(contestId, {
         problemSlug: currentProblem.slug,
         quizAnswers: userAns,
+        integrity: integrityOn ? trackerRef.current.snapshot(Date.now()) : null,
       });
 
       if (graded.isLate) {
@@ -470,7 +480,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
       if (completedCount >= problems.length) {
         showToast('Bạn đã hoàn thành bài thi cuối cùng! Đang hiển thị Bảng Điểm...', 'success');
         setTimeout(() => {
-          handleFinalSubmitContestWithResults(updatedResults);
+          void finalizeAttempt();
         }, 1000);
       } else {
         showToast(`Đã nộp Bài ${activeProblemIdx + 1}! Đang quay lại danh sách chọn bài tiếp theo...`, 'success');
@@ -485,58 +495,54 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     }
   };
 
-  // Final Contest Submission: calculate total score & record single attempt result
-  const handleFinalSubmitContestWithResults = (overrideResults?: Record<number, ContestProblemResult>) => {
-    const activeDict = overrideResults || problemResults;
-    const resultsList: ContestProblemResult[] = problems.map((p, idx) => {
-      if (activeDict[idx]) {
-        // Đã nộp bài này rồi — activeDict[idx].maxPoints đến từ điểm chấm thật của server
-        // (contestSubmissionApi.submit), giữ nguyên, không tính lại đè lên giá trị đúng.
-        return activeDict[idx];
-      }
-      return {
-        problemId: p.lessonId || p.slug || `prob-${idx}`,
-        slug: p.slug,
-        title: p.title,
-        type: (p.type || 'coding') as 'coding' | 'quiz',
-        score: 0,
-        maxPoints: getProblemMaxPoints(idx, problems.length, p),
-        details: 'Chưa nộp bài thi',
-        submittedAt: new Date().toISOString(),
-      };
-    });
-
-    const totalScore = resultsList.reduce((sum, r) => sum + r.score, 0);
-    const maxScore = resultsList.reduce((sum, r) => sum + r.maxPoints, 0);
-    const percentage = maxScore > 0 ? Math.min(100, Math.round((totalScore / maxScore) * 100)) : 0;
-
-    const attemptResult: ContestAttemptResult = {
-      contestId,
-      contestTitle: contest.title,
-      studentId,
-      studentName,
-      completedAt: new Date().toISOString(),
-      totalScore,
-      maxScore,
-      percentage,
-      problemResults: resultsList,
-    };
-
-    // Save to LocalStorage for single attempt lock
+  // Nộp bài thi: máy chủ chốt lượt thi (kèm tín hiệu liêm chính tối thiểu) và trả bảng điểm.
+  // Gọi nhiều lần vẫn an toàn: lần đầu chốt, các lần sau chỉ trả lại kết quả cũ.
+  const finalizeAttempt = async () => {
+    if (finishingRef.current) return;
+    finishingRef.current = true;
+    setIsFinishing(true);
     try {
-      localStorage.setItem(storageKey, JSON.stringify(attemptResult));
-      clearSessionStorage();
-    } catch {
-      /* ignore */
+      const mine = await contestApi.finishAttempt(
+        contestId,
+        integrityOn ? trackerRef.current.snapshot(Date.now()) : null,
+      );
+      applyServerState(mine);
+      showToast('Đã nộp bài thi thành công! Đang hiển thị bảng điểm.', 'success');
+    } catch (err: any) {
+      finishingRef.current = false;
+      showToast(err?.response?.data?.message || 'Chưa nộp được bài thi. Vui lòng thử lại.', 'error');
+    } finally {
+      setIsFinishing(false);
     }
-
-    setFinalResult(attemptResult);
-    showToast('Đã nộp bài thi thành công! Đang hiển thị bảng điểm.', 'success');
   };
 
   const handleFinalSubmitContest = () => {
-    handleFinalSubmitContestWithResults();
+    void finalizeAttempt();
   };
+
+  // RENDER: đang vào phòng thi / không vào được (máy chủ kiểm tra đăng ký và giờ thi)
+  if (session.status !== 'ready') {
+    return (
+      <div className="max-w-xl mx-auto py-20 text-center space-y-4">
+        {session.status === 'loading' ? (
+          <p className="text-sm font-semibold text-[var(--text-muted)] flex items-center justify-center gap-2">
+            <Loader2 size={16} className="animate-spin" /> Đang vào phòng thi...
+          </p>
+        ) : (
+          <>
+            <p role="alert" className="text-sm font-semibold text-rose-500">{session.message}</p>
+            <button
+              type="button"
+              onClick={onExit}
+              className="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs cursor-pointer border-none inline-flex items-center gap-2"
+            >
+              <ArrowLeft size={14} strokeWidth={2.5} /> Quay lại danh sách cuộc thi
+            </button>
+          </>
+        )}
+      </div>
+    );
+  }
 
   // RENDER: Final Scorecard View (If already submitted)
   if (finalResult) {
@@ -572,11 +578,11 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
               <Trophy size={14} strokeWidth={2.5} />
               Tổng Điểm Đạt Được
             </span>
-            <div className="text-5xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
+            <div className="text-5xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
               {finalResult.totalScore} <span className="text-xl font-bold text-[var(--text-muted)]">/ {finalResult.maxScore}</span>
             </div>
             {countPendingScores(finalResult.problemResults) > 0 && (
-              <div className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+              <div className="text-xs font-semibold text-amber-700 dark:text-amber-400">
                 Chưa gồm {countPendingScores(finalResult.problemResults)} bài trắc nghiệm: {PENDING_SCORE_LABEL.toLowerCase()}
               </div>
             )}
@@ -677,8 +683,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                     <td
                       className={`px-4 py-3.5 text-right font-black text-sm ${
                         pr.pendingScore
-                          ? 'text-amber-600 dark:text-amber-400 font-sans text-xs'
-                          : 'text-emerald-600 dark:text-emerald-400 font-mono'
+                          ? 'text-amber-700 dark:text-amber-400 font-sans text-xs'
+                          : 'text-emerald-700 dark:text-emerald-400 font-mono'
                       }`}
                     >
                       {formatProblemScore(pr)}
@@ -713,13 +719,13 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 md:p-8 shadow-xl space-y-4 relative overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-0.5 rounded-full text-xs font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300 inline-flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-3 py-0.5 rounded-full text-xs font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800 inline-flex items-center gap-1.5 whitespace-nowrap">
                   <Trophy size={12} strokeWidth={2.5} />
                   PHÒNG THI CHÍNH THỨC
                 </span>
                 <span className="text-xs text-[var(--text-muted)] font-semibold">
-                  Thí sinh: <strong>{studentName}</strong> ({studentId})
+                  Thí sinh: <strong>{studentName}</strong>
                 </span>
               </div>
               <h1 className="text-2xl md:text-3xl font-black text-[var(--text-main)] tracking-tight mt-1">
@@ -727,8 +733,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
               </h1>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="bg-slate-900 text-cyan-400 px-4 py-2 rounded-2xl border border-indigo-500/40 font-mono text-sm font-black shadow-inner flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="bg-slate-900 text-cyan-400 px-4 py-2 rounded-2xl border border-indigo-500/40 font-mono text-sm font-black shadow-inner flex items-center gap-2 whitespace-nowrap">
                 <Clock size={16} strokeWidth={2.5} />
                 <span>{timeRemainingText}</span>
               </div>
@@ -750,11 +756,13 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                 Hướng dẫn chọn bài thi:
               </span>
               <p className="leading-relaxed">
-                Kỳ thi gồm <strong>{problems.length} bài thi/chủ đề</strong>. Vui lòng chọn bài thi bạn muốn làm trước từ danh sách bên dưới. Bạn có thể tự do chỉnh sửa và nộp lại từng bài trước khi chốt nộp toàn bộ kỳ thi.
+                Kỳ thi gồm <strong>{problems.length} bài thi/chủ đề</strong>. Vui lòng chọn bài thi bạn muốn làm trước từ danh sách bên dưới. Bài trắc nghiệm chỉ nộp một lần; bài code được nộp lại nhiều lần (tính điểm cao nhất) cho tới khi đạt điểm tối đa. Chốt nộp toàn bộ kỳ thi khi đã xong.
               </p>
             </div>
           </div>
         </div>
+
+        {integrityOn && <IntegrityNotice />}
 
         {/* Problem Selection Grid Title */}
         <div className="flex items-center justify-between">
@@ -772,6 +780,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
           {problems.map((p, idx) => {
             const result = problemResults[idx];
             const isSubmitted = !!result;
+            // Trắc nghiệm chỉ nộp một lần; bài code được nộp lại cho tới khi đạt điểm tối đa.
+            const isLocked = isSubmitted && (p.type === 'quiz' || result.score >= getProblemMaxPoints(idx, problems.length, p));
 
             return (
               <div
@@ -815,12 +825,12 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-[var(--text-muted)] font-semibold">Trạng thái bài làm:</span>
                     {isSubmitted ? (
-                      <span className="font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                      <span className="font-black text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
                         Đã nộp ({formatProblemScore(result)})
                       </span>
                     ) : (
-                      <span className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                      <span className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
                         Chưa làm
                       </span>
@@ -829,23 +839,28 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
                   <button
                     type="button"
-                    disabled={isSubmitted}
+                    disabled={isLocked}
                     onClick={() => {
-                      if (!isSubmitted) {
+                      if (!isLocked) {
                         setActiveProblemIdx(idx);
                         setViewMode('exam');
                       }
                     }}
                     className={`w-full py-3 px-4 rounded-2xl text-xs font-black transition-all border-none flex items-center justify-center gap-2 ${
-                      isSubmitted
+                      isLocked
                         ? 'bg-slate-200 dark:bg-slate-800 text-[var(--text-muted)] cursor-not-allowed shadow-none border border-[var(--border-color)]'
                         : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer shadow-md'
                     }`}
                   >
-                    {isSubmitted ? (
+                    {isLocked ? (
                       <>
                         <CheckCircle2 size={14} strokeWidth={2.5} />
                         Đã Nộp Bài Thi Này
+                      </>
+                    ) : isSubmitted ? (
+                      <>
+                        <Rocket size={14} strokeWidth={2.5} />
+                        Làm Lại / Nộp Lại Bài Code
                       </>
                     ) : (
                       <>
@@ -872,10 +887,11 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
           <button
             type="button"
             onClick={handleFinalSubmitContest}
-            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-xl transition-all cursor-pointer border-none flex items-center gap-2 animate-pulse"
+            disabled={isFinishing}
+            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-xl transition-all cursor-pointer border-none flex items-center gap-2 "
           >
-            <Flag size={14} strokeWidth={2.5} />
-            Nộp Bài & Kết Thúc Kỳ Thi
+            {isFinishing ? <Loader2 size={14} strokeWidth={2.5} className="animate-spin" /> : <Flag size={14} strokeWidth={2.5} />}
+            {isFinishing ? 'Đang nộp...' : 'Nộp Bài & Kết Thúc Kỳ Thi'}
           </button>
         </div>
       </div>
@@ -885,36 +901,41 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   // RENDER: Active Contest Exam Workspace (Specific Problem View - Focused mode)
   return (
     <div className="space-y-6 animate-fade-in pb-16">
-      {/* Top Header & Exam Timer Bar */}
-      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 shadow-xl flex flex-wrap items-center justify-between gap-4 sticky top-4 z-30 backdrop-blur-md bg-opacity-95">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onExit}
-            className="p-2 rounded-xl bg-[var(--bg-main)] hover:bg-slate-200 dark:hover:bg-slate-800 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all cursor-pointer border border-[var(--border-color)] text-xs font-bold flex items-center gap-1.5"
-            title="Thoát khỏi phòng thi"
-          >
-            <ArrowLeft size={14} strokeWidth={2.5} />
-            Thoát
-          </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block animate-pulse" />
-                ĐANG THI THỰC CHIẾN
-              </span>
-              <span className="text-xs text-[var(--text-muted)] font-semibold">
-                Thí sinh: <strong>{studentName}</strong> ({studentId})
-              </span>
-            </div>
-            <h2 className="text-lg md:text-xl font-black text-[var(--text-main)] tracking-tight">
-              {contest.title}
-            </h2>
+      {/* Top Header & Exam Timer Bar: xếp dọc trên điện thoại, một hàng trên màn hình rộng */}
+      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4 sm:sticky sm:top-2 z-30 backdrop-blur-md">
+        <div className="min-w-0 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={onExit}
+              className="px-2.5 py-1.5 rounded-xl bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all cursor-pointer border border-[var(--border-color)] text-xs font-bold flex items-center gap-1.5 whitespace-nowrap"
+              title="Thoát khỏi phòng thi"
+            >
+              <ArrowLeft size={14} strokeWidth={2.5} />
+              Thoát
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('select')}
+              className="px-2.5 py-1.5 rounded-xl bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-all cursor-pointer border border-[var(--border-color)] text-xs font-bold flex items-center gap-1.5 whitespace-nowrap"
+              title="Về danh sách bài để chọn bài khác"
+            >
+              <ClipboardList size={14} strokeWidth={2.5} />
+              Danh sách bài
+            </button>
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 inline-flex items-center gap-1 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block animate-pulse" />
+              ĐANG THI
+            </span>
           </div>
+          <h2 className="text-base sm:text-xl font-black text-[var(--text-main)] tracking-tight break-words">{contest.title}</h2>
+          <p className="text-xs text-[var(--text-muted)] font-semibold truncate">
+            Thí sinh: <strong>{studentName}</strong>
+          </p>
         </div>
 
         {/* Live Countdown Timer & Final Submit Button */}
-        <div className="flex items-center gap-4 ml-auto">
-          <div className="bg-slate-900 text-cyan-400 px-4 py-2 rounded-2xl border border-indigo-500/40 font-mono text-sm font-black shadow-inner flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:justify-end">
+          <div className="bg-slate-900 text-cyan-400 px-3 sm:px-4 py-2 rounded-2xl border border-indigo-500/40 font-mono text-sm font-black shadow-inner flex items-center gap-2 whitespace-nowrap">
             <Clock size={16} strokeWidth={2.5} />
             <span>{timeRemainingText}</span>
           </div>
@@ -922,13 +943,16 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
           <button
             type="button"
             onClick={handleFinalSubmitContest}
-            className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-lg transition-all cursor-pointer border-none flex items-center gap-1.5 animate-pulse"
+            disabled={isFinishing}
+            className="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-70 text-white font-black text-xs shadow-lg transition-all cursor-pointer border-none flex items-center justify-center gap-1.5"
           >
-            <Flag size={14} strokeWidth={2.5} />
-            Nộp Bài & Kết Thúc Kỳ Thi
+            {isFinishing ? <Loader2 size={14} strokeWidth={2.5} className="animate-spin" /> : <Flag size={14} strokeWidth={2.5} />}
+            {isFinishing ? 'Đang nộp...' : 'Nộp Bài & Kết Thúc'}
           </button>
         </div>
       </div>
+
+      {integrityOn && <IntegrityNotice compact />}
 
       {/* Active Problem Content Area */}
       {!currentProblem ? (
@@ -946,7 +970,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                   <Code2 size={13} strokeWidth={2.5} />
                   BÀI THI LẬP TRÌNH PYTHON ({getProblemMaxPoints(activeProblemIdx, problems.length, currentProblem)} ĐIỂM)
                 </span>
-                <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
                   <Ban size={13} strokeWidth={2.5} />
                   Không gợi ý trong bài thi
                 </span>
@@ -971,8 +995,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                         key={idx}
                         className="bg-[var(--bg-main)] p-2.5 rounded-xl border border-[var(--border-color)] font-mono text-[11px]"
                       >
-                        <div className="text-slate-500">Input: <span className="text-[var(--text-main)] font-bold">{tc.input}</span></div>
-                        <div className="text-slate-500">Output: <span className="text-emerald-600 dark:text-emerald-400 font-bold">{tc.expectedOutput}</span></div>
+                        <div className="text-slate-600 dark:text-slate-400">Input: <span className="text-[var(--text-main)] font-bold">{tc.input}</span></div>
+                        <div className="text-slate-600 dark:text-slate-400">Output: <span className="text-emerald-700 dark:text-emerald-400 font-bold">{tc.expectedOutput}</span></div>
                       </div>
                     ))}
                   </div>
@@ -1027,7 +1051,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                     type="button"
                     onClick={handleSubmitCodingProblem}
                     disabled={isEvaluating}
-                    className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer border-none shadow-md flex items-center gap-1"
+                    className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-700 hover:bg-emerald-800 text-white transition-all cursor-pointer border-none shadow-md flex items-center gap-1"
                   >
                     {isEvaluating ? (
                       <>
@@ -1047,8 +1071,10 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
               {/* Code Mirror Editor */}
               <CodeEditor
                 value={userCodes[activeProblemIdx] || ''}
-                onChange={(newVal) => setUserCodes((prev: Record<number, string>) => ({ ...prev, [activeProblemIdx]: newVal }))}
-                isDark={document.documentElement.classList.contains('dark')}
+                onChange={(newVal) => {
+                  setUserCodes((prev: Record<number, string>) => ({ ...prev, [activeProblemIdx]: newVal }));
+                  trackerRef.current.markEdit(Date.now(), newVal.length);
+                }}
                 height="340px"
               />
 
@@ -1110,7 +1136,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
               type="button"
               onClick={handleSubmitQuizProblem}
               disabled={isEvaluating}
-              className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all shadow-md cursor-pointer border-none disabled:opacity-60 flex items-center justify-center gap-1.5"
+              className="px-5 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs transition-all shadow-md cursor-pointer border-none disabled:opacity-60 flex items-center justify-center gap-1.5"
             >
               {isEvaluating ? (
                 <>
@@ -1136,6 +1162,11 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
                 <div className="font-bold text-sm text-[var(--text-main)]">
                   {qIdx + 1}. {q.content}
                 </div>
+                {q.codeSnippet && (
+                  <pre className="bg-slate-900 text-emerald-300 p-3 rounded-xl font-mono text-xs overflow-x-auto whitespace-pre-wrap">
+                    {q.codeSnippet}
+                  </pre>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                   {q.options.map((opt) => {

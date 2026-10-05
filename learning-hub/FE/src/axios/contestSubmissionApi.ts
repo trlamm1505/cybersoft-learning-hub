@@ -1,4 +1,5 @@
 import axiosClient from '../common/configAxios';
+import type { IntegrityClientPayload } from '../types/integrity';
 
 export interface ContestProblemOption {
   key: string;
@@ -58,6 +59,8 @@ export const contestSubmissionApi = {
       problemSlug: string;
       code?: string;
       quizAnswers?: Record<string, string>;
+      /** Tín hiệu liêm chính tích lũy từ lúc vào thi (chỉ khi cuộc thi bật giám sát). */
+      integrity?: IntegrityClientPayload | null;
     },
   ): Promise<SubmitContestProblemResult> => {
     return await axiosClient.post(`/contests/${contestId}/submissions`, payload);

@@ -21,6 +21,7 @@ import { StudentRoute } from './components/StudentRoute';
 import { AiLabWorkspacePage } from './pages/AiLabWorkspacePage';
 import { TeacherReviewQueue } from './components/TeacherReviewQueue';
 import { TeacherLabSubmissionsPage } from './pages/TeacherLabSubmissionsPage';
+import { TeacherIntegrityQueuePage } from './pages/TeacherIntegrityQueuePage';
 import { ContestListPage } from './pages/ContestListPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -203,6 +204,16 @@ export function App() {
       if (!prev) return prev;
       const updated = { ...prev, ageGroup };
       localStorage.setItem('app_auth_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Đổi/xóa ảnh đại diện: cập nhật phiên đăng nhập để header và trang cá nhân đổi ngay.
+  const handleAvatarChanged = (avatar: string | undefined) => {
+    setAuthUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, avatar };
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(updated));
       return updated;
     });
   };
@@ -394,6 +405,16 @@ export function App() {
             }
           />
           <Route
+            path="/teacher/integrity"
+            element={
+              isStaff(authUser?.role) ? (
+                <TeacherIntegrityQueuePage />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
+            }
+          />
+          <Route
             path="/da-labs"
             element={<StudentRoute authUser={authUser}><DaLabListPage /></StudentRoute>}
           />
@@ -411,7 +432,7 @@ export function App() {
           />
           <Route
             path="/profile"
-            element={authUser ? <ProfilePage authUser={authUser} /> : <Navigate to="/login" replace />}
+            element={authUser ? <ProfilePage authUser={authUser} onAvatarChange={handleAvatarChanged} /> : <Navigate to="/login" replace />}
           />
           <Route path="*" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
         </Routes>

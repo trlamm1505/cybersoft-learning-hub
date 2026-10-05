@@ -11,7 +11,13 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { RATE_LIMITS } from '../../common/security/app-throttler.guard';
 import { ContestService } from './contest.service';
+import { ContestAttemptService } from './contest-attempt.service';
+import { ContestManageService } from './contest-manage.service';
+import { FinishContestDto } from './dto/finish-contest.dto';
+import type { IntegrityReviewInput } from '../integrity/integrity.service';
 import { ContestSubmissionService } from './contest-submission.service';
 import { CreateContestDto } from './dto/create-contest.dto';
 import { UpdateContestDto } from './dto/update-contest.dto';
@@ -29,6 +35,8 @@ export class ContestController {
   constructor(
     private readonly contestService: ContestService,
     private readonly contestSubmissionService: ContestSubmissionService,
+    private readonly attemptService: ContestAttemptService,
+    private readonly manageService: ContestManageService,
   ) {}
 
   /**
@@ -78,19 +86,36 @@ export class ContestController {
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   async findAll(@CurrentUser() user?: JwtPayload) {
-    return this.contestService.findAll(user?.sub);
+    return this.contestService.findAll(user);
+  }
+
+  /** Ngân hàng đề để giảng viên dựng cuộc thi (đặt trước ':id' để không bị nuốt route). */
+  @Get('bank/questions')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  async questionBank(
+    @Query() query: { q?: string; category?: string; difficulty?: string; limit?: string },
+  ) {
+    return this.manageService.listQuestionBank(query);
+  }
+
+  @Get('bank/exercises')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  async exerciseBank(@Query() query: { q?: string; topic?: string }) {
+    return this.manageService.listExerciseBank(query);
   }
 
   @Get(':id/status')
   @UseGuards(OptionalJwtAuthGuard)
   async checkStatus(@Param('id') id: string, @CurrentUser() user?: JwtPayload) {
-    return this.contestService.checkContestStatus(id, user?.sub);
+    return this.contestService.checkContestStatus(id, user);
   }
 
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   async findOne(@Param('id') id: string, @CurrentUser() user?: JwtPayload) {
-    return this.contestService.findOne(id, user?.sub);
+    return this.contestService.findOne(id, user);
   }
 
   /**
@@ -100,7 +125,7 @@ export class ContestController {
    */
   @Post(':id/register')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StudentOnlyGuard)
   async registerContest(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     return this.contestService.registerContest(id, user.sub);
   }
@@ -120,11 +145,70 @@ export class ContestController {
   @Post(':id/submissions')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, StudentOnlyGuard)
+  @Throttle(RATE_LIMITS.contestSubmit)
   async submitProblem(
     @Param('id') id: string,
     @CurrentUser() user: JwtPayload,
     @Body() dto: SubmitContestProblemDto,
   ) {
     return this.contestSubmissionService.submit(id, dto, user.sub);
+  }
+
+  /** Bắt đầu lượt thi: đồng hồ cá nhân do máy chủ giữ (gọi lại vẫn trả lượt cũ). */
+  @Post(':id/start')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, StudentOnlyGuard)
+  async startAttempt(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.attemptService.start(id, user);
+  }
+
+  /** Lượt thi và kết quả từng đề của chính học viên (khôi phục khi tải lại trang/đổi máy). */
+  @Get(':id/my-attempt')
+  @UseGuards(JwtAuthGuard, StudentOnlyGuard)
+  async myAttempt(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.attemptService.getMine(id, user);
+  }
+
+  /** Nộp bài thi (kết thúc lượt), kèm tín hiệu liêm chính tối thiểu nếu cuộc thi bật giám sát. */
+  @Post(':id/finish')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, StudentOnlyGuard)
+  async finishAttempt(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: FinishContestDto,
+  ) {
+    return this.attemptService.finish(id, user, dto?.integrity);
+  }
+
+  /** Kết quả theo thí sinh và trạng thái xem xét trung thực; chỉ giảng viên/quản trị viên. */
+  @Get(':id/manage/results')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  async manageResults(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.manageService.getResults(id, user);
+  }
+
+  @Get(':id/manage/integrity/:attemptId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  async integrityDetail(
+    @Param('id') id: string,
+    @Param('attemptId') attemptId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.manageService.getIntegrityDetail(id, attemptId, user);
+  }
+
+  @Put(':id/manage/integrity/:attemptId/review')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  async reviewIntegrity(
+    @Param('id') id: string,
+    @Param('attemptId') attemptId: string,
+    @Body() body: IntegrityReviewInput,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.manageService.reviewIntegrity(id, attemptId, body, user);
   }
 }

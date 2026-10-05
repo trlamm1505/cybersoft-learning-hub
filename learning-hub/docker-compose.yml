@@ -13,6 +13,11 @@
 # Mật khẩu mặc định bên dưới CHỈ dành cho máy local. Production dùng thêm
 # docker-compose.prod.yml (bắt buộc đặt mật khẩu, không mở cổng ra ngoài):
 #   npm run docker:up:prod
+#
+# Chạy TRỌN BỘ (MongoDB + Postgres sandbox + backend + web) bằng một lệnh, dùng để
+# deploy hoặc demo trên máy chỉ có Docker: npm run docker:full
+# (đặt JWT_SECRET, GEMINI_API_KEY... trong learning-hub/.env, xem .env.example).
+# Profile `full`: mặc định `docker compose up` vẫn chỉ bật sandbox như khi dev.
 services:
   postgres-sandbox:
     image: postgres:16-alpine
@@ -58,5 +63,80 @@ services:
       timeout: 5s
       retries: 5
 
+  # MongoDB cho máy dev chưa cài MongoDB: publish 27017 (chỉ loopback) để backend chạy ngoài
+  # Docker kết nối được. Tự bật bởi `npm run setup` / `npm run dev` khi cổng 27017 đang trống.
+  # Máy đã có MongoDB local thì không cần (và không bị bật).
+  mongo-dev:
+    profiles: [dev]
+    image: mongo:7
+    container_name: learning-hub-mongo-dev
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:27017:27017'
+    volumes:
+      - mongo-dev-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping").ok']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mongo:
+    profiles: [full]
+    image: mongo:7
+    container_name: learning-hub-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping").ok']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    profiles: [full]
+    build:
+      context: .
+      dockerfile: BE/Dockerfile
+    container_name: learning-hub-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: mongodb://mongo:27017/cybersoft
+      # Bắt buộc ở production: backend từ chối khởi động nếu thiếu (xem jwt-secret.ts).
+      # Không dùng `:?` ở đây vì Compose nội suy biến của cả dịch vụ không thuộc profile,
+      # sẽ làm `docker compose up` (chỉ bật sandbox khi dev) lỗi.
+      JWT_SECRET: ${JWT_SECRET:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      # Để trống: dùng dữ liệu tích hợp sẵn; đặt địa chỉ server TTS 01 để dùng dữ liệu thật.
+      DATA_SERVICE_BASE_URL: ${DATA_SERVICE_BASE_URL:-}
+      DATA_SERVICE_API_KEY: ${DATA_SERVICE_API_KEY:-}
+      # Trong mạng Docker, backend gọi sandbox bằng tên dịch vụ và cổng nội bộ 5432
+      # (SANDBOX_DB_PORT ở trên chỉ là cổng publish ra máy chủ).
+      SANDBOX_DB_HOST: postgres-sandbox
+      SANDBOX_DB_PORT: '5432'
+      LAB_READER_PASSWORD: ${LAB_READER_PASSWORD:-lab_reader_pw}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      postgres-sandbox:
+        condition: service_healthy
+
+  frontend:
+    profiles: [full]
+    build:
+      context: .
+      dockerfile: FE/Dockerfile
+    container_name: learning-hub-web
+    restart: unless-stopped
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    depends_on:
+      backend:
+        condition: service_healthy
+
 volumes:
   sandbox-data:
+  mongo-data:
+  mongo-dev-data:

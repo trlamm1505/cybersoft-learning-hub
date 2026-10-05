@@ -1,0 +1,8 @@
+**/node_modules
+FE/dist
+FE/.env
+BE
+!BE/src/common/security
+docs
+.git
+**/*.log

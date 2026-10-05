@@ -159,7 +159,7 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
             onClick={handleDebugLoop}
             disabled={isDebugging || loopBlocked}
             title={loopBlocked ? 'Đã chạm giới hạn vòng lặp đồng hành — nộp bài mới để tiếp tục phân tích' : undefined}
-            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-amber-700 hover:bg-amber-800 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isDebugging ? <Loader2 size={13} className="animate-spin" /> : <Bug size={13} />}
             {isDebugging ? 'Đang phân tích...' : loopBlocked ? 'Đã chạm giới hạn vòng lặp' : 'Phân tích lỗi lần nộp gần nhất'}
@@ -234,7 +234,7 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
               >
                 {m.content}
                 {m.role === 'assistant' && m.policyBlocked && (
-                  <div className="mt-2 pt-2 border-t border-amber-500/30 text-[10px] text-amber-600 dark:text-amber-300 flex items-center gap-1">
+                  <div className="mt-2 pt-2 border-t border-amber-500/30 text-[10px] text-amber-700 dark:text-amber-300 flex items-center gap-1">
                     <ShieldAlert size={11} /> Đã bị chặn đưa lời giải đầy đủ theo policy
                   </div>
                 )}

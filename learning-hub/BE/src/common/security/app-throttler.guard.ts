@@ -23,6 +23,8 @@ export const RATE_LIMITS = {
   aiLabSubmit: { default: { ttl: 60_000, limit: 10 } },
   sqlRun: { default: { ttl: 60_000, limit: 30 } },
   codeRun: { default: { ttl: 60_000, limit: 30 } },
+  /** Nộp bài cuộc thi chạy cả bộ test: chặn bấm liên tục làm nghẽn bộ chạy code. */
+  contestSubmit: { default: { ttl: 60_000, limit: 15 } },
 } as const;
 
 export const RATE_LIMIT_MESSAGE =

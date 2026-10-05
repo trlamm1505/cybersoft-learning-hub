@@ -13,6 +13,10 @@ import {
   ContestSubmission,
   ContestSubmissionSchema,
 } from './schemas/contest-submission.schema';
+import {
+  ContestAttempt,
+  ContestAttemptSchema,
+} from './schemas/contest-attempt.schema';
 import { User, UserSchema } from './schemas/user.schema';
 import {
   CoachMessage,
@@ -65,6 +69,7 @@ import {
       { name: Lesson.name, schema: LessonSchema },
       { name: Contest.name, schema: ContestSchema },
       { name: ContestSubmission.name, schema: ContestSubmissionSchema },
+      { name: ContestAttempt.name, schema: ContestAttemptSchema },
       { name: User.name, schema: UserSchema },
       { name: CoachMessage.name, schema: CoachMessageSchema },
       { name: Counter.name, schema: CounterSchema },

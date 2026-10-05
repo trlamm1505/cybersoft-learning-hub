@@ -327,4 +327,50 @@ describe('AuthService', () => {
       );
     });
   });
+
+  describe('setAvatar — chỉ đổi ảnh của chính tài khoản, giá trị được kiểm tra', () => {
+    const ID = '507f1f77bcf86cd799439011';
+    const userDoc = (avatar?: string) => ({
+      _id: ID,
+      email: 'a@x.vn',
+      fullName: 'A',
+      role: 'STUDENT',
+      avatar,
+      save: jest.fn().mockResolvedValue(undefined),
+    });
+
+    it('lưu URL hợp lệ vào hồ sơ và trả lại giá trị đã lưu', async () => {
+      const doc = userDoc();
+      mockUserModel.findById.mockResolvedValue(doc);
+      const res = await service.setAvatar(ID, ' https://example.com/me.png ');
+      expect(res).toEqual({ avatar: 'https://example.com/me.png' });
+      expect(doc.save).toHaveBeenCalled();
+    });
+
+    it('chuỗi rỗng hoặc null xóa ảnh, quay về avatar chữ cái', async () => {
+      const doc = userDoc('https://example.com/old.png');
+      mockUserModel.findById.mockResolvedValue(doc);
+      expect(await service.setAvatar(ID, '')).toEqual({ avatar: null });
+      expect(doc.avatar).toBeUndefined();
+    });
+
+    it('giá trị nguy hiểm bị từ chối và không ghi gì xuống DB', async () => {
+      const doc = userDoc();
+      mockUserModel.findById.mockResolvedValue(doc);
+      await expect(service.setAvatar(ID, 'javascript:alert(1)')).rejects.toThrow(BadRequestException);
+      await expect(service.setAvatar(ID, 'data:image/svg+xml;base64,PHN2Zz4=')).rejects.toThrow(BadRequestException);
+      expect(doc.save).not.toHaveBeenCalled();
+    });
+
+    it('tài khoản không tồn tại hoặc id hỏng → 404', async () => {
+      mockUserModel.findById.mockResolvedValue(null);
+      await expect(service.setAvatar(ID, 'https://x.com/a.png')).rejects.toThrow('Không tìm thấy tài khoản');
+      await expect(service.setAvatar('khong-phai-id', 'https://x.com/a.png')).rejects.toThrow('Không tìm thấy tài khoản');
+    });
+
+    it('hồ sơ trả về (me/đăng nhập) có kèm avatar', async () => {
+      mockUserModel.findById.mockResolvedValue({ ...userDoc('https://example.com/me.png') });
+      expect(await service.getProfile(ID)).toMatchObject({ avatar: 'https://example.com/me.png' });
+    });
+  });
 });
