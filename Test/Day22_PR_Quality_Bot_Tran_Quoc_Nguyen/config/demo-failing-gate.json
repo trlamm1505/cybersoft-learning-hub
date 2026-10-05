@@ -1,0 +1,12 @@
+{
+  "docs_only_patterns": ["*.md"],
+  "gates": [
+    {
+      "id": "demo_failing_gate",
+      "name": "Demo gate cố ý fail (exit 3)",
+      "patterns": ["demo/broken_feature.py"],
+      "commands": [["python", "-c", "import sys; print('AssertionError: expected 200, got 500'); sys.exit(3)"]],
+      "remediation": "Đọc dòng AssertionError trong log, sửa code để API trả 200, chạy lại lệnh ở trên tới khi exit code 0 rồi push commit mới."
+    }
+  ]
+}
