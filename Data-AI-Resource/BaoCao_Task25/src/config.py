@@ -52,9 +52,9 @@ ALLOWED_MIME_TYPES = {
 PII_PATTERNS = {
     "phone_vn": {
         "pattern": re.compile(
-            r"(?<!\d)(?:\+84|0)(?:3[2-9]|5[25689]|7[06-9]|8[1-9]|9[0-9])[0-9]{7}(?!\d)"
+            r"(?<!\d)(?:\+84[\s.-]?|0)(?:3[2-9]|5[25689]|7[06-9]|8[1-9]|9[0-9])(?:[\s.-]?[0-9]){7}(?!\d)"
         ),
-        "description": "Số điện thoại di động Việt Nam (10 chữ số)",
+        "description": "Số điện thoại di động Việt Nam (10 chữ số, hỗ trợ khoảng trắng, dấu chấm, gạch nối)",
         "risk": "MEDIUM",
         "redact_label": "[REDACTED_PHONE_VN]",
     },
@@ -71,8 +71,10 @@ PII_PATTERNS = {
         "redact_label": "[REDACTED_CCCD_VN]",
     },
     "cmnd_vn": {
-        "pattern": re.compile(r"(?<!\d)[0-3][0-9]{8}(?!\d)"),
-        "description": "Chứng minh nhân dân cũ (9 chữ số)",
+        "pattern": re.compile(
+            r"(?i)\b(?:cmnd|cmt|chứng\s*minh(?:\s*nhân\s*dân)?|số\s*cmnd|id\s*card)[\s:#-]{1,6}([0-3][0-9]{8})(?!\d)"
+        ),
+        "description": "Chứng minh nhân dân cũ (9 chữ số, yêu cầu từ khóa nhận diện để tránh bắt nhầm số tiền)",
         "risk": "HIGH",
         "redact_label": "[REDACTED_CMND_VN]",
     },
@@ -98,31 +100,31 @@ PII_PATTERNS = {
     },
 }
 
-# Prompt Injection & Jailbreak Signatures
+# Prompt Injection & Jailbreak Signatures (Đa ngôn ngữ Anh - Việt)
 PROMPT_INJECTION_INDICATORS = [
     {
         "category": "DIRECT_OVERRIDE",
         "pattern": re.compile(
-            r"(?i)\b(?:ignore|disregard|forget|bypass)\s+(?:all\s+)?(?:previous|prior|above|system)\s+(?:instructions|prompts|rules|directives)\b"
+            r"(?i)(?:\b(?:ignore|disregard|forget|bypass)\s+(?:all\s+)?(?:previous|prior|above|system)\s+(?:instructions|prompts|rules|directives)\b|\b(?:bỏ\s*qua|quên|phớt\s*lờ|vượt\s*qua)\s+(?:tất\s*cả\s+|toàn\s*bộ\s+)?(?:các\s+)?(?:hướng\s*dẫn|chỉ\s*thị|quy\s*tắc|lệnh)\s+(?:trước|cũ|hệ\s*thống)\b)"
         ),
         "severity": "CRITICAL",
-        "description": "Chỉ thị ghi đè trực tiếp chỉ dẫn hệ thống",
+        "description": "Chỉ thị ghi đè trực tiếp chỉ dẫn hệ thống (Song ngữ Anh - Việt)",
     },
     {
         "category": "ROLEPLAY_JAILBREAK",
         "pattern": re.compile(
-            r"(?i)\b(?:you\s+are\s+now|act\s+as|pretend\s+to\s+be)\s+(?:dan|developer\s+mode|unrestricted|evil\s+bot|an\s+ai\s+without\s+rules|aim)\b"
+            r"(?i)(?:\b(?:you\s+are\s+now|act\s+as|pretend\s+to\s+be)\s+(?:[a-z0-9_\s]{0,15}\s+)?(?:dan|developer\s+mode|unrestricted|evil\s+bot|an\s+ai\s+without\s+rules|aim)\b|\b(?:hãy\s*đóng\s*vai|bạn\s*bây\s*giờ\s*là|hãy\s*trở\s*thành)\s+(?:(?:một\s+|như\s+)?(?:ai|mô\s*hình|bot|trợ\s*lý)\s+)?(?:dan|tự\s*do|không\s*(?:bị\s*)?giới\s*hạn|không\s*quy\s*tắc|vô\s*hạn)\b)"
         ),
         "severity": "CRITICAL",
-        "description": "Nỗ lực kích hoạt chế độ vượt rào (DAN / Developer Mode)",
+        "description": "Nỗ lực kích hoạt chế độ vượt rào (DAN / Developer Mode / AI không giới hạn)",
     },
     {
         "category": "SYSTEM_PROMPT_LEAK",
         "pattern": re.compile(
-            r"(?i)\b(?:reveal|show|print|output|display|repeat|tell\s+me)\s+(?:your\s+)?(?:system\s+prompt|initial\s+instructions|secret\s+instructions|confidential\s+rules)\b"
+            r"(?i)(?:\b(?:reveal|show|print|output|display|repeat|tell\s+me)\s+(?:your\s+)?(?:system\s+prompt|initial\s+instructions|secret\s+instructions|confidential\s+rules)\b|\b(?:tiết\s*lộ|cho\s*tôi\s*xem|in\s*ra|hiển\s*thị|xuất)\s+(?:toàn\s*bộ\s+)?(?:prompt\s*hệ\s*thống|system\s*prompt|chỉ\s*dẫn\s*ban\s*đầu|lệnh\s*hệ\s*thống)\b)"
         ),
         "severity": "HIGH",
-        "description": "Nỗ lực trích xuất và rò rỉ chỉ dẫn hệ thống ẩn",
+        "description": "Nỗ lực trích xuất và rò rỉ chỉ dẫn hệ thống ẩn (Song ngữ Anh - Việt)",
     },
     {
         "category": "DELIMITER_HIJACK",

@@ -130,16 +130,25 @@ def run_evaluation() -> int:
         superseded_by="dataset_customer_churn_dataset_v2.0.0",
         sunset_date="2026-12-31T23:59:59Z",
     )
-    dep_res = deprecation_manager.deprecate_artifact(deprecate_req)
-    print(
-        f"  * Chuyển trạng thái: {dep_res.previous_state.value} -> {dep_res.new_state.value}"
+    # Backup và khôi phục để giữ git status hoàn toàn sạch sẽ
+    churn_meta_path = (
+        Path(__file__).resolve().parent.parent
+        / "data"
+        / "artifacts"
+        / "datasets"
+        / "customer_churn_dataset"
+        / "v1.0.0"
+        / "metadata.json"
     )
-    print(f"  * Cảnh báo hạ nguồn: {dep_res.warning_message}")
-
-    # Khôi phục lại ACTIVE để giữ sạch trạng thái
-    immutable_store.update_lifecycle_state(
-        "dataset_customer_churn_dataset_v1.0.0", LifecycleState.ACTIVE
-    )
+    churn_backup = churn_meta_path.read_bytes()
+    try:
+        dep_res = deprecation_manager.deprecate_artifact(deprecate_req)
+        print(
+            f"  * Chuyển trạng thái: {dep_res.previous_state.value} -> {dep_res.new_state.value}"
+        )
+        print(f"  * Cảnh báo hạ nguồn: {dep_res.warning_message}")
+    finally:
+        churn_meta_path.write_bytes(churn_backup)
 
     if dep_res.new_state == LifecycleState.DEPRECATED and dep_res.sunset_date:
         print(

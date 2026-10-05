@@ -99,3 +99,24 @@ def test_api_quality_gate_endpoint(client: TestClient):
     assert data["gate_passed"] is True
     assert data["status"] == "PASSED"
     assert data["release_allowed"] is True
+
+
+def test_api_scan_release_official_endpoint(client: TestClient):
+    resp = client.post(
+        "/api/security/scan-release",
+        json={"version": "v1.1.0", "manifest_type": "official"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["quality_gate_passed"] is True
+    assert data["status"] == "PASSED"
+    assert data["total_components_checked"] == 16
+
+
+def test_api_scan_release_tampered_endpoint(client: TestClient):
+    resp = client.post("/api/security/scan-release", json={"manifest_type": "tampered"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["quality_gate_passed"] is False
+    assert data["status"] == "BLOCKED"
+    assert len(data["findings"]) >= 3

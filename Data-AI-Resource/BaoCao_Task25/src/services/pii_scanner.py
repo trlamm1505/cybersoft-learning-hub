@@ -64,8 +64,12 @@ class PIIScannerService:
             redact_label = meta["redact_label"]
 
             for match in pattern.finditer(text):
-                raw = match.group(0)
-                start, end = match.span()
+                if match.lastindex is not None and match.lastindex >= 1:
+                    raw = match.group(1)
+                    start, end = match.span(1)
+                else:
+                    raw = match.group(0)
+                    start, end = match.span()
                 masked = mask_string(raw, pii_type)
 
                 if risk == "CRITICAL":

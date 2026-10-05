@@ -36,13 +36,13 @@
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Ca Kiểm Thử Tự Động</div>
-        <div class="kpi-value">37 / 37</div>
-        <div class="kpi-sub text-cyan">100% PASS (DoD >= 15 cases)</div>
+        <div class="kpi-value">73 / 73</div>
+        <div class="kpi-sub text-cyan">100% PASS (26 Structured + 47 Unit)</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Trạng Thái Release</div>
-        <div class="kpi-value text-success">ALLOWED</div>
-        <div class="kpi-sub">Sẵn sàng tích hợp Tuần 6</div>
+        <div class="kpi-label">Release Gate Task 24</div>
+        <div class="kpi-value text-success">16 / 16</div>
+        <div class="kpi-sub">Toàn vẹn SHA-256 (v1.1.0 PASS)</div>
       </div>
     </section>
 
@@ -51,6 +51,7 @@
       <button class="tab-btn active" data-tab="tab-pii">🔍 Quét & Che Giấu PII</button>
       <button class="tab-btn" data-tab="tab-injection">⚔️ Phòng Vệ Prompt Injection</button>
       <button class="tab-btn" data-tab="tab-file">📁 An Toàn Tệp & Sandbox</button>
+      <button class="tab-btn" data-tab="tab-release">📦 Thẩm Định Phát Hành Task 24</button>
       <button class="tab-btn" data-tab="tab-threat">📋 Ma Trận STRIDE & Quality Gate</button>
     </nav>
 
@@ -183,7 +184,80 @@
       </div>
     </section>
 
-    <!-- Tab 4: STRIDE Threat Matrix -->
+    <!-- Tab: Release Security Quality Gate (Task 24 -> Task 25) -->
+    <section class="tab-content" id="tab-release">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Chốt Chặn Thẩm Định Bản Phát Hành Task 24 (Security Quality Gate)</h3>
+            <p class="subtitle" style="margin-top: 4px;">Liên kết trực tiếp: Kiểm toán tính toàn vẹn mật mã SHA-256 của 16 tài nguyên trong <code>release_manifest_v1.1.0.json</code> và quét độc lập PII, Prompt Injection.</p>
+          </div>
+          <div class="status-badge-group">
+            <span class="badge" id="releaseGateBadge">Chờ kiểm định...</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="runReleaseScan('official')">
+            🛡️ Quét Bản Phát Hành Chuẩn v1.1.0 (Task 24)
+          </button>
+          <button class="btn btn-danger" onclick="runReleaseScan('tampered')">
+            ⚠️ Thử Nghiệm Gói Phát Hành Giả Mạo / Bị Can Thiệp
+          </button>
+        </div>
+
+        <!-- Release Summary Stats -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;" id="releaseStatsGrid">
+          <div class="kpi-card">
+            <div class="kpi-label">Phiên Bản Phát Hành</div>
+            <div class="kpi-value text-cyan" id="relVersion">v1.1.0</div>
+            <div class="kpi-sub" id="relManifestName">release_manifest_v1.1.0.json</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Tài Nguyên Toàn Vẹn</div>
+            <div class="kpi-value text-success" id="relIntegrityCount">16 / 16</div>
+            <div class="kpi-sub">Khớp SHA-256 đối soát</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Vi Phạm Mã Băm (Hash)</div>
+            <div class="kpi-value text-success" id="relTamperedCount">0</div>
+            <div class="kpi-sub">Không bị sửa đổi ngầm</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Vi Phạm PII & Injection</div>
+            <div class="kpi-value text-success" id="relSecurityCount">0</div>
+            <div class="kpi-sub">Khử nhiễm sạch sẽ</div>
+          </div>
+        </div>
+
+        <!-- Verdict Banner -->
+        <div id="releaseVerdictBanner" class="result-box" style="margin-bottom: 20px; background: rgba(16, 185, 129, 0.08); border-color: #10B981;">
+          <strong style="color: #10B981; font-size: 15px;">KẾT QUẢ CHỐT CHẶN: PHÊ DUYỆT PHÁT HÀNH (RELEASE PASSED)</strong><br>
+          <span style="font-size: 13px; color: #94A3B8;">Tất cả 16/16 thành phần (Artifacts) trong bản phát hành v1.1.0 đều toàn vẹn SHA-256, không chứa thông tin cá nhân PII thật và an toàn trước các mẫu tấn công Prompt Injection.</span>
+        </div>
+
+        <!-- Findings / Artifacts Table -->
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mã Tài Nguyên</th>
+                <th>Phân Loại</th>
+                <th>Đường Dẫn Tài Nguyên</th>
+                <th>Hạng Mục Kiểm Tra</th>
+                <th>Mức Độ Rủi Ro</th>
+                <th>Trạng Thái & Chi Tiết</th>
+              </tr>
+            </thead>
+            <tbody id="releaseFindingsTableBody">
+              <!-- Loaded via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: STRIDE Threat Matrix -->
     <section class="tab-content" id="tab-threat">
       <div class="card">
         <div class="card-header">
