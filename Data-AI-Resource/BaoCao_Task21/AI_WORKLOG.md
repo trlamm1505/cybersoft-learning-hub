@@ -43,6 +43,8 @@ Bước sang Tuần 5, phân hệ CyberSoft Data & AI Lab cần giải quyết b
 | **08** | Không truyền `X-Request-ID` trong response header. | Khó khăn cho việc tra vết log (Observability) khi các client hoặc kịch bản kiểm thử báo lỗi API trong quá trình tích hợp. | **Cải tiến**: Viết Middleware tự động gắn `X-Request-ID` (dạng `req-xxxx`) và đo thời gian xử lý `X-Response-Time-Ms` trên từng request. |
 | **09** | Chỉ viết các unit test rời rạc sử dụng mock object. | Không kiểm chứng được tính tương thích của HTTP router, serialization JSON và các exception handler thực tế. | **Nâng cấp**: Viết **Pytest Integration Test Suite** gồm 29 bài test chạy trực tiếp qua `TestClient`, xác thực từng mã trạng thái HTTP thực tế. |
 | **10** | Chỉ xuất đặc tả hợp đồng dưới dạng file JSON đơn lẻ. | Giảng viên và học viên lớp QA không quen đọc JSON thô; khó import vào công cụ kiểm thử giao diện. | **Mở rộng bàn giao**: Xuất song song file YAML (`openapi.yaml`) và đóng gói sẵn **Postman Collection v2.1** kèm file Environment local. |
+| **11** | Tạo riêng một mock database mới trong SQLite để phục vụ nạp Postgres Sandbox thay vì kế thừa dữ liệu từ Task 06. | Làm phân mảnh nguồn dữ liệu, mất tính liên kết với pipeline Task 06 (bản clean/dirty) và gây sai lệch mã băm đối soát SHA-256. | **Liên kết trực tiếp với dữ liệu Task 06**: Xây dựng route `GET /tables/{table_name}` đọc động các file CSV gốc (`customers`, `orders`,...), hỗ trợ cả 2 variant `clean` (chuẩn 3NF nạp Postgres) và `dirty` (kiểm thử), tính SHA-256 runtime và hỗ trợ cả phân trang JSON lẫn tải file CSV trực tiếp. |
+| **12** | Nhúng bộ câu hỏi kiểm định AI Lab vào code cứng dưới dạng dict in-memory tĩnh. | Khó bảo trì, không đồng bộ với bộ benchmark vàng 30 câu hỏi `golden_rag_eval_v1.json` của Task 20. | **Chuẩn hóa Route `GET /evaluation-sets/{id}`**: Đọc trực tiếp từ tệp benchmark version hóa, cung cấp đầy đủ `question_id`, `query`, `ground_truth_answer`, `expected_behavior`, `category` để bên AI Lab chấm điểm tự động. |
 
 ---
 
@@ -66,8 +68,8 @@ Bước sang Tuần 5, phân hệ CyberSoft Data & AI Lab cần giải quyết b
 Trong quá trình thực hiện Task 21, tôi áp dụng mô hình Bốn Tầng Năng Lực AI:
 - **Tầng 1 — Trợ lý cú pháp (Syntax Assistant)**: Dùng AI gợi ý cú pháp Pydantic v2 `Field(..., description=...)` và định nghĩa kiểu dữ liệu.
 - **Tầng 2 — Tăng tốc sinh mã khung (Scaffolding Acceleration)**: Dùng AI sinh khung các router FastAPI và mẫu Postman Collection JSON từ OpenAPI schema.
-- **Tầng 3 — Thẩm định & Phản biện kỹ thuật (Critical Architecture Review)**: Kỹ sư chủ động bắt bẻ AI về việc xung đột cổng với Web Frontend/Backend, thiếu endpoint cho phân hệ QA, và chuẩn hóa Uniform Error Envelope.
-- **Tầng 4 — Điều phối hệ sinh thái & Làm chủ giải pháp (Ecosystem Orchestration)**: Tự tay liên kết các phân hệ trong hệ sinh thái (Data Lab - Learning Hub - QA Platform), viết bộ kiểm thử tích hợp 29 bài test, và xuất bản tài liệu hợp đồng đạt chuẩn DoD 100%.
+- **Tầng 3 — Thẩm định & Phản biện kỹ thuật (Critical Architecture Review)**: Kỹ sư chủ động bắt bẻ AI về việc xung đột cổng với Web Frontend/Backend, thiếu endpoint cho phân hệ QA, cấu trúc lỗi Uniform Error Envelope, và yêu cầu mở rộng data dictionary / evaluation sets.
+- **Tầng 4 — Điều phối hệ sinh thái & Làm chủ giải pháp (Ecosystem Orchestration)**: Tự tay liên kết các phân hệ trong hệ sinh thái (Data Lab - Learning Hub - QA Platform), viết bộ kiểm thử tích hợp 40 bài test (mở rộng từ 29 lên 40 bài test bao phủ 100% tính năng mới), và xuất bản tài liệu hợp đồng đạt chuẩn DoD 100%.
 
 ---
 
@@ -81,4 +83,9 @@ Trong quá trình thực hiện Task 21, tôi áp dụng mô hình Bốn Tầng 
 ### Sự cố 2: Lỗi 404 khi kiểm thử tra cứu Chunk ID trong Test Suite
 - **Hiện tượng**: Bài test `test_get_chunk_detail_success` bị `assert 404 == 200` khi truy vấn chunk `chk_rag_02`.
 - **Nguyên nhân gốc rễ**: Tệp dữ liệu `chunks_markdown_header_semantic.jsonl` được kế thừa từ Task 16-20 sử dụng mã chunk dạng `CS-TXT-001_chk_000`, trong khi bài test ban đầu hardcode mã của fallback chunk. Đồng thời `SearchService.get_chunk_by_id` chưa trích xuất trường `text` và `heading_hierarchy`.
-- **Giải pháp xử lý**: Cập nhật `SearchService.get_chunk_by_id` đọc đa năng cả trường `text` và `content`, đồng thời cập nhật bài test lấy động mã chunk thực tế từ tập dữ liệu. Kết quả test suite đạt **29/29 tests PASS 100%**.
+- **Giải pháp xử lý**: Cập nhật `SearchService.get_chunk_by_id` đọc đa năng cả trường `text` và `content`, đồng thời cập nhật bài test lấy động mã chunk thực tế từ tập dữ liệu.
+
+### Sự cố 3: Lỗi cấp phát dữ liệu và thiếu Header Metadata khi tải file CSV nạp Postgres Sandbox
+- **Hiện tượng**: Khi phân hệ khách hàng gọi lấy dữ liệu bảng, nếu chỉ trả JSON thuần thì việc import dữ liệu lớn vào Postgres Sandbox rất chậm; ngược lại nếu tải file trực tiếp thì thiếu các trường đối soát như `current_version` và `checksum_sha256`.
+- **Nguyên nhân gốc rễ**: Endpoint ban đầu chỉ hỗ trợ JSON payload đơn lẻ, chưa hỗ trợ luồng streaming file attachment kèm metadata headers cho client.
+- **Giải pháp xử lý**: Bổ sung tham số `download=true`, sử dụng `FileResponse` từ Starlette để stream trực tiếp file `.csv` gốc, đồng thời gắn kèm các HTTP Headers tùy biến: `X-Current-Version`, `X-Checksum-SHA256`, `X-Data-Variant`, `X-Total-Rows`. Viết thêm 11 test cases kiểm thử bao phủ toàn bộ luồng tải file và kiểm tra header. Kết quả kiểm thử nâng lên **40/40 tests PASS 100%**.

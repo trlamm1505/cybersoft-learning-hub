@@ -299,6 +299,234 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/evaluation-sets:
+    get:
+      tags:
+      - Dataset Registry & Projects
+      summary: Danh sách các bộ kiểm định chuẩn (Evaluation Sets)
+      description: Trả về danh mục các bộ dữ liệu benchmark dùng để chấm điểm tự động
+        các bài thực hành RAG và SQL trong AI Lab.
+      operationId: list_evaluation_sets_api_v1_registry_evaluation_sets_get
+      parameters:
+      - name: X-API-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope_EvaluationSetListResponse_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/evaluation-sets/{eval_set_id}:
+    get:
+      tags:
+      - Dataset Registry & Projects
+      summary: Lấy chi tiết bộ câu hỏi kiểm định kèm ground-truth (AI Lab)
+      description: Trả về danh sách câu hỏi kiểm thử gồm question_id, query, ground_truth_answer,
+        expected_behavior phục vụ chấm điểm tự động AI Lab.
+      operationId: get_evaluation_set_detail_api_v1_registry_evaluation_sets__eval_set_id__get
+      parameters:
+      - name: eval_set_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Eval Set Id
+      - name: X-API-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope_EvaluationSetDetail_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/datasets/{dataset_id}/tables:
+    get:
+      tags:
+      - Dataset Registry & Projects
+      summary: Danh sách các bảng trong dataset
+      description: Trả về danh mục các bảng dữ liệu có thể trích xuất hoặc nạp vào
+        Postgres Sandbox.
+      operationId: list_dataset_tables_api_v1_registry_datasets__dataset_id__tables_get
+      parameters:
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Dataset Id
+      - name: X-API-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope_TableListResponse_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/datasets/{dataset_id}/tables/{table_name}:
+    get:
+      tags:
+      - Dataset Registry & Projects
+      summary: Lấy dữ liệu từng bảng của dataset (phân trang hoặc tải tệp CSV)
+      description: Hỗ trợ phân trang hoặc tải dạng file CSV, trả kèm current_version,
+        checksum_sha256 và thông báo rõ ràng bản được cấp là 'clean' (chuẩn sạch nạp
+        DB) hay 'dirty' (kiểm thử).
+      operationId: get_dataset_table_data_api_v1_registry_datasets__dataset_id__tables__table_name__get
+      parameters:
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Dataset Id
+      - name: table_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Table Name
+      - name: variant
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Bản dữ liệu: ''clean'' (chuẩn sạch nạp Postgres Sandbox) hoặc
+            ''dirty'' (bản kiểm thử)'
+          default: clean
+          title: Variant
+        description: 'Bản dữ liệu: ''clean'' (chuẩn sạch nạp Postgres Sandbox) hoặc
+          ''dirty'' (bản kiểm thử)'
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Số trang (bắt đầu từ 1)
+          default: 1
+          title: Page
+        description: Số trang (bắt đầu từ 1)
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          description: Số lượng bản ghi mỗi trang
+          default: 50
+          title: Page Size
+        description: Số lượng bản ghi mỗi trang
+      - name: download
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Tải trực tiếp dưới dạng tệp CSV đính kèm header checksum và
+            version
+          default: false
+          title: Download
+        description: Tải trực tiếp dưới dạng tệp CSV đính kèm header checksum và version
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+          description: Định dạng kết quả trả về ('json' hoặc 'csv')
+          default: json
+          title: Format
+        description: Định dạng kết quả trả về ('json' hoặc 'csv')
+      - name: X-API-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      - name: Authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope_TableDataResponse_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/search/semantic:
     post:
       tags:
@@ -609,6 +837,48 @@ components:
       - excerpt
       title: CitationItem
       description: Structured citation reference for verifiable factual answer.
+    ColumnDictionaryItem:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Tên cột
+        data_type:
+          type: string
+          title: Data Type
+          description: Kiểu dữ liệu SQL (VARCHAR, INT, DATE...)
+        nullable:
+          type: boolean
+          title: Nullable
+          description: Cho phép giá trị NULL hay không
+          default: false
+        is_primary_key:
+          type: boolean
+          title: Is Primary Key
+          description: Khóa chính (PK) của bảng
+          default: false
+        is_foreign_key:
+          type: boolean
+          title: Is Foreign Key
+          description: Khóa ngoại (FK) liên kết
+          default: false
+        foreign_key_target:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Foreign Key Target
+          description: Bảng và cột đích tham chiếu nếu là khóa ngoại (bảng.cột)
+        description:
+          type: string
+          title: Description
+          description: Mô tả ý nghĩa nghiệp vụ của cột
+          default: ''
+      type: object
+      required:
+      - name
+      - data_type
+      title: ColumnDictionaryItem
+      description: Definition of a table column in the data dictionary.
     DatasetColumnSchema:
       properties:
         name:
@@ -687,6 +957,15 @@ components:
           type: array
           title: Schema Definition
           description: Cấu trúc lược đồ dữ liệu chi tiết
+        data_dictionary:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/TableDictionaryItem'
+            type: array
+          - type: 'null'
+          title: Data Dictionary
+          description: Từ điển dữ liệu (Data Dictionary) gồm danh sách các bảng và
+            chi tiết các cột (tên, kiểu dữ liệu, nullable, PK, FK, mô tả)
         checksum_sha256:
           type: string
           title: Checksum Sha256
@@ -870,6 +1149,154 @@ components:
       - passed_gate
       title: DatasetValidationResponse
       description: Inspection report detailing data quality results and gate decision.
+    EvaluationQuestionItem:
+      properties:
+        question_id:
+          type: string
+          title: Question Id
+          description: 'Mã định danh câu hỏi kiểm thử (ví dụ: EVAL-STD-01)'
+        query:
+          type: string
+          title: Query
+          description: Nội dung câu hỏi học viên hoặc kiểm thử
+        ground_truth_answer:
+          type: string
+          title: Ground Truth Answer
+          description: Câu trả lời chuẩn mực (ground-truth)
+        expected_behavior:
+          type: string
+          title: Expected Behavior
+          description: 'Hành vi kỳ vọng của mô hình AI: ANSWER, ABSTAIN, REJECT, GUARD_BLOCKED'
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+          description: Phân loại ca kiểm thử (standard_qa, multi_hop, out_of_domain,
+            adversarial_jailbreak)
+        expected_doc_ids:
+          items:
+            type: string
+          type: array
+          title: Expected Doc Ids
+          description: Danh sách mã tài liệu kỳ vọng trích xuất
+        expected_chunk_ids:
+          items:
+            type: string
+          type: array
+          title: Expected Chunk Ids
+          description: Danh sách chunk ID kỳ vọng
+        ground_truth_keywords:
+          items:
+            type: string
+          type: array
+          title: Ground Truth Keywords
+          description: Từ khóa bắt buộc phải có trong câu trả lời
+      type: object
+      required:
+      - question_id
+      - query
+      - ground_truth_answer
+      - expected_behavior
+      title: EvaluationQuestionItem
+      description: Single evaluation question item for AI Lab automated grading.
+    EvaluationSetDetail:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Mã định danh bộ dữ liệu đánh giá
+        name:
+          type: string
+          title: Name
+          description: Tên bộ dữ liệu đánh giá
+        version:
+          type: string
+          title: Version
+          description: Phiên bản phát hành
+        target_system:
+          type: string
+          title: Target System
+          description: Phân hệ hoặc mô hình đánh giá
+          default: RAG AI Tutor
+        total_questions:
+          type: integer
+          title: Total Questions
+          description: Tổng số lượng câu hỏi đánh giá
+        description:
+          type: string
+          title: Description
+          description: Mô tả mục đích và phạm vi đánh giá
+        questions:
+          items:
+            $ref: '#/components/schemas/EvaluationQuestionItem'
+          type: array
+          title: Questions
+          description: Danh sách toàn bộ câu hỏi và ground-truth tương ứng
+      type: object
+      required:
+      - id
+      - name
+      - version
+      - total_questions
+      - description
+      - questions
+      title: EvaluationSetDetail
+      description: Detailed evaluation set for AI Lab benchmarking.
+    EvaluationSetListItem:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Mã bộ đánh giá
+        name:
+          type: string
+          title: Name
+          description: Tên bộ đánh giá
+        version:
+          type: string
+          title: Version
+          description: Phiên bản
+        target_system:
+          type: string
+          title: Target System
+          description: Hệ thống mục tiêu
+        total_questions:
+          type: integer
+          title: Total Questions
+          description: Tổng số câu hỏi
+        description:
+          type: string
+          title: Description
+          description: Mô tả
+      type: object
+      required:
+      - id
+      - name
+      - version
+      - target_system
+      - total_questions
+      - description
+      title: EvaluationSetListItem
+      description: Summary item for evaluation sets list.
+    EvaluationSetListResponse:
+      properties:
+        total:
+          type: integer
+          title: Total
+          description: Tổng số bộ đánh giá
+        items:
+          items:
+            $ref: '#/components/schemas/EvaluationSetListItem'
+          type: array
+          title: Items
+          description: Danh sách các bộ đánh giá
+      type: object
+      required:
+      - total
+      - items
+      title: EvaluationSetListResponse
+      description: List response for evaluation sets.
     HTTPValidationError:
       properties:
         detail:
@@ -1352,6 +1779,48 @@ components:
       required:
       - data
       title: SuccessEnvelope[DatasetValidationResponse]
+    SuccessEnvelope_EvaluationSetDetail_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: Trạng thái thực thi thành công luôn là true
+          default: true
+        data:
+          $ref: '#/components/schemas/EvaluationSetDetail'
+          description: Payload kết quả trả về của API
+        meta:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Meta
+          description: Metadata bổ sung (thời gian thực thi, requestId...)
+      type: object
+      required:
+      - data
+      title: SuccessEnvelope[EvaluationSetDetail]
+    SuccessEnvelope_EvaluationSetListResponse_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: Trạng thái thực thi thành công luôn là true
+          default: true
+        data:
+          $ref: '#/components/schemas/EvaluationSetListResponse'
+          description: Payload kết quả trả về của API
+        meta:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Meta
+          description: Metadata bổ sung (thời gian thực thi, requestId...)
+      type: object
+      required:
+      - data
+      title: SuccessEnvelope[EvaluationSetListResponse]
     SuccessEnvelope_HealthResponse_:
       properties:
         success:
@@ -1478,6 +1947,48 @@ components:
       required:
       - data
       title: SuccessEnvelope[SemanticSearchResponse]
+    SuccessEnvelope_TableDataResponse_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: Trạng thái thực thi thành công luôn là true
+          default: true
+        data:
+          $ref: '#/components/schemas/TableDataResponse'
+          description: Payload kết quả trả về của API
+        meta:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Meta
+          description: Metadata bổ sung (thời gian thực thi, requestId...)
+      type: object
+      required:
+      - data
+      title: SuccessEnvelope[TableDataResponse]
+    SuccessEnvelope_TableListResponse_:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: Trạng thái thực thi thành công luôn là true
+          default: true
+        data:
+          $ref: '#/components/schemas/TableListResponse'
+          description: Payload kết quả trả về của API
+        meta:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Meta
+          description: Metadata bổ sung (thời gian thực thi, requestId...)
+      type: object
+      required:
+      - data
+      title: SuccessEnvelope[TableListResponse]
     SuccessEnvelope_TutorChatResponse_:
       properties:
         success:
@@ -1499,6 +2010,180 @@ components:
       required:
       - data
       title: SuccessEnvelope[TutorChatResponse]
+    TableDataResponse:
+      properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+          description: Mã dataset
+        table_name:
+          type: string
+          title: Table Name
+          description: Tên bảng dữ liệu
+        variant:
+          type: string
+          title: Variant
+          description: 'Trạng thái bản dữ liệu được cấp: ''clean'' (chuẩn sạch nạp
+            DB) hoặc ''dirty'' (bản kiểm thử)'
+        variant_description:
+          type: string
+          title: Variant Description
+          description: Thông báo rõ ràng bản được cấp là clean hay dirty và mục đích
+            sử dụng
+        current_version:
+          type: string
+          title: Current Version
+          description: Phiên bản hiện tại của bộ dữ liệu (e.g. v1.0)
+        checksum_sha256:
+          type: string
+          title: Checksum Sha256
+          description: Mã băm SHA-256 của tệp bảng tương ứng
+        total_rows:
+          type: integer
+          title: Total Rows
+          description: Tổng số bản ghi của bảng
+        page:
+          type: integer
+          title: Page
+          description: Trang hiện tại (1-indexed)
+        page_size:
+          type: integer
+          title: Page Size
+          description: Số lượng bản ghi mỗi trang
+        total_pages:
+          type: integer
+          title: Total Pages
+          description: Tổng số trang
+        columns:
+          items:
+            type: string
+          type: array
+          title: Columns
+          description: Danh sách tên các cột
+        rows:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Rows
+          description: Danh sách các bản ghi dữ liệu dạng dict
+      type: object
+      required:
+      - dataset_id
+      - table_name
+      - variant
+      - variant_description
+      - current_version
+      - checksum_sha256
+      - total_rows
+      - page
+      - page_size
+      - total_pages
+      - columns
+      - rows
+      title: TableDataResponse
+      description: Paginated table data for loading into Postgres Sandbox.
+    TableDictionaryItem:
+      properties:
+        table_name:
+          type: string
+          title: Table Name
+          description: Tên bảng dữ liệu
+        file_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File Name
+          description: Tên tệp CSV lưu trữ tương ứng
+        row_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Row Count
+          description: Số lượng bản ghi chuẩn của bảng
+        primary_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Primary Key
+          description: Tên cột khóa chính
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Mô tả nghiệp vụ của bảng
+        columns:
+          items:
+            $ref: '#/components/schemas/ColumnDictionaryItem'
+          type: array
+          title: Columns
+          description: Danh sách cột của bảng
+      type: object
+      required:
+      - table_name
+      title: TableDictionaryItem
+      description: Definition of a table schema in the data dictionary.
+    TableListResponse:
+      properties:
+        dataset_id:
+          type: string
+          title: Dataset Id
+          description: Mã dataset
+        total_tables:
+          type: integer
+          title: Total Tables
+          description: Tổng số bảng
+        tables:
+          items:
+            $ref: '#/components/schemas/TableSummaryItem'
+          type: array
+          title: Tables
+          description: Danh sách các bảng
+      type: object
+      required:
+      - dataset_id
+      - total_tables
+      - tables
+      title: TableListResponse
+      description: List of available tables in a dataset.
+    TableSummaryItem:
+      properties:
+        table_name:
+          type: string
+          title: Table Name
+          description: Tên bảng dữ liệu
+        row_count:
+          type: integer
+          title: Row Count
+          description: Số lượng dòng bản ghi
+        primary_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Primary Key
+          description: Cột khóa chính
+        available_variants:
+          items:
+            type: string
+          type: array
+          title: Available Variants
+          description: Các bản dữ liệu có sẵn
+          default:
+          - clean
+          - dirty
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Mô tả bảng
+      type: object
+      required:
+      - table_name
+      - row_count
+      title: TableSummaryItem
+      description: Summary information of an available table in a dataset.
     TutorChatRequest:
       properties:
         question:

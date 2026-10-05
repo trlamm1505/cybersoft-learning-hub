@@ -26,7 +26,7 @@ Hệ sinh thái `cybersoft-learning-hub` được kiến trúc theo mô hình ph
 
 ### 1.2. Sơ đồ Kiến trúc Hợp đồng API & Tích hợp Dịch vụ Liên Phân hệ
 
-Hệ thống tích hợp liên phân hệ được thiết kế theo mô hình phân tầng dịch vụ chuẩn mực (Service-Oriented Architecture), kết nối liền mạch từ phân hệ khách hàng, cổng API Gateway bảo mật, hợp đồng OpenAPI 3.1 & Pydantic v2, hệ thống 9 RESTful Endpoints, đến tầng hạ tầng dữ liệu và động cơ AI:
+Hệ thống tích hợp liên phân hệ được thiết kế theo mô hình phân tầng dịch vụ chuẩn mực (Service-Oriented Architecture), kết nối liền mạch từ phân hệ khách hàng, cổng API Gateway bảo mật, hợp đồng OpenAPI 3.1 & Pydantic v2, hệ thống **13 RESTful Endpoints** (mở rộng theo nhu cầu tích hợp thực tế của Learning Hub và AI Lab), đến tầng hạ tầng dữ liệu và động cơ AI:
 
 ![Sơ đồ Kiến trúc Hợp đồng API và Tích hợp Liên Phân hệ](./Picture_21_Detail.png)
 
@@ -118,9 +118,13 @@ Nhằm hỗ trợ môi trường phát triển và kiểm thử liên tục (CI/
 - `GET /api/v1/info`: Metadata hệ thống, link OpenAPI JSON/YAML, cam kết SLA.
 - `GET /api/v1/openapi.yaml`: Tải trực tiếp đặc tả hợp đồng dạng YAML.
 
-### 5.2. Nhóm Dataset Registry & Project Bank
+### 5.2. Nhóm Dataset Registry & Quản lý Dữ liệu Đa Bảng
 - `GET /api/v1/registry/datasets`: Danh sách dataset kèm lọc theo domain, độ khó, format, tags và phân trang.
-- `GET /api/v1/registry/datasets/{id}`: Xem chi tiết metadata, schema 3NF, checksum SHA-256, sample preview.
+- `GET /api/v1/registry/datasets/{id}`: Xem chi tiết metadata, schema 3NF, checksum SHA-256, và cấu trúc **`data_dictionary`** đầy đủ (chuẩn hóa 5 bảng kế thừa từ Task 06: `customers`, `employees`, `products`, `orders`, `order_details` kèm định dạng kiểu, nullable, khóa chính, khóa ngoại, diễn giải nghiệp vụ).
+- `GET /api/v1/registry/datasets/{id}/tables`: Xem danh sách tất cả các bảng dữ liệu thành phần trong dataset.
+- `GET /api/v1/registry/datasets/{id}/tables/{table_name}`: Lấy dữ liệu từng bảng phục vụ nạp sandbox hoặc kiểm thử chất lượng:
+  * **Phân trang JSON**: Tham số `page`, `page_size`, `variant="clean" | "dirty"`, trả kèm `current_version`, `checksum_sha256`, `total_rows`.
+  * **Tải tệp CSV trực tiếp (`download=true`)**: Cấp phát bản **Clean** (chuẩn 3NF, toàn vẹn khóa ngoại để nạp trực tiếp vào Postgres Sandbox) hoặc bản **Dirty** (chứa lỗi cố ý phục vụ test pipeline) kèm HTTP Headers: `X-Current-Version`, `X-Checksum-SHA256`, `X-Data-Variant`, `X-Total-Rows`.
 - `GET /api/v1/registry/projects`: Danh mục đề tài Capstone học viên (Data Analyst, AI Engineer).
 - `GET /api/v1/registry/projects/{id}`: Mục tiêu đề tài, sản phẩm bàn giao, rubric chấm điểm.
 
@@ -138,6 +142,10 @@ Nhằm hỗ trợ môi trường phát triển và kiểm thử liên tục (CI/
 ### 5.5. Nhóm Data Quality & QA Metrics
 - `POST /api/v1/quality/validate-dataset`: Kiểm tra tính toàn vẹn của dataset (schema, missing values, duplicate primary key, range bounds) và xuất kết luận `PASSED` / `FAILED` cho Cổng chất lượng.
 - `GET /api/v1/quality/metrics`: Cung cấp trọn bộ chỉ số Data Quality và RAG Eval Benchmark (Recall 100%, MRR 1.0, Latency 36.98ms, CI Gate Status: PASSED) cho Dashboard hợp nhất của TTS 03.
+
+### 5.6. Nhóm Benchmark & Đánh giá Tự động AI Lab (Evaluation Sets)
+- `GET /api/v1/registry/evaluation-sets`: Danh sách các bộ đề thi kiểm định chất lượng AI.
+- `GET /api/v1/registry/evaluation-sets/{id}`: Trích xuất trọn bộ 30 ca kiểm thử vàng (`eval-rag-qa-golden-v1` hoặc alias `golden_rag_eval_v1`) phục vụ AI Lab chấm điểm tự động, bao gồm đầy đủ các trường: `question_id`, `query`, `ground_truth_answer`, `expected_behavior`, `category`.
 
 ---
 
@@ -159,6 +167,18 @@ search_res = client.search_semantic(query="cơ chế hybrid search RRF", top_k=3
 # 2. Hỏi đáp AI Tutor
 tutor_res = client.chat_tutor(question="Quy định nộp bài tập và bảo lưu đồ án?")
 print(tutor_res["answer"])
+
+# 3. Lấy bộ đề benchmark chấm AI Lab
+eval_set = client.get_evaluation_set("eval-rag-qa-golden-v1")
+print(f"Tổng số câu hỏi đánh giá: {eval_set['total_questions']}")
+
+# 4. Tải file CSV bảng customers sạch về nạp Postgres Sandbox
+client.download_dataset_table(
+    dataset_id="ds-retail-ecommerce-sales-v1",
+    table_name="customers",
+    variant="clean",
+    output_path="customers_clean.csv",
+)
 ```
 
 ### 6.2. Bộ sưu tập Postman Collection v2.1
@@ -170,45 +190,56 @@ print(tutor_res["answer"])
 
 ## 7. KẾT QUẢ KIỂM THỬ TỰ ĐỘNG HÓA PYTEST INTEGRATION SUITE
 
-Bộ kiểm thử tích hợp tự động bao phủ 100% các endpoint của hệ thống với **29 bài test độc lập**:
+Bộ kiểm thử tích hợp tự động bao phủ 100% các endpoint của hệ thống với **40 bài test độc lập** (bao gồm cả các bài test mới cho `data_dictionary`, `evaluation-sets`, và tải tệp CSV clean/dirty):
 
 ```text
 ============================= test session starts =============================
 platform win32 -- Python 3.10.11, pytest-9.1.1, pluggy-1.6.0
 rootdir: D:\Cybersoft\Kien\cybersoft-learning-hub\Data-AI-Resource\BaoCao_Task21
-collected 29 items
+collected 40 items
 
-tests/test_auth.py::test_auth_missing_header_returns_401 PASSED          [  3%]
-tests/test_auth.py::test_auth_invalid_key_returns_401 PASSED             [  6%]
-tests/test_auth.py::test_auth_bearer_token_success PASSED                [ 10%]
-tests/test_auth.py::test_rbac_student_forbidden_for_quality_validation PASSED [ 13%]
-tests/test_auth.py::test_rbac_qa_engineer_allowed_for_quality_validation PASSED [ 17%]
-tests/test_client_sdk.py::test_sdk_headers_generation PASSED             [ 20%]
-tests/test_client_sdk.py::test_sdk_successful_request PASSED             [ 24%]
-tests/test_client_sdk.py::test_sdk_error_envelope_raises_exception PASSED [ 27%]
-tests/test_health.py::test_get_health PASSED                             [ 31%]
-tests/test_health.py::test_get_info PASSED                               [ 34%]
-tests/test_health.py::test_openapi_yaml_endpoint PASSED                  [ 37%]
-tests/test_quality_api.py::test_validate_dataset_clean_passed PASSED     [ 41%]
-tests/test_quality_api.py::test_validate_dataset_dirty_failed PASSED     [ 44%]
-tests/test_quality_api.py::test_get_quality_metrics_for_tts03_dashboard PASSED [ 48%]
-tests/test_registry_api.py::test_list_datasets_all PASSED                [ 51%]
-tests/test_registry_api.py::test_list_datasets_filter_by_domain PASSED   [ 55%]
-tests/test_registry_api.py::test_list_datasets_pagination PASSED         [ 58%]
-tests/test_registry_api.py::test_get_dataset_detail_success PASSED       [ 62%]
-tests/test_registry_api.py::test_get_dataset_detail_not_found_returns_404 PASSED [ 65%]
-tests/test_registry_api.py::test_list_projects PASSED                    [ 68%]
-tests/test_registry_api.py::test_get_project_detail_success PASSED       [ 72%]
-tests/test_registry_api.py::test_get_project_detail_not_found_returns_404 PASSED [ 75%]
-tests/test_search_api.py::test_semantic_search_success PASSED            [ 79%]
-tests/test_search_api.py::test_semantic_search_validation_error_min_length PASSED [ 82%]
-tests/test_search_api.py::test_get_chunk_detail_success PASSED           [ 86%]
-tests/test_search_api.py::test_get_chunk_detail_not_found PASSED         [ 89%]
-tests/test_tutor_api.py::test_tutor_chat_grounded_answer PASSED          [ 93%]
-tests/test_tutor_api.py::test_tutor_chat_guardrail_prompt_injection PASSED [ 96%]
+tests/test_auth.py::test_auth_missing_header_returns_401 PASSED          [  2%]
+tests/test_auth.py::test_auth_invalid_key_returns_401 PASSED             [  5%]
+tests/test_auth.py::test_auth_bearer_token_success PASSED                [  7%]
+tests/test_auth.py::test_rbac_student_forbidden_for_quality_validation PASSED [ 10%]
+tests/test_auth.py::test_rbac_qa_engineer_allowed_for_quality_validation PASSED [ 12%]
+tests/test_client_sdk.py::test_sdk_headers_generation PASSED             [ 15%]
+tests/test_client_sdk.py::test_sdk_successful_request PASSED             [ 17%]
+tests/test_client_sdk.py::test_sdk_error_envelope_raises_exception PASSED [ 20%]
+tests/test_health.py::test_get_health PASSED                             [ 22%]
+tests/test_health.py::test_get_info PASSED                               [ 25%]
+tests/test_health.py::test_openapi_yaml_endpoint PASSED                  [ 27%]
+tests/test_quality_api.py::test_validate_dataset_clean_passed PASSED     [ 30%]
+tests/test_quality_api.py::test_validate_dataset_dirty_failed PASSED     [ 32%]
+tests/test_quality_api.py::test_get_quality_metrics_for_tts03_dashboard PASSED [ 35%]
+tests/test_registry_api.py::test_list_datasets_all PASSED                [ 37%]
+tests/test_registry_api.py::test_list_datasets_filter_by_domain PASSED   [ 40%]
+tests/test_registry_api.py::test_list_datasets_pagination PASSED         [ 42%]
+tests/test_registry_api.py::test_get_dataset_detail_success PASSED       [ 45%]
+tests/test_registry_api.py::test_get_dataset_detail_not_found_returns_404 PASSED [ 47%]
+tests/test_registry_api.py::test_list_projects PASSED                    [ 50%]
+tests/test_registry_api.py::test_get_project_detail_success PASSED       [ 52%]
+tests/test_registry_api.py::test_get_project_detail_not_found_returns_404 PASSED [ 55%]
+tests/test_registry_api.py::test_get_dataset_detail_has_data_dictionary PASSED [ 57%]
+tests/test_registry_api.py::test_list_evaluation_sets PASSED             [ 60%]
+tests/test_registry_api.py::test_get_evaluation_set_detail_success PASSED [ 62%]
+tests/test_registry_api.py::test_get_evaluation_set_alias_success PASSED [ 65%]
+tests/test_registry_api.py::test_get_evaluation_set_not_found PASSED     [ 67%]
+tests/test_registry_api.py::test_list_dataset_tables PASSED              [ 70%]
+tests/test_registry_api.py::test_get_dataset_table_clean_paginated PASSED [ 72%]
+tests/test_registry_api.py::test_get_dataset_table_dirty_variant PASSED  [ 75%]
+tests/test_registry_api.py::test_get_dataset_table_download_csv PASSED   [ 77%]
+tests/test_registry_api.py::test_get_dataset_table_invalid_variant_returns_400 PASSED [ 80%]
+tests/test_registry_api.py::test_get_dataset_table_not_found_returns_404 PASSED [ 82%]
+tests/test_search_api.py::test_semantic_search_success PASSED            [ 85%]
+tests/test_search_api.py::test_semantic_search_validation_error_min_length PASSED [ 87%]
+tests/test_search_api.py::test_get_chunk_detail_success PASSED           [ 90%]
+tests/test_search_api.py::test_get_chunk_detail_not_found PASSED         [ 92%]
+tests/test_tutor_api.py::test_tutor_chat_grounded_answer PASSED          [ 95%]
+tests/test_tutor_api.py::test_tutor_chat_guardrail_prompt_injection PASSED [ 97%]
 tests/test_tutor_api.py::test_tutor_chat_safe_abstention_out_of_domain PASSED [100%]
 
-======================= 29 passed, 2 warnings in 1.51s ========================
+======================== 40 passed, 1 warning in 2.11s ========================
 ```
 
 ---
@@ -222,7 +253,7 @@ tests/test_tutor_api.py::test_tutor_chat_safe_abstention_out_of_domain PASSED [1
 | **Độ trễ Tìm kiếm lai Semantic Search** | $< 100\text{ ms}$ | $58.21\text{ ms}$ |  Đạt chuẩn SLA |
 | **Độ trễ phản hồi AI Tutor RAG** | $< 250\text{ ms}$ | $186.40\text{ ms}$ |  Đạt chuẩn SLA |
 | **Độ trễ đuôi phân vị 95 (p95)** | $< 100\text{ ms}$ | $36.98\text{ ms}$ |  Đạt mốc chuẩn Task 20 |
-| **Tỷ lệ bao phủ Kiểm thử (Pytest)** | $100\%$ endpoints | $29/29\text{ tests } (100\%)$ |  Đạt chuẩn DoD |
+| **Tỷ lệ bao phủ Kiểm thử (Pytest)** | $100\%$ endpoints | $40/40\text{ tests } (100\%)$ |  Đạt chuẩn DoD |
 | **Tính tương thích ngược (v1 Schema)** | $100\%$ tương thích | Khóa chặt trường, không breaking |  Bảo vệ an toàn |
 | **Chi phí Vận hành Dịch vụ API** | Càng thấp càng tốt | $\$0.00\text{ USD}$ (100% On-premise) |  Tối ưu tuyệt đối |
 
