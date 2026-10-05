@@ -11,6 +11,8 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { isAxiosError } from 'axios';
 import { createHash } from 'crypto';
+import { buildSandboxDbUrl } from '../common/config/sandbox-env';
+import { LocalRegistry } from './local-registry/local-registry';
 import type {
   DatasetContract,
   EvaluationSetContract,
@@ -26,7 +28,7 @@ const RESOURCE_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{2,80}$/i;
 const CACHE_TTL_MS = 60_000;
 const REQUEST_TIMEOUT_MS = 5_000;
 export const DATA_SERVICE_DOWN_MESSAGE =
-  'Máy chủ dữ liệu giả lập chưa được bật';
+  'Không kết nối được máy chủ dữ liệu (DATA_SERVICE_BASE_URL). Hãy bật máy chủ đó, hoặc để trống DATA_SERVICE_BASE_URL để dùng dữ liệu tích hợp sẵn trong backend';
 export const DATA_SERVICE_TIMEOUT_MESSAGE =
   'Máy chủ dữ liệu phản hồi quá lâu';
 export const DATA_SERVICE_UNREACHABLE_MESSAGE =
@@ -39,9 +41,12 @@ const TIMEOUT_CODES = new Set(['ECONNABORTED', 'ETIMEDOUT', 'ESOCKETTIMEDOUT']);
  * Cổng duy nhất để Learning Hub lấy thông tin dataset từ Data & AI Resource
  * (TTS 01) qua REST. Không đọc file, không import code của thư mục TTS 01.
  *
- * Địa chỉ service cấu hình qua `DATA_SERVICE_BASE_URL` (mặc định trỏ tới mock
- * server `npm run mock:data-service` ở cổng 8010; đổi sang 8000 để gọi server
- * thật của TTS 01). Header `X-API-Key` đúng như security scheme trong OpenAPI.
+ * Nguồn dữ liệu cấu hình qua `DATA_SERVICE_BASE_URL`:
+ * - để trống (mặc định): dùng LocalRegistry tích hợp sẵn, không cần bật thêm gì;
+ * - có địa chỉ (vd `http://localhost:8000` của TTS 01): gọi REST, header
+ *   `X-API-Key` đúng như security scheme trong OpenAPI. Máy chủ đó không trả lời
+ *   thì báo lỗi rõ, trừ khi bật `DATA_SERVICE_FALLBACK=embedded` (chỉ nên dùng
+ *   khi dev: tự rơi về dữ liệu tích hợp sẵn và ghi cảnh báo).
  */
 @Injectable()
 export class DatasetIntegrationService {
@@ -55,10 +60,51 @@ export class DatasetIntegrationService {
     { value: EvaluationSetContract; expiresAt: number }
   >();
 
+  private localRegistry?: LocalRegistry;
+  private warnedFallback = false;
+
   constructor(
     private readonly http: HttpService,
     private readonly config: ConfigService,
   ) {}
+
+  /** Chế độ nguồn dữ liệu hiện tại, dùng cho /api/health và chẩn đoán. */
+  describeSource(): { mode: 'embedded' | 'remote'; baseUrl: string | null } {
+    const baseUrl = this.baseUrl();
+    return baseUrl
+      ? { mode: 'remote', baseUrl }
+      : { mode: 'embedded', baseUrl: null };
+  }
+
+  private baseUrl(): string | null {
+    const value = (this.config.get<string>('DATA_SERVICE_BASE_URL') ?? '')
+      .trim()
+      .replace(/\/+$/, '');
+    return !value || value.toLowerCase() === 'embedded' ? null : value;
+  }
+
+  private local(): LocalRegistry {
+    // Sandbox URL dựng từ cùng biến môi trường với Docker Compose nên luôn khớp role lab_reader.
+    return (this.localRegistry ??= new LocalRegistry(buildSandboxDbUrl()));
+  }
+
+  /** Cùng dạng envelope như REST, lấy từ dữ liệu tích hợp sẵn. */
+  private fromLocal<T>(
+    path: string,
+    notFoundMessage: string,
+  ): RegistryEnvelope<T> {
+    const match = /^\/api\/v1\/registry\/(datasets|evaluation-sets)\/(.+)$/.exec(
+      path,
+    );
+    const id = match ? decodeURIComponent(match[2]) : '';
+    const data = !match
+      ? undefined
+      : match[1] === 'datasets'
+        ? this.local().getDataset(id)
+        : this.local().getEvaluationSet(id);
+    if (!data) throw new NotFoundException(notFoundMessage);
+    return { success: true, data: data as T } as RegistryEnvelope<T>;
+  }
 
   async fetchDatasetInfo(resourceId: string): Promise<DatasetContract> {
     this.assertResourceId(resourceId);
@@ -123,9 +169,8 @@ export class DatasetIntegrationService {
     path: string,
     notFoundMessage: string,
   ): Promise<RegistryEnvelope<T>> {
-    const baseUrl =
-      this.config.get<string>('DATA_SERVICE_BASE_URL') ||
-      'http://localhost:8010';
+    const baseUrl = this.baseUrl();
+    if (!baseUrl) return this.fromLocal<T>(path, notFoundMessage);
     const url = `${baseUrl}${path}`;
 
     try {
@@ -148,6 +193,15 @@ export class DatasetIntegrationService {
       // Không có phản hồi (ECONNREFUSED, timeout...): máy chủ dữ liệu chưa chạy.
       // Không có phản hồi: phân biệt máy chủ chưa chạy với máy chủ chạy nhưng quá chậm.
       if (isAxiosError(err) && !err.response) {
+        if (this.config.get<string>('DATA_SERVICE_FALLBACK') === 'embedded') {
+          if (!this.warnedFallback) {
+            this.warnedFallback = true;
+            this.logger.warn(
+              `Máy chủ dữ liệu ${baseUrl} không trả lời; tạm dùng dữ liệu tích hợp sẵn (DATA_SERVICE_FALLBACK=embedded).`,
+            );
+          }
+          return this.fromLocal<T>(path, notFoundMessage);
+        }
         const code = err.code ?? '';
         throw new ServiceUnavailableException(
           REFUSED_CODES.has(code)

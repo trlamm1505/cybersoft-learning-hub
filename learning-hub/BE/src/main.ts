@@ -1,5 +1,13 @@
 import { NestFactory } from '@nestjs/core';
+import * as path from 'path';
 import { AppModule } from './app.module';
+import { loadSharedEnvFiles } from './common/config/sandbox-env';
+
+// learning-hub/.env là nguồn chung (Docker Compose đọc cùng file): nạp trước khi dựng app
+// để sandbox_db_url của registry tích hợp sẵn luôn khớp mật khẩu lab_reader.
+// Thư mục backend: cwd khi chạy bằng npm script/Docker; __dirname/.. khi chạy thẳng file đã build.
+loadSharedEnvFiles(process.cwd());
+loadSharedEnvFiles(path.resolve(__dirname, '..'));
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
