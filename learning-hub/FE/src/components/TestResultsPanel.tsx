@@ -111,7 +111,7 @@ export const TestResultsPanel: React.FC<TestResultsPanelProps> = ({ submission, 
             <div className="flex items-center justify-between font-semibold mb-1">
               <span className="flex items-center gap-1.5">
                 {r.passed ? (
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
+                  <CheckCircle2 size={14} className="text-emerald-700 dark:text-emerald-400" />
                 ) : (
                   <XCircle size={14} className="text-red-600 dark:text-red-400" />
                 )}

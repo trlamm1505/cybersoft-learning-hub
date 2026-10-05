@@ -125,7 +125,7 @@ const StatTile: React.FC<{
     <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)]">
       <Icon size={14} /> {label}
     </div>
-    <div className={`text-2xl font-bold mt-1 ${ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+    <div className={`text-2xl font-bold mt-1 ${ok ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-500'}`}>
       {value}
     </div>
     <div className="text-xs text-[var(--text-muted)]">{limit}</div>

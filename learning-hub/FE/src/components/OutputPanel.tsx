@@ -111,7 +111,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ result, isRunning }) =
       <div>
         <div className="text-xs font-semibold text-[var(--text-muted)] mb-1 uppercase tracking-wide">Stdout</div>
         <pre className="rounded-lg bg-slate-900 text-slate-100 text-sm p-3 overflow-x-auto min-h-[48px] whitespace-pre-wrap break-words">
-          {result.stdout || <span className="text-slate-500 italic">(không có output)</span>}
+          {result.stdout || <span className="text-slate-600 dark:text-slate-400 italic">(không có output)</span>}
         </pre>
       </div>
 

@@ -449,7 +449,7 @@ export const TeacherProblemGeneratorPage: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-[var(--text-main)] mb-1">
-                Learning outcome (mục tiêu học) <span className="text-red-500">*</span>
+                Learning outcome (mục tiêu học) <span className="text-red-600 dark:text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -793,7 +793,7 @@ function ResultCard({
               {t.passed ? (
                 <CheckCircle2 size={13} className="text-emerald-500 shrink-0 mt-0.5" />
               ) : (
-                <XCircle size={13} className="text-red-500 shrink-0 mt-0.5" />
+                <XCircle size={13} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               )}
               <div className="min-w-0">
                 <div className="text-[var(--text-muted)]">
@@ -804,7 +804,7 @@ function ResultCard({
                   expected=<span className="text-[var(--text-main)]">{t.expectedOutput}</span>
                   {!t.passed && (
                     <>
-                      {' '}actual=<span className="text-red-500">{t.actualOutput}</span>
+                      {' '}actual=<span className="text-red-600 dark:text-red-400">{t.actualOutput}</span>
                     </>
                   )}
                 </div>
@@ -912,7 +912,7 @@ function ResultCard({
                 ? 'Hãy tick xác nhận bỏ qua cảnh báo trùng lặp ở trên để mở khoá'
                 : undefined
             }
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white transition-all shadow-xs cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             {saving ? 'Đang lưu...' : 'Lưu vào ngân hàng đề'}

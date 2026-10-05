@@ -647,7 +647,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                   onClick={() => setStatusFilter('published')}
                   className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     statusFilter === 'published'
-                      ? 'bg-emerald-600 text-white shadow-xs'
+                      ? 'bg-emerald-700 text-white shadow-xs'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
                   }`}
                 >
@@ -660,7 +660,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                   onClick={() => setStatusFilter('draft')}
                   className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     statusFilter === 'draft'
-                      ? 'bg-amber-600 text-white shadow-xs'
+                      ? 'bg-amber-700 text-white shadow-xs'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none'
                   }`}
                 >
@@ -823,7 +823,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                         <button
                           type="button"
                           onClick={() => handleDeleteLesson(lesson._id, lesson.title)}
-                          className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer text-center flex items-center justify-center gap-1"
+                          className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 hover:bg-red-600 text-red-700 dark:text-red-400 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer text-center flex items-center justify-center gap-1"
                           title="Xóa bài thi này"
                         >
                           <Trash2 size={13} /> Xóa
@@ -928,7 +928,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                       <button
                         type="button"
                         onClick={() => handleDeleteLesson(lesson._id, lesson.title)}
-                        className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer text-center flex items-center"
+                        className="px-2.5 py-1.5 text-xs font-bold rounded-xl bg-red-600/10 hover:bg-red-600 text-red-700 dark:text-red-400 hover:text-white transition-all border border-red-200 dark:border-red-900 cursor-pointer text-center flex items-center"
                         title="Xóa bài thi này"
                       >
                         <Trash2 size={13} />
@@ -1106,7 +1106,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-[var(--text-main)] mb-1">
-                Tiêu đề bài học <span className="text-red-500">*</span>
+                Tiêu đề bài học <span className="text-red-600 dark:text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -1323,7 +1323,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                       <button
                         type="button"
                         onClick={() => handleRemoveTestCase(index)}
-                        className="px-2.5 py-1 text-xs text-red-600 hover:text-white hover:bg-red-600 rounded-lg transition-all border border-red-300 dark:border-red-800 cursor-pointer flex items-center gap-1"
+                        className="px-2.5 py-1 text-xs text-red-600 dark:text-red-400 hover:text-white hover:bg-red-600 rounded-lg transition-all border border-red-300 dark:border-red-800 cursor-pointer flex items-center gap-1"
                       >
                         <Trash2 size={13} /> Xóa
                       </button>
@@ -1407,7 +1407,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                           hints: { ...prev.hints, hint3: prev.solutionCode || '' },
                         }))
                       }
-                      className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-all border-none cursor-pointer flex items-center gap-1"
+                      className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-700 text-white hover:bg-emerald-800 transition-all border-none cursor-pointer flex items-center gap-1"
                     >
                       <ClipboardCheck size={11} /> Nạp từ Solution Code
                     </button>
@@ -1467,7 +1467,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                     <button
                       type="button"
                       onClick={() => handleRemoveQuizQuestion(qIndex)}
-                      className="px-2.5 py-1 text-xs text-red-600 hover:bg-red-600 hover:text-white rounded-lg border border-red-300 dark:border-red-800 cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1 text-xs text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white rounded-lg border border-red-300 dark:border-red-800 cursor-pointer flex items-center gap-1"
                     >
                       <Trash2 size={13} /> Xóa câu hỏi
                     </button>
@@ -1541,11 +1541,11 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
         <div className="pt-4 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-xs text-[var(--text-muted)] flex items-center gap-2">
             {canPublish ? (
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+              <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
                 <CheckCircle2 size={14} /> Bài học đủ chuẩn để xuất bản công khai.
               </span>
             ) : (
-              <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
+              <span className="text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-1">
                 <AlertTriangle size={14} /> Cần nhập Chuẩn đầu ra và ít nhất 1 Bài test để mở nút Publish.
               </span>
             )}
@@ -1581,8 +1581,8 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
               onClick={() => handleSubmit('published')}
               className={`flex-1 sm:flex-initial px-6 py-2.5 text-xs font-extrabold rounded-xl transition-all border-none shadow-md flex items-center justify-center gap-2 ${
                 canPublish
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
-                  : 'bg-slate-300 dark:bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
+                  ? 'bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+                  : 'bg-slate-300 dark:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-not-allowed opacity-60'
               }`}
               title={canPublish ? 'Xuất bản bài học' : 'Vui lòng bổ sung Chuẩn đầu ra và Bài test để xuất bản'}
             >
@@ -1683,7 +1683,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                       .map((tc, idx) => (
                         <div key={idx} className="p-2.5 rounded-lg bg-[var(--bg-main)] border border-[var(--border-color)] text-xs font-mono flex justify-between">
                           <span>Input: {tc.input}</span>
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">Expected: {tc.expectedOutput}</span>
+                          <span className="text-emerald-700 dark:text-emerald-400 font-bold">Expected: {tc.expectedOutput}</span>
                         </div>
                       ))}
                   </div>
@@ -1708,7 +1708,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                           }`}
                         >
                           <span>{opt.key}. {opt.text}</span>
-                          {opt.isCorrect && <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded">Đáp án đúng</span>}
+                          {opt.isCorrect && <span className="text-[10px] bg-emerald-700 text-white px-1.5 py-0.5 rounded">Đáp án đúng</span>}
                         </div>
                       ))}
                     </div>

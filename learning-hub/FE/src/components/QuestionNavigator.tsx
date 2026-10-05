@@ -40,7 +40,7 @@ export const QuestionNavigator: React.FC<QuestionNavigatorProps> = ({
           let btnStyle = 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700';
 
           if (isAnswered) {
-            btnStyle = 'bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 font-bold';
+            btnStyle = 'bg-emerald-500 text-white hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-500 font-bold';
           }
 
           if (isCurrent) {
