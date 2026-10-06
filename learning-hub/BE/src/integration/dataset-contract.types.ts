@@ -36,10 +36,35 @@ export interface RegistryDatasetDetail {
   current_version?: string;
   description?: string;
   schema_definition?: Array<Omit<DatasetColumn, 'pk' | 'fk'>>;
-  /** Mở rộng v1.1 (đề xuất). */
-  data_dictionary?: { tables: DatasetTable[] };
-  /** Mở rộng v1.1 (đề xuất). */
+  /**
+   * Server thật của TTS 01 trả MẢNG bảng (`RegistryDictionaryTable`); bản mô phỏng
+   * v1.1 trả `{ tables: [...] }`. Adapter trong DatasetIntegrationService chuẩn hóa
+   * về `{ tables: DatasetTable[] }`.
+   */
+  data_dictionary?: RegistryDictionaryTable[] | { tables: DatasetTable[] };
+  /** Chỉ có ở bản mô phỏng; server thật không cấp (sandbox do Learning Hub quản lý). */
   sandbox_db_url?: string;
+}
+
+/** Cột trong data_dictionary của server thật TTS 01 (Day 21). */
+export interface RegistryDictionaryColumn {
+  name: string;
+  data_type: string;
+  nullable?: boolean;
+  is_primary_key?: boolean;
+  is_foreign_key?: boolean;
+  /** Dạng `bảng.cột`. */
+  foreign_key_target?: string | null;
+  description?: string;
+}
+
+export interface RegistryDictionaryTable {
+  table_name: string;
+  file_name?: string | null;
+  row_count?: number | null;
+  primary_key?: string | null;
+  description?: string | null;
+  columns: RegistryDictionaryColumn[];
 }
 
 export interface RegistryEnvelope<T> {
@@ -88,8 +113,10 @@ export interface RegistryEvaluationSet {
   id: string;
   name: string;
   version?: string;
-  corpus_id: string;
-  items: RegistryEvalItem[];
+  corpus_id?: string;
+  /** Bản mô phỏng v1.1 dùng `items`; server thật của TTS 01 dùng `questions`. */
+  items?: RegistryEvalItem[];
+  questions?: RegistryEvalItem[];
 }
 
 export interface EvaluationItem {

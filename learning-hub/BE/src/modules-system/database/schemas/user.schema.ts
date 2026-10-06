@@ -42,6 +42,22 @@ export class User {
   @Prop({ type: String, unique: true, sparse: true })
   studentCode?: string;
 
+  // Khóa tài khoản do Admin đặt. Tài khoản cũ chưa có trường này được hiểu là ACTIVE.
+  // Tài khoản bị khóa không đăng nhập được và token đang dùng bị từ chối ở JwtStrategy.
+  @Prop({ type: String, enum: ['ACTIVE', 'LOCKED'], default: 'ACTIVE' })
+  status?: 'ACTIVE' | 'LOCKED';
+
+  // Thông tin liên hệ tự cập nhật ở Trang cá nhân (email thì không đổi được).
+  @Prop({ type: String, default: '' })
+  phone?: string;
+
+  @Prop({ type: String, default: '' })
+  bio?: string;
+
+  // Mọi token cấp TRƯỚC thời điểm này bị từ chối (Admin thu hồi quyền giảng viên, buộc đăng xuất).
+  @Prop({ type: Date })
+  sessionsRevokedAt?: Date;
+
   // Ảnh đại diện: URL http(s) hoặc data URL png/jpeg/webp đã thu nhỏ (xem modules-api/auth/avatar.ts).
   @Prop({ type: String })
   avatar?: string;

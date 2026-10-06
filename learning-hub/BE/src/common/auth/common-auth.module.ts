@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '../../modules-system/database/database.module';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { OptionalJwtAuthGuard } from './optional-jwt-auth.guard';
@@ -13,7 +14,7 @@ import { RolesGuard } from './roles.guard';
  * verify token, không cần AuthService.
  */
 @Module({
-  imports: [ConfigModule, PassportModule],
+  imports: [ConfigModule, PassportModule, DatabaseModule],
   providers: [JwtStrategy, JwtAuthGuard, OptionalJwtAuthGuard, RolesGuard],
   exports: [JwtAuthGuard, OptionalJwtAuthGuard, RolesGuard],
 })

@@ -26,6 +26,8 @@
     "seed:quiz": "ts-node src/data/seed-quiz.ts",
     "seed:exercises": "ts-node src/data/seed-exercises.ts",
     "seed:contests": "ts-node src/data/seed-contests.ts",
+    "seed:teacher-demo": "ts-node src/data/seed-teacher-demo.ts",
+    "cleanup:teacher-demo": "ts-node src/data/cleanup-teacher-demo.ts",
     "eval:coach": "ts-node -T src/modules-api/coach/eval/generate-baseline-report.ts",
     "generate:problems": "ts-node -T src/modules-api/problem-generator/run-pipeline.ts",
     "mock:data-service": "ts-node -T mock-data-service/server.ts"
@@ -53,7 +55,8 @@
     "passport-jwt": "^4.0.1",
     "pg": "^8.23.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

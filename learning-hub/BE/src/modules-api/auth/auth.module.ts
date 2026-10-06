@@ -6,6 +6,7 @@ import { CommonAuthModule } from '../../common/auth/common-auth.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { MailService } from './mail.service';
+import { DefaultAdminService } from './default-admin.service';
 import { jwtSecretFrom } from '../../common/auth/jwt-secret';
 
 @Module({
@@ -22,7 +23,7 @@ import { jwtSecretFrom } from '../../common/auth/jwt-secret';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, MailService],
+  providers: [AuthService, MailService, DefaultAdminService],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
