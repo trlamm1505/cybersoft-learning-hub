@@ -77,10 +77,10 @@ def render():
                     "badge": "REGEX ENGINE",
                     "badge_bg": "#0369A1",
                     "lines": [
-                        "• SĐT Việt Nam: (+84|0)[3|5|7|8|9]xx (10 chữ số)",
+                        "• SĐT VN (+84, 09x, hỗ trợ dấu cách & dấu chấm)",
                         "• Email học viên: RFC 5322 regex validation",
-                        "• CCCD gắn chip: 12 số (0xx...) & CMND 9 số",
-                        "• Rủi ro phân cấp: Critical, High, Medium",
+                        "• CCCD 12 số & CMND 9 số (Context Capturing Group)",
+                        "• Chống bắt nhầm số tiền 150000000 VND thành CMND",
                     ],
                 },
                 {
@@ -118,10 +118,10 @@ def render():
                     "badge": "DIRECT OVERRIDE",
                     "badge_bg": "#B91C1C",
                     "lines": [
-                        "• Chặn 'ignore previous instructions'",
-                        "• Chặn 'disregard system directives'",
-                        "• Chặn 'forget safety guidelines'",
-                        "• Hành động: BLOCK lập tức với rủi ro Critical",
+                        "• Chặn 'ignore previous instructions' / 'disregard'",
+                        "• Song ngữ Tiếng Việt: 'Bỏ qua mọi chỉ thị trước đó'",
+                        "• Chặn chỉ thị trích xuất system prompt và khóa bí mật",
+                        "• Hành động: BLOCK lập tức với rủi ro Critical/High",
                     ],
                 },
                 {
@@ -130,9 +130,9 @@ def render():
                     "badge_bg": "#C2410C",
                     "lines": [
                         "• Chặn mẫu tấn công DAN (Do Anything Now)",
-                        "• Chặn yêu cầu 'act as an unrestricted AI'",
+                        "• Chặn yêu cầu 'đóng vai hacker', 'act as unrestricted'",
                         "• Chặn Developer Mode & Evil Confidant",
-                        "• Phòng ngừa vượt rào đạo đức trên Trợ giảng AI",
+                        "• Bảo vệ toàn vẹn Trợ giảng AI trước thao túng vai",
                     ],
                 },
                 {
@@ -160,7 +160,7 @@ def render():
                     "badge_bg": "#047857",
                     "lines": [
                         "• Chặn chuỗi vượt cấp: ../, ..\\, %2e%2e, %2f",
-                        "• Chặn Null Byte Injection: \\x00, %00",
+                        "• Chặn Null Byte: \\x00, \\u0000, \\0, %00",
                         "• validate_safe_path() đối soát trong Safe Root",
                         "• Trả mã HTTP 403 PATH_TRAVERSAL_BLOCKED",
                     ],
@@ -191,30 +191,30 @@ def render():
         },
         {
             "num": "TRỤ CỘT 4",
-            "title": "MÔ HÌNH STRIDE & QUALITY GATE",
-            "sub": "Threat Modeling & Release Decision v0.1",
+            "title": "RELEASE SCANNER & QUALITY GATE",
+            "sub": "Task 24 Audit & Release Decision v0.1",
             "color": "#A855F7",
             "cards": [
                 {
-                    "title": "Ma Trận Phân Tích Mối Đe Dọa (STRIDE)",
-                    "badge": "10 THREATS MAPPED",
+                    "title": "Thẩm Định Gói Phát Hành Task 24",
+                    "badge": "TASK 24 AUDIT",
                     "badge_bg": "#6D28D9",
                     "lines": [
-                        "• Spoofing: Giả mạo token học viên (Mitigated)",
-                        "• Tampering: Đầu độc chunk & prompt (Patched)",
-                        "• Repudiation: Thiếu dấu vết kiểm toán (Patched)",
-                        "• Info Disclosure: Lộ PII & system prompt (Patched)",
+                        "• Đối soát SHA-256 của 16 Artifacts Task 24",
+                        "• Quét PII trên Churn CSV & Injection trên Chunks",
+                        "• Gói v1.1.0: 16/16 Khớp Hash 100% -> PASSED",
+                        "• Gói giả mạo tampered: Khóa cứng BLOCKED",
                     ],
                 },
                 {
-                    "title": "Đánh Giá Nguy Cơ & Giảm Thiểu (DREAD)",
-                    "badge": "DREAD SCORING",
+                    "title": "Ma Trận STRIDE & Thang Điểm DREAD",
+                    "badge": "10 THREATS MAPPED",
                     "badge_bg": "#4338CA",
                     "lines": [
-                        "• DoS: File tải lên khổng lồ & ReDoS (Patched)",
-                        "• EoP: Path Traversal & Zip Slip (Patched)",
-                        "• 8/10 mối đe dọa đã vá mã nguồn trực tiếp (Patched)",
-                        "• 2/10 mối đe dọa được giảm thiểu kiến trúc",
+                        "• 10/10 Mối đe dọa đã vá mã nguồn & giảm thiểu",
+                        "• Phân loại: Spoofing, Tampering, Info Disclosure...",
+                        "• 0 Lỗ hổng Critical / High còn mở trong hệ thống",
+                        "• Đảm bảo tiêu chuẩn an ninh trước khi tích hợp",
                     ],
                 },
                 {
@@ -222,9 +222,9 @@ def render():
                     "badge": "GATE: PASSED",
                     "badge_bg": "#059669",
                     "lines": [
-                        "• Ràng buộc: 0 Critical / High Threats được mở",
+                        "• Điều kiện: 0 High/Crit mở & 16/16 Artifacts toàn vẹn",
                         "• Trạng thái hiện tại: PASSED (Release Allowed)",
-                        "• 37/37 Pytest Tests PASS 100% trong 2.15s",
+                        "• 73/73 Pytest Tests PASS 100% trong 1.11 giây",
                         "• Đủ điều kiện bàn giao Tuần 6 (Platform Integration)",
                     ],
                 },
@@ -297,8 +297,8 @@ def render():
         font=font_card_body,
     )
     draw.text(
-        (width - 800, foot_y + 25),
-        "37/37 Tests Passed | 0 Open Critical/High | Zero Real PII Guaranteed",
+        (width - 850, foot_y + 25),
+        "73/73 Tests Passed | 0 Open Critical/High | Task 24 Verified | Zero Real PII",
         fill="#38BDF8",
         font=font_card_title,
     )
