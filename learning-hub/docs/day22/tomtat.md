@@ -21,54 +21,87 @@ Nguồn dữ liệu được chọn bằng biến `DATA_SERVICE_BASE_URL` trong 
 
 | Giá trị | Chế độ | Mô tả |
 |---|---|---|
-| Để trống (hiện tại) | Bản mô phỏng nội bộ | Backend dùng bộ dữ liệu mô phỏng theo đúng hợp đồng, không gọi mạng |
-| Địa chỉ server của số 1 | Gọi API thật | Server không phản hồi thì trả lỗi rõ ràng |
+| Để trống | Bản mô phỏng nội bộ | Backend dùng bộ dữ liệu mô phỏng theo đúng hợp đồng, không gọi mạng |
+| Địa chỉ server của số 1 (hiện tại `http://127.0.0.1:8000`) | Gọi API thật | Server không phản hồi thì trả lỗi rõ ràng |
 
 Khi hai bên chạy trên hai máy khác nhau, địa chỉ `localhost` chỉ trỏ về máy đang chạy chương trình, nên cần dùng địa chỉ IP hoặc tên miền của máy chạy server số 1. Địa chỉ Postgres Sandbox cũng phải truy cập được từ backend của Learning Hub.
 
-## Theo dõi tích hợp với số 1 (cập nhật ngày 05/10/2026)
+## Theo dõi tích hợp với số 1 (hoàn tất ngày 06/10/2026)
 
-### Tình trạng
+### Trạng thái
 
-Server Day 21 của số 1 hiện đã trả thông tin cơ bản của dataset nhưng còn thiếu ba phần mà Learning Hub cần. Trong thời gian chờ, DA Lab và AI Lab chạy bằng bản mô phỏng nội bộ nên không bị chặn và vẫn phục vụ kiểm thử Day 24. Thư mục của số 1 không bị chỉnh sửa. Dự kiến số 1 hoàn thành sau khoảng 2 đến 3 ngày.
+Hoàn tất. Số 1 đã cập nhật đủ ba endpoint, Learning Hub đã chuyển từ bản mô phỏng sang gọi server thật (`DATA_SERVICE_BASE_URL=http://127.0.0.1:8000`, `npm run doctor` báo "server ngoài"). Dữ liệu được nạp vào Postgres Sandbox hoàn toàn qua API bằng `npm run ingest:sandbox`, không sao chép tệp thủ công. Thư mục của số 1 không bị chỉnh sửa.
 
-### Yêu cầu đã gửi số 1
+### Đối chiếu hợp đồng: chênh lệch thực tế và cách xử lý
 
-| STT | Endpoint | Nội dung yêu cầu |
+Cả ba endpoint trả đúng dữ liệu nhưng tên trường khác với bản đề xuất. Phần chuyển đổi nằm ở `DatasetIntegrationService`, FE và các bài lab không phải sửa.
+
+| Endpoint | Đề xuất của Learning Hub | Thực tế server số 1 | Xử lý |
+|---|---|---|---|
+| `GET /datasets/{id}` | `data_dictionary: { tables: [{ name, columns: [{ name, type, pk, fk }] }] }` | `data_dictionary: [{ table_name, columns: [{ name, data_type, is_primary_key, is_foreign_key, foreign_key_target }] }]` (mảng, không bọc `tables`) | Chuẩn hóa về dạng nội bộ cũ |
+| `GET /datasets/{id}` | `sandbox_db_url` | Không có | Chủ động: Postgres Sandbox do Learning Hub quản lý nên chuỗi kết nối dựng từ cấu hình sandbox, vẫn không gửi ra trình duyệt |
+| `GET /evaluation-sets/{id}` | `items`; `expected_behavior` là `ANSWER`/`ABSTAIN`; `category` là loại câu | `questions`. Bộ `eval-rag-golden-v1` đúng quy ước; bộ `eval-policy-curriculum-v1` ghi `expected_behavior` bằng câu mô tả rubric ("Return factual answer...") và `category` bằng chủ đề (Academic Policy...) | Đọc cả `items` lẫn `questions`; dịch rubric sang `ANSWER`/`ABSTAIN` và loại câu, rubric lạ thì báo lỗi |
+| `GET /datasets/{id}/tables/{bảng}` | Phân trang hoặc tệp, kèm version và checksum | Đúng đề xuất: JSON phân trang hoặc `format=csv`; header `X-Checksum-SHA256`, `X-Total-Rows`, `X-Data-Variant`; tham số `variant=clean` hoặc `dirty` | Dùng nguyên |
+| Mã evaluation set | 8 bộ riêng cho 8 bài AI Lab (`eval-cs-*`) | Server chỉ có 2 bộ lớn: `eval-rag-golden-v1` (30 câu) và `eval-policy-curriculum-v1` (100 câu) | Mỗi bài AI Lab là một "lát" danh sách `question_id` (`eval-slices.ts`); nội dung câu hỏi và đáp án luôn lấy từ server thật |
+
+Kiểu dữ liệu `DATETIME` trong từ điển của số 1 được đổi thành `TIMESTAMP` khi tạo bảng Postgres.
+
+### Đối soát nạp dữ liệu (variant clean, v1.0, schema `public`)
+
+Kịch bản kiểm tra theo thứ tự: checksum tệp tải về so với header, so với checksum của phản hồi JSON, tên cột CSV so với từ điển, số dòng so với `X-Total-Rows` và `row_count`, rồi đếm lại trong Postgres. Sai một điều kiện là hủy cả giao dịch, sandbox giữ nguyên.
+
+| Bảng | Dòng ở nguồn | Dòng trong Postgres | SHA-256 (12 ký tự đầu) |
+|---|---|---|---|
+| customers | 200 | 200 | `3f1c14f32c4c` |
+| employees | 20 | 20 | `92e42a6e63a0` |
+| products | 50 | 50 | `25b2a7df1071` |
+| orders | 1.000 | 1.000 | `ac5e353b4ddd` |
+| order_details | 1.803 | 1.803 | `bf07ccd995fd` |
+| Tổng | 3.073 | 3.073 | |
+
+- Cả 5 checksum trùng với checksum ghi trong tệp seed SQL của số 1 (`postgres_sandbox_retail_sales_clean.sql`).
+- Toàn vẹn: 0 đơn hàng mồ côi, tổng `order_details.line_total` khớp `orders.total_amount` ở cả 1.000 đơn, ràng buộc PK/FK tạo đầy đủ.
+- Bản `dirty` nạp riêng vào schema `dirty` (toàn cột TEXT, không ràng buộc, `lab_reader` chỉ đọc): cũng 5 bảng, 3.073 dòng, 5 checksum khớp. Các bài lab hiện chỉ dùng `clean`.
+- Kết quả ghi vào bảng `_ingest_manifest` (phiên bản, checksum, số dòng, thời điểm nạp), dùng để kiểm tra dữ liệu đang có đúng phiên bản nào.
+- So với bản mô phỏng cũ: 3.073 dòng thay cho 62 dòng (15 đơn, 24 dòng chi tiết, 10 khách hàng, 5 nhân viên, 8 sản phẩm).
+
+### Ảnh hưởng tới DA Lab và AI Lab
+
+Câu tham chiếu của DA Lab chạy lại trên sandbox mỗi lần chấm nên tự khớp dữ liệu thật; chỉ cần rà phần đề bài ghi sẵn số liệu.
+
+| Bài | Vấn đề với dữ liệu thật | Điều chỉnh |
 |---|---|---|
-| 1 | `GET /api/v1/registry/datasets/{id}` | Bổ sung trường `data_dictionary`: danh sách bảng, mỗi bảng có danh sách cột (tên, kiểu dữ liệu, nullable, khóa chính, khóa ngoại, mô tả). Dữ liệu này đã có ở Task 06 |
-| 2 | `GET /api/v1/registry/evaluation-sets/{id}` | Endpoint mới trả bộ câu hỏi chấm AI Lab, mỗi câu gồm `question_id`, `query`, `ground_truth_answer`, `expected_behavior` |
-| 3 | Endpoint lấy dữ liệu từng bảng của dataset | Hỗ trợ phân trang hoặc tải dạng tệp, kèm `current_version` và `checksum_sha256`, để nạp vào Postgres Sandbox. Cần xác nhận phiên bản được cấp là `clean` hay `dirty` |
+| `da-sql-09` | Ngưỡng 30 triệu: cả 20/20 nhân viên đều vượt (mỗi người khoảng 290 đến 600 triệu), điều kiện lọc mất ý nghĩa | Nâng ngưỡng lên 400 triệu, còn 6/20 nhân viên |
+| `da-insight-02` | Rubric nhắc "số đơn ít, thiếu quý"; dữ liệu thật có 6 quý liên tục | Sửa thành "chỉ 6 quý, chưa đủ kết luận mùa vụ" |
+| `da-insight-05` | Đề giả định có bất thường giữa trạng thái đơn và ngày giao; dữ liệu thật nhất quán (Completed và Shipping có ngày giao, Pending và Cancelled không) | Đề và rubric cho phép kết luận "không bất thường" kèm bằng chứng |
+| `ai-lab-04` | Câu Q057 trong bộ thật thuộc loại tổng hợp nhiều điều kiện, lệch với bài chỉ có câu một bước | Thay bằng Q012 (câu một bước) |
 
-Learning Hub đã đề xuất cấu trúc response cho endpoint số 3 để hai bên thống nhất tên trường. Số 1 cần phản hồi thời điểm hoàn thành, địa chỉ server chung và khóa API sử dụng.
+Các bài còn lại không cần sửa. Số dòng kết quả của câu tham chiếu 10 bài SQL trên dữ liệu thật: 133, 10, 2, 4, 3, 3, 12, 7, 6, 50.
 
-### Phân công trách nhiệm
+Phát hiện thêm: backend nạp bài DA Lab theo kiểu chỉ chèn bài mới, nên sửa đề trong mã không tới được CSDL đã có (bài 9 chấm sai vì câu tham chiếu cũ vẫn dùng ngưỡng 30 triệu). Đã đổi sang đồng bộ ghi đè nội dung theo `slug`, giống AI Lab.
 
-| Nội dung | Phụ trách |
+### Kiểm thử
+
+| Bộ kiểm thử | Kết quả |
 |---|---|
-| Lưu trữ dataset, metadata, `data_dictionary`, bộ câu hỏi đánh giá và cấp API truy xuất | Số 1 |
-| Quản lý Postgres Sandbox và thực thi truy vấn của học viên | Learning Hub |
-| Nạp dữ liệu vào Postgres Sandbox | Learning Hub, tự động qua API, không sao chép tệp thủ công |
+| Backend (Jest): unit, integration, contract trên phản hồi chụp từ server thật | 64 bộ, 769 đạt, 2 bỏ qua (bộ live) |
+| Contract test trực tiếp với server thật (`DATA_SERVICE_CONTRACT_URL=http://127.0.0.1:8000`) | 16/16 đạt |
+| Frontend (Vitest) | 13 bộ, 79 đạt; kiểm tra kiểu TypeScript không lỗi |
+| Kịch bản setup và nạp dữ liệu (`npm run test:scripts`) | 14/14 đạt |
+| Biên dịch backend (`nest build`) | Đạt |
+| `npm run doctor` | Docker, backend, MongoDB, nguồn dữ liệu "server ngoài", Postgres sandbox, Python đều đạt; chỉ web chưa bật khi kiểm tra |
+| Chạy thật bằng tài khoản học viên (tài khoản thử đã xóa) | 10/10 bài SQL được chấm ACCEPTED; 8 bài AI Lab tải đúng bộ câu hỏi từ server thật; 3 bài (04, 05, 08) nộp thử đạt PASSED |
 
-Số 1 không phải cấp địa chỉ kết nối Postgres vì Postgres Sandbox do Learning Hub quản lý. Postgres đang chạy ở môi trường dev do Learning Hub tự dựng ở Day 22: tên bảng và cột khớp với dữ liệu của số 1 nhưng nội dung chỉ là bản thu nhỏ (khoảng 15 đơn hàng), không phải 1.000 đơn hàng của dataset gốc.
+### Cách vận hành
 
-### Kế hoạch trong thời gian chờ
+1. Bật server của số 1, đặt `DATA_SERVICE_BASE_URL` và `DATA_SERVICE_API_KEY` trong `BE/.env`.
+2. `npm run sandbox`, rồi `npm run ingest:sandbox` (thêm `--variant dirty` hoặc `--dry-run` nếu cần), khởi động lại backend.
+3. `npm run doctor` để xác nhận đang ở chế độ server ngoài.
 
-- Bổ sung ba endpoint trên vào server mô phỏng theo đúng cấu trúc đã đề xuất.
-- Viết kịch bản nạp dữ liệu tự động từ API vào Postgres Sandbox, có kiểm thử trên server mô phỏng.
-- Khi số 1 hoàn thành, chỉ cần thay địa chỉ và khóa API trong `BE/.env`.
+### Còn lại và lưu ý
 
-### Các bước khi số 1 hoàn thành
-
-1. Gọi thử trực tiếp ba endpoint bằng `curl`, xác nhận đủ dữ liệu và đúng cấu trúc đã thống nhất.
-2. Nếu tên trường khác với đề xuất thì điều chỉnh phần đọc dữ liệu cho khớp.
-3. Cập nhật `DATA_SERVICE_BASE_URL` và `DATA_SERVICE_API_KEY` trong `BE/.env`, khởi động lại backend, chạy `npm run doctor` để xác nhận đã chuyển sang chế độ gọi API thật.
-4. Chạy kịch bản nạp dữ liệu và đối chiếu số dòng từng bảng với dataset của số 1.
-5. Rà soát các bài DA Lab: dữ liệu thật nhiều hơn nên kết quả truy vấn thay đổi, các bài ghi sẵn số liệu trong đề cần điều chỉnh.
-6. Kiểm tra lại DA Lab và AI Lab bằng tài khoản học viên.
-
-### Lưu ý
-
-- Cần cố định phiên bản dữ liệu và bản `clean` hoặc `dirty` cho từng bài lab. Nếu dữ liệu thay đổi mà không đổi phiên bản, các bài có số liệu cố định sẽ cho kết quả sai mà không có cảnh báo.
-- Khi server của số 1 ngừng hoạt động, phần dữ liệu SQL của môi trường mới không thể khởi tạo. Môi trường phát triển dùng bản mô phỏng làm dự phòng; môi trường triển khai thật phải báo lỗi rõ ràng.
-- Chỉ ghi nhận là đã tích hợp tự động khi kịch bản nạp dữ liệu hoạt động với server thật của số 1. Hiện tại vẫn là bản mô phỏng.
+- Khóa API đang dùng là khóa vai trò `student` của môi trường dev; môi trường thật cần xin số 1 khóa riêng cho Learning Hub.
+- Địa chỉ hiện là `127.0.0.1`, hai bên chạy cùng máy. Khi tách máy cần đổi sang IP hoặc tên miền và mở cổng; địa chỉ Postgres Sandbox cũng phải truy cập được từ backend.
+- Vẫn cần cố định phiên bản: nếu số 1 đổi dữ liệu mà không đổi `current_version` thì checksum trong `_ingest_manifest` sẽ lệch; chạy lại kịch bản nạp để phát hiện và đồng bộ.
+- Server của số 1 ngừng hoạt động thì không nạp được dữ liệu mới và backend báo lỗi rõ ràng. Muốn dev chạy tạm bằng dữ liệu tích hợp sẵn thì đặt `DATA_SERVICE_FALLBACK=embedded`.
+- Endpoint evaluation set của số 1 chưa có checksum riêng; Learning Hub tự tính từ câu hỏi và đáp án để ghi vào bản chạy, nên cần số 1 giữ ổn định mã câu hỏi.
