@@ -98,6 +98,12 @@ function ensureMongo() {
   warn('mongo-dev chưa healthy sau 60s. Xem log: docker logs learning-hub-mongo-dev');
 }
 
+/** Nạp dữ liệu ban đầu khi sandbox còn trống (API của Số 1, không được thì dữ liệu mẫu tích hợp sẵn). Không bao giờ làm hỏng lệnh gọi. */
+function bootstrapData() {
+  const r = spawnSync(process.execPath, [path.join(__dirname, 'bootstrap-sandbox.js')], { stdio: 'inherit' });
+  if (r.status !== 0) warn('Bước nạp dữ liệu sandbox không chạy được; chạy lại `npm run bootstrap:sandbox` sau.');
+}
+
 function main() {
   if (!ensureDocker()) {
     warn('Docker chưa bật và không tự mở được. Bỏ qua Postgres Sandbox; DA Lab sẽ không chạy được SQL cho tới khi bật Docker rồi chạy lại `npm run sandbox`.');
@@ -108,8 +114,8 @@ function main() {
 
   const state = containerState();
   if (state === 'healthy') {
-    log(`${CONTAINER} đã sẵn sàng, bỏ qua.`);
-    return;
+    log(`${CONTAINER} đã sẵn sàng.`);
+    return bootstrapData();
   }
 
   log(`${CONTAINER} đang ở trạng thái "${state}", khởi động bằng docker compose...`);
@@ -124,7 +130,7 @@ function main() {
     const s = containerState();
     if (s === 'healthy') {
       log(`${CONTAINER} đã sẵn sàng nhận kết nối.`);
-      return;
+      return bootstrapData();
     }
     if (s === 'unhealthy') break;
     sleep(POLL_MS);

@@ -1,0 +1,430 @@
+{
+ "success": true,
+ "data": {
+  "id": "ds-retail-ecommerce-sales-v1",
+  "name": "Bộ Dữ Liệu Bán Hàng E-Commerce Đa Bảng (Retail Sales v1.0)",
+  "domain": "Retail",
+  "difficulty_level": "intermediate",
+  "format": "csv",
+  "records_count": 10500,
+  "current_version": "v1.0",
+  "tags": [
+   "retail",
+   "ecommerce",
+   "sales",
+   "sql",
+   "excel",
+   "powerbi"
+  ],
+  "is_public": true,
+  "description": "Bộ dữ liệu bán hàng đa bảng chuẩn hóa 3NF gồm Customers, Orders, OrderItems, Products, Payments phục vụ thực hành SQL nâng cao và xây dựng Dashboard phân tích doanh thu.",
+  "schema_definition": [
+   {
+    "name": "order_id",
+    "type": "string",
+    "nullable": false,
+    "description": "Mã đơn hàng duy nhất"
+   },
+   {
+    "name": "customer_id",
+    "type": "string",
+    "nullable": false,
+    "description": "Mã khách hàng liên kết"
+   },
+   {
+    "name": "order_date",
+    "type": "datetime",
+    "nullable": false,
+    "description": "Ngày giờ đặt hàng"
+   },
+   {
+    "name": "total_amount",
+    "type": "float",
+    "nullable": false,
+    "description": "Tổng giá trị đơn hàng (VNĐ)"
+   },
+   {
+    "name": "status",
+    "type": "string",
+    "nullable": false,
+    "description": "Trạng thái: Completed, Processing, Cancelled"
+   }
+  ],
+  "data_dictionary": [
+   {
+    "table_name": "customers",
+    "file_name": "customers.csv",
+    "row_count": 200,
+    "primary_key": "customer_id",
+    "description": "Bảng thông tin khách hàng bán lẻ và khách hàng thân thiết",
+    "columns": [
+     {
+      "name": "customer_id",
+      "data_type": "VARCHAR(10)",
+      "nullable": false,
+      "is_primary_key": true,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Mã khách hàng duy nhất"
+     },
+     {
+      "name": "full_name",
+      "data_type": "VARCHAR(100)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Họ và tên khách hàng"
+     },
+     {
+      "name": "email",
+      "data_type": "VARCHAR(150)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Địa chỉ thư điện tử"
+     },
+     {
+      "name": "phone",
+      "data_type": "VARCHAR(15)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Số điện thoại di động"
+     },
+     {
+      "name": "city",
+      "data_type": "VARCHAR(50)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Tỉnh/Thành phố sinh sống"
+     },
+     {
+      "name": "customer_segment",
+      "data_type": "VARCHAR(20)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Phân khúc khách hàng (Retail, Wholesale, VIP)"
+     },
+     {
+      "name": "created_at",
+      "data_type": "DATETIME",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Thời gian đăng ký tài khoản"
+     }
+    ]
+   },
+   {
+    "table_name": "employees",
+    "file_name": "employees.csv",
+    "row_count": 20,
+    "primary_key": "employee_id",
+    "description": "Bảng danh sách nhân viên kinh doanh và tư vấn bán hàng",
+    "columns": [
+     {
+      "name": "employee_id",
+      "data_type": "VARCHAR(10)",
+      "nullable": false,
+      "is_primary_key": true,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Mã nhân viên bán hàng"
+     },
+     {
+      "name": "full_name",
+      "data_type": "VARCHAR(100)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Họ và tên nhân viên"
+     },
+     {
+      "name": "department",
+      "data_type": "VARCHAR(50)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Phòng ban công tác"
+     },
+     {
+      "name": "position",
+      "data_type": "VARCHAR(50)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Vị trí chức danh"
+     },
+     {
+      "name": "hire_date",
+      "data_type": "DATE",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Ngày tuyển dụng"
+     },
+     {
+      "name": "region",
+      "data_type": "VARCHAR(30)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Khu vực thị trường phụ trách"
+     }
+    ]
+   },
+   {
+    "table_name": "products",
+    "file_name": "products.csv",
+    "row_count": 50,
+    "primary_key": "product_id",
+    "description": "Bảng danh mục sản phẩm thương mại",
+    "columns": [
+     {
+      "name": "product_id",
+      "data_type": "VARCHAR(10)",
+      "nullable": false,
+      "is_primary_key": true,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Mã sản phẩm duy nhất"
+     },
+     {
+      "name": "product_name",
+      "data_type": "VARCHAR(150)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Tên sản phẩm thương mại"
+     },
+     {
+      "name": "category",
+      "data_type": "VARCHAR(50)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Ngành hàng sản phẩm"
+     },
+     {
+      "name": "cost_price",
+      "data_type": "NUMERIC(12,2)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Giá vốn nhập kho (VNĐ)"
+     },
+     {
+      "name": "selling_price",
+      "data_type": "NUMERIC(12,2)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Giá bán niêm yết (VNĐ)"
+     },
+     {
+      "name": "stock_quantity",
+      "data_type": "INT",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Số lượng tồn kho"
+     },
+     {
+      "name": "status",
+      "data_type": "VARCHAR(20)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Trạng thái kinh doanh"
+     }
+    ]
+   },
+   {
+    "table_name": "orders",
+    "file_name": "orders.csv",
+    "row_count": 1000,
+    "primary_key": "order_id",
+    "description": "Bảng đơn đặt hàng tổng hợp",
+    "columns": [
+     {
+      "name": "order_id",
+      "data_type": "VARCHAR(10)",
+      "nullable": false,
+      "is_primary_key": true,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Mã đơn hàng duy nhất"
+     },
+     {
+      "name": "customer_id",
+      "data_type": "VARCHAR(10)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": true,
+      "foreign_key_target": "customers.customer_id",
+      "description": "Khách hàng đặt mua"
+     },
+     {
+      "name": "employee_id",
+      "data_type": "VARCHAR(10)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": true,
+      "foreign_key_target": "employees.employee_id",
+      "description": "Nhân viên kinh doanh phụ trách"
+     },
+     {
+      "name": "order_date",
+      "data_type": "DATE",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Ngày chốt đơn đặt hàng"
+     },
+     {
+      "name": "shipping_date",
+      "data_type": "DATE",
+      "nullable": true,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Ngày bàn giao cho đối tác vận chuyển"
+     },
+     {
+      "name": "order_status",
+      "data_type": "VARCHAR(20)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Trạng thái tiến trình đơn hàng"
+     },
+     {
+      "name": "payment_method",
+      "data_type": "VARCHAR(30)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Phương thức thanh toán"
+     },
+     {
+      "name": "total_amount",
+      "data_type": "NUMERIC(14,2)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Tổng giá trị thanh toán đơn hàng"
+     }
+    ]
+   },
+   {
+    "table_name": "order_details",
+    "file_name": "order_details.csv",
+    "row_count": 1803,
+    "primary_key": "order_detail_id",
+    "description": "Bảng chi tiết các mặt hàng trong từng đơn đặt hàng",
+    "columns": [
+     {
+      "name": "order_detail_id",
+      "data_type": "VARCHAR(12)",
+      "nullable": false,
+      "is_primary_key": true,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Mã dòng chi tiết đơn hàng"
+     },
+     {
+      "name": "order_id",
+      "data_type": "VARCHAR(10)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": true,
+      "foreign_key_target": "orders.order_id",
+      "description": "Mã đơn hàng sở hữu"
+     },
+     {
+      "name": "product_id",
+      "data_type": "VARCHAR(10)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": true,
+      "foreign_key_target": "products.product_id",
+      "description": "Mã sản phẩm được mua"
+     },
+     {
+      "name": "quantity",
+      "data_type": "INT",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Số lượng sản phẩm mua"
+     },
+     {
+      "name": "unit_price",
+      "data_type": "NUMERIC(12,2)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Đơn giá bán tại thời điểm mua"
+     },
+     {
+      "name": "discount",
+      "data_type": "NUMERIC(4,2)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Tỷ lệ chiết khấu giảm giá"
+     },
+     {
+      "name": "line_total",
+      "data_type": "NUMERIC(14,2)",
+      "nullable": false,
+      "is_primary_key": false,
+      "is_foreign_key": false,
+      "foreign_key_target": null,
+      "description": "Thành tiền của dòng sản phẩm"
+     }
+    ]
+   }
+  ],
+  "checksum_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "file_size_bytes": 1428500,
+  "created_at": "2026-09-08T08:00:00Z",
+  "license": "CyberSoft Academy Educational License",
+  "sample_preview": [
+   {
+    "order_id": "ORD-001",
+    "customer_id": "CUST-101",
+    "order_date": "2026-09-01T10:15:00",
+    "total_amount": 1250000.0,
+    "status": "Completed"
+   }
+  ]
+ },
+ "meta": null
+}

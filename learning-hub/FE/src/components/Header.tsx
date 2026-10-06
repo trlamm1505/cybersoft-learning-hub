@@ -19,8 +19,8 @@ import {
   BrainCircuit,
   ClipboardCheck,
   ListChecks,
-  ShieldAlert,
   BarChart3,
+  ShieldAlert,
   User,
   ChevronDown,
   LogOut,
@@ -47,6 +47,7 @@ const STUDENT_NAV: NavItem[] = [
 ];
 
 const TEACHER_NAV: NavItem[] = [
+  { key: 'dashboard', label: 'Lớp của tôi', Icon: BarChart3, path: '/teacher/dashboard' },
   { key: 'authoring', label: 'Soạn Thảo Bài Thi', Icon: Wrench, path: '/authoring' },
   { key: 'teacher-library', label: 'Xem Các Bài Thi', Icon: ClipboardList, path: '/authoring?view=library' },
   { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
@@ -117,6 +118,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
     if (path.startsWith('/teacher/review-queue')) return 'review-queue';
     if (path.startsWith('/teacher/lab-submissions')) return 'lab-submissions';
     if (path.startsWith('/teacher/integrity')) return 'integrity';
+    if (path.startsWith('/teacher/dashboard')) return 'dashboard';
     if (path.startsWith('/block-puzzle')) return 'block-puzzle';
     if (path.startsWith('/quiz')) return 'quiz';
     if (path.startsWith('/detail')) return 'detail';

@@ -25,6 +25,8 @@ import { DaLabsModule } from './modules-api/da-labs/da-labs.module';
 import { AiLabsModule } from './modules-api/ai-labs/ai-labs.module';
 import { IntegrityModule } from './modules-api/integrity/integrity.module';
 import { LearnerActivityModule } from './modules-api/learner-activity/learner-activity.module';
+import { TeacherAnalyticsModule } from './modules-api/teacher-analytics/teacher-analytics.module';
+import { AdminUsersModule } from './modules-api/admin-users/admin-users.module';
 import { DatasetIntegrationModule } from './integration/dataset-integration.module';
 
 @Module({
@@ -49,6 +51,8 @@ import { DatasetIntegrationModule } from './integration/dataset-integration.modu
     AiLabsModule,
     IntegrityModule,
     LearnerActivityModule,
+    TeacherAnalyticsModule,
+    AdminUsersModule,
     DatasetIntegrationModule,
   ],
   controllers: [AppController],

@@ -58,6 +58,13 @@ export class AuthController {
     return this.authService.setAvatar(user.sub, dto?.avatar);
   }
 
+  /** Cập nhật họ tên, số điện thoại, giới thiệu của chính mình. Route: PUT /api/auth/profile */
+  @Put('profile')
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(@CurrentUser() user: JwtPayload, @Body() body: unknown) {
+    return this.authService.updateProfile(user.sub, body);
+  }
+
   @Put('age-group')
   @UseGuards(JwtAuthGuard)
   async setAgeGroup(

@@ -9,6 +9,8 @@
     "dev:web": "npm --prefix FE run dev",
     "dev:mock": "npm --prefix BE run mock:data-service",
     "sandbox": "node scripts/ensure-sandbox.js",
+    "ingest:sandbox": "node scripts/ingest-sandbox.js",
+    "bootstrap:sandbox": "node scripts/bootstrap-sandbox.js",
     "doctor": "node scripts/doctor.js",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",

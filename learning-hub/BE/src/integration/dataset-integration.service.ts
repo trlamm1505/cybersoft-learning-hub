@@ -12,13 +12,17 @@ import { firstValueFrom } from 'rxjs';
 import { isAxiosError } from 'axios';
 import { createHash } from 'crypto';
 import { buildSandboxDbUrl } from '../common/config/sandbox-env';
+import { getEvalSlice, normalizeEvalKind, sourceSetOf } from './eval-slices';
 import { LocalRegistry } from './local-registry/local-registry';
 import type {
   DatasetContract,
+  DatasetTable,
+  RegistryDictionaryTable,
   EvaluationSetContract,
   PublicDatasetContract,
   RegistryDatasetDetail,
   RegistryEnvelope,
+  RegistryEvalItem,
   RegistryEvaluationSet,
 } from './dataset-contract.types';
 
@@ -29,8 +33,7 @@ const CACHE_TTL_MS = 60_000;
 const REQUEST_TIMEOUT_MS = 5_000;
 export const DATA_SERVICE_DOWN_MESSAGE =
   'Không kết nối được máy chủ dữ liệu (DATA_SERVICE_BASE_URL). Hãy bật máy chủ đó, hoặc để trống DATA_SERVICE_BASE_URL để dùng dữ liệu tích hợp sẵn trong backend';
-export const DATA_SERVICE_TIMEOUT_MESSAGE =
-  'Máy chủ dữ liệu phản hồi quá lâu';
+export const DATA_SERVICE_TIMEOUT_MESSAGE = 'Máy chủ dữ liệu phản hồi quá lâu';
 export const DATA_SERVICE_UNREACHABLE_MESSAGE =
   'Không kết nối được máy chủ dữ liệu của Data & AI Resource';
 
@@ -93,9 +96,8 @@ export class DatasetIntegrationService {
     path: string,
     notFoundMessage: string,
   ): RegistryEnvelope<T> {
-    const match = /^\/api\/v1\/registry\/(datasets|evaluation-sets)\/(.+)$/.exec(
-      path,
-    );
+    const match =
+      /^\/api\/v1\/registry\/(datasets|evaluation-sets)\/(.+)$/.exec(path);
     const id = match ? decodeURIComponent(match[2]) : '';
     const data = !match
       ? undefined
@@ -144,10 +146,12 @@ export class DatasetIntegrationService {
     const cached = this.evalCache.get(resourceId);
     if (cached && cached.expiresAt > Date.now()) return cached.value;
 
-    const envelope = await this.getEnvelope<RegistryEvaluationSet>(
-      `/api/v1/registry/evaluation-sets/${encodeURIComponent(resourceId)}`,
-      `Evaluation set "${resourceId}" không tồn tại trong Registry của Data & AI Resource.`,
-    );
+    const envelope = this.baseUrl()
+      ? await this.getRemoteEvaluationSet(resourceId)
+      : await this.getEnvelope<RegistryEvaluationSet>(
+          `/api/v1/registry/evaluation-sets/${encodeURIComponent(resourceId)}`,
+          `Evaluation set "${resourceId}" không tồn tại trong Registry của Data & AI Resource.`,
+        );
 
     const contract = this.toEvaluationSet(resourceId, envelope);
     this.evalCache.set(resourceId, {
@@ -155,6 +159,56 @@ export class DatasetIntegrationService {
       expiresAt: Date.now() + CACHE_TTL_MS,
     });
     return contract;
+  }
+
+  /**
+   * Trên Registry thật: mã bài lab có thể là một "lát" (vd `eval-cs-rag-abstain-v1`)
+   * của các bộ lớn do TTS 01 phát hành; ghép lát từ nội dung thật, giữ thứ tự bài lab.
+   * Mã không phải lát thì gọi thẳng như một evaluation set.
+   */
+  private async getRemoteEvaluationSet(
+    resourceId: string,
+  ): Promise<RegistryEnvelope<RegistryEvaluationSet>> {
+    const fetchSet = (id: string) =>
+      this.getEnvelope<RegistryEvaluationSet>(
+        `/api/v1/registry/evaluation-sets/${encodeURIComponent(id)}`,
+        `Evaluation set "${id}" không tồn tại trong Registry của Data & AI Resource.`,
+      );
+    const slice = getEvalSlice(resourceId);
+    if (!slice) return fetchSet(resourceId);
+
+    const sourceIds = [...new Set(slice.questionIds.map(sourceSetOf))];
+    const sources = new Map<string, RegistryEvaluationSet>();
+    for (const id of sourceIds) {
+      const env = await fetchSet(id);
+      if (!env.success || !env.data) return env as never;
+      sources.set(id, env.data);
+    }
+    const byId = new Map<string, RegistryEvalItem>();
+    for (const set of sources.values()) {
+      for (const q of set.items ?? set.questions ?? []) {
+        byId.set(q.question_id, q);
+      }
+    }
+    const missing = slice.questionIds.filter((q) => !byId.has(q));
+    if (missing.length) {
+      throw new BadGatewayException(
+        `Registry thật thiếu câu ${missing.join(', ')} mà bài lab "${resourceId}" cần.`,
+      );
+    }
+    const first = sources.values().next().value as RegistryEvaluationSet;
+    return {
+      success: true,
+      data: {
+        id: slice.id,
+        name: slice.name,
+        version: sourceIds
+          .map((id) => `${id}@${sources.get(id)!.version}`)
+          .join('+'),
+        corpus_id: first.corpus_id,
+        items: slice.questionIds.map((q) => byId.get(q)!),
+      },
+    };
   }
 
   private assertResourceId(resourceId: string) {
@@ -227,25 +281,49 @@ export class DatasetIntegrationService {
         envelope?.error?.message ?? 'Dataset Registry trả về envelope lỗi.',
       );
     }
-    // Hai trường mở rộng v1.1 là bắt buộc với lab SQL: thiếu thì báo rõ thay
-    // vì tự dựng cấu trúc bảng ở phía Learning Hub.
-    if (!data.data_dictionary?.tables?.length) {
+    // data_dictionary là bắt buộc với lab SQL: thiếu thì báo rõ thay vì tự dựng
+    // cấu trúc bảng ở phía Learning Hub.
+    const tables = this.normalizeDictionary(data.data_dictionary);
+    if (!tables.length) {
       throw new BadGatewayException(
-        `Dataset "${resourceId}" chưa có data_dictionary (mở rộng v1.1 của hợp đồng).`,
-      );
-    }
-    if (!data.sandbox_db_url) {
-      throw new BadGatewayException(
-        `Dataset "${resourceId}" chưa được cấp sandbox_db_url.`,
+        `Dataset "${resourceId}" chưa có data_dictionary.`,
       );
     }
     return {
       resource_id: data.id ?? resourceId,
       dataset_name: data.name,
       version: data.current_version ?? 'v1.0',
-      data_dictionary: data.data_dictionary,
-      sandbox_db_url: data.sandbox_db_url,
+      data_dictionary: { tables },
+      // Server thật không cấp sandbox_db_url: Postgres Sandbox do Learning Hub
+      // quản lý và nạp dữ liệu qua scripts/ingest-sandbox.js.
+      sandbox_db_url: data.sandbox_db_url || buildSandboxDbUrl(),
     };
+  }
+
+  /**
+   * Hai dạng data_dictionary: mảng bảng của server thật (`table_name`, `data_type`,
+   * `is_primary_key`, `foreign_key_target`) và `{ tables }` của bản mô phỏng
+   * (`name`, `type`, `pk`, `fk`). Chuẩn hóa về dạng sau, là dạng FE và lab đang dùng.
+   */
+  private normalizeDictionary(
+    raw: RegistryDatasetDetail['data_dictionary'],
+  ): DatasetTable[] {
+    if (!raw) return [];
+    if (!Array.isArray(raw)) return raw.tables ?? [];
+    return (raw as RegistryDictionaryTable[]).map((t) => ({
+      name: t.table_name,
+      description: t.description ?? undefined,
+      row_count: t.row_count ?? undefined,
+      primary_key: t.primary_key ?? undefined,
+      columns: (t.columns ?? []).map((c) => ({
+        name: c.name,
+        type: c.data_type,
+        nullable: c.nullable ?? false,
+        pk: c.is_primary_key ?? false,
+        fk: c.foreign_key_target ?? null,
+        description: c.description ?? '',
+      })),
+    }));
   }
 
   private toEvaluationSet(
@@ -259,7 +337,7 @@ export class DatasetIntegrationService {
       );
     }
     // Câu thiếu đáp án chuẩn thì không chấm được: báo lỗi thay vì bỏ qua lặng lẽ.
-    const items = (data.items ?? []).map((it) => {
+    const items = (data.items ?? data.questions ?? []).map((it) => {
       const ground_truths = [
         it.ground_truth_answer,
         ...(it.alternative_answers ?? []),
@@ -269,11 +347,17 @@ export class DatasetIntegrationService {
           `Evaluation set "${resourceId}" có câu hỏi thiếu query hoặc ground_truth_answer.`,
         );
       }
+      const kind = normalizeEvalKind(it);
+      if (!kind) {
+        throw new BadGatewayException(
+          `Evaluation set "${resourceId}", câu ${it.question_id}: expected_behavior "${it.expected_behavior}" không nhận diện được.`,
+        );
+      }
       return {
         question_id: it.question_id,
         query: it.query,
-        category: it.category,
-        expected_behavior: it.expected_behavior,
+        category: kind.category,
+        expected_behavior: kind.expected_behavior,
         ground_truths,
         expected_doc_ids: it.expected_doc_ids ?? [],
       };
@@ -294,7 +378,7 @@ export class DatasetIntegrationService {
       resource_id: data.id ?? resourceId,
       name: data.name,
       version: data.version ?? 'v1.0',
-      corpus_id: data.corpus_id,
+      corpus_id: data.corpus_id ?? 'corpus-cybersoft-academic-v1',
       checksum,
       items,
     };

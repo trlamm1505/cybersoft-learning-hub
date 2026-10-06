@@ -59,14 +59,14 @@ export class DaLabsService implements OnModuleInit {
     private readonly userModel: Model<UserDocument>,
   ) {}
 
-  /** Tự nạp bộ lab khi khởi động: chỉ chèn bài còn thiếu, không ghi đè. */
+  /** Đồng bộ bộ lab khi khởi động: chèn bài thiếu và cập nhật nội dung bài đã có (cùng cách với AI Lab). */
   async onModuleInit() {
     const res = await this.exerciseModel.bulkWrite(
       INITIAL_DA_LABS.map((lab) => ({
         updateOne: {
           filter: { slug: lab.slug },
           update: {
-            $setOnInsert: {
+            $set: {
               ...lab,
               resource_id: SALES_RESOURCE_ID,
               topic: DA_LAB_TOPIC,
@@ -77,8 +77,10 @@ export class DaLabsService implements OnModuleInit {
         },
       })),
     );
-    if (res.upsertedCount > 0) {
-      this.logger.log(`Đã nạp ${res.upsertedCount} bài DA lab mặc định.`);
+    if (res.upsertedCount > 0 || res.modifiedCount > 0) {
+      this.logger.log(
+        `Đồng bộ bài DA lab: thêm ${res.upsertedCount}, cập nhật ${res.modifiedCount}.`,
+      );
     }
   }
 
@@ -321,7 +323,10 @@ export class DaLabsService implements OnModuleInit {
     const userIds = [...new Set(pending.map((p) => p.userId))];
     const exerciseIds = [...new Set(pending.map((p) => p.exerciseId))];
     const [users, exercises] = await Promise.all([
-      this.userModel.find({ _id: { $in: userIds } }).select('fullName email').lean(),
+      this.userModel
+        .find({ _id: { $in: userIds } })
+        .select('fullName email')
+        .lean(),
       this.exerciseModel
         .find({ _id: { $in: exerciseIds } })
         .select('title slug points insightRubric')
@@ -378,8 +383,14 @@ export class DaLabsService implements OnModuleInit {
     const userIds = [...new Set(docs.map((d) => d.userId))];
     const exerciseIds = [...new Set(docs.map((d) => d.exerciseId))];
     const [users, exercises] = await Promise.all([
-      this.userModel.find({ _id: { $in: userIds } }).select('fullName email').lean(),
-      this.exerciseModel.find({ _id: { $in: exerciseIds } }).select('title slug').lean(),
+      this.userModel
+        .find({ _id: { $in: userIds } })
+        .select('fullName email')
+        .lean(),
+      this.exerciseModel
+        .find({ _id: { $in: exerciseIds } })
+        .select('title slug')
+        .lean(),
     ]);
     const userById = new Map(users.map((u) => [String(u._id), u]));
     const exerciseById = new Map(exercises.map((e) => [String(e._id), e]));
@@ -418,7 +429,9 @@ export class DaLabsService implements OnModuleInit {
       throw new BadRequestException(`Bài "${slug}" không phải dạng ${type}.`);
     }
     if (!lab.resource_id || !lab.solutionCode) {
-      throw new BadRequestException(`Bài "${slug}" thiếu resource_id hoặc câu tham chiếu.`);
+      throw new BadRequestException(
+        `Bài "${slug}" thiếu resource_id hoặc câu tham chiếu.`,
+      );
     }
     return lab;
   }

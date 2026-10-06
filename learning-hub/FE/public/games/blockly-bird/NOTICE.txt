@@ -1,0 +1,9 @@
+Chim Tìm Tổ trong Block Puzzle dựa trên trò chơi "Bird" của Blockly Games
+(https://github.com/blockly-games/blockly-games), Copyright 2012 Google LLC,
+phát hành theo Apache License 2.0 (xem LICENSE-blockly-games.txt).
+
+Các tệp birds-120.png, nest.png, worm.png, quack.mp3, whack.mp3, worm.mp3 được sao chép nguyên bản từ appengine/bird của kho đó.
+
+Luật chơi và màn chơi được chuyển sang TypeScript/React (xem FE/src/games/blocklyBird).
+Thay đổi so với bản gốc: bỏ Closure Library và JS-Interpreter, dùng thư viện Blockly
+(npm "blockly", Apache-2.0), thông báo tiếng Việt, tiến độ lưu theo tài khoản Learning Hub.

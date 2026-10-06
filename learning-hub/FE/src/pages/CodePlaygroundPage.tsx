@@ -333,7 +333,15 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
     // a specific exercise card.
     exerciseApi
       .listExercises()
-      .then((list) => setExercises(list))
+      .then((list) => {
+        setExercises(list);
+        // Liên kết từ "Lớp học của tôi": /playground?slug=... mở thẳng bài được giao.
+        const wanted = new URLSearchParams(window.location.search).get('slug');
+        if (wanted && authUser && list.some((ex) => ex.slug === wanted)) {
+          setSelectedSlug(wanted);
+          setView('editor');
+        }
+      })
       .catch(() => {
         setLoadError('Không thể kết nối Backend exercise API, đang hiển thị bài tập của Giảng viên.');
       });

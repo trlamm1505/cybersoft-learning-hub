@@ -8,7 +8,7 @@
  * liệu đối chiếu cho LLM (Insight). Bài nào có ORDER BY ở câu ngoài cùng thì
  * thứ tự dòng cũng được chấm.
  *
- * Tự nạp khi backend khởi động (DaLabsService.onModuleInit), upsert theo slug.
+ * Tự đồng bộ khi backend khởi động (DaLabsService.onModuleInit): upsert theo slug và ghi đè các trường nội dung, nên sửa đề/đáp án ở đây có hiệu lực cho cả DB cũ.
  */
 import type { InsightRubricCriterion } from '../modules-api/da-labs/insight-guardrails';
 
@@ -114,7 +114,7 @@ GROUP BY city`,
     3,
     'EASY',
     'Sản phẩm sắp hết hàng',
-    'Liệt kê `product_id`, `product_name`, `stock_quantity` của các sản phẩm đang kinh doanh (`status = \'Active\'`) có tồn kho dưới 30.',
+    "Liệt kê `product_id`, `product_name`, `stock_quantity` của các sản phẩm đang kinh doanh (`status = 'Active'`) có tồn kho dưới 30.",
     `SELECT product_id, product_name, stock_quantity
 FROM products
 WHERE status = 'Active' AND stock_quantity < 30`,
@@ -182,14 +182,14 @@ WHERE NOT EXISTS (
   sql(
     9,
     'HARD',
-    'Nhân viên có doanh thu trên 30 triệu',
-    'Với mỗi nhân viên, tính số đơn `Completed` và tổng doanh thu của các đơn đó. Chỉ giữ nhân viên có doanh thu lớn hơn 30.000.000. Kết quả gồm `full_name`, `region`, số đơn, doanh thu; sắp xếp doanh thu giảm dần.',
+    'Nhân viên có doanh thu trên 400 triệu',
+    'Với mỗi nhân viên, tính số đơn `Completed` và tổng doanh thu của các đơn đó. Chỉ giữ nhân viên có doanh thu lớn hơn 400.000.000. Kết quả gồm `full_name`, `region`, số đơn, doanh thu; sắp xếp doanh thu giảm dần.',
     `SELECT e.full_name, e.region, COUNT(*) AS completed_orders, SUM(o.total_amount) AS revenue
 FROM employees e
 JOIN orders o ON o.employee_id = e.employee_id
 WHERE o.order_status = 'Completed'
 GROUP BY e.employee_id, e.full_name, e.region
-HAVING SUM(o.total_amount) > 30000000
+HAVING SUM(o.total_amount) > 400000000
 ORDER BY revenue DESC`,
   ),
   sql(
@@ -237,7 +237,7 @@ GROUP BY TO_CHAR(order_date, 'YYYY-"Q"Q')
 ORDER BY quarter`,
     insightRubric(
       'Giải thích và giới hạn',
-      'Đưa ra giả thuyết giải thích hợp lý và nêu giới hạn của dữ liệu (số đơn ít, thiếu quý).',
+      'Đưa ra giả thuyết giải thích hợp lý và nêu giới hạn của dữ liệu (chỉ 6 quý, chưa đủ để kết luận tính mùa vụ).',
     ),
   ),
   insight(
@@ -271,14 +271,14 @@ ORDER BY payment_method, order_status`,
   insight(
     5,
     'Chất lượng dữ liệu trạng thái đơn',
-    'Kiểm tra sự nhất quán giữa trạng thái đơn hàng và ngày giao hàng. Có bất thường nào không, và nó ảnh hưởng thế nào tới KPI giao hàng?',
+    'Kiểm tra sự nhất quán giữa trạng thái đơn hàng và ngày giao hàng (đơn nào có ngày giao, đơn nào không). Dữ liệu có bất thường không? Nếu có, nó ảnh hưởng thế nào tới KPI giao hàng; nếu không, nêu bằng chứng và những kiểm tra chất lượng dữ liệu bạn sẽ làm tiếp.',
     `SELECT order_status, (shipping_date IS NOT NULL) AS has_shipping_date, COUNT(*) AS orders
 FROM orders
 GROUP BY order_status, (shipping_date IS NOT NULL)
 ORDER BY order_status, has_shipping_date`,
     insightRubric(
       'Ảnh hưởng và cách xử lý',
-      'Nêu đúng KPI bị ảnh hưởng và cách xử lý bản ghi bất thường trước khi báo cáo.',
+      'Kết luận đúng với dữ liệu (có hay không bất thường), nêu đúng KPI liên quan và cách kiểm tra hoặc xử lý bản ghi trước khi báo cáo.',
     ),
   ),
 ];

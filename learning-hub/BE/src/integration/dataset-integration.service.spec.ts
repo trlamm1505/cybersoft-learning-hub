@@ -23,7 +23,12 @@ const DETAIL = {
       {
         name: 'orders',
         columns: [
-          { name: 'order_id', type: 'VARCHAR(10)', nullable: false, description: '' },
+          {
+            name: 'order_id',
+            type: 'VARCHAR(10)',
+            nullable: false,
+            description: '',
+          },
         ],
       },
     ],
@@ -44,7 +49,9 @@ describe('DatasetIntegrationService', () => {
 
   beforeEach(() => {
     http = {
-      get: jest.fn().mockReturnValue(of({ data: { success: true, data: DETAIL } })),
+      get: jest
+        .fn()
+        .mockReturnValue(of({ data: { success: true, data: DETAIL } })),
     };
     service = new DatasetIntegrationService(
       http as unknown as HttpService,
@@ -53,7 +60,9 @@ describe('DatasetIntegrationService', () => {
   });
 
   it('gọi đúng endpoint Registry v1 kèm X-API-Key và map sang hợp đồng nội bộ', async () => {
-    const contract = await service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1');
+    const contract = await service.fetchDatasetInfo(
+      'ds-retail-ecommerce-sales-v1',
+    );
 
     expect(http.get).toHaveBeenCalledWith(
       'http://data-service.test/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1',
@@ -69,7 +78,9 @@ describe('DatasetIntegrationService', () => {
   });
 
   it('bản public không bao giờ chứa sandbox_db_url', async () => {
-    const pub = await service.fetchPublicDatasetInfo('ds-retail-ecommerce-sales-v1');
+    const pub = await service.fetchPublicDatasetInfo(
+      'ds-retail-ecommerce-sales-v1',
+    );
 
     expect(pub).not.toHaveProperty('sandbox_db_url');
     expect(JSON.stringify(pub)).not.toContain('postgresql://');
@@ -113,7 +124,10 @@ describe('DatasetIntegrationService', () => {
   });
 
   it('máy chủ dữ liệu chưa bật (không có phản hồi) thành 503 với thông báo rõ ràng', async () => {
-    const err = new AxiosError('connect ECONNREFUSED 127.0.0.1:8010', 'ECONNREFUSED');
+    const err = new AxiosError(
+      'connect ECONNREFUSED 127.0.0.1:8010',
+      'ECONNREFUSED',
+    );
     http.get.mockReturnValue(throwError(() => err));
 
     const promise = service.fetchEvaluationSet('eval-cs-faq-basic-v1');
@@ -159,7 +173,7 @@ describe('DatasetIntegrationService', () => {
 
   describe('fetchEvaluationSet (AI Lab, mở rộng v1.1)', () => {
     const EVAL = {
-      id: 'eval-cs-faq-basic-v1',
+      id: 'eval-custom-v1',
       name: 'FAQ cơ bản',
       version: 'v1.0',
       corpus_id: 'corpus-cybersoft-academic-v1',
@@ -181,10 +195,10 @@ describe('DatasetIntegrationService', () => {
     });
 
     it('gọi route evaluation-sets kèm X-API-Key, gộp đáp án chuẩn thành ground_truths và có checksum', async () => {
-      const set = await service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+      const set = await service.fetchEvaluationSet('eval-custom-v1');
 
       expect(http.get).toHaveBeenCalledWith(
-        'http://data-service.test/api/v1/registry/evaluation-sets/eval-cs-faq-basic-v1',
+        'http://data-service.test/api/v1/registry/evaluation-sets/eval-custom-v1',
         expect.objectContaining({ headers: { 'X-API-Key': 'test-key' } }),
       );
       expect(set.items[0].ground_truths).toEqual([
@@ -196,8 +210,8 @@ describe('DatasetIntegrationService', () => {
     });
 
     it('cache evaluation set riêng với dataset', async () => {
-      await service.fetchEvaluationSet('eval-cs-faq-basic-v1');
-      await service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+      await service.fetchEvaluationSet('eval-custom-v1');
+      await service.fetchEvaluationSet('eval-custom-v1');
 
       expect(http.get).toHaveBeenCalledTimes(1);
     });
@@ -207,14 +221,23 @@ describe('DatasetIntegrationService', () => {
         of({
           data: {
             success: true,
-            data: { ...EVAL, items: [{ ...EVAL.items[0], ground_truth_answer: '', alternative_answers: [] }] },
+            data: {
+              ...EVAL,
+              items: [
+                {
+                  ...EVAL.items[0],
+                  ground_truth_answer: '',
+                  alternative_answers: [],
+                },
+              ],
+            },
           },
         }),
       );
 
-      await expect(service.fetchEvaluationSet('eval-cs-faq-basic-v1')).rejects.toBeInstanceOf(
-        BadGatewayException,
-      );
+      await expect(
+        service.fetchEvaluationSet('eval-custom-v1'),
+      ).rejects.toBeInstanceOf(BadGatewayException);
     });
   });
 });
@@ -235,22 +258,32 @@ describe('DatasetIntegrationService — registry tích hợp sẵn (không cần
     ['để trống', ''],
     ['không đặt', undefined],
     ['ghi rõ "embedded"', 'embedded'],
-  ])('DATA_SERVICE_BASE_URL %s: lấy dataset từ dữ liệu tích hợp sẵn, không gọi HTTP', async (_label, value) => {
-    const { http, service } = makeService({ DATA_SERVICE_BASE_URL: value });
+  ])(
+    'DATA_SERVICE_BASE_URL %s: lấy dataset từ dữ liệu tích hợp sẵn, không gọi HTTP',
+    async (_label, value) => {
+      const { http, service } = makeService({ DATA_SERVICE_BASE_URL: value });
 
-    const contract = await service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1');
+      const contract = await service.fetchDatasetInfo(
+        'ds-retail-ecommerce-sales-v1',
+      );
 
-    expect(http.get).not.toHaveBeenCalled();
-    expect(contract.data_dictionary.tables.map((t) => t.name)).toEqual(
-      expect.arrayContaining(['customers', 'orders', 'order_details']),
-    );
-    expect(contract.sandbox_db_url).toMatch(/^postgresql:\/\/lab_reader:/);
-    expect(service.describeSource()).toEqual({ mode: 'embedded', baseUrl: null });
-  });
+      expect(http.get).not.toHaveBeenCalled();
+      expect(contract.data_dictionary.tables.map((t) => t.name)).toEqual(
+        expect.arrayContaining(['customers', 'orders', 'order_details']),
+      );
+      expect(contract.sandbox_db_url).toMatch(/^postgresql:\/\/lab_reader:/);
+      expect(service.describeSource()).toEqual({
+        mode: 'embedded',
+        baseUrl: null,
+      });
+    },
+  );
 
   it('bản trả cho trình duyệt vẫn không kèm chuỗi kết nối sandbox', async () => {
     const { service } = makeService({});
-    const pub = await service.fetchPublicDatasetInfo('ds-retail-ecommerce-sales-v1');
+    const pub = await service.fetchPublicDatasetInfo(
+      'ds-retail-ecommerce-sales-v1',
+    );
     expect(JSON.stringify(pub)).not.toContain('sandbox_db_url');
     expect(JSON.stringify(pub)).not.toContain('lab_reader');
   });
@@ -265,31 +298,44 @@ describe('DatasetIntegrationService — registry tích hợp sẵn (không cần
 
   it('dataset/evaluation set không tồn tại → 404, không phải lỗi máy chủ', async () => {
     const { service } = makeService({});
-    await expect(service.fetchDatasetInfo('ds-khong-co')).rejects.toBeInstanceOf(NotFoundException);
-    await expect(service.fetchEvaluationSet('es-khong-co')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(
+      service.fetchDatasetInfo('ds-khong-co'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    await expect(
+      service.fetchEvaluationSet('es-khong-co'),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('resource_id có ký tự đường dẫn vẫn bị chặn trước khi tới registry', async () => {
     const { service } = makeService({});
-    await expect(service.fetchDatasetInfo('../etc/passwd')).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.fetchDatasetInfo('../etc/passwd'),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('có địa chỉ máy chủ thật: gọi REST và mô tả chế độ remote (bỏ dấu / cuối)', async () => {
-    const { http, service } = makeService({ DATA_SERVICE_BASE_URL: 'http://tts01:8000/' });
+    const { http, service } = makeService({
+      DATA_SERVICE_BASE_URL: 'http://tts01:8000/',
+    });
     http.get.mockReturnValue(of({ data: { success: true, data: DETAIL } }));
     await service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1');
     expect(http.get.mock.calls[0][0]).toBe(
       'http://tts01:8000/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1',
     );
-    expect(service.describeSource()).toEqual({ mode: 'remote', baseUrl: 'http://tts01:8000' });
+    expect(service.describeSource()).toEqual({
+      mode: 'remote',
+      baseUrl: 'http://tts01:8000',
+    });
   });
 
   it('máy chủ thật tắt và KHÔNG bật fallback: báo lỗi rõ ràng, không âm thầm đổi nguồn dữ liệu', async () => {
-    const { http, service } = makeService({ DATA_SERVICE_BASE_URL: 'http://tts01:8000' });
+    const { http, service } = makeService({
+      DATA_SERVICE_BASE_URL: 'http://tts01:8000',
+    });
     http.get.mockReturnValue(refused());
-    await expect(service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1')).rejects.toThrow(
-      DATA_SERVICE_DOWN_MESSAGE,
-    );
+    await expect(
+      service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1'),
+    ).rejects.toThrow(DATA_SERVICE_DOWN_MESSAGE);
   });
 
   it('máy chủ thật tắt và bật DATA_SERVICE_FALLBACK=embedded: rơi về dữ liệu tích hợp sẵn', async () => {
@@ -298,7 +344,9 @@ describe('DatasetIntegrationService — registry tích hợp sẵn (không cần
       DATA_SERVICE_FALLBACK: 'embedded',
     });
     http.get.mockReturnValue(refused());
-    const contract = await service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1');
+    const contract = await service.fetchDatasetInfo(
+      'ds-retail-ecommerce-sales-v1',
+    );
     expect(contract.data_dictionary.tables.length).toBeGreaterThan(0);
   });
 
@@ -315,6 +363,8 @@ describe('DatasetIntegrationService — registry tích hợp sẵn (không cần
       config: { headers: new AxiosHeaders() },
     });
     http.get.mockReturnValue(throwError(() => notFound));
-    await expect(service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(
+      service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1'),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

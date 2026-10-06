@@ -2,7 +2,7 @@ export const INITIAL_USERS = [
   {
     email: 'admin@gmail.com',
     passwordRaw: '123456',
-    fullName: 'Admin System',
+    fullName: 'Nguyễn Kim Thượng',
     role: 'ADMIN',
     bio: 'System Administrator',
     avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Admin',

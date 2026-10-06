@@ -8,5 +8,6 @@ import { LearnerActivityService } from './learner-activity.service';
   imports: [DatabaseModule, CommonAuthModule],
   controllers: [LearnerActivityController],
   providers: [LearnerActivityService],
+  exports: [LearnerActivityService],
 })
 export class LearnerActivityModule {}

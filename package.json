@@ -1,0 +1,16 @@
+{
+  "name": "cybersoft-learning-hub-monorepo",
+  "private": true,
+  "description": "Cổng vào cho người mới clone: các lệnh dưới đây chuyển tiếp sang thư mục learning-hub.",
+  "scripts": {
+    "setup": "npm --prefix learning-hub run setup",
+    "dev": "npm --prefix learning-hub run dev",
+    "doctor": "npm --prefix learning-hub run doctor",
+    "sandbox": "npm --prefix learning-hub run sandbox",
+    "bootstrap:sandbox": "npm --prefix learning-hub run bootstrap:sandbox",
+    "ingest:sandbox": "npm --prefix learning-hub run ingest:sandbox"
+  },
+  "engines": {
+    "node": ">=20.12.0"
+  }
+}

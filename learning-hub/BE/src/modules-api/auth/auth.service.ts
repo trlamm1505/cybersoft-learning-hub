@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  ForbiddenException,
   ConflictException,
   UnauthorizedException,
   NotFoundException,
@@ -29,6 +30,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { MailService } from './mail.service';
 import { checkAvatar } from './avatar';
+import { checkProfileInput } from './profile-input';
 
 type AgeGroup = '3-5' | '6-9' | '10-12';
 
@@ -177,6 +179,13 @@ export class AuthService {
       throw new UnauthorizedException('Email hoặc mật khẩu không chính xác.');
     }
 
+    // Chỉ báo "bị khóa" sau khi mật khẩu đúng, để không lộ email nào đang tồn tại.
+    if (user.status === 'LOCKED') {
+      throw new ForbiddenException(
+        'Tài khoản đã bị khóa. Liên hệ quản trị viên để được mở lại.',
+      );
+    }
+
     return this.buildAuthResponse(user);
   }
 
@@ -299,6 +308,22 @@ export class AuthService {
   }
 
   /**
+   * Người dùng tự cập nhật họ tên, số điện thoại, giới thiệu của CHÍNH mình (userId từ token).
+   * Email bị khóa cố định: gửi email khác bị từ chối. Vai trò, mã học viên, trạng thái không nhận từ client.
+   */
+  async updateProfile(userId: string, body: unknown) {
+    const user = Types.ObjectId.isValid(userId)
+      ? await this.userModel.findById(userId)
+      : null;
+    if (!user) throw new NotFoundException('Không tìm thấy tài khoản.');
+    const checked = checkProfileInput(body, user.email);
+    if (!checked.ok) throw new BadRequestException(checked.message);
+    Object.assign(user, checked.value);
+    await user.save();
+    return this.buildAuthResponse(user).user;
+  }
+
+  /**
    * Hồ sơ tài khoản theo token, đọc từ DB: FE dùng để xác thực lại vai trò khi
    * khởi động thay vì tin bản lưu trong localStorage. Tài khoản đã bị xoá thì 401.
    */
@@ -330,6 +355,8 @@ export class AuthService {
         ageGroup: user.ageGroup,
         studentCode: user.studentCode,
         avatar: user.avatar,
+        phone: user.phone ?? '',
+        bio: user.bio ?? '',
       },
     };
   }
