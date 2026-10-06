@@ -143,7 +143,7 @@ function startInfra(dockerUp) {
 
   if (!dockerUp) return warn('Bỏ qua Postgres sandbox và image Python (cần Docker): DA Lab và chạy bài Python sẽ chưa dùng được.');
   const sb = run(process.execPath, [path.join(__dirname, 'ensure-sandbox.js')], { inherit: true });
-  if (sb.ok) say(C.ok, 'Postgres sandbox kiểm tra xong');
+  if (sb.ok) say(C.ok, 'Postgres sandbox sẵn sàng (đã nạp dữ liệu nếu còn trống)');
 
   if ((h.readEnvValue(beEnv, 'PYTHON_SANDBOX') || 'docker') === 'docker') {
     const image = h.readEnvValue(beEnv, 'PYTHON_SANDBOX_IMAGE') || 'python:3.12-slim';
@@ -203,10 +203,10 @@ async function seedIfEmpty() {
   console.log(`\n${C.h}Xong.\x1b[0m`);
   if (warnings.length) console.log(`${C.warn} ${warnings.length} cảnh báo ở trên cần xem lại.`);
   console.log(`
-Chạy dự án:   npm run dev          (backend + web)
+Chạy dự án:   npm run dev          (backend + web, tự bật lại Docker/sandbox nếu cần)
 Kiểm tra:     npm run doctor
 Mở web:       http://localhost:5173
-Tài khoản mẫu (mật khẩu 123456): teacher@gmail.com (giảng viên), student@gmail.com (học viên)`);
+Tài khoản mẫu (mật khẩu 123456): admin@gmail.com (quản trị viên), teacher@gmail.com (giảng viên), student@gmail.com (học viên)`);
 })().catch((err) => {
   console.error(`${C.bad} setup lỗi: ${err.stack || err.message}`);
   process.exitCode = 1;

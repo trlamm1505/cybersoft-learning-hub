@@ -48,12 +48,12 @@ Cần cài sẵn: **Node.js 20.12+** (khuyên dùng 22, xem `.nvmrc`), **Git** v
 
 ```bash
 git clone https://github.com/trlamm1505/cybersoft-learning-hub.git
-cd cybersoft-learning-hub/learning-hub
+cd cybersoft-learning-hub
 npm run setup      # dựng môi trường (một lần, chạy lại bao nhiêu lần cũng an toàn)
-npm run dev        # chạy backend + web
+npm run dev        # chạy backend + web, tự bật Docker và Postgres sandbox nếu đang tắt
 ```
 
-Mở **http://localhost:5173**. Tài khoản mẫu (mật khẩu `123456`): `teacher@gmail.com` (giảng viên), `student@gmail.com` (học viên).
+Mở **http://localhost:5173**. Tài khoản mẫu (mật khẩu `123456`): `admin@gmail.com` (quản trị viên, vào thẳng Admin Portal), `teacher@gmail.com` (giảng viên), `student@gmail.com` (học viên). Tài khoản Admin tự được tạo khi backend khởi động nếu chưa có (chỉ ngoài production; tắt bằng `SEED_DEFAULT_ADMIN=0`). Chỉ cần ba lệnh trên: không phải tự chạy `docker compose`, nạp dữ liệu hay `cd` vào thư mục con (hai lệnh `npm run` ở thư mục gốc tự chuyển sang `learning-hub/`).
 
 `npm run setup` làm gì:
 
@@ -62,14 +62,16 @@ Mở **http://localhost:5173**. Tài khoản mẫu (mật khẩu `123456`): `tea
 | 1 | Kiểm tra Node, Docker | chỉ đọc |
 | 2 | Tạo `.env` và `BE/.env` từ file mẫu, **sinh `JWT_SECRET` ngẫu nhiên cho máy bạn** | không ghi đè file đã có |
 | 3 | Cài thư viện (`npm ci`) ở root, `BE`, `FE` nếu thiếu | bỏ qua thư mục đã cài |
-| 4 | Bật MongoDB (chỉ khi máy chưa có) và Postgres sandbox, kéo image Python | bỏ qua cái đã chạy |
+| 4 | Bật MongoDB (chỉ khi máy chưa có) và Postgres sandbox bằng `docker compose up -d`, chờ healthcheck tới khi nhận kết nối; kéo image Python | bỏ qua cái đã chạy |
+| 4b | Sandbox còn trống thì tự nạp dữ liệu: thử API của Data & AI Resource (nếu có `DATA_SERVICE_BASE_URL`), không được thì dùng dữ liệu mẫu tích hợp sẵn | chỉ khi chưa có `_ingest_manifest`, không đè dữ liệu đã nạp; lỗi chỉ cảnh báo, không làm setup hỏng |
 | 5 | Nạp dữ liệu mẫu (người dùng, bài tập, câu hỏi, cuộc thi) | **chỉ khi CSDL còn trống**, không bao giờ đè dữ liệu thật |
 
 Lệnh hay dùng:
 
 ```bash
 npm run doctor        # kiểm tra Docker, backend, MongoDB, nguồn dữ liệu, sandbox, web và chỉ cách sửa
-npm run sandbox       # bật lại Postgres sandbox (tự mở Docker Desktop nếu chưa mở)
+npm run sandbox       # bật lại Postgres sandbox (tự mở Docker Desktop nếu chưa mở) và nạp dữ liệu nếu còn trống
+npm run bootstrap:sandbox   # chỉ chạy bước nạp dữ liệu ban đầu cho sandbox
 npm run seed:all      # nạp lại dữ liệu mẫu — XÓA dữ liệu cũ trong CSDL (dùng khi muốn làm mới)
 npm run test:scripts  # test các script dựng môi trường
 ```
@@ -78,7 +80,7 @@ npm run test:scripts  # test các script dựng môi trường
 - `GEMINI_API_KEY`: AI Coach, sinh đề, chấm Insight/AI Lab. Xin khóa của chính bạn hoặc xin nhóm qua kênh riêng, **không dán lên chat chung**.
 - `GMAIL_USER` / `GMAIL_APP_PASSWORD`: email đặt lại mật khẩu.
 
-**Dữ liệu DA Lab / AI Lab:** mặc định dùng dữ liệu tích hợp sẵn trong backend nên không phải bật server nào. Muốn dùng server thật của Data & AI Resource (TTS 01), đặt `DATA_SERVICE_BASE_URL=http://localhost:8000` trong `BE/.env`.
+**Dữ liệu DA Lab / AI Lab:** nếu `DATA_SERVICE_BASE_URL` trong `BE/.env` để trống thì dùng dữ liệu tích hợp sẵn trong backend, không phải bật server nào. Để dùng server thật của Data & AI Resource (TTS 01), đặt `DATA_SERVICE_BASE_URL` (vd `http://localhost:8000`) và `DATA_SERVICE_API_KEY`, rồi chạy `npm run ingest:sandbox` để nạp (lại) dữ liệu từ API vào Postgres Sandbox, có kiểm tra checksum và số dòng (xem `docs/day22/tomtat.md`). Khi đã đặt `DATA_SERVICE_BASE_URL`, lần `npm run setup`/`npm run dev` đầu tiên trên sandbox trống cũng tự thử nạp từ API; server không chạy thì tự chuyển sang dữ liệu mẫu tích hợp sẵn.
 
 **Mỗi người một CSDL riêng:** MongoDB chạy trên máy từng người, nên dữ liệu bạn tạo khi thử không ảnh hưởng người khác. Muốn dùng chung một CSDL thì đặt `DATABASE_URL` trong `BE/.env` trỏ tới MongoDB chung (Atlas hoặc máy chủ nhóm).
 
@@ -212,3 +214,9 @@ learning-hub/
 ├── AI_WORKLOG.md              # Nhật ký làm việc chi tiết Ngày 06
 └── README.md                  # Hướng dẫn khởi chạy & test dự án
 ```
+---
+
+## Ghi công mã nguồn mở
+
+- **Mê Cung Blockly** (Block Puzzle) chuyển thể từ trò chơi "Maze" của [Blockly Games](https://github.com/blockly-games/blockly-games), Copyright 2012 Google LLC, giấy phép Apache-2.0. Hình nhân vật, mảnh bản đồ và âm thắng/thua là tệp gốc, đặt ở `FE/public/games/blockly-maze/` kèm `NOTICE.txt` và bản giấy phép. Khối lệnh dùng thư viện [Blockly](https://github.com/google/blockly) (npm `blockly`, Apache-2.0).
+- **Rùa Vẽ Hình**, **Chim Tìm Tổ**, **Ghép Hình Con Vật** chuyển thể từ "Turtle", "Bird", "Puzzle" của Blockly Games (cùng giấy phép Apache-2.0). Tệp hình/âm thanh gốc đặt ở `FE/public/games/blockly-{turtle,bird,puzzle}/` kèm `NOTICE.txt`; hình con vật của Puzzle là biểu tượng vẽ SVG, không dùng ảnh gốc.
