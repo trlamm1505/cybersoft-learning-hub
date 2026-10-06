@@ -55,6 +55,9 @@ Hệ thống được thiết kế theo mô hình phòng vệ chiều sâu (Defe
 └─────────────────────┴───────────────────────┴──────────────────────────┴───────────────────────────────┘
 ```
 
+Kiến trúc Tổng thể Hệ thống Phòng vệ:
+![Kiến trúc Tổng thể Hệ thống Phòng vệ Task 25](Picture_25_Detail.png)
+
 ---
 
 ## 3. THIẾT KẾ VÀ TRIỂN KHAI PHÂN HỆ PII SCANNER & PRIVACY MASKING

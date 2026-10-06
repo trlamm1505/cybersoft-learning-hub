@@ -20,7 +20,7 @@ BaoCao_Task25/
 ├── AI_WORKLOG.md                          # Nhật ký phối hợp & thẩm định AI 6 phần theo chuẩn CyberSoft
 ├── threat_model.md                        # Bản đặc tả mô hình mối đe dọa chi tiết (STRIDE + DREAD)
 ├── security_test_report.md                # Báo cáo kiểm định an ninh và danh mục các bản vá đã hợp nhất
-├── Picture_25_Detail.png                  # Sơ đồ Kiến trúc 4 Trụ Cột Phòng Vệ (3400x1600, 300 DPI Dark Theme)
+├── Picture_25_Detail.png                  # Sơ đồ Kiến trúc Tổng thể Hệ thống Phòng vệ (System Architecture)
 ├── requirements.txt                       # Danh mục thư viện phụ thuộc (FastAPI, Pydantic, Pytest, Pillow...)
 ├── portal/                                # Giao diện Web Security & Privacy Inspector (SPA)
 │   ├── index.html                         # Giao diện chính: PII Scanner, Prompt Defense, File Guard, Release Scanner, STRIDE Matrix
@@ -72,6 +72,9 @@ BaoCao_Task25/
     └── test_structured_suite.py           # Kiểm thử tự động 26 ca kiểm thử có cấu trúc từ security_test_suite.json (26 tests)
 ```
 
+### Sơ đồ Kiến trúc Tổng thể Hệ thống Phòng vệ
+![Sơ đồ Kiến trúc Tổng thể Hệ thống Phòng vệ](Picture_25_Detail.png)
+
 ---
 
 ## 2. HƯỚNG DẪN THỰC THI & TRẢI NGHIỆM TRÊN TRÌNH DUYỆT WEB
@@ -90,7 +93,7 @@ Mở trình duyệt Web (Chrome, Edge) và truy cập:
 Tại giao diện Web Inspector, bạn có thể thực hiện đầy đủ 5 tác vụ trực quan:
 1. **Quét & Khử nhiễm PII**: Tải dữ liệu học viên mẫu (100% synthetic), lựa chọn chế độ Masking hoặc Redaction, bấm nút Quét để xem văn bản đã khử nhiễm và danh sách thực thể nhạy cảm.
 2. **Thử nghiệm Prompt Injection**: Bấm chọn các mẫu tấn công Direct Override, DAN Jailbreak hoặc System Prompt Probe (kể cả câu lệnh tiếng Việt) để quan sát hành vi `BLOCK` của hệ thống; thử câu hỏi hợp lệ để quan sát hành vi `ALLOW`.
-3. **Thử nghiệm An toàn Tệp & Path Traversal**: Gửi các đường dẫn vượt thư mục (`../../etc/passwd`) để kiểm chứng chốt chặn `403 Forbidden`, hoặc thử nghiệm tải lên tệp giả mạo PE Magic Byte.
+3. **Thử nghiệm An toàn Tệp & Path Traversal**: Gửi các đường dẫn vượt thư mục (`../../etc/passwd`) để kiểm chứng chốt chặn `403 Forbidden`, hoặc bấm các nút thử nghiệm tải lên tệp giả mạo PE Magic Byte / tệp mở rộng kép để kiểm chứng hành vi phòng vệ.
 4. **Thẩm Định Gói Phát Hành Task 24**: Quét trực tiếp `release_manifest_v1.1.0.json` (16 tài nguyên toàn vẹn, trạng thái `PASSED`) và thử nghiệm gói phát hành giả lập bị can thiệp để quan sát chốt chặn khóa cứng `BLOCKED` với 3 vi phạm an ninh.
 5. **Ma trận Mối đe dọa STRIDE**: Quan sát bảng phân tích 10 mối đe dọa, điểm số DREAD và trạng thái Quality Gate xanh `PASSED`.
 
