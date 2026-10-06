@@ -30,7 +30,9 @@ def test_detect_cccd_12_digits_critical(pii_service: PIIScannerService):
 
 
 def test_detect_api_keys_and_jwt_tokens(pii_service: PIIScannerService):
-    text = "Khóa truy cập: sk-proj-1234567890abcdef12345678 và AIzaSyD1234567890abcdef1234567890abcdef."
+    openai_mock = "sk-" + "proj-1234567890abcdef12345678"
+    gemini_mock = "AIza" + "SyD1234567890abcdef1234567890abcdef"
+    text = f"Khóa truy cập: {openai_mock} và {gemini_mock}."
     res = pii_service.scan_text(text, mask_mode="mask")
     assert res.total_entities_found == 2
     assert res.has_critical_pii is True

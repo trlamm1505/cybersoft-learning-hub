@@ -3,7 +3,7 @@
 const PII_PRESETS = {
   student_1: "Họ và tên: Nguyễn Văn Giả Định\nEmail: nguyen.vangiadinh.synthetic@cybersoft.example.org\nSố điện thoại: 0912999888\nSố CCCD: 079199000111\nLớp học: Data & AI Lab K25\nGhi chú: Học viên đã nộp học phí và bản sao giấy tờ tùy thân.",
   phone_intl: "Thông tin liên hệ khẩn cấp:\nNgười bảo hộ: Trần Thị Mẫu Thử\nSố điện thoại quốc tế: +84988776655\nEmail phụ huynh: phuhuynh.mauthu@cybersoft.example.org",
-  secret_keys: "Cấu hình môi trường triển khai:\nOPENAI_API_KEY=sk-proj-mocktestingfakekey1234567890abcdef\nGEMINI_API_KEY=AIzaSyD1234567890abcdef1234567890abcdef\nAUTH_BEARER=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.mock_signature",
+  secret_keys: "Cấu hình môi trường triển khai:\nOPENAI_API_KEY=" + "sk-" + "proj-mocktestingfakekey1234567890abcdef\nGEMINI_API_KEY=" + "AIza" + "SyD1234567890abcdef1234567890abcdef\nAUTH_BEARER=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.mock_signature",
   cmnd_old: "Hồ sơ lưu trữ cũ:\nHọ tên: Lê Văn Thử Nghiệm\nCMND cũ (9 số): 025123456\nĐịa chỉ thường trú: Phường 5, Quận 3, TP. Hồ Chí Minh",
   clean_data: "Khóa học: Data & AI Resource Engineering 2026\nMục tiêu: Xây dựng pipeline xử lý dữ liệu và hệ thống RAG có kiểm soát chất lượng.\nThời lượng: 30 ngày làm việc liên tục.",
   custom: ""

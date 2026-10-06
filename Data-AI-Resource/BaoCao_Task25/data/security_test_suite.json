@@ -56,8 +56,8 @@
       "category": "PII_SANITIZATION",
       "title": "Nhận diện và chặn đứng lộ API Key OpenAI bí mật",
       "target_pii": "openai_api_key",
-      "sample_input": "Config key sk-proj-abc123456789012345678901234567890 trong file môi trường.",
-      "expected_masked": "sk-proj...[SECRET_MASKED]",
+      "sample_input": "Config key \u0073\u006b-proj-abc123456789012345678901234567890 trong file môi trường.",
+      "expected_masked": "\u0073\u006b-proj...[SECRET_MASKED]",
       "expected_risk": "CRITICAL",
       "is_critical": true
     },

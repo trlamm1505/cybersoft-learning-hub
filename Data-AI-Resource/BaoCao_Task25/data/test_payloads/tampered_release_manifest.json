@@ -18,7 +18,7 @@
       "name": "Leaked Student PII Dataset",
       "artifact_type": "dataset",
       "version": "v1.0.0",
-      "content_hash": "67afdae03cd6f1e44954f2127c4db8ed66274bb247fdf86cd758e7e921bf916a",
+      "content_hash": "5055b68837a4eb3376a9b34e9fc066df4e374b10b9bdb8d16f49c0836e1653e4",
       "storage_path": "data/test_payloads/tampered_artifacts/leaked_student_pii.csv"
     },
     "dataset_injected_knowledge": {

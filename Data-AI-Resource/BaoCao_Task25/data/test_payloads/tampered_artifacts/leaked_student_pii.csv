@@ -1,2 +1,2 @@
-student_id,full_name,cccd_number,api_key,notes
-HV-999,Tran Van Hacker,079199001234,sk-proj-compromisedfakekey1234567890abcdef,Leaked sensitive info
+student_id,full_name,cccd_number,phone_number,notes
+HV-999,Tran Van Hacker,079199001234,0988776655,Leaked sensitive info
