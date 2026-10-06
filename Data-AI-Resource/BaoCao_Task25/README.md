@@ -72,9 +72,6 @@ BaoCao_Task25/
     └── test_structured_suite.py           # Kiểm thử tự động 26 ca kiểm thử có cấu trúc từ security_test_suite.json (26 tests)
 ```
 
-> [!NOTE]
-> Báo cáo Word chính thức được lưu trữ tập trung tại thư mục gốc của workspace theo quy chuẩn chung: `DaoTrungKien_Bao_cao_Data_AI_Resource_Engineer_CyberSoft_Ngay_25.docx` (không đặt file Word trong thư mục mã nguồn task để đảm bảo tính phân tách mã nguồn và sản phẩm báo cáo cuối).
-
 ---
 
 ## 2. HƯỚNG DẪN THỰC THI & TRẢI NGHIỆM TRÊN TRÌNH DUYỆT WEB
@@ -122,5 +119,5 @@ pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task25/tests/ -v
 | **DoD 1: Không có PII thật trong demo** | 100% dữ liệu thử nghiệm trong demo và tập dataset là dữ liệu giả lập tổng hợp (synthetic), không chứa PII thật. | Tệp `synthetic_pii_dataset.json` chứa dữ liệu giả lập tổng hợp, `PIIScannerService` phát hiện và che giấu 100% thực thể nhạy cảm. | **ĐẠT (100%)** |
 | **DoD 2: Ít nhất 15 security cases** | Xây dựng tối thiểu 15 ca kiểm thử bảo mật bao phủ PII, Prompt Injection, Path Traversal và File Upload. | Thực tế đạt **26 ca kiểm thử có cấu trúc** và **73 bài test Pytest tự động** (vượt 386% so với yêu cầu DoD >= 15). | **ĐẠT (Vượt mức)** |
 | **DoD 3: Lỗi mức cao được sửa hoặc chặn release** | Mọi mối đe dọa mức Critical hoặc High phải được vá (Fixes Merged) hoặc kích hoạt chốt chặn khóa release. | 10/10 mối đe dọa STRIDE đã được vá hoặc giảm thiểu an toàn. Chốt chặn Security Quality Gate tự động khóa `BLOCKED` khi phát hiện vi phạm mã băm, rò rỉ PII hoặc Prompt Injection. | **ĐẠT (100%)** |
-| **DoD 4: Bản giao đầy đủ Threat Model & Security Report** | Có tài liệu Threat Model, Security Test Report, Fixes Merged và Báo cáo Word chính thức. | Bàn giao trọn vẹn `threat_model.md`, `security_test_report.md`, `AI_WORKLOG.md`, Web Portal SPA, CLI Evaluator và Báo cáo Word tại gốc workspace. | **ĐẠT (100%)** |
+| **DoD 4: Bản giao đầy đủ Threat Model & Security Report** | Có tài liệu Threat Model, Security Test Report, Fixes Merged và Báo cáo Word chính thức. | Bàn giao trọn vẹn `threat_model.md`, `security_test_report.md`, `AI_WORKLOG.md`, Web Portal SPA, CLI Evaluator và Báo cáo Word chính thức. | **ĐẠT (100%)** |
 | **Liên kết Tuần 5: Thẩm định phát hành Task 24** | Kiểm toán độc lập tính toàn vẹn và an ninh của bản phát hành Task 24. | Đã đối soát 16/16 artifacts trong `release_manifest_v1.1.0.json` khớp SHA-256 100%, 0 lỗi PII, 0 prompt injection; mô phỏng tampered bị chặn đứng. | **ĐẠT (Hoàn hảo)** |
