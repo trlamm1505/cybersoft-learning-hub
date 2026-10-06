@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Zap, Loader2 } from 'lucide-react';
 import authApi from '../axios/authApi';
 import type { AuthResponse } from '../types/auth';
-import { isStaff } from '../types/auth';
+import { portalHome } from './adminDashboardModel';
 
 interface LoginPageProps {
   onAuthSuccess: (auth: AuthResponse) => void;
@@ -24,7 +24,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
     try {
       const auth = await authApi.login({ email, password });
       onAuthSuccess(auth);
-      navigate(isStaff(auth.user.role) ? '/authoring' : '/catalog');
+      navigate(portalHome(auth.user.role));
     } catch (err: any) {
       setErrorMsg(err?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
     } finally {

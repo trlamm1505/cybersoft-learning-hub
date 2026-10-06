@@ -13,6 +13,8 @@ interface ActivityHeatmapProps {
   days: Array<{ date: string; count: number }>;
   loading?: boolean;
   error?: string | null;
+  /** Cho phép hiện dữ liệu mẫu khi chưa có hoạt động (trang cá nhân). Admin xem người khác thì tắt để không gây hiểu nhầm. */
+  allowSample?: boolean;
   /** Ngày kết thúc của biểu đồ (mặc định hôm nay); chỉ để kiểm thử/hiển thị cố định. */
   end?: Date;
 }
@@ -32,9 +34,9 @@ const cellTitle = (date: string, count: number) =>
   count > 0 ? `${count} lượt nộp bài · ${formatDateVi(date)}` : `Không có hoạt động · ${formatDateVi(date)}`;
 
 /** Biểu đồ hoạt động kiểu GitHub: mỗi ô là một ngày, màu đậm theo số lượt nộp bài. */
-export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ days, loading = false, error = null, end }) => {
+export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ days, loading = false, error = null, end, allowSample = true }) => {
   const today = useMemo(() => end ?? new Date(), [end]);
-  const isSample = !loading && !error && days.every((d) => d.count <= 0);
+  const isSample = allowSample && !loading && !error && days.every((d) => d.count <= 0);
   const counts = useMemo(() => (isSample ? sampleActivity(today) : toCountMap(days)), [isSample, days, today]);
   const model = useMemo(() => buildHeatmap(counts, today), [counts, today]);
 

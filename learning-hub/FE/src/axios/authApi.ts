@@ -52,6 +52,13 @@ export const authApi = {
   },
 
   /**
+   * PUT /api/auth/profile — cập nhật họ tên, số điện thoại, giới thiệu của chính mình. Không có email: email bị khóa.
+   */
+  updateProfile: async (payload: { fullName?: string; phone?: string; bio?: string }): Promise<AuthUser> => {
+    return await axiosClient.put('/auth/profile', payload);
+  },
+
+  /**
    * POST /api/auth/forgot-password
    */
   forgotPassword: async (payload: ForgotPasswordPayload): Promise<{ message: string }> => {

@@ -22,6 +22,12 @@ import { AiLabWorkspacePage } from './pages/AiLabWorkspacePage';
 import { TeacherReviewQueue } from './components/TeacherReviewQueue';
 import { TeacherLabSubmissionsPage } from './pages/TeacherLabSubmissionsPage';
 import { TeacherIntegrityQueuePage } from './pages/TeacherIntegrityQueuePage';
+import { TeacherDashboardPage } from './pages/TeacherDashboardPage';
+import { AdminClassesPage } from './pages/AdminClassesPage';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { AdminUsersPage } from './pages/AdminUsersPage';
+import { AdminLayout } from './components/AdminLayout';
+import { portalHome } from './pages/adminDashboardModel';
 import { ContestListPage } from './pages/ContestListPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -218,6 +224,15 @@ export function App() {
     });
   };
 
+  const handleProfileUpdated = (updated: AuthUser) => {
+    setAuthUser((prev) => {
+      if (!prev) return prev;
+      const merged = { ...prev, ...updated };
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(merged));
+      return merged;
+    });
+  };
+
   const handleLogout = () => {
     // Chỉ xoá phiên đăng nhập — KHÔNG xoá tiến độ học tập namespace theo
     // authUser.id (app_code_playground_completed_<id>, app_block_puzzle_completed_<id>...).
@@ -256,6 +271,33 @@ export function App() {
     );
   }
 
+  if (authUser?.role === 'ADMIN') {
+    return (
+      <Routes>
+        <Route
+          element={
+            <AdminLayout
+              authUser={authUser}
+              isLightTheme={isLightTheme}
+              onToggleTheme={() => setIsLightTheme(!isLightTheme)}
+              onLogout={handleLogout}
+            />
+          }
+        >
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/classes" element={<AdminClassesPage />} />
+          <Route
+            path="/admin/profile"
+            element={<ProfilePage authUser={authUser} onAvatarChange={handleAvatarChanged} onProfileChange={handleProfileUpdated} />}
+          />
+        </Route>
+        {/* Mọi đường dẫn khác (kể cả trang học tập) đưa Admin về Admin Portal. */}
+        <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+      </Routes>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {needsAgeGroup && <AgeGroupModal onSelected={handleAgeGroupSelected} />}
@@ -279,6 +321,7 @@ export function App() {
               <CourseCatalogPage
                 lessons={catalogLessons}
                 onSelectLesson={handleSelectLessonFromCatalog}
+                authUser={authUser}
               />
             }
           />
@@ -404,6 +447,18 @@ export function App() {
               )
             }
           />
+          {/* Admin Portal có khung riêng; ai không phải ADMIN vào /admin/* đều bị đưa về trang chủ của vai trò mình. */}
+          <Route path="/admin/*" element={<Navigate to={authUser ? portalHome(authUser.role) : '/login'} replace />} />
+          <Route
+            path="/teacher/dashboard"
+            element={
+              isStaff(authUser?.role) ? (
+                <TeacherDashboardPage />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
+            }
+          />
           <Route
             path="/teacher/integrity"
             element={
@@ -432,7 +487,7 @@ export function App() {
           />
           <Route
             path="/profile"
-            element={authUser ? <ProfilePage authUser={authUser} onAvatarChange={handleAvatarChanged} /> : <Navigate to="/login" replace />}
+            element={authUser ? <ProfilePage authUser={authUser} onAvatarChange={handleAvatarChanged} onProfileChange={handleProfileUpdated} /> : <Navigate to="/login" replace />}
           />
           <Route path="*" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
         </Routes>

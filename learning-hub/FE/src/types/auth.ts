@@ -22,6 +22,9 @@ export interface AuthUser {
   role: UserRole;
   ageGroup?: AgeGroup;
   studentCode?: string;
+  /** Số điện thoại và giới thiệu do người dùng tự cập nhật (email thì không đổi được). */
+  phone?: string;
+  bio?: string;
   /** URL ảnh hoặc data URL ảnh đã thu nhỏ; thiếu thì dùng avatar chữ cái. */
   avatar?: string;
 }

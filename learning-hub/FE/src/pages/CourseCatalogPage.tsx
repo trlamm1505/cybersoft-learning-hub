@@ -2,15 +2,19 @@ import React, { useState, useMemo } from 'react';
 import { BookOpen, Clock, Target, Search } from 'lucide-react';
 import type { Lesson } from '../types/course';
 import { CourseCard } from '../components/CourseCard';
+import { MyClassesPanel } from '../components/MyClassesPanel';
 
 interface CourseCatalogPageProps {
   lessons: Lesson[];
   onSelectLesson: (lessonId: string) => void;
+  /** Người đang đăng nhập: học viên thấy thêm khu "Lớp học của tôi". */
+  authUser?: { role: string } | null;
 }
 
 export const CourseCatalogPage: React.FC<CourseCatalogPageProps> = ({
   lessons,
-  onSelectLesson
+  onSelectLesson,
+  authUser,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('All');
@@ -37,6 +41,7 @@ export const CourseCatalogPage: React.FC<CourseCatalogPageProps> = ({
 
   return (
     <div className="flex flex-col gap-6">
+      {authUser?.role === 'STUDENT' && <MyClassesPanel />}
       {/* Hero Banner - Glassmorphic Soft Gradient */}
       <section className="relative overflow-hidden bg-gradient-to-r from-indigo-500/10 via-sky-500/5 to-cyan-500/10 border border-[var(--border-color)] bg-[var(--bg-card)] rounded-3xl p-6 sm:p-8 text-center shadow-sm" aria-label="Giới thiệu danh mục bài học">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-600 dark:from-white dark:to-cyan-400 mb-2 tracking-tight">
