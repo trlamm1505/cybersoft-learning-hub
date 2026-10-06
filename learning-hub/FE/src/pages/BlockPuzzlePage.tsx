@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   DndContext,
@@ -44,6 +44,9 @@ import {
 import type { LessonAuthoring, BlockCommand } from '../types/authoring';
 import type { AuthUser } from '../types/auth';
 import blockPuzzleApi from '../axios/blockPuzzleApi';
+import { BUILTIN_GAMES, completedLevels, findBuiltinGame } from '../games/registry';
+
+// Blockly khá nặng: chỉ tải khi người chơi mở trò Mê Cung Blockly.
 
 interface BlockPuzzlePageProps {
   teacherLessons?: LessonAuthoring[];
@@ -720,16 +723,6 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
     }, STEP_ANIMATION_MS);
   };
 
-  if (games.length === 0) {
-    return (
-      <div className="text-center py-16 bg-[var(--bg-card)] rounded-3xl border border-[var(--border-color)]">
-        <p className="text-sm font-semibold text-[var(--text-muted)]">
-          Chưa có bài Block Puzzle nào được xuất bản.
-        </p>
-      </div>
-    );
-  }
-
   // ============ Screen 1: chọn game (trước khi vào danh sách bài của game đó) ============
   if (selectedGameId === null) {
     return (
@@ -744,6 +737,38 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {BUILTIN_GAMES.map((bg) => {
+            const done = completedLevels(bg, completedSlugs);
+            const all = done === bg.levels;
+            return (
+              <button
+                key={bg.id}
+                type="button"
+                onClick={() => {
+                  if (!authUser) {
+                    showToast('Vui lòng đăng nhập để chơi Block Puzzle.', 'info');
+                    navigate('/login');
+                    return;
+                  }
+                  setSelectedGameId(bg.id);
+                }}
+                className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md transition-all text-left cursor-pointer flex flex-col gap-3"
+              >
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${bg.gradient} flex items-center justify-center text-white shadow-md`}>
+                  {all ? <Trophy size={22} strokeWidth={2} /> : <Puzzle size={22} strokeWidth={2} />}
+                </div>
+                <div>
+                  <div className="font-extrabold text-base text-[var(--text-main)]">{bg.title}</div>
+                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{bg.levels > 1 ? `${bg.levels} màn · ` : ''}{bg.tagline}</div>
+                </div>
+                <div className="mt-auto pt-2 border-t border-[var(--border-color)] flex items-center justify-between text-xs font-bold">
+                  <span className={all ? 'text-emerald-700 dark:text-emerald-400' : 'text-[var(--text-muted)]'}>
+                    {all ? 'Đã hoàn thành' : `Tiến độ: ${done}/${bg.levels}`}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
           {games.map((game) => {
             const gameCompletedCount = game.lessons.filter((l) => completedSlugs.has(l.slug)).length;
             const isGameDone = gameCompletedCount === game.lessons.length;
@@ -778,6 +803,24 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
           })}
         </div>
       </div>
+    );
+  }
+
+  const builtin = findBuiltinGame(selectedGameId);
+  if (builtin) {
+    const BuiltinComponent = builtin.Component;
+    return (
+      <Suspense
+        fallback={
+          <div className="py-16 text-center text-sm font-semibold text-[var(--text-muted)]">Đang tải trò chơi...</div>
+        }
+      >
+        <BuiltinComponent
+          completedSlugs={completedSlugs}
+          onComplete={(slug) => markCompleted(slug, builtin.id)}
+          onBack={() => setSelectedGameId(null)}
+        />
+      </Suspense>
     );
   }
 
