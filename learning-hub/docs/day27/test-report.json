@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-10-08T04:43:24.210Z",
+  "summary": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "bypassed": 0,
+    "qualityGateStatus": "READY_TO_RELEASE"
+  },
+  "fixturesCount": 7,
+  "testResults": [
+    {
+      "testId": "smoke-api-health",
+      "name": "API System Health Check (/api/health)",
+      "category": "SMOKE",
+      "isCritical": true,
+      "status": "PASSED",
+      "details": "Check OK"
+    },
+    {
+      "testId": "smoke-dataset-catalog",
+      "name": "Dataset & AI Lab Catalog API Contract Check",
+      "category": "SMOKE",
+      "isCritical": true,
+      "status": "PASSED",
+      "details": "Check OK"
+    },
+    {
+      "testId": "content-lesson-testcases",
+      "name": "Published Coding Lessons TestCase Integrity Check",
+      "category": "CONTENT",
+      "isCritical": true,
+      "status": "PASSED",
+      "details": "Check OK"
+    },
+    {
+      "testId": "content-quiz-options",
+      "name": "Published Quiz Lessons Correct Answer Check",
+      "category": "CONTENT",
+      "isCritical": true,
+      "status": "PASSED",
+      "details": "Check OK"
+    },
+    {
+      "testId": "ai-coach-regression-baseline",
+      "name": "AI Coach Response Safety & Canned Fallback Regression Check",
+      "category": "AI_COACH_REGRESSION",
+      "isCritical": true,
+      "status": "PASSED",
+      "details": "Check OK"
+    },
+    {
+      "testId": "security-idor-authoring",
+      "name": "Authoring Ownership IDOR Protection Check",
+      "category": "SECURITY",
+      "isCritical": true,
+      "status": "PASSED",
+      "details": "Check OK"
+    },
+    {
+      "testId": "non-critical-perf-check",
+      "name": "Non-Critical Latency Performance Threshold Check",
+      "category": "SMOKE",
+      "isCritical": false,
+      "status": "PASSED",
+      "details": "Check OK"
+    }
+  ],
+  "releaseChecklist": [
+    {
+      "item": "Tích hợp E2E smoke tests & content checks",
+      "done": true
+    },
+    {
+      "item": "Chạy AI Coach regression evaluation",
+      "done": true
+    },
+    {
+      "item": "Tạo release checklist & Quality Gate Bypass Guard",
+      "done": true
+    },
+    {
+      "item": "Không cho bypass nếu không ghi rõ lý do (bypassReason)",
+      "done": true
+    },
+    {
+      "item": "Xuất Artifact Test Report (docs/day27/test-report.json)",
+      "done": true
+    }
+  ]
+}
