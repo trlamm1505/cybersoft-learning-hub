@@ -57,6 +57,8 @@ import {
       useFactory: (configService: ConfigService) => ({
         uri:
           configService.get<string>('DATABASE_URL') ||
+          configService.get<string>('MONGODB_URI') ||
+          configService.get<string>('MONGO_URI') ||
           'mongodb://localhost:27017/cybersoft',
       }),
     }),

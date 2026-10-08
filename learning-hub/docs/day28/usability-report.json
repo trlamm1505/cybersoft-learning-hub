@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-08T05:41:02.835Z",
+  "timestamp": "2026-10-08T06:25:16.646Z",
   "childSafetyStatus": {
     "coppaCompliant": true,
     "parentalConsentRequiredForMinors": true,
@@ -11,10 +11,10 @@
       "ageGroup": "KIDS_8_12",
       "label": "Trẻ em (8 - 12 tuổi)",
       "targetUserPersona": "Học sinh tiểu học bắt đầu làm quen lập trình Block/Python đơn giản",
-      "sampleSize": 2,
-      "avgCompletionTimeSeconds": 72,
-      "avgErrorCount": 0.5,
-      "avgConfusionMarkers": 0.5,
+      "sampleSize": 3,
+      "avgCompletionTimeSeconds": 66,
+      "avgErrorCount": 0.3,
+      "avgConfusionMarkers": 0.3,
       "avgSatisfactionRating": 5,
       "keyObservation": "Ưa thích màu sắc rực rỡ, chữ to, icon rõ ràng. Phản hồi rất tốt sau khi bật giao diện tương phản cao."
     },
@@ -99,7 +99,7 @@
     }
   ],
   "summary": {
-    "totalSessionsObserved": 4,
+    "totalSessionsObserved": 5,
     "criticalFlowPassRate": 100,
     "overallUsabilityScore": 4.8
   }
