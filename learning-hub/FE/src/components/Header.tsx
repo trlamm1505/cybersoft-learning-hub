@@ -51,6 +51,7 @@ const TEACHER_NAV: NavItem[] = [
   { key: 'authoring', label: 'Soạn Thảo Bài Thi', Icon: Wrench, path: '/authoring' },
   { key: 'teacher-library', label: 'Xem Các Bài Thi', Icon: ClipboardList, path: '/authoring?view=library' },
   { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
+  { key: 'teacher-qa', label: 'Quality & QA Harness', Icon: ClipboardCheck, path: '/authoring?view=qa' },
   { key: 'problem-generator', label: 'AI Tạo Đề', Icon: Sparkles, path: '/problem-generator' },
   { key: 'review-queue', label: 'Chấm Insight', Icon: ClipboardCheck, path: '/teacher/review-queue' },
   { key: 'lab-submissions', label: 'Bài nộp Lab', Icon: ListChecks, path: '/teacher/lab-submissions' },
@@ -106,6 +107,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
     if (path.startsWith('/authoring')) {
       if (search.includes('view=library')) return 'teacher-library';
       if (search.includes('view=contests')) return 'teacher-contests';
+      if (search.includes('view=qa')) return 'teacher-qa';
       return 'authoring';
     }
     if (path.startsWith('/problem-generator')) return 'problem-generator';

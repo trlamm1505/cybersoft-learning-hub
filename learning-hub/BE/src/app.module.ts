@@ -28,6 +28,7 @@ import { LearnerActivityModule } from './modules-api/learner-activity/learner-ac
 import { TeacherAnalyticsModule } from './modules-api/teacher-analytics/teacher-analytics.module';
 import { AdminUsersModule } from './modules-api/admin-users/admin-users.module';
 import { DatasetIntegrationModule } from './integration/dataset-integration.module';
+import { QaHarnessModule } from './modules-api/qa-harness/qa-harness.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { DatasetIntegrationModule } from './integration/dataset-integration.modu
     TeacherAnalyticsModule,
     AdminUsersModule,
     DatasetIntegrationModule,
+    QaHarnessModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: AppThrottlerGuard }],
