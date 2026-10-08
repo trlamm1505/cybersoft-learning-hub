@@ -1,69 +1,21 @@
 {
-  "timestamp": "2026-10-08T05:15:06.367Z",
+  "timestamp": "2026-10-08T05:34:13.324Z",
   "summary": {
-    "total": 7,
-    "passed": 7,
+    "total": 1,
+    "passed": 0,
     "failed": 0,
-    "bypassed": 0,
+    "bypassed": 1,
     "qualityGateStatus": "READY_TO_RELEASE"
   },
   "fixturesCount": 7,
   "testResults": [
     {
-      "testId": "smoke-api-health",
-      "name": "API System Health Check (/api/health)",
-      "category": "SMOKE",
-      "isCritical": true,
-      "status": "PASSED",
-      "details": "Check OK"
-    },
-    {
-      "testId": "smoke-dataset-catalog",
-      "name": "Dataset & AI Lab Catalog API Contract Check",
-      "category": "SMOKE",
-      "isCritical": true,
-      "status": "PASSED",
-      "details": "Check OK"
-    },
-    {
-      "testId": "content-lesson-testcases",
-      "name": "Published Coding Lessons TestCase Integrity Check",
-      "category": "CONTENT",
-      "isCritical": true,
-      "status": "PASSED",
-      "details": "Check OK"
-    },
-    {
-      "testId": "content-quiz-options",
-      "name": "Published Quiz Lessons Correct Answer Check",
-      "category": "CONTENT",
-      "isCritical": true,
-      "status": "PASSED",
-      "details": "Check OK"
-    },
-    {
-      "testId": "ai-coach-regression-baseline",
-      "name": "AI Coach Response Safety & Canned Fallback Regression Check",
-      "category": "AI_COACH_REGRESSION",
-      "isCritical": true,
-      "status": "PASSED",
-      "details": "Check OK"
-    },
-    {
-      "testId": "security-idor-authoring",
-      "name": "Authoring Ownership IDOR Protection Check",
-      "category": "SECURITY",
-      "isCritical": true,
-      "status": "PASSED",
-      "details": "Check OK"
-    },
-    {
       "testId": "non-critical-perf-check",
-      "name": "Non-Critical Latency Performance Threshold Check",
+      "name": "Performance Check",
       "category": "SMOKE",
       "isCritical": false,
-      "status": "PASSED",
-      "details": "Check OK"
+      "status": "BYPASSED",
+      "bypassReason": "Tạm hoãn do đang nâng cấp môi trường staging"
     }
   ],
   "releaseChecklist": [

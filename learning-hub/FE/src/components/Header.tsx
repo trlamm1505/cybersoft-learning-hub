@@ -21,6 +21,7 @@ import {
   ListChecks,
   BarChart3,
   ShieldAlert,
+  ShieldCheck,
   User,
   Users,
   ChevronDown,
@@ -54,6 +55,7 @@ const TEACHER_NAV: NavItem[] = [
   { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
   { key: 'teacher-qa', label: 'Quality & QA Harness', Icon: ClipboardCheck, path: '/authoring?view=qa' },
   { key: 'teacher-usability', label: 'Usability & Age UI', Icon: Users, path: '/authoring?view=usability' },
+  { key: 'teacher-resilience', label: 'Bảo Mật & Tải', Icon: ShieldCheck, path: '/authoring?view=resilience' },
   { key: 'problem-generator', label: 'AI Tạo Đề', Icon: Sparkles, path: '/problem-generator' },
   { key: 'review-queue', label: 'Chấm Insight', Icon: ClipboardCheck, path: '/teacher/review-queue' },
   { key: 'lab-submissions', label: 'Bài nộp Lab', Icon: ListChecks, path: '/teacher/lab-submissions' },
@@ -111,6 +113,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
       if (search.includes('view=contests')) return 'teacher-contests';
       if (search.includes('view=qa')) return 'teacher-qa';
       if (search.includes('view=usability')) return 'teacher-usability';
+      if (search.includes('view=resilience')) return 'teacher-resilience';
       return 'authoring';
     }
     if (path.startsWith('/problem-generator')) return 'problem-generator';

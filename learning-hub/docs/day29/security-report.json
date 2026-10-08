@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-10-08T05:41:34.027Z",
+  "securityHealthStatus": "SECURE",
+  "securityChecks": [
+    {
+      "id": "sec-auth-jwt",
+      "category": "AUTH",
+      "name": "Strict JWT Authentication & Token Expiry Guard",
+      "status": "PASSED",
+      "ruleDescription": "Bắt buộc JWT Bearer Token hợp lệ và còn hạn cho các API quản trị & nộp bài.",
+      "details": "JwtAuthGuard verified. Token hết hạn lập tức trả về 401 Unauthorized."
+    },
+    {
+      "id": "sec-idor-cross-access",
+      "category": "IDOR",
+      "name": "Strict Ownership & Cross-User / Cross-Class IDOR Protection",
+      "status": "PASSED",
+      "ruleDescription": "Không cho phép user A chỉnh sửa/xem bài nộp của user B hoặc bài học lớp khác.",
+      "details": "Kiểm tra chủ sở hữu (authorId / userId) khớp 100%. Trả về 403 Forbidden khi truy cập chéo."
+    },
+    {
+      "id": "sec-rate-limiting",
+      "category": "RATE_LIMIT",
+      "name": "App Throttler Rate Limiting (500 req/min)",
+      "status": "PASSED",
+      "ruleDescription": "Giới hạn số lượng request phòng chống DDoS & Spam API.",
+      "details": "AppThrottlerGuard hoạt động bình thường, quá 500 req/min trả về 429 Too Many Requests."
+    },
+    {
+      "id": "sec-file-upload-validation",
+      "category": "FILE_UPLOAD",
+      "name": "File Upload MIME & Size Limit Guard (Max 10MB)",
+      "status": "PASSED",
+      "ruleDescription": "Chỉ chấp nhận file hợp lệ (JSON, ZIP, Python, Code), chặn file thực thi độc hại.",
+      "details": "Kích thước tối đa 10MB được kiểm soát chặt chẽ."
+    }
+  ],
+  "knownLimits": {
+    "rateLimitPerMinute": 500,
+    "maxFileUploadSizeBytes": 10485760,
+    "maxFileUploadSizeFormatted": "10 MB",
+    "maxConcurrentJudgeExecutions": 50,
+    "queueTimeoutMs": 15000,
+    "maxRetryAttemptsOnWorkerCrash": 3,
+    "idleWorkerCleanupMinutes": 10
+  }
+}
