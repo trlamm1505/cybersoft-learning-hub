@@ -1,6 +1,6 @@
 # 📑 BÁO CÁO USABILITY TEST VÀ BẰNG CHỨNG CẢI TIẾN GIAO DIỆN (DAY 28)
 
-*Thời gian tạo*: 2026-10-08T05:41:02.835Z
+*Thời gian tạo*: 2026-10-08T06:25:16.646Z
 *Tiêu chuẩn an toàn trẻ em*: COPPA Compliant: YES | PII Sanitizer: ACTIVE | Parental Consent Guard: ACTIVE
 
 ---
@@ -9,7 +9,7 @@
 
 | Nhóm tuổi | Đối tượng | Số mẫu | Thời gian TB | Lỗi TB | Nhầm lẫn TB | Điểm hài lòng |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Trẻ em (8 - 12 tuổi)** | Học sinh tiểu học bắt đầu làm quen lập trình Block/Python đơn giản | 2 | 72s | 0.5 | 0.5 | ⭐ 5/5 |
+| **Trẻ em (8 - 12 tuổi)** | Học sinh tiểu học bắt đầu làm quen lập trình Block/Python đơn giản | 3 | 66s | 0.3 | 0.3 | ⭐ 5/5 |
 | **Thiếu niên (13 - 17 tuổi)** | Học sinh THCS & THPT luyện thi học sinh giỏi & lập trình Python | 1 | 112s | 2 | 1 | ⭐ 4/5 |
 | **Người lớn & Giảng viên (18+ tuổi)** | Giảng viên soạn đề, quản trị viên và sinh viên đại học | 1 | 95s | 0 | 0 | ⭐ 5/5 |
 

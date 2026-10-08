@@ -9,13 +9,11 @@ import {
   UserDocument,
 } from '../../modules-system/database/schemas/user.schema';
 
-/** Tài khoản Admin mẫu (cùng nguồn với seed: INITIAL_USERS, admin@gmail.com / 123456). */
-const DEFAULT_ADMIN = INITIAL_USERS.find((u) => u.role === 'ADMIN')!;
+
 
 /**
- * Bảo đảm có sẵn một tài khoản ADMIN mẫu để đăng nhập thử ngay, kể cả khi CSDL đã có dữ liệu và không
- * chạy lại seed. Chỉ TẠO khi chưa có email đó: không bao giờ đổi mật khẩu hay vai trò của tài khoản đã
- * tồn tại. Tắt trên production (mật khẩu mẫu công khai) hoặc bằng SEED_DEFAULT_ADMIN=0.
+ * Bảo đảm có sẵn các tài khoản mẫu (ADMIN, TEACHER, STUDENT) để đăng nhập thử ngay khi deploy,
+ * kể cả khi CSDL mới hoàn toàn và chưa chạy lại seed. Chỉ TẠO khi chưa có email đó.
  */
 @Injectable()
 export class DefaultAdminService implements OnModuleInit {
@@ -40,24 +38,32 @@ export class DefaultAdminService implements OnModuleInit {
     } catch (err) {
       // Không làm hỏng khởi động backend vì tài khoản mẫu.
       this.logger.warn(
-        `Không tạo được tài khoản Admin mẫu: ${(err as Error).message}`,
+        `Không tạo được tài khoản mẫu: ${(err as Error).message}`,
       );
     }
   }
 
   async ensureAdmin(): Promise<'created' | 'exists' | 'disabled'> {
     if (!this.isEnabled()) return 'disabled';
-    const email = DEFAULT_ADMIN.email.toLowerCase();
-    const existing = await this.users.exists({ email });
-    if (existing) return 'exists';
-    await this.users.create({
-      email,
-      password: await bcrypt.hash(DEFAULT_ADMIN.passwordRaw, 10),
-      fullName: DEFAULT_ADMIN.fullName,
-      role: 'ADMIN',
-      avatar: DEFAULT_ADMIN.avatar,
-    });
-    this.logger.log(`Đã tạo tài khoản Admin mẫu ${email} (chỉ dùng cho dev).`);
-    return 'created';
+    let createdCount = 0;
+
+    for (const userData of INITIAL_USERS) {
+      const email = userData.email.toLowerCase();
+      const existing = await this.users.exists({ email });
+      if (!existing) {
+        await this.users.create({
+          email,
+          password: await bcrypt.hash(userData.passwordRaw, 10),
+          fullName: userData.fullName,
+          role: userData.role,
+          avatar: userData.avatar,
+          bio: userData.bio,
+        });
+        this.logger.log(`Đã tạo tài khoản mẫu ${userData.role}: ${email}`);
+        createdCount++;
+      }
+    }
+
+    return createdCount > 0 ? 'created' : 'exists';
   }
 }
