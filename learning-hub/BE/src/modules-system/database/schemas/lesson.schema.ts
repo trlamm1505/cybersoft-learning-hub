@@ -214,6 +214,19 @@ export class Lesson {
 
   @Prop({ type: BlockPuzzleConfigSchema })
   blockPuzzle?: BlockPuzzleConfig;
+
+  // Mã dataset / evaluation set tham chiếu từ Catalog (Day 26)
+  @Prop({ type: String, index: true })
+  resource_id?: string;
+
+  // Version của resource được chọn khi tạo bài / assignment (Day 26)
+  @Prop({ type: String })
+  resource_version?: string;
+
+  // Version cố định được khóa tại thời điểm assignment (Day 26 - Immutable locked version)
+  @Prop({ type: String })
+  assignedResourceVersion?: string;
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);
+

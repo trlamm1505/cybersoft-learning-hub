@@ -24,6 +24,7 @@ import type {
   RegistryEnvelope,
   RegistryEvalItem,
   RegistryEvaluationSet,
+  CatalogResourceItem,
 } from './dataset-contract.types';
 
 // Cùng dạng mã dataset trong Registry của TTS 01 (vd `ds-retail-ecommerce-sales-v1`).
@@ -78,6 +79,76 @@ export class DatasetIntegrationService {
       ? { mode: 'remote', baseUrl }
       : { mode: 'embedded', baseUrl: null };
   }
+
+  /** Lấy danh sách Catalog các tài nguyên (Dataset / Evaluation Set) phục vụ tạo bài giao (Day 26). */
+  async fetchResourceCatalog(): Promise<CatalogResourceItem[]> {
+    return [
+      {
+        resource_id: 'ds-retail-ecommerce-sales-v1',
+        name: 'Sales Performance (Retail Sales v1.0)',
+        type: 'DATASET',
+        current_version: 'v1.0',
+        available_versions: ['v1.0', 'v1.1'],
+        domain: 'Retail',
+        description: 'Bộ dữ liệu bán hàng đa bảng chuẩn hóa: khách hàng, nhân viên, sản phẩm, đơn hàng và chi tiết đơn hàng.',
+      },
+      {
+        resource_id: 'eval-cs-rag-golden-v1',
+        name: 'CyberSoft Academic RAG Evaluation Set (Golden Set)',
+        type: 'EVALUATION_SET',
+        current_version: 'v1.0',
+        available_versions: ['v1.0'],
+        domain: 'AI & Data Engineering',
+        description: 'Bộ đánh giá chuẩn RAG với câu hỏi chuẩn hoá và golden answers.',
+      },
+      {
+        resource_id: 'eval-cs-faq-basic-v1',
+        name: 'CyberSoft FAQ Basic Evaluation Set',
+        type: 'EVALUATION_SET',
+        current_version: 'v1.0',
+        available_versions: ['v1.0'],
+        domain: 'AI & Chatbot',
+        description: 'Bộ câu hỏi thường gặp hệ thống CyberSoft.',
+      },
+    ];
+  }
+
+  /**
+   * Kiểm tra và khóa version bài giao tại thời điểm assignment (Day 26).
+   * Xử lý lỗi khi chọn version không tồn tại/bị gỡ (unavailable version).
+   */
+  async fetchResourceVersionContract(
+    resourceId: string,
+    requestedVersion?: string,
+  ): Promise<{ resource_id: string; version: string; assignedResourceVersion: string }> {
+    this.assertResourceId(resourceId);
+    const catalog = await this.fetchResourceCatalog();
+    const item = catalog.find((c) => c.resource_id === resourceId);
+
+    if (!item && resourceId !== 'ds-retail-ecommerce-sales-v1') {
+      throw new NotFoundException(`Resource "${resourceId}" không tồn tại trong Catalog.`);
+    }
+
+    const availableVersions = item?.available_versions ?? ['v1.0', 'v1.1'];
+    const currentVersion = item?.current_version ?? 'v1.0';
+
+    const targetVersion = requestedVersion && requestedVersion.trim() !== ''
+      ? requestedVersion.trim()
+      : currentVersion;
+
+    if (!availableVersions.includes(targetVersion)) {
+      throw new BadRequestException(
+        `Version "${targetVersion}" không tồn tại hoặc không khả dụng cho resource "${resourceId}". Các version khả dụng: ${availableVersions.join(', ')}`,
+      );
+    }
+
+    return {
+      resource_id: resourceId,
+      version: targetVersion,
+      assignedResourceVersion: targetVersion,
+    };
+  }
+
 
   private baseUrl(): string | null {
     const value = (this.config.get<string>('DATA_SERVICE_BASE_URL') ?? '')

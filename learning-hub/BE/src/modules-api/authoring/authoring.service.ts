@@ -22,6 +22,7 @@ import { INITIAL_EXERCISES } from '../../data/initial-exercises';
 import { INITIAL_HINTS } from '../../data/initial-hints';
 import { INITIAL_BLOCK_LESSONS } from '../../data/initial-block-lessons';
 import { stripControlChars } from '../../common/utils/sanitize-text-input.util';
+import { DatasetIntegrationService } from '../../integration/dataset-integration.service';
 
 @Injectable()
 export class AuthoringService implements OnModuleInit {
@@ -30,6 +31,7 @@ export class AuthoringService implements OnModuleInit {
     private readonly lessonModel: Model<LessonDocument>,
     @InjectModel(Exercise.name)
     private readonly exerciseModel: Model<ExerciseDocument>,
+    private readonly datasetIntegrationService: DatasetIntegrationService,
   ) {}
 
   async onModuleInit() {
@@ -301,6 +303,9 @@ export class AuthoringService implements OnModuleInit {
             solutionCode: lesson.solutionCode || '',
             testCases: lesson.testCases || [],
             sourceLessonSlug: lesson.slug,
+            resource_id: lesson.resource_id,
+            resource_version: lesson.resource_version,
+            assignedResourceVersion: lesson.assignedResourceVersion,
           },
         },
         { upsert: true, new: true },
@@ -332,6 +337,10 @@ export class AuthoringService implements OnModuleInit {
     return `${baseSlug}-${Date.now()}`;
   }
 
+  async getCatalogResources() {
+    return this.datasetIntegrationService.fetchResourceCatalog();
+  }
+
   async createLesson(
     dto: CreateLessonDto,
     authorId: string,
@@ -349,8 +358,23 @@ export class AuthoringService implements OnModuleInit {
       this.validatePublicationEligibility(sanitized);
     }
 
+    let resourceVersionInfo: Record<string, string> = {};
+    if (dto.resource_id) {
+      const contractInfo =
+        await this.datasetIntegrationService.fetchResourceVersionContract(
+          dto.resource_id,
+          dto.resource_version,
+        );
+      resourceVersionInfo = {
+        resource_id: contractInfo.resource_id,
+        resource_version: contractInfo.version,
+        assignedResourceVersion: contractInfo.assignedResourceVersion,
+      };
+    }
+
     const createdLesson = new this.lessonModel({
       ...sanitized,
+      ...resourceVersionInfo,
       status,
       // authorId luôn lấy từ JWT của người gọi (controller truyền vào),
       // KHÔNG bao giờ từ dto client tự gửi — chặn IDOR mạo danh chủ sở hữu.
@@ -360,6 +384,7 @@ export class AuthoringService implements OnModuleInit {
     await this.syncPublishedCodingLessonToExerciseBank(saved);
     return saved;
   }
+
 
   async updateLesson(
     id: string,
@@ -432,6 +457,20 @@ export class AuthoringService implements OnModuleInit {
     const targetStatus = dto.status || lesson.status;
     if (targetStatus === 'published') {
       this.validatePublicationEligibility(sanitized);
+    }
+
+    if (dto.resource_id !== undefined || dto.resource_version !== undefined) {
+      const targetResourceId = dto.resource_id ?? lesson.resource_id;
+      if (targetResourceId) {
+        const contractInfo =
+          await this.datasetIntegrationService.fetchResourceVersionContract(
+            targetResourceId,
+            dto.resource_version ?? lesson.resource_version,
+          );
+        sanitized.resource_id = contractInfo.resource_id;
+        sanitized.resource_version = contractInfo.version;
+        sanitized.assignedResourceVersion = contractInfo.assignedResourceVersion;
+      }
     }
 
     const updated = await this.lessonModel
