@@ -42,4 +42,7 @@ export class CreateLessonDto {
   testCases?: TestCaseDto[];
   quizQuestions?: QuizQuestionDto[];
   hints?: LessonHintsDto;
+  resource_id?: string;
+  resource_version?: string;
 }
+

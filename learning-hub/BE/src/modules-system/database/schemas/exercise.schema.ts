@@ -142,6 +142,13 @@ export class Exercise {
   @Prop({ type: String, index: true })
   resource_id?: string;
 
+  @Prop({ type: String })
+  resource_version?: string;
+
+  // Version cố định được khóa tại thời điểm assignment (Day 26 - Immutable locked version)
+  @Prop({ type: String })
+  assignedResourceVersion?: string;
+
   @Prop({ type: [InsightRubricCriterionSchema], default: undefined })
   insightRubric?: InsightRubricCriterion[];
 

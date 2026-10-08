@@ -5,6 +5,30 @@ import { AuthoringService } from './authoring.service';
 import { Lesson } from '../../modules-system/database/schemas/lesson.schema';
 import { Exercise } from '../../modules-system/database/schemas/exercise.schema';
 
+import { DatasetIntegrationService } from '../../integration/dataset-integration.service';
+
+const mockDatasetIntegrationService = {
+  fetchResourceCatalog: jest.fn().mockResolvedValue([
+    {
+      resource_id: 'ds-retail-ecommerce-sales-v1',
+      name: 'Sales Performance',
+      type: 'DATASET',
+      current_version: 'v1.0',
+      available_versions: ['v1.0', 'v1.1'],
+    },
+  ]),
+  fetchResourceVersionContract: jest.fn().mockImplementation((id, ver) => {
+    if (ver === 'v9.9') {
+      return Promise.reject(new BadRequestException('Version v9.9 không tồn tại'));
+    }
+    return Promise.resolve({
+      resource_id: id,
+      version: ver || 'v1.0',
+      assignedResourceVersion: ver || 'v1.0',
+    });
+  }),
+};
+
 describe('AuthoringService', () => {
   let service: AuthoringService;
   let mockLessonModel: any;
@@ -46,6 +70,10 @@ describe('AuthoringService', () => {
         {
           provide: getModelToken(Exercise.name),
           useValue: mockExerciseModel,
+        },
+        {
+          provide: DatasetIntegrationService,
+          useValue: mockDatasetIntegrationService,
         },
       ],
     }).compile();
@@ -485,6 +513,7 @@ describe('AuthoringService — bài DA Lab không lọt vào luồng lesson Pyth
         AuthoringService,
         { provide: getModelToken(Lesson.name), useValue: mockLessonModel },
         { provide: getModelToken(Exercise.name), useValue: mockExerciseModel },
+        { provide: DatasetIntegrationService, useValue: mockDatasetIntegrationService },
       ],
     }).compile();
     service = module.get<AuthoringService>(AuthoringService);
@@ -508,10 +537,65 @@ describe('AuthoringService — bài DA Lab không lọt vào luồng lesson Pyth
     expect(mockExerciseModel.deleteOne).not.toHaveBeenCalled();
   });
 
-  it('deleteLesson không xoá bài DA qua đường exercise mồ côi', async () => {
-    await expect(service.deleteLesson('da-id-1', teacher)).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
-    expect(mockExerciseModel.findByIdAndDelete).not.toHaveBeenCalled();
+    it('deleteLesson không xoá bài DA qua đường exercise mồ côi', async () => {
+      await expect(service.deleteLesson('da-id-1', teacher)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+      expect(mockExerciseModel.findByIdAndDelete).not.toHaveBeenCalled();
+    });
+
+  describe('Day 26 - Teacher chọn Resource & Version Locking', () => {
+    it('createLesson lưu và khóa assignedResourceVersion từ Dataset Catalog', async () => {
+      mockLessonModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+      const saveSpy = jest.fn().mockImplementation(function (this: any) {
+        return Promise.resolve({ ...this, _id: 'new-id' });
+      });
+      mockLessonModel.mockImplementation((dto: any) => ({
+        ...dto,
+        save: saveSpy,
+      }));
+
+      await service.createLesson(
+        {
+          title: 'Bài lab SQL Retail',
+          slug: 'bai-lab-sql-retail',
+          type: 'coding',
+          resource_id: 'ds-retail-ecommerce-sales-v1',
+          resource_version: 'v1.1',
+        } as any,
+        'teacher-1',
+      );
+
+      expect(mockDatasetIntegrationService.fetchResourceVersionContract).toHaveBeenCalledWith(
+        'ds-retail-ecommerce-sales-v1',
+        'v1.1',
+      );
+      expect(mockLessonModel).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resource_id: 'ds-retail-ecommerce-sales-v1',
+          resource_version: 'v1.1',
+          assignedResourceVersion: 'v1.1',
+        }),
+      );
+    });
+
+    it('createLesson ném BadRequestException nếu chọn version không tồn tại (v9.9)', async () => {
+      mockLessonModel.findOne = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+
+      await expect(
+        service.createLesson(
+          {
+            title: 'Bài lab SQL Retail lỗi version',
+            slug: 'bai-lab-sql-retail-loi',
+            type: 'coding',
+            resource_id: 'ds-retail-ecommerce-sales-v1',
+            resource_version: 'v9.9',
+          } as any,
+          'teacher-1',
+        ),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
   });
 });
+
+

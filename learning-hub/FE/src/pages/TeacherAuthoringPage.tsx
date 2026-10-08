@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import type { LessonAuthoring, TestCase, QuizQuestion, QuizOption } from '../types/authoring';
 import type { ExerciseListItem } from '../types/exercise';
-import { authoringApi } from '../axios/authoringApi';
+import { authoringApi, type CatalogResourceItem } from '../axios/authoringApi';
 import { exerciseApi } from '../axios/exerciseApi';
 import { TeacherContestAuthoring } from '../components/TeacherContestAuthoring';
 import { useToast } from '../components/Toast';
@@ -114,6 +114,8 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
   const publishedCount = existingLessons.filter((l) => l.status === 'published').length;
   const draftCount = existingLessons.filter((l) => l.status === 'draft').length;
 
+  const [catalogResources, setCatalogResources] = useState<CatalogResourceItem[]>([]);
+
   // Fetch list of existing lessons created by teacher
   const loadExistingLessons = useCallback(async () => {
     try {
@@ -135,6 +137,12 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
 
   useEffect(() => {
     loadExistingLessons();
+    authoringApi
+      .getCatalogResources()
+      .then((res) => {
+        if (Array.isArray(res)) setCatalogResources(res);
+      })
+      .catch(() => {});
   }, [loadExistingLessons]);
 
   const handleSelectLessonToEdit = (lesson: LessonAuthoring) => {
@@ -1180,6 +1188,69 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
                 className="w-full px-3.5 py-2 text-xs rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
                 placeholder="Mô tả mục đích bài học..."
               />
+            </div>
+
+            {/* Day 26 - Data & AI Lab Resource & Version Selection */}
+            <div className="md:col-span-2 bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 rounded-xl p-3.5 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+                  <Bookmark size={14} /> Giao bài với Data & AI Lab Resource (Day 26 - Versioned Integration)
+                </label>
+                {formData.assignedResourceVersion && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                    🔒 Version đã khóa: {formData.assignedResourceVersion}
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">
+                    Chọn Tài Nguyên (Dataset / Evaluation Set)
+                  </label>
+                  <select
+                    value={formData.resource_id || ''}
+                    onChange={(e) => {
+                      const selectedId = e.target.value;
+                      const found = catalogResources.find((r) => r.resource_id === selectedId);
+                      setFormData((prev) => ({
+                        ...prev,
+                        resource_id: selectedId || undefined,
+                        resource_version: found ? found.current_version : undefined,
+                      }));
+                    }}
+                    className="w-full px-3 py-1.5 text-xs rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
+                  >
+                    <option value="">-- Không tham chiếu Resource --</option>
+                    {catalogResources.map((res) => (
+                      <option key={res.resource_id} value={res.resource_id}>
+                        [{res.type}] {res.name} ({res.current_version})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">
+                    Phiên bản được giao (Resource Version)
+                  </label>
+                  <select
+                    disabled={!formData.resource_id}
+                    value={formData.resource_version || ''}
+                    onChange={(e) => handleChange('resource_version', e.target.value)}
+                    className="w-full px-3 py-1.5 text-xs rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500 disabled:opacity-50"
+                  >
+                    {(() => {
+                      const currentRes = catalogResources.find((r) => r.resource_id === formData.resource_id);
+                      const versions = currentRes?.available_versions || ['v1.0', 'v1.1'];
+                      return versions.map((v) => (
+                        <option key={v} value={v}>
+                          {v} {v === currentRes?.current_version ? '(Mới nhất)' : ''}
+                        </option>
+                      ));
+                    })()}
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
         </div>

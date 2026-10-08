@@ -26,6 +26,13 @@ import type { JwtPayload } from '../../common/auth/jwt.strategy';
 export class AuthoringController {
   constructor(private readonly authoringService: AuthoringService) {}
 
+  @Get('catalog/resources')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  async getCatalogResources() {
+    return this.authoringService.getCatalogResources();
+  }
+
   @Post('create')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard, RolesGuard)

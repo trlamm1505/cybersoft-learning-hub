@@ -75,6 +75,9 @@ export interface LessonAuthoring {
   quizQuestions: QuizQuestion[];
   hints?: LessonHints;
   blockPuzzle?: BlockPuzzleConfig;
+  resource_id?: string;
+  resource_version?: string;
+  assignedResourceVersion?: string;
   createdAt?: string;
   updatedAt?: string;
 }

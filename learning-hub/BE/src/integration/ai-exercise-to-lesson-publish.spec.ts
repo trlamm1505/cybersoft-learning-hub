@@ -22,6 +22,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { BadRequestException } from '@nestjs/common';
+import { DatasetIntegrationService } from './dataset-integration.service';
 import { ProblemGeneratorService } from '../modules-api/problem-generator/problem-generator.service';
 import { AuthoringService } from '../modules-api/authoring/authoring.service';
 import { Exercise } from '../modules-system/database/schemas/exercise.schema';
@@ -177,6 +178,19 @@ describe('Integration: AI-generated exercise -> save to bank -> pull into Lesson
         { provide: ConfigService, useValue: { get: () => undefined } }, // no GEMINI_API_KEY -> StubProblemGeneratorClient
         { provide: getModelToken(Exercise.name), useValue: fakeExerciseModel },
         { provide: getModelToken(Lesson.name), useValue: fakeLessonModel },
+        {
+          provide: DatasetIntegrationService,
+          useValue: {
+            fetchResourceCatalog: jest.fn().mockResolvedValue([]),
+            fetchResourceVersionContract: jest.fn().mockImplementation((id, ver) =>
+              Promise.resolve({
+                resource_id: id,
+                version: ver || 'v1.0',
+                assignedResourceVersion: ver || 'v1.0',
+              }),
+            ),
+          },
+        },
       ],
     }).compile();
 

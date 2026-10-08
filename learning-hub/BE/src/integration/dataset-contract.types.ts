@@ -139,3 +139,15 @@ export interface EvaluationSetContract {
   checksum: string;
   items: EvaluationItem[];
 }
+
+/** Item trong Catalog API để Teacher chọn Dataset / AI Lab Project khi tạo bài (Day 26). */
+export interface CatalogResourceItem {
+  resource_id: string;
+  name: string;
+  type: 'DATASET' | 'EVALUATION_SET';
+  current_version: string;
+  available_versions: string[];
+  description?: string;
+  domain?: string;
+}
+

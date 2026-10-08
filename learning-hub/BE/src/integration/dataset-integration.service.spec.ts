@@ -367,4 +367,46 @@ describe('DatasetIntegrationService — registry tích hợp sẵn (không cần
       service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1'),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  describe('Day 26 - Integration với Data & AI Lab (Contract & Versioning)', () => {
+    it('fetchResourceCatalog trả danh sách tài nguyên và các version hợp lệ', async () => {
+      const { service } = makeService({});
+      const catalog = await service.fetchResourceCatalog();
+      expect(catalog.length).toBeGreaterThan(0);
+      const ds = catalog.find((c) => c.resource_id === 'ds-retail-ecommerce-sales-v1');
+      expect(ds).toBeDefined();
+      expect(ds?.available_versions).toContain('v1.0');
+      expect(ds?.available_versions).toContain('v1.1');
+    });
+
+    it('fetchResourceVersionContract khóa đúng version khi version hợp lệ', async () => {
+      const { service } = makeService({});
+      const res = await service.fetchResourceVersionContract('ds-retail-ecommerce-sales-v1', 'v1.1');
+      expect(res.resource_id).toBe('ds-retail-ecommerce-sales-v1');
+      expect(res.version).toBe('v1.1');
+      expect(res.assignedResourceVersion).toBe('v1.1');
+    });
+
+    it('fetchResourceVersionContract mặc định lấy current_version khi không truyền version', async () => {
+      const { service } = makeService({});
+      const res = await service.fetchResourceVersionContract('ds-retail-ecommerce-sales-v1');
+      expect(res.version).toBe('v1.0');
+      expect(res.assignedResourceVersion).toBe('v1.0');
+    });
+
+    it('Xử lý unavailable version: báo lỗi BadRequestException khi truyền version không tồn tại (v9.9)', async () => {
+      const { service } = makeService({});
+      await expect(
+        service.fetchResourceVersionContract('ds-retail-ecommerce-sales-v1', 'v9.9'),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('Báo lỗi NotFoundException khi chọn resource không tồn tại trong Catalog', async () => {
+      const { service } = makeService({});
+      await expect(
+        service.fetchResourceVersionContract('ds-non-existent-99'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
 });
+
