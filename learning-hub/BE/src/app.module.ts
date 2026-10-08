@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import {
   AppThrottlerGuard,
   DEFAULT_RATE_LIMIT,
 } from './common/security/app-throttler.guard';
+import { LoggingInterceptor } from './common/interceptor/logging.interceptor';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './modules-system/database/database.module';
@@ -62,6 +63,10 @@ import { ResilienceSecurityModule } from './modules-api/resilience-security/resi
     ResilienceSecurityModule,
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: AppThrottlerGuard }],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: AppThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
+  ],
 })
 export class AppModule {}
