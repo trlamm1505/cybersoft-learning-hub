@@ -34,6 +34,7 @@ import { authoringApi, type CatalogResourceItem } from '../axios/authoringApi';
 import { exerciseApi } from '../axios/exerciseApi';
 import { TeacherContestAuthoring } from '../components/TeacherContestAuthoring';
 import { QualityDashboard } from '../components/QualityDashboard';
+import { UsabilityDashboard } from '../components/UsabilityDashboard';
 import { useToast } from '../components/Toast';
 
 
@@ -81,6 +82,7 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
   const isLibraryView = searchParams.get('view') === 'library';
   const isContestsView = searchParams.get('view') === 'contests';
   const isQaDashboardView = searchParams.get('view') === 'qa';
+  const isUsabilityView = searchParams.get('view') === 'usability';
 
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -1674,6 +1676,8 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
         <TeacherContestAuthoring />
       ) : isQaDashboardView ? (
         <QualityDashboard />
+      ) : isUsabilityView ? (
+        <UsabilityDashboard />
       ) : isLibraryView ? (
         renderLibraryView()
       ) : (
