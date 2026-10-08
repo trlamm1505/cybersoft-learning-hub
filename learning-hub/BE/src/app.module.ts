@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import {
   AppThrottlerGuard,
   DEFAULT_RATE_LIMIT,
 } from './common/security/app-throttler.guard';
+import { LoggingInterceptor } from './common/interceptor/logging.interceptor';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './modules-system/database/database.module';
@@ -17,8 +18,7 @@ import { ContestModule } from './modules-api/contest/contest.module';
 import { AuthModule } from './modules-api/auth/auth.module';
 import { LeaderboardModule } from './modules-api/leaderboard/leaderboard.module';
 import { CoachModule } from './modules-api/coach/coach.module';
-import { BlockPuzzleModule } from './modules-api/block-puzzle/block-puzzle.module';
-import { ProblemGeneratorModule } from './modules-api/problem-generator/problem-generator.module';
+import { BlockPuzzleModule } from './modules-api/problem-generator/problem-generator.module';
 import { RecommendationModule } from './modules-api/recommendation/recommendation.module';
 import { TesterLabsModule } from './modules-api/tester-labs/tester-labs.module';
 import { DaLabsModule } from './modules-api/da-labs/da-labs.module';
@@ -62,6 +62,10 @@ import { ResilienceSecurityModule } from './modules-api/resilience-security/resi
     ResilienceSecurityModule,
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: AppThrottlerGuard }],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: AppThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
+  ],
 })
 export class AppModule {}
