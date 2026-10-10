@@ -1,0 +1,2 @@
+NAME                  IMAGE                COMMAND                  SERVICE            CREATED      STATUS                    PORTS
+da-sandbox-sales-v1   postgres:16-alpine   "docker-entrypoint.s…"   postgres-sandbox   2 days ago   Up 33 minutes (healthy)   127.0.0.1:55432->5432/tcp
