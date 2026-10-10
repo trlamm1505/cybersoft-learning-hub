@@ -1,0 +1,39 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\USER\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: D:\thuctap\cybersoft-learning-hub\Data-AI-Resource\BaoCao_Task24
+plugins: anyio-4.15.1
+collecting ... collected 24 items
+
+tests/test_changelog_differ.py::test_diff_added_components PASSED        [  4%]
+tests/test_changelog_differ.py::test_diff_deprecated_components PASSED   [  8%]
+tests/test_changelog_differ.py::test_changelog_entry_generation PASSED   [ 12%]
+tests/test_deprecation_lifecycle.py::test_valid_deprecation_transition PASSED [ 16%]
+tests/test_deprecation_lifecycle.py::test_invalid_transition_from_retired PASSED [ 20%]
+tests/test_deprecation_lifecycle.py::test_deprecation_downstream_warnings PASSED [ 25%]
+tests/test_deprecation_lifecycle.py::test_content_remains_immutable_after_deprecation PASSED [ 29%]
+tests/test_immutable_store.py::test_register_new_artifact_success PASSED [ 33%]
+tests/test_immutable_store.py::test_overwrite_existing_artifact_blocked PASSED [ 37%]
+tests/test_immutable_store.py::test_list_and_filter_artifacts PASSED     [ 41%]
+tests/test_immutable_store.py::test_content_hash_integrity PASSED        [ 45%]
+tests/test_lineage_api.py::test_api_get_dag PASSED                       [ 50%]
+tests/test_lineage_api.py::test_api_trace_endpoint PASSED                [ 54%]
+tests/test_lineage_api.py::test_api_post_artifact_conflict_409 PASSED    [ 58%]
+tests/test_manifest_builder.py::test_manifest_generation_completeness PASSED [ 62%]
+tests/test_manifest_builder.py::test_holistic_checksum_deterministic PASSED [ 66%]
+tests/test_manifest_builder.py::test_manifest_immutability_blocked PASSED [ 70%]
+tests/test_manifest_builder.py::test_retrieve_manifest_by_version PASSED [ 75%]
+tests/test_provenance_trace.py::test_trace_exercise_back_to_root_datasets PASSED [ 79%]
+tests/test_provenance_trace.py::test_trace_evaluation_back_to_components PASSED [ 83%]
+tests/test_provenance_trace.py::test_root_and_leaf_node_detection PASSED [ 87%]
+tests/test_provenance_trace.py::test_all_paths_to_root PASSED            [ 91%]
+tests/test_rollback_planner.py::test_generate_rollback_plan_steps PASSED [ 95%]
+tests/test_rollback_planner.py::test_rollback_note_markdown_content PASSED [100%]
+
+============================== warnings summary ===============================
+C:\Users\USER\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\USER\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 24 passed, 1 warning in 0.19s ========================
