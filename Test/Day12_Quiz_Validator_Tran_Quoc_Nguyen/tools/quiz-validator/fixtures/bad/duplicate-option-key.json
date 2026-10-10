@@ -1,0 +1,29 @@
+[
+  {
+    "content": "Câu hỏi mẫu hợp lệ dùng để kiểm tra rule.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Phương án 1",
+        "isCorrect": true
+      },
+      {
+        "key": "A",
+        "text": "Phương án 2",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Phương án 3",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "content": "Câu hỏi mẫu hợp lệ dùng để kiểm tra rule.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Python",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "JavaScript",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "C++",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "Tất cả các đáp án trên",
+        "isCorrect": true
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

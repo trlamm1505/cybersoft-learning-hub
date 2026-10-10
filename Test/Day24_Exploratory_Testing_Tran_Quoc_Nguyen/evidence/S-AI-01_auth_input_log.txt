@@ -1,0 +1,14 @@
+S-AI-01 | 08/10/2026 20:39 | API http://localhost:3000/api/auth (tài khoản student, token đã che)
+POST /auth/login {email:"",password:""}                -> 400 "Vui lòng nhập email và mật khẩu."
+POST /auth/login {email:{a:1},password:"x"}            -> 500 Internal server error   (object thay chuỗi)
+POST /auth/login {email:["a@b.c"],password:123}        -> 500 Internal server error   (mảng/số)
+POST /auth/login {email:"   ",password:"   "}          -> 401
+POST /auth/login payload thừa {admin:true}             -> 401 (bỏ qua trường thừa)
+POST /auth/login Unicode/emoji                         -> 401
+POST /auth/register {} / object / mật khẩu 1 ký tự     -> 400 (cùng một thông báo chung)
+POST /auth/forgot-password {}                          -> 400
+POST /auth/forgot-password {email:{a:1}}               -> 500 Internal server error
+POST /auth/forgot-password {email:"not-an-email"}      -> 201 "Nếu email này đã đăng ký..."
+POST /auth/forgot-password email không tồn tại         -> 201 cùng thông báo (không lộ tài khoản: đạt)
+UI /forgot-password: trình duyệt chặn email thiếu '@' trước khi gọi API (xem ảnh S-AI-01_...jpg)
+Kết luận: tái hiện DEF-026 trên login và forgot-password; không tạo tài khoản mới.

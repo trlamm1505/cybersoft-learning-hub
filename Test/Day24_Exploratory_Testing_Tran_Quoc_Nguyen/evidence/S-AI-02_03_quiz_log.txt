@@ -1,0 +1,7 @@
+S-AI-02/03 | 08/10/2026 20:40-20:41 | UI /quiz + API
+UI: thẻ "Bài Trắc Nghiệm Python Căn Bản" -> bấm bắt đầu -> banner đỏ "Không tìm thấy câu hỏi nào trong hệ thống bài thi" (DEF-029)
+UI: 3 thẻ (Python, HTML5, CSS3) đều ghi "20 câu hỏi, 30 phút". Bắt đầu đề HTML5: thanh câu hỏi chỉ có 2 câu (1, 2)
+UI: đáp án hiện theo thứ tự C, A, B, D (nhãn không theo thứ tự)
+UI: tải lại trang (hoặc điều hướng /quiz) giữa lúc làm bài -> quay về màn chọn đề, mất bài làm, không cảnh báo, không có nút tiếp tục
+API POST /quiz/start {category:"python"|"html5"|"css3"|...} -> 400 "ID người dùng hoặc bài thi không hợp lệ" (body không đúng schema, chưa suy ra được schema; không kết luận lỗi)
+Giới hạn: chỉ có 1 tài khoản student nên chưa thử ownership giữa 2 tài khoản (không tạo tài khoản mới).

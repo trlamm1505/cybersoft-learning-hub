@@ -1,0 +1,71 @@
+{
+  "info": {
+    "_postman_id": "day14-6-demos-starter",
+    "name": "Day14 - 6 CyberSoft demos - Starter",
+    "description": "Starter an toàn. LAB-04 có collection riêng trong LAB-04/. Endpoint demo3/4 phải được học viên thêm sau khi đọc Swagger hiện tại; không đoán path.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "LAB-07 demo1 data",
+      "item": [
+        {
+          "name": "Danh sách phim GP01",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{demo1Api}}/QuanLyPhim/LayDanhSachPhim?maNhom=GP01",
+              "host": [
+                "{{demo1Api}}"
+              ],
+              "path": [
+                "QuanLyPhim",
+                "LayDanhSachPhim"
+              ],
+              "query": [
+                {
+                  "key": "maNhom",
+                  "value": "GP01"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "LAB-08 demo2 integrity",
+      "item": [
+        {
+          "name": "Danh sách khóa học",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "TokenCybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{demo2Api}}/QuanLyKhoaHoc/LayDanhSachKhoaHoc",
+              "host": [
+                "{{demo2Api}}"
+              ],
+              "path": [
+                "QuanLyKhoaHoc",
+                "LayDanhSachKhoaHoc"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "LAB-05/06 Swagger-first",
+      "description": "Mở Swagger demo3/demo4, chép đúng endpoint/body/header rồi mới thêm request. LAB-04 đã có collection riêng dựa trên OpenAPI demo6 ngày 23/09/2026.",
+      "item": []
+    }
+  ]
+}

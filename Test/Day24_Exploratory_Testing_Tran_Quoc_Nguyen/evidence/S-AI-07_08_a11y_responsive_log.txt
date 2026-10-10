@@ -1,0 +1,7 @@
+S-AI-07/08 | 08/10/2026 20:43 | đo DOM qua iframe cùng origin (cửa sổ không resize được)
+/login 375/768/1024: input email, mật khẩu không có label/aria-label (2/2); không có <main>; không tràn ngang (scrollWidth<=viewport)
+/register 375: 3/3 input không label
+/quiz: 3 thẻ đề là <div> không tabindex, không role -> không Tab chọn được bằng bàn phím; không có <main>
+/catalog 375 và /ai-lab 375: nút lọc "Nâng cao" có right=398 > 375 (vượt khung ngoài viewport 23px; chưa xác minh có cuộn được hay bị cắt)
+Header ở 375/768: cao 57px, không phần tử nào tràn ngang (header đã cải thiện, khớp DEF-006 ở trạng thái Retest)
+Không phát hiện tràn ngang toàn trang ở 375/768/1024.

@@ -1,0 +1,73 @@
+{
+  "variantId": "tinh-tong-hai-so-nguyen-V03",
+  "sourceId": "tinh-tong-hai-so-nguyen",
+  "sourceVersion": "1.0",
+  "variantVersion": "1.0",
+  "sourceType": "CODING",
+  "parameters": {
+    "pairs": [
+      {
+        "a": 7,
+        "b": 8
+      },
+      {
+        "a": -100,
+        "b": 250
+      },
+      {
+        "a": 123456,
+        "b": 654321
+      },
+      {
+        "a": -1,
+        "b": 1
+      }
+    ]
+  },
+  "generationMethod": "ai-selected-parameters + program-recomputed-answer (python3/node, khong tin truc tiep AI)",
+  "content": {
+    "slug": "tinh-tong-hai-so-nguyen-v03",
+    "title": "Tính tổng hai số nguyên (Biến thể 3)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho hai số nguyên A và B, mỗi số trên một dòng. In ra kết quả tổng A + B trên một dòng.",
+    "starterCode": "a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "a = int(input())\nb = int(input())\nprint(a + b)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "7\n8",
+        "expectedOutput": "15",
+        "isHidden": false
+      },
+      {
+        "input": "-100\n250",
+        "expectedOutput": "150",
+        "isHidden": false
+      },
+      {
+        "input": "123456\n654321",
+        "expectedOutput": "777777",
+        "isHidden": true
+      },
+      {
+        "input": "-1\n1",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  "__testCaseNotes": [
+    "a=7, b=8",
+    "a=-100, b=250",
+    "a=123456, b=654321",
+    "a=-1, b=1"
+  ],
+  "validationStatus": "PENDING",
+  "humanReview": {
+    "equivalenceAccepted": null,
+    "reviewer": "",
+    "notes": "",
+    "reviewedAt": ""
+  }
+}

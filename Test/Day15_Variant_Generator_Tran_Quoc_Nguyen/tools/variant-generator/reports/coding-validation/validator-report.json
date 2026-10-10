@@ -1,0 +1,787 @@
+{
+  "summary": {
+    "filesScanned": 1,
+    "problemsScanned": 24,
+    "rulesApplied": 19,
+    "errors": 0,
+    "warnings": 31,
+    "referenceAC": 24,
+    "referenceRun": 24,
+    "python": "C:\\Users\\USER\\AppData\\Local\\Programs\\Python\\Python311\\python.exe"
+  },
+  "rules": [
+    {
+      "code": "CP001",
+      "severity": "ERROR",
+      "group": "Statement",
+      "description": "Thiếu đề bài (description rỗng hoặc quá ngắn để hiểu yêu cầu).",
+      "fix": "Viết mô tả bài: input là gì, output là gì, in ra định dạng nào."
+    },
+    {
+      "code": "CP002",
+      "severity": "WARNING",
+      "group": "Statement",
+      "description": "Đề bài không nêu ràng buộc (constraints) - khoảng giá trị / kích thước input.",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng."
+    },
+    {
+      "code": "CP003",
+      "severity": "ERROR",
+      "group": "Tests",
+      "description": "Không có sample test (test không ẩn) - học viên không có ví dụ đối chiếu.",
+      "fix": "Thêm ít nhất 1-2 test isHidden=false."
+    },
+    {
+      "code": "CP004",
+      "severity": "ERROR",
+      "group": "Tests",
+      "description": "Test thiếu input hoặc expectedOutput (không phải chuỗi).",
+      "fix": "Mỗi test phải có input:string và expectedOutput:string (chuỗi rỗng \"\" hợp lệ nếu cố ý \"không in gì\")."
+    },
+    {
+      "code": "CP005",
+      "severity": "ERROR",
+      "group": "Reference",
+      "description": "Không có reference solution (solutionCode).",
+      "fix": "Thêm solutionCode chuẩn - không có nó thì không kiểm được test và không làm được mutation testing."
+    },
+    {
+      "code": "CP006",
+      "severity": "ERROR",
+      "group": "Reference",
+      "description": "Reference solution KHÔNG đạt AC trên chính bộ test của bài (baseline không đáng tin).",
+      "fix": "Sửa solutionCode hoặc sửa test cho khớp. DỪNG mutation testing cho tới khi reference = AC."
+    },
+    {
+      "code": "CP007",
+      "severity": "ERROR",
+      "group": "Timeout",
+      "description": "timeLimitMs không hợp lệ (thiếu, không phải số, ≤0) hoặc cấu hình bất hợp lý (quá lớn / quá sát thời gian chạy thật của reference).",
+      "fix": "Đặt timeLimitMs trong khoảng 500-10000 ms và lớn hơn ~2x thời gian chạy thật của reference."
+    },
+    {
+      "code": "CP008",
+      "severity": "ERROR",
+      "group": "Output format",
+      "description": "Định dạng expectedOutput mâu thuẫn với đề: có nhãn thừa (\"Result: 10\"), sai tập giá trị được đề liệt kê (\"YES\"/\"NO\"), hoặc nhiều dòng khi đề bảo \"trên một dòng\".",
+      "fix": "Sửa expectedOutput đúng như đề yêu cầu, hoặc sửa đề cho khớp expectedOutput."
+    },
+    {
+      "code": "CP009",
+      "severity": "ERROR",
+      "group": "Tests",
+      "description": "Không có hidden test - không chống được code hard-code theo sample.",
+      "fix": "Thêm ít nhất 2 test isHidden=true, phủ edge case mà sample không có."
+    },
+    {
+      "code": "CP010",
+      "severity": "ERROR",
+      "group": "Consistency",
+      "description": "Test không nhất quán với đề/constraints: input ngoài miền đề nêu (\"nguyên dương\", \"không âm\", \"chữ cái thường\", constraints khai báo) hoặc số phần tử/dòng không khớp N.",
+      "fix": "Sửa test cho nằm trong miền của đề, hoặc sửa đề/constraints cho khớp test."
+    },
+    {
+      "code": "CP011",
+      "severity": "WARNING",
+      "group": "Tests",
+      "description": "Hai test có cùng input (trùng lặp, tốn slot mà không thêm độ phủ).",
+      "fix": "Xóa test trùng hoặc thay bằng input khác loại (edge case)."
+    },
+    {
+      "code": "CP012",
+      "severity": "WARNING",
+      "group": "Tests",
+      "description": "Hidden test trùng input với sample test (không làm tăng độ phủ, chỉ làm học viên tưởng đã thử hết).",
+      "fix": "Thay hidden test bằng input mới chưa có trong sample."
+    },
+    {
+      "code": "CP013",
+      "severity": "WARNING",
+      "group": "Tests",
+      "description": "Bộ test quá mỏng: tổng < 4 test hoặc hidden < 2.",
+      "fix": "Bổ sung test biên (giá trị nhỏ nhất/lớn nhất, rỗng/1 phần tử, trùng lặp, số âm...)."
+    },
+    {
+      "code": "CP014",
+      "severity": "ERROR",
+      "group": "Reference",
+      "description": "starterCode đã chứa sẵn lời giải (lộ đáp án cho học viên).",
+      "fix": "Chỉ để phần khung (đọc input, def rỗng) + comment gợi ý trong starterCode; bỏ phần logic giải."
+    },
+    {
+      "code": "CP015",
+      "severity": "ERROR",
+      "group": "Reference",
+      "description": "Reference solution vi phạm sandbox guard của judge (import os/sys..., gọi open/eval/exec...) => judge thật sẽ chặn chính lời giải chuẩn.",
+      "fix": "Viết lại reference không dùng module/hàm bị chặn (xem BE/src/common/helper/python-guard.helper.ts)."
+    },
+    {
+      "code": "CP016",
+      "severity": "WARNING",
+      "group": "Hidden leak",
+      "description": "Dữ liệu của hidden test xuất hiện nguyên văn trong đề bài hoặc starterCode (học viên hard-code được).",
+      "fix": "Đưa giá trị đó thành sample test (không ẩn) hoặc đổi hidden test sang giá trị khác."
+    },
+    {
+      "code": "CP017",
+      "severity": "ERROR",
+      "group": "Metadata",
+      "description": "Thiếu/trùng ID (slug) hoặc thiếu title của bài.",
+      "fix": "Mỗi bài cần slug duy nhất (chữ thường, số, dấu gạch ngang) và title không rỗng."
+    },
+    {
+      "code": "CP018",
+      "severity": "WARNING",
+      "group": "Output format",
+      "description": "expectedOutput có khoảng trắng/xuống dòng thừa ở đầu-cuối hoặc CRLF. Judge thật trim nên vẫn chấm được, nhưng nếu đổi sang so sánh chính xác sẽ fail hàng loạt.",
+      "fix": "Lưu expectedOutput đã trim, dùng \"\\n\" (không \"\\r\\n\")."
+    },
+    {
+      "code": "CP019",
+      "severity": "ERROR",
+      "group": "Output format",
+      "description": "expectedOutput dài hơn giới hạn 64KB stdout của judge (MAX_OUTPUT_BYTES trong code-runner.helper.ts). Judge cắt stdout ở 64KB nên ngay cả lời giải ĐÚNG cũng bị chấm WA.",
+      "fix": "Rút ngắn test (giảm N / giá trị) để output < 64KB, hoặc nâng MAX_OUTPUT_BYTES trong BE nếu bài thật sự cần output lớn."
+    }
+  ],
+  "referenceRuns": [
+    {
+      "problemId": "tinh-tong-hai-so-nguyen-v01",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 40
+    },
+    {
+      "problemId": "tinh-tong-hai-so-nguyen-v02",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 37
+    },
+    {
+      "problemId": "tinh-tong-hai-so-nguyen-v03",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 45
+    },
+    {
+      "problemId": "tinh-tong-hai-so-nguyen-v04",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 44
+    },
+    {
+      "problemId": "tinh-tong-hai-so-nguyen-v05",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 58
+    },
+    {
+      "problemId": "tinh-tong-hai-so-nguyen-v06",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 50
+    },
+    {
+      "problemId": "kiem-tra-so-chan-le-v01",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 54
+    },
+    {
+      "problemId": "kiem-tra-so-chan-le-v02",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 59
+    },
+    {
+      "problemId": "kiem-tra-so-chan-le-v03",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 39
+    },
+    {
+      "problemId": "kiem-tra-so-chan-le-v04",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 38
+    },
+    {
+      "problemId": "kiem-tra-so-chan-le-v05",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 48
+    },
+    {
+      "problemId": "kiem-tra-so-chan-le-v06",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 38
+    },
+    {
+      "problemId": "kiem-tra-so-nguyen-to-v01",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 39
+    },
+    {
+      "problemId": "kiem-tra-so-nguyen-to-v02",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 38
+    },
+    {
+      "problemId": "kiem-tra-so-nguyen-to-v03",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 45
+    },
+    {
+      "problemId": "kiem-tra-so-nguyen-to-v04",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 41
+    },
+    {
+      "problemId": "kiem-tra-so-nguyen-to-v05",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 49
+    },
+    {
+      "problemId": "kiem-tra-so-nguyen-to-v06",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 4,
+      "total": 4,
+      "hiddenPassed": 2,
+      "hiddenTotal": 2,
+      "maxTimeMs": 39
+    },
+    {
+      "problemId": "tim-so-lon-nhat-v01",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 2,
+      "total": 2,
+      "hiddenPassed": 1,
+      "hiddenTotal": 1,
+      "maxTimeMs": 37
+    },
+    {
+      "problemId": "tim-so-lon-nhat-v02",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 2,
+      "total": 2,
+      "hiddenPassed": 1,
+      "hiddenTotal": 1,
+      "maxTimeMs": 38
+    },
+    {
+      "problemId": "tim-so-lon-nhat-v03",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 2,
+      "total": 2,
+      "hiddenPassed": 1,
+      "hiddenTotal": 1,
+      "maxTimeMs": 37
+    },
+    {
+      "problemId": "tim-so-lon-nhat-v04",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 2,
+      "total": 2,
+      "hiddenPassed": 1,
+      "hiddenTotal": 1,
+      "maxTimeMs": 36
+    },
+    {
+      "problemId": "tim-so-lon-nhat-v05",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 2,
+      "total": 2,
+      "hiddenPassed": 1,
+      "hiddenTotal": 1,
+      "maxTimeMs": 38
+    },
+    {
+      "problemId": "tim-so-lon-nhat-v06",
+      "file": "coding-variants.json",
+      "suite": "baseline",
+      "status": "AC",
+      "passed": 2,
+      "total": 2,
+      "hiddenPassed": 1,
+      "hiddenTotal": 1,
+      "maxTimeMs": 41
+    }
+  ],
+  "findings": [
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tinh-tong-hai-so-nguyen-v01",
+      "line": 7,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tinh-tong-hai-so-nguyen-v02",
+      "line": 39,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tinh-tong-hai-so-nguyen-v03",
+      "line": 71,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tinh-tong-hai-so-nguyen-v04",
+      "line": 103,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tinh-tong-hai-so-nguyen-v05",
+      "line": 135,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tinh-tong-hai-so-nguyen-v06",
+      "line": 167,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-chan-le-v01",
+      "line": 199,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-chan-le-v02",
+      "line": 231,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP016",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-chan-le-v02",
+      "line": 246,
+      "message": "Hidden test #01: giá trị \"expectedOutput\" (4 ký tự) xuất hiện nguyên văn trong đề/starterCode",
+      "fix": "Đưa giá trị đó thành sample test (không ẩn) hoặc đổi hidden test sang giá trị khác.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-chan-le-v03",
+      "line": 263,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-chan-le-v04",
+      "line": 295,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-chan-le-v05",
+      "line": 327,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-chan-le-v06",
+      "line": 359,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-nguyen-to-v01",
+      "line": 391,
+      "message": "đề không có ràng buộc số học cụ thể (chỉ có miền giá trị như \"nguyên dương\", chưa có CẬN TRÊN/DƯỚI cụ thể)",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-nguyen-to-v02",
+      "line": 423,
+      "message": "đề không có ràng buộc số học cụ thể (chỉ có miền giá trị như \"nguyên dương\", chưa có CẬN TRÊN/DƯỚI cụ thể)",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-nguyen-to-v03",
+      "line": 455,
+      "message": "đề không có ràng buộc số học cụ thể (chỉ có miền giá trị như \"nguyên dương\", chưa có CẬN TRÊN/DƯỚI cụ thể)",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-nguyen-to-v04",
+      "line": 487,
+      "message": "đề không có ràng buộc số học cụ thể (chỉ có miền giá trị như \"nguyên dương\", chưa có CẬN TRÊN/DƯỚI cụ thể)",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-nguyen-to-v05",
+      "line": 519,
+      "message": "đề không có ràng buộc số học cụ thể (chỉ có miền giá trị như \"nguyên dương\", chưa có CẬN TRÊN/DƯỚI cụ thể)",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "kiem-tra-so-nguyen-to-v06",
+      "line": 551,
+      "message": "đề không có ràng buộc số học cụ thể (chỉ có miền giá trị như \"nguyên dương\", chưa có CẬN TRÊN/DƯỚI cụ thể)",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v01",
+      "line": 583,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP013",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v01",
+      "line": 587,
+      "message": "chỉ có 2 test (1 hidden) - ngưỡng tối thiểu là 4 test, 2 hidden",
+      "fix": "Bổ sung test biên (giá trị nhỏ nhất/lớn nhất, rỗng/1 phần tử, trùng lặp, số âm...).",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v02",
+      "line": 605,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP013",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v02",
+      "line": 609,
+      "message": "chỉ có 2 test (1 hidden) - ngưỡng tối thiểu là 4 test, 2 hidden",
+      "fix": "Bổ sung test biên (giá trị nhỏ nhất/lớn nhất, rỗng/1 phần tử, trùng lặp, số âm...).",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v03",
+      "line": 627,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP013",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v03",
+      "line": 631,
+      "message": "chỉ có 2 test (1 hidden) - ngưỡng tối thiểu là 4 test, 2 hidden",
+      "fix": "Bổ sung test biên (giá trị nhỏ nhất/lớn nhất, rỗng/1 phần tử, trùng lặp, số âm...).",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v04",
+      "line": 649,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP013",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v04",
+      "line": 653,
+      "message": "chỉ có 2 test (1 hidden) - ngưỡng tối thiểu là 4 test, 2 hidden",
+      "fix": "Bổ sung test biên (giá trị nhỏ nhất/lớn nhất, rỗng/1 phần tử, trùng lặp, số âm...).",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v05",
+      "line": 671,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP013",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v05",
+      "line": 675,
+      "message": "chỉ có 2 test (1 hidden) - ngưỡng tối thiểu là 4 test, 2 hidden",
+      "fix": "Bổ sung test biên (giá trị nhỏ nhất/lớn nhất, rỗng/1 phần tử, trùng lặp, số âm...).",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP002",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v06",
+      "line": 693,
+      "message": "đề không có ràng buộc số học cụ thể",
+      "fix": "Thêm ràng buộc số học rõ ràng (vd \"1 ≤ N ≤ 10^9\", \"1 ≤ độ dài ≤ 10^5\"). Không có ràng buộc thì không thể chứng minh test hiệu năng là công bằng.",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    },
+    {
+      "severity": "WARNING",
+      "code": "CP013",
+      "file": "coding-variants.json",
+      "problemId": "tim-so-lon-nhat-v06",
+      "line": 697,
+      "message": "chỉ có 2 test (1 hidden) - ngưỡng tối thiểu là 4 test, 2 hidden",
+      "fix": "Bổ sung test biên (giá trị nhỏ nhất/lớn nhất, rỗng/1 phần tử, trùng lặp, số âm...).",
+      "humanVerification": "",
+      "falsePositive": "",
+      "finalResult": ""
+    }
+  ]
+}

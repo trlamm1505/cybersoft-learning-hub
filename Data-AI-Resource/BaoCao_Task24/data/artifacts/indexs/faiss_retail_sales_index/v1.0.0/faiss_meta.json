@@ -1,0 +1,1 @@
+{"index_type": "IndexFlatIP", "vectors_count": 1000, "metric": "inner_product", "source_dataset": "ds_retail_sales_v1.0.0"}

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSoft Dataset Registry & Publishing Portal</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --card-hover: #24344d;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --border: #334155;
+            --accent-cyan: #06b6d4;
+            --accent-amber: #f59e0b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; padding: 32px 16px; min-height: 100vh; }
+        .container { max-width: 1240px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 40px; }
+        header h1 { font-size: 2.4rem; color: #60a5fa; margin-bottom: 12px; }
+        header p { color: var(--text-muted); font-size: 1.1rem; }
+        .search-bar-wrap { margin: 24px 0; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .search-input { width: 100%; max-width: 550px; padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: white; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+        .search-input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; }
+        
+        /* Redesigned Balanced Dataset Card */
+        .dataset-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; position: relative; overflow: hidden; }
+        .dataset-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2563eb, #06b6d4); opacity: 0.8; }
+        .dataset-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px -8px rgba(0,0,0,0.5); border-color: #3b82f6; background: var(--card-hover); }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .card-badges { display: flex; gap: 6px; align-items: center; }
+        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; }
+        .domain-badge { background: rgba(2, 132, 199, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .level-badge { background: rgba(71, 85, 105, 0.3); color: #cbd5e1; border: 1px solid #475569; }
+        .version-tag { font-size: 0.82rem; color: #94a3b8; font-family: monospace; background: #0f172a; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); font-weight: 600; }
+        
+        .card-quality-row { margin-bottom: 12px; }
+        .quality-pill { display: inline-flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 10px; border-radius: 6px; font-size: 0.76rem; font-weight: 500; }
+        .quality-pill b { color: #10b981; font-weight: 700; }
+
+        .card-title { font-size: 1.18rem; font-weight: 700; line-height: 1.4; color: #f1f5f9; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 3.3rem; }
+        .dataset-id { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px; }
+        .dataset-id code { color: #a5b4fc; background: rgba(99,102,241,0.12); padding: 2px 7px; border-radius: 4px; font-size: 0.8rem; }
+        
+        .description { color: #94a3b8; font-size: 0.88rem; line-height: 1.55; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 4.1rem; }
+        
+        .skills-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; min-height: 2.2rem; align-items: center; }
+        .skill-tag { background: rgba(30, 41, 59, 0.9); color: #cbd5e1; border: 1px solid #334155; font-size: 0.74rem; padding: 3px 9px; border-radius: 6px; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+        .skill-tag-more { background: #0f172a; color: #60a5fa; border: 1px dashed #3b82f6; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
+
+        .modal-skill-tag { background: rgba(30, 41, 59, 0.9); color: #f1f5f9; border: 1px solid #334155; font-size: 0.82rem; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; line-height: 1.4; transition: all 0.2s; }
+        .modal-skill-tag:hover { border-color: #3b82f6; background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 14px; margin-top: auto; }
+        .license { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+        .btn-detail { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: 1px solid #3b82f6; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-detail:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); box-shadow: 0 4px 12px rgba(37,99,235,0.4); transform: translateX(2px); }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 24px; overflow: hidden; }
+        .modal-overlay.active { display: flex; }
+        .modal-container { background: #1e293b; border: 1px solid #334155; border-radius: 14px; width: 100%; max-width: 980px; height: 86vh; max-height: 86vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); overflow: hidden; animation: modalFadeIn 0.2s ease-out; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .modal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: #162032; flex-shrink: 0; }
+        .modal-header h2 { font-size: 1.35rem; color: #f8fafc; margin-bottom: 6px; }
+        .modal-header-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+        .modal-close { background: transparent; border: none; font-size: 1.8rem; color: var(--text-muted); cursor: pointer; line-height: 1; padding: 0 4px; transition: color 0.2s; }
+        .modal-close:hover { color: #f8fafc; }
+        .modal-tabs { display: flex; background: #0f172a; border-bottom: 1px solid var(--border); overflow-x: auto; flex-shrink: 0; }
+        .tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 12px 20px; cursor: pointer; font-size: 0.9rem; font-weight: 600; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #f8fafc; background: rgba(255,255,255,0.03); }
+        .tab-btn.active { color: #60a5fa; border-bottom-color: #60a5fa; background: #1e293b; }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1 1 0%; min-height: 0; }
+        .modal-body::-webkit-scrollbar { width: 8px; }
+        .modal-body::-webkit-scrollbar-track { background: #0f172a; }
+        .modal-body::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .modal-body::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        /* Detail Elements */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .info-card { background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+        .info-card-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+        .info-card-value { font-size: 0.95rem; color: #f1f5f9; font-weight: 500; word-break: break-all; }
+        .section-title { font-size: 1.1rem; color: #93c5fd; margin: 20px 0 10px 0; border-bottom: 1px solid #334155; padding-bottom: 6px; }
+        .schema-table-wrap { margin-top: 14px; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+        .schema-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left; }
+        .schema-table th { background: #0f172a; color: #94a3b8; padding: 10px 14px; font-weight: 600; border-bottom: 1px solid var(--border); }
+        .schema-table td { padding: 10px 14px; border-bottom: 1px solid #283548; color: #cbd5e1; }
+        .schema-table tr:last-child td { border-bottom: none; }
+        .schema-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .pill-pk { background: #854d0e; color: #fef08a; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; }
+        .pill-pii { background: #991b1b; color: #fecaca; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+        .code-box { background: #0b1120; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 0.85rem; color: #cbd5e1; overflow-x: auto; white-space: pre-wrap; word-break: break-word; max-height: 400px; }
+        .copy-btn { background: #334155; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-bottom: 10px; transition: background 0.2s; }
+        .copy-btn:hover { background: #475569; }
+        ul.styled-list { padding-left: 20px; color: #cbd5e1; margin-top: 8px; }
+        ul.styled-list li { margin-bottom: 6px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏛️ CyberSoft Dataset Registry & Portal</h1>
+            <p>Cổng Xuất Bản & Tra Cứu Tài Nguyên Dữ Liệu Thực Hành AI & Phân Tích Dữ Liệu</p>
+            <div class="search-bar-wrap">
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Tìm kiếm dataset theo tên, kỹ năng, domain, id..." onkeyup="filterCards()">
+            </div>
+        </header>
+
+        <main class="grid" id="datasetGrid">
+            
+            <div class="dataset-card" data-domain="retail_ecommerce" data-level="beginner">
+                <div class="card-top">
+                    <div class="card-badges">
+                        <span class="badge domain-badge">Retail Ecommerce</span>
+                        <span class="badge level-badge">Beginner</span>
+                    </div>
+                    <span class="version-tag">v1.0.0</span>
+                </div>
+                <div class="card-quality-row">
+                    <span class="quality-pill">🛡️ Quality Gate: <b>100.0%</b></span>
+                </div>
+                <h3 class="card-title" title="CyberSoft Retail E-Commerce Multi-Table Sales Benchmark">CyberSoft Retail E-Commerce Multi-Table Sales Benchmark</h3>
+                <p class="dataset-id">ID: <code>ds-retail-ecommerce-sales-v1</code></p>
+                <p class="description" title="Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.">Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.</p>
+                <div class="skills-wrap">
+                    <span class="skill-tag" title="Star Schema Data Modeling">Star Schema Data Modeling</span><span class="skill-tag" title="SQL Multi-table JOINs and Aggregations">SQL Multi-table JOINs and Aggregations</span><span class="skill-tag" title="Window Functions (RANK, DENSE_RANK, LEAD, LAG)">Window Functions (RANK, DENSE_RANK, LEAD, LAG)</span><span class="skill-tag-more">+2 khác</span>
+                </div>
+                <div class="card-footer">
+                    <span class="license" title="CC-BY-4.0">📜 CC-BY-4.0</span>
+                    <button class="btn-detail" onclick="openDetailModal('ds-retail-ecommerce-sales-v1')">Xem Chi Tiết →</button>
+                </div>
+            </div>
+            
+            <div class="dataset-card" data-domain="hr_operations" data-level="intermediate">
+                <div class="card-top">
+                    <div class="card-badges">
+                        <span class="badge domain-badge">Hr Operations</span>
+                        <span class="badge level-badge">Intermediate</span>
+                    </div>
+                    <span class="version-tag">v1.1.0</span>
+                </div>
+                <div class="card-quality-row">
+                    <span class="quality-pill">🛡️ Quality Gate: <b>100.0%</b></span>
+                </div>
+                <h3 class="card-title" title="CyberSoft Enterprise HR Workforce & Attendance Benchmark">CyberSoft Enterprise HR Workforce & Attendance Benchmark</h3>
+                <p class="dataset-id">ID: <code>ds-hr-operations-attendance-v1</code></p>
+                <p class="description" title="Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.">Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.</p>
+                <div class="skills-wrap">
+                    <span class="skill-tag" title="Time-Series and Date-Time SQL Manipulation">Time-Series and Date-Time SQL Manipulation</span><span class="skill-tag" title="Complex Multi-condition CASE WHEN logic">Complex Multi-condition CASE WHEN logic</span><span class="skill-tag" title="Attrition / Turnover Rate Calculation">Attrition / Turnover Rate Calculation</span><span class="skill-tag-more">+2 khác</span>
+                </div>
+                <div class="card-footer">
+                    <span class="license" title="CyberSoft-Educational-Proprietary-v1">📜 CyberSoft Edu</span>
+                    <button class="btn-detail" onclick="openDetailModal('ds-hr-operations-attendance-v1')">Xem Chi Tiết →</button>
+                </div>
+            </div>
+            
+            <div class="dataset-card" data-domain="nlp_genai" data-level="advanced">
+                <div class="card-top">
+                    <div class="card-badges">
+                        <span class="badge domain-badge">Nlp Genai</span>
+                        <span class="badge level-badge">Advanced</span>
+                    </div>
+                    <span class="version-tag">v1.0.0</span>
+                </div>
+                <div class="card-quality-row">
+                    <span class="quality-pill">🛡️ Quality Gate: <b>100.0%</b></span>
+                </div>
+                <h3 class="card-title" title="CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark">CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark</h3>
+                <p class="dataset-id">ID: <code>ds-nlp-rag-tutor-knowledgebase-v1</code></p>
+                <p class="description" title="Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.">Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.</p>
+                <div class="skills-wrap">
+                    <span class="skill-tag" title="Document Ingestion & Chunking Strategy Optimization">Document Ingestion & Chunking Strategy Optimization</span><span class="skill-tag" title="Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)">Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)</span><span class="skill-tag" title="Vector Database Indexing (Qdrant, ChromaDB, FAISS)">Vector Database Indexing (Qdrant, ChromaDB, FAISS)</span><span class="skill-tag-more">+2 khác</span>
+                </div>
+                <div class="card-footer">
+                    <span class="license" title="CyberSoft-Internal-Educational-v1">📜 CyberSoft Internal</span>
+                    <button class="btn-detail" onclick="openDetailModal('ds-nlp-rag-tutor-knowledgebase-v1')">Xem Chi Tiết →</button>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <!-- Interactive Detail Modal -->
+    <div id="detailModal" class="modal-overlay" onclick="handleOverlayClick(event)">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalTitle">Dataset Name</h2>
+                    <div id="modalBadges" class="modal-header-badges"></div>
+                </div>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-tabs">
+                <button class="tab-btn active" onclick="switchModalTab('tab-overview', this)">📋 Tổng quan</button>
+                <button class="tab-btn" onclick="switchModalTab('tab-schema', this)">🗄️ Cấu trúc Bảng & Cột</button>
+                <button class="tab-btn" onclick="switchModalTab('tab-governance', this)">🛡️ Quản trị & PII</button>
+                <button class="tab-btn" onclick="switchModalTab('tab-pedagogy', this)">🎯 Mục tiêu Đào tạo</button>
+                <button class="tab-btn" onclick="switchModalTab('tab-raw', this)">⚙️ Manifest JSON</button>
+            </div>
+            <div class="modal-body">
+                <div id="tab-overview" class="tab-pane active"></div>
+                <div id="tab-schema" class="tab-pane"></div>
+                <div id="tab-governance" class="tab-pane"></div>
+                <div id="tab-pedagogy" class="tab-pane"></div>
+                <div id="tab-raw" class="tab-pane"></div>
+            </div>
+        </div>
+    </div>
+
+    <script id="registryData" type="application/json">
+{"ds-retail-ecommerce-sales-v1": {"id": "ds-retail-ecommerce-sales-v1", "name": "CyberSoft Retail E-Commerce Multi-Table Sales Benchmark", "version": "1.0.0", "domain": "retail_ecommerce", "domain_label": "Retail Ecommerce", "difficulty_level": "beginner", "level_label": "Beginner", "description": "Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.", "license": "CC-BY-4.0", "skills": ["Star Schema Data Modeling", "SQL Multi-table JOINs and Aggregations", "Window Functions (RANK, DENSE_RANK, LEAD, LAG)", "RFM (Recency, Frequency, Monetary) Customer Segmentation", "Power BI Interactive Executive Dashboarding"], "quality_score": "100.0%", "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-retail-ecommerce-sales-v1_v1.0.0.json", "manifest": {"id": "ds-retail-ecommerce-sales-v1", "title": "CyberSoft Retail E-Commerce Multi-Table Sales Benchmark", "description": "Multi-table relational star schema dataset simulating an omni-channel retail e-commerce business in Vietnam. Designed for Data Analyst students to practice SQL joins, window functions, cohort retention analysis, and Power BI executive dashboards.", "version": "1.0.0", "domain": "retail_ecommerce", "level": "beginner", "difficulty": "medium", "license": "CC-BY-4.0", "pii": {"level": "low", "has_pii": true, "anonymization_applied": ["synthetic_generation", "faker_vietnamese_names", "hashing_sha256_phone_numbers"], "compliance_tags": ["PDPA_VN", "INTERNAL_CYBERSOFT"], "handling_instructions": "This dataset contains synthetic Vietnamese names and hashed phone numbers. Strictly for classroom analytics; do not correlate with external customer lists."}, "lineage": {"source_system": "CyberSoft Synthetic Data Factory", "upstream_sources": ["Simulated Shopify Order API", "KiotViet Schema Reference"], "ingestion_method": "synthetic_generator", "generation_tool": "Faker 24.0 + NumPy 1.26 Generator Pipeline", "transformation_pipeline": ["Generate raw customer identities and seed addresses", "Simulate 12-month transactions with seasonal Black Friday & Tet spikes", "Apply intentional dirty anomalies (orphan foreign keys, null prices, dirty phone formatting) in interim tier", "Export clean relational benchmark to Parquet and CSV"], "raw_data_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0"}, "learning_outcomes": {"target_roles": ["data_analyst", "bi_analyst"], "core_competencies": ["Star Schema Data Modeling", "SQL Multi-table JOINs and Aggregations", "Window Functions (RANK, DENSE_RANK, LEAD, LAG)", "RFM (Recency, Frequency, Monetary) Customer Segmentation", "Power BI Interactive Executive Dashboarding"], "sample_business_questions": ["Calculate the monthly customer retention rate and cohort survival curve across 2025.", "Identify the top 5 product categories driving 80% of net margin using Pareto analysis.", "Detect delayed fulfillment bottlenecks by measuring average transit time per 3PL shipping carrier."], "recommended_exercises": ["Lab 01: Write SQL queries to identify duplicate customer profiles.", "Lab 02: Build a dimensional data model in Power BI with Fact and Dim tables.", "Capstone: Comprehensive E-Commerce Sales Performance & Churn Diagnostic Report."]}, "tables": [{"table_name": "dim_customers", "description": "Master dimension table storing customer demographic details and registration status.", "file_path": "data/processed/dim_customers.parquet", "format": "parquet", "row_count": 10000, "column_count": 6, "primary_key": ["customer_id"], "foreign_keys": [], "columns": [{"name": "customer_id", "data_type": "string", "nullable": false, "description": "Unique synthetic customer UUID", "is_pii": false, "example": "CUST-00001"}, {"name": "full_name", "data_type": "string", "nullable": false, "description": "Synthetic customer full name generated via Faker Vietnam", "is_pii": true, "pii_type": "name", "example": "Nguyễn Văn An"}, {"name": "phone_hash", "data_type": "string", "nullable": false, "description": "SHA-256 salted hash of customer mobile phone number", "is_pii": true, "pii_type": "phone", "example": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}, {"name": "city", "data_type": "string", "nullable": false, "description": "Vietnamese province/city (e.g., TP. Hồ Chí Minh, Hà Nội, Đà Nẵng)", "is_pii": false, "example": "TP. Hồ Chí Minh"}, {"name": "customer_segment", "data_type": "string", "nullable": false, "description": "Assigned loyalty tier: Bronze, Silver, Gold, Platinum", "is_pii": false, "example": "Gold"}, {"name": "created_at", "data_type": "datetime", "nullable": false, "description": "Timestamp of customer account creation", "is_pii": false, "example": "2025-01-15T08:30:00Z"}]}, {"table_name": "dim_products", "description": "Product catalog dimension containing SKU, category, and pricing hierarchy.", "file_path": "data/processed/dim_products.parquet", "format": "parquet", "row_count": 1200, "column_count": 5, "primary_key": ["product_id"], "foreign_keys": [], "columns": [{"name": "product_id", "data_type": "string", "nullable": false, "description": "Unique product SKU identifier", "is_pii": false, "example": "PROD-TECH-0042"}, {"name": "product_name", "data_type": "string", "nullable": false, "description": "Commercial product display title", "is_pii": false, "example": "Bàn phím cơ không dây Bluetooth RGB"}, {"name": "category", "data_type": "string", "nullable": false, "description": "High-level merchandise category (Electronics, Apparel, Home & Living)", "is_pii": false, "example": "Electronics"}, {"name": "unit_cost_vnd", "data_type": "float", "nullable": false, "description": "Cost of goods sold (COGS) in Vietnamese Dong", "is_pii": false, "constraints": {"min": 10000.0}, "example": 450000.0}, {"name": "unit_price_vnd", "data_type": "float", "nullable": false, "description": "Standard retail selling price in Vietnamese Dong", "is_pii": false, "constraints": {"min": 15000.0}, "example": 790000.0}]}, {"table_name": "fact_sales_orders", "description": "Central transactional fact table recording e-commerce order items and fulfillment metrics.", "file_path": "data/processed/fact_sales_orders.parquet", "format": "parquet", "row_count": 85000, "column_count": 8, "primary_key": ["order_item_id"], "foreign_keys": [{"column": "customer_id", "ref_table": "dim_customers", "ref_column": "customer_id"}, {"column": "product_id", "ref_table": "dim_products", "ref_column": "product_id"}], "columns": [{"name": "order_item_id", "data_type": "string", "nullable": false, "description": "Primary key for line item record", "is_pii": false, "example": "ITEM-2025-00129"}, {"name": "order_id", "data_type": "string", "nullable": false, "description": "Parent order tracking identifier", "is_pii": false, "example": "ORD-2025-08144"}, {"name": "customer_id", "data_type": "string", "nullable": false, "description": "Foreign key reference to dim_customers", "is_pii": false, "example": "CUST-00001"}, {"name": "product_id", "data_type": "string", "nullable": false, "description": "Foreign key reference to dim_products", "is_pii": false, "example": "PROD-TECH-0042"}, {"name": "quantity", "data_type": "integer", "nullable": false, "description": "Units purchased in this line item", "is_pii": false, "constraints": {"min": 1, "max": 100}, "example": 2}, {"name": "total_amount_vnd", "data_type": "float", "nullable": false, "description": "Gross revenue after discounts (quantity * unit_price)", "is_pii": false, "example": 1580000.0}, {"name": "order_status", "data_type": "string", "nullable": false, "description": "Status code: COMPLETED, CANCELLED, RETURNED, IN_TRANSIT", "is_pii": false, "example": "COMPLETED"}, {"name": "order_timestamp", "data_type": "datetime", "nullable": false, "description": "Order placement timestamp", "is_pii": false, "example": "2025-06-12T14:22:15Z"}]}], "integrity": {"algorithm": "SHA-256", "checksum": "8f4b23594b2958349285098234908234908234098234908234908234908234ab", "file_size_bytes": 14680064}, "tags": ["retail", "ecommerce", "star-schema", "sql", "power-bi", "cohort-analysis"], "author": "CyberSoft Data Curriculum Team", "maintainer": "Dao Trung Kien (Data & AI Resource Engineer)", "created_at": "2026-09-01T09:00:00Z", "updated_at": "2026-09-04T12:00:00Z"}}, "ds-hr-operations-attendance-v1": {"id": "ds-hr-operations-attendance-v1", "name": "CyberSoft Enterprise HR Workforce & Attendance Benchmark", "version": "1.1.0", "domain": "hr_operations", "domain_label": "Hr Operations", "difficulty_level": "intermediate", "level_label": "Intermediate", "description": "Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.", "license": "CyberSoft-Educational-Proprietary-v1", "skills": ["Time-Series and Date-Time SQL Manipulation", "Complex Multi-condition CASE WHEN logic", "Attrition / Turnover Rate Calculation", "Overtime & Punctuality Variance Analysis", "HR Talent Retention Modeling"], "quality_score": "100.0%", "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-hr-operations-attendance-v1_v1.1.0.json", "manifest": {"id": "ds-hr-operations-attendance-v1", "title": "CyberSoft Enterprise HR Workforce & Attendance Benchmark", "description": "Enterprise human resources and operational workforce dataset covering employee demographics, daily biometric attendance logs, leave records, and quarterly KPI performance reviews. Used in intermediate Data Analyst SQL & BI courses.", "version": "1.1.0", "domain": "hr_operations", "level": "intermediate", "difficulty": "medium", "license": "CyberSoft-Educational-Proprietary-v1", "pii": {"level": "moderate", "has_pii": true, "anonymization_applied": ["synthetic_generation", "salary_band_bucketing", "synthetic_vietnamese_staff_ids"], "compliance_tags": ["PDPA_VN", "INTERNAL_CYBERSOFT"], "handling_instructions": "Compensation figures are categorized into synthetic salary bands to protect enterprise privacy. Do not attempt re-identification."}, "lineage": {"source_system": "CyberSoft Internal Ops Lab", "upstream_sources": ["Base.vn HRM Anonymized Telemetry", "CyberSoft Teaching Faculty Data"], "ingestion_method": "synthetic_generator", "generation_tool": "Faker HR Module + Custom Shift Simulation Engine", "transformation_pipeline": ["Simulate headcount growth from 150 to 500 personnel over 3 fiscal years", "Generate biometric fingerprint check-in/check-out timestamps with realistic tardiness patterns", "Compute aggregated quarterly KPI ratings", "Export validated relational tables to CSV and SQLite"], "raw_data_hash": "c4d5e6f7a8b90123456789abcdef0123456789abcdef0123456789abcdef0123"}, "learning_outcomes": {"target_roles": ["data_analyst", "bi_analyst"], "core_competencies": ["Time-Series and Date-Time SQL Manipulation", "Complex Multi-condition CASE WHEN logic", "Attrition / Turnover Rate Calculation", "Overtime & Punctuality Variance Analysis", "HR Talent Retention Modeling"], "sample_business_questions": ["What is the rolling 90-day voluntary turnover rate grouped by department and job seniority?", "Which business units exhibit an overtime rate exceeding 25% accompanied by declining KPI scores?", "Determine the correlation between remote work flexibility and employee tenure."], "recommended_exercises": ["Lab 03: Construct an automated SQL query calculating employee daily work hours.", "Lab 04: Build a Power BI HR Executive Attrition & Absenteeism Cockpit.", "Mini-Capstone: Predictive analysis on staff burnout and resignation signals."]}, "tables": [{"table_name": "dim_employees", "description": "Master employee directory including department, job title, and employment lifecycle.", "file_path": "data/processed/dim_employees.csv", "format": "csv", "row_count": 500, "column_count": 7, "primary_key": ["employee_id"], "foreign_keys": [], "columns": [{"name": "employee_id", "data_type": "string", "nullable": false, "description": "Standardized staff employee ID", "is_pii": false, "example": "EMP-VN-0021"}, {"name": "full_name", "data_type": "string", "nullable": false, "description": "Synthetic employee full name", "is_pii": true, "pii_type": "name", "example": "Trần Thị Mai Phương"}, {"name": "department", "data_type": "string", "nullable": false, "description": "Functional department: Engineering, Marketing, Sales, Product, HR", "is_pii": false, "example": "Engineering"}, {"name": "job_level", "data_type": "string", "nullable": false, "description": "Hierarchical level: Junior, Mid, Senior, Lead, Director", "is_pii": false, "example": "Senior"}, {"name": "salary_band", "data_type": "string", "nullable": false, "description": "Anonymized compensation tier: Band_1 (<15M), Band_2 (15-30M), Band_3 (30-50M), Band_4 (>50M)", "is_pii": true, "pii_type": "salary", "example": "Band_3"}, {"name": "hire_date", "data_type": "datetime", "nullable": false, "description": "Official onboarding date", "is_pii": false, "example": "2023-03-01T00:00:00Z"}, {"name": "employment_status", "data_type": "string", "nullable": false, "description": "Status code: ACTIVE, PROBATION, RESIGNED, TERMINATED", "is_pii": false, "example": "ACTIVE"}]}, {"table_name": "fact_attendance", "description": "Daily electronic fingerprint biometric clock-in and clock-out logs.", "file_path": "data/processed/fact_attendance.csv", "format": "csv", "row_count": 120000, "column_count": 6, "primary_key": ["log_id"], "foreign_keys": [{"column": "employee_id", "ref_table": "dim_employees", "ref_column": "employee_id"}], "columns": [{"name": "log_id", "data_type": "string", "nullable": false, "description": "Unique biometric record identifier", "is_pii": false, "example": "LOG-2025-0912-0041"}, {"name": "employee_id", "data_type": "string", "nullable": false, "description": "Employee ID foreign key", "is_pii": false, "example": "EMP-VN-0021"}, {"name": "work_date", "data_type": "datetime", "nullable": false, "description": "Calendar shift date", "is_pii": false, "example": "2025-05-14T00:00:00Z"}, {"name": "check_in_time", "data_type": "datetime", "nullable": true, "description": "Actual morning badge swipe timestamp", "is_pii": false, "example": "2025-05-14T08:24:12Z"}, {"name": "check_out_time", "data_type": "datetime", "nullable": true, "description": "Actual evening badge swipe timestamp", "is_pii": false, "example": "2025-05-14T17:45:00Z"}, {"name": "attendance_status", "data_type": "string", "nullable": false, "description": "Code: ON_TIME, LATE, EARLY_LEAVE, ABSENT_EXCUSED, ABSENT_UNEXCUSED", "is_pii": false, "example": "ON_TIME"}]}], "integrity": {"algorithm": "SHA-256", "checksum": "e2f1a3b4c5d60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef1", "file_size_bytes": 9824310}, "tags": ["hr-analytics", "attendance", "workforce", "retention", "sql-window-functions"], "author": "CyberSoft Enterprise Systems Lab", "maintainer": "Dao Trung Kien (Data & AI Resource Engineer)", "created_at": "2026-09-02T10:00:00Z", "updated_at": "2026-09-04T12:00:00Z"}}, "ds-nlp-rag-tutor-knowledgebase-v1": {"id": "ds-nlp-rag-tutor-knowledgebase-v1", "name": "CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark", "version": "1.0.0", "domain": "nlp_genai", "domain_label": "Nlp Genai", "difficulty_level": "advanced", "level_label": "Advanced", "description": "Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.", "license": "CyberSoft-Internal-Educational-v1", "skills": ["Document Ingestion & Chunking Strategy Optimization", "Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)", "Vector Database Indexing (Qdrant, ChromaDB, FAISS)", "RAG Triad Evaluation: Context Precision, Faithfulness, Answer Relevance", "Handling Out-of-Scope Queries (Refusal Guardrails)"], "quality_score": "100.0%", "manifest_path": "BaoCao_Task10/registry_store/manifests/ds-nlp-rag-tutor-knowledgebase-v1_v1.0.0.json", "manifest": {"id": "ds-nlp-rag-tutor-knowledgebase-v1", "title": "CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark", "description": "Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.", "version": "1.0.0", "domain": "nlp_genai", "level": "advanced", "difficulty": "hard", "license": "CyberSoft-Internal-Educational-v1", "pii": {"level": "none", "has_pii": false, "anonymization_applied": ["content_curation", "no_user_data_included"], "compliance_tags": ["INTERNAL_CYBERSOFT"], "handling_instructions": "Internal curriculum knowledge base. Content is proprietary to CyberSoft Academy; authorized for student model training and evaluation harnesses only."}, "lineage": {"source_system": "CyberSoft Curriculum Management System", "upstream_sources": ["CyberSoft Data Analyst Syllabus Markdown Docs", "CyberSoft AI Engineer Lecture Slides & Tutorials"], "ingestion_method": "manual_curation", "generation_tool": "LangChain RecursiveCharacterTextSplitter + OpenAI text-embedding-3-small", "transformation_pipeline": ["Extract structured markdown sections from official curriculum repositories", "Chunk text with chunk_size=500 tokens, overlap=50 tokens", "Generate 1536-dimensional float vector embeddings", "Senior instructors author 200 gold-standard ground-truth QA evaluation triplets with exact citations"], "raw_data_hash": "3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c"}, "learning_outcomes": {"target_roles": ["ai_engineer"], "core_competencies": ["Document Ingestion & Chunking Strategy Optimization", "Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)", "Vector Database Indexing (Qdrant, ChromaDB, FAISS)", "RAG Triad Evaluation: Context Precision, Faithfulness, Answer Relevance", "Handling Out-of-Scope Queries (Refusal Guardrails)"], "sample_business_questions": ["How does hybrid retrieval (BM25 keyword + dense embeddings) improve retrieval recall on technical terminology?", "What is the system faithfulness score when answering questions regarding Python decorators?", "Does the RAG system correctly refuse to answer questions outside the CyberSoft syllabus?"], "recommended_exercises": ["Lab 07: Implement chunking and populate a local Qdrant vector database.", "Lab 08: Implement custom prompt templates with citation constraints.", "Capstone: Build automated regression evaluation harness using Ragas framework."]}, "tables": [{"table_name": "kb_documents", "description": "Master index of curriculum reference documents and lessons.", "file_path": "data/processed/kb_documents.jsonl", "format": "jsonl", "row_count": 80, "column_count": 5, "primary_key": ["doc_id"], "foreign_keys": [], "columns": [{"name": "doc_id", "data_type": "string", "nullable": false, "description": "Unique lesson document identifier", "is_pii": false, "example": "DOC-MOD01-LESSON04"}, {"name": "module_name", "data_type": "string", "nullable": false, "description": "Curriculum module name (e.g., Python Core, SQL Mastery, RAG Systems)", "is_pii": false, "example": "RAG Systems Architecture"}, {"name": "doc_title", "data_type": "string", "nullable": false, "description": "Chapter or lesson heading title", "is_pii": false, "example": "Vector Embeddings & Semantic Search"}, {"name": "content_markdown", "data_type": "text", "nullable": false, "description": "Raw verified markdown body text of lesson", "is_pii": false, "example": "# Vector Embeddings\nEmbeddings map words to dense vectors..."}, {"name": "token_count", "data_type": "integer", "nullable": false, "description": "Total token length counted via tiktoken cl100k_base", "is_pii": false, "example": 2450}]}, {"table_name": "kb_chunks_embeddings", "description": "Chunked text segments with dense semantic vector representations.", "file_path": "data/processed/kb_chunks_embeddings.parquet", "format": "parquet", "row_count": 520, "column_count": 6, "primary_key": ["chunk_id"], "foreign_keys": [{"column": "doc_id", "ref_table": "kb_documents", "ref_column": "doc_id"}], "columns": [{"name": "chunk_id", "data_type": "string", "nullable": false, "description": "Globally unique chunk identifier", "is_pii": false, "example": "CHK-DOC01-003"}, {"name": "doc_id", "data_type": "string", "nullable": false, "description": "Parent lesson document ID", "is_pii": false, "example": "DOC-MOD01-LESSON04"}, {"name": "chunk_index", "data_type": "integer", "nullable": false, "description": "Ordinal position of chunk within document", "is_pii": false, "example": 3}, {"name": "chunk_text", "data_type": "text", "nullable": false, "description": "Extracted text segment (500 tokens)", "is_pii": false, "example": "Cosine similarity measures the angle between two embedding vectors..."}, {"name": "embedding_vector", "data_type": "vector[1536]", "nullable": false, "description": "1536-dimensional dense float32 vector embedding", "is_pii": false, "example": "[0.0213, -0.0154, 0.0489, ...]"}, {"name": "created_at", "data_type": "datetime", "nullable": false, "description": "Timestamp when chunk and embedding were computed", "is_pii": false, "example": "2026-09-03T11:00:00Z"}]}, {"table_name": "ground_truth_eval_qa", "description": "Benchmark evaluation dataset containing vetted student queries, ideal answers, and citations.", "file_path": "data/processed/ground_truth_eval_qa.jsonl", "format": "jsonl", "row_count": 200, "column_count": 6, "primary_key": ["eval_id"], "foreign_keys": [{"column": "expected_chunk_id", "ref_table": "kb_chunks_embeddings", "ref_column": "chunk_id"}], "columns": [{"name": "eval_id", "data_type": "string", "nullable": false, "description": "Unique evaluation test case identifier", "is_pii": false, "example": "EVAL-Q-0042"}, {"name": "user_query", "data_type": "string", "nullable": false, "description": "Natural language technical question asked by student", "is_pii": false, "example": "Tại sao dùng cosine similarity thay vì khoảng cách euclidean cho text embedding?"}, {"name": "expected_answer", "data_type": "text", "nullable": false, "description": "Gold-standard vetted model answer crafted by lead instructor", "is_pii": false, "example": "Cosine similarity đo lường hướng của vector mà không bị ảnh hưởng bởi độ dài câu..."}, {"name": "expected_chunk_id", "data_type": "string", "nullable": false, "description": "Target ground-truth chunk ID that MUST be retrieved", "is_pii": false, "example": "CHK-DOC01-003"}, {"name": "expected_citation", "data_type": "string", "nullable": false, "description": "Exact citation link or section header", "is_pii": false, "example": "Lesson 04: Vector Embeddings § Cosine Similarity"}, {"name": "is_out_of_scope", "data_type": "boolean", "nullable": false, "description": "Flag indicating whether tutor should refuse to answer (Guardrail test)", "is_pii": false, "example": false}]}], "integrity": {"algorithm": "SHA-256", "checksum": "9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b", "file_size_bytes": 18874368}, "tags": ["genai", "rag", "vector-database", "qdrant", "embeddings", "evaluation-harness"], "author": "CyberSoft AI Engineering & Tutor Research Group", "maintainer": "Dao Trung Kien (Data & AI Resource Engineer)", "created_at": "2026-09-03T08:30:00Z", "updated_at": "2026-09-04T12:00:00Z"}}}
+    </script>
+
+    <script>
+        const registryData = JSON.parse(document.getElementById('registryData').textContent);
+
+        function filterCards() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.dataset-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        function openDetailModal(datasetId) {
+            const item = registryData[datasetId];
+            if (!item) return;
+
+            const m = item.manifest || {};
+
+            // Header Title & Badges (100% Identical to outside cards)
+            document.getElementById('modalTitle').innerText = item.name;
+            document.getElementById('modalBadges').innerHTML = `
+                <span class="badge domain-badge">${item.domain_label}</span>
+                <span class="badge level-badge">${item.level_label}</span>
+                <span class="quality-pill">🛡️ Quality Gate: <b>${item.quality_score}</b></span>
+                <span class="version-tag">v${item.version}</span>
+            `;
+
+            // Tab 1: Overview
+            document.getElementById('tab-overview').innerHTML = `
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-label">Dataset ID</div>
+                        <div class="info-card-value"><code>${item.id}</code></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-label">Bản quyền (License)</div>
+                        <div class="info-card-value">${item.license || m.license || 'N/A'}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-label">Tác giả (Author)</div>
+                        <div class="info-card-value">${m.author || 'CyberSoft Data & AI'}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-label">Maintainer</div>
+                        <div class="info-card-value">${m.maintainer || 'AI Resource Team'}</div>
+                    </div>
+                </div>
+                <div class="section-title">Mô tả tổng quát</div>
+                <p style="color: #cbd5e1; line-height: 1.7; margin-bottom: 16px;">${item.description}</p>
+                <div class="section-title">Kỹ năng áp dụng</div>
+                <div class="skills-wrap" style="margin-top: 10px; min-height: auto; gap: 8px;">
+                    ${(item.skills || []).map(s => `<span class="modal-skill-tag">${s}</span>`).join('')}
+                </div>
+                <div class="section-title">Đường dẫn Manifest</div>
+                <div class="code-box" style="padding: 10px 14px;">${item.manifest_path}</div>
+            `;
+
+            // Tab 2: Schema & Tables
+            const tables = m.tables || [];
+            let tablesHtml = '';
+            if (tables.length === 0) {
+                tablesHtml = '<p style="color: var(--text-muted);">Không có thông tin chi tiết bảng trong manifest.</p>';
+            } else {
+                tables.forEach(tbl => {
+                    const pkCols = tbl.primary_key || [];
+                    const cols = tbl.columns || [];
+                    tablesHtml += `
+                        <div style="margin-bottom: 28px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 18px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                                <h3 style="color: #38bdf8; font-size: 1.15rem;">📊 Bảng: <code>${tbl.table_name}</code></h3>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">${tbl.row_count || 0} dòng • ${tbl.column_count || cols.length} cột • Định dạng: <b>${tbl.format}</b></span>
+                            </div>
+                            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 12px;">${tbl.description || ''}</p>
+                            <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 12px;">File: <code>${tbl.file_path}</code></p>
+                            <div class="schema-table-wrap">
+                                <table class="schema-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tên Cột</th>
+                                            <th>Kiểu Dữ Liệu</th>
+                                            <th>Nullable</th>
+                                            <th>PII</th>
+                                            <th>Mô tả</th>
+                                            <th>Ví dụ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${cols.map(c => `
+                                            <tr>
+                                                <td>
+                                                    <b>${c.name}</b>
+                                                    ${pkCols.includes(c.name) ? '<span class="pill-pk">PK</span>' : ''}
+                                                </td>
+                                                <td><code style="color: #a5b4fc;">${c.data_type}</code></td>
+                                                <td>${c.nullable ? '<span style="color:#f59e0b;">Có</span>' : '<span style="color:#10b981;">Không</span>'}</td>
+                                                <td>${c.is_pii ? '<span class="pill-pii">PII</span>' : '<span style="color: #64748b;">Không</span>'}</td>
+                                                <td>${c.description || ''}</td>
+                                                <td style="color: #94a3b8; font-family: monospace;">${c.example !== null && c.example !== undefined ? c.example : '-'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('tab-schema').innerHTML = tablesHtml;
+
+            // Tab 3: Governance & PII
+            const pii = m.pii || {};
+            const integrity = m.integrity || {};
+            const lineage = m.lineage || {};
+            document.getElementById('tab-governance').innerHTML = `
+                <div class="section-title" style="margin-top: 0;">Chính sách Bảo vệ Dữ liệu & PII</div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-label">Mức độ nhạy cảm PII</div>
+                        <div class="info-card-value"><b style="color: ${pii.level === 'none' ? '#10b981' : '#f59e0b'};">${(pii.level || 'none').toUpperCase()}</b></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-label">Có chứa PII thực tế</div>
+                        <div class="info-card-value">${pii.has_pii ? '<span class="pill-pii">CÓ</span>' : '<span style="color:#10b981;">KHÔNG</span>'}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-label">Tiêu chuẩn tuân thủ</div>
+                        <div class="info-card-value">${(pii.compliance_tags || []).join(', ') || 'INTERNAL_CYBERSOFT'}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-label">Phương pháp ẩn danh</div>
+                        <div class="info-card-value">${(pii.anonymization_applied || []).join(', ') || 'synthetic'}</div>
+                    </div>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 20px;">
+                    <div class="info-card-label">Hướng dẫn xử lý an toàn:</div>
+                    <p style="color: #cbd5e1; font-size: 0.9rem; margin-top: 4px;">${pii.handling_instructions || 'Tuân thủ quy định sử dụng dữ liệu thực hành nội bộ của CyberSoft.'}</p>
+                </div>
+
+                <div class="section-title">Tính Toàn Vẹn Dữ Liệu (Integrity)</div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-label">Thuật toán Checksum</div>
+                        <div class="info-card-value">${integrity.algorithm || 'SHA-256'}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-label">Dung lượng Package</div>
+                        <div class="info-card-value">${integrity.file_size_bytes ? integrity.file_size_bytes + ' bytes' : 'N/A'}</div>
+                    </div>
+                </div>
+                <div style="background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                    <div class="info-card-label">Mã băm SHA-256 Checksum:</div>
+                    <div style="color: #38bdf8; font-family: monospace; font-size: 0.85rem; word-break: break-all; margin-top: 4px;">${integrity.checksum || 'N/A'}</div>
+                </div>
+
+                <div class="section-title">Nguồn Gốc & Quy Trình Xử Lý (Lineage)</div>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-label">Hệ thống nguồn</div>
+                        <div class="info-card-value">${lineage.source_system || 'CyberSoft Lab'}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-label">Phương pháp thu thập</div>
+                        <div class="info-card-value">${lineage.ingestion_method || 'synthetic'}</div>
+                    </div>
+                </div>
+                <div class="info-card-label" style="margin-top: 12px;">Các bước Transformation Pipeline:</div>
+                <ul class="styled-list">
+                    ${(lineage.transformation_pipeline || []).map(step => `<li>${step}</li>`).join('')}
+                </ul>
+            `;
+
+            // Tab 4: Pedagogy & Learning Outcomes
+            const lo = m.learning_outcomes || {};
+            document.getElementById('tab-pedagogy').innerHTML = `
+                <div class="section-title" style="margin-top: 0;">Định Hướng Nghề Nghiệp (Target Roles)</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;">
+                    ${(lo.target_roles || []).map(r => `<span class="badge domain-badge" style="padding: 6px 16px; font-size: 0.85rem;">${r.replace(/_/g, ' ').toUpperCase()}</span>`).join('')}
+                </div>
+                <div class="section-title">Năng Lực Cốt Lõi (Core Competencies)</div>
+                <ul class="styled-list" style="margin-bottom: 18px;">
+                    ${(lo.core_competencies || []).map(c => `<li><b>${c}</b></li>`).join('')}
+                </ul>
+                <div class="section-title">Câu Hỏi Nghiệp Vụ Mẫu (Sample Business Questions)</div>
+                <ul class="styled-list" style="margin-bottom: 18px;">
+                    ${(lo.sample_business_questions || []).map(q => `<li>${q}</li>`).join('')}
+                </ul>
+                <div class="section-title">Bài Tập & Lab Thực Hành Gợi Ý</div>
+                <ul class="styled-list">
+                    ${(lo.recommended_exercises || []).map(e => `<li>${e}</li>`).join('')}
+                </ul>
+            `;
+
+            // Tab 5: Raw Manifest JSON
+            const rawJsonStr = JSON.stringify(m, null, 2);
+            document.getElementById('tab-raw').innerHTML = `
+                <button class="copy-btn" id="copyJsonBtn" onclick="copyManifestJson()">📋 Sao chép toàn bộ JSON Manifest</button>
+                <div class="code-box" id="rawJsonBox">${rawJsonStr}</div>
+            `;
+
+            // Reset to first tab
+            const firstTabBtn = document.querySelector('.modal-tabs .tab-btn');
+            switchModalTab('tab-overview', firstTabBtn);
+
+            // Show Modal & lock background scroll
+            document.getElementById('detailModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            const modalBody = document.querySelector('.modal-body');
+            if (modalBody) modalBody.scrollTop = 0;
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function handleOverlayClick(e) {
+            if (e.target.id === 'detailModal') {
+                closeDetailModal();
+            }
+        }
+
+        function switchModalTab(tabId, btn) {
+            document.querySelectorAll('.modal-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.modal-body .tab-pane').forEach(p => p.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            const targetPane = document.getElementById(tabId);
+            if (targetPane) targetPane.classList.add('active');
+
+            // Reset scroll to top when switching tab
+            const modalBody = document.querySelector('.modal-body');
+            if (modalBody) modalBody.scrollTop = 0;
+        }
+
+        function copyManifestJson() {
+            const code = document.getElementById('rawJsonBox').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('copyJsonBtn');
+                btn.innerText = '✓ Đã sao chép vào Clipboard!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.innerText = '📋 Sao chép toàn bộ JSON Manifest';
+                    btn.style.background = '#334155';
+                }, 2000);
+            });
+        }
+
+        // Listen for ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDetailModal();
+        });
+    </script>
+</body>
+</html>

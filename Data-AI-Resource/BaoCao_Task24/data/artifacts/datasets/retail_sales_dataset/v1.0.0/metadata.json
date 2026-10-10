@@ -1,0 +1,24 @@
+{
+  "id": "dataset_retail_sales_dataset_v1.0.0",
+  "name": "Retail Sales Dataset",
+  "artifact_type": "dataset",
+  "version": "v1.0.0",
+  "state": "active",
+  "description": "Bộ dữ liệu bán hàng bán lẻ đa bảng 3NF (Transactions, Customers, Stores, Products).",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.253151+00:00",
+  "file_path": "data/artifacts/datasets/retail_sales_dataset/v1.0.0/retail_sales.csv",
+  "file_size_bytes": 152,
+  "content_hash": "9342b483b2c5cd575a825c2aaa1979e5f242b8a6e26acbb8b7740e5a054b0692",
+  "upstream_ids": [],
+  "tags": [
+    "retail",
+    "sales",
+    "3nf",
+    "core_dataset"
+  ],
+  "deprecation_reason": null,
+  "superseded_by": null,
+  "sunset_date": null,
+  "extra_metadata": {}
+}

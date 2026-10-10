@@ -1,0 +1,24 @@
+{
+  "id": "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+  "name": "AI Knowledge Chunks Corpus",
+  "artifact_type": "dataset",
+  "version": "v1.0.0",
+  "state": "deprecated",
+  "description": "Tập 81 phân đoạn tri thức văn bản quy chế đào tạo và tài liệu RAG.",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.259906+00:00",
+  "file_path": "data/artifacts/datasets/ai_knowledge_chunks_corpus/v1.0.0/knowledge_chunks_v1.csv",
+  "file_size_bytes": 188,
+  "content_hash": "7a6cc90f7f958520da40df0bd41b1bc44f139a25781ebed47e84673cc7729042",
+  "upstream_ids": [],
+  "tags": [
+    "rag",
+    "corpus",
+    "chunks",
+    "text"
+  ],
+  "deprecation_reason": "Thay thế bằng phiên bản v1.1.0 có phân đoạn đa bước Multi-Hop.",
+  "superseded_by": "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+  "sunset_date": "2026-12-31T23:59:59Z",
+  "extra_metadata": {}
+}

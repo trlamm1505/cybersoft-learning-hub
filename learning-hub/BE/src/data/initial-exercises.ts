@@ -7,7 +7,8 @@ export const INITIAL_EXERCISES = [
     type: 'CODE_TEXT',
     difficulty: 'EASY',
     points: 10,
-    starterCode: 'a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n',
+    starterCode:
+      'a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n',
     solutionCode: 'a = int(input())\nb = int(input())\nprint(a + b)',
     timeLimitMs: 2000,
     testCases: [
@@ -43,8 +44,10 @@ export const INITIAL_EXERCISES = [
     type: 'CODE_TEXT',
     difficulty: 'MEDIUM',
     points: 15,
-    starterCode: 'n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n',
-    solutionCode: 'n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))',
+    starterCode:
+      'n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n',
+    solutionCode:
+      'n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))',
     timeLimitMs: 2000,
     testCases: [
       { input: '5\n3 7 2 9 4', expectedOutput: '9', isHidden: false },
@@ -71,7 +74,8 @@ export const INITIAL_EXERCISES = [
   {
     title: 'Kiểm tra số nguyên tố',
     slug: 'kiem-tra-so-nguyen-to',
-    description: 'Cho một số nguyên dương N. In ra "YES" nếu N là số nguyên tố, ngược lại in ra "NO".',
+    description:
+      'Cho một số nguyên dương N. In ra "YES" nếu N là số nguyên tố, ngược lại in ra "NO".',
     type: 'CODE_TEXT',
     difficulty: 'MEDIUM',
     points: 15,
@@ -125,7 +129,8 @@ export const INITIAL_EXERCISES = [
     type: 'CODE_TEXT',
     difficulty: 'EASY',
     points: 10,
-    starterCode: 'a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n',
+    starterCode:
+      'a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n',
     solutionCode:
       'a = int(input())\n' +
       'b = int(input())\n' +
@@ -166,7 +171,8 @@ export const INITIAL_EXERCISES = [
     type: 'CODE_TEXT',
     difficulty: 'MEDIUM',
     points: 15,
-    starterCode: 'n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n',
+    starterCode:
+      'n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n',
     solutionCode:
       'n = int(input())\n' +
       'nums = list(map(int, input().split()))\n' +

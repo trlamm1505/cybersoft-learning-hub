@@ -1,0 +1,59 @@
+
+> be@0.0.1 eval:coach
+> ts-node -T src/modules-api/coach/eval/generate-baseline-report.ts
+
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=230 tokens, completion=92 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=248 tokens, completion=93 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=107 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=242 tokens, completion=95 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=91 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=18 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=73 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=77 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=241 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=77 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=73 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=234 tokens, completion=23 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=73 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=52 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=240 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=235 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=265 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=251 tokens, completion=69 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=231 tokens, completion=64 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=63 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=233 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=261 tokens, completion=62 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=232 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=70 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=222 tokens, completion=81 tokens[39m
+[95m[Nest] 6944  - [39m10/10/2026, 8:06:48 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+Đã sinh baseline report: 100/100 case đạt.
+Phiên bản: promptHash=dd3d9493b07e llmClient=StubLlmClient
+-> D:\thuctap\cybersoft-learning-hub\learning-hub\BE\src\modules-api\coach\eval\reports\baseline-report.json
+-> D:\thuctap\cybersoft-learning-hub\learning-hub\BE\src\modules-api\coach\eval\reports\baseline-report.md
+-> D:\thuctap\cybersoft-learning-hub\learning-hub\BE\src\modules-api\coach\eval\reports\history\dd3d9493b07e_StubLlmClient.json

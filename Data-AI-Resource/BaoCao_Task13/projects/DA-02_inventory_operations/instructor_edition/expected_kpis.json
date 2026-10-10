@@ -1,0 +1,60 @@
+{
+  "project_id": "DA-02",
+  "project_title": "Inventory Optimization, Multi-Warehouse Operations & Supply Chain Analytics",
+  "dataset_scope": "Fiscal Year 2024 (2024-01-01 to 2024-12-31)",
+  "benchmark_metrics": {
+    "beginning_inventory_units": 5317,
+    "beginning_inventory_valuation_usd": 473436.4,
+    "ending_physical_inventory_units": 9272,
+    "ending_inventory_valuation_usd": 867636.11,
+    "total_cogs_usd": 814742.22,
+    "average_inventory_valuation_usd": 670536.26,
+    "inventory_turnover_ratio": 1.22,
+    "days_of_inventory_on_hand_doh": 300.4,
+    "out_of_stock_skus_count": 1,
+    "reorder_point_alerts_count": 10,
+    "total_shrinkage_loss_usd": 3076.24,
+    "total_scrap_damaged_loss_usd": 3712.41,
+    "warehouse_distribution": {
+      "WH-DN01": {
+        "units": 3092,
+        "valuation_usd": 307557.21
+      },
+      "WH-HCM01": {
+        "units": 3429,
+        "valuation_usd": 306962.12
+      },
+      "WH-HN01": {
+        "units": 2751,
+        "valuation_usd": 253116.78
+      }
+    },
+    "category_distribution": {
+      "Audio Devices": {
+        "units": 1419,
+        "valuation_usd": 147030.62
+      },
+      "Electronics": {
+        "units": 2126,
+        "valuation_usd": 183849.18
+      },
+      "Hardware Kits": {
+        "units": 2087,
+        "valuation_usd": 196811.59
+      },
+      "Office Equipment": {
+        "units": 1763,
+        "valuation_usd": 146893.33
+      },
+      "Peripherals": {
+        "units": 1877,
+        "valuation_usd": 193051.39
+      }
+    }
+  },
+  "reconciliation_tolerances": {
+    "units_tolerance": 0,
+    "valuation_tolerance_usd": 0.05,
+    "turnover_ratio_tolerance": 0.02
+  }
+}

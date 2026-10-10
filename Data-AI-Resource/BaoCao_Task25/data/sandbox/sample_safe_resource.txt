@@ -1,0 +1,2 @@
+Đây là tệp tài nguyên an toàn nằm hợp lệ bên trong sandbox của CyberSoft Data & AI Lab.
+Đường dẫn hợp lệ được bảo vệ bởi hàm validate_safe_path().

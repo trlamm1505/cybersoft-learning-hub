@@ -1,0 +1,60 @@
+{
+  "corpus_summary": {
+    "corpus_path": "D:/Cybersoft/Kien/cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task16/data/corpus",
+    "total_documents": 23,
+    "total_raw_characters": 40314
+  },
+  "strategies": {
+    "fixed_size_overlap": {
+      "strategy_name": "fixed_size_overlap",
+      "total_chunks": 107,
+      "total_tokens": 12564,
+      "avg_tokens": 117.42,
+      "min_tokens": 33,
+      "max_tokens": 146,
+      "std_tokens": 26.64,
+      "avg_chars": 455.27,
+      "min_chars": 112,
+      "max_chars": 500,
+      "header_preservation_rate": 0.0,
+      "boundary_integrity_score": 23.3645,
+      "redundancy_ratio": 1.2084,
+      "elapsed_ms": 3.74,
+      "latency_per_1k_tokens_ms": 0.2973
+    },
+    "markdown_header_semantic": {
+      "strategy_name": "markdown_header_semantic",
+      "total_chunks": 91,
+      "total_tokens": 9915,
+      "avg_tokens": 108.96,
+      "min_tokens": 14,
+      "max_tokens": 169,
+      "std_tokens": 23.65,
+      "avg_chars": 423.9,
+      "min_chars": 59,
+      "max_chars": 648,
+      "header_preservation_rate": 100.0,
+      "boundary_integrity_score": 97.8022,
+      "redundancy_ratio": 0.9569,
+      "elapsed_ms": 8.03,
+      "latency_per_1k_tokens_ms": 0.8096
+    },
+    "sentence_window_boundary": {
+      "strategy_name": "sentence_window_boundary",
+      "total_chunks": 147,
+      "total_tokens": 15110,
+      "avg_tokens": 102.79,
+      "min_tokens": 41,
+      "max_tokens": 227,
+      "std_tokens": 29.58,
+      "avg_chars": 401.09,
+      "min_chars": 150,
+      "max_chars": 879,
+      "header_preservation_rate": 100.0,
+      "boundary_integrity_score": 80.2721,
+      "redundancy_ratio": 1.4625,
+      "elapsed_ms": 5.78,
+      "latency_per_1k_tokens_ms": 0.3828
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import type { PrerequisiteItem } from '../types/course';
 
 interface PrerequisiteCardProps {
@@ -23,13 +24,13 @@ export const PrerequisiteCard: React.FC<PrerequisiteCardProps> = ({ prerequisite
             title={item.isCompleted ? 'Đã hoàn thành' : 'Khuyên dùng trước khi học'}
             aria-label={item.isCompleted ? 'Đã đáp ứng điều kiện' : 'Chưa đáp ứng điều kiện'}
           >
-            {item.isCompleted ? '✓' : '!'}
+            {item.isCompleted ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
           </div>
           <div>
             <div className="font-semibold text-sm text-[var(--text-main)] flex items-center gap-2">
               <span>{item.title}</span>
               {item.isCompleted && (
-                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                <span className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">
                   (Đã đáp ứng)
                 </span>
               )}

@@ -1,0 +1,13 @@
+{
+  "labId": "LAB-01",
+  "mode": "buggy",
+  "faultId": "F-D14-001",
+  "rule": "Mọi trường bắt buộc phải được khai báo và chặn trước request.",
+  "data": {
+    "requiredFields": [
+      "taiKhoan",
+      "matKhau"
+    ],
+    "requestSentWhenEmailInvalid": true
+  }
+}

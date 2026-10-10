@@ -1,0 +1,26 @@
+{
+  "id": "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+  "name": "AI Knowledge Chunks Corpus Multi-Hop",
+  "artifact_type": "dataset",
+  "version": "v1.1.0",
+  "state": "active",
+  "description": "Tập phân đoạn tri thức RAG nâng cao có ngữ cảnh đa bước (Multi-Hop) và gán nhãn chống rò rỉ.",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.423048+00:00",
+  "file_path": "data/artifacts/datasets/ai_knowledge_chunks_corpus_multi_hop/v1.1.0/knowledge_chunks_v2.csv",
+  "file_size_bytes": 278,
+  "content_hash": "37feb015e8ac56e65151a6b3ad4b2699812ab80e2947826c166c982b36d885b3",
+  "upstream_ids": [
+    "dataset_ai_knowledge_chunks_corpus_v1.0.0"
+  ],
+  "tags": [
+    "rag",
+    "corpus",
+    "chunks",
+    "multi_hop"
+  ],
+  "deprecation_reason": null,
+  "superseded_by": null,
+  "sunset_date": null,
+  "extra_metadata": {}
+}

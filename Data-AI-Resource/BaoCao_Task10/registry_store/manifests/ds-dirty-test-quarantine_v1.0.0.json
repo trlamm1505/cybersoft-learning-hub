@@ -1,0 +1,65 @@
+{
+  "id": "ds-dirty-test-quarantine",
+  "title": "Quarantine Dirty Sales Test Dataset",
+  "description": "Intentionally flawed dataset containing orphaned keys, duplicates, and missing columns.",
+  "version": "1.0.0",
+  "domain": "retail_ecommerce",
+  "level": "beginner",
+  "difficulty": "hard",
+  "license": "CC-BY-4.0",
+  "pii": {
+    "level": "low",
+    "has_pii": true,
+    "anonymization_applied": [
+      "synthetic_generation"
+    ],
+    "compliance_tags": [
+      "INTERNAL_CYBERSOFT"
+    ],
+    "handling_instructions": "Internal test only"
+  },
+  "learning_outcomes": {
+    "target_roles": [
+      "qa_engineer"
+    ],
+    "core_competencies": [
+      "Data Cleaning"
+    ]
+  },
+  "tables": [
+    {
+      "table_name": "dirty_orders",
+      "record_count": 50,
+      "column_count": 4,
+      "primary_key": [
+        "order_id"
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Order identifier"
+        },
+        {
+          "name": "customer_id",
+          "data_type": "string",
+          "nullable": true,
+          "description": "Customer"
+        },
+        {
+          "name": "amount",
+          "data_type": "float",
+          "nullable": false,
+          "description": "Amount"
+        },
+        {
+          "name": "status",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Status"
+        }
+      ]
+    }
+  ]
+}

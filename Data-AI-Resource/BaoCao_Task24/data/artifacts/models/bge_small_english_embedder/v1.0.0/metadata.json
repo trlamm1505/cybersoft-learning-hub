@@ -1,0 +1,23 @@
+{
+  "id": "model_bge_small_english_embedder_v1.0.0",
+  "name": "BGE Small English Embedder",
+  "artifact_type": "model",
+  "version": "v1.0.0",
+  "state": "active",
+  "description": "Trọng số checkpoint mô hình Embedding BAAI/bge-small-en-v1.5 (384 dimensions).",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.267513+00:00",
+  "file_path": "data/artifacts/models/bge_small_english_embedder/v1.0.0/model_card.json",
+  "file_size_bytes": 128,
+  "content_hash": "56c8a813e32ff6a4081d4556800ecfc7e6637c5cfe6ba72dc058cda79bf8a123",
+  "upstream_ids": [],
+  "tags": [
+    "model",
+    "embedding",
+    "dense_retrieval"
+  ],
+  "deprecation_reason": null,
+  "superseded_by": null,
+  "sunset_date": null,
+  "extra_metadata": {}
+}

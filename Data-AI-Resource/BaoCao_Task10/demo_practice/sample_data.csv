@@ -1,0 +1,5 @@
+course_id,course_name,instructor,rating,students_enrolled
+CS_01,Python for Data Science,Nguyen Van A,4.8,1250
+CS_02,SQL and Relational Modeling,Tran Thi B,4.9,980
+CS_03,Machine Learning Fundamentals,Le Van C,4.7,640
+CS_04,Deep Learning and NLP,Pham Thi D,4.85,420

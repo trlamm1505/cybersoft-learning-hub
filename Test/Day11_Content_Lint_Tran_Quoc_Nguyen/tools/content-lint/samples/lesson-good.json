@@ -1,0 +1,19 @@
+{
+  "title": "Nhập môn Semantic HTML cho người mới bắt đầu",
+  "slug": "nhap-mon-semantic-html",
+  "learningOutcome": [
+    "Phân biệt được thẻ semantic và non-semantic trong HTML.",
+    "Dựng được bố cục trang dùng header, nav, main, footer đúng chuẩn."
+  ],
+  "prerequisite": [
+    { "title": "Kiến thức máy tính cơ bản", "description": "Biết mở trình duyệt và trình soạn thảo mã nguồn." }
+  ],
+  "content": "Bài học trình bày cách dùng thẻ semantic (HTML) để tổ chức bố cục trang web, kèm ví dụ minh hoạ và bài tập thực hành ngắn ở cuối bài.",
+  "videoUrl": "https://example.com/videos/semantic-html",
+  "links": [
+    "https://developer.mozilla.org/",
+    "https://example.com/slides/semantic-html"
+  ],
+  "points": 10,
+  "isPublished": true
+}

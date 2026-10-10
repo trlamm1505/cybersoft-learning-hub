@@ -1,0 +1,12 @@
+{
+  "labId": "LAB-04",
+  "mode": "clean",
+  "faultId": "F-D14-004",
+  "rule": "API bệnh viện dùng Authorization: Bearer; không dùng TokenCybersoft.",
+  "data": {
+    "requestHeaders": {
+      "Authorization": "Bearer {{hospitalJwt}}"
+    },
+    "expectedStatus": 200
+  }
+}

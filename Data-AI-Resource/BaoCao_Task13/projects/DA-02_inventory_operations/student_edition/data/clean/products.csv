@@ -1,0 +1,51 @@
+product_id,sku,product_name,category,category_id,unit_cost,unit_price,lead_time_days,min_safety_stock,reorder_point
+PROD-001,SKU-ELEC-001,CyberKey Pro Mechanical Keyboard,Electronics,CAT-ELEC,108.8,153.41,8,32,90
+PROD-002,SKU-ELEC-002,CyberScreen 15.6 Portable Monitor,Electronics,CAT-ELEC,122.58,204.79,4,43,77
+PROD-003,SKU-ELEC-003,CyberHub USB-C 10-in-1,Electronics,CAT-ELEC,22.23,33.07,4,42,70
+PROD-004,SKU-ELEC-004,PowerCore 20000mAh PD,Electronics,CAT-ELEC,110.28,178.43,6,39,96
+PROD-005,SKU-ELEC-005,CyberCharger 65W GaN,Electronics,CAT-ELEC,132.94,186.46,6,47,98
+PROD-006,SKU-ELEC-006,SmartPlug Mini IoT,Electronics,CAT-ELEC,57.46,85.39,8,28,80
+PROD-007,SKU-ELEC-007,CyberDock Dual 4K,Electronics,CAT-ELEC,31.73,55.18,8,50,100
+PROD-008,SKU-ELEC-008,Stylus Pen Active,Electronics,CAT-ELEC,83.24,120.69,12,27,138
+PROD-009,SKU-ELEC-009,ErgoPad Wireless Charger,Electronics,CAT-ELEC,135.78,223.69,8,43,100
+PROD-010,SKU-ELEC-010,CyberBar LED Desk Lamp,Electronics,CAT-ELEC,27.88,46.41,8,27,116
+PROD-011,SKU-OFF-011,ErgoChair Pro Mesh,Office Equipment,CAT-OFF,141.04,218.9,12,45,177
+PROD-012,SKU-OFF-012,StandingDesk Smart Motor,Office Equipment,CAT-OFF,41.1,63.38,8,47,139
+PROD-013,SKU-OFF-013,CyberMonitor Arm Dual,Office Equipment,CAT-OFF,110.02,180.83,6,42,104
+PROD-014,SKU-OFF-014,FootRest Ergonomic Foam,Office Equipment,CAT-OFF,41.2,63.93,6,46,93
+PROD-015,SKU-OFF-015,DeskOrganizer Aluminum,Office Equipment,CAT-OFF,127.1,180.78,4,50,81
+PROD-016,SKU-OFF-016,CableTray UnderDesk,Office Equipment,CAT-OFF,56.02,83.16,8,31,110
+PROD-017,SKU-OFF-017,DocumentScanner HD,Office Equipment,CAT-OFF,74.18,130.99,12,29,120
+PROD-018,SKU-OFF-018,LabelPrinter Thermal,Office Equipment,CAT-OFF,53.02,86.13,8,48,124
+PROD-019,SKU-OFF-019,Whiteboard Glass Magnetic,Office Equipment,CAT-OFF,145.49,226.93,6,29,83
+PROD-020,SKU-OFF-020,AntiFatigue Standing Mat,Office Equipment,CAT-OFF,30.91,43.86,4,29,68
+PROD-021,SKU-KIT-021,IoT Starter Kit ESP32,Hardware Kits,CAT-KIT,130.48,204.71,4,37,70
+PROD-022,SKU-KIT-022,CyberBot AI Robotic Arm,Hardware Kits,CAT-KIT,159.45,256.98,4,46,87
+PROD-023,SKU-KIT-023,SensorKit 37-in-1 Arduino,Hardware Kits,CAT-KIT,114.8,185.38,8,49,127
+PROD-024,SKU-KIT-024,Raspberry Pi 5 Developer Kit,Hardware Kits,CAT-KIT,33.84,53.26,12,25,165
+PROD-025,SKU-KIT-025,FPGA Learning Board,Hardware Kits,CAT-KIT,142.37,214.32,6,41,109
+PROD-026,SKU-KIT-026,Soldering Station Digital,Hardware Kits,CAT-KIT,141.61,215.16,6,29,78
+PROD-027,SKU-KIT-027,Multimeter AutoRanging,Hardware Kits,CAT-KIT,40.94,72.93,4,44,75
+PROD-028,SKU-KIT-028,Oscilloscope Mini Handheld,Hardware Kits,CAT-KIT,20.77,36.8,8,32,82
+PROD-029,SKU-KIT-029,Breadboard Wire Pack 500pcs,Hardware Kits,CAT-KIT,142.68,253.8,4,48,83
+PROD-030,SKU-KIT-030,AI Camera EdgeKit,Hardware Kits,CAT-KIT,27.83,47.43,6,29,88
+PROD-031,SKU-PERI-031,ErgoMouse Wireless Vertical,Peripherals,CAT-PERI,152.45,223.5,12,55,142
+PROD-032,SKU-PERI-032,Trackball Precision Mouse,Peripherals,CAT-PERI,94.58,160.03,6,47,94
+PROD-033,SKU-PERI-033,Webcam 4K AI AutoFocus,Peripherals,CAT-PERI,159.31,264.45,12,53,162
+PROD-034,SKU-PERI-034,ConferenceSpeaker Mic 360,Peripherals,CAT-PERI,35.18,52.41,8,25,101
+PROD-035,SKU-PERI-035,USB-C to DP 2.1 Braided Cable,Peripherals,CAT-PERI,50.68,75.42,4,47,86
+PROD-036,SKU-PERI-036,Cat7 Ethernet Patch 10m,Peripherals,CAT-PERI,50.51,89.01,8,27,99
+PROD-037,SKU-PERI-037,Keycap Set PBT Dye-Sub,Peripherals,CAT-PERI,57.54,91.73,6,48,117
+PROD-038,SKU-PERI-038,WristRest Memory Foam,Peripherals,CAT-PERI,99.09,157.46,12,50,151
+PROD-039,SKU-PERI-039,CardReader USB 3.2 HighSpeed,Peripherals,CAT-PERI,31.39,52.22,8,38,105
+PROD-040,SKU-PERI-040,Bluetooth 5.3 Audio Adapter,Peripherals,CAT-PERI,140.66,199.97,4,26,59
+PROD-041,SKU-AUDIO-041,CyberSound ANC Headphone,Audio Devices,CAT-AUDIO,66.18,115.46,6,31,73
+PROD-042,SKU-AUDIO-042,StudioMic Condenser USB,Audio Devices,CAT-AUDIO,81.7,128.17,8,39,98
+PROD-043,SKU-AUDIO-043,Wireless Earbuds Gaming LowLatency,Audio Devices,CAT-AUDIO,149.1,235.17,4,26,65
+PROD-044,SKU-AUDIO-044,SoundBar Compact Desktop,Audio Devices,CAT-AUDIO,94.76,133.22,4,54,96
+PROD-045,SKU-AUDIO-045,AudioInterface 2x2 XLR,Audio Devices,CAT-AUDIO,51.57,80.58,12,31,165
+PROD-046,SKU-AUDIO-046,BoomArm Mic Stand HeavyDuty,Audio Devices,CAT-AUDIO,146.15,214.23,4,37,67
+PROD-047,SKU-AUDIO-047,PopFilter DoubleMesh,Audio Devices,CAT-AUDIO,129.34,204.62,12,47,187
+PROD-048,SKU-AUDIO-048,HeadphoneStand RGB Aluminum,Audio Devices,CAT-AUDIO,159.35,258.51,12,29,114
+PROD-049,SKU-AUDIO-049,AudioMixer 4-Channel,Audio Devices,CAT-AUDIO,48.91,69.62,4,48,79
+PROD-050,SKU-AUDIO-050,Lavalier Wireless Mic Dual,Audio Devices,CAT-AUDIO,25.12,39.96,6,26,96

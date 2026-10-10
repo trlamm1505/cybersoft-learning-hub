@@ -1,0 +1,507 @@
+{
+  "generatedBy": "build-fixtures-v2.js (script tạm, xem ghi chú đầu file)",
+  "totalFixtures": 50,
+  "goodCount": 25,
+  "badCount": 25,
+  "fixtures": [
+    {
+      "fixtureId": "FIX-001",
+      "name": "valid-options",
+      "file": "good/valid-options.json",
+      "kind": "good",
+      "targetRules": [
+        "QV001"
+      ],
+      "note": "Có field options hợp lệ."
+    },
+    {
+      "fixtureId": "FIX-002",
+      "name": "missing-options",
+      "file": "bad/missing-options.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV001"
+      ],
+      "note": "Thiếu hẳn field options."
+    },
+    {
+      "fixtureId": "FIX-003",
+      "name": "minimum-two-options",
+      "file": "good/minimum-two-options.json",
+      "kind": "good",
+      "targetRules": [
+        "QV002"
+      ],
+      "note": "Đúng 2 option (biên dưới hợp lệ)."
+    },
+    {
+      "fixtureId": "FIX-004",
+      "name": "too-few-options",
+      "file": "bad/too-few-options.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV002"
+      ],
+      "note": "Chỉ có 1 option."
+    },
+    {
+      "fixtureId": "FIX-005",
+      "name": "six-options-ok",
+      "file": "good/six-options-ok.json",
+      "kind": "good",
+      "targetRules": [
+        "QV003"
+      ],
+      "note": "Đúng 6 option (biên trên hợp lệ)."
+    },
+    {
+      "fixtureId": "FIX-006",
+      "name": "too-many-options",
+      "file": "bad/too-many-options.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV003"
+      ],
+      "note": "7 option, vượt ngưỡng khuyến nghị 6."
+    },
+    {
+      "fixtureId": "FIX-007",
+      "name": "distinct-option-text",
+      "file": "good/distinct-option-text.json",
+      "kind": "good",
+      "targetRules": [
+        "QV004"
+      ],
+      "note": "Text các option khác nhau thật sự, không chồng lấn substring."
+    },
+    {
+      "fixtureId": "FIX-008",
+      "name": "duplicate-option-text",
+      "file": "bad/duplicate-option-text.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV004"
+      ],
+      "note": "2 option trùng text (khác hoa/thường)."
+    },
+    {
+      "fixtureId": "FIX-009",
+      "name": "unique-option-keys",
+      "file": "good/unique-option-keys.json",
+      "kind": "good",
+      "targetRules": [
+        "QV005"
+      ],
+      "note": "Key A/B/C không trùng."
+    },
+    {
+      "fixtureId": "FIX-010",
+      "name": "duplicate-option-key",
+      "file": "bad/duplicate-option-key.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV005"
+      ],
+      "note": "2 option cùng key \"A\"."
+    },
+    {
+      "fixtureId": "FIX-011",
+      "name": "distinct-questions",
+      "file": "good/distinct-questions.json",
+      "kind": "good",
+      "targetRules": [
+        "QV006"
+      ],
+      "note": "2 câu hỏi khác nội dung thật sự."
+    },
+    {
+      "fixtureId": "FIX-012",
+      "name": "duplicate-question",
+      "file": "bad/duplicate-question.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV006"
+      ],
+      "note": "2 câu hỏi trùng nội dung y hệt."
+    },
+    {
+      "fixtureId": "FIX-013",
+      "name": "non-empty-option-text",
+      "file": "good/non-empty-option-text.json",
+      "kind": "good",
+      "targetRules": [
+        "QV007"
+      ],
+      "note": "Mọi option đều có text."
+    },
+    {
+      "fixtureId": "FIX-014",
+      "name": "empty-option-text",
+      "file": "bad/empty-option-text.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV007"
+      ],
+      "note": "Option A bị bỏ trống text."
+    },
+    {
+      "fixtureId": "FIX-015",
+      "name": "non-empty-question",
+      "file": "good/non-empty-question.json",
+      "kind": "good",
+      "targetRules": [
+        "QV008"
+      ],
+      "note": "Content không rỗng."
+    },
+    {
+      "fixtureId": "FIX-016",
+      "name": "empty-question",
+      "file": "bad/empty-question.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV008"
+      ],
+      "note": "Content là chuỗi rỗng."
+    },
+    {
+      "fixtureId": "FIX-017",
+      "name": "non-empty-explanation",
+      "file": "good/non-empty-explanation.json",
+      "kind": "good",
+      "targetRules": [
+        "QV009"
+      ],
+      "note": "Explanation không rỗng."
+    },
+    {
+      "fixtureId": "FIX-018",
+      "name": "empty-explanation",
+      "file": "bad/empty-explanation.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV009"
+      ],
+      "note": "Explanation là chuỗi rỗng."
+    },
+    {
+      "fixtureId": "FIX-019",
+      "name": "has-correct-answer",
+      "file": "good/has-correct-answer.json",
+      "kind": "good",
+      "targetRules": [
+        "QV010"
+      ],
+      "note": "Có đúng 1 option isCorrect: true."
+    },
+    {
+      "fixtureId": "FIX-020",
+      "name": "no-correct-answer",
+      "file": "bad/no-correct-answer.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV010"
+      ],
+      "note": "Không option nào isCorrect: true."
+    },
+    {
+      "fixtureId": "FIX-021",
+      "name": "multiple-correct-with-flag",
+      "file": "good/multiple-correct-with-flag.json",
+      "kind": "good",
+      "targetRules": [
+        "QV011"
+      ],
+      "note": "2 option đúng NHƯNG có khai báo allowMultiple: true - hợp lệ."
+    },
+    {
+      "fixtureId": "FIX-022",
+      "name": "two-correct-answers",
+      "file": "bad/two-correct-answers.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV011"
+      ],
+      "note": "2 option đúng nhưng KHÔNG khai báo allowMultiple."
+    },
+    {
+      "fixtureId": "FIX-023",
+      "name": "all-options-have-keys",
+      "file": "good/all-options-have-keys.json",
+      "kind": "good",
+      "targetRules": [
+        "QV012"
+      ],
+      "note": "Mọi option đều có key."
+    },
+    {
+      "fixtureId": "FIX-024",
+      "name": "option-missing-key",
+      "file": "bad/option-missing-key.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV012"
+      ],
+      "note": "Option A thiếu key."
+    },
+    {
+      "fixtureId": "FIX-025",
+      "name": "explanation-correct-key",
+      "file": "good/explanation-correct-key.json",
+      "kind": "good",
+      "targetRules": [
+        "QV013"
+      ],
+      "note": "Explanation trích dẫn ĐÚNG key của option isCorrect."
+    },
+    {
+      "fixtureId": "FIX-026",
+      "name": "explanation-wrong-key",
+      "file": "bad/explanation-wrong-key.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV013"
+      ],
+      "note": "Explanation trích dẫn key `C` nhưng option đúng là B."
+    },
+    {
+      "fixtureId": "FIX-027",
+      "name": "technically-distinct-options",
+      "file": "good/technically-distinct-options.json",
+      "kind": "good",
+      "targetRules": [
+        "QV014"
+      ],
+      "note": "Các option khác nhau thật sự về nội dung kỹ thuật (không chỉ dấu câu)."
+    },
+    {
+      "fixtureId": "FIX-028",
+      "name": "near-duplicate-option",
+      "file": "bad/near-duplicate-option.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV014"
+      ],
+      "note": "Option B chỉ khác option A ở dấu câu/khoảng trắng."
+    },
+    {
+      "fixtureId": "FIX-029",
+      "name": "no-all-of-the-above",
+      "file": "good/no-all-of-the-above.json",
+      "kind": "good",
+      "targetRules": [
+        "QV015"
+      ],
+      "note": "Không dùng mẫu câu \"tất cả/không có đáp án trên\"."
+    },
+    {
+      "fixtureId": "FIX-030",
+      "name": "all-of-the-above",
+      "file": "bad/all-of-the-above.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV015"
+      ],
+      "note": "Option D dùng mẫu câu \"tất cả các đáp án trên\"."
+    },
+    {
+      "fixtureId": "FIX-031",
+      "name": "no-substring-overlap",
+      "file": "good/no-substring-overlap.json",
+      "kind": "good",
+      "targetRules": [
+        "QV016"
+      ],
+      "note": "Không option nào là tập con của option khác."
+    },
+    {
+      "fixtureId": "FIX-032",
+      "name": "option-substring-overlap",
+      "file": "bad/option-substring-overlap.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV016"
+      ],
+      "note": "Option A \"aria-expanded\" là substring của option B \"aria-expanded-state\"."
+    },
+    {
+      "fixtureId": "FIX-033",
+      "name": "balanced-answer-position",
+      "file": "good/balanced-answer-position.json",
+      "kind": "good",
+      "targetRules": [
+        "QV017"
+      ],
+      "note": "Vị trí đáp án đúng rải đều, không vị trí nào > 40%."
+    },
+    {
+      "fixtureId": "FIX-034",
+      "name": "skewed-answer-position",
+      "file": "bad/skewed-answer-position.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV017"
+      ],
+      "note": "Vị trí 0 chiếm 75% tổng số câu (lệch), không có chuỗi liên tiếp dài để tách riêng khỏi QV018."
+    },
+    {
+      "fixtureId": "FIX-035",
+      "name": "no-consecutive-run",
+      "file": "good/no-consecutive-run.json",
+      "kind": "good",
+      "targetRules": [
+        "QV018"
+      ],
+      "note": "Không chuỗi liên tiếp nào >= 4 câu cùng vị trí."
+    },
+    {
+      "fixtureId": "FIX-036",
+      "name": "consecutive-skewed-run",
+      "file": "bad/consecutive-skewed-run.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV018"
+      ],
+      "note": "4 câu đầu liên tiếp cùng vị trí đáp án đúng (chuỗi lặp), tổng tỉ lệ vẫn đúng 40% (không > 40%) để không kích hoạt thêm QV017."
+    },
+    {
+      "fixtureId": "FIX-037",
+      "name": "valid-structure-fields",
+      "file": "good/valid-structure-fields.json",
+      "kind": "good",
+      "targetRules": [
+        "QV019"
+      ],
+      "note": "category/difficulty/points hợp lệ."
+    },
+    {
+      "fixtureId": "FIX-038",
+      "name": "invalid-structure-fields",
+      "file": "bad/invalid-structure-fields.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV019"
+      ],
+      "note": "Thiếu category, difficulty sai enum, points sai kiểu."
+    },
+    {
+      "fixtureId": "FIX-039",
+      "name": "adequate-explanation",
+      "file": "good/adequate-explanation.json",
+      "kind": "good",
+      "targetRules": [
+        "QV020"
+      ],
+      "note": "Explanation đủ dài, không placeholder."
+    },
+    {
+      "fixtureId": "FIX-040",
+      "name": "explanation-too-short",
+      "file": "bad/explanation-too-short.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV020"
+      ],
+      "note": "Explanation là placeholder \"todo\", quá ngắn."
+    },
+    {
+      "fixtureId": "FIX-041",
+      "name": "question-with-enough-context",
+      "file": "good/question-with-enough-context.json",
+      "kind": "good",
+      "targetRules": [
+        "QV021"
+      ],
+      "note": "Content đủ dài, đủ ngữ cảnh (>= 5 từ)."
+    },
+    {
+      "fixtureId": "FIX-042",
+      "name": "question-too-vague",
+      "file": "bad/question-too-vague.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV021"
+      ],
+      "note": "Content chỉ có 1 từ, thiếu ngữ cảnh."
+    },
+    {
+      "fixtureId": "FIX-043",
+      "name": "distinct-question-topics",
+      "file": "good/distinct-question-topics.json",
+      "kind": "good",
+      "targetRules": [
+        "QV022"
+      ],
+      "note": "2 câu hỏi khác chủ đề hoàn toàn, độ trùng từ thấp."
+    },
+    {
+      "fixtureId": "FIX-044",
+      "name": "near-duplicate-question",
+      "file": "bad/near-duplicate-question.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV022"
+      ],
+      "note": "2 câu hỏi gần như giống hệt, chỉ khác 1 từ (\"của\" vs \"trên\") - Jaccard ~86%."
+    },
+    {
+      "fixtureId": "FIX-045",
+      "name": "balanced-option-length",
+      "file": "good/balanced-option-length.json",
+      "kind": "good",
+      "targetRules": [
+        "QV023"
+      ],
+      "note": "Độ dài option đúng tương đương các option sai."
+    },
+    {
+      "fixtureId": "FIX-046",
+      "name": "option-length-outlier",
+      "file": "bad/option-length-outlier.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV023"
+      ],
+      "note": "Option đúng dài hơn hẳn (>= 1.8x) trung bình các option sai - gợi ý đáp án qua độ dài."
+    },
+    {
+      "fixtureId": "FIX-047",
+      "name": "real-content-sample-1",
+      "file": "good/real-content-sample-1.json",
+      "kind": "good",
+      "targetRules": [],
+      "note": "Câu hỏi thật #5 trích từ initial-quiz-questions.ts (bonus, đối chứng false positive)."
+    },
+    {
+      "fixtureId": "FIX-048",
+      "name": "real-content-sample-2",
+      "file": "good/real-content-sample-2.json",
+      "kind": "good",
+      "targetRules": [],
+      "note": "Câu hỏi thật #10 trích từ initial-quiz-questions.ts (bonus, đối chứng false positive)."
+    },
+    {
+      "fixtureId": "FIX-049",
+      "name": "combo-missing-category-and-duplicate",
+      "file": "bad/combo-missing-category-and-duplicate.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV019",
+        "QV009",
+        "QV004"
+      ],
+      "note": "Kết hợp: thiếu category (QV019) + explanation rỗng (QV009) + trùng text option (QV004)."
+    },
+    {
+      "fixtureId": "FIX-050",
+      "name": "combo-too-few-and-empty-option",
+      "file": "bad/combo-too-few-and-empty-option.json",
+      "kind": "bad",
+      "targetRules": [
+        "QV002",
+        "QV007"
+      ],
+      "note": "Kết hợp: chỉ 1 option (QV002) và option đó lại rỗng text (QV007)."
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "index_bm25_knowledge_chunks_index_v1.0.0",
+  "name": "BM25 Knowledge Chunks Index",
+  "artifact_type": "index",
+  "version": "v1.0.0",
+  "state": "active",
+  "description": "Chỉ mục từ khóa thưa BM25 trên tập 81 phân đoạn tri thức RAG v1.0.0.",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.273633+00:00",
+  "file_path": "data/artifacts/indexs/bm25_knowledge_chunks_index/v1.0.0/bm25_meta.json",
+  "file_size_bytes": 117,
+  "content_hash": "c9eecfe7b89612123cd7dc05a14136ba4a78048518ec21bfde84337fc19ceec1",
+  "upstream_ids": [
+    "dataset_ai_knowledge_chunks_corpus_v1.0.0"
+  ],
+  "tags": [
+    "index",
+    "bm25",
+    "lexical",
+    "rag"
+  ],
+  "deprecation_reason": null,
+  "superseded_by": null,
+  "sunset_date": null,
+  "extra_metadata": {}
+}
