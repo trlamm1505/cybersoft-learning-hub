@@ -1,0 +1,7 @@
+S-AI-09/10 | 08/10/2026 20:44
+POST /auth/forgot-password x12 (email không tồn tại, khác nhau) -> 201,201,201,201,201,201,201,201,201,201,201,201 (không giới hạn tần suất)
+POST /auth/login x12 sai mật khẩu -> 401 x5 rồi 429 x7 (login có giới hạn; forgot-password thì không)  => BUG MỚI (forgot-password không rate limit)
+GET /auth/me không token / token sai -> 401 (đạt)
+GET /exercises không token -> 200 (chỉ metadata, có cờ hasSolution, không lộ lời giải; chưa kết luận là lỗi)
+Luồng: catalog -> quiz -> playground -> coach: dữ liệu hội thoại coach còn nguyên sau khi tải lại trang
+LƯU Ý: bài test làm tài khoản/IP của máy này bị 429 ở /auth/login một lúc; chờ hết thời gian khóa rồi đăng nhập lại.
