@@ -111,8 +111,8 @@ describe('evaluateRubric', () => {
     expect(() => evaluateRubric(criteria, grade(1).slice(1))).toThrow(BadRequestException);
   });
 
-  it('seed có đúng 10 lab, mỗi rubric 10 điểm với 1 tiêu chí severity', () => {
-    expect(INITIAL_TESTER_LABS).toHaveLength(10);
+  it('seed có đúng 12 lab, mỗi rubric 10 điểm với 1 tiêu chí severity', () => {
+    expect(INITIAL_TESTER_LABS).toHaveLength(12);
     for (const lab of INITIAL_TESTER_LABS) {
       expect(lab.rubricCriteria.reduce((s, c) => s + c.maxScore, 0)).toBe(10);
       expect(lab.rubricCriteria.filter((c) => c.kind === 'severity')).toHaveLength(1);

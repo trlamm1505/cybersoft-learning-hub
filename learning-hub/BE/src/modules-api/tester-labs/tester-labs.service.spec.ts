@@ -14,8 +14,8 @@ describe('TesterLabsService.onModuleInit (auto-seed)', () => {
     await service.onModuleInit();
 
     const ops = labModel.bulkWrite.mock.calls[0][0];
-    expect(ops).toHaveLength(10);
-    expect(INITIAL_TESTER_LABS).toHaveLength(10);
+    expect(ops).toHaveLength(12);
+    expect(INITIAL_TESTER_LABS).toHaveLength(12);
     for (const op of ops) {
       expect(op.updateOne.upsert).toBe(true);
       expect(op.updateOne.filter).toEqual({ labCode: expect.any(String) });
