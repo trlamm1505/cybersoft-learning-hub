@@ -1,0 +1,11 @@
+{
+  "labId": "LAB-11",
+  "mode": "buggy",
+  "faultId": "F-D14-011",
+  "rule": "Ghế đã đặt không được hiển thị là có thể chọn.",
+  "data": {
+    "seatId": "A01",
+    "serverStatus": "BOOKED",
+    "uiSelectable": true
+  }
+}

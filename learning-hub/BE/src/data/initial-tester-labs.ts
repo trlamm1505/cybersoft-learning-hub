@@ -140,6 +140,26 @@ const LABS: LabSeed[] = [
       'Finding_ID,Loai,Bang,Query,So_dong,ID_mau,Anh_huong,Severity,De_xuat',
   },
   {
+    labCode: 'LAB-10',
+    title: 'Login UI Automation',
+    description:
+      'Viết smoke login ổn định bằng Playwright (locator theo vai trò/placeholder, không theo class), chạy lặp hai lần và phân loại lỗi product/test/environment. Nộp LAB10_Automation_Summary.csv, đính kèm login.spec.ts và report làm evidence.',
+    category: 'TEST_CASE_DESIGN',
+    environmentUrl: 'https://demo2.cybersoft.edu.vn/login',
+    requiredColumns:
+      'Case,Muc_tieu,Locator,Lan_chay_1,Lan_chay_2,Phan_loai_loi,Evidence,Ghi_chu',
+  },
+  {
+    labCode: 'LAB-11',
+    title: 'Luồng chọn phim → đặt vé (Automation)',
+    description:
+      'Tự động hóa luồng mở phim, chọn suất chiếu, tới sơ đồ ghế và dừng trước thanh toán; kiểm ghế đã đặt không được chọn được. Nộp LAB11_Booking_Flow.csv.',
+    category: 'TEST_CASE_DESIGN',
+    environmentUrl: 'https://demo1.cybersoft.edu.vn/',
+    requiredColumns:
+      'Buoc,Hanh_dong,Locator,Expected,Actual,Ket_qua,Evidence,Ghi_chu',
+  },
+  {
     labCode: 'LAB-12',
     title: 'Mini Regression Suite',
     description:
