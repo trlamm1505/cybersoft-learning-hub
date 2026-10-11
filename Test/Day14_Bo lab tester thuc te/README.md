@@ -46,4 +46,4 @@ python data/verify_snapshot.py
 
 - Thiết kế, task, guide, rubric, template và fixture: có đủ 12 lab.
 - Demo là hệ thống bên ngoài và có thể thay đổi; endpoint phải đối chiếu Swagger/Network khi chạy.
-- LAB-07 và LAB-09 có automated evidence; LAB-04 mới hoàn thành phần Swagger; LAB-10 đang bị chặn bởi tài khoản demo2. Các lab còn lại vẫn cần pilot của người học.
+- Kiểm lại trực tiếp ngày 11/10/2026 (xem `reports/2026-10-11-live-recheck.md`): LAB-07 phát hiện đủ lỗi dữ liệu trên movie0706 (báo cáo 23/09 ghi 0 lỗi là sai); LAB-04 phát hiện đăng nhập sai trả 500 trên demo6; LAB-09 có evidence hành vi buggy → clean → buggy; LAB-10 chưa chạy lại vì chưa có tài khoản demo2. Các lab còn lại vẫn cần pilot của người học.
