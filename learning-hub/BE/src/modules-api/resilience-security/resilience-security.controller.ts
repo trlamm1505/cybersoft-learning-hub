@@ -8,7 +8,10 @@ import { Roles } from '../../common/auth/roles.decorator';
 export class ResilienceSecurityController {
   constructor(private readonly resilienceService: ResilienceSecurityService) {}
 
+  // Dashboard vận hành nội bộ: chỉ giảng viên/quản trị viên. `limits` (giới hạn đã công bố) vẫn công khai.
   @Get('dashboard')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
   async getDashboard() {
     return this.resilienceService.getOperationalDashboard();
   }

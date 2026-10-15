@@ -27,15 +27,16 @@ describe('kidMode', () => {
   });
 
   it('Kid Mode chỉ cho vào Góc Học Tập, Block Puzzle, Thành tích, Hồ sơ, Đăng nhập', () => {
-    for (const p of ['/playground', '/block-puzzle', '/progress', '/profile', '/login']) expect(isKidAllowedPath(p)).toBe(true);
+    for (const p of ['/playground', '/block-puzzle', '/progress', '/kid-leaderboard', '/profile', '/login']) expect(isKidAllowedPath(p)).toBe(true);
     for (const p of ['/catalog', '/da-labs', '/authoring', '/teacher/exercises', '/admin/users', '/playgroundx']) {
       expect(isKidAllowedPath(p)).toBe(false);
     }
   });
 
-  it('thanh điều hướng Kid có đúng 2 nút, Góc Học Tập trỏ vào Block Puzzle', () => {
-    expect(KID_NAV.map((n) => n.label)).toEqual(['Góc Học Tập', 'Bảng Thành Tích']);
+  it('thanh điều hướng Kid có đúng 3 nút, Góc Học Tập trỏ vào Block Puzzle', () => {
+    expect(KID_NAV.map((n) => n.label)).toEqual(['Góc Học Tập', 'Bảng Thành Tích', 'Bảng Vinh Danh']);
     expect(KID_NAV[0].path).toBe('/block-puzzle');
     expect(KID_NAV[1].path).toBe('/progress');
+    expect(KID_NAV[2].path).toBe('/kid-leaderboard');
   });
 });

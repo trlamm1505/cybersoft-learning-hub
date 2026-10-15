@@ -13,6 +13,8 @@ import { TeacherExerciseFormPage } from './pages/TeacherExerciseFormPage';
 import { KidHeader } from './components/KidHeader';
 import { KidFooter } from './components/KidFooter';
 import { KidProgressView } from './components/KidProgressView';
+import { KidProfileView } from './components/KidProfileView';
+import { KidLeaderboardPage } from './components/KidLeaderboardPage';
 import { isKidAllowedPath, isKidMode, KID_HOME } from './common/kidMode';
 import { TeacherProblemGeneratorPage } from './pages/TeacherProblemGeneratorPage';
 import { LearnerProgressPage } from './pages/LearnerProgressPage';
@@ -179,6 +181,11 @@ export function App() {
   const allLessons: Lesson[] = [...MOCK_LESSONS, ...curriculumTeacherLessons];
 
   // Sync theme class with document element and save preference
+  // Kid Mode: mỗi lần đổi trang đều về đầu trang (không bắt bé kéo lên).
+  useEffect(() => {
+    if (kidMode) window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [kidMode, location.pathname, location.search]);
+
   useEffect(() => {
     document.documentElement.classList.toggle('kid-mode', kidMode);
   }, [kidMode]);
@@ -402,6 +409,10 @@ export function App() {
             path="/block-puzzle"
             element={<BlockPuzzlePage teacherLessons={publishedTeacherLessons} authUser={authUser} kidMode={kidMode} />}
           />
+          <Route
+            path="/kid-leaderboard"
+            element={kidMode ? <KidLeaderboardPage teacherLessons={publishedTeacherLessons} /> : <Navigate to="/catalog" replace />}
+          />
           <Route path="/contests" element={<ContestListPage authUser={authUser} />} />
           <Route path="/login" element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />
           <Route path="/register" element={<RegisterPage onAuthSuccess={handleAuthSuccess} />} />
@@ -520,7 +531,22 @@ export function App() {
           />
           <Route
             path="/profile"
-            element={authUser ? <ProfilePage authUser={authUser} onAvatarChange={handleAvatarChanged} onProfileChange={handleProfileUpdated} /> : <Navigate to="/login" replace />}
+            element={
+              authUser ? (
+                kidMode ? (
+                  <KidProfileView
+                    authUser={authUser}
+                    teacherLessons={publishedTeacherLessons}
+                    onAvatarChange={handleAvatarChanged}
+                    onProfileChange={handleProfileUpdated}
+                  />
+                ) : (
+                  <ProfilePage authUser={authUser} onAvatarChange={handleAvatarChanged} onProfileChange={handleProfileUpdated} />
+                )
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
           />
           <Route path="*" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
         </Routes>

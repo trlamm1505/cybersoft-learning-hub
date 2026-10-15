@@ -15,13 +15,14 @@ export const isKidMode = (user: AuthUser | null | undefined, search = ''): boole
 export const KID_HOME = '/block-puzzle';
 
 /** Trong Kid Mode chỉ các trang này được mở; mọi đường dẫn khác đưa về Góc Học Tập. */
-const KID_ALLOWED_PREFIXES = ['/playground', '/block-puzzle', '/progress', '/profile', '/login'];
+const KID_ALLOWED_PREFIXES = ['/playground', '/block-puzzle', '/progress', '/kid-leaderboard', '/profile', '/login'];
 
 export const isKidAllowedPath = (pathname: string): boolean =>
   KID_ALLOWED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
-/** Mục điều hướng của Kid Mode: đúng hai nút lớn. */
+/** Mục điều hướng của Kid Mode: đúng ba nút lớn. */
 export const KID_NAV = [
   { key: 'learn', label: 'Góc Học Tập', path: '/block-puzzle' },
   { key: 'achievements', label: 'Bảng Thành Tích', path: '/progress' },
+  { key: 'honor', label: 'Bảng Vinh Danh', path: '/kid-leaderboard' },
 ] as const;

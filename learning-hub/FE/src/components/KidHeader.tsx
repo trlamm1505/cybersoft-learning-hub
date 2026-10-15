@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Rocket, Star, Trophy } from 'lucide-react';
+import { LogOut, Medal, Rocket, Star, Trophy } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 import { KID_NAV } from '../common/kidMode';
 import { UserAvatar } from './UserAvatar';
@@ -13,6 +13,7 @@ interface KidHeaderProps {
 const NAV_STYLE = {
   learn: { Icon: Rocket, active: 'from-sky-400 to-blue-500', idle: 'bg-sky-100 text-sky-700' },
   achievements: { Icon: Trophy, active: 'from-amber-400 to-orange-500', idle: 'bg-amber-100 text-amber-700' },
+  honor: { Icon: Medal, active: 'from-pink-400 to-rose-500', idle: 'bg-pink-100 text-pink-700' },
 } as const;
 
 /**
@@ -22,8 +23,13 @@ const NAV_STYLE = {
 export const KidHeader: React.FC<KidHeaderProps> = ({ authUser, onLogout }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const activeKey = pathname.startsWith('/progress') ? 'achievements' : 'learn';
+  const activeKey = pathname.startsWith('/kid-leaderboard') ? 'honor' : pathname.startsWith('/progress') ? 'achievements' : 'learn';
   const [open, setOpen] = useState(false);
+  // Bấm nút nào cũng về đầu trang, kể cả khi đang ở sẵn trang đó.
+  const go = (path: string) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,32 +48,36 @@ export const KidHeader: React.FC<KidHeaderProps> = ({ authUser, onLogout }) => {
 
   return (
     <header className="sticky top-0 z-50 border-b-4 border-amber-200 bg-gradient-to-r from-sky-100 via-white to-amber-100 shadow-md" role="banner">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-3 py-2 sm:px-4 sm:py-3">
         <button
-          onClick={() => navigate(KID_NAV[0].path)}
+          onClick={() => go(KID_NAV[0].path)}
           className="flex cursor-pointer items-center gap-2 border-none bg-transparent text-left"
           aria-label="Về Góc Học Tập"
         >
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-300 to-orange-400 text-white shadow-md">
             <Star size={28} fill="currentColor" />
           </span>
-          <span className="text-2xl font-black text-sky-700">CyberSoft <span className="text-pink-500">Kids</span></span>
+          <span className="text-xl font-black text-sky-700 sm:text-2xl">
+            <span className="hidden sm:inline">CyberSoft </span>
+            <span className="text-pink-500">Kids</span>
+          </span>
         </button>
 
-        <nav aria-label="Điều hướng của bé" className="flex items-center gap-3">
+        {/* Điện thoại: 3 nút nằm hàng riêng, chia đều bề ngang; từ màn hình sm trở lên nằm cùng hàng với logo. */}
+        <nav aria-label="Điều hướng của bé" className="order-last grid w-full grid-cols-3 gap-2 sm:order-none sm:flex sm:w-auto sm:items-center sm:gap-3">
           {KID_NAV.map((item) => {
             const { Icon, active, idle } = NAV_STYLE[item.key];
             const isActive = activeKey === item.key;
             return (
               <button
                 key={item.key}
-                onClick={() => navigate(item.path)}
+                onClick={() => go(item.path)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex cursor-pointer items-center gap-2 rounded-2xl border-none px-5 py-3 text-lg font-black shadow-md transition-transform hover:scale-105 active:scale-95 ${
+                className={`flex min-w-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border-none px-2 py-2 text-center text-sm font-black leading-tight shadow-md transition-transform hover:scale-105 active:scale-95 sm:flex-row sm:gap-2 sm:px-4 sm:py-3 sm:text-lg ${
                   isActive ? `bg-gradient-to-r ${active} text-white` : idle
                 }`}
               >
-                <Icon size={26} strokeWidth={2.5} aria-hidden="true" /> {item.label}
+                <Icon size={24} strokeWidth={2.5} aria-hidden="true" className="shrink-0" /> <span>{item.label}</span>
               </button>
             );
           })}
@@ -96,9 +106,19 @@ export const KidHeader: React.FC<KidHeaderProps> = ({ authUser, onLogout }) => {
                   role="menuitem"
                   onClick={() => {
                     setOpen(false);
+                    navigate('/profile');
+                  }}
+                  className="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-none bg-sky-100 px-4 py-3 text-lg font-black text-sky-700 hover:bg-sky-200"
+                >
+                  Trang cá nhân của bé
+                </button>
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    setOpen(false);
                     onLogout();
                   }}
-                  className="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-none bg-rose-500 px-4 py-3 text-lg font-black text-white shadow-md hover:bg-rose-600"
+                  className="mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-none bg-rose-500 px-4 py-3 text-lg font-black text-white shadow-md hover:bg-rose-600"
                 >
                   <LogOut size={22} strokeWidth={2.5} /> Đăng xuất
                 </button>

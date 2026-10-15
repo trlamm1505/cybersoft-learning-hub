@@ -45,6 +45,8 @@ import type { LessonAuthoring, BlockCommand } from '../types/authoring';
 import type { AuthUser } from '../types/auth';
 import blockPuzzleApi from '../axios/blockPuzzleApi';
 import { BUILTIN_GAMES, completedLevels, findBuiltinGame } from '../games/registry';
+import { KidGameClearModal } from '../components/KidGameClearModal';
+import { allKidGames, isGameCleared, lessonGamesFromLessons, summarizeKidProgress } from '../common/kidProgress';
 
 // Blockly khá nặng: chỉ tải khi người chơi mở trò Mê Cung Blockly.
 
@@ -498,7 +500,34 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [completedSlugsKey, authUser?.id]);
 
+  // Kid Mode: khi bé vừa PHÁ ĐẢO trọn một game thì hiện chúc mừng + thành tích, rồi sang Bảng Vinh Danh.
+  const kidGames = useMemo(() => allKidGames(BUILTIN_GAMES, lessonGamesFromLessons(teacherLessons)), [teacherLessons]);
+  const [celebration, setCelebration] = useState<{
+    gameId: string;
+    title: string;
+    stars: number;
+    badge?: { title: string; emoji: string };
+    saved: boolean;
+  } | null>(null);
+
   const markCompleted = (slug: string, gameId: string) => {
+    let justCleared = false;
+    if (kidMode && !completedSlugs.has(slug)) {
+      const next = new Set(completedSlugs).add(slug);
+      if (!isGameCleared(kidGames, gameId, completedSlugs) && isGameCleared(kidGames, gameId, next)) {
+        justCleared = true;
+        const summary = summarizeKidProgress(next, kidGames);
+        const earned = summary.badges.find((b) => b.id === gameId && b.earned);
+        setCelebration({
+          gameId,
+          title: kidGames.find((g) => g.id === gameId)?.title ?? 'trò chơi',
+          stars: summary.stars,
+          badge: earned ? { title: earned.title, emoji: earned.emoji } : undefined,
+          saved: false,
+        });
+      }
+    }
+
     setCompletedSlugs((prev) => {
       if (prev.has(slug)) return prev;
       const next = new Set(prev).add(slug);
@@ -515,11 +544,41 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
     // trước khi tiếp tục chơi. Lỗi mạng không chặn trải nghiệm, nhưng cũng
     // đồng nghĩa tiến độ đó có thể chưa lên được server nếu request thất bại.
     if (authUser?.id) {
-      blockPuzzleApi.markCompleted({ lessonSlug: slug, gameId }).catch(() => {
-        /* best-effort — cache localStorage vẫn còn cho phiên hiện tại */
-      });
+      const saving: Promise<'ok' | 'rejected' | 'error'> = blockPuzzleApi
+        .markCompleted({ lessonSlug: slug, gameId })
+        .then(() => 'ok' as const)
+        .catch((e) => {
+          // Server từ chối (400: quá nhanh, sai thứ tự...) thì báo cho bé; lỗi mạng thì giữ cache localStorage.
+          const status = (e as { response?: { status?: number } })?.response?.status;
+          const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
+          if (status === 400 && msg) {
+            showToast(msg, 'info');
+            return 'rejected' as const;
+          }
+          return 'error' as const;
+        });
+      // Chỉ chúc mừng/chuyển sang Bảng Vinh Danh khi thành tích đã lên máy chủ (bảng đọc từ đó); bị từ chối thì thôi.
+      if (justCleared) {
+        saving.then((r) => setCelebration((c) => (r === 'rejected' ? null : c ? { ...c, saved: true } : c)));
+      }
+    } else if (justCleared) {
+      setCelebration((c) => (c ? { ...c, saved: true } : c));
     }
   };
+
+  const celebrationModal = celebration ? (
+    <KidGameClearModal
+      gameTitle={celebration.title}
+      badge={celebration.badge}
+      stars={celebration.stars}
+      saved={celebration.saved}
+      onGoToLeaderboard={() => {
+        const id = celebration.gameId;
+        setCelebration(null);
+        navigate(`/kid-leaderboard?game=${encodeURIComponent(id)}`);
+      }}
+    />
+  ) : null;
 
   const isLessonUnlocked = (idx: number) => {
     if (idx === 0) return true;
@@ -741,6 +800,12 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
           <div className="rounded-3xl bg-gradient-to-r from-sky-300 via-cyan-200 to-amber-200 p-6 text-slate-800 shadow-lg md:p-8">
             <h1 className="text-3xl font-black md:text-4xl">Góc Học Tập 🚀</h1>
             <p className="mt-1 text-lg font-bold">Chọn một trò chơi và bắt đầu phiêu lưu nào!</p>
+            <button
+              onClick={() => navigate('/kid-leaderboard')}
+              className="mt-3 cursor-pointer rounded-2xl border-none bg-white/80 px-5 py-2 text-lg font-black text-pink-600 shadow-md hover:scale-105 active:scale-95"
+            >
+              🏅 Xem Bảng Vinh Danh
+            </button>
           </div>
         ) : (
         <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-cyan-900 text-white rounded-3xl p-6 md:p-8 shadow-xl">
@@ -843,22 +908,26 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
   if (builtin) {
     const BuiltinComponent = builtin.Component;
     return (
-      <Suspense
-        fallback={
-          <div className="py-16 text-center text-sm font-semibold text-[var(--text-muted)]">Đang tải trò chơi...</div>
-        }
-      >
-        <BuiltinComponent
-          completedSlugs={completedSlugs}
-          onComplete={(slug) => markCompleted(slug, builtin.id)}
-          onBack={() => setSelectedGameId(null)}
-        />
-      </Suspense>
+      <>
+        <Suspense
+          fallback={
+            <div className="py-16 text-center text-sm font-semibold text-[var(--text-muted)]">Đang tải trò chơi...</div>
+          }
+        >
+          <BuiltinComponent
+            completedSlugs={completedSlugs}
+            onComplete={(slug) => markCompleted(slug, builtin.id)}
+            onBack={() => setSelectedGameId(null)}
+          />
+        </Suspense>
+        {celebrationModal}
+      </>
     );
   }
 
   return (
     <div className="space-y-6 animate-fade-in pb-16">
+      {celebrationModal}
       {showHowToPlay && <HowToPlayModal onClose={closeHowToPlay} />}
 
       {/* Header */}

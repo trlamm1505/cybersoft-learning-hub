@@ -33,9 +33,11 @@ import type { NavItem } from './OverflowNav';
 /** Mục chỉ dành cho học viên; khớp StudentRoute trong App.tsx. */
 const STUDENT_ONLY_TABS = new Set(['da-labs', 'ai-labs']);
 
-const STUDENT_NAV: NavItem[] = [
+/** Menu học viên thường (6-9, 10-12, người lớn). Kid Mode (Lớp 3-5) dùng KidHeader riêng nên không thấy Quiz. */
+export const STUDENT_NAV: NavItem[] = [
   { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
   { key: 'playground', label: 'Bài tập / Playground', Icon: Code2, path: '/playground' },
+  { key: 'quiz', label: 'Thi Trắc Nghiệm', Icon: ClipboardList, path: '/quiz' },
   { key: 'contests', label: 'Cuộc thi', Icon: Trophy, path: '/contests' },
 ];
 

@@ -1,0 +1,91 @@
+TEST_KID_SECURITY_REPORT (Kid Mode Lớp 3–5)
+Thời điểm : 2026-10-15T03:02:07.094Z
+API       : http://localhost:3000/api
+CSDL      : mongodb+srv://tqlam150504:***@cluster0.qkjnnve.mongodb.net/cybersoft-learning-hub?appName=Cluster0
+Run id    : 236b43
+
+--- 1. Không đăng nhập ---
+[PASS] Không token: GET /auth/me -> 401
+[PASS] Không token: GET /block-puzzle/progress -> 401
+[PASS] Không token: GET /block-puzzle/records -> 401
+[PASS] Không token: GET /block-puzzle/leaderboard/blockly-maze -> 401
+[PASS] Không token: GET /block-puzzle/kids/6ad04230e5903eefe964ab49 -> 401
+[PASS] Không token: POST /block-puzzle/progress/complete -> 401
+[PASS] Không token: PUT /auth/profile -> 401
+[PASS] Không token: PUT /auth/avatar -> 401
+[PASS] Không token: GET /exercises/submissions/6ad04230e5903eefe964ab4e -> 401
+[PASS] Không token: GET /coach/history/6ad04230e5903eefe964ab49/x -> 401
+[PASS] Không token: GET /hints/history/6ad04230e5903eefe964ab49 -> 401
+[PASS] Không token: GET /learner/progress -> 401
+[PASS] Không token: GET /qa/dashboard -> 401
+[PASS] Không token: GET /resilience/dashboard -> 401
+[PASS] Không token: GET /usability/report -> 401
+[PASS] Không token: GET /usability/top-fixes -> 401
+[PASS] Không token: POST /usability/session -> 401
+
+--- 2. Token không hợp lệ ---
+[PASS] Token ký bằng secret sai -> 401
+[PASS] Token đã hết hạn -> 401
+[PASS] Token của tài khoản không tồn tại -> 401
+[PASS] Tài khoản bị khóa (LOCKED) dùng token còn hạn -> 401
+[PASS] Token giả vai ADMIN của học sinh vẫn bị 403 (vai trò lấy từ CSDL, không tin token)
+
+--- 3. Cách ly dữ liệu giữa các bé ---
+[PASS] /auth/me trả đúng tài khoản của B, không phải A
+[PASS] /auth/me không lộ mật khẩu
+[PASS] B xem tiến độ: không chứa màn của A
+[PASS] B gửi hoàn thành kèm userId của A: server bỏ qua userId trong body (200)
+[PASS] Bản ghi tạo cho B (không ghi nhầm vào A): A vẫn 1, B có 1
+
+--- 4. Đổi ID trên URL sang tài khoản khác ---
+[PASS] B xem bài nộp của A qua URL -> 403
+[PASS] A xem bài nộp của chính mình -> 200
+[PASS] B xem lịch sử AI Coach của A -> 403
+[PASS] B xem lịch sử gợi ý của A -> 403
+[PASS] B xem hồ sơ chi tiết của A qua API admin -> 403
+
+--- 5. Thẻ "xem bạn" và Bảng Vinh Danh ---
+[PASS] Xem thẻ bạn A (đang có tên trên bảng) -> 200
+[PASS] Thẻ bạn không lộ email / mật khẩu / số điện thoại / role
+[PASS] Xem thẻ bạn B (chưa có tên trên bảng) -> 404, không dò được tài khoản
+[PASS] Thẻ của tài khoản giảng viên -> 404
+[PASS] Thẻ bạn với id lạ "abc" -> 404 (không lỗi 500)
+[PASS] Thẻ bạn với id lạ "000000000000000000000000" -> 404 (không lỗi 500)
+[PASS] Thẻ bạn với id lạ "../auth/me" -> 404 (không lỗi 500)
+[PASS] Thẻ bạn với id lạ "%00" -> 404 (không lỗi 500)
+[PASS] Bảng Vinh Danh game 1 màn có A, đủ trường
+[PASS] Bảng Vinh Danh không lộ email/mật khẩu/số điện thoại
+[PASS] Game không tồn tại -> bảng rỗng (200, không lỗi 500)
+[PASS] Kỷ lục của A: hạng 1 game 1 màn hoặc có hạng hợp lệ
+[PASS] Kỷ lục của B (chưa chơi) không có dữ liệu của A
+
+--- 6. Leo thang quyền / sửa hồ sơ ---
+[PASS] Sửa hồ sơ kèm role/ageGroup/studentCode: chỉ tên đổi, vai trò và nhóm tuổi giữ nguyên
+[PASS] Đổi email -> bị từ chối (400)
+[PASS] Tự đổi nhóm tuổi sang nhóm khác -> 403
+[PASS] Avatar SVG (có thể chứa script) bị từ chối
+[PASS] Avatar dạng javascript: bị từ chối
+[PASS] Tên chứa thẻ HTML: được lưu nguyên dạng chữ (React hiển thị như văn bản, không chạy script)
+
+--- 7. Học sinh gọi API của giảng viên/quản trị ---
+[PASS] Học sinh gọi POST /exercises -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi PATCH /exercises/000000000000000000000000 -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi DELETE /exercises/000000000000000000000000 -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi POST /exercises/legacy/assign-grade -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi GET /admin/users -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi GET /admin/classes -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi GET /teacher/classes -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi GET /teacher/integrity/queue -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi POST /hints/seed -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi GET /qa/dashboard -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi GET /resilience/dashboard -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi GET /usability/report -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi POST /qa/run-smoke-tests -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Học sinh gọi POST /resilience/run-load-test -> 403 (hoặc 404 nếu route không tồn tại)
+[PASS] Giảng viên vẫn xem được dashboard chất lượng -> 200
+[PASS] Học sinh gọi /exercises/:slug/full (đáp án + test ẩn) -> 403
+
+--- Cleanup ---
+[PASS] Dọn dữ liệu tạm (xóa 4 tài khoản, 0 tiến độ, 1 bài nộp), không còn bản ghi __TEST_TEMP__
+
+KẾT QUẢ: 68 PASS, 0 FAIL  =>  ĐẠT
