@@ -209,7 +209,8 @@ export class ContestSubmissionService {
       studentName,
       code: problem.type === 'coding' ? dto.code : undefined,
       quizAnswers: problem.type === 'quiz' ? dto.quizAnswers : undefined,
-      score: graded.score,
+      // Nộp sau giờ đóng cuộc thi: vẫn ghi log để đối soát nhưng điểm cuộc thi = 0.
+      score: isLate ? 0 : graded.score,
       maxPoints: problem.points,
       verdict: graded.verdict,
       passedCount: graded.passedCount,
