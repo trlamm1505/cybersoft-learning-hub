@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileEdit, CheckCircle2, HelpCircle, Clock, Download } from 'lucide-react';
 import quizApi from '../axios/quizApi';
@@ -14,6 +14,10 @@ import classAssignmentsApi from '../axios/classAssignmentsApi';
 import type { MyAssignment } from '../types/classAssignments';
 import { formatVnDateTime, scoreText } from '../common/classFormat';
 import { useToast } from '../components/Toast';
+import { useLeaveReporter } from '../hooks/useLeaveReporter';
+import { playAlertBeep } from '../common/alertSound';
+import { LeaveWarningBanner } from '../components/ProctorOverlays';
+import { BackToClassButton, ClassResultModal } from '../components/ClassResultModal';
 
 interface QuizTakingPageProps {
   teacherLessons?: LessonAuthoring[];
@@ -60,6 +64,11 @@ const SYSTEM_QUIZZES: QuizTopic[] = [
     source: 'SYSTEM',
   },
 ];
+
+const classPoints = (score: number, maxScore: number, maxPoints: number): string => {
+  const v = maxScore > 0 ? Math.round((score / maxScore) * maxPoints * 10) / 10 : 0;
+  return Number.isInteger(v) ? String(v) : v.toFixed(1);
+};
 
 export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons = [], authUser }) => {
   const navigate = useNavigate();
@@ -131,6 +140,17 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
 
   // Bài trắc nghiệm của lớp: mở từ "Lớp học của tôi" qua ?assignment=<id>. Chỉ lượt thi này tính điểm lớp (một lượt, có hạn chót).
   const classAssignmentId = useMemo(() => new URLSearchParams(window.location.search).get('assignment'), []);
+  // Giám sát bài lớp: rời màn hình quá 2 lần thì giảng viên được thông báo (máy chủ đếm).
+  const [leaveInfo, setLeaveInfo] = useState<{ count: number; notified: boolean } | null>(null);
+  useLeaveReporter({
+    active: stage === 'TAKING' && !!classAssignmentId && authUser?.role === 'STUDENT',
+    scope: 'CLASS_ASSIGNMENT',
+    refId: classAssignmentId,
+    onReport: (report, localCount) => {
+      playAlertBeep();
+      setLeaveInfo({ count: report?.count ?? localCount, notified: !!report?.teacherNotified });
+    },
+  });
   const [classAssignment, setClassAssignment] = useState<MyAssignment | null>(null);
   useEffect(() => {
     if (!classAssignmentId || authUser?.role !== 'STUDENT') return;
@@ -139,6 +159,10 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       .then(setClassAssignment)
       .catch(() => setClassAssignment(null));
   }, [classAssignmentId, authUser?.role]);
+
+  // Bấm "Làm bài" từ Lớp học của tôi: vào thẳng đề, không qua màn hình đệm "Bắt đầu".
+  const autoStartedRef = useRef(false);
+  const [showClassResult, setShowClassResult] = useState(true);
 
   const handleStartClassQuiz = async () => {
     if (!classAssignmentId) return;
@@ -156,6 +180,14 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
       setStage('IDLE');
     }
   };
+
+  useEffect(() => {
+    if (!classAssignment || autoStartedRef.current || stage !== 'IDLE') return;
+    if (classAssignment.state !== 'NOT_STARTED' && classAssignment.state !== 'IN_PROGRESS') return;
+    autoStartedRef.current = true;
+    void handleStartClassQuiz();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classAssignment, stage]);
 
   // 1. Handle Start Quiz API
   const handleStartQuiz = async () => {
@@ -334,11 +366,6 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 Lựa chọn từ các bộ đề kiểm tra trắc nghiệm để thử sức và đánh giá kiến thức.
               </p>
-              {(authUser?.ageGroup === '6-9' || authUser?.ageGroup === '10-12') && (
-                <p className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                  Đề ôn tập dành cho Khối {authUser.ageGroup === '6-9' ? '6–9' : '10–12'}: câu hỏi được chọn tự động theo khối lớp của bạn.
-                </p>
-              )}
             </div>
 
             {classAssignment && (
@@ -464,6 +491,9 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
         {/* STAGE 2: QUIZ TAKING SCREEN */}
         {stage === 'TAKING' && quizData && (
           <div className="space-y-6">
+            {classAssignmentId && leaveInfo && (
+              <LeaveWarningBanner count={leaveInfo.count} notifyAfter={2} teacherNotified={leaveInfo.notified} />
+            )}
             {/* Top Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
               <div>
@@ -506,6 +536,20 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
         )}
 
         {/* STAGE 3: RESULT REVIEW SCREEN */}
+        {stage === 'RESULT' && reviewData && classAssignment && (
+          <div className="mb-4 text-center">
+            <BackToClassButton onClick={() => navigate('/my-class')} />
+          </div>
+        )}
+        {stage === 'RESULT' && reviewData && classAssignment && showClassResult && (
+          <ClassResultModal
+            title={classAssignment.title}
+            scoreText={`Điểm: ${classPoints(reviewData.score, reviewData.maxScore, classAssignment.maxPoints)}/${classAssignment.maxPoints}`}
+            note={`Đúng ${reviewData.score}/${reviewData.maxScore} điểm của đề`}
+            onBack={() => navigate('/my-class')}
+            onClose={() => setShowClassResult(false)}
+          />
+        )}
         {stage === 'RESULT' && reviewData && (
           <QuizResultView
             reviewData={reviewData}

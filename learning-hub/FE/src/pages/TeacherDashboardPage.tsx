@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import teacherAnalyticsApi from '../axios/teacherAnalyticsApi';
 import { ClassAssignPanel } from '../components/ClassAssignPanel';
+import { ProctorAlertsPanel } from '../components/ProctorAlertsPanel';
 import { selectControl } from '../components/adminStyles';
 import type {
   ClassOverview,
@@ -487,6 +488,8 @@ export const TeacherDashboardPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-5xl space-y-5">
       <h1 className="text-xl font-semibold text-[var(--text-main)]">Lớp học</h1>
+
+      <ProctorAlertsPanel />
 
       <div className="flex gap-4 border-b border-[var(--border-color)]" role="tablist">
         {(

@@ -5,7 +5,9 @@ import { HintService } from './hint.service';
 import {
   Hint,
   validateTier1NoCode,
+  validateTier3NoFullCode,
 } from '../../modules-system/database/schemas/hint.schema';
+import { INITIAL_HINTS } from '../../data/initial-hints';
 import { HintUsage } from '../../modules-system/database/schemas/hint-usage.schema';
 
 describe('HintService & Tier 1 Validation', () => {
@@ -72,6 +74,25 @@ describe('HintService & Tier 1 Validation', () => {
       const codeText = '```python\nprint(a + b)\n```';
       expect(validateTier1NoCode(codeText, 2)).toBe(true);
       expect(validateTier1NoCode(codeText, 3)).toBe(true);
+    });
+  });
+
+  describe('Tier 3: chỉ giả mã, không có đáp án', () => {
+    it('từ chối code hoàn chỉnh', () => {
+      expect(validateTier3NoFullCode('a = int(input())\nprint(a)', 3)).toBe(false);
+      expect(validateTier3NoFullCode('```python\nx\n```', 3)).toBe(false);
+      expect(validateTier3NoFullCode('def f(x):\n  return x', 3)).toBe(false);
+    });
+
+    it('chấp nhận giả mã từng bước và bỏ qua tầng khác', () => {
+      expect(validateTier3NoFullCode('Bước 1: Đọc n.\nBước 2: Cộng dồn rồi in kết quả.', 3)).toBe(true);
+      expect(validateTier3NoFullCode('print(1)', 2)).toBe(true);
+    });
+
+    it('mọi hint Tầng 3 trong dữ liệu mẫu đều là giả mã', () => {
+      const tier3 = INITIAL_HINTS.filter((h) => h.level === 3);
+      expect(tier3.length).toBe(10);
+      for (const h of tier3) expect(validateTier3NoFullCode(h.content, 3)).toBe(true);
     });
   });
 

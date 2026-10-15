@@ -13,6 +13,7 @@ import { Roles } from '../../common/auth/roles.decorator';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 import { IntegrityService } from './integrity.service';
+import { ProctorService } from './proctor.service';
 import type { IntegrityReviewInput } from './integrity.service';
 
 /** Hàng chờ xem xét tính trung thực: chỉ giảng viên/quản trị viên, học viên nhận 403. */
@@ -20,11 +21,25 @@ import type { IntegrityReviewInput } from './integrity.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('TEACHER', 'ADMIN')
 export class IntegrityController {
-  constructor(private readonly service: IntegrityService) {}
+  constructor(
+    private readonly service: IntegrityService,
+    private readonly proctor: ProctorService,
+  ) {}
 
   @Get('queue')
   queue(@Query('status') status?: string) {
     return this.service.listQueue(status);
+  }
+
+  /** Cảnh báo học viên rời màn hình làm bài (đặt trước ':id' để không bị nuốt route). */
+  @Get('alerts')
+  alerts(@Query('status') status: string | undefined, @CurrentUser() user: JwtPayload) {
+    return this.proctor.listForTeacher(user, status);
+  }
+
+  @Put('alerts/:id/ack')
+  acknowledge(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.proctor.acknowledge(id, user);
   }
 
   @Get(':id')

@@ -25,6 +25,8 @@ export const RATE_LIMITS = {
   codeRun: { default: { ttl: 60_000, limit: 30 } },
   /** Nộp bài cuộc thi chạy cả bộ test: chặn bấm liên tục làm nghẽn bộ chạy code. */
   contestSubmit: { default: { ttl: 60_000, limit: 15 } },
+  /** Sự kiện rời màn hình: mỗi lần rời một yêu cầu, nhưng chặn client giả mạo gửi dồn dập. */
+  proctorLeave: { default: { ttl: 60_000, limit: 40 } },
 } as const;
 
 export const RATE_LIMIT_MESSAGE =

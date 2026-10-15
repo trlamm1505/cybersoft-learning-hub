@@ -23,6 +23,9 @@ import type { ContestAttemptView, ContestItem, ContestProblem } from '../types/c
 import { contestApi } from '../axios/contestApi';
 import { IntegrityNotice } from './IntegrityNotice';
 import { useIntegrityTracker } from '../hooks/useIntegrityTracker';
+import { useLeaveReporter } from '../hooks/useLeaveReporter';
+import { playAlertBeep } from '../common/alertSound';
+import { CheatLockOverlay, LeaveWarningBanner } from './ProctorOverlays';
 import { buildAttemptResult, submittedResultsByIndex } from './contestAttemptResult';
 import type { ContestAttemptResult, ContestProblemResult } from './contestAttemptResult';
 import { CodeEditor } from './CodeEditor';
@@ -202,6 +205,36 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   const finishingRef = useRef(false);
   const integrityOn = contest.integrityEnabled !== false;
   const trackerRef = useIntegrityTracker(session.status === 'ready' && !!attempt && !attempt.finishedAt && integrityOn, contestId);
+
+  // Giám sát rời màn hình: lần 1 báo giảng viên ngay (kèm bíp + dải đỏ trên màn hình học viên);
+  // lần 3 máy chủ khóa phòng thi và nộp bài, màn hình chuyển sang cảnh báo đỏ toàn trang.
+  const [leaveWarn, setLeaveWarn] = useState<{ count: number; notified: boolean } | null>(null);
+  const [cheatLocked, setCheatLocked] = useState(false);
+  const leaveWarnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (leaveWarnTimerRef.current) clearTimeout(leaveWarnTimerRef.current);
+  }, []);
+  useLeaveReporter({
+    active: session.status === 'ready' && !!attempt && !attempt.finishedAt && integrityOn,
+    scope: 'CONTEST',
+    refId: contestId,
+    onReport: (report, localCount) => {
+      playAlertBeep();
+      if (report?.locked) {
+        setCheatLocked(true);
+        setLeaveWarn(null);
+        contestApi
+          .getMyAttempt(contestId)
+          .then((mine) => applyServerState(mine))
+          .catch(() => undefined);
+        return;
+      }
+      setLeaveWarn({ count: report?.count ?? localCount, notified: !!report?.teacherNotified });
+      if (leaveWarnTimerRef.current) clearTimeout(leaveWarnTimerRef.current);
+      leaveWarnTimerRef.current = setTimeout(() => setLeaveWarn(null), 8000);
+    },
+  });
+  const isCheatLocked = cheatLocked || attempt?.finishReason === 'CHEAT_LOCK';
 
   // Hạng thật trên bảng xếp hạng (thay cho nhãn suy diễn theo % điểm cũ) — lấy từ cùng
   // nguồn dữ liệu leaderboard công khai, không tự tính lại ở client.
@@ -544,6 +577,9 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     );
   }
 
+  // RENDER: bị khóa vì rời màn hình thi 3 lần — bài đã được nộp tự động, chỉ còn đóng phòng thi.
+  if (isCheatLocked) return <CheatLockOverlay onClose={onExit} />;
+
   // RENDER: Final Scorecard View (If already submitted)
   if (finalResult) {
     return (
@@ -715,6 +751,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   if (viewMode === 'select') {
     return (
       <div className="space-y-8 animate-fade-in max-w-5xl mx-auto pb-16">
+        {leaveWarn && <LeaveWarningBanner count={leaveWarn.count} limit={3} teacherNotified={leaveWarn.notified} />}
         {/* Header Banner */}
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 md:p-8 shadow-xl space-y-4 relative overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border-color)] pb-4">
@@ -901,6 +938,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   // RENDER: Active Contest Exam Workspace (Specific Problem View - Focused mode)
   return (
     <div className="space-y-6 animate-fade-in pb-16">
+      {leaveWarn && <LeaveWarningBanner count={leaveWarn.count} limit={3} teacherNotified={leaveWarn.notified} />}
       {/* Top Header & Exam Timer Bar: xếp dọc trên điện thoại, một hàng trên màn hình rộng */}
       <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4 sm:sticky sm:top-2 z-30 backdrop-blur-md">
         <div className="min-w-0 space-y-2">

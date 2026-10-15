@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
@@ -49,7 +50,12 @@ describe('CoachService — logging và giới hạn token', () => {
     find: jest.fn(),
   };
   const mockExerciseModel = { findOne: jest.fn() };
-  const mockSubmissionModel = { findOne: jest.fn(), find: jest.fn() };
+  const mockSubmissionModel = {
+    findOne: jest.fn(),
+    find: jest.fn(),
+    countDocuments: jest.fn().mockResolvedValue(0),
+    updateOne: jest.fn().mockResolvedValue({}),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -132,7 +138,7 @@ describe('CoachService — logging và giới hạn token', () => {
 
   it('cắt bớt completion nếu vượt giới hạn MAX_COMPLETION_TOKENS', async () => {
     mockContextBuilder.build.mockResolvedValue(makeContext());
-    const hugeContent = 'a'.repeat(20000); // ~5000 tokens ước lượng, vượt xa giới hạn 500
+    const hugeContent = 'a'.repeat(20000); // ~5000 tokens ước lượng, vượt xa giới hạn 250
     mockLlmClient.chat.mockResolvedValue({
       content: hugeContent,
       promptTokens: 50,
@@ -148,7 +154,7 @@ describe('CoachService — logging và giới hạn token', () => {
     );
 
     expect(result.reply.length).toBeLessThan(hugeContent.length);
-    expect(result.usage.completionTokens).toBeLessThanOrEqual(500);
+    expect(result.usage.completionTokens).toBeLessThanOrEqual(250);
   });
 
   it('ném BadRequestException nếu context (đã lồng lịch sử dài) vượt giới hạn prompt token', async () => {
@@ -296,7 +302,12 @@ describe('CoachService.debugLoop — phân tích test thật, giới hạn vòng
     find: jest.fn(),
   };
   const mockExerciseModel = { findOne: jest.fn() };
-  const mockSubmissionModel = { findOne: jest.fn(), find: jest.fn() };
+  const mockSubmissionModel = {
+    findOne: jest.fn(),
+    find: jest.fn(),
+    countDocuments: jest.fn().mockResolvedValue(0),
+    updateOne: jest.fn().mockResolvedValue({}),
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -506,22 +517,67 @@ describe('CoachService.debugLoop — phân tích test thật, giới hạn vòng
     // mô phỏng đúng kịch bản lỗi thật: học viên đã chạm giới hạn ở lần trước
     // (loopCount=5) và bấm "Phân tích lỗi" thêm một lần nữa cho submission
     // mới mà vẫn chưa AC — backend phải từ chối ngay, không tính toán tiếp.
-    mockSubmissionModel.find.mockReturnValue(
-      leanChain([
-        { status: 'WA' },
-        { status: 'WA' },
-        { status: 'WA' },
-        { status: 'WA' },
-        { status: 'WA' },
-      ]),
-    );
+    mockSubmissionModel.find.mockReturnValue(leanChain([{ status: 'WA' }]));
+    mockSubmissionModel.countDocuments.mockResolvedValueOnce(5);
 
     await expect(
       service.debugLoop({ exerciseSlug: 'bai-1', submissionId: 's7' }, 'u1'),
     ).rejects.toThrow(ForbiddenException);
+    mockSubmissionModel.countDocuments.mockResolvedValueOnce(5);
+    await expect(
+      service.debugLoop({ exerciseSlug: 'bai-1', submissionId: 's7' }, 'u1'),
+    ).rejects.toThrow(
+      'Bạn đã hết 5 lượt nhờ AI phân tích lỗi cho bài này, hãy tự suy nghĩ hoặc dùng Hint',
+    );
 
     // Không log message nào vì bị từ chối trước khi phân tích/log.
     expect(mockCoachMessageModel.create).not.toHaveBeenCalled();
+  });
+
+  it('mỗi lần nộp chỉ được phân tích 1 lần (409), không ghi log', async () => {
+    mockExerciseModel.findOne.mockReturnValue(leanChain({ _id: 'ex1', title: 'Bài 1' }));
+    mockSubmissionModel.findOne.mockReturnValue(
+      leanChain({
+        _id: 's9',
+        status: 'WA',
+        passedCount: 0,
+        totalCount: 1,
+        createdAt: new Date('2026-01-01T04:00:00Z'),
+        debugAnalyzedAt: new Date('2026-01-01T04:01:00Z'),
+        results: [],
+      }),
+    );
+    mockSubmissionModel.find.mockReturnValue(leanChain([]));
+
+    await expect(
+      service.debugLoop({ exerciseSlug: 'bai-1', submissionId: 's9' }, 'u1'),
+    ).rejects.toThrow(ConflictException);
+    expect(mockCoachMessageModel.create).not.toHaveBeenCalled();
+  });
+
+  it('phân tích thành công thì đánh dấu submission và trả analysesUsed/maxAnalyses', async () => {
+    mockExerciseModel.findOne.mockReturnValue(leanChain({ _id: 'ex1', title: 'Bài 1' }));
+    mockSubmissionModel.findOne.mockReturnValue(
+      leanChain({
+        _id: 's10',
+        status: 'WA',
+        passedCount: 0,
+        totalCount: 1,
+        createdAt: new Date('2026-01-01T05:00:00Z'),
+        results: [{ index: 0, passed: false, input: '1', expectedOutput: '2', actualOutput: '3' }],
+      }),
+    );
+    mockSubmissionModel.find.mockReturnValue(leanChain([]));
+    mockSubmissionModel.countDocuments.mockResolvedValueOnce(2);
+
+    const result: any = await service.debugLoop({ exerciseSlug: 'bai-1', submissionId: 's10' }, 'u1');
+
+    expect(result.analysesUsed).toBe(3);
+    expect(result.maxAnalyses).toBe(5);
+    expect(mockSubmissionModel.updateOne).toHaveBeenCalledWith(
+      { _id: 's10' },
+      { $set: { debugAnalyzedAt: expect.any(Date) } },
+    );
   });
 
   it('KHÔNG chặn khi submission hiện tại đã AC, dù đã có nhiều lần WA trước đó', async () => {
@@ -561,7 +617,12 @@ describe('CoachService.debugLoop + Gemini (gợi ý ngắn, tiết kiệm quota)
   let service: CoachService;
   const mockContextBuilder = { build: jest.fn() };
   const mockExerciseModel = { findOne: jest.fn() };
-  const mockSubmissionModel = { findOne: jest.fn(), find: jest.fn() };
+  const mockSubmissionModel = {
+    findOne: jest.fn(),
+    find: jest.fn(),
+    countDocuments: jest.fn().mockResolvedValue(0),
+    updateOne: jest.fn().mockResolvedValue({}),
+  };
   const mockExplainer = { explain: jest.fn() };
 
   const waSubmission = (isHidden: boolean) =>

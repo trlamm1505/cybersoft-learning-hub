@@ -27,8 +27,11 @@ import { TestResultsPanel } from '../components/TestResultsPanel';
 import { HintPanel } from '../components/HintPanel';
 import { CoachPanel } from '../components/CoachPanel';
 import { useToast } from '../components/Toast';
-import { IntegrityNotice } from '../components/IntegrityNotice';
 import { useIntegrityTracker } from '../hooks/useIntegrityTracker';
+import { useLeaveReporter } from '../hooks/useLeaveReporter';
+import { playAlertBeep } from '../common/alertSound';
+import { LeaveWarningBanner } from '../components/ProctorOverlays';
+import { BackToClassButton, ClassResultModal } from '../components/ClassResultModal';
 import exerciseApi from '../axios/exerciseApi';
 import classAssignmentsApi from '../axios/classAssignmentsApi';
 import type { MyAssignment } from '../types/classAssignments';
@@ -92,6 +95,8 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
   // Chỉ áp dụng khi bài đang mở ĐÚNG là bài được giao (tránh banner sai nếu đổi sang bài khác trong cùng phiên).
   const classMode = !!assignment && assignment.exerciseSlug === selectedSlug;
   const classLocked = classMode && (assignment.locked || assignment.done);
+  // Pop-up điểm sau khi nộp AC bài của lớp, kèm nút quay lại /my-class.
+  const [showClassResult, setShowClassResult] = useState(false);
   const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit' | 'hint' | 'coach'>('run');
 
   // Grade/topic filters — narrow the exercise dropdown by class level and by
@@ -264,7 +269,15 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
     if (selectedTopic !== 'all') {
       list = list.filter((ex) => ex.topic === selectedTopic);
     }
-    return list.sort((a, b) => (a.orderInTopic ?? 0) - (b.orderInTopic ?? 0));
+    // Một lộ trình liền mạch: khử trùng lặp theo slug/tiêu đề, bài cũ chưa gắn chủ đề đứng trước, đánh số #1..#N duy nhất.
+    const seenTitles = new Set<string>();
+    const unique = list.filter((ex) => {
+      const key = ex.title.trim().toLowerCase();
+      if (seenTitles.has(key)) return false;
+      seenTitles.add(key);
+      return true;
+    });
+    return unique.sort((a, b) => (a.orderInTopic ?? 0) - (b.orderInTopic ?? 0));
   }, [combinedExercises, selectedGradeBand, selectedTopic]);
 
   // Sequential unlock only applies when the visible list is a single, specific
@@ -274,7 +287,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
   // topics together, or a grade band with none at all, would make "position in
   // the list" meaningless as a lock gate.
   const isSequentialUnlockActive =
-    selectedGradeBand !== null && (selectedTopic !== 'all' || (availableTopics.length === 1 && !lockedBand));
+    selectedGradeBand !== null && (selectedTopic !== 'all' || availableTopics.length === 1);
   const isExerciseUnlocked = (idx: number) => {
     if (!isSequentialUnlockActive) return true;
     if (idx === 0) return true;
@@ -438,6 +451,17 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
   // Bắt đầu một phiên ghi nhận mỗi khi mở một bài tập trong trình soạn thảo.
   // Ghi tín hiệu làm bài ở mức tối thiểu (thời gian, lần rời màn hình); xem IntegrityNotice.
   const integrityTrackerRef = useIntegrityTracker(view === 'editor' && !!exercise, exercise?.slug ?? '');
+  // Giám sát bài lớp: rời màn hình quá 2 lần thì giảng viên được thông báo (máy chủ đếm).
+  const [leaveInfo, setLeaveInfo] = useState<{ count: number; notified: boolean } | null>(null);
+  useLeaveReporter({
+    active: view === 'editor' && !!exercise && classMode && !classLocked && authUser?.role === 'STUDENT',
+    scope: 'CLASS_ASSIGNMENT',
+    refId: assignmentId,
+    onReport: (report, localCount) => {
+      playAlertBeep();
+      setLeaveInfo({ count: report?.count ?? localCount, notified: !!report?.teacherNotified });
+    },
+  });
 
   const handleCodeChange = (value: string) => {
     setCode(value);
@@ -618,7 +642,10 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
             stopPolling();
             setIsSubmitting(false);
             if (pollRes.status === 'AC') markCompleted(selectedSlug);
-            if (classMode) reloadAssignment(); // cập nhật điểm còn lại / trạng thái hoàn thành
+            if (classMode) {
+              reloadAssignment(); // cập nhật điểm còn lại / trạng thái hoàn thành
+              if (pollRes.status === 'AC') setShowClassResult(true);
+            }
           }
         } catch {
           stopPolling();
@@ -822,10 +849,12 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-bold text-[var(--text-muted)]">
-                    #{item.orderInTopic ?? idx + 1}
+                    #{idx + 1}
                   </span>
                   {completed ? (
-                    <CheckCircle2 size={18} className="text-emerald-700 dark:text-emerald-400" strokeWidth={2} />
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
+                      <CheckCircle2 size={14} strokeWidth={2} /> Đã hoàn thành
+                    </span>
                   ) : unlocked ? (
                     <Unlock size={18} className="text-[var(--text-muted)]" strokeWidth={2} />
                   ) : (
@@ -895,6 +924,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
             Hạn chót: <strong>{formatVnDateTime(assignment.dueAt)}</strong> · Tối đa {assignment.maxPoints} điểm. Bấm <strong>Run</strong> thử thoải mái, không trừ điểm;
             mỗi lần <strong>Submit</strong> sai (WA/TLE/RE) bị trừ 1 điểm.
           </div>
+          <BackToClassButton onClick={() => navigate('/my-class')} className="mt-3 !px-4 !py-2 !text-sm" />
           {assignment.done ? (
             <div className="mt-2 font-bold text-emerald-700 dark:text-emerald-400">✅ Đã hoàn thành: {scoreText(assignment)}</div>
           ) : assignment.state === 'EXPIRED' ? (
@@ -907,7 +937,18 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
         </section>
       )}
 
-      <IntegrityNotice />
+      {classMode && assignment && showClassResult && (
+        <ClassResultModal
+          title={assignment.title}
+          scoreText={assignment.done ? `Điểm: ${scoreText(assignment)}` : 'Đang cập nhật điểm...'}
+          onBack={() => navigate('/my-class')}
+          onClose={() => setShowClassResult(false)}
+        />
+      )}
+
+      {classMode && leaveInfo && (
+        <LeaveWarningBanner count={leaveInfo.count} notifyAfter={2} teacherNotified={leaveInfo.notified} />
+      )}
 
       {/* Main Grid: Code Editor Left vs Output/Hints Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

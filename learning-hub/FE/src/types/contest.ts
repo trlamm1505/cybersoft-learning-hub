@@ -72,7 +72,7 @@ export interface ContestAttemptView {
   startedAt: string;
   deadlineAt: string;
   finishedAt: string | null;
-  finishReason: 'MANUAL' | 'TIMEOUT' | null;
+  finishReason: 'MANUAL' | 'TIMEOUT' | 'CHEAT_LOCK' | null;
   serverTime: string;
   durationMinutes: number;
   integrityEnabled: boolean;

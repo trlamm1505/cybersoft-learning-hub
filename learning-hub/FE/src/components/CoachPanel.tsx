@@ -35,6 +35,9 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
   // cứng (403) khi chạm giới hạn vòng lặp, không phải chỉ một cảnh báo có
   // thể bấm đè qua.
   const [loopBlocked, setLoopBlocked] = useState(false);
+  // Mỗi lần nộp chỉ được bấm "Phân tích lỗi" đúng 1 lần: nhớ các submissionId đã phân tích.
+  const [analyzedIds, setAnalyzedIds] = useState<Set<string>>(() => new Set());
+  const [analysesUsed, setAnalysesUsed] = useState<number | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,6 +47,8 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
     setDebugResult(null);
     setDebugError(null);
     setLoopBlocked(false);
+    setAnalyzedIds(new Set());
+    setAnalysesUsed(null);
     loadHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exerciseSlug]);
@@ -54,7 +59,6 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
   useEffect(() => {
     setDebugResult(null);
     setDebugError(null);
-    setLoopBlocked(false);
   }, [lastSubmissionId]);
 
   useEffect(() => {
@@ -115,13 +119,19 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
   };
 
   const handleDebugLoop = async () => {
-    if (!lastSubmissionId || isDebugging || loopBlocked) return;
+    if (!lastSubmissionId || isDebugging || loopBlocked || analyzedIds.has(lastSubmissionId)) return;
+    const submissionId = lastSubmissionId;
     setIsDebugging(true);
     setDebugError(null);
+    // Khoá nút ngay khi bấm: lần nộp này không được phân tích lần thứ hai dù có lỗi mạng giữa chừng.
+    setAnalyzedIds((prev) => new Set(prev).add(submissionId));
     try {
-      const res = await coachApi.debugLoop({ exerciseSlug, submissionId: lastSubmissionId });
+      const res = await coachApi.debugLoop({ exerciseSlug, submissionId });
       setDebugResult(res);
-      if (res.loopLimitReached) setLoopBlocked(true);
+      if (typeof res.analysesUsed === 'number') {
+        setAnalysesUsed(res.analysesUsed);
+        if (res.analysesUsed >= (res.maxAnalyses ?? 5)) setLoopBlocked(true);
+      }
     } catch (err: any) {
       // Backend từ chối cứng (403) khi đã chạm giới hạn vòng lặp cho chuỗi
       // submission chưa AC này — khoá luôn nút, không chỉ hiện lỗi rồi cho
@@ -157,13 +167,17 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
         <div className="mb-3">
           <button
             onClick={handleDebugLoop}
-            disabled={isDebugging || loopBlocked}
-            title={loopBlocked ? 'Đã chạm giới hạn vòng lặp đồng hành — nộp bài mới để tiếp tục phân tích' : undefined}
+            disabled={isDebugging || loopBlocked || analyzedIds.has(lastSubmissionId)}
+            title={loopBlocked ? 'Đã hết 5 lượt AI phân tích lỗi cho bài này' : analyzedIds.has(lastSubmissionId) ? 'Lần nộp này đã được phân tích — hãy nộp lại để phân tích tiếp' : undefined}
             className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-amber-700 hover:bg-amber-800 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isDebugging ? <Loader2 size={13} className="animate-spin" /> : <Bug size={13} />}
-            {isDebugging ? 'Đang phân tích...' : loopBlocked ? 'Đã chạm giới hạn vòng lặp' : 'Phân tích lỗi lần nộp gần nhất'}
+            {isDebugging ? 'Đang phân tích...' : loopBlocked ? 'Đã hết 5 lượt phân tích' : analyzedIds.has(lastSubmissionId) ? 'Đã phân tích lần nộp này' : 'Phân tích lỗi lần nộp gần nhất'}
           </button>
+
+          {analysesUsed !== null && (
+            <p className="mt-1 text-[10px] text-[var(--text-muted)] text-center">Đã dùng {analysesUsed}/5 lượt phân tích lỗi cho bài này</p>
+          )}
 
           {debugError && (
             <div className="mt-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 p-2 text-[11px] flex items-center gap-1.5">

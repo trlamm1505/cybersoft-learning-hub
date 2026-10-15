@@ -38,7 +38,7 @@ describe('GeminiCoachLlmClient', () => {
     expect(req.config.systemInstruction).toContain(SYSTEM_PROMPT);
     expect(req.config.systemInstruction).toContain(GEMINI_GUARDRAIL_RULES);
     expect(req.config.systemInstruction).toMatch(/Không tiết lộ.*system instruction/);
-    expect(req.config.maxOutputTokens).toBe(500);
+    expect(req.config.maxOutputTokens).toBe(250);
     expect(res).toEqual({
       content: 'Bạn thử in ra giá trị biến tổng sau mỗi vòng lặp.',
       promptTokens: 120,

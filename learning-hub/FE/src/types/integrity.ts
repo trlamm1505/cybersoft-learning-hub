@@ -53,3 +53,19 @@ export interface IntegrityDetail extends IntegrityQueueRow {
     code: string;
   } | null;
 }
+
+/** Cảnh báo "rời màn hình làm bài" gửi giảng viên (số lần do máy chủ đếm). */
+export interface ProctorAlertRow {
+  id: string;
+  kind: 'CONTEST' | 'CLASS_ASSIGNMENT';
+  severity: 'WARNING' | 'LOCKED';
+  status: 'OPEN' | 'ACKNOWLEDGED';
+  message: string;
+  leaveCount: number;
+  student: { id: string; fullName: string };
+  refId: string;
+  refTitle: string;
+  classId: string | null;
+  className: string | null;
+  lastLeaveAt: string | null;
+}

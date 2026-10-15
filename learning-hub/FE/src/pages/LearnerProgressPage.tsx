@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, BarChart3, CheckCircle2, Compass, Flame, Loader2, Send, Target, TrendingUp, Trophy, Wrench } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AlertTriangle, BarChart3, CheckCircle2, Compass, Flame, Loader2, Send, Sparkles, Target, TrendingUp, Trophy, Wrench } from 'lucide-react';
 import learnerApi from '../axios/learnerApi';
-import type { LearnerActivity, LearnerProgress, LearnerStats, RecommendedExercise, RecommendationReasonKind } from '../types/learner';
+import type { LearnerActivity, LearnerAiAdvice, LearnerProgress, LearnerStats, RecommendedExercise, RecommendationReasonKind } from '../types/learner';
 import { tagLabel, isMetaTag } from '../common/tagLabels';
 import { donutArcs, intensityLevel, lastDays, type DonutSlice } from '../common/progressCharts';
 
@@ -46,6 +47,9 @@ export const LearnerProgressPage: React.FC = () => {
   const [stats, setStats] = useState<LearnerStats | null>(null);
   const [activity, setActivity] = useState<LearnerActivity | null>(null);
   const [recommendations, setRecommendations] = useState<RecommendedExercise[]>([]);
+  // Gemini phân tích lịch sử làm bài; tải riêng để trang không phải chờ model.
+  const [advice, setAdvice] = useState<LearnerAiAdvice | null>(null);
+  const [adviceState, setAdviceState] = useState<'loading' | 'ok' | 'error'>('loading');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,6 +78,14 @@ export const LearnerProgressPage: React.FC = () => {
         if (!cancelled) setLoading(false);
       }
     })();
+    learnerApi
+      .getAiAdvice()
+      .then((a) => {
+        if (cancelled) return;
+        setAdvice(a);
+        setAdviceState('ok');
+      })
+      .catch(() => !cancelled && setAdviceState('error'));
     return () => {
       cancelled = true;
     };
@@ -186,7 +198,7 @@ export const LearnerProgressPage: React.FC = () => {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {stats.topics.map((t) => (
               <div key={t.tag} className="flex items-center gap-3 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-3">
-                <svg viewBox="0 0 44 44" width="52" height="52" role="img" aria-label={`${tagLabel(t.tag)}: ${t.percent}%`}>
+                <svg viewBox="0 0 44 44" width="52" height="52" role="img" aria-label={`${t.label ?? tagLabel(t.tag)}: ${t.percent}%`}>
                   <g transform="rotate(-90 22 22)">
                     <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border-color)" strokeWidth="6" />
                     <circle
@@ -203,7 +215,7 @@ export const LearnerProgressPage: React.FC = () => {
                   <text x="22" y="26" textAnchor="middle" className="fill-[var(--text-main)]" style={{ fontSize: 11, fontWeight: 800 }}>{t.percent}%</text>
                 </svg>
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-bold text-[var(--text-main)]">{tagLabel(t.tag)}</div>
+                  <div className="truncate text-sm font-bold text-[var(--text-main)]">{t.label ?? tagLabel(t.tag)}</div>
                   <div className="text-xs text-[var(--text-muted)]">{t.solved}/{t.total} bài đã giải</div>
                 </div>
               </div>
@@ -216,7 +228,40 @@ export const LearnerProgressPage: React.FC = () => {
         <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-[var(--text-main)]">
           <Target size={18} /> Bài tập gợi ý cho bạn
         </h2>
-        {recommendations.length === 0 ? (
+        {adviceState === 'loading' ? (
+          <p className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+            <Loader2 size={14} className="animate-spin" /> AI đang xem lại lịch sử làm bài của bạn...
+          </p>
+        ) : adviceState === 'ok' && advice && (advice.weakness || advice.next.length > 0) ? (
+          <div className="space-y-3" data-testid="ai-advice">
+            {advice.weakness && (
+              <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-4">
+                <div className="flex items-center gap-2 text-sm font-bold text-[var(--text-main)]">
+                  <Wrench size={15} className="text-rose-600" /> Chủ đề bạn hay sai nhất: {advice.weakness.topic}
+                </div>
+                <p className="mt-1 text-sm text-[var(--text-muted)]">{advice.weakness.advice}</p>
+              </div>
+            )}
+            <div className="grid gap-3 sm:grid-cols-2">
+              {advice.next.map((n) => (
+                <div key={n.slug} className="flex flex-col gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] p-4">
+                  <span className="font-semibold text-[var(--text-main)]">{n.title}</span>
+                  <p className="text-sm text-[var(--text-muted)]">{n.reason}</p>
+                  <Link
+                    to={`/playground?slug=${encodeURIComponent(n.slug)}`}
+                    className="mt-auto inline-flex items-center gap-1 self-start rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white no-underline hover:bg-indigo-500"
+                  >
+                    Làm bài này
+                  </Link>
+                </div>
+              ))}
+            </div>
+            <p className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]">
+              <Sparkles size={12} />
+              {advice.source === 'gemini' ? 'Gợi ý do AI Gemini phân tích lịch sử làm bài của bạn.' : 'Gợi ý tự động từ lịch sử làm bài của bạn.'}
+            </p>
+          </div>
+        ) : recommendations.length === 0 ? (
           <p className="text-sm text-[var(--text-muted)]">Chưa có gợi ý nào — có thể ngân hàng bài tập chưa có bài phù hợp lúc này.</p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

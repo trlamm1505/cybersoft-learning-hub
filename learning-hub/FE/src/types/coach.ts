@@ -65,6 +65,9 @@ export interface DebugLoopResponse {
   loopCount: number;
   loopLimitReached: boolean;
   maxLoops: number;
+  /** Số lượt AI phân tích lỗi đã dùng cho bài này / tối đa (5). */
+  analysesUsed?: number;
+  maxAnalyses?: number;
   /** Gợi ý ngắn từ Gemini; không có khi chưa cấu hình key, bài đã AC hoặc lỗi cú pháp. */
   aiExplanation?: string;
 }

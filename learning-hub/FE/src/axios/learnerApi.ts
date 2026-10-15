@@ -1,5 +1,5 @@
 import axiosClient from '../common/configAxios';
-import type { LearnerActivity, LearnerProgress, LearnerRecommendations, LearnerStats } from '../types/learner';
+import type { LearnerActivity, LearnerAiAdvice, LearnerProgress, LearnerRecommendations, LearnerStats } from '../types/learner';
 
 /**
  * Learner Progress & Recommendation API Service Layer (Ngày 20)
@@ -24,6 +24,11 @@ export const learnerApi = {
   /** GET /api/learner/stats — lượt nộp AC/WA/TLE/RE/CE và tỷ lệ hoàn thành theo chủ đề. */
   getStats: async (): Promise<LearnerStats> => {
     return await axiosClient.get('/learner/stats');
+  },
+
+  /** GET /api/learner/ai-advice — Gemini phân tích lịch sử làm bài: chủ đề hay sai nhất + 1-2 bài nên làm tiếp. */
+  getAiAdvice: async (): Promise<LearnerAiAdvice> => {
+    return await axiosClient.get('/learner/ai-advice');
   },
 
   /** GET /api/learner/recommendations — tối đa 3 gợi ý kèm reason. */

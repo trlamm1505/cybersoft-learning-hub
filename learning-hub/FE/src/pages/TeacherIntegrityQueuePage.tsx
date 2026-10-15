@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, Loader2, ShieldAlert } from 'lucide-react';
 import integrityApi from '../axios/integrityApi';
 import { IntegrityReviewModal } from '../components/IntegrityReviewModal';
+import { ProctorAlertsPanel } from '../components/ProctorAlertsPanel';
 import type { IntegrityQueueRow } from '../types/integrity';
 import { formatDuration, formatSimilarity, REVIEW_STATUS_LABEL, sortQueue } from './integrityFormat';
 
@@ -69,6 +70,8 @@ export const TeacherIntegrityQueuePage: React.FC = () => {
       <p className="text-sm text-[var(--text-muted)]">
         Các bài dưới đây chỉ được đánh dấu để bạn xem xét. Hệ thống không tự kết tội, không trừ điểm hay hủy bài.
       </p>
+
+      <ProctorAlertsPanel />
 
       <div className="flex gap-2">
         {FILTERS.map((f) => (

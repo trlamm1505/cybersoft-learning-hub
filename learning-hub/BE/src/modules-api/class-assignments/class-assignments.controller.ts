@@ -14,6 +14,12 @@ import { CreateAssignmentDto } from './dto/create-assignment.dto';
 export class StudentClassAssignmentsController {
   constructor(private readonly service: ClassAssignmentsService) {}
 
+  /** Lớp/khóa học đã tham gia + trạng thái + dữ liệu chứng chỉ khi hoàn thành (trang Hồ sơ). */
+  @Get('enrollments')
+  enrollments(@CurrentUser() user: JwtPayload) {
+    return this.service.myEnrollments(user);
+  }
+
   /** Thông tin lớp, giảng viên, tiến độ chung và bài giao nhóm theo ngày. */
   @Get('classes/:classId/overview')
   overview(@Param('classId') classId: string, @CurrentUser() user: JwtPayload) {

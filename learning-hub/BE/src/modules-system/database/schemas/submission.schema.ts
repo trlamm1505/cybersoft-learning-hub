@@ -120,6 +120,10 @@ export class Submission {
   /** Day 24: tín hiệu liêm chính, chỉ giảng viên đọc (không nằm trong select của judge controller). */
   @Prop({ type: Object })
   integrity?: IntegritySignals;
+
+  /** Lần nộp này đã được AI Coach "Phân tích lỗi" (mỗi lần nộp chỉ được phân tích 1 lần). */
+  @Prop({ type: Date })
+  debugAnalyzedAt?: Date;
 }
 
 export const SubmissionSchema = SchemaFactory.createForClass(Submission);

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -35,7 +36,11 @@ import { estimateTokens } from './coach-llm.client';
 import type { LlmClient } from './coach-llm.client';
 import { COACH_LLM_CLIENT, COACH_MAX_OUTPUT_TOKENS } from './coach.constants';
 import { CoachChatDto } from './dto/coach-chat.dto';
-import { analyzeDebugLoop, MAX_DEBUG_LOOPS } from './coach-debug-loop';
+import { analyzeDebugLoop } from './coach-debug-loop';
+import {
+  DEBUG_ANALYSES_EXHAUSTED_MESSAGE,
+  MAX_DEBUG_ANALYSES_PER_EXERCISE,
+} from './coach.constants';
 import { DebugLoopTestInput } from './coach-debug-loop.types';
 import { DebugLoopDto } from './dto/debug-loop.dto';
 import {
@@ -64,7 +69,8 @@ export const SYSTEM_PROMPT = [
   'Ưu tiên gợi mở theo hướng Socratic: đặt câu hỏi dẫn dắt, chỉ ra hướng đi, không viết hộ toàn bộ code.',
   'Tuyệt đối không bao giờ cung cấp mã code hoàn chỉnh, lời giải trực tiếp hay output của hidden test.',
   'Chỉ chỉ ra nguyên nhân lỗi logic, giải thích khái niệm và đưa ra gợi ý từng bước (hints).',
-  'Trả lời ngắn gọn, tối đa vài đoạn; nếu cần minh họa cú pháp chỉ dùng đoạn code ngắn vài dòng, không phải lời giải.',
+  'Trả lời CỰC KỲ NGẮN: tối đa 2-3 câu, không chào hỏi, không mở bài, không lặp lại câu hỏi; vào thẳng gợi ý.',
+  'Nếu cần minh họa cú pháp chỉ dùng đoạn code tối đa 1-2 dòng, không phải lời giải.',
 ].join(' ');
 
 @Injectable()
@@ -304,16 +310,20 @@ export class CoachService {
       attemptsSoFar += 1;
     }
 
-    // Chặn CỨNG ở backend khi đã chạm giới hạn vòng lặp cho chuỗi submission
-    // chưa AC này — không chỉ đổi lời khuyên như analyzeDebugLoop() làm.
-    // attemptsSoFar được tính lại từ Submission thật mỗi lần gọi (không phải
-    // state phía client), nên không thể bị vượt qua bằng cách F5/gọi lại API
-    // nhiều lần hay bỏ qua trạng thái disable ở UI.
-    if (submission.status !== 'AC' && attemptsSoFar >= MAX_DEBUG_LOOPS) {
-      throw new ForbiddenException(
-        `Đã chạm giới hạn ${MAX_DEBUG_LOOPS} lần phân tích liên tục chưa qua được bài này. ` +
-          'Hãy đọc lại đề bài + gợi ý đã mở, hoặc nhờ người hướng dẫn xem trực tiếp code trước khi nộp lại và phân tích tiếp.',
+    // Chặn CỨNG ở backend (tính từ dữ liệu thật, không phải state client nên F5/gọi lại API
+    // cũng không vượt được): mỗi lần nộp chỉ phân tích 1 lần, và tối đa 5 lượt cho mỗi bài.
+    if ((submission as any).debugAnalyzedAt) {
+      throw new ConflictException(
+        'Lần nộp này đã được phân tích rồi. Hãy sửa code và nộp lại để phân tích tiếp.',
       );
+    }
+    const analysesUsed = await this.submissionModel.countDocuments({
+      userId,
+      exerciseId: String((exercise as any)._id),
+      debugAnalyzedAt: { $ne: null },
+    });
+    if (analysesUsed >= MAX_DEBUG_ANALYSES_PER_EXERCISE) {
+      throw new ForbiddenException(DEBUG_ANALYSES_EXHAUSTED_MESSAGE);
     }
 
     const firstFailingResult = (submission.results ?? []).find(
@@ -347,6 +357,11 @@ export class CoachService {
       result.errorCategory,
     );
 
+    await this.submissionModel.updateOne(
+      { _id: submissionId },
+      { $set: { debugAnalyzedAt: new Date() } },
+    );
+
     const summaryForLog =
       `[debug-loop] category=${result.errorCategory} loop=${result.loopCount}/${result.maxLoops} ` +
       `feedback=${result.feedback}`;
@@ -362,6 +377,8 @@ export class CoachService {
       exerciseSlug,
       submissionId,
       ...result,
+      analysesUsed: analysesUsed + 1,
+      maxAnalyses: MAX_DEBUG_ANALYSES_PER_EXERCISE,
       ...(aiExplanation ? { aiExplanation } : {}),
     };
   }

@@ -30,6 +30,16 @@ export interface RecommendedExercise {
   tag: string;
 }
 
+/** Lời khuyên của Gemini dựa trên lịch sử làm bài: chủ đề hay sai nhất + 1-2 bài nên làm tiếp. */
+export interface LearnerAiAdvice {
+  weakness: { topic: string; advice: string } | null;
+  next: Array<{ slug: string; title: string; reason: string }>;
+  /** 'gemini': do Gemini đề xuất; 'rules': dự phòng theo luật khi Gemini không khả dụng. */
+  source: 'gemini' | 'rules';
+  generatedAt: string;
+  totalAttempts: number;
+}
+
 export interface LearnerRecommendations {
   recommendations: RecommendedExercise[];
 }
@@ -52,5 +62,5 @@ export interface LearnerStats {
   acRate: number;
   solvedExercises: number;
   totalExercises: number;
-  topics: Array<{ tag: string; solved: number; total: number; percent: number }>;
+  topics: Array<{ tag: string; label?: string; solved: number; total: number; percent: number }>;
 }

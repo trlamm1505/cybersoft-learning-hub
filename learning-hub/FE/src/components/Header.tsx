@@ -37,8 +37,8 @@ const STUDENT_ONLY_TABS = new Set(['da-labs', 'ai-labs']);
 
 /** Menu học viên thường (6-9, 10-12, người lớn). Kid Mode (Lớp 3-5) dùng KidHeader riêng nên không thấy Quiz. */
 export const STUDENT_NAV: NavItem[] = [
-  { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
   { key: 'my-class', label: 'Lớp học của tôi', Icon: GraduationCap, path: '/my-class' },
+  { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
   { key: 'detail', label: 'Chi tiết bài học', Icon: FileText, path: '/detail' },
   { key: 'playground', label: 'Bài tập / Playground', Icon: Code2, path: '/playground' },
   { key: 'quiz', label: 'Thi Trắc Nghiệm', Icon: ClipboardList, path: '/quiz' },

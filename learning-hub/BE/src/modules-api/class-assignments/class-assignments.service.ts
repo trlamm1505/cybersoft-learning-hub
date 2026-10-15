@@ -26,6 +26,7 @@ import {
   type MemberTotals,
 } from './class-scoring';
 import { CreateAssignmentDto, validateAssignmentInput } from './dto/create-assignment.dto';
+import { certificateCode, summarizeEnrollment } from './class-completion';
 
 export interface AssignmentResult {
   done: boolean;
@@ -276,6 +277,62 @@ export class ClassAssignmentsService {
     const res = await this.results([a], [user.sub]);
     const r = res.get(asId(a._id))?.get(user.sub) ?? EMPTY;
     return { a, cls, r, state: assignmentState(a, r, now) };
+  }
+
+  /**
+   * Lớp/khóa học đã tham gia của học viên (trang Hồ sơ): tên lớp, giảng viên, trạng thái Đang học / Đã hoàn thành
+   * và, khi hoàn thành, dữ liệu chứng chỉ (điểm tổng kết, xếp loại, ngày hoàn thành, mã chứng chỉ).
+   * Chỉ tính các lớp mà chính học viên là thành viên.
+   */
+  async myEnrollments(user: JwtPayload, now: Date = new Date()) {
+    const classes = await this.classes.find({ studentIds: user.sub }).sort({ createdAt: -1 }).lean();
+    if (classes.length === 0) return [];
+    const me = await this.users.findById(user.sub).select('fullName').lean();
+    const studentName = me?.fullName || 'Học viên';
+    const teacherIds = [...new Set(classes.map((c) => c.teacherId).filter((t) => t && isValidObjectId(t)))];
+    const teachers = teacherIds.length ? await this.users.find({ _id: { $in: teacherIds } }).select('fullName').lean() : [];
+    const teacherName = new Map(teachers.map((t) => [asId(t._id), t.fullName]));
+
+    const out = [];
+    for (const cls of classes) {
+      const classId = asId(cls._id);
+      const list = (await this.assignments.find({ classId }).lean()) as Array<ClassAssignment & { _id: unknown }>;
+      const res = await this.results(list, [user.sub]);
+      const summary = summarizeEnrollment(
+        list.map((a) => {
+          const r = res.get(asId(a._id))?.get(user.sub) ?? EMPTY;
+          return { maxPoints: a.maxPoints, dueAt: a.dueAt, done: r.done, score: r.score, completedAt: r.completedAt ?? null };
+        }),
+        now,
+      );
+      const completed = summary.status === 'COMPLETED' && summary.completedAt && summary.grade;
+      out.push({
+        classId,
+        className: cls.name,
+        classCode: cls.code ?? null,
+        teacherName: teacherName.get(cls.teacherId) ?? null,
+        status: summary.status,
+        totalAssignments: summary.totalAssignments,
+        doneCount: summary.doneCount,
+        earned: summary.earned,
+        max: summary.max,
+        percent: summary.percent,
+        certificate: completed
+          ? {
+              studentName,
+              className: cls.name,
+              teacherName: teacherName.get(cls.teacherId) ?? null,
+              finalScore: summary.percent,
+              earned: summary.earned,
+              max: summary.max,
+              grade: summary.grade,
+              completedAt: summary.completedAt,
+              code: certificateCode(cls.code ?? '', classId, user.sub, summary.completedAt as Date),
+            }
+          : null,
+      });
+    }
+    return out;
   }
 
   /** Thông tin một bài (cho banner khi làm bài từ trang lớp): hạn chót, điểm, trạng thái khóa. */

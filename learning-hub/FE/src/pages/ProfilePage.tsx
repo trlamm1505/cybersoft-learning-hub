@@ -8,6 +8,8 @@ import { changedFields, formFromUser, validateProfileForm, type ProfileFormValue
 import { UserAvatar } from '../components/UserAvatar';
 import { AvatarEditor } from '../components/profile/AvatarEditor';
 import { ActivityHeatmap } from '../components/profile/ActivityHeatmap';
+import { EnrolledClassesSection } from '../components/profile/EnrolledClassesSection';
+import { ContestHistorySection } from '../components/profile/ContestHistorySection';
 
 interface ProfilePageProps {
   authUser: AuthUser;
@@ -203,6 +205,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ authUser, onAvatarChan
         {/* Cột phải: biểu đồ hoạt động */}
         {showActivity && <ActivityHeatmap days={activity} loading={activityLoading} error={activityError} />}
       </div>
+
+      {showActivity && <ContestHistorySection />}
+
+      {showActivity && <EnrolledClassesSection />}
 
       {editingAvatar && (
         <AvatarEditor user={authUser} onClose={() => setEditingAvatar(false)} onSaved={(avatar) => onAvatarChange?.(avatar)} />

@@ -4,6 +4,8 @@ import { RolesGuard } from '../../common/auth/roles.guard';
 import { Roles } from '../../common/auth/roles.decorator';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
+import { Throttle } from '@nestjs/throttler';
+import { RATE_LIMITS } from '../../common/security/app-throttler.guard';
 import { MasteryService } from './mastery.service';
 import { RecommendationService } from './recommendation.service';
 
@@ -33,6 +35,17 @@ export class RecommendationController {
   @Get('stats')
   async getStats(@CurrentUser() user: JwtPayload) {
     return this.recommendationService.getStats(user.sub, user.ageGroup);
+  }
+
+  /**
+   * GET /api/learner/ai-advice
+   * Gemini phân tích lịch sử làm bài của chính học viên: chủ đề hay sai nhất + 1-2 bài nên làm tiếp (kèm lý do).
+   * Giới hạn tần suất vì mỗi lần là một lượt gọi model.
+   */
+  @Get('ai-advice')
+  @Throttle(RATE_LIMITS.coachChat)
+  async getAiAdvice(@CurrentUser() user: JwtPayload) {
+    return this.recommendationService.getAiAdvice(user.sub, user.ageGroup);
   }
 
   /**

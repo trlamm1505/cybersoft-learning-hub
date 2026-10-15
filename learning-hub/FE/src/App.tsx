@@ -52,39 +52,6 @@ import { authApi } from './axios/authApi';
 import { AUTH_USER_KEY, clearAuthSession, getStoredToken, isTokenExpired } from './common/authSession';
 import './styles/main.css';
 
-const mapAuthoringToCourseLesson = (al: LessonAuthoring, index: number): Lesson => ({
-  id: al._id || al.slug,
-  lessonNumber: 6 + index,
-  title: al.title,
-  slug: al.slug || `lesson-${index}`,
-  category: al.type === 'coding' ? 'Lập trình' : 'Trắc nghiệm',
-  summary: al.description || al.learningOutcome || 'Bài học thiết kế bởi Giảng viên',
-  difficulty:
-    al.difficulty === 'EASY'
-      ? 'Beginner'
-      : al.difficulty === 'HARD'
-      ? 'Advanced'
-      : 'Intermediate',
-  durationMinutes: 30,
-  durationText: '30 phút',
-  objectives: al.learningOutcome ? [al.learningOutcome] : ['Nắm vững kiến thức bài học'],
-  prerequisites: [
-    {
-      id: `pre-auth-${index}`,
-      title: 'Kiến thức lập trình cơ bản',
-      isCompleted: true,
-      description: 'Nắm vững kiến thức nền tảng trước khi làm bài',
-    },
-  ],
-  contentMarkdown: al.content || 'Nội dung bài học',
-  instructor: {
-    name: 'Giảng viên CyberSoft',
-    avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Teacher',
-    role: 'Senior Instructor',
-  },
-  tags: [al.type === 'coding' ? 'Programming' : 'Quiz', 'Teacher'],
-});
-
 export function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -167,20 +134,11 @@ export function App() {
   );
 
   // Combine Mock lessons with Published Teacher created lessons
-  const convertedTeacherLessons = publishedTeacherLessons.map(mapAuthoringToCourseLesson);
+  // Catalog chỉ hiện 5 bài mẫu chuẩn; bài giảng GV tự tạo (đánh số 31/32...) chỉ nằm trong Chi tiết bài học.
+  const catalogLessons: Lesson[] = [...MOCK_LESSONS];
 
-  // Only core course curriculum (theory/article lessons) belongs in "Lesson Detail" —
-  // standalone coding/quiz/block exercises live in Code Playground / Quiz / Block
-  // Puzzle instead, and must not leak into this list (used both for the Catalog
-  // grid and for Lesson Detail's sidebar + prev/next navigation).
-  const curriculumTeacherLessons = convertedTeacherLessons.filter((_, idx) => {
-    const orig = publishedTeacherLessons[idx];
-    return orig && orig.type !== 'coding' && orig.type !== 'quiz' && orig.type !== 'block';
-  });
-
-  const catalogLessons: Lesson[] = [...MOCK_LESSONS, ...curriculumTeacherLessons];
-
-  const allLessons: Lesson[] = [...MOCK_LESSONS, ...curriculumTeacherLessons];
+  // Sidebar /detail cũng chỉ giữ 5 bài chuẩn: bài giảng GV tự tạo (Bài 31/32...) không lẫn vào danh sách.
+  const allLessons: Lesson[] = [...MOCK_LESSONS];
 
   // Sync theme class with document element and save preference
   // Kid Mode: mỗi lần đổi trang đều về đầu trang (không bắt bé kéo lên).

@@ -200,3 +200,56 @@ describe('validateAssignmentInput', () => {
     expect(validateAssignmentInput({ type: 'QUIZ', title: 'x', questionIds: ['a', 'a', 'b'], startAt: ok.startAt, dueAt: ok.dueAt }).questionIds).toEqual(['a', 'b']);
   });
 });
+
+describe('ClassAssignmentsService.myEnrollments', () => {
+  const buildEnroll = (over: { assignments?: unknown[]; submissions?: unknown[]; quizAttempts?: unknown[] } = {}) => {
+    const classes = { find: jest.fn(() => q([cls])) };
+    const assignmentModel = { find: jest.fn(() => q(over.assignments ?? assignments)) };
+    const subModel = { find: jest.fn(() => q(over.submissions ?? submissions)) };
+    const attemptModel = { find: jest.fn(() => q(over.quizAttempts ?? quizAttempts)) };
+    const users = {
+      findById: jest.fn(() => q({ fullName: 'An Nguyễn' })),
+      find: jest.fn(() => q([{ _id: TEACHER, fullName: 'Cô Lan' }])),
+    };
+    const service = new ClassAssignmentsService(classes as never, assignmentModel as never, subModel as never, attemptModel as never, users as never, {} as never, {} as never);
+    return { service, classes };
+  };
+
+  it('chỉ lấy lớp mà chính học viên là thành viên (lọc theo userId trong token)', async () => {
+    const { service, classes } = buildEnroll();
+    await service.myEnrollments(student(U1), NOW);
+    expect(classes.find).toHaveBeenCalledWith({ studentIds: U1 });
+  });
+
+  it('còn bài chưa khép lại: Đang học, chưa có chứng chỉ', async () => {
+    const { service } = buildEnroll();
+    const [e] = await service.myEnrollments(student(U1), NOW);
+    expect(e).toMatchObject({ className: 'Lớp Python 6-9', teacherName: 'Cô Lan', status: 'IN_PROGRESS', doneCount: 2, totalAssignments: 4, certificate: null });
+  });
+
+  it('khép lại hết nhưng điểm thấp: Đã kết thúc, không cấp chứng chỉ', async () => {
+    const { service } = buildEnroll();
+    const [e] = await service.myEnrollments(student(U1), at('2026-11-01T00:00:00Z'));
+    expect(e.status).toBe('ENDED');
+    expect(e.certificate).toBeNull();
+  });
+
+  it('hoàn thành đủ điểm: có chứng chỉ với họ tên, điểm tổng kết, xếp loại, ngày và mã', async () => {
+    const solo = [assignments[0], assignments[1]];
+    const { service } = buildEnroll({ assignments: solo });
+    const [e] = await service.myEnrollments(student(U1), NOW);
+    // 8 + 9 = 17/20 = 85% => Giỏi; ngày hoàn thành là bài nộp muộn nhất (quiz 13/10 04:00Z)
+    expect(e.status).toBe('COMPLETED');
+    expect(e.certificate).toMatchObject({
+      studentName: 'An Nguyễn',
+      className: 'Lớp Python 6-9',
+      teacherName: 'Cô Lan',
+      finalScore: 85,
+      earned: 17,
+      max: 20,
+      grade: 'Giỏi',
+    });
+    expect(e.certificate?.completedAt).toEqual(at('2026-10-13T04:00:00Z'));
+    expect(e.certificate?.code).toMatch(/^CSH-2026-6A9F2K-[0-9A-F]{8}$/);
+  });
+});

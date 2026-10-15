@@ -25,6 +25,7 @@ import {
   CoachMessageSchema,
 } from './schemas/coach-message.schema';
 import { Counter, CounterSchema } from './schemas/counter.schema';
+import { ProctorAlert, ProctorAlertSchema } from './schemas/proctor-alert.schema';
 import {
   PasswordReset,
   PasswordResetSchema,
@@ -77,6 +78,7 @@ import {
       { name: User.name, schema: UserSchema },
       { name: CoachMessage.name, schema: CoachMessageSchema },
       { name: Counter.name, schema: CounterSchema },
+      { name: ProctorAlert.name, schema: ProctorAlertSchema },
       { name: PasswordReset.name, schema: PasswordResetSchema },
       { name: BlockPuzzleProgress.name, schema: BlockPuzzleProgressSchema },
       { name: TesterLab.name, schema: TesterLabSchema },
