@@ -1,4 +1,4 @@
-export type AgeGroup = '3-5' | '6-9' | '10-12';
+export type AgeGroup = '3-5' | '6-9' | '10-12' | 'CAREER_ADULT';
 
 export type UserRole = 'STUDENT' | 'TEACHER' | 'ADMIN';
 
@@ -40,6 +40,8 @@ export interface RegisterPayload {
   password: string;
   fullName: string;
   role?: 'STUDENT';
+  /** Tùy chọn: nhóm đối tượng tự khai khi đăng ký; bỏ trống thì chọn ở modal sau khi đăng nhập. */
+  ageGroup?: AgeGroup;
 }
 
 export interface SetAgeGroupPayload {

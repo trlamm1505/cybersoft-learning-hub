@@ -15,6 +15,8 @@ describe('homeFor (trang đích sau đăng nhập)', () => {
     expect(homeFor({ role: 'STUDENT', ageGroup: '10-12' })).toBe('/playground');
     expect(homeFor({ role: 'STUDENT' })).toBe('/playground');
   });
+  it('Người đi làm / Trái ngành vào Hub phòng thực hành chuyên ngành', () =>
+    expect(homeFor({ role: 'STUDENT', ageGroup: 'CAREER_ADULT' })).toBe('/career-labs'));
   it('giảng viên vào soạn bài, admin vào trang quản trị', () => {
     expect(homeFor({ role: 'TEACHER' })).toBe('/authoring');
     expect(homeFor({ role: 'ADMIN' })).toBe('/admin/dashboard');

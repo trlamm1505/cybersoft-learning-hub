@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { LabBreadcrumb } from '../components/LabBreadcrumb';
+import { useParams } from 'react-router-dom';
 import {
   Loader2,
   AlertTriangle,
-  ArrowLeft,
   Download,
   ExternalLink,
   UploadCloud,
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import testerLabApi from '../axios/testerLabApi';
 import { TesterLabReviewPanel } from '../components/TesterLabReviewPanel';
+import { TesterFormPanel } from '../components/TesterFormPanel';
 import type { TesterLab, TesterLabSubmission } from '../types/testerLab';
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -22,7 +23,6 @@ interface Props {
 
 export const TesterLabDetailPage: React.FC<Props> = ({ isStudent }) => {
   const { labCode = '' } = useParams();
-  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [lab, setLab] = useState<TesterLab | null>(null);
   const [submissions, setSubmissions] = useState<TesterLabSubmission[]>([]);
@@ -103,12 +103,7 @@ export const TesterLabDetailPage: React.FC<Props> = ({ isStudent }) => {
 
   return (
     <div className="space-y-6">
-      <button
-        onClick={() => navigate('/tester-labs')}
-        className="inline-flex items-center gap-1 text-sm text-[var(--text-muted)] bg-transparent border-none cursor-pointer"
-      >
-        <ArrowLeft size={14} /> Danh sách lab
-      </button>
+      <LabBreadcrumb group="TESTER" title={lab.title} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Cột trái: đề, template, môi trường */}
@@ -163,7 +158,13 @@ export const TesterLabDetailPage: React.FC<Props> = ({ isStudent }) => {
         <div className="space-y-4">
           {isStudent && (
           <div className={cardClass}>
-            <h2 className="font-semibold text-[var(--text-main)] mb-2">Nộp artifact</h2>
+            <h2 className="font-semibold text-[var(--text-main)] mb-2">Nộp bằng biểu mẫu (Test Case + Bug Report)</h2>
+            <TesterFormPanel labCode={labCode} onSubmitted={load} />
+          </div>
+          )}
+          {isStudent && (
+          <div className={cardClass}>
+            <h2 className="font-semibold text-[var(--text-main)] mb-2">Hoặc nộp artifact (file)</h2>
             <div
               onDragOver={(e) => {
                 e.preventDefault();
@@ -242,12 +243,33 @@ export const TesterLabDetailPage: React.FC<Props> = ({ isStudent }) => {
                     >
                       <div className="flex justify-between text-[var(--text-main)]">
                         <span>
-                          {new Date(s.createdAt).toLocaleString('vi-VN')} — .{s.fileType}
+                          {new Date(s.createdAt).toLocaleString('vi-VN')} — {s.kind === 'FORM' ? 'Biểu mẫu' : `.${s.fileType}`}
                         </span>
                         <span className="font-semibold">
                           {s.status === 'REVIEWED' ? `${score}/${totalMax}` : 'Chờ chấm'}
                         </span>
                       </div>
+                      {s.kind === 'FORM' && s.formData && (
+                        <details className="mt-1 text-xs text-[var(--text-main)]">
+                          <summary className="cursor-pointer font-semibold">
+                            Xem lại bài đã nộp ({s.formData.testCases.length} test case, {s.formData.bugReports.length} bug report)
+                          </summary>
+                          <ul className="mt-1 space-y-1 list-none p-0">
+                            {s.formData.testCases.map((c) => (
+                              <li key={c.code + c.description} className="rounded border border-[var(--border-color)] p-1.5">
+                                <b>{c.code}</b>: {c.description} — Input: {c.input || '(trống)'} — Expected: {c.expected}
+                              </li>
+                            ))}
+                            {s.formData.bugReports.map((b, i) => (
+                              <li key={i} className="rounded border border-rose-500/30 p-1.5">
+                                <b>Bug [{b.severity}] {b.title}</b>
+                                <pre className="m-0 whitespace-pre-wrap font-sans">{b.steps}</pre>
+                                Mong đợi: {b.expected} — Thực tế: {b.actual}
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      )}
                       <ul className="mt-1 space-y-0.5 list-none p-0">
                         {s.autoCheckResults.map((r) => (
                           <li

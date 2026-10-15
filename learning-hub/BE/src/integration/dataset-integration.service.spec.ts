@@ -44,6 +44,8 @@ describe('DatasetIntegrationService', () => {
       ({
         DATA_SERVICE_BASE_URL: 'http://data-service.test',
         DATA_SERVICE_API_KEY: 'test-key',
+        // Các test dưới đây kiểm tra ngữ nghĩa lỗi của máy chủ thật nên tắt fallback tự động (có test riêng cho fallback).
+        DATA_SERVICE_FALLBACK: 'off',
       })[key],
   };
 
@@ -328,14 +330,34 @@ describe('DatasetIntegrationService — registry tích hợp sẵn (không cần
     });
   });
 
-  it('máy chủ thật tắt và KHÔNG bật fallback: báo lỗi rõ ràng, không âm thầm đổi nguồn dữ liệu', async () => {
+  it('máy chủ thật tắt và TẮT fallback (DATA_SERVICE_FALLBACK=off): báo lỗi rõ ràng, không âm thầm đổi nguồn dữ liệu', async () => {
     const { http, service } = makeService({
       DATA_SERVICE_BASE_URL: 'http://tts01:8000',
+      DATA_SERVICE_FALLBACK: 'off',
     });
     http.get.mockReturnValue(refused());
     await expect(
       service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1'),
     ).rejects.toThrow(DATA_SERVICE_DOWN_MESSAGE);
+  });
+
+  it('máy chủ thật tắt, không cấu hình gì thêm: TỰ ĐỘNG rơi về dữ liệu tích hợp sẵn (dataset và evaluation set)', async () => {
+    const { http, service } = makeService({ DATA_SERVICE_BASE_URL: 'http://127.0.0.1:8000' });
+    http.get.mockReturnValue(refused());
+    const contract = await service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1');
+    expect(contract.data_dictionary.tables.length).toBeGreaterThan(0);
+    const evalSet = await service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+    expect(evalSet.items.length).toBeGreaterThan(0);
+  });
+
+  it('sau khi máy chủ lỗi, các yêu cầu kế tiếp dùng thẳng dữ liệu nội bộ, không chờ timeout lần nữa', async () => {
+    const { http, service } = makeService({ DATA_SERVICE_BASE_URL: 'http://tts01:8000' });
+    http.get.mockReturnValue(refused());
+    await service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1');
+    const calls = http.get.mock.calls.length;
+    await service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+    await service.fetchEvaluationSet('eval-cs-faq-basic-v1');
+    expect(http.get.mock.calls.length).toBe(calls);
   });
 
   it('máy chủ thật tắt và bật DATA_SERVICE_FALLBACK=embedded: rơi về dữ liệu tích hợp sẵn', async () => {
@@ -350,10 +372,9 @@ describe('DatasetIntegrationService — registry tích hợp sẵn (không cần
     expect(contract.data_dictionary.tables.length).toBeGreaterThan(0);
   });
 
-  it('fallback chỉ áp dụng khi không có phản hồi; máy chủ trả 404 vẫn là 404', async () => {
+  it('máy chủ trả 404: mã có trong dữ liệu tích hợp sẵn thì dùng nó, mã không tồn tại ở đâu cả vẫn là 404', async () => {
     const { http, service } = makeService({
       DATA_SERVICE_BASE_URL: 'http://tts01:8000',
-      DATA_SERVICE_FALLBACK: 'embedded',
     });
     const notFound = new AxiosError('nf', '404', undefined, undefined, {
       status: 404,
@@ -365,7 +386,8 @@ describe('DatasetIntegrationService — registry tích hợp sẵn (không cần
     http.get.mockReturnValue(throwError(() => notFound));
     await expect(
       service.fetchDatasetInfo('ds-retail-ecommerce-sales-v1'),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    ).resolves.toMatchObject({ resource_id: expect.any(String) });
+    await expect(service.fetchDatasetInfo('ds-khong-ton-tai-o-dau-ca')).rejects.toBeInstanceOf(NotFoundException);
   });
 
   describe('Day 26 - Integration với Data & AI Lab (Contract & Versioning)', () => {

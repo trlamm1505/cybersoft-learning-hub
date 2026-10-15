@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Zap, Loader2 } from 'lucide-react';
 import authApi from '../axios/authApi';
-import type { AuthResponse } from '../types/auth';
+import type { AgeGroup, AuthResponse } from '../types/auth';
+import { USER_GROUP_OPTIONS } from '../common/userGroups';
 import { homeFor } from '../common/authRoutes';
 import { emailError, fullNameError, normalizeEmail, passwordError } from '../common/authValidation';
 import { FieldError, PasswordChecklist, TermsCheckbox, authInputCls } from '../components/auth/AuthFormParts';
@@ -20,6 +21,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onAuthSuccess }) => 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [terms, setTerms] = useState(false);
+  const [group, setGroup] = useState<AgeGroup | ''>('');
   const [touched, setTouched] = useState({ fullName: false, email: false, password: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onAuthSuccess }) => 
     setIsSubmitting(true);
 
     try {
-      const auth = await authApi.register({ email: normalizeEmail(email), password, fullName: fullName.trim(), role: 'STUDENT' });
+      const auth = await authApi.register({ email: normalizeEmail(email), password, fullName: fullName.trim(), role: 'STUDENT', ...(group ? { ageGroup: group } : {}) });
       onAuthSuccess(auth);
       navigate(homeFor(auth.user));
     } catch (err: any) {
@@ -122,6 +124,23 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onAuthSuccess }) => 
               placeholder="8–32 ký tự, có chữ hoa, thường, số, ký tự đặc biệt"
             />
             {showPassword ? <PasswordChecklist id="reg-password-rules" password={password} /> : <span id="reg-password-rules" />}
+          </div>
+
+          <div>
+            <label htmlFor="reg-group" className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Bạn thuộc nhóm nào?</label>
+            <select
+              id="reg-group"
+              value={group}
+              onChange={(e) => setGroup(e.target.value as AgeGroup | '')}
+              className={authInputCls(false)}
+            >
+              <option value="">Chọn sau khi đăng nhập</option>
+              {USER_GROUP_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <TermsCheckbox id="reg-terms" checked={terms} onChange={setTerms} />

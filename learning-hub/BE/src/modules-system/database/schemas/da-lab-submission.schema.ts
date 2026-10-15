@@ -76,6 +76,17 @@ export class DaLabSubmission {
 
   @Prop({ type: Date })
   reviewedAt?: Date;
+
+  /** Lịch sử các lần nộp SQL (mới nhất ở cuối), tối đa DA_SQL_HISTORY_LIMIT lần: câu SQL, kết quả, thời gian nộp. */
+  @Prop({ type: [Object], default: [] })
+  history: Array<{
+    content: string;
+    status: string;
+    score: number;
+    maxScore: number;
+    feedback: string;
+    submittedAt: Date;
+  }>;
 }
 
 export const DaLabSubmissionSchema =

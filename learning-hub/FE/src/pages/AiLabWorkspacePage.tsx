@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { LabBreadcrumb } from '../components/LabBreadcrumb';
+import { useParams } from 'react-router-dom';
 import {
   AlertTriangle,
-  ArrowLeft,
   CheckCircle2,
   Coins,
   Fingerprint,
@@ -21,6 +21,7 @@ import type {
   AiLabConfig,
   AiLabDetail,
   AiLabHistoryEntry,
+  AiLabLiveRun,
   AiLabRun,
   EvaluationSetPreview,
 } from '../types/aiLab';
@@ -109,6 +110,40 @@ const EvalSetPanel: React.FC<{ evalSet: EvaluationSetPreview | null; error: stri
 };
 
 /* ---------- Run Manifest: chất lượng, chi phí, độ trễ ---------- */
+
+/** Kết quả chạy thật prompt trên Gemini: JSON hợp lệ, từ chối đúng cách, và độ phủ từ khóa (tham khảo). */
+export const LiveRunPanel: React.FC<{ live: AiLabLiveRun }> = ({ live }) => (
+  <section aria-label="Chạy thật trên Gemini" className="rounded-lg border border-[var(--border-color)] p-3 space-y-2">
+    <div className="flex items-center justify-between gap-2 text-sm font-semibold text-[var(--text-main)]">
+      <span>Chạy thật trên Gemini{live.model ? ` (${live.model})` : ''}</span>
+      {live.source === 'gemini' && (
+        <span className="text-xs font-mono">
+          {live.items.filter((i) => i.passed).length}/{live.items.length} câu đạt
+        </span>
+      )}
+    </div>
+    {live.source !== 'gemini' ? (
+      <p className="text-xs text-[var(--text-muted)]">{live.reason ?? 'Chưa chạy thật.'}</p>
+    ) : (
+      <ul className="space-y-2">
+        {live.items.map((i) => (
+          <li key={i.questionId} className="text-xs space-y-0.5">
+            <div className="flex items-start gap-1.5 text-[var(--text-main)]">
+              {i.passed ? <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> : <XCircle size={14} className="text-rose-500 shrink-0 mt-0.5" />}
+              <span className="font-semibold">{i.question}</span>
+            </div>
+            <p className="pl-5 text-[var(--text-muted)] whitespace-pre-wrap">{i.output}</p>
+            <p className="pl-5 text-[var(--text-muted)]">
+              {i.checks.jsonValid !== undefined && <>JSON {i.checks.jsonValid ? 'hợp lệ' : 'KHÔNG hợp lệ'} · </>}
+              {i.checks.refused !== undefined && <>{i.checks.refused ? 'Từ chối đúng cách' : 'Chưa từ chối câu ngoài phạm vi'} · </>}
+              {i.checks.keywordCoverage !== undefined && <>Từ khóa chuẩn {Math.round(i.checks.keywordCoverage * 100)}% (tham khảo)</>}
+            </p>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+);
 
 const StatTile: React.FC<{
   Icon: typeof Gauge;
@@ -216,6 +251,8 @@ const RunManifestPanel: React.FC<{ run: AiLabRun }> = ({ run }) => {
           ))}
         </ul>
       </div>
+
+      {run.liveRun && <LiveRunPanel live={run.liveRun} />}
 
       <div className="overflow-auto rounded-lg border border-[var(--border-color)]">
         <table className="min-w-full text-xs">
@@ -330,13 +367,14 @@ const HistoryPanel: React.FC<{
 
 export const AiLabWorkspacePage: React.FC = () => {
   const { slug = '' } = useParams();
-  const navigate = useNavigate();
   const { showToast } = useToast();
   const [lab, setLab] = useState<AiLabDetail | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [evalSet, setEvalSet] = useState<EvaluationSetPreview | null>(null);
   const [evalError, setEvalError] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
+  // Chạy thêm prompt thật trên Gemini: mặc định TẮT để nộp nhanh và tiết kiệm quota.
+  const [liveCheck, setLiveCheck] = useState(false);
   const [model, setModel] = useState('');
   const [config, setConfig] = useState<AiLabConfig>({ temperature: 0.2, maxTokens: 256 });
   const [busy, setBusy] = useState(false);
@@ -394,7 +432,7 @@ export const AiLabWorkspacePage: React.FC = () => {
   }, [slug, showToast]);
 
   const handleSubmit = async () => {
-    const payload = { prompt, model, config };
+    const payload = { prompt, model, config, liveCheck };
     if (containsSecret(payload)) {
       showToast(API_KEY_LEAK_MESSAGE, 'error');
       return;
@@ -434,12 +472,7 @@ export const AiLabWorkspacePage: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <button
-        onClick={() => navigate('/ai-labs')}
-        className="flex items-center gap-1 text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none cursor-pointer"
-      >
-        <ArrowLeft size={16} /> Danh sách bài lab
-      </button>
+      <LabBreadcrumb group="AI" title={lab.title} />
 
       <div className="grid gap-4 lg:grid-cols-5">
         {/* Cột trái: đề bài + evaluation set */}
@@ -580,6 +613,11 @@ export const AiLabWorkspacePage: React.FC = () => {
                 bằng câu hỏi. Không dán API key: mô hình do hệ thống gọi.
               </span>
             )}
+          </label>
+
+          <label className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+            <input type="checkbox" checked={liveCheck} onChange={(e) => setLiveCheck(e.target.checked)} />
+            Chạy thử thật trên Gemini (chậm hơn, tốn quota; lịch sử luôn được lưu dù bật hay không)
           </label>
 
           <button

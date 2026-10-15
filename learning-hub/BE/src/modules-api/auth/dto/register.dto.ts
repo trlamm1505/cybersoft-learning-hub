@@ -5,4 +5,6 @@ export class RegisterDto {
   email: string;
   password: string;
   fullName: string;
+  /** Tùy chọn: nhóm đối tượng người dùng tự khai khi đăng ký (3-5, 6-9, 10-12 hoặc CAREER_ADULT). Bỏ trống thì chọn ở modal sau khi đăng nhập. */
+  ageGroup?: string;
 }

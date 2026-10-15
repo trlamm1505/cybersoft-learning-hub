@@ -202,3 +202,49 @@ describe('DaLabsService — lưu bài nộp SQL, chống spam bản ghi, danh s�
     });
   });
 });
+
+describe('DaLabsService — lịch sử nộp bài (không gọi AI)', () => {
+  const build = (docs: any[], existing: any = null) => {
+    const exerciseModel = { findOne: jest.fn(() => lean(SQL_LAB)) };
+    const submissionModel = {
+      create: jest.fn(async (doc) => ({ _id: 'n', ...doc })),
+      findOne: jest.fn().mockResolvedValue(existing),
+      find: jest.fn(() => lean(docs)),
+    };
+    const sqlGrader = { grade: jest.fn().mockResolvedValue({ status: 'ACCEPTED', score: 10, maxScore: 10, feedback: 'Đúng.' }) };
+    const insightGrader = { grade: jest.fn() };
+    const service = new DaLabsService(exerciseModel as any, {} as any, sqlGrader as any, insightGrader as any, submissionModel as any, {} as any);
+    return { service, submissionModel, insightGrader };
+  };
+
+  it('mỗi lần nộp SQL tạo một dòng lịch sử (câu SQL, kết quả, thời gian); lần đầu', async () => {
+    const { service, submissionModel } = build([]);
+    await service.submitSql('da-sql-01', 'SELECT 1', 'u1');
+    const doc = submissionModel.create.mock.calls[0][0];
+    expect(doc.history).toHaveLength(1);
+    expect(doc.history[0]).toMatchObject({ content: 'SELECT 1', status: 'ACCEPTED', score: 10, maxScore: 10 });
+    expect(doc.history[0].submittedAt).toBeInstanceOf(Date);
+  });
+
+  it('nộp lại: thêm vào lịch sử và chỉ giữ 20 lần gần nhất', async () => {
+    const old = Array.from({ length: 20 }, (_, i) => ({ content: 'q' + i, status: 'WRONG_ANSWER', score: 0, maxScore: 10, feedback: '', submittedAt: new Date(i) }));
+    const existing: any = { attemptCount: 20, bestScore: 0, history: old, save: jest.fn() };
+    const { service } = build([], existing);
+    await service.submitSql('da-sql-01', 'SELECT 99', 'u1');
+    expect(existing.history).toHaveLength(20);
+    expect(existing.history[19].content).toBe('SELECT 99');
+    expect(existing.history[0].content).toBe('q1');
+  });
+
+  it('getHistory gộp lịch sử SQL và bản ghi cũ, mới nhất trước, chỉ của học viên đó, không gọi chấm AI', async () => {
+    const docs = [
+      { type: 'SQL', content: 'a', status: 'GRADED', score: 0, maxScore: 10, history: [{ content: 'a1', status: 'WRONG_ANSWER', score: 0, maxScore: 10, feedback: 'Sai', submittedAt: new Date('2026-01-01') }, { content: 'a2', status: 'ACCEPTED', score: 10, maxScore: 10, feedback: 'Đúng', submittedAt: new Date('2026-01-03') }] },
+      { type: 'INSIGHT', content: 'câu trả lời', status: 'GRADED', score: 7, maxScore: 10, aiExplanation: 'Khá', createdAt: new Date('2026-01-02') },
+    ];
+    const { service, submissionModel, insightGrader } = build(docs);
+    const rows = await service.getHistory('da-sql-01', 'u1');
+    expect(rows.map((r) => r.content)).toEqual(['a2', 'câu trả lời', 'a1']);
+    expect(submissionModel.find).toHaveBeenCalledWith({ userId: 'u1', exerciseId: 'ex-sql-1' });
+    expect(insightGrader.grade).not.toHaveBeenCalled();
+  });
+});

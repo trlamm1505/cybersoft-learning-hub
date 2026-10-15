@@ -35,8 +35,17 @@ export class TesterLabSubmission {
   @Prop({ required: true, type: Number })
   fileSize: number;
 
+  /** Nhận xét sơ bộ ngay khi nộp (luật/từ khóa); điểm chính thức do giảng viên chấm. */
   @Prop({ type: Array, default: [] })
   autoCheckResults: AutoCheckResult[];
+
+  /** 'FORM': nộp bằng biểu mẫu test case + bug report (không có file); 'FILE': nộp file artifact. */
+  @Prop({ type: String, enum: ['FILE', 'FORM'], default: 'FILE' })
+  kind: 'FILE' | 'FORM';
+
+  /** Nội dung biểu mẫu (chỉ khi kind = FORM): danh sách test case và bug report. */
+  @Prop({ type: Object })
+  formData?: object;
 
   @Prop({ type: Array, default: [] })
   rubricGrades: RubricGrade[];

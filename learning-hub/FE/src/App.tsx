@@ -31,6 +31,8 @@ import { AiLabWorkspacePage } from './pages/AiLabWorkspacePage';
 import { TeacherReviewQueue } from './components/TeacherReviewQueue';
 import { TeacherLabSubmissionsPage } from './pages/TeacherLabSubmissionsPage';
 import { TeacherIntegrityQueuePage } from './pages/TeacherIntegrityQueuePage';
+import { CareerLabsPage } from './pages/CareerLabsPage';
+import { careerBlockedPath, isCareerAdult } from './common/userGroups';
 import { TeacherDashboardPage } from './pages/TeacherDashboardPage';
 import { AdminClassesPage } from './pages/AdminClassesPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
@@ -308,8 +310,11 @@ export function App() {
         )}
         {/* Kid Mode: chỉ mở Góc Học Tập, Block Puzzle, Thành tích, Hồ sơ; mọi trang khác về Góc Học Tập. */}
         {kidMode && !isKidAllowedPath(location.pathname) && <Navigate to={KID_HOME} replace />}
+        {/* Người đi làm / Trái ngành: ẩn Playground, Thi trắc nghiệm phổ thông và Cuộc thi; về Hub phòng lab. */}
+        {isCareerAdult(authUser) && careerBlockedPath(location.pathname, location.search) && <Navigate to="/career-labs" replace />}
         <Routes>
           <Route path="/" element={<Navigate to={homeFor(authUser)} replace />} />
+          <Route path="/career-labs" element={<StudentRoute authUser={authUser}><CareerLabsPage /></StudentRoute>} />
           <Route
             path="/catalog"
             element={

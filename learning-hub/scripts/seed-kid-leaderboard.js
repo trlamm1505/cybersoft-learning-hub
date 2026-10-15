@@ -37,6 +37,11 @@ const KIDS = [
   { email: 'seed-kid-3@demo.cybersoft.local', fullName: 'Lê Gia Hân', dayOffset: 1, hour: 15 },
   { email: 'seed-kid-4@demo.cybersoft.local', fullName: 'Phạm Đức Anh', dayOffset: 2, hour: 10 },
   { email: 'seed-kid-5@demo.cybersoft.local', fullName: 'Võ Thảo Vy', dayOffset: 3, hour: 18 },
+  { email: 'seed-kid-6@demo.cybersoft.local', fullName: 'Đặng Hoàng Long', dayOffset: 3, hour: 21 },
+  { email: 'seed-kid-7@demo.cybersoft.local', fullName: 'Bùi Khánh Chi', dayOffset: 4, hour: 9 },
+  { email: 'seed-kid-8@demo.cybersoft.local', fullName: 'Ngô Quốc Bảo', dayOffset: 4, hour: 16 },
+  { email: 'seed-kid-9@demo.cybersoft.local', fullName: 'Lý Mai Phương', dayOffset: 5, hour: 10 },
+  { email: 'seed-kid-10@demo.cybersoft.local', fullName: 'Hồ Minh Triết', dayOffset: 5, hour: 19 },
 ];
 
 // Xếp hạng theo TỔNG THỜI GIAN chơi (ngắn hơn = hạng cao hơn). Tổng thời gian của bé thứ k ở mỗi game là

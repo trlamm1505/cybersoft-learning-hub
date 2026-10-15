@@ -59,6 +59,17 @@ export class TesterLabsController {
     return this.service.submit(labCode, user.sub, file);
   }
 
+  /** Nộp bằng biểu mẫu test case + bug report (JSON); chờ giảng viên chấm, kèm nhận xét sơ bộ ngay. */
+  @Post(':labCode/form-submissions')
+  @Roles('STUDENT')
+  submitForm(
+    @Param('labCode') labCode: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() body: unknown,
+  ) {
+    return this.service.submitForm(labCode, user.sub, body);
+  }
+
   @Get(':labCode/submissions/mine')
   listMine(
     @Param('labCode') labCode: string,

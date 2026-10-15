@@ -125,6 +125,19 @@ describe('AuthService', () => {
       expect(r3.user.studentCode).toBe('C10000');
     });
 
+    it('đăng ký có chọn nhóm Người đi làm / Trái ngành: lưu ageGroup=CAREER_ADULT', async () => {
+      mockUserModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
+      mockCounterModel.findOneAndUpdate.mockResolvedValue({ seq: 2 });
+      mockUserModel.create.mockImplementation((data: any) => Promise.resolve({ _id: 'u', ...data }));
+      const result = await service.register({ email: 'a@b.com', password: 'Abcdef1!', fullName: 'A', ageGroup: 'CAREER_ADULT' });
+      expect(mockUserModel.create).toHaveBeenCalledWith(expect.objectContaining({ role: 'STUDENT', ageGroup: 'CAREER_ADULT' }));
+      expect(result.user.ageGroup).toBe('CAREER_ADULT');
+    });
+
+    it('nhóm đối tượng lạ khi đăng ký bị từ chối 400 (không im lặng bỏ qua)', async () => {
+      await expect(service.register({ email: 'a@b.com', password: 'Abcdef1!', fullName: 'A', ageGroup: 'ADMIN' })).rejects.toThrow(BadRequestException);
+    });
+
     it('từ chối nếu email đã tồn tại', async () => {
       mockUserModel.findOne.mockReturnValue({
         lean: jest.fn().mockResolvedValue({ email: 'a@b.com' }),
@@ -165,6 +178,13 @@ describe('AuthService', () => {
   });
 
   describe('setAgeGroup — chỉ set được cho STUDENT, giá trị hợp lệ', () => {
+    it('chấp nhận CAREER_ADULT ở modal chọn nhóm', async () => {
+      const user: any = { role: 'STUDENT', save: jest.fn().mockResolvedValue(undefined) };
+      mockUserModel.findById.mockResolvedValue(user);
+      await expect(service.setAgeGroup('u1', 'CAREER_ADULT')).resolves.toEqual({ ageGroup: 'CAREER_ADULT' });
+    });
+
+
     it('từ chối ageGroup không hợp lệ', async () => {
       await expect(service.setAgeGroup('user1', 'invalid')).rejects.toThrow(
         BadRequestException,

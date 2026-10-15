@@ -24,11 +24,13 @@ import {
   LogOut,
   Layers,
   FileText,
+  Briefcase,
 } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 import { ROLE_LABEL } from '../types/auth';
 import { OverflowNav } from './OverflowNav';
 import { isAuthPath } from '../common/authRoutes';
+import { isCareerAdult } from '../common/userGroups';
 import { UserAvatar } from './UserAvatar';
 import type { NavItem } from './OverflowNav';
 
@@ -43,6 +45,13 @@ export const STUDENT_NAV: NavItem[] = [
   { key: 'playground', label: 'Bài tập / Playground', Icon: Code2, path: '/playground' },
   { key: 'quiz', label: 'Thi Trắc Nghiệm', Icon: ClipboardList, path: '/quiz' },
   { key: 'contests', label: 'Cuộc thi', Icon: Trophy, path: '/contests' },
+];
+
+/** Menu Người đi làm / Trái ngành (CAREER_ADULT): đúng 3 mục, không có Playground, Thi trắc nghiệm hay Cuộc thi. */
+export const CAREER_ADULT_NAV: NavItem[] = [
+  { key: 'career-labs', label: 'Phòng thực hành chuyên ngành', Icon: Briefcase, path: '/career-labs' },
+  { key: 'my-class', label: 'Lớp học của tôi', Icon: GraduationCap, path: '/my-class' },
+  { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
 ];
 
 const TEACHER_NAV: NavItem[] = [
@@ -120,6 +129,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
     if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
     if (path.startsWith('/progress')) return 'progress';
+    if (isCareerAdult(authUser) && (path.startsWith('/career-labs') || /^\/(tester|da|ai)-labs/.test(path))) return 'career-labs';
     if (path.startsWith('/tester-labs')) return 'tester-labs';
     if (path.startsWith('/da-labs')) return 'da-labs';
     if (path.startsWith('/ai-labs')) return 'ai-labs';
@@ -137,9 +147,15 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
   // AI Lab, DA Lab là trang làm bài: chỉ tài khoản STUDENT thấy (ADMIN cũng dùng menu học viên).
   const isStudent = authUser?.role === 'STUDENT';
 
+  const careerAdult = isCareerAdult(authUser);
   const navItems = useMemo(
-    () => (userRole === 'student' ? STUDENT_NAV.filter((item) => isStudent || !STUDENT_ONLY_TABS.has(item.key)) : TEACHER_NAV),
-    [userRole, isStudent],
+    () =>
+      userRole === 'student'
+        ? careerAdult
+          ? CAREER_ADULT_NAV
+          : STUDENT_NAV.filter((item) => isStudent || !STUDENT_ONLY_TABS.has(item.key))
+        : TEACHER_NAV,
+    [userRole, isStudent, careerAdult],
   );
 
   const handleNavigate = (path: string) => {
@@ -157,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
       >
         <div className="w-full px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2">
           <button
-            onClick={() => handleNavigate(authUser ? (userRole === 'teacher' ? '/authoring' : '/playground') : '/login')}
+            onClick={() => handleNavigate(authUser ? (userRole === 'teacher' ? '/authoring' : careerAdult ? '/career-labs' : '/playground') : '/login')}
             className="flex items-center gap-2.5 text-[var(--text-main)] font-extrabold text-lg tracking-tight bg-transparent border-none cursor-pointer text-left"
             aria-label="Trang chủ CyberSoft Hub"
           >

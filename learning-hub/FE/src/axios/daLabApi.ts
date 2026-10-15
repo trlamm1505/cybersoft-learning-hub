@@ -1,5 +1,6 @@
 import axiosClient from '../common/configAxios';
 import type {
+  DaHistoryRow,
   DaLab,
   DatasetInfo,
   InsightGradeResult,
@@ -46,6 +47,11 @@ export const daLabApi = {
       { answer },
       { timeout: GRADING_TIMEOUT_MS },
     );
+  },
+
+  /** Lịch sử các lần nộp của học viên ở một bài lab (đọc DB, không gọi AI). */
+  getHistory: async (slug: string): Promise<DaHistoryRow[]> => {
+    return await axiosClient.get(`/da-labs/${slug}/history`);
   },
 
   /** Bài nộp Insight mới nhất của học viên đang đăng nhập; null nếu chưa nộp. */

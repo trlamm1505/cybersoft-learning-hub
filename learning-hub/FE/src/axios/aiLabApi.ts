@@ -27,7 +27,7 @@ export const aiLabApi = {
 
   submit: async (
     slug: string,
-    payload: { prompt: string; model: string; config: AiLabConfig },
+    payload: { prompt: string; model: string; config: AiLabConfig; liveCheck?: boolean },
   ): Promise<AiLabRun> => {
     return await axiosClient.post(`/ai-labs/${slug}/submit`, payload, {
       timeout: GRADING_TIMEOUT_MS,

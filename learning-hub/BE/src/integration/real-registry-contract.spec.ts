@@ -44,7 +44,7 @@ function makeService(base = 'http://registry.test') {
   };
   const config = {
     get: (k: string) =>
-      ({ DATA_SERVICE_BASE_URL: base, DATA_SERVICE_API_KEY: 'k' })[k],
+      ({ DATA_SERVICE_BASE_URL: base, DATA_SERVICE_API_KEY: 'k', DATA_SERVICE_FALLBACK: 'off' })[k],
   };
   return {
     http,

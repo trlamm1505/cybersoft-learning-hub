@@ -1,5 +1,6 @@
 import axiosClient from '../common/configAxios';
 import type {
+  AutoCheckResult,
   ReviewableSubmission,
   RubricGrade,
   TesterLab,
@@ -36,6 +37,14 @@ export const testerLabApi = {
     return await axiosClient.post(`/tester-labs/${labCode}/submissions`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
+  },
+
+  /** Nộp bằng biểu mẫu (test case + bug report): lưu chờ giảng viên chấm, trả nhận xét sơ bộ ngay. */
+  submitForm: async (
+    labCode: string,
+    payload: { testCases: object[]; bugReports: object[] },
+  ): Promise<{ id: string; status: string; statusLabel: string; autoCheckResults: AutoCheckResult[] }> => {
+    return await axiosClient.post(`/tester-labs/${labCode}/form-submissions`, payload);
   },
 
   /** Bài của người khác cần chấm (giảng viên hoặc peer). */

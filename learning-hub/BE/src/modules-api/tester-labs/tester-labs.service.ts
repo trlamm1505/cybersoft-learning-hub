@@ -25,6 +25,7 @@ import {
 } from './artifact-upload.service';
 import { INITIAL_TESTER_LABS } from '../../data/initial-tester-labs';
 import { evaluateRubric, runAutoChecks } from './rubric-evaluation.engine';
+import { runFormChecks, sanitizeTesterForm } from './tester-form-checks';
 
 const ASSET_DIR = path.join(process.cwd(), 'assets', 'tester-labs');
 const MAX_NOTES_LENGTH = 2000;
@@ -105,6 +106,35 @@ export class TesterLabsService implements OnModuleInit {
     });
   }
 
+  /**
+   * Nộp bằng biểu mẫu: danh sách test case (mã, mô tả, input, expected) và bug report. Lưu với trạng thái SUBMITTED
+   * (chờ giảng viên chấm) và trả ngay nhận xét sơ bộ theo từ khóa tình huống biên.
+   */
+  async submitForm(labCode: string, userId: string, raw: unknown) {
+    const lab = await this.getLab(labCode);
+    const form = sanitizeTesterForm(raw);
+    const autoCheckResults = runFormChecks(form);
+    const submission = await this.submissionModel.create({
+      labId: lab._id,
+      userId,
+      kind: 'FORM',
+      artifactUrl: 'form',
+      fileType: 'form',
+      fileSize: JSON.stringify(form).length,
+      formData: form,
+      autoCheckResults,
+      status: 'SUBMITTED',
+    });
+    return {
+      id: String(submission._id),
+      status: submission.status,
+      statusLabel: 'Đã nộp bài - Chờ giảng viên chấm',
+      autoCheckResults,
+      testCaseCount: form.testCases.length,
+      bugReportCount: form.bugReports.length,
+    };
+  }
+
   async listMine(labCode: string, userId: string) {
     const lab = await this.getLab(labCode);
     return this.submissionModel
@@ -168,6 +198,7 @@ export class TesterLabsService implements OnModuleInit {
   async getArtifactPath(id: string, user: TesterLabUser): Promise<string> {
     const submission = await this.findSubmission(id);
     if (submission.userId !== user.sub) this.assertCanReview(user);
+    if (submission.kind === 'FORM') throw new NotFoundException('Bài nộp dạng biểu mẫu không có file đính kèm');
     return path.join(UPLOAD_DIR, path.basename(submission.artifactUrl));
   }
 

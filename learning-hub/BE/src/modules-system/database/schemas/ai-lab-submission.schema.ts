@@ -94,6 +94,10 @@ export class AiLabSubmission {
     createdAt: Date;
   }>;
 
+  /** Kết quả chạy thật prompt trên Gemini ở lần nộp gần nhất (JSON hợp lệ, từ khóa, từ chối đúng). */
+  @Prop({ type: Object })
+  liveRun?: object;
+
   /** Lần chạy điểm cao nhất (đủ prompt/model/config để chạy lại). */
   @Prop({ type: Object })
   best?: {

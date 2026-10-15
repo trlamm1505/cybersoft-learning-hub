@@ -33,9 +33,9 @@ import { checkAvatar } from './avatar';
 import { checkProfileInput } from './profile-input';
 import { emailError, passwordError } from './auth-validation';
 
-type AgeGroup = '3-5' | '6-9' | '10-12';
+type AgeGroup = '3-5' | '6-9' | '10-12' | 'CAREER_ADULT';
 
-const VALID_AGE_GROUPS: AgeGroup[] = ['3-5', '6-9', '10-12'];
+const VALID_AGE_GROUPS: AgeGroup[] = ['3-5', '6-9', '10-12', 'CAREER_ADULT'];
 const BCRYPT_SALT_ROUNDS = 10;
 const RESET_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 phút
 const STUDENT_CODE_COUNTER_KEY = 'studentCode';
@@ -68,6 +68,18 @@ export class AuthService {
    */
   async register(dto: RegisterDto) {
     const { email, password, fullName } = dto;
+    // Nhóm đối tượng là tùy chọn khi đăng ký, nhưng nếu gửi thì phải hợp lệ (không im lặng bỏ qua giá trị lạ).
+    const requestedGroup = dto.ageGroup;
+    if (
+      requestedGroup !== undefined &&
+      requestedGroup !== null &&
+      requestedGroup !== '' &&
+      !VALID_AGE_GROUPS.includes(requestedGroup as AgeGroup)
+    ) {
+      throw new BadRequestException(
+        'Nhóm đối tượng không hợp lệ (chỉ nhận 3-5, 6-9, 10-12 hoặc CAREER_ADULT).',
+      );
+    }
 
     if (!email || !password || !fullName) {
       throw new BadRequestException(
@@ -104,6 +116,7 @@ export class AuthService {
       fullName: fullName.trim(),
       role: 'STUDENT',
       studentCode,
+      ...(requestedGroup ? { ageGroup: requestedGroup as AgeGroup } : {}),
     });
 
     return this.buildAuthResponse(user);
@@ -122,7 +135,7 @@ export class AuthService {
   ): Promise<{ ageGroup: AgeGroup }> {
     if (!VALID_AGE_GROUPS.includes(ageGroup as AgeGroup)) {
       throw new BadRequestException(
-        'Nhóm tuổi không hợp lệ (chỉ nhận 3-5, 6-9 hoặc 10-12).',
+        'Nhóm tuổi không hợp lệ (chỉ nhận 3-5, 6-9, 10-12 hoặc CAREER_ADULT).',
       );
     }
 

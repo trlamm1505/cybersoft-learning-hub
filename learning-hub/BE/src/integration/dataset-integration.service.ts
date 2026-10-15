@@ -32,6 +32,8 @@ import type {
 const RESOURCE_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{2,80}$/i;
 const CACHE_TTL_MS = 60_000;
 const REQUEST_TIMEOUT_MS = 5_000;
+/** Sau khi máy chủ dữ liệu lỗi, chờ khoảng này mới thử lại (trong lúc đó dùng dữ liệu tích hợp sẵn). */
+const REMOTE_RETRY_MS = 60_000;
 export const DATA_SERVICE_DOWN_MESSAGE =
   'Không kết nối được máy chủ dữ liệu (DATA_SERVICE_BASE_URL). Hãy bật máy chủ đó, hoặc để trống DATA_SERVICE_BASE_URL để dùng dữ liệu tích hợp sẵn trong backend';
 export const DATA_SERVICE_TIMEOUT_MESSAGE = 'Máy chủ dữ liệu phản hồi quá lâu';
@@ -66,6 +68,8 @@ export class DatasetIntegrationService {
 
   private localRegistry?: LocalRegistry;
   private warnedFallback = false;
+  /** Máy chủ dữ liệu vừa lỗi: tới mốc này dùng thẳng dữ liệu tích hợp sẵn, không chờ timeout ở mỗi yêu cầu. */
+  private remoteDownUntil = 0;
 
   constructor(
     private readonly http: HttpService,
@@ -217,12 +221,24 @@ export class DatasetIntegrationService {
     const cached = this.evalCache.get(resourceId);
     if (cached && cached.expiresAt > Date.now()) return cached.value;
 
-    const envelope = this.baseUrl()
-      ? await this.getRemoteEvaluationSet(resourceId)
-      : await this.getEnvelope<RegistryEvaluationSet>(
-          `/api/v1/registry/evaluation-sets/${encodeURIComponent(resourceId)}`,
-          `Evaluation set "${resourceId}" không tồn tại trong Registry của Data & AI Resource.`,
-        );
+    const localPath = `/api/v1/registry/evaluation-sets/${encodeURIComponent(resourceId)}`;
+    const localMessage = `Evaluation set "${resourceId}" không tồn tại trong Registry của Data & AI Resource.`;
+    let envelope: RegistryEnvelope<RegistryEvaluationSet>;
+    if (this.baseUrl() && Date.now() >= this.remoteDownUntil) {
+      try {
+        envelope = await this.getRemoteEvaluationSet(resourceId);
+      } catch (err) {
+        // Không ghép được bộ câu hỏi từ máy chủ thật (lỗi mạng/thiếu câu): dùng bộ tích hợp sẵn của bài lab.
+        const off = ['off', 'none', 'false'].includes((this.config.get<string>('DATA_SERVICE_FALLBACK') ?? '').toLowerCase());
+        if (off) throw err;
+        this.logger.warn(`Evaluation set "${resourceId}" từ máy chủ dữ liệu lỗi, dùng dữ liệu tích hợp sẵn: ${(err as Error).message}`);
+        envelope = this.fromLocal<RegistryEvaluationSet>(localPath, localMessage);
+      }
+    } else if (this.baseUrl()) {
+      envelope = this.fromLocal<RegistryEvaluationSet>(localPath, localMessage);
+    } else {
+      envelope = await this.getEnvelope<RegistryEvaluationSet>(localPath, localMessage);
+    }
 
     const contract = this.toEvaluationSet(resourceId, envelope);
     this.evalCache.set(resourceId, {
@@ -296,6 +312,10 @@ export class DatasetIntegrationService {
   ): Promise<RegistryEnvelope<T>> {
     const baseUrl = this.baseUrl();
     if (!baseUrl) return this.fromLocal<T>(path, notFoundMessage);
+    // Fallback tự động: máy chủ dữ liệu lỗi thì dùng ngay dữ liệu tích hợp sẵn (10 SQL Lab + 8 AI Lab luôn sẵn sàng),
+    // chỉ tắt khi đặt DATA_SERVICE_FALLBACK=off. Không bắt buộc phải bật service Python ở cổng 8000.
+    const fallbackOn = !['off', 'none', 'false'].includes((this.config.get<string>('DATA_SERVICE_FALLBACK') ?? '').toLowerCase());
+    if (fallbackOn && Date.now() < this.remoteDownUntil) return this.fromLocal<T>(path, notFoundMessage);
     const url = `${baseUrl}${path}`;
 
     try {
@@ -310,7 +330,19 @@ export class DatasetIntegrationService {
       return res.data;
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 404) {
+        // Máy chủ thật không có mã này: dữ liệu tích hợp sẵn có thì dùng, không thì mới là 404.
+        if (fallbackOn) return this.fromLocal<T>(path, notFoundMessage);
         throw new NotFoundException(notFoundMessage);
+      }
+      if (fallbackOn) {
+        this.remoteDownUntil = Date.now() + REMOTE_RETRY_MS;
+        if (!this.warnedFallback) {
+          this.warnedFallback = true;
+          this.logger.warn(
+            `Máy chủ dữ liệu ${baseUrl} không dùng được (${(err as Error).message}); tự động dùng dữ liệu tích hợp sẵn.`,
+          );
+        }
+        return this.fromLocal<T>(path, notFoundMessage);
       }
       this.logger.error(
         `Gọi Dataset Registry thất bại (${url}): ${(err as Error).message}`,

@@ -38,6 +38,12 @@ export class DaLabsController {
     return this.service.getMySubmission(exerciseId, user.sub);
   }
 
+  /** Lịch sử nộp bài của học viên đang đăng nhập ở một bài lab (đọc DB, không gọi AI). */
+  @Get(':slug/history')
+  getHistory(@Param('slug') slug: string, @CurrentUser() user: JwtPayload) {
+    return this.service.getHistory(slug, user.sub);
+  }
+
   @Get(':slug')
   getLab(@Param('slug') slug: string) {
     return this.service.getLab(slug);

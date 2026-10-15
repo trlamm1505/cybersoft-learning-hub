@@ -69,6 +69,24 @@ describe('AiLabsService.submit — lịch sử thí nghiệm có giới hạn', 
     );
   });
 
+  it('mặc định KHÔNG gọi Gemini (nộp nhanh, tiết kiệm quota); chỉ chạy thật khi liveCheck=true', async () => {
+    grader.grade.mockResolvedValue(gradeResult(7));
+    const evalSet = { items: [{ question_id: 'q1', query: 'Phí?', category: 'standard_qa', expected_behavior: 'ANSWER', ground_truths: ['500.000 đồng'], expected_doc_ids: [] }] };
+    const datasets = { fetchEvaluationSet: jest.fn().mockResolvedValue(evalSet) };
+    const llm = { generate: jest.fn().mockResolvedValue('Phí là 500.000 đồng.'), model: 'gemini-x' };
+    const svc = new AiLabsService(exerciseModel as any, submissionModel as any, datasets as any, grader as any, userModel as any, llm as any);
+
+    const quick = await svc.submit('ai-lab-01', {}, 'u1');
+    expect(llm.generate).not.toHaveBeenCalled();
+    expect(quick.liveRun.source).toBe('skipped');
+    // Lịch sử vẫn được lưu đầy đủ dù không gọi Gemini.
+    expect(submissionModel.create).toHaveBeenCalledWith(expect.objectContaining({ totalAttempts: 1, history: expect.any(Array) }));
+
+    const live = await svc.submit('ai-lab-01', { liveCheck: true }, 'u1');
+    expect(llm.generate).toHaveBeenCalledTimes(1);
+    expect(live.liveRun.source).toBe('gemini');
+  });
+
   it('lần đầu: tạo bản ghi với tóm tắt và lịch sử 1 lần chạy', async () => {
     grader.grade.mockResolvedValue(gradeResult(7));
 

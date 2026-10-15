@@ -10,7 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 import { slugify } from '../../common/utils/slug.util';
-import { matrixError, targetGroupOfStudent } from './exercise-matrix';
+import { allowedGradeBands, matrixError, targetGroupOfStudent } from './exercise-matrix';
 import { ExerciseWriteDto, WRITABLE_FIELDS } from './dto/exercise-write.dto';
 import {
   Exercise,
@@ -191,9 +191,14 @@ export class ExerciseService {
    * Bài cũ chưa gắn targetGroup vẫn mở như trước; staff không bị giới hạn.
    */
   private assertCanAccess(
-    exercise: { targetGroup?: string },
+    exercise: { targetGroup?: string; gradeBand?: string },
     user?: JwtPayload,
   ): void {
+    // Bài chỉ gắn gradeBand (không có targetGroup) cũng không được lọt sang khối khác.
+    const bands = user?.role === 'STUDENT' ? allowedGradeBands(user.ageGroup) : null;
+    if (bands && exercise.gradeBand && !bands.includes(exercise.gradeBand)) {
+      throw new ForbiddenException('Bài tập này không thuộc khối của bạn.');
+    }
     if (!exercise.targetGroup) return;
     if (!user) {
       throw new UnauthorizedException('Vui lòng đăng nhập để xem bài tập này.');
@@ -209,10 +214,18 @@ export class ExerciseService {
   /** Bộ lọc danh sách: học viên chỉ thấy bài đúng nhóm (và bài cũ chưa gắn nhóm). */
   private visibleToFilter(user?: JwtPayload): Record<string, unknown> {
     if (user?.role !== 'STUDENT') return {};
+    const bands = allowedGradeBands(user.ageGroup);
     return {
-      $or: [
-        { targetGroup: { $exists: false } },
-        { targetGroup: targetGroupOfStudent(user.ageGroup) },
+      $and: [
+        {
+          $or: [
+            { targetGroup: { $exists: false } },
+            { targetGroup: targetGroupOfStudent(user.ageGroup) },
+          ],
+        },
+        ...(bands
+          ? [{ $or: [{ gradeBand: { $exists: false } }, { gradeBand: { $in: bands } }] }]
+          : []),
       ],
     };
   }

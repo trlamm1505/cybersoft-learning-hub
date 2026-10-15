@@ -63,6 +63,7 @@ const ITEMS = [
     difficulty: 'MEDIUM',
     points: 20,
     timeLimitMs: 2000,
+    memoryLimitMb: 128,
     targetGroup: 'K10_12',
     labType: 'ALGO_JUDGE',
     gradeBand: '10-12',

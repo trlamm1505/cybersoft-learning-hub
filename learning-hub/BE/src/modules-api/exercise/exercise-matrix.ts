@@ -27,6 +27,7 @@ const AGE_GROUP_TO_TARGET: Record<string, TargetGroup> = {
   '3-5': 'K3_5',
   '6-9': 'K6_9',
   '10-12': 'K10_12',
+  CAREER_ADULT: 'CAREER_ADULT',
 };
 
 /** Học viên chưa có ageGroup (người đi làm/người lớn) thuộc nhóm CAREER_ADULT. */
@@ -53,3 +54,15 @@ export function matrixError(
   }
   return undefined;
 }
+
+/**
+ * gradeBand được phép với từng khối tuổi (bài 10-12 lưu là '9-12' hoặc '10-12'). null = không giới hạn theo khối
+ * (người lớn chưa có ageGroup). Bài chưa gắn gradeBand là bài cũ, luôn được phép.
+ */
+export const allowedGradeBands = (ageGroup?: string | null): string[] | null => {
+  if (ageGroup === '3-5') return ['3-5'];
+  if (ageGroup === '6-9') return ['6-9'];
+  if (ageGroup === '10-12') return ['9-12', '10-12'];
+  if (ageGroup === 'CAREER_ADULT') return ['CAREER_ADULT'];
+  return null;
+};

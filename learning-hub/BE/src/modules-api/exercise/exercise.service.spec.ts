@@ -284,6 +284,28 @@ describe('ExerciseService — ma trận, quyền sở hữu, truy cập theo nh�
     model.findOne.mockReturnValue(sel({ slug: 'cu', testCases: [] }));
     await expect(service.findBySlug('cu')).resolves.toMatchObject({ slug: 'cu' });
   });
+
+  it('bài chỉ gắn gradeBand (không có targetGroup) cũng không lọt sang khối khác (403)', async () => {
+    const sel = (v: any) => ({ select: () => leanOf(v) });
+    model.findOne.mockReturnValue(sel({ slug: 'a', gradeBand: '9-12', testCases: [] }));
+    await expect(
+      service.findBySlug('a', { sub: 's', email: 'e', role: 'STUDENT', ageGroup: '6-9' }),
+    ).rejects.toThrow(/không thuộc khối/);
+    await expect(
+      service.findBySlug('a', { sub: 's', email: 'e', role: 'STUDENT', ageGroup: '10-12' }),
+    ).resolves.toMatchObject({ slug: 'a' });
+    await expect(service.findBySlug('a', { sub: 't', email: 'e', role: 'TEACHER' })).resolves.toMatchObject({ slug: 'a' });
+  });
+
+  it('findAll: học sinh 6-9 chỉ truy vấn bài khối mình (hoặc bài cũ chưa gắn khối)', async () => {
+    const chain: any = { select: () => chain, lean: jest.fn().mockResolvedValue([]) };
+    model.find = jest.fn().mockReturnValue(chain);
+    await service.findAll({ sub: 's', email: 'e', role: 'STUDENT', ageGroup: '6-9' });
+    const filter = model.find.mock.calls[model.find.mock.calls.length - 1][0];
+    expect(JSON.stringify(filter)).toContain('"gradeBand":{"$in":["6-9"]}');
+    await service.findAll({ sub: 't', email: 'e', role: 'TEACHER' });
+    expect(JSON.stringify(model.find.mock.calls[model.find.mock.calls.length - 1][0])).not.toContain('gradeBand');
+  });
 });
 
 describe('ExerciseService.assignLegacyGrade', () => {

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -67,9 +68,11 @@ export class SqlGraderService {
   /** Chạy thử, không chấm điểm. */
   async run(resourceId: string, studentSql: string): Promise<SqlRunResult> {
     const guard = checkStudentSql(studentSql);
+    // Ý định ghi/sửa dữ liệu hoặc can thiệp hệ thống: từ chối ngay bằng HTTP 400, không chạm tới engine.
+    if (!guard.ok && guard.blocked) throw new BadRequestException(guard.reason);
     if (!guard.ok) return { status: 'REJECTED', error: guard.reason };
 
-    const { sandbox_db_url } = await this.datasets.fetchDatasetInfo(resourceId);
+    const sandbox_db_url = await this.resolveDbUrl(resourceId);
     try {
       const rs = await this.execute(sandbox_db_url, guard.sql);
       return { status: 'OK', result: toPreview(rs) };
@@ -87,13 +90,12 @@ export class SqlGraderService {
   ): Promise<SqlGradeResult> {
     const maxScore = exercise.points;
     const guard = checkStudentSql(studentSql);
+    if (!guard.ok && guard.blocked) throw new BadRequestException(guard.reason);
     if (!guard.ok) {
       return { status: 'REJECTED', score: 0, maxScore, feedback: guard.reason };
     }
 
-    const { sandbox_db_url } = await this.datasets.fetchDatasetInfo(
-      exercise.resource_id,
-    );
+    const sandbox_db_url = await this.resolveDbUrl(exercise.resource_id);
 
     // Câu tham chiếu cũng đi qua cùng lớp kiểm tra, không có đường chạy riêng.
     const reference = checkStudentSql(exercise.solutionCode);
@@ -138,6 +140,12 @@ export class SqlGraderService {
       feedback: cmp.feedback,
       result: toPreview(actual),
     };
+  }
+
+  /** Engine tự chứa dữ liệu (SQLite in-memory) thì không cần máy chủ dữ liệu; engine Postgres thì lấy sandbox_db_url từ đó. */
+  private async resolveDbUrl(resourceId: string): Promise<string> {
+    if (this.executor.usesDatasetUrl === false) return '';
+    return (await this.datasets.fetchDatasetInfo(resourceId)).sandbox_db_url;
   }
 
   private async execute(dbUrl: string, sql: string): Promise<ResultSet> {

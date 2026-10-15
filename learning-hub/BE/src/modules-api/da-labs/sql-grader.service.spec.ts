@@ -1,4 +1,5 @@
-import { ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, ServiceUnavailableException } from '@nestjs/common';
+import { DATA_LAB_BLOCKED_MESSAGE } from './sql-guard';
 import { Client, types } from 'pg';
 import { SqlGraderService, SQL_TIMEOUT_MS } from './sql-grader.service';
 import {
@@ -179,15 +180,23 @@ describe('SqlGraderService', () => {
       "SELECT 1; DROP TABLE orders; --",
       'WITH x AS (DELETE FROM orders RETURNING *) SELECT * FROM x',
       'SELECT * INTO orders_copy FROM orders',
-      'SELECT pg_sleep(60)',
       'TRUNCATE orders',
-    ])('chặn "%s" trước khi chạm tới sandbox', async (sql) => {
-      const result = await service.grade(exercise(), sql);
+      'REPLACE INTO orders VALUES (1)',
+      'PRAGMA table_info(orders)',
+      "ATTACH DATABASE 'x.db' AS x",
+      'SELECT * FROM sqlite_master',
+    ])('chặn "%s" bằng HTTP 400 trước khi chạm tới sandbox', async (sql) => {
+      await expect(service.grade(exercise(), sql)).rejects.toThrow(DATA_LAB_BLOCKED_MESSAGE);
+      await expect(service.run('ds-retail-ecommerce-sales-v1', sql)).rejects.toThrow(BadRequestException);
+      expect(executor.run).not.toHaveBeenCalled();
+      expect(datasets.fetchDatasetInfo).not.toHaveBeenCalled();
+    });
 
+    it('chặn hàm hệ thống pg_sleep: REJECTED, không chạm sandbox', async () => {
+      const result = await service.grade(exercise(), 'SELECT pg_sleep(60)');
       expect(result.status).toBe('REJECTED');
       expect(result.score).toBe(0);
       expect(executor.run).not.toHaveBeenCalled();
-      expect(datasets.fetchDatasetInfo).not.toHaveBeenCalled();
     });
 
     it('chữ "DROP TABLE" nằm trong chuỗi literal thì không bị chặn nhầm', async () => {

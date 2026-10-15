@@ -114,6 +114,17 @@ export interface TeacherReviewResult {
   reviewedAt: string;
 }
 
+/** Một lần nộp trong lịch sử làm bài của học viên (GET /da-labs/:slug/history). */
+export interface DaHistoryRow {
+  type: 'SQL' | 'INSIGHT';
+  content: string;
+  status: string;
+  score: number;
+  maxScore: number;
+  feedback: string;
+  submittedAt: string;
+}
+
 /** Bài nộp Insight mới nhất của chính học viên (GET /da-labs/exercises/:id/my-submission). */
 export interface MyDaSubmission {
   id: string;

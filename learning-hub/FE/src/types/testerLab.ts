@@ -40,6 +40,12 @@ export interface TesterLabSubmission {
   autoCheckResults: AutoCheckResult[];
   rubricGrades: RubricGrade[];
   reviewerNotes: string;
+  /** 'FORM': nộp bằng biểu mẫu test case + bug report; 'FILE' (hoặc thiếu ở bản cũ): nộp file. */
+  kind?: 'FILE' | 'FORM';
+  formData?: {
+    testCases: Array<{ code: string; description: string; input: string; expected: string }>;
+    bugReports: Array<{ title: string; steps: string; expected: string; actual: string; severity: string }>;
+  };
   status: 'SUBMITTED' | 'REVIEWED';
   createdAt: string;
 }
