@@ -26,6 +26,13 @@ const STALE_RUNNING_THRESHOLD_MS = 30_000;
 const SWEEP_INTERVAL_MS = 30_000;
 const MAX_ATTEMPTS = 3;
 
+/** Thông báo tổng quát cho lỗi xảy ra ở test ẩn (không chứa input/expected/stderr). */
+const GENERIC_ERROR: Partial<Record<JudgeStatus, string>> = {
+  [JudgeStatus.WA]: 'Wrong Answer',
+  [JudgeStatus.RE]: 'Runtime Error',
+  [JudgeStatus.TLE]: 'Time Limit Exceeded',
+};
+
 /**
  * In-process job queue + worker for grading submissions. No Redis/BullMQ (consistent with
  * Day 7's decision not to add Docker — new shared infra needs team buy-in first); this is a
@@ -97,8 +104,10 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
     if (!claimed) return;
 
     try {
+      // Luồng chấm nội bộ: chủ động lấy hiddenTestCases (select:false) để chấm đủ test ẩn.
       const exercise = await this.exerciseModel
         .findById(claimed.exerciseId)
+        .select('+hiddenTestCases')
         .lean();
       if (!exercise) {
         await this.finish(submissionId, {
@@ -129,7 +138,13 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
 
       // Bài không có test case thì không có căn cứ chấm: trước đây gán AC,
       // làm học viên "giải" được bài mà không cần code đúng.
-      if (!exercise.testCases?.length) {
+      // Test hiển thị (testCases, có thể kèm isHidden của bài cũ) + test ẩn tách riêng (hiddenTestCases).
+      const testCases = [
+        ...(exercise.testCases ?? []),
+        ...(exercise.hiddenTestCases ?? []).map((t) => ({ ...t, isHidden: true })),
+      ];
+
+      if (!testCases.length) {
         await this.finish(submissionId, {
           status: JudgeStatus.FAILED,
           errorMessage: 'Bài tập thiếu Test Cases, không thể chấm điểm',
@@ -146,13 +161,12 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
           status: JudgeStatus.CE,
           errorMessage: syntaxCheck.errorMessage,
           passedCount: 0,
-          totalCount: (exercise.testCases ?? []).length,
+          totalCount: testCases.length,
           results: [],
         });
         return;
       }
 
-      const testCases = exercise.testCases ?? [];
       const results: SubmissionTestResult[] = [];
       let status: JudgeStatus = JudgeStatus.AC;
       let errorMessage: string | undefined;
@@ -202,7 +216,8 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
           input: tc.isHidden ? undefined : tc.input,
           expectedOutput: tc.isHidden ? undefined : expectedOutput,
           actualOutput: tc.isHidden ? undefined : actualOutput,
-          stderr: run.stderr || undefined,
+          // stderr của test ẩn có thể phản chiếu input/expected (vd ValueError nêu giá trị): không lưu.
+          stderr: tc.isHidden ? undefined : run.stderr || undefined,
           executionTimeMs: run.executionTimeMs,
           memoryUsedMb: run.peakMemoryMb,
         });
@@ -211,7 +226,12 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
           if (run.timedOut) status = JudgeStatus.TLE;
           else if (run.exitCode !== 0) status = JudgeStatus.RE;
           else status = JudgeStatus.WA;
-          if (run.stderr) errorMessage = run.stderr;
+          // Test ẩn chỉ trả thông báo tổng quát theo loại lỗi, không dump stderr.
+          if (tc.isHidden) {
+            errorMessage = GENERIC_ERROR[status] ?? 'Wrong Answer';
+          } else if (run.stderr) {
+            errorMessage = run.stderr;
+          }
         }
       }
 
@@ -232,7 +252,8 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
       );
       await this.finish(submissionId, {
         status: JudgeStatus.FAILED,
-        errorMessage: err instanceof Error ? err.message : String(err),
+        // Chi tiết lỗi chỉ ghi log phía server, không trả cho học viên.
+        errorMessage: 'Lỗi hệ thống khi chấm bài, vui lòng thử lại sau',
       });
     }
   }

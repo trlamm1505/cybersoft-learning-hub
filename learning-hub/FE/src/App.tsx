@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { MOCK_LESSONS } from './data/mockLessons';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -9,6 +9,11 @@ import { QuizTakingPage } from './pages/QuizTakingPage';
 import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
 import { BlockPuzzlePage } from './pages/BlockPuzzlePage';
 import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
+import { TeacherExerciseFormPage } from './pages/TeacherExerciseFormPage';
+import { KidHeader } from './components/KidHeader';
+import { KidFooter } from './components/KidFooter';
+import { KidProgressView } from './components/KidProgressView';
+import { isKidAllowedPath, isKidMode, KID_HOME } from './common/kidMode';
 import { TeacherProblemGeneratorPage } from './pages/TeacherProblemGeneratorPage';
 import { LearnerProgressPage } from './pages/LearnerProgressPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -78,6 +83,7 @@ const mapAuthoringToCourseLesson = (al: LessonAuthoring, index: number): Lesson 
 
 export function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [teacherLessons, setTeacherLessons] = useState<LessonAuthoring[]>([]);
 
   const [selectedLessonId, setSelectedLessonId] = useState<string>(
@@ -123,6 +129,9 @@ export function App() {
   // (giữ trải nghiệm xem trước hiện có cho khách chưa có tài khoản).
   // TEACHER và ADMIN cùng dùng giao diện giảng viên (ma trận quyền chung với BE).
   const userRole: 'student' | 'teacher' = isStaff(authUser?.role) ? 'teacher' : 'student';
+
+  // Kid Mode (Lớp 3-5): toàn bộ vỏ giao diện đổi sang bản trẻ em, luôn ở giao diện sáng.
+  const kidMode = isKidMode(authUser, location.search);
 
   // Fetch teacher lessons from BE on load
   const fetchTeacherLessons = useCallback(async () => {
@@ -171,13 +180,17 @@ export function App() {
 
   // Sync theme class with document element and save preference
   useEffect(() => {
+    document.documentElement.classList.toggle('kid-mode', kidMode);
+  }, [kidMode]);
+
+  useEffect(() => {
     localStorage.setItem('app_is_light_theme', JSON.stringify(isLightTheme));
-    if (isLightTheme) {
+    if (isLightTheme || kidMode) {
       document.documentElement.classList.remove('theme-dark');
     } else {
       document.documentElement.classList.add('theme-dark');
     }
-  }, [isLightTheme]);
+  }, [isLightTheme, kidMode]);
 
   // Save selected lesson ID to localStorage
   useEffect(() => {
@@ -241,7 +254,8 @@ export function App() {
     // biệt giữa các tài khoản khác nhau trên cùng trình duyệt, không cần xoá.
     clearAuthSession();
     setAuthUser(null);
-    navigate('/catalog');
+    // Học sinh Kid Mode về trang đăng nhập sạch; người dùng khác giữ hành vi cũ.
+    navigate(kidMode ? '/login' : '/catalog');
   };
 
   const handleLessonSaved = (savedLesson: LessonAuthoring) => {
@@ -287,6 +301,7 @@ export function App() {
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/classes" element={<AdminClassesPage />} />
+          <Route path="/admin/exercises" element={<TeacherExerciseFormPage isAdmin />} />
           <Route
             path="/admin/profile"
             element={<ProfilePage authUser={authUser} onAvatarChange={handleAvatarChanged} onProfileChange={handleProfileUpdated} />}
@@ -302,19 +317,25 @@ export function App() {
     <div className="min-h-screen flex flex-col">
       {needsAgeGroup && <AgeGroupModal onSelected={handleAgeGroupSelected} />}
 
-      {/* Navigation Header */}
-      <Header
-        isLightTheme={isLightTheme}
-        onToggleTheme={() => setIsLightTheme(!isLightTheme)}
-        userRole={userRole}
-        authUser={authUser}
-        onLogout={handleLogout}
-      />
+      {/* Navigation Header: Kid Mode dùng thanh điều hướng riêng với đúng 2 nút lớn */}
+      {kidMode ? (
+        <KidHeader authUser={authUser} onLogout={handleLogout} />
+      ) : (
+        <Header
+          isLightTheme={isLightTheme}
+          onToggleTheme={() => setIsLightTheme(!isLightTheme)}
+          userRole={userRole}
+          authUser={authUser}
+          onLogout={handleLogout}
+        />
+      )}
 
       {/* Main Routes Container */}
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
+        {/* Kid Mode: chỉ mở Góc Học Tập, Block Puzzle, Thành tích, Hồ sơ; mọi trang khác về Góc Học Tập. */}
+        {kidMode && !isKidAllowedPath(location.pathname) && <Navigate to={KID_HOME} replace />}
         <Routes>
-          <Route path="/" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
+          <Route path="/" element={<Navigate to={kidMode ? KID_HOME : userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
           <Route
             path="/catalog"
             element={
@@ -375,11 +396,11 @@ export function App() {
           />
           <Route
             path="/playground"
-            element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} authUser={authUser} />}
+            element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} authUser={authUser} kidMode={kidMode} />}
           />
           <Route
             path="/block-puzzle"
-            element={<BlockPuzzlePage teacherLessons={publishedTeacherLessons} authUser={authUser} />}
+            element={<BlockPuzzlePage teacherLessons={publishedTeacherLessons} authUser={authUser} kidMode={kidMode} />}
           />
           <Route path="/contests" element={<ContestListPage authUser={authUser} />} />
           <Route path="/login" element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />
@@ -400,6 +421,16 @@ export function App() {
             }
           />
           <Route
+            path="/teacher/exercises"
+            element={
+              isStaff(authUser?.role) ? (
+                <TeacherExerciseFormPage />
+              ) : (
+                <Navigate to={authUser ? '/catalog' : '/login'} replace />
+              )
+            }
+          />
+          <Route
             path="/problem-generator"
             element={
               isStaff(authUser?.role) ? (
@@ -412,7 +443,9 @@ export function App() {
           <Route
             path="/progress"
             element={
-              authUser?.role === 'STUDENT' ? (
+              kidMode ? (
+                <KidProgressView authUser={authUser} teacherLessons={publishedTeacherLessons} />
+              ) : authUser?.role === 'STUDENT' ? (
                 <LearnerProgressPage />
               ) : (
                 <Navigate to={authUser ? '/catalog' : '/login'} replace />
@@ -494,7 +527,7 @@ export function App() {
       </div>
 
       {/* Footer */}
-      <Footer />
+      {kidMode ? <KidFooter /> : <Footer />}
     </div>
   );
 }

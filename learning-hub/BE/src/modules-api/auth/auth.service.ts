@@ -106,9 +106,9 @@ export class AuthService {
   /**
    * Đặt nhóm tuổi cho tài khoản STUDENT hiện tại — gọi từ modal bắt buộc
    * chọn nhóm tuổi ngay sau lần đăng nhập đầu tiên (khi ageGroup còn rỗng).
-   * Chỉ set được một lần theo hướng "chưa có thì set" ở phía FE (modal không
-   * hiện lại sau khi đã có); Backend không chặn set lại vì đổi lớp cho học
-   * viên là thao tác hợp lệ (ví dụ lên lớp), chỉ ràng buộc giá trị hợp lệ.
+   * Chỉ set được MỘT lần: khi đã có nhóm tuổi, học viên không tự đổi sang nhóm
+   * khác được (nếu không sẽ vượt rào phân quyền theo nhóm của Exercise). Việc đổi
+   * nhóm (ví dụ lên lớp) do quản trị viên thực hiện.
    */
   async setAgeGroup(
     userId: string,
@@ -126,6 +126,12 @@ export class AuthService {
     }
     if (user.role !== 'STUDENT') {
       throw new BadRequestException('Chỉ tài khoản học viên mới có nhóm tuổi.');
+    }
+
+    if (user.ageGroup && user.ageGroup !== ageGroup) {
+      throw new ForbiddenException(
+        'Nhóm tuổi đã được thiết lập, vui lòng liên hệ quản trị viên để thay đổi.',
+      );
     }
 
     user.ageGroup = ageGroup as AgeGroup;

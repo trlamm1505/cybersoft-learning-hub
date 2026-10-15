@@ -51,7 +51,17 @@ import { BUILTIN_GAMES, completedLevels, findBuiltinGame } from '../games/regist
 interface BlockPuzzlePageProps {
   teacherLessons?: LessonAuthoring[];
   authUser?: AuthUser | null;
+  /** Kid Mode (Lớp 3-5): thẻ trò chơi và tiêu đề đổi sang kiểu pastel, nhãn vui nhộn. */
+  kidMode?: boolean;
 }
+
+/** Nhãn sinh động trên thẻ game của Kid Mode. */
+const kidGameLabel = (done: number, total: number): { text: string; cls: string } =>
+  done >= total
+    ? { text: '🎉 Phá đảo!', cls: 'bg-emerald-100 text-emerald-700' }
+    : done > 0
+      ? { text: `⭐ Đang chơi ${done}/${total}`, cls: 'bg-amber-100 text-amber-700' }
+      : { text: '🚀 Mới toanh!', cls: 'bg-sky-100 text-sky-700' };
 
 const CONCEPT_META: Record<string, { label: string; Icon: LucideIcon; color: string }> = {
   sequence: { label: 'Tuần tự', Icon: Hash, color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-300' },
@@ -397,7 +407,7 @@ function simulateRun(
   return { steps, success: false, message: 'Chưa tới đích rồi, thử xếp lại các khối lệnh nhé!' };
 }
 
-export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons = [], authUser }) => {
+export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons = [], authUser, kidMode = false }) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
@@ -727,6 +737,12 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
   if (selectedGameId === null) {
     return (
       <div className="space-y-6 animate-fade-in pb-16">
+        {kidMode ? (
+          <div className="rounded-3xl bg-gradient-to-r from-sky-300 via-cyan-200 to-amber-200 p-6 text-slate-800 shadow-lg md:p-8">
+            <h1 className="text-3xl font-black md:text-4xl">Góc Học Tập 🚀</h1>
+            <p className="mt-1 text-lg font-bold">Chọn một trò chơi và bắt đầu phiêu lưu nào!</p>
+          </div>
+        ) : (
         <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-cyan-900 text-white rounded-3xl p-6 md:p-8 shadow-xl">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-white/10 border border-white/20">
             <Gamepad2 size={14} strokeWidth={2.5} />
@@ -735,6 +751,7 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
           <h1 className="text-2xl md:text-3xl font-black tracking-tight mt-2">Chọn Trò Chơi</h1>
           <p className="text-sm text-indigo-200 mt-1">Mỗi trò chơi là một chuỗi bài luyện tư duy lập trình qua kéo-thả khối lệnh.</p>
         </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {BUILTIN_GAMES.map((bg) => {
@@ -752,19 +769,27 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                   }
                   setSelectedGameId(bg.id);
                 }}
-                className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md transition-all text-left cursor-pointer flex flex-col gap-3"
+                className={
+                  kidMode
+                    ? 'p-6 rounded-2xl border-4 border-sky-200 bg-white hover:border-pink-300 hover:shadow-lg hover:scale-[1.02] transition-all text-left cursor-pointer flex flex-col gap-3'
+                    : 'p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md transition-all text-left cursor-pointer flex flex-col gap-3'
+                }
               >
-                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${bg.gradient} flex items-center justify-center text-white shadow-md`}>
-                  {all ? <Trophy size={22} strokeWidth={2} /> : <Puzzle size={22} strokeWidth={2} />}
+                <div className={`${kidMode ? 'w-16 h-16' : 'w-12 h-12'} rounded-2xl bg-gradient-to-br ${bg.gradient} flex items-center justify-center text-white shadow-md`}>
+                  {all ? <Trophy size={kidMode ? 32 : 22} strokeWidth={2} /> : <Puzzle size={kidMode ? 32 : 22} strokeWidth={2} />}
                 </div>
                 <div>
-                  <div className="font-extrabold text-base text-[var(--text-main)]">{bg.title}</div>
-                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{bg.levels > 1 ? `${bg.levels} màn · ` : ''}{bg.tagline}</div>
+                  <div className={kidMode ? 'font-black text-2xl text-slate-800' : 'font-extrabold text-base text-[var(--text-main)]'}>{bg.title}</div>
+                  <div className={kidMode ? 'text-base font-semibold text-slate-600 mt-0.5' : 'text-xs text-[var(--text-muted)] mt-0.5'}>{bg.levels > 1 ? `${bg.levels} màn · ` : ''}{bg.tagline}</div>
                 </div>
                 <div className="mt-auto pt-2 border-t border-[var(--border-color)] flex items-center justify-between text-xs font-bold">
+                  {kidMode ? (
+                    <span className={`rounded-full px-3 py-1 text-base font-black ${kidGameLabel(done, bg.levels).cls}`}>{kidGameLabel(done, bg.levels).text}</span>
+                  ) : (
                   <span className={all ? 'text-emerald-700 dark:text-emerald-400' : 'text-[var(--text-muted)]'}>
                     {all ? 'Đã hoàn thành' : `Tiến độ: ${done}/${bg.levels}`}
                   </span>
+                  )}
                 </div>
               </button>
             );
@@ -784,19 +809,27 @@ export const BlockPuzzlePage: React.FC<BlockPuzzlePageProps> = ({ teacherLessons
                   }
                   setSelectedGameId(game.gameId);
                 }}
-                className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md transition-all text-left cursor-pointer flex flex-col gap-3"
+                className={
+                  kidMode
+                    ? 'p-6 rounded-2xl border-4 border-sky-200 bg-white hover:border-pink-300 hover:shadow-lg hover:scale-[1.02] transition-all text-left cursor-pointer flex flex-col gap-3'
+                    : 'p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md transition-all text-left cursor-pointer flex flex-col gap-3'
+                }
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md">
-                  {isGameDone ? <Trophy size={22} strokeWidth={2} /> : <Puzzle size={22} strokeWidth={2} />}
+                <div className={`${kidMode ? 'w-16 h-16' : 'w-12 h-12'} rounded-2xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md`}>
+                  {isGameDone ? <Trophy size={kidMode ? 32 : 22} strokeWidth={2} /> : <Puzzle size={kidMode ? 32 : 22} strokeWidth={2} />}
                 </div>
                 <div>
-                  <div className="font-extrabold text-base text-[var(--text-main)]">{game.gameTitle}</div>
-                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{game.lessons.length} bài</div>
+                  <div className={kidMode ? 'font-black text-2xl text-slate-800' : 'font-extrabold text-base text-[var(--text-main)]'}>{game.gameTitle}</div>
+                  <div className={kidMode ? 'text-base font-semibold text-slate-600 mt-0.5' : 'text-xs text-[var(--text-muted)] mt-0.5'}>{game.lessons.length} bài</div>
                 </div>
                 <div className="mt-auto pt-2 border-t border-[var(--border-color)] flex items-center justify-between text-xs font-bold">
+                  {kidMode ? (
+                    <span className={`rounded-full px-3 py-1 text-base font-black ${kidGameLabel(gameCompletedCount, game.lessons.length).cls}`}>{kidGameLabel(gameCompletedCount, game.lessons.length).text}</span>
+                  ) : (
                   <span className={isGameDone ? 'text-emerald-700 dark:text-emerald-400' : 'text-[var(--text-muted)]'}>
                     {isGameDone ? 'Đã hoàn thành' : `Tiến độ: ${gameCompletedCount}/${game.lessons.length}`}
                   </span>
+                  )}
                 </div>
               </button>
             );

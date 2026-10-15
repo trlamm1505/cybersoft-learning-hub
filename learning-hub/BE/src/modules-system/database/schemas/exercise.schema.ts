@@ -89,6 +89,41 @@ export class Exercise {
   @Prop({ type: String })
   prerequisiteSlug?: string;
 
+  // Ma trận nhóm đối tượng x loại lab (xem modules-api/exercise/exercise-matrix.ts).
+  // Bài cũ chưa có hai trường này; bài tạo/sửa qua /exercises và seed-matrix bắt buộc có.
+  @Prop({ type: String, enum: ['K3_5', 'K6_9', 'K10_12', 'CAREER_ADULT'], index: true })
+  targetGroup?: string;
+
+  @Prop({
+    type: String,
+    enum: ['PUZZLE_BLOCK', 'PYTHON_CODE', 'ALGO_JUDGE', 'DATA_SQL', 'AI_PROMPT', 'TESTER_QA'],
+  })
+  labType?: string;
+
+  // Bài K3_5 (PUZZLE_BLOCK): câu chuyện dẫn dắt và ảnh minh họa (URL https hoặc data URL ảnh nhỏ).
+  @Prop({ type: String })
+  storyContext?: string;
+
+  @Prop({ type: String })
+  illustrationUrl?: string;
+
+  // Bài CAREER_ADULT DATA_SQL: mã dataset mẫu liên kết (vd sales_v1).
+  @Prop({ type: String })
+  datasetId?: string;
+
+  // userId của người tạo (giảng viên chỉ được sửa/xóa bài của chính mình).
+  @Prop({ type: String, index: true })
+  authorId?: string;
+
+  // Test ẩn và lời giải chính thức: select:false nên MỌI truy vấn mặc định đều
+  // không thấy. Chỉ judge (+hiddenTestCases) và màn quản trị của staff mới
+  // chủ động select thêm. Bài cũ vẫn để test ẩn trong testCases (isHidden).
+  @Prop({ type: [ExerciseTestCaseSchema], default: [], select: false })
+  hiddenTestCases: ExerciseTestCase[];
+
+  @Prop({ type: String, select: false })
+  officialSolution?: string;
+
   // Grade band this exercise targets ('3-5' | '6-9' | '9-12', ...). Lets the UI
   // filter the catalog by class level instead of showing every exercise flat.
   @Prop({ type: String })

@@ -15,7 +15,12 @@ import {
   ArrowRight,
   PartyPopper,
   Bot,
+  Briefcase,
+  Star,
 } from 'lucide-react';
+import { KidExerciseView } from '../components/KidExerciseView';
+import { CareerLabHub } from '../components/CareerLabHub';
+import { bandOfExercise, UNGRADED } from '../common/exerciseMatrix';
 import { CodeEditor } from '../components/CodeEditor';
 import { OutputPanel } from '../components/OutputPanel';
 import { TestResultsPanel } from '../components/TestResultsPanel';
@@ -28,6 +33,7 @@ import exerciseApi from '../axios/exerciseApi';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
 import type { LessonAuthoring } from '../types/authoring';
 import type { AuthUser } from '../types/auth';
+import { isStaff } from '../types/auth';
 import { TERMINAL_SUBMISSION_STATUSES } from '../types/exercise';
 
 /** Khách chưa đăng nhập bấm Chạy / Nộp bài (bước kiểm tra cú pháp chạy trong Nộp bài). */
@@ -40,6 +46,8 @@ interface CodePlaygroundPageProps {
   isDark?: boolean;
   teacherLessons?: LessonAuthoring[];
   authUser?: AuthUser | null;
+  /** Kid Mode (Lớp 3-5): vào thẳng khối 3-5, không có lối sang khối khác. */
+  kidMode?: boolean;
 }
 
 const DIFFICULTY_BADGE: Record<string, string> = {
@@ -48,7 +56,7 @@ const DIFFICULTY_BADGE: Record<string, string> = {
   HARD: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300',
 };
 
-export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherLessons = [], authUser }) => {
+export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherLessons = [], authUser, kidMode = false }) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [exercises, setExercises] = useState<ExerciseListItem[]>([]);
@@ -69,14 +77,13 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
 
   // Grade/topic filters — narrow the exercise dropdown by class level and by
   // game/topic pack within that level, instead of one flat list mixing everything.
-  const UNGRADED = '__ungraded__';
-  const [selectedGradeBand, setSelectedGradeBand] = useState<string | null>(null);
+  const [selectedGradeBand, setSelectedGradeBand] = useState<string | null>(kidMode ? '3-5' : null);
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
 
   // Navigation: Code Playground opens on a grade-picker screen, then a card grid of
   // exercises for that grade/topic, and only opens the code editor once a specific
   // exercise card is clicked — instead of dropping straight into an editor.
-  const [view, setView] = useState<'grade' | 'exercises' | 'editor'>('grade');
+  const [view, setView] = useState<'grade' | 'exercises' | 'editor'>(kidMode ? 'exercises' : 'grade');
 
   // Sequential unlock within a topic: exercise N+1 only opens once exercise N has
   // been solved correctly (AC), same rule and localStorage-based persistence as the
@@ -186,12 +193,13 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
 
   // Grade bands actually present in the catalog, in a fixed pedagogical order
   // (ungraded/legacy first, then 3-5 -> 6-9 -> 9-12), not alphabetical.
-  const GRADE_BAND_ORDER = [UNGRADED, '3-5', '6-9', '9-12'];
+  const GRADE_BAND_ORDER = [UNGRADED, '3-5', '6-9', '9-12', 'CAREER_ADULT'];
   const GRADE_BAND_LABEL: Record<string, string> = {
     [UNGRADED]: 'Bài cũ (chưa phân lớp)',
     '3-5': 'Lớp 3-5',
     '6-9': 'Lớp 6-9',
     '9-12': 'Lớp 10-12',
+    CAREER_ADULT: 'Người lớn / Chuyên ngành',
   };
   // Icon + accent gradient per grade band — younger bands get warmer, more playful
   // color to match the age group; older bands read calmer/more "serious tool".
@@ -200,29 +208,38 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
     '3-5': Baby,
     '6-9': Gamepad2,
     '9-12': Rocket,
+    CAREER_ADULT: Briefcase,
   };
   const GRADE_BAND_GRADIENT: Record<string, string> = {
     [UNGRADED]: 'from-slate-500 to-slate-600',
     '3-5': 'from-orange-400 to-pink-500',
     '6-9': 'from-indigo-600 to-cyan-500',
     '9-12': 'from-slate-700 to-slate-900',
+    CAREER_ADULT: 'from-sky-600 to-indigo-700',
   };
   const availableGradeBands = useMemo(() => {
-    const present = new Set(combinedExercises.map((ex) => ex.gradeBand || UNGRADED));
-    return GRADE_BAND_ORDER.filter((band) => present.has(band));
-  }, [combinedExercises]);
+    const present = new Set(combinedExercises.map((ex) => bandOfExercise(ex)));
+    const staff = isStaff(authUser?.role);
+    return GRADE_BAND_ORDER.filter((band) => {
+      // Khối 3-5 và Người lớn luôn có cổng vào riêng (không phụ thuộc có bài trong danh sách).
+      if (band === '3-5' || band === 'CAREER_ADULT') return true;
+      // Card "Bài cũ (chưa phân lớp)" chỉ để Giảng viên/Quản trị viên quản lý, học viên không thấy.
+      if (band === UNGRADED) return staff && present.has(band);
+      return present.has(band);
+    });
+  }, [combinedExercises, authUser?.role]);
 
   // Topics (game/chủ đề packs) available within the selected grade band.
   const availableTopics = useMemo(() => {
     if (selectedGradeBand === null) return [];
-    const inBand = combinedExercises.filter((ex) => (ex.gradeBand || UNGRADED) === selectedGradeBand);
+    const inBand = combinedExercises.filter((ex) => bandOfExercise(ex) === selectedGradeBand);
     const topics = new Set(inBand.map((ex) => ex.topic).filter((t): t is string => Boolean(t)));
     return Array.from(topics).sort();
   }, [combinedExercises, selectedGradeBand]);
 
   const filteredExercises = useMemo(() => {
     if (selectedGradeBand === null) return [];
-    let list = combinedExercises.filter((ex) => (ex.gradeBand || UNGRADED) === selectedGradeBand);
+    let list = combinedExercises.filter((ex) => bandOfExercise(ex) === selectedGradeBand);
     if (selectedTopic !== 'all') {
       list = list.filter((ex) => ex.topic === selectedTopic);
     }
@@ -371,7 +388,8 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
         starterCode: tLesson.starterCode || '# Viết mã nguồn Python tại đây\n',
         timeLimitMs: 2000,
         hiddenTestCount: (tLesson.testCases || []).filter((tc) => tc.isHidden).length,
-        testCases: (tLesson.testCases || []).map((tc) => ({
+        // Học viên không bao giờ nhận test ẩn trong state UI.
+        testCases: (tLesson.testCases || []).filter((tc) => !tc.isHidden).map((tc) => ({
           input: tc.input,
           expectedOutput: tc.expectedOutput,
           isHidden: tc.isHidden ?? false,
@@ -634,8 +652,9 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {availableGradeBands.map((band) => {
-            const count = combinedExercises.filter((ex) => (ex.gradeBand || UNGRADED) === band).length;
+            const count = combinedExercises.filter((ex) => bandOfExercise(ex) === band).length;
             const BandIcon = GRADE_BAND_ICON[band] ?? BookOpen;
+            const isKid = band === '3-5';
             return (
               <button
                 key={band}
@@ -643,16 +662,25 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
                   setSelectedGradeBand(band);
                   setView('exercises');
                 }}
-                className="p-6 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md transition-all text-left cursor-pointer flex items-center gap-4"
+                className={
+                  isKid
+                    ? 'p-7 rounded-2xl border-4 border-amber-300 bg-gradient-to-br from-amber-50 to-pink-50 dark:from-amber-950/40 dark:to-pink-950/30 hover:border-pink-400 hover:shadow-lg hover:scale-[1.02] transition-all text-left cursor-pointer flex items-center gap-5 sm:col-span-2'
+                    : 'p-6 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md transition-all text-left cursor-pointer flex items-center gap-4'
+                }
               >
                 <div
-                  className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${GRADE_BAND_GRADIENT[band] ?? GRADE_BAND_GRADIENT[UNGRADED]} flex items-center justify-center text-white shadow-md shrink-0`}
+                  className={`${isKid ? 'w-20 h-20' : 'w-14 h-14'} rounded-2xl bg-gradient-to-br ${GRADE_BAND_GRADIENT[band] ?? GRADE_BAND_GRADIENT[UNGRADED]} flex items-center justify-center text-white shadow-md shrink-0`}
                 >
-                  <BandIcon size={26} strokeWidth={2} />
+                  <BandIcon size={isKid ? 40 : 26} strokeWidth={isKid ? 2.5 : 2} />
                 </div>
                 <div>
-                  <div className="font-extrabold text-base text-[var(--text-main)]">{GRADE_BAND_LABEL[band] ?? band}</div>
-                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{count} bài</div>
+                  <div className={isKid ? 'font-black text-3xl text-slate-800 dark:text-amber-50' : 'font-extrabold text-base text-[var(--text-main)]'}>
+                    {GRADE_BAND_LABEL[band] ?? band}
+                  </div>
+                  <div className={isKid ? 'text-base font-bold text-pink-600 mt-1 flex items-center gap-1' : 'text-xs text-[var(--text-muted)] mt-0.5'}>
+                    {isKid && <Star size={16} fill="currentColor" />}
+                    {band === 'CAREER_ADULT' ? 'Data Lab · AI Lab · Tester Lab' : `${count} bài`}
+                  </div>
                 </div>
               </button>
             );
@@ -669,26 +697,43 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
   }
 
   // ============ Screen 2: pick a topic (if more than one), then an exercise card ============
+  if (view === 'exercises' && selectedGradeBand === 'CAREER_ADULT') {
+    return (
+      <CareerLabHub
+        onBack={() => {
+          setView('grade');
+          setSelectedGradeBand(null);
+        }}
+        onOpen={(path) => navigate(path)}
+      />
+    );
+  }
+
   if (view === 'exercises') {
+    const isKidBand = selectedGradeBand === '3-5';
     return (
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-xs">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                setView('grade');
-                setSelectedGradeBand(null);
-              }}
-              aria-label="Quay lại chọn lớp"
-              className="w-9 h-9 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] flex items-center justify-center text-[var(--text-main)] cursor-pointer shrink-0"
-            >
-              <ArrowLeft size={16} strokeWidth={2} />
-            </button>
+            {!kidMode && (
+              <button
+                onClick={() => {
+                  setView('grade');
+                  setSelectedGradeBand(null);
+                }}
+                aria-label="Quay lại chọn lớp"
+                className="w-9 h-9 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] flex items-center justify-center text-[var(--text-main)] cursor-pointer shrink-0"
+              >
+                <ArrowLeft size={16} strokeWidth={2} />
+              </button>
+            )}
             <div>
-              <h1 className="text-base font-extrabold text-[var(--text-main)] tracking-tight">
-                {GRADE_BAND_LABEL[selectedGradeBand ?? ''] ?? ''}
+              <h1 className={kidMode ? 'text-3xl font-black text-sky-700' : 'text-base font-extrabold text-[var(--text-main)] tracking-tight'}>
+                {kidMode ? 'Góc Học Tập' : (GRADE_BAND_LABEL[selectedGradeBand ?? ''] ?? '')}
               </h1>
-              <p className="text-xs text-[var(--text-muted)]">Chọn 1 bài để bắt đầu làm.</p>
+              <p className={kidMode ? 'text-lg font-semibold text-slate-600' : 'text-xs text-[var(--text-muted)]'}>
+                {kidMode ? 'Chọn một thử thách để bắt đầu nhé!' : 'Chọn 1 bài để bắt đầu làm.'}
+              </p>
             </div>
           </div>
 
@@ -714,6 +759,20 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
           </div>
         )}
 
+        {isKidBand && filteredExercises.length === 0 && (
+          <div className="rounded-2xl border-4 border-dashed border-amber-300 bg-amber-50 dark:bg-amber-950/30 p-8 text-center">
+            <Star size={40} className="mx-auto text-amber-500" fill="currentColor" />
+            <p className="mt-3 text-xl font-black text-slate-800 dark:text-amber-50">Bài mới sắp đến rồi!</p>
+            <p className="mt-1 text-base font-semibold text-slate-600 dark:text-amber-100">Trong lúc chờ, mình chơi xếp khối nhé.</p>
+            <button
+              onClick={() => navigate('/block-puzzle')}
+              className="mt-4 cursor-pointer rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-500 px-6 py-3 text-lg font-black text-white shadow-md hover:scale-105 transition-transform"
+            >
+              Chơi xếp khối
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredExercises.map((item, idx) => {
             const unlocked = isExerciseUnlocked(idx);
@@ -723,9 +782,11 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
                 key={item.slug}
                 disabled={!unlocked}
                 onClick={() => unlocked && openExercise(item.slug)}
-                className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 ${
+                className={`${isKidBand ? 'p-6 border-4 border-amber-300 bg-amber-50 dark:bg-amber-950/30' : 'p-4 border'} rounded-2xl text-left transition-all flex flex-col gap-2 ${
                   unlocked
-                    ? 'border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md cursor-pointer'
+                    ? isKidBand
+                      ? 'hover:border-pink-400 hover:shadow-lg hover:scale-[1.02] cursor-pointer'
+                      : 'border-[var(--border-color)] bg-[var(--bg-card)] hover:border-indigo-500 hover:shadow-md cursor-pointer'
                     : 'border-[var(--border-color)] bg-[var(--bg-card)] opacity-50 cursor-not-allowed'
                 }`}
               >
@@ -741,7 +802,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
                     <Lock size={18} className="text-[var(--text-muted)]" strokeWidth={2} />
                   )}
                 </div>
-                <div className="font-bold text-sm text-[var(--text-main)] leading-snug">{item.title}</div>
+                <div className={isKidBand ? 'font-black text-xl text-slate-800 dark:text-amber-50 leading-snug' : 'font-bold text-sm text-[var(--text-main)] leading-snug'}>{item.title}</div>
                 <span className={`self-start text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${DIFFICULTY_BADGE[item.difficulty] || ''}`}>
                   {item.difficulty}
                 </span>
@@ -756,6 +817,17 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
           </div>
         )}
       </div>
+    );
+  }
+
+  // ============ Screen 3a: bài Lớp 3-5 (PUZZLE_BLOCK) — chỉ câu chuyện + ảnh + nút chơi, KHÔNG có editor/terminal ============
+  if (exercise && (exercise.labType === 'PUZZLE_BLOCK' || exercise.targetGroup === 'K3_5')) {
+    return (
+      <KidExerciseView
+        exercise={exercise}
+        onBack={() => setView('exercises')}
+        onOpenPuzzle={() => navigate('/block-puzzle')}
+      />
     );
   }
 

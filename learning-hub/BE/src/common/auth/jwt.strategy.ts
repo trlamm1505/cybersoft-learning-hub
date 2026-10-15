@@ -12,6 +12,8 @@ export interface JwtPayload {
   sub: string; // userId
   email: string;
   role: string;
+  /** Nhóm tuổi hiện tại của học viên (lấy từ CSDL mỗi request, không tin token). */
+  ageGroup?: string;
   /** Thời điểm cấp token (giây), do JWT tự thêm. */
   iat?: number;
 }
@@ -45,8 +47,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
     const user = await this.users
       .findById(payload.sub)
-      .select('role status sessionsRevokedAt')
-      .lean<{ role: string; status?: string; sessionsRevokedAt?: Date }>();
+      .select('role status sessionsRevokedAt ageGroup')
+      .lean<{
+        role: string;
+        status?: string;
+        sessionsRevokedAt?: Date;
+        ageGroup?: string;
+      }>();
     if (!user) {
       throw new UnauthorizedException('Phiên đăng nhập không còn hợp lệ.');
     }
@@ -60,6 +67,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     ) {
       throw new UnauthorizedException('Phiên đăng nhập đã bị thu hồi.');
     }
-    return { ...payload, role: user.role };
+    return { ...payload, role: user.role, ageGroup: user.ageGroup };
   }
 }

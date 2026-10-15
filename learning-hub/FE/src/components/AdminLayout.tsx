@@ -7,6 +7,7 @@ import {
   Menu,
   Moon,
   ChevronLeft,
+  Layers,
   ChevronRight,
   School,
   ShieldCheck,
@@ -39,6 +40,7 @@ const ADMIN_NAV: NavEntry[] = [
   { to: '/admin/dashboard', label: 'Tổng quan hệ thống', Icon: LayoutDashboard },
   { to: '/admin/users', label: 'Quản lý người dùng', Icon: Users },
   { to: '/admin/classes', label: 'Quản lý lớp học', Icon: School },
+  { to: '/admin/exercises', label: 'Soạn bài theo nhóm tuổi', Icon: Layers },
 ];
 
 export interface AdminOutletContext {

@@ -51,9 +51,14 @@ function makeFakeSubmissionModel(initialDocs: Record<string, any>) {
 
 function makeFakeExerciseModel(exercise: any) {
   return {
-    findById: jest.fn(() => ({
-      lean: jest.fn().mockResolvedValue(exercise),
-    })),
+    // Judge chủ động .select('+hiddenTestCases') nên mock chấp nhận cả select lẫn lean.
+    findById: jest.fn(() => {
+      const chain: any = {
+        select: jest.fn(() => chain),
+        lean: jest.fn().mockResolvedValue(exercise),
+      };
+      return chain;
+    }),
   };
 }
 

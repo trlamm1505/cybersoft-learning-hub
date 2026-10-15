@@ -2,10 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
-  FileText,
   ClipboardList,
   Code2,
-  Puzzle,
   Trophy,
   Wrench,
   Moon,
@@ -15,8 +13,6 @@ import {
   GraduationCap,
   Sparkles,
   FlaskConical,
-  Database,
-  BrainCircuit,
   ClipboardCheck,
   ListChecks,
   BarChart3,
@@ -26,6 +22,7 @@ import {
   Users,
   ChevronDown,
   LogOut,
+  Layers,
 } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 import { ROLE_LABEL } from '../types/auth';
@@ -38,19 +35,14 @@ const STUDENT_ONLY_TABS = new Set(['da-labs', 'ai-labs']);
 
 const STUDENT_NAV: NavItem[] = [
   { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
-  { key: 'detail', label: 'Chi tiết bài học', Icon: FileText, path: '/detail' },
-  { key: 'quiz', label: 'Thi Trắc Nghiệm', Icon: ClipboardList, path: '/quiz' },
-  { key: 'playground', label: 'Code Playground', Icon: Code2, path: '/playground' },
-  { key: 'block-puzzle', label: 'Block Puzzle', Icon: Puzzle, path: '/block-puzzle' },
-  { key: 'contests', label: 'Cuộc Thi & Lịch Thi', Icon: Trophy, path: '/contests' },
-  { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
-  { key: 'da-labs', label: 'DA Lab', Icon: Database, path: '/da-labs' },
-  { key: 'ai-labs', label: 'AI Lab', Icon: BrainCircuit, path: '/ai-labs' },
+  { key: 'playground', label: 'Bài tập / Playground', Icon: Code2, path: '/playground' },
+  { key: 'contests', label: 'Cuộc thi', Icon: Trophy, path: '/contests' },
 ];
 
 const TEACHER_NAV: NavItem[] = [
   { key: 'dashboard', label: 'Lớp của tôi', Icon: BarChart3, path: '/teacher/dashboard' },
   { key: 'authoring', label: 'Soạn Thảo Bài Thi', Icon: Wrench, path: '/authoring' },
+  { key: 'teacher-exercises', label: 'Soạn Bài Theo Nhóm Tuổi', Icon: Layers, path: '/teacher/exercises' },
   { key: 'teacher-library', label: 'Xem Các Bài Thi', Icon: ClipboardList, path: '/authoring?view=library' },
   { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
   { key: 'teacher-qa', label: 'Quality & QA Harness', Icon: ClipboardCheck, path: '/authoring?view=qa' },
@@ -117,6 +109,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
       return 'authoring';
     }
     if (path.startsWith('/problem-generator')) return 'problem-generator';
+    if (path.startsWith('/teacher/exercises')) return 'teacher-exercises';
     if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
     if (path.startsWith('/progress')) return 'progress';
