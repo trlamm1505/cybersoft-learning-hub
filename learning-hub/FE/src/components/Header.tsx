@@ -27,6 +27,7 @@ import {
 import type { AuthUser } from '../types/auth';
 import { ROLE_LABEL } from '../types/auth';
 import { OverflowNav } from './OverflowNav';
+import { isAuthPath } from '../common/authRoutes';
 import { UserAvatar } from './UserAvatar';
 import type { NavItem } from './OverflowNav';
 
@@ -141,6 +142,40 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
     navigate(path);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Trang xác thực (đăng nhập, đăng ký, quên/đặt lại mật khẩu): header chỉ có Logo và nút Sáng/Tối, không có menu nào.
+  if (isAuthPath(location.pathname)) {
+    return (
+      <header
+        className="sticky top-0 z-50 bg-[var(--bg-card)]/90 backdrop-blur-md border-b border-[var(--border-color)] shadow-xs"
+        role="banner"
+        data-testid="auth-header"
+      >
+        <div className="w-full px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2">
+          <button
+            onClick={() => handleNavigate(authUser ? (userRole === 'teacher' ? '/authoring' : '/playground') : '/login')}
+            className="flex items-center gap-2.5 text-[var(--text-main)] font-extrabold text-lg tracking-tight bg-transparent border-none cursor-pointer text-left"
+            aria-label="Trang chủ CyberSoft Hub"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 shrink-0">
+              <GraduationCap size={18} strokeWidth={2.25} />
+            </div>
+            <span className="whitespace-nowrap">
+              CyberSoft<span className="text-cyan-700 dark:text-cyan-400 ml-1">Hub</span>
+            </span>
+          </button>
+          <button
+            onClick={onToggleTheme}
+            className={iconBtnCls}
+            aria-label={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
+            title={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
+          >
+            {isLightTheme ? <Moon size={16} strokeWidth={2} /> : <Sun size={16} strokeWidth={2} />}
+          </button>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header

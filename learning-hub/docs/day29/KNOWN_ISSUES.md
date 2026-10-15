@@ -48,3 +48,13 @@ gian thực bé suy nghĩ, nên bé nghỉ giữa chừng sẽ bị tính thêm 
   sang mã tạm khi công khai ra ngoài. Ảnh đại diện dạng URL http(s) do bé tự nhập có thể là ảnh theo dõi (tracking pixel).
 - Dữ liệu mẫu: 5 tài khoản `seed-kid-*@demo.cybersoft.local` (cờ `isSeedDemo`) phải xóa trước khi phát hành:
   `node scripts/seed-kid-leaderboard.js --remove`.
+
+## 5. Luồng xác thực (đăng nhập / đăng ký)
+
+- Khách chưa đăng nhập chỉ vào được `/login`, `/register`, `/forgot-password`, `/reset-password`; mọi đường dẫn khác tự chuyển
+  về `/login`. Đây là chặn ở giao diện: dữ liệu thật vẫn do API kiểm tra token và quyền (xem mục 4).
+- Chính sách mật khẩu mới (8–32 ký tự, có chữ hoa, chữ thường, số, ký tự đặc biệt) chỉ áp dụng cho **đăng ký** và **đặt lại
+  mật khẩu**. **Đăng nhập không kiểm tra độ mạnh**, nên tài khoản cũ có mật khẩu yếu (đặt theo quy tắc cũ ≥ 6 ký tự) vẫn đăng
+  nhập được; cần có cơ chế buộc đổi mật khẩu nếu muốn siết chặt.
+- Ô "Đồng ý Điều khoản" chỉ có ở form **Đăng ký** và chỉ chặn ở form (nút bị khóa khi chưa tick; đăng nhập không cần tick); sự đồng ý **chưa được lưu** ở server (không có bằng chứng
+  thời điểm/phiên bản điều khoản) và chưa có xác thực OTP/email. Với học sinh nhỏ tuổi cần consent của phụ huynh (xem mục 1).

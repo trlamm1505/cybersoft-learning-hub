@@ -16,6 +16,7 @@ import { KidProgressView } from './components/KidProgressView';
 import { KidProfileView } from './components/KidProfileView';
 import { KidLeaderboardPage } from './components/KidLeaderboardPage';
 import { isKidAllowedPath, isKidMode, KID_HOME } from './common/kidMode';
+import { homeFor, isAuthPath } from './common/authRoutes';
 import { TeacherProblemGeneratorPage } from './pages/TeacherProblemGeneratorPage';
 import { LearnerProgressPage } from './pages/LearnerProgressPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -262,7 +263,8 @@ export function App() {
     clearAuthSession();
     setAuthUser(null);
     // Học sinh Kid Mode về trang đăng nhập sạch; người dùng khác giữ hành vi cũ.
-    navigate(kidMode ? '/login' : '/catalog');
+    // Chưa đăng nhập thì chỉ được ở trang đăng nhập (xem route guard bên dưới).
+    navigate('/login');
   };
 
   const handleLessonSaved = (savedLesson: LessonAuthoring) => {
@@ -339,10 +341,16 @@ export function App() {
 
       {/* Main Routes Container */}
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
+        {/* Khóa trang khi chưa đăng nhập: mọi đường dẫn ngoài trang xác thực đều chuyển về /login. */}
+        {!authUser && !isAuthPath(location.pathname) && <Navigate to="/login" replace />}
+        {/* Đã đăng nhập mà vào trang đăng nhập/đăng ký thì đưa về trang chủ theo vai trò và nhóm tuổi. */}
+        {authUser && (location.pathname === '/login' || location.pathname === '/register') && (
+          <Navigate to={homeFor(authUser)} replace />
+        )}
         {/* Kid Mode: chỉ mở Góc Học Tập, Block Puzzle, Thành tích, Hồ sơ; mọi trang khác về Góc Học Tập. */}
         {kidMode && !isKidAllowedPath(location.pathname) && <Navigate to={KID_HOME} replace />}
         <Routes>
-          <Route path="/" element={<Navigate to={kidMode ? KID_HOME : userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
+          <Route path="/" element={<Navigate to={homeFor(authUser)} replace />} />
           <Route
             path="/catalog"
             element={
@@ -548,7 +556,7 @@ export function App() {
               )
             }
           />
-          <Route path="*" element={<Navigate to={userRole === 'teacher' ? '/authoring' : '/catalog'} replace />} />
+          <Route path="*" element={<Navigate to={homeFor(authUser)} replace />} />
         </Routes>
       </div>
 

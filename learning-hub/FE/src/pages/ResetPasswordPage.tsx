@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Zap, Loader2, CheckCircle2 } from 'lucide-react';
 import authApi from '../axios/authApi';
+import { passwordError } from '../common/authValidation';
+import { FieldError, PasswordChecklist, authInputCls } from '../components/auth/AuthFormParts';
 
 export const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +20,11 @@ export const ResetPasswordPage: React.FC = () => {
     e.preventDefault();
     setErrorMsg(null);
 
+    const policy = passwordError(newPassword);
+    if (policy) {
+      setErrorMsg(policy);
+      return;
+    }
     if (newPassword !== confirmPassword) {
       setErrorMsg('Mật khẩu xác nhận không khớp.');
       return;
@@ -82,31 +89,33 @@ export const ResetPasswordPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div>
               <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Mật khẩu mới</label>
               <input
                 type="password"
-                required
-                minLength={6}
+                autoComplete="new-password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
-                placeholder="Ít nhất 6 ký tự"
+                aria-invalid={newPassword.length > 0 && !!passwordError(newPassword)}
+                className={authInputCls(newPassword.length > 0 && !!passwordError(newPassword))}
+                placeholder="8–32 ký tự, có chữ hoa, thường, số, ký tự đặc biệt"
               />
+              {newPassword.length > 0 && <PasswordChecklist id="reset-password-rules" password={newPassword} />}
             </div>
 
             <div>
               <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Xác nhận mật khẩu mới</label>
               <input
                 type="password"
-                required
-                minLength={6}
+                autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
+                aria-invalid={confirmPassword.length > 0 && confirmPassword !== newPassword}
+                className={authInputCls(confirmPassword.length > 0 && confirmPassword !== newPassword)}
                 placeholder="Nhập lại mật khẩu mới"
               />
+              <FieldError id="reset-confirm-err" message={confirmPassword.length > 0 && confirmPassword !== newPassword ? 'Mật khẩu xác nhận không khớp.' : undefined} />
             </div>
 
             <button

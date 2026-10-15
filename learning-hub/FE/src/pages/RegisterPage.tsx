@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Zap, Loader2 } from 'lucide-react';
 import authApi from '../axios/authApi';
 import type { AuthResponse } from '../types/auth';
+import { homeFor } from '../common/authRoutes';
+import { emailError, fullNameError, normalizeEmail, passwordError } from '../common/authValidation';
+import { FieldError, PasswordChecklist, TermsCheckbox, authInputCls } from '../components/auth/AuthFormParts';
 
 interface RegisterPageProps {
   onAuthSuccess: (auth: AuthResponse) => void;
@@ -16,18 +19,28 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onAuthSuccess }) => 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [terms, setTerms] = useState(false);
+  const [touched, setTouched] = useState({ fullName: false, email: false, password: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Báo lỗi theo thời gian thực: khi đã rời ô hoặc đang gõ dở.
+  const nameErr = (touched.fullName || fullName.length > 0) ? fullNameError(fullName) : undefined;
+  const emailErr = (touched.email || email.length > 0) ? emailError(email) : undefined;
+  const showPassword = touched.password || password.length > 0;
+  const passwordErr = showPassword ? passwordError(password) : undefined;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({ fullName: true, email: true, password: true });
+    if (fullNameError(fullName) || emailError(email) || passwordError(password)) return;
     setErrorMsg(null);
     setIsSubmitting(true);
 
     try {
-      const auth = await authApi.register({ email, password, fullName, role: 'STUDENT' });
+      const auth = await authApi.register({ email: normalizeEmail(email), password, fullName: fullName.trim(), role: 'STUDENT' });
       onAuthSuccess(auth);
-      navigate('/catalog');
+      navigate(homeFor(auth.user));
     } catch (err: any) {
       setErrorMsg(err?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
     } finally {
@@ -47,53 +60,76 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onAuthSuccess }) => 
         </div>
 
         {errorMsg && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs font-semibold text-rose-700 dark:text-rose-300">
+          <div role="alert" className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs font-semibold text-rose-700 dark:text-rose-300">
             {errorMsg}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div>
-            <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Họ và tên</label>
+            <label htmlFor="reg-name" className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Họ và tên</label>
             <input
+              id="reg-name"
               type="text"
-              required
+              autoComplete="name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
+              onBlur={() => {
+                setFullName((v) => v.trim());
+                setTouched((t) => ({ ...t, fullName: true }));
+              }}
+              aria-invalid={!!nameErr}
+              aria-describedby={nameErr ? 'reg-name-err' : undefined}
+              className={authInputCls(!!nameErr)}
               placeholder="Nguyễn Văn A"
             />
+            <FieldError id="reg-name-err" message={nameErr} />
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Email</label>
+            <label htmlFor="reg-email" className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Email</label>
             <input
-              type="email"
-              required
+              id="reg-email"
+              type="text"
+              inputMode="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
+              onBlur={() => {
+                setEmail((v) => normalizeEmail(v));
+                setTouched((t) => ({ ...t, email: true }));
+              }}
+              aria-invalid={!!emailErr}
+              aria-describedby={emailErr ? 'reg-email-err' : undefined}
+              className={authInputCls(!!emailErr)}
               placeholder="ban@example.com"
             />
+            <FieldError id="reg-email-err" message={emailErr} />
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Mật khẩu</label>
+            <label htmlFor="reg-password" className="block text-[11px] font-semibold text-[var(--text-muted)] mb-1">Mật khẩu</label>
             <input
+              id="reg-password"
               type="password"
-              required
-              minLength={6}
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
-              placeholder="Ít nhất 6 ký tự"
+              onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+              aria-invalid={!!passwordErr}
+              aria-describedby="reg-password-rules"
+              className={authInputCls(!!passwordErr)}
+              placeholder="8–32 ký tự, có chữ hoa, thường, số, ký tự đặc biệt"
             />
+            {showPassword ? <PasswordChecklist id="reg-password-rules" password={password} /> : <span id="reg-password-rules" />}
           </div>
+
+          <TermsCheckbox id="reg-terms" checked={terms} onChange={setTerms} />
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3 text-sm font-extrabold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md cursor-pointer disabled:opacity-50"
+            disabled={!terms || isSubmitting}
+            className="w-full py-3 text-sm font-extrabold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-1.5">

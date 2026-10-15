@@ -79,7 +79,7 @@ describe('AuthService', () => {
 
       const result = await service.register({
         email: 'a@b.com',
-        password: '123456',
+        password: 'Abcdef1!',
         fullName: 'A',
       });
 
@@ -103,7 +103,7 @@ describe('AuthService', () => {
       mockCounterModel.findOneAndUpdate.mockResolvedValueOnce({ seq: 1 });
       const r1 = await service.register({
         email: 'a@b.com',
-        password: '123456',
+        password: 'Abcdef1!',
         fullName: 'A',
       });
       expect(r1.user.studentCode).toBe('C0001');
@@ -111,7 +111,7 @@ describe('AuthService', () => {
       mockCounterModel.findOneAndUpdate.mockResolvedValueOnce({ seq: 23 });
       const r2 = await service.register({
         email: 'b@b.com',
-        password: '123456',
+        password: 'Abcdef1!',
         fullName: 'B',
       });
       expect(r2.user.studentCode).toBe('C0023');
@@ -119,7 +119,7 @@ describe('AuthService', () => {
       mockCounterModel.findOneAndUpdate.mockResolvedValueOnce({ seq: 10000 });
       const r3 = await service.register({
         email: 'c@b.com',
-        password: '123456',
+        password: 'Abcdef1!',
         fullName: 'C',
       });
       expect(r3.user.studentCode).toBe('C10000');
@@ -133,10 +133,24 @@ describe('AuthService', () => {
       await expect(
         service.register({
           email: 'a@b.com',
-          password: '123456',
+          password: 'Abcdef1!',
           fullName: 'A',
         }),
       ).rejects.toThrow(ConflictException);
+    });
+
+    it('từ chối mật khẩu yếu (thiếu chữ hoa/số/ký tự đặc biệt hoặc ngoài 8-32 ký tự) và email sai định dạng', async () => {
+      for (const [email, password, re] of [
+        ['a@b.com', 'abcdefg1!', /chữ hoa/],
+        ['a@b.com', 'Abcdefgh!', /chữ số/],
+        ['a@b.com', 'Abcdefg12', /ký tự đặc biệt/],
+        ['a@b.com', 'Ab1!', /8 đến 32/],
+        ['a@b.com', 'Aa1!' + 'x'.repeat(29), /8 đến 32/],
+        ['khong-phai-email', 'Abcdef1!', /Email/],
+        ['a b@b.com', 'Abcdef1!', /Email/],
+      ] as Array<[string, string, RegExp]>) {
+        await expect(service.register({ email, password, fullName: 'A' })).rejects.toThrow(re);
+      }
     });
 
     it('từ chối mật khẩu ngắn hơn 6 ký tự', async () => {
@@ -252,7 +266,7 @@ describe('AuthService', () => {
       await expect(
         service.resetPassword({
           token: 'khong-hop-le',
-          newPassword: 'newpass123',
+          newPassword: 'Newpass123!',
         }),
       ).rejects.toThrow(BadRequestException);
     });
@@ -267,7 +281,7 @@ describe('AuthService', () => {
       await expect(
         service.resetPassword({
           token: 'valid-but-expired',
-          newPassword: 'newpass123',
+          newPassword: 'Newpass123!',
         }),
       ).rejects.toThrow(BadRequestException);
     });
@@ -289,7 +303,7 @@ describe('AuthService', () => {
 
       const result = await service.resetPassword({
         token: 'valid-token',
-        newPassword: 'newpass123',
+        newPassword: 'Newpass123!',
       });
 
       expect(mockUser.password).not.toBe('old-hash');

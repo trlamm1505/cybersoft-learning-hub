@@ -31,6 +31,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { MailService } from './mail.service';
 import { checkAvatar } from './avatar';
 import { checkProfileInput } from './profile-input';
+import { emailError, passwordError } from './auth-validation';
 
 type AgeGroup = '3-5' | '6-9' | '10-12';
 
@@ -74,8 +75,13 @@ export class AuthService {
       );
     }
 
-    if (password.length < 6) {
-      throw new BadRequestException('Mật khẩu phải có ít nhất 6 ký tự.');
+    // Email chuẩn (đã trim) và mật khẩu mạnh: 8-32 ký tự, có chữ hoa, chữ thường, số, ký tự đặc biệt.
+    const emailProblem = emailError(email);
+    if (emailProblem) throw new BadRequestException(emailProblem);
+    const passwordProblem = passwordError(password);
+    if (passwordProblem) throw new BadRequestException(passwordProblem);
+    if (typeof fullName !== 'string' || !fullName.trim() || fullName.trim().length > 100) {
+      throw new BadRequestException('Họ và tên bắt buộc, tối đa 100 ký tự.');
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -258,9 +264,8 @@ export class AuthService {
     if (!token || !newPassword) {
       throw new BadRequestException('Vui lòng cung cấp token và mật khẩu mới.');
     }
-    if (newPassword.length < 6) {
-      throw new BadRequestException('Mật khẩu mới phải có ít nhất 6 ký tự.');
-    }
+    const passwordProblem = passwordError(newPassword);
+    if (passwordProblem) throw new BadRequestException(passwordProblem);
 
     const tokenHash = this.hashToken(token);
     const resetRecord = await this.passwordResetModel.findOne({
