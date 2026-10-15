@@ -25,6 +25,7 @@ import { TesterLabsModule } from './modules-api/tester-labs/tester-labs.module';
 import { DaLabsModule } from './modules-api/da-labs/da-labs.module';
 import { AiLabsModule } from './modules-api/ai-labs/ai-labs.module';
 import { IntegrityModule } from './modules-api/integrity/integrity.module';
+import { CareerCoursesModule } from './modules-api/career-courses/career-courses.module';
 import { LearnerActivityModule } from './modules-api/learner-activity/learner-activity.module';
 import { TeacherAnalyticsModule } from './modules-api/teacher-analytics/teacher-analytics.module';
 import { AdminUsersModule } from './modules-api/admin-users/admin-users.module';
@@ -54,6 +55,7 @@ import { ResilienceSecurityModule } from './modules-api/resilience-security/resi
     DaLabsModule,
     AiLabsModule,
     IntegrityModule,
+    CareerCoursesModule,
     LearnerActivityModule,
     TeacherAnalyticsModule,
     AdminUsersModule,

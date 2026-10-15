@@ -32,6 +32,7 @@ import { TeacherReviewQueue } from './components/TeacherReviewQueue';
 import { TeacherLabSubmissionsPage } from './pages/TeacherLabSubmissionsPage';
 import { TeacherIntegrityQueuePage } from './pages/TeacherIntegrityQueuePage';
 import { CareerLabsPage } from './pages/CareerLabsPage';
+import { CareerMyClassPage } from './pages/CareerMyClassPage';
 import { careerBlockedPath, isCareerAdult } from './common/userGroups';
 import { TeacherDashboardPage } from './pages/TeacherDashboardPage';
 import { AdminClassesPage } from './pages/AdminClassesPage';
@@ -485,7 +486,7 @@ export function App() {
               )
             }
           />
-          <Route path="/my-class" element={<StudentRoute authUser={authUser}><MyClassPage /></StudentRoute>} />
+          <Route path="/my-class" element={<StudentRoute authUser={authUser}>{isCareerAdult(authUser) ? <CareerMyClassPage /> : <MyClassPage />}</StudentRoute>} />
           <Route
             path="/da-labs"
             element={<StudentRoute authUser={authUser}><DaLabListPage /></StudentRoute>}

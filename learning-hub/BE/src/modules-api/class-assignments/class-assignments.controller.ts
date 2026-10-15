@@ -5,6 +5,7 @@ import { Roles } from '../../common/auth/roles.decorator';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 import { ClassAssignmentsService } from './class-assignments.service';
+import { CareerCoursesService } from '../career-courses/career-courses.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
 
 /** Trang "Lớp học của tôi": danh tính luôn lấy từ token, chỉ thành viên của lớp mới xem được (lớp khác trả 404). */
@@ -12,11 +13,16 @@ import { CreateAssignmentDto } from './dto/create-assignment.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('STUDENT')
 export class StudentClassAssignmentsController {
-  constructor(private readonly service: ClassAssignmentsService) {}
+  constructor(
+    private readonly service: ClassAssignmentsService,
+    private readonly careerCourses: CareerCoursesService,
+  ) {}
 
   /** Lớp/khóa học đã tham gia + trạng thái + dữ liệu chứng chỉ khi hoàn thành (trang Hồ sơ). */
   @Get('enrollments')
   enrollments(@CurrentUser() user: JwtPayload) {
+    // Người đi làm / Trái ngành học theo khóa chuyên ngành (3 phòng lab), không có lớp phổ thông: trả 3 khóa kèm tiến độ/chứng chỉ.
+    if (user.ageGroup === 'CAREER_ADULT') return this.careerCourses.myEnrollments(user.sub);
     return this.service.myEnrollments(user);
   }
 

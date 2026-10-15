@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 
 export const BACK_TO_LAB_LIST_LABEL = '⬅ Quay lại danh sách bài Lab';
+export const BACK_TO_HUB_LABEL = '⬅ Quay lại Phòng thực hành chuyên ngành';
 
 export type LabGroup = 'DATA' | 'AI' | 'TESTER';
 
@@ -36,6 +37,33 @@ export const LabBreadcrumb: React.FC<{ group: LabGroup; title: string }> = ({ gr
         <ChevronRight size={12} aria-hidden="true" />
         <span aria-current="page" className="font-semibold text-[var(--text-main)]">
           {title}
+        </span>
+      </nav>
+    </div>
+  );
+};
+
+export const LAB_SET_NAME: Record<LabGroup, string> = { DATA: 'Data Lab', AI: 'AI Lab', TESTER: 'Bộ lab Tester' };
+
+/** Đầu trang DANH SÁCH một bộ lab: nút quay về Hub /career-labs + breadcrumb Phòng thực hành chuyên ngành > [Bộ lab]. */
+export const LabHubBack: React.FC<{ group: LabGroup }> = ({ group }) => {
+  const navigate = useNavigate();
+  return (
+    <div className="space-y-2" data-testid="lab-hub-back">
+      <button
+        type="button"
+        onClick={() => navigate('/career-labs')}
+        className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-2 text-sm font-bold text-indigo-700 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300"
+      >
+        {BACK_TO_HUB_LABEL}
+      </button>
+      <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-xs text-[var(--text-muted)]">
+        <Link to="/career-labs" className="text-[var(--text-muted)] no-underline hover:text-[var(--text-main)]">
+          Phòng thực hành chuyên ngành
+        </Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <span aria-current="page" className="font-semibold text-[var(--text-main)]">
+          {LAB_SET_NAME[group]}
         </span>
       </nav>
     </div>

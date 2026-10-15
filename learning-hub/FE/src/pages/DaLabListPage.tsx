@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { LabHubBack } from '../components/LabBreadcrumb';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, AlertTriangle, Database } from 'lucide-react';
 import daLabApi from '../axios/daLabApi';
@@ -52,6 +53,8 @@ export const DaLabListPage: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <LabHubBack group="DATA" />
+
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-main)] flex items-center gap-2">
           <Database size={24} />
