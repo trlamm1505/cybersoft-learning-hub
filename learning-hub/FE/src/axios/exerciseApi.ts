@@ -115,8 +115,14 @@ export const exerciseApi = {
     slug: string,
     code: string,
     integrity?: IntegrityClientPayload | null,
+    /** Nộp cho bài được giao của lớp (tính điểm, có hạn chót); bỏ trống = luyện tập tự do. */
+    assignmentId?: string | null,
   ): Promise<SubmitAckResponse> => {
-    return await axiosClient.post(`/exercises/${slug}/submit`, integrity ? { code, integrity } : { code });
+    return await axiosClient.post(`/exercises/${slug}/submit`, {
+      code,
+      ...(integrity ? { integrity } : {}),
+      ...(assignmentId ? { assignmentId } : {}),
+    });
   },
 
   /**

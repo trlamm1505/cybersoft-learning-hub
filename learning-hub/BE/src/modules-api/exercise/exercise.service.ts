@@ -25,6 +25,7 @@ import {
   runPythonCode,
 } from '../../common/helper/code-runner.helper';
 import { IntegrityService } from '../integrity/integrity.service';
+import { ClassAssignmentsService } from '../class-assignments/class-assignments.service';
 import { JudgeQueueService } from '../judge/judge-queue.service';
 import { JudgeStatus } from '../judge/judge-status.enum';
 import { RunCodeDto } from './dto/run-code.dto';
@@ -39,6 +40,7 @@ export class ExerciseService {
     private readonly submissionModel: Model<SubmissionDocument>,
     private readonly judgeQueueService: JudgeQueueService,
     private readonly integrityService: IntegrityService,
+    private readonly classAssignments: ClassAssignmentsService,
   ) {}
 
   async findAll(user?: JwtPayload) {
@@ -147,6 +149,11 @@ export class ExerciseService {
     if (!exercise)
       throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
     this.assertCanAccess(exercise, user);
+    // Nộp cho bài của lớp: kiểm tra thành viên, đúng bài, chưa mở/hết hạn (khóa)/đã xong. Nộp tự do thì bỏ qua.
+    if (dto.assignmentId) {
+      if (!user) throw new UnauthorizedException('Vui lòng đăng nhập để nộp bài của lớp.');
+      await this.classAssignments.assertCanSubmitCoding(dto.assignmentId, slug, user);
+    }
     // Bài DA Lab nộp qua /da-labs/:slug/submit (SQL), không qua judge Python.
     if (exercise.resource_id || exercise.type === 'SQL_LAB' || exercise.type === 'DA_INSIGHT') {
       throw new BadRequestException('Invalid submission type');
@@ -163,6 +170,7 @@ export class ExerciseService {
     const submission = await this.submissionModel.create({
       exerciseId: String((exercise as any)._id),
       userId,
+      ...(dto.assignmentId ? { assignmentId: dto.assignmentId } : {}),
       code: dto.code,
       integrity,
       status: JudgeStatus.QUEUED,

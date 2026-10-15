@@ -40,5 +40,17 @@ export interface LearnerActivity {
   to: string;
   total: number;
   activeDays: number;
+  /** Chuỗi ngày luyện tập liên tiếp (tính tới hôm nay hoặc hôm qua) và chuỗi dài nhất trong cửa sổ. */
+  currentStreak?: number;
+  bestStreak?: number;
   days: Array<{ date: string; count: number }>;
+}
+
+/** Thống kê trang Tiến độ: lượt nộp theo kết quả và tỷ lệ hoàn thành theo chủ đề. */
+export interface LearnerStats {
+  submissions: { total: number; ac: number; wa: number; tle: number; re: number; ce: number };
+  acRate: number;
+  solvedExercises: number;
+  totalExercises: number;
+  topics: Array<{ tag: string; solved: number; total: number; percent: number }>;
 }

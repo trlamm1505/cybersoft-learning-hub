@@ -132,7 +132,7 @@ describe('CoachService — logging và giới hạn token', () => {
 
   it('cắt bớt completion nếu vượt giới hạn MAX_COMPLETION_TOKENS', async () => {
     mockContextBuilder.build.mockResolvedValue(makeContext());
-    const hugeContent = 'a'.repeat(20000); // ~5000 tokens ước lượng, vượt xa giới hạn 800
+    const hugeContent = 'a'.repeat(20000); // ~5000 tokens ước lượng, vượt xa giới hạn 500
     mockLlmClient.chat.mockResolvedValue({
       content: hugeContent,
       promptTokens: 50,
@@ -148,7 +148,7 @@ describe('CoachService — logging và giới hạn token', () => {
     );
 
     expect(result.reply.length).toBeLessThan(hugeContent.length);
-    expect(result.usage.completionTokens).toBeLessThanOrEqual(800);
+    expect(result.usage.completionTokens).toBeLessThanOrEqual(500);
   });
 
   it('ném BadRequestException nếu context (đã lồng lịch sử dài) vượt giới hạn prompt token', async () => {

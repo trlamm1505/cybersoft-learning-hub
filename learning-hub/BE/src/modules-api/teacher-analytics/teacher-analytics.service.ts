@@ -1,3 +1,4 @@
+import { generateClassCode } from './class-code';
 import {
   BadRequestException,
   ForbiddenException,
@@ -289,7 +290,16 @@ export class TeacherAnalyticsService {
   async createClass(user: JwtPayload, body: ClassInput) {
     this.assertAdmin(user);
     const data = await this.validateClassInput(body, true);
-    const doc = await this.classes.create(data);
+    // Mã lớp hiển thị cho học viên; trùng (rất hiếm) thì thử mã khác nhờ unique index.
+    let doc;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        doc = await this.classes.create({ ...data, code: generateClassCode() });
+        break;
+      } catch (e) {
+        if ((e as { code?: number })?.code !== 11000 || attempt >= 4) throw e;
+      }
+    }
     return this.describe(doc.toObject() as ClassLean);
   }
 

@@ -1,5 +1,5 @@
 import axiosClient from '../common/configAxios';
-import type { LearnerActivity, LearnerProgress, LearnerRecommendations } from '../types/learner';
+import type { LearnerActivity, LearnerProgress, LearnerRecommendations, LearnerStats } from '../types/learner';
 
 /**
  * Learner Progress & Recommendation API Service Layer (Ngày 20)
@@ -19,6 +19,11 @@ export const learnerApi = {
     return await axiosClient.get('/learner/activity', {
       params: { days, tzOffset: -new Date().getTimezoneOffset() },
     });
+  },
+
+  /** GET /api/learner/stats — lượt nộp AC/WA/TLE/RE/CE và tỷ lệ hoàn thành theo chủ đề. */
+  getStats: async (): Promise<LearnerStats> => {
+    return await axiosClient.get('/learner/stats');
   },
 
   /** GET /api/learner/recommendations — tối đa 3 gợi ý kèm reason. */

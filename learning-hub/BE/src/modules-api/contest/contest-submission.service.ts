@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { assertGradeAccess } from './contest-grade';
 import { Model } from 'mongoose';
 import {
   Contest,
@@ -79,9 +80,10 @@ export class ContestSubmissionService {
   async getProblemForStudent(
     contestId: string,
     problemSlug: string,
-    viewer: { sub: string; role: string },
+    viewer: { sub: string; role: string; ageGroup?: string },
   ) {
     const contest = await this.findContestOrThrow(contestId);
+    assertGradeAccess(contest, viewer);
     if (viewer.role === 'STUDENT') {
       this.assertRegistered(contest, viewer.sub);
     }
@@ -140,12 +142,14 @@ export class ContestSubmissionService {
     contestId: string,
     dto: SubmitContestProblemDto,
     studentId: string,
+    ageGroup?: string,
   ) {
     if (!dto.problemSlug || !dto.problemSlug.trim()) {
       throw new BadRequestException('Thiếu mã đề bài (problemSlug)!');
     }
 
     const contest = await this.findContestOrThrow(contestId);
+    assertGradeAccess(contest, { role: 'STUDENT', ageGroup });
     this.assertRegistered(contest, studentId);
     const problem = this.findProblemOrThrow(contest, dto.problemSlug);
 

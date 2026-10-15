@@ -2,7 +2,8 @@ import React from 'react';
 import { ArrowLeft, Bug, Database, Sparkles } from 'lucide-react';
 
 interface CareerLabHubProps {
-  onBack: () => void;
+  /** Bỏ trống khi học viên được đổ thẳng vào khu này (không có màn chọn khối để quay lại). */
+  onBack?: () => void;
   onOpen: (path: string) => void;
 }
 
@@ -37,13 +38,15 @@ const LABS = [
 export const CareerLabHub: React.FC<CareerLabHubProps> = ({ onBack, onOpen }) => (
   <div className="flex flex-col gap-4" data-testid="career-lab-hub">
     <div className="flex items-center gap-3 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-4 shadow-xs">
-      <button
-        onClick={onBack}
-        aria-label="Quay lại chọn lớp"
-        className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-[var(--bg-card-hover)]"
-      >
-        <ArrowLeft size={16} strokeWidth={2} />
-      </button>
+      {onBack && (
+        <button
+          onClick={onBack}
+          aria-label="Quay lại chọn lớp"
+          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] hover:bg-[var(--bg-card-hover)]"
+        >
+          <ArrowLeft size={16} strokeWidth={2} />
+        </button>
+      )}
       <div>
         <h1 className="text-base font-extrabold tracking-tight text-[var(--text-main)]">Người lớn / Chuyên ngành</h1>
         <p className="text-xs text-[var(--text-muted)]">Chọn một phòng thực hành.</p>

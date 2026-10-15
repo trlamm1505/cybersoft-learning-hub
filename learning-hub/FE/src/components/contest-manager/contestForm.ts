@@ -8,6 +8,8 @@ export interface ContestForm {
   endTime: string;
   durationMinutes: number;
   integrityEnabled: boolean;
+  /** Khối được dự thi: 'ALL' (mọi khối) | '6-9' | '10-12'. */
+  gradeBand: 'ALL' | '6-9' | '10-12';
   problems: ContestProblem[];
 }
 
@@ -45,6 +47,7 @@ export const newContestForm = (now: Date = new Date()): ContestForm => {
     endTime: toLocalInput(new Date(start.getTime() + duration * 60000)),
     durationMinutes: duration,
     integrityEnabled: true,
+    gradeBand: 'ALL',
     problems: [],
   };
 };
@@ -56,6 +59,7 @@ export const formFromContest = (c: ContestItem): ContestForm => ({
   endTime: toLocalInput(new Date(c.endTime)),
   durationMinutes: c.durationMinutes ?? 90,
   integrityEnabled: c.integrityEnabled !== false,
+  gradeBand: c.gradeBand ?? 'ALL',
   problems: [...(c.problems ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
 });
 
@@ -157,6 +161,7 @@ export const buildPayload = (form: ContestForm, status: 'draft' | 'published'): 
   endTime: parseLocalInput(form.endTime)!.toISOString(),
   durationMinutes: form.durationMinutes,
   integrityEnabled: form.integrityEnabled,
+  gradeBand: form.gradeBand,
   status,
   problems: renumber(form.problems),
 });

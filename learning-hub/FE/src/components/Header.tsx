@@ -23,6 +23,7 @@ import {
   ChevronDown,
   LogOut,
   Layers,
+  FileText,
 } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 import { ROLE_LABEL } from '../types/auth';
@@ -37,6 +38,8 @@ const STUDENT_ONLY_TABS = new Set(['da-labs', 'ai-labs']);
 /** Menu học viên thường (6-9, 10-12, người lớn). Kid Mode (Lớp 3-5) dùng KidHeader riêng nên không thấy Quiz. */
 export const STUDENT_NAV: NavItem[] = [
   { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
+  { key: 'my-class', label: 'Lớp học của tôi', Icon: GraduationCap, path: '/my-class' },
+  { key: 'detail', label: 'Chi tiết bài học', Icon: FileText, path: '/detail' },
   { key: 'playground', label: 'Bài tập / Playground', Icon: Code2, path: '/playground' },
   { key: 'quiz', label: 'Thi Trắc Nghiệm', Icon: ClipboardList, path: '/quiz' },
   { key: 'contests', label: 'Cuộc thi', Icon: Trophy, path: '/contests' },
@@ -113,6 +116,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
     }
     if (path.startsWith('/problem-generator')) return 'problem-generator';
     if (path.startsWith('/teacher/exercises')) return 'teacher-exercises';
+    if (path.startsWith('/my-class')) return 'my-class';
     if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
     if (path.startsWith('/progress')) return 'progress';

@@ -9,7 +9,16 @@ describe('điều hướng học viên', () => {
   it('menu học viên thường có Thi Trắc Nghiệm trỏ /quiz', () => {
     const quiz = STUDENT_NAV.find((i) => i.key === 'quiz');
     expect(quiz).toMatchObject({ label: 'Thi Trắc Nghiệm', path: '/quiz' });
-    expect(STUDENT_NAV.map((i) => i.path)).toEqual(['/catalog', '/playground', '/quiz', '/contests']);
+    // Thứ tự chuẩn: Danh mục | Lớp học của tôi | Chi tiết bài học | Playground | Thi Trắc Nghiệm | Cuộc thi
+    expect(STUDENT_NAV.map((i) => i.label)).toEqual([
+      'Danh mục khóa học',
+      'Lớp học của tôi',
+      'Chi tiết bài học',
+      'Bài tập / Playground',
+      'Thi Trắc Nghiệm',
+      'Cuộc thi',
+    ]);
+    expect(STUDENT_NAV.map((i) => i.path)).toEqual(['/catalog', '/my-class', '/detail', '/playground', '/quiz', '/contests']);
   });
 
   it('Kid Mode không có lối vào Quiz hay mục kỹ thuật nào', () => {

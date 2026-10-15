@@ -27,6 +27,15 @@ export class RecommendationController {
   }
 
   /**
+   * GET /api/learner/stats
+   * Thống kê lượt nộp (AC/WA/TLE/RE/CE) và tỷ lệ hoàn thành theo chủ đề của chính học viên đang đăng nhập.
+   */
+  @Get('stats')
+  async getStats(@CurrentUser() user: JwtPayload) {
+    return this.recommendationService.getStats(user.sub, user.ageGroup);
+  }
+
+  /**
    * GET /api/learner/recommendations
    * Tối đa 3 gợi ý: remediation, progression, exploration — luôn kèm `reason`
    * để học viên biết vì sao được gợi ý, và không ép đi theo một đường duy nhất.

@@ -17,6 +17,7 @@
     "verify:matrix": "node scripts/verify-matrix-security.js",
     "verify:kid": "node scripts/verify-kid-security.js",
     "backfill:legacy": "node scripts/backfill-legacy-exercises.js",
+    "backfill:questions": "node scripts/backfill-question-grades.js",
     "seed:kids": "node scripts/seed-kid-leaderboard.js",
     "release:check": "node scripts/release-pipeline.js",
     "docker:up": "docker compose up -d",

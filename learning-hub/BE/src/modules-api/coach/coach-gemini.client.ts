@@ -3,6 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { CoachContext } from './coach-context.types';
 import { estimateTokens, StubLlmClient } from './coach-llm.client';
 import type { LlmChatResult, LlmClient } from './coach-llm.client';
+import { COACH_MAX_OUTPUT_TOKENS } from './coach.constants';
 
 /**
  * Quy tắc chống prompt injection gắn thêm vào systemInstruction của Gemini.
@@ -66,7 +67,7 @@ export class GeminiCoachLlmClient implements LlmClient {
           systemInstruction: buildGeminiSystemInstruction(systemPrompt),
           temperature: 0.4,
           // Khớp MAX_COMPLETION_TOKENS của CoachService.
-          maxOutputTokens: 800,
+          maxOutputTokens: COACH_MAX_OUTPUT_TOKENS,
         },
       });
       const content = (result.text ?? '').trim();

@@ -28,6 +28,44 @@ export function tzOffsetMinutes(tz: string): number {
   return (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3]));
 }
 
+const nextDay = (key: string): string => {
+  const d = new Date(`${key}T00:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+};
+
+/**
+ * Chuỗi ngày luyện tập liên tiếp. `dates`: các ngày (YYYY-MM-DD) có hoạt động; `today`: hôm nay theo múi giờ người dùng.
+ * current = chuỗi kết thúc hôm nay, hoặc hôm qua nếu hôm nay chưa luyện (chưa mất chuỗi); best = chuỗi dài nhất trong dữ liệu.
+ */
+export function computeStreaks(dates: string[], today: string): { current: number; best: number } {
+  const set = new Set(dates);
+  const sorted = [...set].sort();
+  let best = 0;
+  let run = 0;
+  let prev: string | null = null;
+  for (const d of sorted) {
+    run = prev !== null && nextDay(prev) === d ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = d;
+  }
+  let cursor = set.has(today) ? today : null;
+  if (!cursor) {
+    const y = new Date(`${today}T00:00:00.000Z`);
+    y.setUTCDate(y.getUTCDate() - 1);
+    const yesterday = y.toISOString().slice(0, 10);
+    cursor = set.has(yesterday) ? yesterday : null;
+  }
+  let current = 0;
+  while (cursor && set.has(cursor)) {
+    current++;
+    const c = new Date(`${cursor}T00:00:00.000Z`);
+    c.setUTCDate(c.getUTCDate() - 1);
+    cursor = c.toISOString().slice(0, 10);
+  }
+  return { current, best };
+}
+
 /** Ngày YYYY-MM-DD của thời điểm `now` theo múi giờ cho trước (phút lệch so với UTC). */
 export function localDateKey(now: Date, offsetMinutes: number): string {
   return new Date(now.getTime() + offsetMinutes * 60_000).toISOString().slice(0, 10);

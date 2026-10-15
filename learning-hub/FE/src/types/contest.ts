@@ -32,6 +32,8 @@ export interface ContestItem {
   status?: 'draft' | 'published';
   /** Bật tín hiệu liêm chính (thời gian, rời màn hình, tương đồng mã). Mặc định bật. */
   integrityEnabled?: boolean;
+  /** Khối dự thi: 'ALL' (mặc định, mở cho mọi khối) | '6-9' | '10-12'. Ai cũng xem được, chỉ đúng khối mới vào phòng thi. */
+  gradeBand?: 'ALL' | '6-9' | '10-12';
   authorId?: string;
   createdAt?: string;
   updatedAt?: string;

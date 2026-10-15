@@ -9,23 +9,23 @@ import {
 } from './heatmapModel';
 
 interface ActivityHeatmapProps {
-  /** Các ngày có hoạt động (từ API); rỗng thì hiển thị dữ liệu mẫu và ghi rõ. */
+  /** Các ngày có hoạt động THẬT (từ API submissions và các nguồn nộp bài khác). */
   days: Array<{ date: string; count: number }>;
   loading?: boolean;
   error?: string | null;
-  /** Cho phép hiện dữ liệu mẫu khi chưa có hoạt động (trang cá nhân). Admin xem người khác thì tắt để không gây hiểu nhầm. */
+  /** Chỉ bật khi cần xem trước giao diện: hiện dữ liệu mẫu (có nhãn) lúc chưa có hoạt động. Mặc định tắt để không hiển thị số liệu giả cho học viên. */
   allowSample?: boolean;
   /** Ngày kết thúc của biểu đồ (mặc định hôm nay); chỉ để kiểm thử/hiển thị cố định. */
   end?: Date;
 }
 
-/** Màu theo mức: xám (không hoạt động) rồi xanh lá đậm dần đến xanh cyan. */
+/** Màu theo mức: xám (không hoạt động) rồi xanh lá (emerald) đậm dần theo số lượt nộp bài. */
 const LEVEL_CLASS: Record<HeatLevel, string> = {
   0: 'bg-slate-200 dark:bg-slate-700/50',
   1: 'bg-emerald-200 dark:bg-emerald-900',
   2: 'bg-emerald-400 dark:bg-emerald-700',
   3: 'bg-emerald-500 dark:bg-emerald-500',
-  4: 'bg-cyan-500 dark:bg-cyan-400',
+  4: 'bg-emerald-700 dark:bg-emerald-300',
 };
 
 const WEEKDAY_LABELS: Array<string | null> = ['T2', null, 'T4', null, 'T6', null, null];
@@ -34,7 +34,7 @@ const cellTitle = (date: string, count: number) =>
   count > 0 ? `${count} lượt nộp bài · ${formatDateVi(date)}` : `Không có hoạt động · ${formatDateVi(date)}`;
 
 /** Biểu đồ hoạt động kiểu GitHub: mỗi ô là một ngày, màu đậm theo số lượt nộp bài. */
-export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ days, loading = false, error = null, end, allowSample = true }) => {
+export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ days, loading = false, error = null, end, allowSample = false }) => {
   const today = useMemo(() => end ?? new Date(), [end]);
   const isSample = allowSample && !loading && !error && days.every((d) => d.count <= 0);
   const counts = useMemo(() => (isSample ? sampleActivity(today) : toCountMap(days)), [isSample, days, today]);

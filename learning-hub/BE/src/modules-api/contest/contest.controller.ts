@@ -127,7 +127,7 @@ export class ContestController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, StudentOnlyGuard)
   async registerContest(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    return this.contestService.registerContest(id, user.sub);
+    return this.contestService.registerContest(id, user.sub, user.ageGroup);
   }
 
   /** Bắt buộc đăng nhập; học viên phải đăng ký cuộc thi (kiểm tra ở service). */
@@ -151,7 +151,7 @@ export class ContestController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: SubmitContestProblemDto,
   ) {
-    return this.contestSubmissionService.submit(id, dto, user.sub);
+    return this.contestSubmissionService.submit(id, dto, user.sub, user.ageGroup);
   }
 
   /** Bắt đầu lượt thi: đồng hồ cá nhân do máy chủ giữ (gọi lại vẫn trả lượt cũ). */

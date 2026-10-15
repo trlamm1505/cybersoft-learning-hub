@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { QuizService } from './quiz.service';
+import { ClassAssignmentsService } from '../class-assignments/class-assignments.service';
 import { Question } from '../../modules-system/database/schemas/question.schema';
 import { QuizAttempt } from '../../modules-system/database/schemas/quiz-attempt.schema';
 
@@ -69,6 +70,7 @@ describe('QuizService Unit & Integration Tests', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         QuizService,
+        { provide: ClassAssignmentsService, useValue: { assertCanStartQuiz: jest.fn() } },
         {
           provide: getModelToken(Question.name),
           useValue: mockQuestionModel,
@@ -131,6 +133,21 @@ describe('QuizService Unit & Integration Tests', () => {
       expect(mockQuizAttemptModel.create).toHaveBeenCalledWith(
         expect.objectContaining({ reviewPolicy: 'AFTER_SUBMISSION' }),
       );
+    });
+
+    it('học viên 6-9 / 10-12 chỉ lấy câu của đúng khối (kèm câu chưa gắn khối); khối khác không lọc', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue(null);
+      mockQuizAttemptModel.create.mockResolvedValue({ _id: new Types.ObjectId(), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(), timeLimitSeconds: 1800, maxScore: 0 });
+
+      await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '10-12');
+      expect(mockQuestionModel.find).toHaveBeenCalledWith({
+        category: 'Python',
+        $or: [{ gradeBands: '10-12' }, { gradeBands: { $exists: false } }],
+      });
+
+      mockQuestionModel.find.mockClear();
+      await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '3-5');
+      expect(mockQuestionModel.find).toHaveBeenCalledWith({ category: 'Python' });
     });
   });
 

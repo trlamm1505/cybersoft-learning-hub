@@ -58,3 +58,20 @@ gian thực bé suy nghĩ, nên bé nghỉ giữa chừng sẽ bị tính thêm 
   nhập được; cần có cơ chế buộc đổi mật khẩu nếu muốn siết chặt.
 - Ô "Đồng ý Điều khoản" chỉ có ở form **Đăng ký** và chỉ chặn ở form (nút bị khóa khi chưa tick; đăng nhập không cần tick); sự đồng ý **chưa được lưu** ở server (không có bằng chứng
   thời điểm/phiên bản điều khoản) và chưa có xác thực OTP/email. Với học sinh nhỏ tuổi cần consent của phụ huynh (xem mục 1).
+
+## 6. Lớp học, bài giao và điểm lớp (Khối 6–9 / 10–12)
+
+- **Chấm điểm:** bài code = tổng điểm − 1 điểm cho mỗi lần Submit sai (WA/TLE/RE) trước lần AC đầu tiên, không dưới 0; lỗi
+  cú pháp (CE) và lỗi hệ thống chấm không bị trừ; bấm Run không tạo bài nộp nên không bị trừ. Bài trắc nghiệm một lượt, điểm
+  theo tỷ lệ đúng. Chỉ bài nộp/lượt thi mang `assignmentId` mới tính điểm lớp; luyện tập tự do ở Playground thì không.
+- **Hạn chót do máy chủ kiểm tra:** nộp bài/làm trắc nghiệm của lớp sau hạn (mà chưa hoàn thành) bị từ chối 403 "đã hết hạn -
+  đã khóa"; chưa đến giờ mở cũng 403. Giờ hiển thị và nhóm ngày theo giờ Việt Nam (UTC+7).
+- **Chưa có giao diện giảng viên để giao bài có hạn chót** (API `POST /teacher/class-assignments/:classId` đã có và có test;
+  hiện bài giao được nạp bằng `scripts/seed-class.js`). Bài giao cũ theo `exerciseSlugs` (không có hạn chót) vẫn nằm ở trang
+  Dashboard của giảng viên, chưa gộp vào luồng mới.
+- **Độ tin cậy của điểm:** bài code của lớp do judge ở máy chủ chấm (không tin trình duyệt); riêng Block Puzzle thì xem mục 2.
+- **Dữ liệu mẫu cần gỡ trước khi phát hành:** `node scripts/seed-class.js --remove`, `node scripts/seed-contests.js --remove`,
+  `node scripts/seed-kid-leaderboard.js --remove`.
+- **Khối cho câu hỏi ôn tập và cuộc thi:** câu hỏi cũ được gắn khối theo độ khó (EASY→6–9, MEDIUM→cả hai, HARD→10–12) bằng
+  `scripts/backfill-question-grades.js`; đây là quy ước tạm, giảng viên nên rà lại. Cuộc thi mới có `gradeBand`
+  (ALL/6-9/10-12); học sinh khác khối xem được nhưng đăng ký/vào thi/nộp bài nhận 403.

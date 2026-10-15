@@ -11,6 +11,7 @@ import { BlockPuzzlePage } from './pages/BlockPuzzlePage';
 import { TeacherAuthoringPage } from './pages/TeacherAuthoringPage';
 import { TeacherExerciseFormPage } from './pages/TeacherExerciseFormPage';
 import { KidHeader } from './components/KidHeader';
+import { MyClassPage } from './pages/MyClassPage';
 import { KidFooter } from './components/KidFooter';
 import { KidProgressView } from './components/KidProgressView';
 import { KidProfileView } from './components/KidProfileView';
@@ -521,6 +522,7 @@ export function App() {
               )
             }
           />
+          <Route path="/my-class" element={<StudentRoute authUser={authUser}><MyClassPage /></StudentRoute>} />
           <Route
             path="/da-labs"
             element={<StudentRoute authUser={authUser}><DaLabListPage /></StudentRoute>}

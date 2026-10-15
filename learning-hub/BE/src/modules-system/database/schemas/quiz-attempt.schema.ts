@@ -32,6 +32,10 @@ export class QuizAttempt {
   @Prop({ type: Types.ObjectId, ref: 'Test', required: true })
   testId: Types.ObjectId;
 
+  // Lượt thi thuộc bài trắc nghiệm được giao cho lớp (ClassAssignment); chỉ lượt có assignmentId mới tính điểm lớp.
+  @Prop({ type: String, index: true })
+  assignmentId?: string;
+
   // Distinguishes concurrent quiz topics sharing the same testId (e.g. "Fullstack Web" vs
   // "Python") so an in-progress attempt for one topic is never reused for another.
   @Prop({ type: String })

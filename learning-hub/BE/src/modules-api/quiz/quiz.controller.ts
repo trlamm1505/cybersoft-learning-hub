@@ -29,7 +29,7 @@ export class QuizController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: StartAttemptDto,
   ) {
-    return this.quizService.startAttempt(user.sub, dto);
+    return this.quizService.startAttempt(user.sub, dto, user.ageGroup, user);
   }
 
   /**

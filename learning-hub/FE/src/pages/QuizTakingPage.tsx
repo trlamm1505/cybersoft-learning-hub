@@ -10,6 +10,9 @@ import QuestionNavigator from '../components/QuestionNavigator';
 import QuestionCard from '../components/QuestionCard';
 import QuizResultView from '../components/QuizResultView';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import classAssignmentsApi from '../axios/classAssignmentsApi';
+import type { MyAssignment } from '../types/classAssignments';
+import { formatVnDateTime, scoreText } from '../common/classFormat';
 import { useToast } from '../components/Toast';
 
 interface QuizTakingPageProps {
@@ -125,6 +128,34 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const confirmModalRef = useFocusTrap(showConfirmModal, () => setShowConfirmModal(false));
+
+  // Bài trắc nghiệm của lớp: mở từ "Lớp học của tôi" qua ?assignment=<id>. Chỉ lượt thi này tính điểm lớp (một lượt, có hạn chót).
+  const classAssignmentId = useMemo(() => new URLSearchParams(window.location.search).get('assignment'), []);
+  const [classAssignment, setClassAssignment] = useState<MyAssignment | null>(null);
+  useEffect(() => {
+    if (!classAssignmentId || authUser?.role !== 'STUDENT') return;
+    classAssignmentsApi
+      .getAssignment(classAssignmentId)
+      .then(setClassAssignment)
+      .catch(() => setClassAssignment(null));
+  }, [classAssignmentId, authUser?.role]);
+
+  const handleStartClassQuiz = async () => {
+    if (!classAssignmentId) return;
+    setStage('LOADING');
+    setErrorMsg(null);
+    try {
+      const response = await quizApi.startQuiz(testId, undefined, classAssignmentId);
+      setQuizData(response);
+      setCurrentIndex(0);
+      setAnswersMap({});
+      setStage('TAKING');
+    } catch (err: any) {
+      // Hết hạn - đã khóa, chưa mở, đã làm xong...: hiện đúng lý do từ máy chủ.
+      setErrorMsg(err.response?.data?.message || 'Không thể bắt đầu bài trắc nghiệm của lớp.');
+      setStage('IDLE');
+    }
+  };
 
   // 1. Handle Start Quiz API
   const handleStartQuiz = async () => {
@@ -303,7 +334,42 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 Lựa chọn từ các bộ đề kiểm tra trắc nghiệm để thử sức và đánh giá kiến thức.
               </p>
+              {(authUser?.ageGroup === '6-9' || authUser?.ageGroup === '10-12') && (
+                <p className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Đề ôn tập dành cho Khối {authUser.ageGroup === '6-9' ? '6–9' : '10–12'}: câu hỏi được chọn tự động theo khối lớp của bạn.
+                </p>
+              )}
             </div>
+
+            {classAssignment && (
+              <section
+                aria-label="Bài trắc nghiệm của lớp"
+                data-testid="class-quiz-banner"
+                className={`mx-auto max-w-3xl rounded-2xl border p-5 ${classAssignment.state === 'EXPIRED' ? 'border-rose-300 bg-rose-50 dark:bg-rose-950/30' : classAssignment.done ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30' : 'border-indigo-300 bg-indigo-50 dark:bg-indigo-950/30'}`}
+              >
+                <h2 className="text-base font-extrabold text-slate-800 dark:text-slate-100">
+                  Bài trắc nghiệm của lớp {classAssignment.className}: {classAssignment.title}
+                </h2>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                  Hạn chót: <strong>{formatVnDateTime(classAssignment.dueAt)}</strong> · Tối đa {classAssignment.maxPoints} điểm · Chỉ được làm <strong>một lượt</strong>.
+                </p>
+                {classAssignment.done ? (
+                  <p className="mt-2 font-bold text-emerald-700 dark:text-emerald-400">✅ Đã hoàn thành: {scoreText(classAssignment)}</p>
+                ) : classAssignment.state === 'EXPIRED' ? (
+                  <p className="mt-2 font-bold text-rose-700 dark:text-rose-400">Đã hết hạn - Đã khóa: không thể làm bài nữa.</p>
+                ) : classAssignment.state === 'NOT_OPEN' ? (
+                  <p className="mt-2 font-bold text-slate-600">Chưa đến giờ mở bài.</p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleStartClassQuiz}
+                    className="mt-3 cursor-pointer rounded-xl border-none bg-indigo-600 px-5 py-2 text-sm font-bold text-white hover:bg-indigo-700"
+                  >
+                    {classAssignment.state === 'IN_PROGRESS' ? 'Làm tiếp bài của lớp' : 'Bắt đầu làm bài của lớp'}
+                  </button>
+                )}
+              </section>
+            )}
 
             {/* Quiz Topic Selector Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

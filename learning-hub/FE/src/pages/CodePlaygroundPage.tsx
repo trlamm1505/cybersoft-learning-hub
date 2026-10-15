@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Code2,
@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { KidExerciseView } from '../components/KidExerciseView';
 import { CareerLabHub } from '../components/CareerLabHub';
-import { bandOfExercise, UNGRADED } from '../common/exerciseMatrix';
+import { bandOfExercise, bandOfStudent, UNGRADED } from '../common/exerciseMatrix';
 import { CodeEditor } from '../components/CodeEditor';
 import { OutputPanel } from '../components/OutputPanel';
 import { TestResultsPanel } from '../components/TestResultsPanel';
@@ -30,6 +30,9 @@ import { useToast } from '../components/Toast';
 import { IntegrityNotice } from '../components/IntegrityNotice';
 import { useIntegrityTracker } from '../hooks/useIntegrityTracker';
 import exerciseApi from '../axios/exerciseApi';
+import classAssignmentsApi from '../axios/classAssignmentsApi';
+import type { MyAssignment } from '../types/classAssignments';
+import { formatVnDateTime, scoreText } from '../common/classFormat';
 import type { ExerciseDetail, ExerciseListItem, RunCodeResponse, SubmitCodeResponse } from '../types/exercise';
 import type { LessonAuthoring } from '../types/authoring';
 import type { AuthUser } from '../types/auth';
@@ -73,17 +76,35 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Chế độ bài của lớp: mở từ trang "Lớp học của tôi" qua ?assignment=<id>. Chỉ khi đó Submit mới tính điểm lớp
+  // (mỗi lần sai trừ 1 điểm) và bị khóa khi hết hạn; Run thử và luyện tập tự do ở Playground không tính điểm.
+  const assignmentId = useMemo(() => new URLSearchParams(window.location.search).get('assignment'), []);
+  const [assignment, setAssignment] = useState<MyAssignment | null>(null);
+  const reloadAssignment = useCallback(() => {
+    if (!assignmentId || authUser?.role !== 'STUDENT') return;
+    classAssignmentsApi
+      .getAssignment(assignmentId)
+      .then(setAssignment)
+      .catch(() => setAssignment(null));
+  }, [assignmentId, authUser?.role]);
+  useEffect(reloadAssignment, [reloadAssignment]);
+  // Chỉ áp dụng khi bài đang mở ĐÚNG là bài được giao (tránh banner sai nếu đổi sang bài khác trong cùng phiên).
+  const classMode = !!assignment && assignment.exerciseSlug === selectedSlug;
+  const classLocked = classMode && (assignment.locked || assignment.done);
   const [activeResultTab, setActiveResultTab] = useState<'run' | 'submit' | 'hint' | 'coach'>('run');
 
   // Grade/topic filters — narrow the exercise dropdown by class level and by
   // game/topic pack within that level, instead of one flat list mixing everything.
-  const [selectedGradeBand, setSelectedGradeBand] = useState<string | null>(kidMode ? '3-5' : null);
+  // Học viên được đổ thẳng danh sách bài của đúng khối mình (theo ageGroup), không phải chọn khối. Giảng viên/Admin vẫn chọn khối.
+  const lockedBand: string | null = kidMode ? '3-5' : authUser?.role === 'STUDENT' ? bandOfStudent(authUser.ageGroup) : null;
+  const [selectedGradeBand, setSelectedGradeBand] = useState<string | null>(lockedBand);
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
 
   // Navigation: Code Playground opens on a grade-picker screen, then a card grid of
   // exercises for that grade/topic, and only opens the code editor once a specific
   // exercise card is clicked — instead of dropping straight into an editor.
-  const [view, setView] = useState<'grade' | 'exercises' | 'editor'>(kidMode ? 'exercises' : 'grade');
+  const [view, setView] = useState<'grade' | 'exercises' | 'editor'>(lockedBand ? 'exercises' : 'grade');
 
   // Sequential unlock within a topic: exercise N+1 only opens once exercise N has
   // been solved correctly (AC), same rule and localStorage-based persistence as the
@@ -253,7 +274,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
   // topics together, or a grade band with none at all, would make "position in
   // the list" meaningless as a lock gate.
   const isSequentialUnlockActive =
-    selectedGradeBand !== null && (selectedTopic !== 'all' || availableTopics.length === 1);
+    selectedGradeBand !== null && (selectedTopic !== 'all' || (availableTopics.length === 1 && !lockedBand));
   const isExerciseUnlocked = (idx: number) => {
     if (!isSequentialUnlockActive) return true;
     if (idx === 0) return true;
@@ -577,6 +598,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
         selectedSlug,
         code,
         integrityTrackerRef.current.snapshot(Date.now()),
+        classMode ? assignmentId : null,
       );
 
       const startTime = Date.now();
@@ -596,15 +618,19 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
             stopPolling();
             setIsSubmitting(false);
             if (pollRes.status === 'AC') markCompleted(selectedSlug);
+            if (classMode) reloadAssignment(); // cập nhật điểm còn lại / trạng thái hoàn thành
           }
         } catch {
           stopPolling();
           setIsSubmitting(false);
         }
       }, POLL_INTERVAL_MS);
-    } catch {
+    } catch (err) {
       setIsSubmitting(false);
-      setLoadError('Không thể gửi bài nộp. Vui lòng kiểm tra lại kết nối.');
+      // Bài của lớp bị máy chủ từ chối (hết hạn - đã khóa, chưa mở, đã hoàn thành...): hiện đúng lý do.
+      const serverMsg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setLoadError(serverMsg || 'Không thể gửi bài nộp. Vui lòng kiểm tra lại kết nối.');
+      if (classMode) reloadAssignment();
     }
   };
 
@@ -700,10 +726,14 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
   if (view === 'exercises' && selectedGradeBand === 'CAREER_ADULT') {
     return (
       <CareerLabHub
-        onBack={() => {
-          setView('grade');
-          setSelectedGradeBand(null);
-        }}
+        onBack={
+          lockedBand
+            ? undefined
+            : () => {
+                setView('grade');
+                setSelectedGradeBand(null);
+              }
+        }
         onOpen={(path) => navigate(path)}
       />
     );
@@ -715,7 +745,7 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-xs">
           <div className="flex items-center gap-3">
-            {!kidMode && (
+            {!lockedBand && (
               <button
                 onClick={() => {
                   setView('grade');
@@ -729,10 +759,10 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
             )}
             <div>
               <h1 className={kidMode ? 'text-3xl font-black text-sky-700' : 'text-base font-extrabold text-[var(--text-main)] tracking-tight'}>
-                {kidMode ? 'Góc Học Tập' : (GRADE_BAND_LABEL[selectedGradeBand ?? ''] ?? '')}
+                {kidMode ? 'Góc Học Tập' : lockedBand ? `Luyện tập · ${GRADE_BAND_LABEL[selectedGradeBand ?? ''] ?? ''}` : (GRADE_BAND_LABEL[selectedGradeBand ?? ''] ?? '')}
               </h1>
               <p className={kidMode ? 'text-lg font-semibold text-slate-600' : 'text-xs text-[var(--text-muted)]'}>
-                {kidMode ? 'Chọn một thử thách để bắt đầu nhé!' : 'Chọn 1 bài để bắt đầu làm.'}
+                {kidMode ? 'Chọn một thử thách để bắt đầu nhé!' : lockedBand ? 'Khu luyện tập tự do, không tính điểm vào lớp học. Chọn 1 bài để bắt đầu làm.' : 'Chọn 1 bài để bắt đầu làm.'}
               </p>
             </div>
           </div>
@@ -852,6 +882,31 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
         </div>
       </div>
 
+      {classMode && assignment && (
+        <section
+          aria-label="Bài tập của lớp"
+          data-testid="class-assignment-banner"
+          className={`rounded-2xl border p-4 text-sm ${assignment.state === 'EXPIRED' ? 'border-rose-300 bg-rose-50 dark:bg-rose-950/30' : assignment.done ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30' : 'border-indigo-300 bg-indigo-50 dark:bg-indigo-950/30'}`}
+        >
+          <div className="font-bold text-[var(--text-main)]">
+            Bài tập của lớp {assignment.className}: {assignment.title}
+          </div>
+          <div className="mt-1 text-xs text-[var(--text-muted)]">
+            Hạn chót: <strong>{formatVnDateTime(assignment.dueAt)}</strong> · Tối đa {assignment.maxPoints} điểm. Bấm <strong>Run</strong> thử thoải mái, không trừ điểm;
+            mỗi lần <strong>Submit</strong> sai (WA/TLE/RE) bị trừ 1 điểm.
+          </div>
+          {assignment.done ? (
+            <div className="mt-2 font-bold text-emerald-700 dark:text-emerald-400">✅ Đã hoàn thành: {scoreText(assignment)}</div>
+          ) : assignment.state === 'EXPIRED' ? (
+            <div className="mt-2 font-bold text-rose-700 dark:text-rose-400">Đã hết hạn - Đã khóa: không thể nộp bài nữa (vẫn có thể bấm Run để thử).</div>
+          ) : (
+            <div className="mt-2 font-semibold text-[var(--text-main)]">
+              Đã nộp sai {assignment.wrongCount} lần · nếu AC bây giờ bạn được <strong>{assignment.potentialScore}/{assignment.maxPoints}</strong> điểm.
+            </div>
+          )}
+        </section>
+      )}
+
       <IntegrityNotice />
 
       {/* Main Grid: Code Editor Left vs Output/Hints Right */}
@@ -884,7 +939,8 @@ export const CodePlaygroundPage: React.FC<CodePlaygroundPageProps> = ({ teacherL
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={isRunning || isSubmitting}
+                  disabled={isRunning || isSubmitting || classLocked}
+                  title={classLocked ? (assignment?.done ? 'Bạn đã hoàn thành bài này' : 'Bài đã hết hạn - đã khóa') : undefined}
                   className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}

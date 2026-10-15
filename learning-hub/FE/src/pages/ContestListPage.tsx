@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GRADE_FILTER_OPTIONS, contestBandLabel, contestGradeDenied, isUnlimitedContest, matchesGradeFilter, type ContestGradeFilter } from '../common/contestGrade';
 import {
   Trophy,
   User,
@@ -43,6 +44,8 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
   const [contests, setContests] = useState<ContestItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'all' | 'ongoing' | 'upcoming' | 'ended'>('all');
+  // Bộ lọc khối: Tất cả / Khối 6–9 / Khối 10–12 (ai cũng thấy mọi cuộc thi; chỉ đúng khối mới vào phòng thi).
+  const [gradeFilter, setGradeFilter] = useState<ContestGradeFilter>('all');
   // Danh sách cuộc thi xem được không cần đăng nhập, nhưng đăng ký/vào thi thật
   // (handleRegister/handleCheckAndEnter) bắt buộc login — không còn chế độ
   // khách với tên tự nhập, luôn dùng đúng tài khoản thật khi đã đăng nhập.
@@ -111,10 +114,16 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
     fetchContests();
   };
 
-  const handleRegister = async (contestId: string, contestTitle: string) => {
+  const handleRegister = async (contestId: string, contestTitle: string, gradeBand?: string) => {
     if (!authUser) {
       showToast('Vui lòng đăng nhập để đăng ký tham gia cuộc thi.', 'info');
       navigate('/login');
+      return;
+    }
+    // Báo sớm khi sai khối (máy chủ vẫn kiểm tra và trả 403).
+    const denied = contestGradeDenied(gradeBand, authUser);
+    if (denied) {
+      showToast(denied, 'error');
       return;
     }
     try {
@@ -134,6 +143,11 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
       return;
     }
     if (!contest._id && !contest.slug) return;
+    const denied = contestGradeDenied(contest.gradeBand, authUser);
+    if (denied) {
+      showToast(`403 Forbidden: ${denied}`, 'error');
+      return;
+    }
     // Đã có lượt thi (do máy chủ giữ): vào thẳng phòng thi để xem bảng điểm / làm tiếp.
     if (contest.myAttemptStatus && contest.myAttemptStatus !== 'NOT_STARTED') {
       startExamSession(contest);
@@ -195,7 +209,9 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
         const hours = Math.floor(diffSec / 3600);
         const mins = Math.floor((diffSec % 3600) / 60);
         const secs = diffSec % 60;
-        countdownText = `Còn lại: ${hours > 0 ? `${hours}h ` : ''}${mins}m ${secs}s`;
+        countdownText = isUnlimitedContest(c.endTime, new Date(currentTime))
+          ? 'Mở không giới hạn thời gian'
+          : `Còn lại: ${hours > 0 ? `${hours}h ` : ''}${mins}m ${secs}s`;
       }
 
       return {
@@ -207,12 +223,13 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
   }, [contests, now]);
 
   const filteredContests = useMemo(() => {
-    if (activeTab === 'all') return processedContests;
-    if (activeTab === 'ongoing') return processedContests.filter((c) => c.computedStatus === 'ONGOING');
-    if (activeTab === 'upcoming') return processedContests.filter((c) => c.computedStatus === 'UPCOMING');
-    if (activeTab === 'ended') return processedContests.filter((c) => c.computedStatus === 'ENDED');
+    const byGrade = processedContests.filter((c) => matchesGradeFilter(c.gradeBand, gradeFilter));
+    if (activeTab === 'all') return byGrade;
+    if (activeTab === 'ongoing') return byGrade.filter((c) => c.computedStatus === 'ONGOING');
+    if (activeTab === 'upcoming') return byGrade.filter((c) => c.computedStatus === 'UPCOMING');
+    if (activeTab === 'ended') return byGrade.filter((c) => c.computedStatus === 'ENDED');
     return processedContests;
-  }, [processedContests, activeTab]);
+  }, [processedContests, activeTab, gradeFilter]);
 
   const counts = {
     all: processedContests.length,
@@ -340,6 +357,24 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
           </button>
         </div>
 
+        <div className="flex items-center gap-2 overflow-x-auto pb-1" role="group" aria-label="Lọc theo khối">
+          {GRADE_FILTER_OPTIONS.map((o) => (
+            <button
+              key={o.value}
+              type="button"
+              onClick={() => setGradeFilter(o.value)}
+              aria-pressed={gradeFilter === o.value}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                gradeFilter === o.value
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+                  : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-indigo-400'
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+
         <button
           onClick={fetchContests}
           className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-color)] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1.5"
@@ -386,6 +421,17 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1.5 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-extrabold border ${
+                          c.gradeBand === '6-9'
+                            ? 'bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950 dark:text-sky-300 dark:border-sky-800'
+                            : c.gradeBand === '10-12'
+                              ? 'bg-violet-100 text-violet-800 border-violet-300 dark:bg-violet-950 dark:text-violet-300 dark:border-violet-800'
+                              : 'bg-[var(--bg-main)] text-[var(--text-muted)] border-[var(--border-color)]'
+                        }`}
+                      >
+                        {contestBandLabel(c.gradeBand)}
+                      </span>
                       {isOngoing && (
                         <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5 animate-pulse">
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
@@ -449,7 +495,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                       <CalendarDays size={12} /> Mở đề: {formatDateTime(c.startTime)}
                     </span>
                     <span className="text-[11px] block font-medium opacity-80 flex items-center gap-1">
-                      <FlagTriangleRight size={12} /> Đóng đề: {formatDateTime(c.endTime)}
+                      <FlagTriangleRight size={12} /> Đóng đề: {isUnlimitedContest(c.endTime) ? 'Không giới hạn' : formatDateTime(c.endTime)}
                     </span>
                   </div>
                   <div className="text-right shrink-0">
@@ -488,7 +534,7 @@ export const ContestListPage: React.FC<ContestListPageProps> = ({ authUser }) =>
                   ) : !isRegistered && !isEnded ? (
                     <button
                       type="button"
-                      onClick={() => handleRegister(c._id!, c.title)}
+                      onClick={() => handleRegister(c._id!, c.title, c.gradeBand)}
                       className="w-full px-3 py-2.5 text-xs font-bold rounded-2xl bg-cyan-700 hover:bg-cyan-800 text-white transition-all cursor-pointer shadow-xs border-none text-center flex items-center justify-center gap-1.5"
                     >
                       <FileEdit size={13} /> Đăng ký tham gia

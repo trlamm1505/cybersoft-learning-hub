@@ -24,6 +24,7 @@ import {
 } from '../../modules-system/database/schemas/tester-lab-submission.schema';
 import {
   clampDays,
+  computeStreaks,
   formatTzOffset,
   localDateKey,
   tzOffsetMinutes,
@@ -35,6 +36,9 @@ export interface ActivityResult {
   to: string;
   total: number;
   activeDays: number;
+  /** Chuỗi ngày luyện tập liên tiếp (kết thúc hôm nay hoặc hôm qua) và chuỗi dài nhất trong cửa sổ. */
+  currentStreak: number;
+  bestStreak: number;
   /** Chỉ các ngày có hoạt động, tăng dần theo ngày. */
   days: Array<{ date: string; count: number }>;
 }
@@ -146,6 +150,10 @@ export class LearnerActivityService {
       to,
       total: daysList.reduce((sum, d) => sum + d.count, 0),
       activeDays: daysList.length,
+      ...(() => {
+        const s = computeStreaks(daysList.map((d) => d.date), to);
+        return { currentStreak: s.current, bestStreak: s.best };
+      })(),
       days: daysList,
     };
   }

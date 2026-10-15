@@ -4,6 +4,7 @@ import { ExerciseService } from './exercise.service';
 import { Exercise } from '../../modules-system/database/schemas/exercise.schema';
 import { Submission } from '../../modules-system/database/schemas/submission.schema';
 import { IntegrityService } from '../integrity/integrity.service';
+import { ClassAssignmentsService } from '../class-assignments/class-assignments.service';
 import { JudgeQueueService } from '../judge/judge-queue.service';
 
 describe('ExerciseService.findAll — hasSolution/testCaseCount badge fields', () => {
@@ -22,6 +23,7 @@ describe('ExerciseService.findAll — hasSolution/testCaseCount badge fields', (
         { provide: getModelToken(Submission.name), useValue: {} },
         { provide: JudgeQueueService, useValue: {} },
         { provide: IntegrityService, useValue: {} },
+        { provide: ClassAssignmentsService, useValue: { assertCanSubmitCoding: jest.fn() } },
       ],
     }).compile();
 
@@ -122,6 +124,8 @@ describe('ExerciseService.submitCode — chặn nộp Python vào bài DA Lab', 
         { provide: getModelToken(Submission.name), useValue: mockSubmissionModel },
         { provide: JudgeQueueService, useValue: mockJudge },
         { provide: IntegrityService, useValue: mockIntegrity },
+        { provide: ClassAssignmentsService, useValue: { assertCanSubmitCoding: jest.fn() } },
+        { provide: ClassAssignmentsService, useValue: { assertCanSubmitCoding: jest.fn() } },
       ],
     }).compile();
     service = module.get<ExerciseService>(ExerciseService);
@@ -200,6 +204,7 @@ describe('ExerciseService — ma trận, quyền sở hữu, truy cập theo nh�
         { provide: getModelToken(Submission.name), useValue: {} },
         { provide: JudgeQueueService, useValue: {} },
         { provide: IntegrityService, useValue: {} },
+        { provide: ClassAssignmentsService, useValue: { assertCanSubmitCoding: jest.fn() } },
       ],
     }).compile();
     service = module.get(ExerciseService);
@@ -299,6 +304,7 @@ describe('ExerciseService.assignLegacyGrade', () => {
         { provide: getModelToken(Submission.name), useValue: {} },
         { provide: JudgeQueueService, useValue: {} },
         { provide: IntegrityService, useValue: {} },
+        { provide: ClassAssignmentsService, useValue: { assertCanSubmitCoding: jest.fn() } },
       ],
     }).compile();
     service = module.get(ExerciseService);

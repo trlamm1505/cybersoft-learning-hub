@@ -100,6 +100,10 @@ export class Contest {
    */
   @Prop({ type: Boolean, default: true })
   integrityEnabled: boolean;
+
+  /** Khối được dự thi: 'ALL' | '6-9' | '10-12'. Mọi người xem được cuộc thi, nhưng chỉ đúng khối mới vào phòng thi. */
+  @Prop({ type: String, enum: ['ALL', '6-9', '10-12'], default: 'ALL', index: true })
+  gradeBand: string;
 }
 
 export const ContestSchema = SchemaFactory.createForClass(Contest);

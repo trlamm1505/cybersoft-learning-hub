@@ -8,6 +8,7 @@ import { Submission, SubmissionSchema } from './schemas/submission.schema';
 import { Hint, HintSchema } from './schemas/hint.schema';
 import { HintUsage, HintUsageSchema } from './schemas/hint-usage.schema';
 import { Classroom, ClassroomSchema } from './schemas/classroom.schema';
+import { ClassAssignment, ClassAssignmentSchema } from './schemas/class-assignment.schema';
 import { Lesson, LessonSchema } from './schemas/lesson.schema';
 import { Contest, ContestSchema } from './schemas/contest.schema';
 import {
@@ -86,6 +87,7 @@ import {
       { name: DaLabSubmission.name, schema: DaLabSubmissionSchema },
       { name: AiLabSubmission.name, schema: AiLabSubmissionSchema },
       { name: Classroom.name, schema: ClassroomSchema },
+      { name: ClassAssignment.name, schema: ClassAssignmentSchema },
     ]),
   ],
   exports: [MongooseModule],

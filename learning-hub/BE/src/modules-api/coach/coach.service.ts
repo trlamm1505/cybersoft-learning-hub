@@ -33,7 +33,7 @@ import {
 import { AiCoachPreprocessor } from './ai-coach-preprocessor';
 import { estimateTokens } from './coach-llm.client';
 import type { LlmClient } from './coach-llm.client';
-import { COACH_LLM_CLIENT } from './coach.constants';
+import { COACH_LLM_CLIENT, COACH_MAX_OUTPUT_TOKENS } from './coach.constants';
 import { CoachChatDto } from './dto/coach-chat.dto';
 import { analyzeDebugLoop, MAX_DEBUG_LOOPS } from './coach-debug-loop';
 import { DebugLoopTestInput } from './coach-debug-loop.types';
@@ -50,7 +50,7 @@ import type { DebugExplainer } from './coach-debug-explainer';
 // to (ví dụ lịch sử hội thoại dài hoặc mô tả đề quá dài) trước khi gọi model,
 // và chặn completion quá dài trước khi lưu/trả về học viên.
 const MAX_PROMPT_TOKENS = 4000;
-const MAX_COMPLETION_TOKENS = 800;
+const MAX_COMPLETION_TOKENS = COACH_MAX_OUTPUT_TOKENS;
 
 // Export để coach-eval-runner.ts import lại đúng nguyên văn thay vì copy
 // riêng một bản khác — tránh trường hợp sửa prompt ở đây mà quên sửa bên
@@ -62,6 +62,9 @@ export const SYSTEM_PROMPT = [
   'Không được tiết lộ test case ẩn (hidden test) dưới bất kỳ hình thức nào.',
   'Không đưa lời giải đầy đủ (full solution) trừ khi context.policy.allowFullSolution = true.',
   'Ưu tiên gợi mở theo hướng Socratic: đặt câu hỏi dẫn dắt, chỉ ra hướng đi, không viết hộ toàn bộ code.',
+  'Tuyệt đối không bao giờ cung cấp mã code hoàn chỉnh, lời giải trực tiếp hay output của hidden test.',
+  'Chỉ chỉ ra nguyên nhân lỗi logic, giải thích khái niệm và đưa ra gợi ý từng bước (hints).',
+  'Trả lời ngắn gọn, tối đa vài đoạn; nếu cần minh họa cú pháp chỉ dùng đoạn code ngắn vài dòng, không phải lời giải.',
 ].join(' ');
 
 @Injectable()

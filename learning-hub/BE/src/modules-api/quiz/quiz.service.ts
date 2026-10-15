@@ -19,6 +19,9 @@ import { SubmitAttemptDto } from './dto/submit-attempt.dto';
 import { DEFAULT_REVIEW_POLICY } from './dto/review-attempt.dto';
 import type { ReviewPolicyType } from './dto/review-attempt.dto';
 import { seededShuffle } from '../../common/helper/prng.helper';
+import { quizBandOfStudent } from './quiz-grade';
+import type { JwtPayload } from '../../common/auth/jwt.strategy';
+import { ClassAssignmentsService } from '../class-assignments/class-assignments.service';
 
 @Injectable()
 export class QuizService {
@@ -28,18 +31,67 @@ export class QuizService {
 
     @InjectModel(QuizAttempt.name)
     private readonly quizAttemptModel: Model<QuizAttemptDocument>,
+
+    private readonly classAssignments: ClassAssignmentsService,
   ) {}
 
   /**
    * 1. Start Attempt (Bắt đầu làm bài):
    * Khởi tạo lượt thi, xáo trộn phương án ngầm bằng SEED, ẩn đáp án đúng & giải thích
    */
-  async startAttempt(userId: string, dto: StartAttemptDto) {
+  /**
+   * Bắt đầu lượt thi của một bài trắc nghiệm được giao cho lớp: câu hỏi do giảng viên chọn, chỉ một lượt, hết giờ làm bài
+   * không vượt quá hạn chót. Lượt thi mang assignmentId nên mới được tính điểm lớp.
+   */
+  private async startAssignmentAttempt(userId: string, dto: StartAttemptDto, user?: JwtPayload) {
+    if (!user) throw new ForbiddenException('Vui lòng đăng nhập để làm bài của lớp.');
+    const assignment = await this.classAssignments.assertCanStartQuiz(dto.assignmentId as string, user);
+
+    const existing = await this.quizAttemptModel.findOne({
+      userId: new Types.ObjectId(userId),
+      assignmentId: dto.assignmentId,
+      status: 'IN_PROGRESS',
+    });
+    if (existing) return this.formatSanitizedQuestions(existing);
+
+    const questions = await this.questionModel
+      .find({ _id: { $in: (assignment.questionIds ?? []).filter((i) => Types.ObjectId.isValid(i)) } })
+      .exec();
+    if (questions.length === 0) throw new NotFoundException('Bài trắc nghiệm chưa có câu hỏi.');
+
+    const seed = `${userId}_${dto.assignmentId}_${Date.now()}`;
+    const shuffled = questions.map((q) => ({
+      questionId: q._id,
+      optionKeysOrder: seededShuffle(q.options.map((o) => o.key), `${seed}_${q._id}`),
+      selectedOptionKey: undefined,
+      isCorrect: false,
+      scoreEarned: 0,
+    }));
+    const untilDue = Math.floor((new Date(assignment.dueAt).getTime() - Date.now()) / 1000);
+    const created = await this.quizAttemptModel.create({
+      userId: new Types.ObjectId(userId),
+      testId: new Types.ObjectId(dto.testId),
+      assignmentId: dto.assignmentId,
+      seed,
+      shuffledQuestions: shuffled,
+      startedAt: new Date(),
+      timeLimitSeconds: Math.max(60, Math.min(1800, untilDue)),
+      status: 'IN_PROGRESS',
+      score: 0,
+      maxScore: questions.reduce((sum, q) => sum + (q.points || 10), 0),
+      reviewPolicy: DEFAULT_REVIEW_POLICY,
+    });
+    return this.formatSanitizedQuestions(created);
+  }
+
+  async startAttempt(userId: string, dto: StartAttemptDto, ageGroup?: string | null, user?: JwtPayload) {
     const { testId, category } = dto;
 
     if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(testId)) {
       throw new BadRequestException('ID người dùng hoặc bài thi không hợp lệ.');
     }
+
+    if (dto.assignmentId) return this.startAssignmentAttempt(userId, dto, user);
 
     // Check existing in-progress attempt. Matched on `category` too — multiple quiz topics
     // (e.g. "Fullstack Web" vs "Python") share the same demo testId, so without this an
@@ -48,6 +100,7 @@ export class QuizService {
       userId: new Types.ObjectId(userId),
       testId: new Types.ObjectId(testId),
       category: category ?? { $exists: false },
+      assignmentId: { $exists: false }, // lượt luyện tập tự do, không lẫn với lượt thi của bài lớp
       status: 'IN_PROGRESS',
     });
 
@@ -59,8 +112,14 @@ export class QuizService {
     // Fetch questions for this quiz topic. Each SYSTEM_QUIZZES topic maps 1:1 to a
     // Question.category value (Python / HTML5 / CSS3). Falls back to the full bank
     // when no category is given (backward compatibility).
-    const questionFilter = !category ? {} : { category };
-    const questions = await this.questionModel.find(questionFilter).exec();
+    const questionFilter: Record<string, unknown> = !category ? {} : { category };
+    // Học viên 6-9 / 10-12 chỉ nhận câu ôn tập của đúng khối (câu chưa gắn khối vẫn hiện cho mọi khối).
+    const band = quizBandOfStudent(ageGroup);
+    let questions = await this.questionModel
+      .find(band ? { ...questionFilter, $or: [{ gradeBands: band }, { gradeBands: { $exists: false } }] } : questionFilter)
+      .exec();
+    // Khối chưa có câu nào cho chủ đề này thì dùng toàn bộ chủ đề thay vì chặn học viên.
+    if (band && questions.length === 0) questions = await this.questionModel.find(questionFilter).exec();
     if (!questions || questions.length === 0) {
       throw new NotFoundException(
         'Không tìm thấy câu hỏi nào trong hệ thống bài thi.',

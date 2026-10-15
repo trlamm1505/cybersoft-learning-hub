@@ -82,6 +82,10 @@ export class Submission {
   @Prop({ type: String })
   userId?: string;
 
+  // Bài nộp thuộc bài được giao cho lớp (ClassAssignment): chỉ những bài nộp có assignmentId mới tính điểm lớp.
+  @Prop({ type: String, index: true })
+  assignmentId?: string;
+
   @Prop({ required: true, type: String })
   code: string;
 

@@ -15,6 +15,10 @@ export class Classroom {
   @Prop({ type: String, default: '', trim: true })
   description: string;
 
+  /** Mã lớp hiển thị cho học viên (vd CL-6A9F2K); duy nhất. Lớp cũ chưa có mã. */
+  @Prop({ type: String, unique: true, sparse: true, trim: true })
+  code?: string;
+
   /** Lớp lưu trữ: ẩn khỏi Dashboard mặc định nhưng giữ nguyên dữ liệu. */
   @Prop({ type: Boolean, default: false })
   archived: boolean;

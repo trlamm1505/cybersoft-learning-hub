@@ -43,6 +43,10 @@ export class Question {
 
   @Prop({ type: [String], default: [] })
   tags: string[]; // Topic tags
+
+  // Khối lớp dùng câu này để ôn tập ('6-9' | '10-12'). Thiếu = hiện cho mọi khối (dữ liệu cũ).
+  @Prop({ type: [String], enum: ['6-9', '10-12'], default: undefined, index: true })
+  gradeBands?: string[];
 }
 
 export const QuestionSchema = SchemaFactory.createForClass(Question);
