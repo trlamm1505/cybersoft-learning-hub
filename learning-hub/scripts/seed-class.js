@@ -21,7 +21,14 @@ const uri = process.env.DATABASE_URL || h.readEnvValue(envText, 'DATABASE_URL') 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const remove = args.includes('--remove');
-const addEmails = args.filter((a) => a.startsWith('--add-email=')).map((a) => a.slice('--add-email='.length).trim().toLowerCase()).filter(Boolean);
+// Tài khoản học sinh test được ghi danh sẵn vào lớp đúng khối (thêm bằng --add-email=... cho tài khoản khác).
+const DEFAULT_TEST_ACCOUNTS = ['muoi@gmail.com'];
+const addEmails = [
+  ...new Set([
+    ...DEFAULT_TEST_ACCOUNTS,
+    ...args.filter((a) => a.startsWith('--add-email=')).map((a) => a.slice('--add-email='.length).trim().toLowerCase()).filter(Boolean),
+  ]),
+];
 
 const TEACHER_EMAIL = 'seed-teacher-1@demo.cybersoft.local';
 const DEMO_TEST_ID = '673f22222222222222222222';
@@ -135,8 +142,8 @@ function vnMorning(dayOffset, now) {
       const realIds = [];
       for (const email of addEmails) {
         const u = await users.findOne({ email });
-        if (!u) { console.log(`  (!) không có tài khoản ${email}`); continue; }
-        if (u.role !== 'STUDENT') { console.log(`  (!) ${email} không phải học sinh`); continue; }
+        if (!u) { if (!DEFAULT_TEST_ACCOUNTS.includes(email)) console.log(`  (!) không có tài khoản ${email}`); continue; }
+        if (u.role !== 'STUDENT') { if (!DEFAULT_TEST_ACCOUNTS.includes(email)) console.log(`  (!) ${email} không phải học sinh`); continue; }
         if (u.ageGroup && u.ageGroup !== c.band) continue; // đúng khối mới vào lớp khối đó
         realIds.push(String(u._id));
       }

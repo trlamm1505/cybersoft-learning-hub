@@ -195,7 +195,7 @@ const CONTESTS = [
         {
           $set: {
             title: c.title, description: c.description, startTime: START, endTime: END, durationMinutes: 14400, problems,
-            status: 'published', authorId: 'teacher-1', integrityEnabled: false, gradeBand: c.gradeBand, updatedAt: now,
+            status: 'published', authorId: 'teacher-1', integrityEnabled: true, gradeBand: c.gradeBand, updatedAt: now,
           },
           $setOnInsert: { slug: c.slug, registrations: [], createdAt: now },
         },

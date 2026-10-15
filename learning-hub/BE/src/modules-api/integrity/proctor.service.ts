@@ -101,9 +101,7 @@ export class ProctorService {
       .findOne({ contestId, studentId: user.sub })
       .lean();
     if (!attempt) throw new NotFoundException('Bạn chưa vào phòng thi này.');
-    if (contest.integrityEnabled === false) {
-      return { count: attempt.leaveCount ?? 0, locked: false, closed: !!attempt.finishedAt, teacherNotified: false };
-    }
+    // Giám sát bắt buộc với mọi cuộc thi (không phụ thuộc cờ integrityEnabled).
     if (attempt.finishedAt) {
       return {
         count: attempt.leaveCount ?? 0,

@@ -108,12 +108,12 @@ describe('ProctorService', () => {
       await expect(service.recordLeave('CONTEST', OID_CONTEST, student)).rejects.toThrow(NotFoundException);
     });
 
-    it('cuộc thi tắt giám sát thì bỏ qua', async () => {
-      contests.findById.mockReturnValue(lean({ _id: OID_CONTEST, integrityEnabled: false }));
-      attempts.findOne.mockReturnValue(lean({ _id: 'att1' }));
+    it('giám sát bắt buộc: cuộc thi cũ có cờ integrityEnabled=false vẫn được đếm và báo giảng viên', async () => {
+      contests.findById.mockReturnValue(lean({ _id: OID_CONTEST, title: 'Khối 10-12', integrityEnabled: false }));
+      attempts.findOne.mockReturnValue(lean({ _id: 'att1', studentName: 'An', leaveCount: 0 }));
+      attempts.findOneAndUpdate.mockReturnValue(lean({ _id: 'att1', leaveCount: 1 }));
       const r = await service.recordLeave('CONTEST', OID_CONTEST, student);
-      expect(r.teacherNotified).toBe(false);
-      expect(attempts.findOneAndUpdate).not.toHaveBeenCalled();
+      expect(r).toMatchObject({ count: 1, teacherNotified: true, locked: false });
     });
   });
 

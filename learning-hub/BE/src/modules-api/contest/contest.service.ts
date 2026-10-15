@@ -437,7 +437,8 @@ export class ContestService implements OnModuleInit {
       problems,
       registrations: [],
       status,
-      integrityEnabled: dto.integrityEnabled !== false,
+      // Chính sách giám sát bắt buộc: mọi cuộc thi luôn bật, không cho tắt.
+      integrityEnabled: true,
       gradeBand: normalizeContestGradeBand(dto.gradeBand),
       authorId,
     });
@@ -521,9 +522,7 @@ export class ContestService implements OnModuleInit {
     );
     contest.problems = problems;
     contest.status = status;
-    if (dto.integrityEnabled !== undefined) {
-      contest.integrityEnabled = dto.integrityEnabled !== false;
-    }
+    contest.integrityEnabled = true; // giám sát bắt buộc, không cho tắt
     if (dto.gradeBand !== undefined) {
       contest.gradeBand = normalizeContestGradeBand(dto.gradeBand);
     }

@@ -203,7 +203,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
   const [attempt, setAttempt] = useState<ContestAttemptView | null>(null);
   const [isFinishing, setIsFinishing] = useState(false);
   const finishingRef = useRef(false);
-  const integrityOn = contest.integrityEnabled !== false;
+  // Giám sát bắt buộc với mọi cuộc thi.
+  const integrityOn = true;
   const trackerRef = useIntegrityTracker(session.status === 'ready' && !!attempt && !attempt.finishedAt && integrityOn, contestId);
 
   // Giám sát rời màn hình: lần 1 báo giảng viên ngay (kèm bíp + dải đỏ trên màn hình học viên);
@@ -215,7 +216,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
     if (leaveWarnTimerRef.current) clearTimeout(leaveWarnTimerRef.current);
   }, []);
   useLeaveReporter({
-    active: session.status === 'ready' && !!attempt && !attempt.finishedAt && integrityOn,
+    active: session.status === 'ready' && !!attempt && !attempt.finishedAt,
     scope: 'CONTEST',
     refId: contestId,
     onReport: (report, localCount) => {
@@ -269,21 +270,34 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
   // Fetch sanitized problem content (no correct answers / hidden test outputs) for the
   // active problem — server is the only source of truth for what the student may see.
+  // Chỉ tải đề SAU KHI máy chủ đã có lượt thi (trước đó API từ chối vì chưa "vào thi", từng khiến đề trắng đến khi F5),
+  // và tự thử lại vài lần nếu lỗi tạm thời.
+  const attemptOpen = session.status === 'ready' && !!attempt && !attempt.finishedAt;
+  const [detailRetry, setDetailRetry] = useState(0);
+  const [detailFailed, setDetailFailed] = useState(false);
   useEffect(() => {
-    if (!currentProblem?.slug) return;
+    if (!attemptOpen || !currentProblem?.slug) return;
     if (problemDetails[currentProblem.slug]) return;
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    setDetailFailed(false);
 
-    const fetchProblemDetail = async () => {
+    (async () => {
       try {
         const detail = await contestSubmissionApi.getProblem(contestId, currentProblem.slug!);
-        setProblemDetails((prev) => ({ ...prev, [currentProblem.slug!]: detail }));
+        if (!cancelled) setProblemDetails((prev) => ({ ...prev, [currentProblem.slug!]: detail }));
       } catch (err) {
+        if (cancelled) return;
         console.warn('Cannot fetch contest problem detail', err);
+        if (detailRetry < 4) retryTimer = setTimeout(() => setDetailRetry((n) => n + 1), 1500);
+        else setDetailFailed(true);
       }
+    })();
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
     };
-
-    fetchProblemDetail();
-  }, [contestId, currentProblem, problemDetails]);
+  }, [contestId, currentProblem, problemDetails, attemptOpen, detailRetry]);
 
   // Resolve sanitized detail info for current problem
   const currentLessonDetail: Partial<ContestProblemForStudent> = useMemo(() => {
@@ -293,7 +307,8 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
 
   // Initial code & stdin populate for current active problem
   useEffect(() => {
-    if (activeProblemIdx !== undefined && currentProblem) {
+    // Chờ đề thật về rồi mới điền mã khung (tránh ghi mã mặc định lên bài khi đề chưa tải xong).
+    if (activeProblemIdx !== undefined && currentProblem && (!currentProblem.slug || problemDetails[currentProblem.slug])) {
       if (userCodes[activeProblemIdx] === undefined) {
         setUserCodes((prev: Record<number, string>) => ({
           ...prev,
@@ -310,7 +325,7 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
         }));
       }
     }
-  }, [activeProblemIdx, currentProblem, currentLessonDetail, userCodes, stdins]);
+  }, [activeProblemIdx, currentProblem, currentLessonDetail, userCodes, stdins, problemDetails]);
 
   // Hạn nộp của riêng học viên do máy chủ tính: min(giờ vào thi + thời lượng, giờ đóng đề).
   const deadlineMs = attempt ? Date.parse(attempt.deadlineAt) : null;
@@ -1191,6 +1206,20 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
           </div>
 
           {/* Quiz Questions List */}
+          {!(currentLessonDetail.quizQuestions || []).length && (
+            <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-main)] p-5 text-sm text-[var(--text-muted)]" role="status">
+              {detailFailed ? (
+                <span>
+                  Chưa tải được đề.{' '}
+                  <button type="button" className="cursor-pointer border-none bg-transparent font-bold text-indigo-600 underline" onClick={() => { setDetailRetry(0); setDetailFailed(false); }}>
+                    Thử lại
+                  </button>
+                </span>
+              ) : (
+                <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> Đang tải đề trắc nghiệm...</span>
+              )}
+            </div>
+          )}
           <div className="space-y-6">
             {(currentLessonDetail.quizQuestions || []).map((q, qIdx) => (
               <div
