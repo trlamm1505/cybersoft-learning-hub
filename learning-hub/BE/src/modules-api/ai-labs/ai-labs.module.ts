@@ -8,14 +8,16 @@ import {
   TeacherAiLabSubmissionsController,
 } from './ai-labs.controller';
 import { AiLabsService } from './ai-labs.service';
+import { AiLabAuthoringController, AiLabAuthoringService } from './ai-lab-authoring.service';
 import { AiLabGraderService } from './ai-lab-grader.service';
 import { AI_LAB_LIVE_LLM, GeminiAiLabLiveLlm } from './ai-lab-live-run';
 
 @Module({
   imports: [DatabaseModule, CommonAuthModule, DatasetIntegrationModule],
-  controllers: [AiLabsController, TeacherAiLabSubmissionsController],
+  controllers: [AiLabsController, TeacherAiLabSubmissionsController, AiLabAuthoringController],
   providers: [
     AiLabsService,
+    AiLabAuthoringService,
     AiLabGraderService,
     {
       provide: AI_LAB_LIVE_LLM,

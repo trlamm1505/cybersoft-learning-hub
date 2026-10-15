@@ -8,6 +8,7 @@ import {
   TeacherSubmissionsController,
 } from './da-labs.controller';
 import { DaLabsService } from './da-labs.service';
+import { DaLabAuthoringController, DaLabAuthoringService } from './da-lab-authoring.service';
 import { SqlGraderService } from './sql-grader.service';
 import { InsightGraderService } from './insight-grader.service';
 import {
@@ -23,9 +24,10 @@ import {
 
 @Module({
   imports: [DatabaseModule, CommonAuthModule, DatasetIntegrationModule],
-  controllers: [DaLabsController, TeacherSubmissionsController],
+  controllers: [DaLabsController, TeacherSubmissionsController, DaLabAuthoringController],
   providers: [
     DaLabsService,
+    DaLabAuthoringService,
     SqlGraderService,
     InsightGraderService,
     {
