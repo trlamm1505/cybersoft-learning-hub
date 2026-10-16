@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: cybersoft-data-ai-lab
+    image: cybersoft/data-ai-lab:v1.0
     restart: unless-stopped
     ports:
       - "8029:8029"
