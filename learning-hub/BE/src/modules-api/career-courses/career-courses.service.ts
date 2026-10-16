@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { Exercise, ExerciseDocument } from '../../modules-system/database/schemas/exercise.schema';
@@ -10,9 +10,12 @@ import {
   TesterLabSubmissionDocument,
 } from '../../modules-system/database/schemas/tester-lab-submission.schema';
 import { User, UserDocument } from '../../modules-system/database/schemas/user.schema';
+import { CourseCertificate, CourseCertificateDocument } from '../../modules-system/database/schemas/course-certificate.schema';
 import {
+  applyIssuedCertificates,
   buildCareerCourses,
   careerCoursesToEnrollments,
+  type IssuedCertificate,
   type CareerCourse,
   type CareerCourseKey,
   type CareerLabItemInput,
@@ -41,6 +44,8 @@ export class CareerCoursesService {
     @InjectModel(TesterLab.name) private readonly testerLabs: Model<TesterLabDocument>,
     @InjectModel(TesterLabSubmission.name) private readonly testerSubs: Model<TesterLabSubmissionDocument>,
     @InjectModel(User.name) private readonly users: Model<UserDocument>,
+    // Chứng chỉ đã cấp (bất biến). Thiếu model (test cũ) thì chỉ tính động, không cấp/khóa chứng chỉ.
+    @Optional() @InjectModel(CourseCertificate.name) private readonly certificates?: Model<CourseCertificateDocument>,
   ) {}
 
   async myCourses(userId: string): Promise<CareerCourse[]> {
@@ -161,7 +166,45 @@ export class CareerCoursesService {
       teacherNames[course as CareerCourseKey] = nameById.get(id) ?? SYSTEM_TEACHER_FALLBACK;
     }
 
-    return buildCareerCourses({ items, userId, studentName: (me as any)?.fullName || 'Học viên', teacherNames });
+    const courses = buildCareerCourses({ items, userId, studentName: (me as any)?.fullName || 'Học viên', teacherNames });
+    return this.certificates ? this.issueAndApply(userId, courses) : courses;
+  }
+
+  /**
+   * Khóa nào đạt điều kiện hoàn thành lần đầu thì CẤP chứng chỉ ngay (ghi một lần, bất biến). Từ đó về sau luôn trả đúng bản đã cấp,
+   * kể cả khi giảng viên thêm bài lab mới làm khóa tụt % hoàn thành.
+   */
+  private async issueAndApply(userId: string, courses: CareerCourse[]): Promise<CareerCourse[]> {
+    const model = this.certificates!;
+    for (const c of courses) {
+      if (!c.certificate) continue;
+      try {
+        await model.updateOne(
+          { userId, courseKey: c.key },
+          {
+            $setOnInsert: {
+              userId,
+              courseKey: c.key,
+              studentName: c.certificate.studentName,
+              courseTitle: c.certificate.className,
+              teacherName: c.certificate.teacherName ?? undefined,
+              finalScore: c.certificate.finalScore,
+              earned: c.certificate.earned,
+              max: c.certificate.max,
+              grade: c.certificate.grade,
+              completedAt: c.certificate.completedAt,
+              code: c.certificate.code,
+            },
+          },
+          { upsert: true },
+        );
+      } catch (err) {
+        // Hai yêu cầu cấp cùng lúc: bản ghi thứ hai đụng chỉ mục unique, bản đã có là bản đúng.
+        if ((err as { code?: number })?.code !== 11000) throw err;
+      }
+    }
+    const issued = (await model.find({ userId }).lean()) as unknown as IssuedCertificate[];
+    return applyIssuedCertificates(courses, issued);
   }
 
   /** Dạng MyEnrollment cho trang Hồ sơ ("Lớp học / Khóa học đã tham gia"). */

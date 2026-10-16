@@ -69,6 +69,25 @@ const src = (rel) => fs.readFileSync(path.join(FE, rel), 'utf8');
     const groups = src('common/userGroups.ts');
     ok(A, /'\/contests'/.test(groups) && /\/playground/.test(groups) && /\/quiz/.test(groups) && /assignment/.test(groups), 'Playground/Quiz phổ thông/Cuộc thi bị chặn với CAREER_ADULT (trừ bài giao của lớp)', 'Chưa chặn đủ route với CAREER_ADULT');
 
+    // RBAC phía API: tài khoản CAREER_ADULT không dùng được khu Cuộc thi, và danh sách bài tập không lộ bài của các khối phổ thông.
+    const anyContest = await db.collection('contests').findOne({});
+    if (anyContest) {
+      const slug = (anyContest.problems || [])[0]?.slug;
+      const cStart = await call(aTok, 'POST', `/contests/${anyContest._id}/start`);
+      const cReg = await call(aTok, 'POST', `/contests/${anyContest._id}/register`);
+      const cProb = await call(aTok, 'GET', `/contests/${anyContest._id}/problems/${slug}`);
+      ok(A, [cStart.s, cReg.s, cProb.s].every((s) => s === 403), 'API Cuộc thi: CAREER_ADULT bị 403 ở start / register / xem đề (kể cả cuộc thi mở cho mọi khối)', `API Cuộc thi: start=${cStart.s}, register=${cReg.s}, problem=${cProb.s}`);
+    }
+    const exList = (await call(aTok, 'GET', '/exercises')).b || [];
+    const leaked = exList.filter((e) => ['3-5', '6-9', '9-12', '10-12'].includes(e.gradeBand) || ['K3_5', 'K6_9', 'K10_12'].includes(e.targetGroup));
+    ok(A, Array.isArray(exList) && leaked.length === 0, `API bài tập: CAREER_ADULT không thấy bài của khối phổ thông (${exList.length} bài hiển thị)`, `API bài tập lộ ${leaked.length} bài khối phổ thông`);
+    const leakedSlug = (await db.collection('exercises').findOne({ gradeBand: '6-9' }, { projection: { slug: 1 } }))?.slug;
+    if (leakedSlug) {
+      const one = await call(aTok, 'GET', `/exercises/${leakedSlug}`);
+      const sub = await call(aTok, 'POST', `/exercises/${leakedSlug}/submit`, { code: 'print(1)' });
+      ok(A, one.s === 403 && sub.s === 403, 'API bài tập: xem/nộp bài Python khối 6-9 bị 403', `Xem=${one.s}, nộp=${sub.s}`);
+    }
+
     // ================= 2. Hub & điều hướng trong lab =================
     const B = '2. Hub & điều hướng lab';
     const hub = src('pages/CareerLabsPage.tsx');
@@ -89,7 +108,22 @@ const src = (rel) => fs.readFileSync(path.join(FE, rel), 'utf8');
     const lab = sqlLabs[0];
     const run = await call(aTok, 'POST', `/da-labs/${lab.slug}/run`, { sql: 'SELECT COUNT(*) AS n FROM orders' });
     ok(C, run.b?.status === 'OK' && run.b.result.rows[0][0] > 0, `SELECT hợp lệ ra kết quả (${JSON.stringify(run.b?.result?.rows)})`, `SELECT lỗi: HTTP ${run.s} ${JSON.stringify(run.b).slice(0, 100)}`);
-    for (const sql of ['DELETE FROM orders', 'DROP TABLE orders', 'SELECT 1; DELETE FROM orders', 'PRAGMA table_info(orders)', 'SELECT * FROM sqlite_master', "ATTACH DATABASE 'x' AS x"]) {
+    for (const sql of [
+      'DELETE FROM orders',
+      'DROP TABLE orders',
+      'SELECT 1; DELETE FROM orders',
+      'SELECT * FROM customers; DROP TABLE orders;',
+      'SELECT * FROM orders -- DROP TABLE',
+      'SELECT * FROM orders /* DROP TABLE orders */',
+      "SELECT load_extension('/tmp/x')",
+      'PRAGMA table_info(orders)',
+      'SELECT * FROM sqlite_master',
+      'SELECT name FROM sqlite_temp_master',
+      "ATTACH DATABASE 'x' AS x",
+      "UPDATE orders SET total_amount = 0",
+      "REPLACE INTO orders VALUES (1)",
+      'VACUUM',
+    ]) {
       const r = await call(aTok, 'POST', `/da-labs/${lab.slug}/run`, { sql });
       ok(C, r.s === 400 && /chỉ hỗ trợ câu lệnh truy vấn/.test(r.b?.message || ''), `Chặn 400: ${sql}`, `Không chặn đúng: ${sql} → HTTP ${r.s}`);
     }
@@ -178,6 +212,15 @@ const src = (rel) => fs.readFileSync(path.join(FE, rel), 'utf8');
 
     // ================= 7. Chứng chỉ =================
     const G = '7. Chứng chỉ demo';
+    if (demoUser) {
+      // Lúc này giảng viên đã thêm bài mới vào khóa (mục 6): chứng chỉ đã cấp PHẢI giữ nguyên.
+      const afterEnr = (await call(tok(demoUser), 'GET', '/student/enrollments')).b || [];
+      const before = demoEnr.find((e) => e.classId === 'tester-qa');
+      const after = afterEnr.find((e) => e.classId === 'tester-qa');
+      ok(G, !!before?.certificate && !!after?.certificate && after.status === 'COMPLETED' && after.certificate.code === before.certificate.code && after.certificate.finalScore === before.certificate.finalScore && after.certificate.grade === before.certificate.grade && String(after.certificate.completedAt) === String(before.certificate.completedAt), `Chứng chỉ BẤT BIẾN: thêm bài Tester mới (${after?.totalAssignments} bài, ${after?.percent}%) nhưng chứng chỉ giữ nguyên mã ${after?.certificate?.code}, ngày cấp, điểm ${after?.certificate?.finalScore}, xếp loại ${after?.certificate?.grade}`, `Chứng chỉ thay đổi sau khi thêm bài: trước=${JSON.stringify(before?.certificate)}, sau=${JSON.stringify(after?.certificate)}`);
+      const stored = await db.collection('course_certificates').findOne({ userId: String(demoUser._id), courseKey: 'tester-qa' });
+      ok(G, !!stored && stored.code === before?.certificate?.code, 'Chứng chỉ được lưu vĩnh viễn trong collection course_certificates (gắn User + Course)', 'Chưa có bản ghi trong course_certificates');
+    }
     if (!demoUser) add(G, 'WARN', 'Chưa có tài khoản demo chứng chỉ: chạy node scripts/seed-career-certificate-demo.js');
     else {
       const cert = demoEnr.find((e) => e.classId === 'tester-qa');

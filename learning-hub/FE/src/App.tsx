@@ -384,7 +384,7 @@ export function App() {
           />
           <Route
             path="/kid-leaderboard"
-            element={kidMode ? <KidLeaderboardPage teacherLessons={publishedTeacherLessons} /> : <Navigate to="/catalog" replace />}
+            element={kidMode ? <KidLeaderboardPage teacherLessons={publishedTeacherLessons} /> : <Navigate to={isCareerAdult(authUser) ? '/career-labs' : '/catalog'} replace />}
           />
           <Route path="/contests" element={<ContestListPage authUser={authUser} />} />
           <Route path="/login" element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />

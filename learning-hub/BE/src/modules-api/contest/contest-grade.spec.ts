@@ -19,6 +19,15 @@ describe('assertGradeAccess', () => {
     expect(() => assertGradeAccess({}, student(undefined))).not.toThrow();
   });
 
+  it('Người đi làm / Trái ngành bị chặn 403 với MỌI cuộc thi (kể cả cuộc thi mở cho mọi khối)', () => {
+    const adult = { role: 'STUDENT', ageGroup: 'CAREER_ADULT' };
+    expect(() => assertGradeAccess({ gradeBand: 'ALL' }, adult)).toThrow(/Người đi làm/);
+    expect(() => assertGradeAccess({}, adult)).toThrow(/Người đi làm/);
+    expect(() => assertGradeAccess({ gradeBand: '10-12' }, adult)).toThrow(/Người đi làm/);
+    // Giảng viên có ageGroup lạ vẫn không bị chặn.
+    expect(() => assertGradeAccess({ gradeBand: 'ALL' }, { role: 'TEACHER', ageGroup: 'CAREER_ADULT' })).not.toThrow();
+  });
+
   it('đúng khối thì vào được', () => {
     expect(() => assertGradeAccess({ gradeBand: '6-9' }, student('6-9'))).not.toThrow();
     expect(() => assertGradeAccess({ gradeBand: '10-12' }, student('10-12'))).not.toThrow();

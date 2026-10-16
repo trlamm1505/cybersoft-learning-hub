@@ -292,7 +292,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
                     Thông tin cá nhân
                   </button>
 
-                  {userRole === 'student' && (
+                  {userRole === 'student' && !careerAdult && (
                     <button
                       role="menuitem"
                       onClick={() => {
@@ -389,7 +389,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
                 >
                   <User size={17} strokeWidth={2} /> Thông tin cá nhân
                 </button>
-                {userRole === 'student' && (
+                {userRole === 'student' && !careerAdult && (
                   <button
                     type="button"
                     onClick={() => handleNavigate('/progress')}

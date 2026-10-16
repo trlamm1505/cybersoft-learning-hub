@@ -20,6 +20,8 @@
     "backfill:questions": "node scripts/backfill-question-grades.js",
     "seed:kids": "node scripts/seed-kid-leaderboard.js",
     "release:check": "node scripts/release-pipeline.js",
+    "audit:career": "node scripts/audit-career-adult.js",
+    "e2e:career": "node scripts/e2e-career-adult.js",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:full": "docker compose --profile full up -d --build",
@@ -28,7 +30,8 @@
     "test:scripts": "node --test scripts/lib/*.test.js"
   },
   "devDependencies": {
-    "concurrently": "^9.2.4"
+    "concurrently": "^9.2.4",
+    "puppeteer-core": "^23.11.1"
   },
   "engines": {
     "node": ">=20.12.0"

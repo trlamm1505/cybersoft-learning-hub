@@ -118,10 +118,14 @@ describe('[Data Lab SQLite] rào chắn chỉ-đọc', () => {
     expect(!multi.ok && multi.blocked).toBeFalsy();
   });
 
-  it('comment không giúp né: DEL/**/ETE vẫn là hai token nhưng DELETE trong comment bị bỏ qua', () => {
-    // Từ khóa nằm trong comment/chuỗi không phải câu lệnh thật -> không chặn nhầm.
-    expect(checkStudentSql("SELECT 'DELETE' AS a /* DROP TABLE x */ FROM orders").ok).toBe(true);
-    expect(checkStudentSql('SELECT 1 -- DROP TABLE orders').ok).toBe(true);
+  it('comment che giấu lệnh ghi/can thiệp bị chặn 400; comment bình thường và từ khóa trong chuỗi dữ liệu thì không', () => {
+    expect(blocked('SELECT * FROM orders -- DROP TABLE orders')).toBe(true);
+    expect(blocked('SELECT 1 /* DROP TABLE x */ FROM orders')).toBe(true);
+    expect(blocked('SELECT * FROM orders -- PRAGMA table_info')).toBe(true);
+    // Chuỗi dữ liệu chứa chữ DELETE không phải lệnh; comment vô hại được bỏ đi bình thường.
+    expect(checkStudentSql("SELECT 'DELETE' AS a FROM orders").ok).toBe(true);
+    expect(checkStudentSql('SELECT * FROM orders -- lấy toàn bộ đơn hàng').ok).toBe(true);
+    expect(checkStudentSql('SELECT /* tất cả */ * FROM orders').ok).toBe(true);
   });
 
   it('chỉ nhận SELECT hoặc WITH; hàm REPLACE() là câu đọc hợp lệ', () => {

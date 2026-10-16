@@ -24,6 +24,10 @@ export function assertGradeAccess(
   viewer: { role?: string; ageGroup?: string } | undefined,
 ): void {
   const band = contest.gradeBand ?? 'ALL';
+  // Người đi làm / Trái ngành (CAREER_ADULT) không có khu Cuộc thi: chặn mọi cuộc thi học sinh, kể cả cuộc thi mở cho mọi khối.
+  if (viewer?.role === 'STUDENT' && viewer.ageGroup === 'CAREER_ADULT') {
+    throw new ForbiddenException('Cuộc thi dành cho học sinh, không áp dụng cho tài khoản Người đi làm / Trái ngành.');
+  }
   if (band === 'ALL' || !viewer || viewer.role !== 'STUDENT') return;
   if (viewer.ageGroup !== band) {
     throw new ForbiddenException(`Cuộc thi dành riêng cho học sinh ${LABEL[band] ?? band}.`);

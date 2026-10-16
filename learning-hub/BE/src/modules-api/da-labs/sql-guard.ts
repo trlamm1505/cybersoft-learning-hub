@@ -111,6 +111,8 @@ export interface ScannedSql {
   end: number;
   /** Có chuỗi/định danh dạng Unicode escape `U&...`. */
   hasUnicodeEscape: boolean;
+  /** Nội dung các comment (`--` và block comment) để phát hiện lệnh bị giấu trong comment. */
+  comments: string[];
 }
 
 const isIdentChar = (ch: string | undefined) =>
@@ -128,6 +130,7 @@ export function scanSql(sql: string): ScannedSql {
   let codeWithIdentifiers = '';
   let end = 0;
   let hasUnicodeEscape = false;
+  const comments: string[] = [];
   const n = sql.length;
   let i = 0;
 
@@ -142,12 +145,15 @@ export function scanSql(sql: string): ScannedSql {
     const next = sql[i + 1];
 
     if (ch === '-' && next === '-') {
+      const from = i;
       while (i < n && sql[i] !== '\n') i++;
+      comments.push(sql.slice(from, i));
       emit(' ', ' ', false);
       continue;
     }
 
     if (ch === '/' && next === '*') {
+      const from = i;
       let depth = 1;
       i += 2;
       while (i < n && depth > 0) {
@@ -161,6 +167,7 @@ export function scanSql(sql: string): ScannedSql {
           i++;
         }
       }
+      comments.push(sql.slice(from, i));
       emit(' ', ' ', false);
       continue;
     }
@@ -222,7 +229,7 @@ export function scanSql(sql: string): ScannedSql {
     emit(ch, ch, ch !== ';' && !/\s/.test(ch));
   }
 
-  return { code, codeWithIdentifiers, end, hasUnicodeEscape };
+  return { code, codeWithIdentifiers, end, hasUnicodeEscape, comments };
 }
 
 /** Giữ để tương thích: câu SQL đã bỏ literal, định danh trong ngoặc kép và comment. */
@@ -247,6 +254,12 @@ export function checkStudentSql(input: string): SqlGuardResult {
       reason: 'Không hỗ trợ chuỗi hoặc định danh dạng Unicode escape (U&...).',
     };
   }
+
+  // Comment được bỏ đi trước khi kiểm tra, nhưng comment chứa từ khóa ghi/can thiệp (vd "-- DROP TABLE") bị coi là cố giấu lệnh: chặn 400.
+  const commentHit = scanned.comments.some(
+    (c) => FORBIDDEN_KEYWORDS.some((kw) => new RegExp(`\\b${kw}\\b`, 'i').test(c)) || /\bREPLACE\b(?!\s*\()/i.test(c),
+  );
+  if (commentHit) return { ok: false, reason: DATA_LAB_BLOCKED_MESSAGE, blocked: true };
 
   // Chỉ cho phép đúng một câu lệnh; dấu `;` ở cuối được bỏ qua.
   const body = scanned.code.trim().replace(/;\s*$/, '');

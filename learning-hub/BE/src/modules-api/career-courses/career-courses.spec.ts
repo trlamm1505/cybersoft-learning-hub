@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ROLES_KEY } from '../../common/auth/roles.decorator';
-import { buildCareerCourses, careerCoursesToEnrollments, CAREER_COURSES, type CareerLabItemInput } from './career-courses';
+import { applyIssuedCertificates, buildCareerCourses, careerCoursesToEnrollments, CAREER_COURSES, type CareerLabItemInput } from './career-courses';
 import { CareerCoursesController } from './career-courses.controller';
 import { CareerCoursesService } from './career-courses.service';
 
@@ -120,5 +120,79 @@ describe('CareerCoursesService.myCourses', () => {
 describe('CareerCoursesController', () => {
   it('chỉ STUDENT', () => {
     expect(Reflect.getMetadata(ROLES_KEY, CareerCoursesController)).toEqual(['STUDENT']);
+  });
+});
+
+describe('Chứng chỉ bất biến (applyIssuedCertificates + cấp một lần)', () => {
+  const issued = {
+    courseKey: 'data-sql',
+    studentName: 'Nguyễn An',
+    courseTitle: 'Phân tích dữ liệu & Truy vấn SQL (Data Lab)',
+    teacherName: 'Cô Lan',
+    finalScore: 95,
+    earned: 19,
+    max: 20,
+    grade: 'Xuất sắc' as const,
+    completedAt: new Date('2026-10-05T00:00:00Z'),
+    code: 'CSH-2026-DATASQL-AAAAAAAA',
+  };
+
+  it('thêm bài lab mới làm khóa tụt % nhưng chứng chỉ đã cấp giữ nguyên (mã, ngày, điểm, xếp loại gốc) và khóa vẫn Đã hoàn thành', () => {
+    // Học viên đã xong 2 bài; giảng viên vừa thêm bài thứ 3 chưa làm.
+    const now = buildCareerCourses({
+      items: [item('data-sql', 'a', 0, done(10, '2026-10-01T00:00:00Z')), item('data-sql', 'b', 1, done(9, '2026-10-05T00:00:00Z')), item('data-sql', 'moi', 2)],
+      userId: 'u1',
+      studentName: 'Nguyễn An',
+      teacherNames: {},
+    });
+    expect(now[1]).toMatchObject({ status: 'IN_PROGRESS', certificate: null, percent: 67 }); // chưa áp chứng chỉ đã cấp
+    const [, data] = applyIssuedCertificates(now, [issued]);
+    expect(data.status).toBe('COMPLETED');
+    expect(data.percent).toBe(67); // tiến độ vẫn phản ánh dữ liệu hiện tại
+    expect(data.certificate).toMatchObject({ code: 'CSH-2026-DATASQL-AAAAAAAA', finalScore: 95, grade: 'Xuất sắc', teacherName: 'Cô Lan' });
+    expect(data.certificate!.completedAt).toEqual(new Date('2026-10-05T00:00:00Z'));
+  });
+
+  it('khóa khác không bị ảnh hưởng', () => {
+    const base = buildCareerCourses({ items: [], userId: 'u1', studentName: 'An', teacherNames: {} });
+    const out = applyIssuedCertificates(base, [issued]);
+    expect(out[0].certificate).toBeNull();
+    expect(out[2].certificate).toBeNull();
+  });
+});
+
+describe('CareerCoursesService cấp chứng chỉ một lần', () => {
+  const chain2 = (value: unknown) => {
+    const c: any = {};
+    for (const m of ['select', 'sort']) c[m] = jest.fn(() => c);
+    c.lean = jest.fn().mockResolvedValue(value);
+    return c;
+  };
+  const build = (existingIssued: any[]) => {
+    const exercises = { find: jest.fn((f: any) => chain2(f.topic === 'da-lab-pack' ? [{ _id: 'e1', slug: 's1', title: 'SQL 1', type: 'SQL_LAB', points: 10 }] : [])) };
+    const daSubs = { find: jest.fn(() => chain2([{ type: 'SQL', exerciseId: 'e1', status: 'GRADED', score: 10, bestScore: 10, maxScore: 10, updatedAt: new Date('2026-10-03T00:00:00Z') }])) };
+    const empty = { find: jest.fn(() => chain2([])) };
+    const users = { findById: jest.fn(() => chain2({ fullName: 'An' })), find: jest.fn(() => chain2([])) };
+    const certificates = { updateOne: jest.fn().mockResolvedValue({}), find: jest.fn(() => chain2(existingIssued)) };
+    const svc = new CareerCoursesService(exercises as never, daSubs as never, empty as never, empty as never, empty as never, users as never, certificates as never);
+    return { svc, certificates };
+  };
+
+  it('khóa vừa hoàn thành: ghi chứng chỉ bằng upsert $setOnInsert (không bao giờ ghi đè bản đã có)', async () => {
+    const { svc, certificates } = build([]);
+    await svc.myCourses('u1');
+    expect(certificates.updateOne).toHaveBeenCalledTimes(1);
+    const [filter, update, opts] = certificates.updateOne.mock.calls[0];
+    expect(filter).toEqual({ userId: 'u1', courseKey: 'data-sql' });
+    expect(Object.keys(update)).toEqual(['$setOnInsert']);
+    expect(opts).toEqual({ upsert: true });
+    expect(update.$setOnInsert).toMatchObject({ grade: 'Xuất sắc', finalScore: 100 });
+  });
+
+  it('đã có chứng chỉ cấp từ trước thì trả đúng bản đó, không phụ thuộc điểm tính lại', async () => {
+    const stored = { courseKey: 'data-sql', studentName: 'An', courseTitle: 'Phân tích dữ liệu & Truy vấn SQL (Data Lab)', finalScore: 91, earned: 9, max: 10, grade: 'Xuất sắc', completedAt: new Date('2026-01-01T00:00:00Z'), code: 'CSH-2026-DATASQL-OLD00001' };
+    const { svc } = build([stored]);
+    const [, data] = await svc.myCourses('u1');
+    expect(data.certificate).toMatchObject({ code: 'CSH-2026-DATASQL-OLD00001', finalScore: 91 });
   });
 });

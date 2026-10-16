@@ -153,6 +153,47 @@ export function buildCareerCourses(args: {
   });
 }
 
+/** Chứng chỉ đã cấp và lưu vĩnh viễn (collection course_certificates). */
+export interface IssuedCertificate {
+  courseKey: string;
+  studentName: string;
+  courseTitle: string;
+  teacherName?: string | null;
+  finalScore: number;
+  earned: number;
+  max: number;
+  grade: Grade;
+  completedAt: Date;
+  code: string;
+}
+
+/**
+ * Áp chứng chỉ ĐÃ CẤP lên danh sách khóa: có chứng chỉ đã cấp thì luôn dùng đúng bản đó (mã, ngày cấp, điểm, xếp loại gốc) và khóa
+ * giữ trạng thái "Đã hoàn thành" dù sau này có thêm bài lab mới. Chỉ tiến độ (số bài, %) vẫn tính theo dữ liệu hiện tại.
+ */
+export function applyIssuedCertificates(courses: CareerCourse[], issued: IssuedCertificate[]): CareerCourse[] {
+  const byKey = new Map(issued.map((c) => [c.courseKey, c]));
+  return courses.map((course) => {
+    const cert = byKey.get(course.key);
+    if (!cert) return course;
+    return {
+      ...course,
+      status: 'COMPLETED',
+      certificate: {
+        studentName: cert.studentName,
+        className: cert.courseTitle,
+        teacherName: cert.teacherName ?? null,
+        finalScore: cert.finalScore,
+        earned: cert.earned,
+        max: cert.max,
+        grade: cert.grade,
+        completedAt: cert.completedAt,
+        code: cert.code,
+      },
+    };
+  });
+}
+
 /** Dạng MyEnrollment mà trang Hồ sơ đang dùng cho "Lớp học / Khóa học đã tham gia". */
 export function careerCoursesToEnrollments(courses: CareerCourse[]) {
   return courses.map((c) => ({
