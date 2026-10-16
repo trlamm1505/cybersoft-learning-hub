@@ -400,3 +400,49 @@ export function diffSubject(item: Pick<AuditLogItem, 'targetType' | 'targetId' |
   }
   return null;
 }
+
+// ------------------------------- Chọn nhanh tại dòng -------------------------------
+
+/** Gỡ một giảng viên khỏi danh sách; lớp luôn phải còn ít nhất một giảng viên nên gỡ người cuối cùng thì giữ nguyên. Người đầu danh sách là giảng viên chính. */
+export function removeTeacher(ids: string[], id: string): string[] {
+  return ids.length <= 1 ? ids : ids.filter((x) => x !== id);
+}
+
+export const initials = (name: string): string => {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  return (parts.length === 1 ? parts[0].slice(0, 2) : parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+export interface StudentSuggestionInput {
+  id: string;
+  fullName: string;
+  email: string;
+  ageGroup: string | null;
+  classCount?: number | null;
+}
+
+/**
+ * Gợi ý học viên để thêm vào lớp: bỏ người đã trong lớp; ưu tiên cùng khối tuổi, rồi người chưa vào lớp nào; cuối cùng theo tên.
+ */
+export function rankStudentSuggestions<T extends StudentSuggestionInput>(list: T[], memberIds: ReadonlySet<string>, classAgeGroup: string | null): T[] {
+  const score = (s: T) => (classAgeGroup && s.ageGroup === classAgeGroup ? 0 : 2) + (s.classCount === 0 ? 0 : 1);
+  return list
+    .filter((s) => !memberIds.has(s.id))
+    .map((s, i) => ({ s, i }))
+    .sort((a, b) => score(a.s) - score(b.s) || (a.s.fullName || a.s.email).localeCompare(b.s.fullName || b.s.email, 'vi') || a.i - b.i)
+    .map((x) => x.s);
+}
+
+/** Lọc giảng viên theo tên/email khi gõ vào ô tìm kiếm trong hộp thả xuống (không phân biệt hoa thường và dấu). */
+export function filterByText<T extends { fullName?: string; email?: string }>(list: T[], q: string): T[] {
+  const fold = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase();
+  const needle = fold(q.trim());
+  return needle ? list.filter((t) => fold(`${t.fullName ?? ''} ${t.email ?? ''}`).includes(needle)) : list;
+}
+
+/** Giảng viên CHƯA được phân công cho lớp (để hiện trong hàng chọn nhanh). */
+export function unassignedTeachers<T extends { id: string }>(all: T[], assignedIds: readonly string[]): T[] {
+  const set = new Set(assignedIds);
+  return all.filter((t) => !set.has(t.id));
+}

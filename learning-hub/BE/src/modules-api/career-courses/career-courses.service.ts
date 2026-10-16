@@ -9,6 +9,7 @@ import {
   TesterLabSubmission,
   TesterLabSubmissionDocument,
 } from '../../modules-system/database/schemas/tester-lab-submission.schema';
+import { Classroom, ClassroomDocument } from '../../modules-system/database/schemas/classroom.schema';
 import { User, UserDocument } from '../../modules-system/database/schemas/user.schema';
 import { CourseCertificate, CourseCertificateDocument } from '../../modules-system/database/schemas/course-certificate.schema';
 import {
@@ -46,7 +47,26 @@ export class CareerCoursesService {
     @InjectModel(User.name) private readonly users: Model<UserDocument>,
     // Chứng chỉ đã cấp (bất biến). Thiếu model (test cũ) thì chỉ tính động, không cấp/khóa chứng chỉ.
     @Optional() @InjectModel(CourseCertificate.name) private readonly certificates?: Model<CourseCertificateDocument>,
+    // Lớp khóa học (Admin Portal) cho biết giảng viên được phân công; thiếu (test cũ) thì chỉ dùng người chấm bài.
+    @Optional() @InjectModel(Classroom.name) private readonly classrooms?: Model<ClassroomDocument>,
   ) {}
+
+  /** Giảng viên Admin phân công cho từng khóa (giảng viên chính đứng đầu), dạng "Tên A, Tên B". */
+  private async assignedTeacherNames(): Promise<Partial<Record<CareerCourseKey, string>>> {
+    if (!this.classrooms) return {};
+    const classes = await this.classrooms.find({ courseKey: { $exists: true, $ne: null } }).select('courseKey teacherId teacherIds').lean<Array<{ courseKey: CareerCourseKey; teacherId?: string; teacherIds?: string[] }>>();
+    const idsOf = (c: { teacherId?: string; teacherIds?: string[] }) => (c.teacherIds?.length ? c.teacherIds : c.teacherId ? [c.teacherId] : []);
+    const all = [...new Set(classes.flatMap(idsOf))].filter(isValidObjectId);
+    if (all.length === 0) return {};
+    const users = await this.users.find({ _id: { $in: all } }).select('fullName email').lean<Array<{ _id: unknown; fullName?: string; email?: string }>>();
+    const nameById = new Map(users.map((u) => [String(u._id), u.fullName || u.email || '']));
+    const out: Partial<Record<CareerCourseKey, string>> = {};
+    for (const c of classes) {
+      const names = idsOf(c).map((id) => nameById.get(id)).filter((n): n is string => !!n);
+      if (names.length) out[c.courseKey] = names.join(', ');
+    }
+    return out;
+  }
 
   async myCourses(userId: string): Promise<CareerCourse[]> {
     const [me, daLabs, aiLabs, testers] = await Promise.all([
@@ -165,6 +185,10 @@ export class CareerCoursesService {
     for (const [course, id] of Object.entries(teacherByCourse)) {
       teacherNames[course as CareerCourseKey] = nameById.get(id) ?? SYSTEM_TEACHER_FALLBACK;
     }
+
+    // Giảng viên Admin phân công là nguồn chính (khớp Admin Portal và tài khoản giảng viên); chưa phân công thì dùng người đã chấm bài.
+    const assigned = await this.assignedTeacherNames();
+    for (const [course, name] of Object.entries(assigned)) teacherNames[course as CareerCourseKey] = name;
 
     const courses = buildCareerCourses({ items, userId, studentName: (me as any)?.fullName || 'Học viên', teacherNames });
     return this.certificates ? this.issueAndApply(userId, courses) : courses;

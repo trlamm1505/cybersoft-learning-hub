@@ -4,10 +4,12 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model, Types } from 'mongoose';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
+import { TesterLab, TesterLabDocument } from '../../modules-system/database/schemas/tester-lab.schema';
 import { AiLabSubmission } from '../../modules-system/database/schemas/ai-lab-submission.schema';
 import {
   Classroom,
@@ -134,6 +136,9 @@ export class TeacherAnalyticsService {
     private readonly daLabs: Model<DaLabSubmissionDocument>,
     @InjectModel(AiLabSubmission.name)
     private readonly aiLabs: Model<AiLabSubmission>,
+    // Chỉ để đếm bài lab của khóa Người đi làm; thiếu (test cũ) thì số bài của khóa tính bằng 0.
+    @Optional() @InjectModel(TesterLab.name)
+    private readonly testerLabs?: Model<TesterLabDocument>,
   ) {}
 
   // ---------- Quản trị lớp (chỉ ADMIN) ----------
@@ -146,14 +151,33 @@ export class TeacherAnalyticsService {
     }
   }
 
+  /**
+   * Khóa Người đi làm (lớp có courseKey) không lưu studentIds: học viên là mọi tài khoản CAREER_ADULT đang hoạt động và bài tập là
+   * các bài lab của khóa. Gắn danh sách này vào lớp để giảng viên và Admin thấy CÙNG sĩ số/số bài với Admin Portal.
+   */
+  private async withCareerRoster<T extends ClassLean>(docs: T[]): Promise<T[]> {
+    if (!docs.some((c) => c.courseKey)) return docs;
+    const [roster, tester, data, ai] = await Promise.all([
+      this.users.find({ role: 'STUDENT', ageGroup: 'CAREER_ADULT', status: { $ne: 'LOCKED' } }).select('_id').lean<Array<{ _id: unknown }>>(),
+      this.testerLabs ? this.testerLabs.countDocuments({}) : Promise.resolve(0),
+      this.exercises.countDocuments({ topic: 'da-lab-pack', resource_id: { $exists: true } }),
+      this.exercises.countDocuments({ topic: 'ai-lab-pack', type: 'AI_LAB' }),
+    ]);
+    const labs: Record<string, number> = { 'tester-qa': tester, 'data-sql': data, 'ai-prompt': ai };
+    const ids = roster.map((r) => asId(r._id));
+    return docs.map((c) => (c.courseKey ? { ...c, studentIds: ids, labCount: labs[c.courseKey] ?? 0 } : c));
+  }
+
   /** Mọi lớp kèm giảng viên phụ trách, cho trang quản trị. */
   async listAllClasses(user: JwtPayload, includeArchived = true) {
     this.assertAdmin(user);
     const filter = includeArchived ? {} : { archived: { $ne: true } };
-    const docs = await this.classes
-      .find(filter)
-      .sort({ name: 1 })
-      .lean<ClassLean[]>();
+    const docs = await this.withCareerRoster(
+      await this.classes
+        .find(filter)
+        .sort({ name: 1 })
+        .lean<ClassLean[]>(),
+    );
     const teacherIds = [
       ...new Set(docs.map((c) => c.teacherId).filter(Boolean)),
     ];
@@ -209,7 +233,7 @@ export class TeacherAnalyticsService {
       .find(filter)
       .sort({ name: 1 })
       .lean<ClassLean[]>();
-    return docs.map((c) => this.describe(c));
+    return (await this.withCareerRoster(docs)).map((c) => this.describe(c));
   }
 
   // ---------- Lớp của học viên ----------
@@ -432,6 +456,7 @@ export class TeacherAnalyticsService {
     identifiers: unknown,
     max: number,
   ) {
+    this.assertRosterEditable(cls);
     const list = this.stringList(identifiers, 'identifiers')
       .map((s) => s.trim())
       .filter(Boolean);
@@ -463,7 +488,8 @@ export class TeacherAnalyticsService {
         }>
       >();
 
-    const members = new Set(cls.studentIds ?? []);
+    // Một học viên chỉ xuất hiện MỘT lần trong lớp: bỏ trùng trong kết quả tra cứu và đối chiếu với danh sách hiện có.
+    const members = new Set((cls.studentIds ?? []).map(String));
     const added: Array<{ id: string; name: string }> = [];
     const already: string[] = [];
     const matched = new Set<string>();
@@ -494,6 +520,7 @@ export class TeacherAnalyticsService {
   async removeStudent(user: JwtPayload, classId: string, studentId: string) {
     this.assertAdmin(user);
     const cls = await this.resolveClass(user, classId);
+    this.assertRosterEditable(cls);
     if (!(cls.studentIds ?? []).includes(studentId)) {
       throw new NotFoundException('Học viên không thuộc lớp này.');
     }
@@ -619,8 +646,15 @@ export class TeacherAnalyticsService {
       description: c.description ?? '',
       archived: c.archived === true,
       studentCount: (c.studentIds ?? []).length,
-      exerciseCount: (c.exerciseSlugs ?? []).length,
+      exerciseCount: (c as ClassLean & { labCount?: number }).labCount ?? (c.exerciseSlugs ?? []).length,
     };
+  }
+
+  /** Khóa Người đi làm tự ghi danh theo tài khoản CAREER_ADULT nên không thêm/gỡ học viên thủ công. */
+  private assertRosterEditable(cls: ClassLean) {
+    if (cls.courseKey) {
+      throw new BadRequestException('Khóa Người đi làm tự ghi danh mọi tài khoản Người đi làm, không thêm hoặc gỡ học viên thủ công.');
+    }
   }
 
   private escape(s: string) {
@@ -637,7 +671,7 @@ export class TeacherAnalyticsService {
     if (user.role !== 'ADMIN' && cls.teacherId !== user.sub && !cls.teacherIds?.includes(user.sub)) {
       throw new ForbiddenException('Bạn không có quyền với lớp này.');
     }
-    return cls;
+    return (await this.withCareerRoster([cls]))[0];
   }
 
   private toExercise(e: ExerciseLean) {

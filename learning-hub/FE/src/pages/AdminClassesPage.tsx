@@ -2,8 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, ChevronRight, Plus, Search } from 'lucide-react';
 import adminPortalApi from '../axios/adminPortalApi';
-import { AssignTeachersModal, CreateClassModal } from '../components/admin/ClassModals';
-import { ClassExpandedRow } from '../components/admin/ClassExpandedRow';
+import { CreateClassModal } from '../components/admin/ClassModals';
+import { ClassExpandedRow, type RowPanel } from '../components/admin/ClassExpandedRow';
 import { ClassStatusBadge } from '../components/admin/ClassStatusBadge';
 import { btnGhost, btnPrimary, card, ConfirmModal, ErrorBanner, errorMessage, inputCls, PageHeader, Pill, selectCls, SkeletonRows } from '../components/admin/AdminUi';
 import { useToast } from '../components/Toast';
@@ -32,8 +32,8 @@ export const AdminClassesPage: React.FC = () => {
   const { showToast } = useToast();
   const [filter, setFilter] = useState<ClassFilter>({ ageGroup: '', status: '', q: '' });
   const [creating, setCreating] = useState(false);
-  const [assigning, setAssigning] = useState<PortalClassRow | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [panel, setPanel] = useState<RowPanel>(null);
   const [archiving, setArchiving] = useState<PortalClassRow | null>(null);
 
   const rows = useQuery({ queryKey: QK.classes, queryFn: adminPortalApi.classes, staleTime: QUERY_STALE_MS });
@@ -64,7 +64,7 @@ export const AdminClassesPage: React.FC = () => {
     <div className="mx-auto max-w-6xl space-y-5">
       <PageHeader
         title="Lớp học & Khóa học"
-        subtitle="Gồm lớp phổ thông (3–5, 6–9, 10–12) và 3 khóa chuyên ngành của Người đi làm. Phân công giảng viên có hiệu lực ngay."
+        subtitle="Gồm lớp phổ thông (3–5, 6–9, 10–12) và 3 khóa chuyên ngành của Người đi làm. Phân công giảng viên và thêm/gỡ học viên ngay tại dòng, có hiệu lực tức thì."
         actions={
           <button onClick={() => setCreating(true)} className={btnPrimary}>
             <Plus size={16} /> Tạo lớp mới
@@ -111,18 +111,6 @@ export const AdminClassesPage: React.FC = () => {
         </select>
       </div>
 
-      <details className="rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <summary className="cursor-pointer font-medium text-[var(--text-main)]">Trạng thái lớp nghĩa là gì?</summary>
-        <ul className="mt-2 space-y-1.5 text-[var(--text-muted)]">
-          <li className="flex items-start gap-2">
-            <ClassStatusBadge status="OPEN" /> <span>{CLASS_STATUS.OPEN.hint}</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <ClassStatusBadge status="ARCHIVED" /> <span>{CLASS_STATUS.ARCHIVED.hint}</span>
-          </li>
-        </ul>
-      </details>
-
       <ErrorBanner message={rows.isError ? errorMessage(rows.error, 'Không tải được danh sách lớp.') : null} onRetry={() => void rows.refetch()} />
 
       <div className={`${card} overflow-hidden`}>
@@ -151,7 +139,10 @@ export const AdminClassesPage: React.FC = () => {
               </thead>
               {visible.map((c) => {
                 const open = expandedId === c.id;
-                const toggleRow = () => setExpandedId(open ? null : c.id);
+                const toggleRow = () => {
+                  setExpandedId(open ? null : c.id);
+                  setPanel(null);
+                };
                 return (
                   <tbody key={c.id} className="border-t border-neutral-100 first:border-t-0 dark:border-neutral-800">
                     <tr onClick={toggleRow} className={`cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/40 ${open ? 'bg-neutral-50 dark:bg-neutral-800/30' : ''} ${c.status === 'ARCHIVED' ? 'opacity-80' : ''}`}>
@@ -201,7 +192,13 @@ export const AdminClassesPage: React.FC = () => {
                           <button onClick={toggleRow} aria-expanded={open} className={`${btnGhost} w-[72px] justify-center`}>
                             Chi tiết {open ? '▴' : '▾'}
                           </button>
-                          <button onClick={() => setAssigning(c)} className={`${btnGhost} w-[74px] justify-center`}>
+                          <button
+                            onClick={() => {
+                              setExpandedId(c.id);
+                              setPanel(open && panel === 'teachers' ? null : 'teachers');
+                            }}
+                            className={`${btnGhost} w-[74px] justify-center`}
+                          >
                             Phân công
                           </button>
                           <button onClick={() => setArchiving(c)} className={`${btnGhost} w-[78px] justify-center`}>
@@ -213,7 +210,7 @@ export const AdminClassesPage: React.FC = () => {
                     {open && (
                       <tr>
                         <td colSpan={5} className="p-0">
-                          <ClassExpandedRow cls={c} onAssign={setAssigning} onChanged={refresh} />
+                          <ClassExpandedRow cls={c} panel={panel} onPanel={setPanel} />
                         </td>
                       </tr>
                     )}
@@ -232,18 +229,6 @@ export const AdminClassesPage: React.FC = () => {
             setCreating(false);
             showToast(m, 'success');
             refresh();
-          }}
-        />
-      )}
-      {assigning && (
-        <AssignTeachersModal
-          cls={assigning}
-          onClose={() => setAssigning(null)}
-          onDone={(m) => {
-            setAssigning(null);
-            showToast(m, 'success');
-            refresh();
-            if (expandedId) void qc.invalidateQueries({ queryKey: QK.classDetail(expandedId) });
           }}
         />
       )}

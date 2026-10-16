@@ -115,6 +115,23 @@ describe('CareerCoursesService.myCourses', () => {
     expect(ai.items[0]).toMatchObject({ state: 'IN_PROGRESS', attempts: 3 });
     expect(ai.items[0].feedback).toContain('Chưa đạt');
   });
+
+  it('giảng viên Admin phân công cho khóa (giảng viên chính đứng đầu) ưu tiên hơn người chấm bài, để khớp Admin Portal', async () => {
+    const exercises = { find: jest.fn(() => chain([])) };
+    const empty = { find: jest.fn(() => chain([])) };
+    const users = {
+      findById: jest.fn(() => chain({ fullName: 'Người Đi Làm' })),
+      find: jest.fn(() => chain([{ _id: '64b000000000000000000001', fullName: 'Thầy Lê Quốc Bảo' }, { _id: '64b000000000000000000002', fullName: 'Cô Võ Ngọc Mai' }])),
+    };
+    const classrooms = {
+      find: jest.fn(() => chain([{ courseKey: 'tester-qa', teacherId: '64b000000000000000000001', teacherIds: ['64b000000000000000000001', '64b000000000000000000002'] }, { courseKey: 'ai-prompt', teacherId: '64b000000000000000000002' }])),
+    };
+    const svc = new CareerCoursesService(exercises as never, empty as never, empty as never, empty as never, empty as never, users as never, undefined, classrooms as never);
+    const [tester, data, ai] = await svc.myCourses('u1');
+    expect(tester.teacherName).toBe('Thầy Lê Quốc Bảo, Cô Võ Ngọc Mai');
+    expect(data.teacherName).toBeNull();
+    expect(ai.teacherName).toBe('Cô Võ Ngọc Mai');
+  });
 });
 
 describe('CareerCoursesController', () => {

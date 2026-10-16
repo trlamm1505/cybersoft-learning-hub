@@ -13,6 +13,11 @@ import {
   buildDiffView,
   hideIds,
   EXERCISE_STATUS,
+  filterByText,
+  initials,
+  rankStudentSuggestions,
+  removeTeacher,
+  unassignedTeachers,
   auditTargetLabel,
   barHeights,
   changedKeys,
@@ -254,5 +259,49 @@ describe('buildDiffView (nhật ký trực quan)', () => {
 
   it('không có thay đổi nghiệp vụ thì không có dòng nào', () => {
     expect(buildDiffView({ action: 'USER_UNLOCK', targetId: 'u', diff: { before: { status: 'ACTIVE' }, after: { status: 'ACTIVE' } } })).toEqual([]);
+  });
+});
+
+describe('chọn nhanh tại dòng', () => {
+  it('removeTeacher: gỡ được khi còn ≥2, giữ nguyên khi chỉ còn một (lớp luôn có giảng viên)', () => {
+    expect(removeTeacher(['a', 'b'], 'a')).toEqual(['b']);
+    expect(removeTeacher(['a'], 'a')).toEqual(['a']);
+  });
+
+  it('initials lấy chữ cái đầu họ và tên', () => {
+    expect(initials('Nguyễn Văn An')).toBe('NA');
+    expect(initials('An')).toBe('AN');
+    expect(initials('  ')).toBe('?');
+  });
+
+  it('gợi ý học viên: bỏ người đã trong lớp, ưu tiên cùng khối rồi người chưa vào lớp nào', () => {
+    const list = [
+      { id: 'a', fullName: 'An', email: 'a@x', ageGroup: '10-12', classCount: 1 },
+      { id: 'b', fullName: 'Bình', email: 'b@x', ageGroup: '6-9', classCount: 0 },
+      { id: 'c', fullName: 'Chi', email: 'c@x', ageGroup: '6-9', classCount: 1 },
+      { id: 'd', fullName: 'Dũng', email: 'd@x', ageGroup: '6-9', classCount: 0 },
+      { id: 'e', fullName: 'Em', email: 'e@x', ageGroup: '6-9', classCount: 0 },
+    ];
+    const ranked = rankStudentSuggestions(list, new Set(['e']), '6-9').map((s) => s.id);
+    expect(ranked).toEqual(['b', 'd', 'c', 'a']);
+    expect(rankStudentSuggestions(list, new Set(), null).map((s) => s.id)[0]).toBe('b');
+  });
+
+  it('filterByText lọc theo tên/email không phân biệt hoa thường và dấu', () => {
+    const ts = [{ fullName: 'Cô Nguyễn Thị Lan', email: 'lan@x.vn' }, { fullName: 'Thầy Đặng Anh Tuấn', email: 'tuan@x.vn' }];
+    expect(filterByText(ts, 'nguyen')).toHaveLength(1);
+    expect(filterByText(ts, 'DANG')).toHaveLength(1);
+    expect(filterByText(ts, 'tuan@')).toHaveLength(1);
+    expect(filterByText(ts, '')).toHaveLength(2);
+    expect(filterByText(ts, 'zzz')).toHaveLength(0);
+  });
+});
+
+describe('giảng viên chưa phân công', () => {
+  it('chỉ trả giảng viên chưa có trong lớp', () => {
+    const all = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+    expect(unassignedTeachers(all, ['b'])).toEqual([{ id: 'a' }, { id: 'c' }]);
+    expect(unassignedTeachers(all, [])).toHaveLength(3);
+    expect(unassignedTeachers(all, ['a', 'b', 'c'])).toEqual([]);
   });
 });

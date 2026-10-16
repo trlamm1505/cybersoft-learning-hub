@@ -37,3 +37,12 @@ export function useHealthReport(opts: { autoRefresh?: boolean } = {}) {
     retry: false,
   });
 }
+
+/** Giảng viên đang hoạt động (tối đa 100) cho hộp chọn giảng viên. */
+export function useActiveTeachers() {
+  return useQuery({
+    queryKey: [...QK.users, 'teachers-active'],
+    queryFn: () => adminPortalApi.users({ role: 'TEACHER', status: 'ACTIVE', pageSize: 100 }),
+    staleTime: QUERY_STALE_MS,
+  });
+}

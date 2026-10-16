@@ -204,6 +204,23 @@ describe('Admin: tạo lớp và gán giảng viên', () => {
     await expect(service.getOverview(T1, C1)).rejects.toBeInstanceOf(ForbiddenException);
   });
 
+
+  it('khóa Người đi làm (courseKey): giảng viên thấy sĩ số = học viên CAREER_ADULT và số bài lab, đúng như Admin Portal', async () => {
+    const { service, models } = build();
+    (models.classes as any).rows.push({ _id: OID(77), name: 'Khóa Tester QA', code: 'CL-CAREER-TESTER', courseKey: 'tester-qa', teacherId: TEACHER1, teacherIds: [TEACHER1], studentIds: [], exerciseSlugs: [] });
+    (models.users as any).rows.push(
+      { _id: 'adult1', fullName: 'Người lớn 1', role: 'STUDENT', ageGroup: 'CAREER_ADULT', status: 'ACTIVE' },
+      { _id: 'adult2', fullName: 'Người lớn 2', role: 'STUDENT', ageGroup: 'CAREER_ADULT' },
+      { _id: 'adult3', fullName: 'Bị khóa', role: 'STUDENT', ageGroup: 'CAREER_ADULT', status: 'LOCKED' },
+      { _id: 'kid1', fullName: 'Bé', role: 'STUDENT', ageGroup: '3-5' },
+    );
+    const mine = (await service.listClasses(T1)).find((c) => c.id === OID(77));
+    expect(mine).toMatchObject({ studentCount: 2, exerciseCount: 0 });
+    expect((await service.listClasses(T2)).some((c) => c.id === OID(77))).toBe(false);
+    const overview = await service.getOverview(T1, OID(77));
+    expect(overview.class.studentCount).toBe(2);
+  });
+
   it('Admin sửa tên/mô tả; chỉ gửi trường nào thì đổi trường đó', async () => {
     const { service, models } = build();
     await service.updateClass(ADMIN, C1, { name: 'Tên mới' });
@@ -349,6 +366,25 @@ describe('Admin: học viên trong lớp', () => {
     expect(r.already).toEqual(['hv1@x.com']);
     expect(r.added.map((a) => a.id)).toEqual([OID(12)]);
     expect(models.classes.rows[0].studentIds).toEqual([OID(11), OID(12)]);
+  });
+
+  it('thêm cùng một học viên nhiều lần (kể cả email viết hoa/thường khác nhau, lặp trong danh sách, hay thêm lại sau đó) không bao giờ tạo bản sao trong lớp', async () => {
+    const { service, models } = build();
+    const r1 = await service.addStudents(ADMIN, C1, ['hv1@x.com', 'HV1@X.COM', ' hv1@x.com ']);
+    expect(r1.added.map((a) => a.id)).toEqual([OID(11)]);
+    const r2 = await service.addStudents(ADMIN, C1, ['hv1@x.com']);
+    expect(r2.added).toEqual([]);
+    expect(r2.already).toEqual(['hv1@x.com']);
+    const ids = models.classes.rows[0].studentIds;
+    expect(ids.filter((x: string) => x === OID(11))).toHaveLength(1);
+  });
+
+  it('khóa Người đi làm (courseKey) tự ghi danh: từ chối thêm/gỡ học viên thủ công (400)', async () => {
+    const { service, models } = build();
+    (models.classes as any).rows.push({ _id: OID(88), name: 'Khóa AI', code: 'CL-CAREER-AI', courseKey: 'ai-prompt', teacherId: TEACHER1, teacherIds: [TEACHER1], studentIds: [], exerciseSlugs: [] });
+    await expect(service.addStudents(ADMIN, OID(88), ['hv1@x.com'])).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.removeStudent(ADMIN, OID(88), OID(11))).rejects.toBeInstanceOf(BadRequestException);
+    expect((models.classes as any).rows.find((c: any) => c._id === OID(88)).studentIds).toEqual([]);
   });
 
   it('không tồn tại hoặc không phải học viên → notFound, phần hợp lệ vẫn thêm', async () => {

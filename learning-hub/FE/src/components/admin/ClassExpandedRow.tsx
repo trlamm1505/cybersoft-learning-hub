@@ -1,35 +1,32 @@
 import React, { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { UserPlus } from 'lucide-react';
-import adminClassesApi from '../../axios/adminClassesApi';
+import { useQuery } from '@tanstack/react-query';
 import adminPortalApi from '../../axios/adminPortalApi';
 import type { PortalClassRow } from '../../types/adminPortal';
 import { EXERCISE_KIND, EXERCISE_STATUS, formatDateTimeVi, QUERY_STALE_MS } from '../../pages/adminPortalModel';
 import { QK } from '../../pages/adminPortalQueries';
-import { AdminClassPanel } from '../AdminClassPanel';
-import { btnGhost, ErrorBanner, errorMessage, Pill, Skeleton, SkeletonRows } from './AdminUi';
+import { ErrorBanner, errorMessage, Pill, Skeleton } from './AdminUi';
+import { RemovableTag } from './ClassPickers';
+import { PanelToggle, StudentPanel, TeacherPanel } from './ClassPanels';
+import { useAssignTeachers, useClassStudents } from './useClassOps';
 
 const NAME_PREVIEW = 6;
 
 /**
- * Phần xổ xuống ngay dưới dòng lớp (không phải popup): cột trái là giảng viên và học viên, cột phải là bài tập/lab kèm trạng thái.
+ * Phần xổ xuống ngay dưới dòng lớp (không popup che màn hình): cột trái là giảng viên và học viên chỉnh TẠI CHỖ (hộp thả xuống chọn nhanh, ✕ để gỡ), cột phải là giảng viên và học viên, cột phải là bài tập/lab kèm trạng thái.
  * Bấm lại dòng để thu gọn; component chỉ được render khi đang mở nên state được hủy sạch khi thu gọn.
  */
-export const ClassExpandedRow: React.FC<{ cls: PortalClassRow; onAssign: (c: PortalClassRow) => void; onChanged: () => void }> = ({ cls, onAssign, onChanged }) => {
-  const qc = useQueryClient();
+export type RowPanel = 'teachers' | 'students' | null;
+
+export const ClassExpandedRow: React.FC<{ cls: PortalClassRow; panel: RowPanel; onPanel: (p: RowPanel) => void }> = ({ cls, panel, onPanel }) => {
   const [allNames, setAllNames] = useState(false);
-  const [advanced, setAdvanced] = useState(false);
   const detail = useQuery({ queryKey: QK.classDetail(cls.id), queryFn: () => adminPortalApi.classDetail(cls.id), staleTime: QUERY_STALE_MS });
-  const legacy = useQuery({
-    queryKey: [...QK.classes, 'legacy'],
-    queryFn: adminClassesApi.list,
-    enabled: advanced && cls.kind === 'SCHOOL',
-    staleTime: QUERY_STALE_MS,
-  });
   // Ưu tiên giảng viên từ dòng bảng (cập nhật ngay khi phân công), phần còn lại lấy từ chi tiết.
   const students = detail.data?.students ?? [];
   const exercises = detail.data?.exercises ?? [];
   const shown = allNames ? students : students.slice(0, NAME_PREVIEW);
+  const memberIds = new Set(students.map((x) => x.id));
+  const teacherOps = useAssignTeachers(cls);
+  const studentOps = useClassStudents(cls);
 
   return (
     <div className="grid gap-6 border-t border-neutral-200 bg-neutral-50 px-5 py-5 dark:border-neutral-800 dark:bg-neutral-950/40 md:grid-cols-2" style={{ animation: 'classRowIn 160ms ease-out' }}>
@@ -39,27 +36,34 @@ export const ClassExpandedRow: React.FC<{ cls: PortalClassRow; onAssign: (c: Por
         <section aria-label="Giảng viên phụ trách">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold text-[var(--text-main)]">Giảng viên phụ trách</h3>
-            <button onClick={() => onAssign(cls)} className={btnGhost}>
-              <UserPlus size={13} /> Phân công GV
-            </button>
+            <PanelToggle open={panel === 'teachers'} onClick={() => onPanel(panel === 'teachers' ? null : 'teachers')} label="Phân công GV" controls={`teacher-panel-${cls.id}`} />
           </div>
           {cls.teachers.length === 0 ? (
             <Pill tone="yellow">Chưa gán giảng viên</Pill>
           ) : (
             <div className="flex flex-wrap gap-1.5">
               {cls.teachers.map((t, i) => (
-                <Pill key={t.id} tone={i === 0 ? 'violet' : 'slate'}>
-                  {t.name}
-                  {i === 0 && cls.teachers.length > 1 ? ' · chính' : ''}
-                </Pill>
+                <RemovableTag
+                  key={t.id}
+                  label={`${t.name}${i === 0 && cls.teachers.length > 1 ? ' · chính' : ''}`}
+                  tone={i === 0 ? 'violet' : 'slate'}
+                  removeLabel={`Gỡ ${t.name} khỏi lớp`}
+                  disabledReason={cls.teachers.length <= 1 ? 'Lớp cần ít nhất một giảng viên' : undefined}
+                  onRemove={() => teacherOps.remove(t.id)}
+                />
               ))}
             </div>
           )}
+          <TeacherPanel id={`teacher-panel-${cls.id}`} cls={cls} open={panel === 'teachers'} onClose={() => onPanel(null)} />
         </section>
 
         <section aria-label="Học viên ghi danh">
-          <h3 className="mb-2 text-sm font-semibold text-[var(--text-main)]">Sĩ số: {cls.studentCount} học viên</h3>
-          {cls.kind === 'CAREER' && <p className="mb-2 text-xs text-[var(--text-muted)]">Mọi tài khoản Người đi làm đang hoạt động đều học đủ 3 khóa.</p>}
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-[var(--text-main)]">Sĩ số: {cls.studentCount} học viên</h3>
+            {cls.kind === 'SCHOOL' && <PanelToggle open={panel === 'students'} onClick={() => onPanel(panel === 'students' ? null : 'students')} label="Thêm học viên" controls={`student-panel-${cls.id}`} />}
+          </div>
+          {cls.kind === 'SCHOOL' && <StudentPanel id={`student-panel-${cls.id}`} cls={cls} open={panel === 'students'} members={memberIds} ready={!!detail.data} onClose={() => onPanel(null)} />}
+          {cls.kind === 'CAREER' && <p className="mb-2 text-xs text-[var(--text-muted)]">Mọi tài khoản Người đi làm đang hoạt động đều học đủ 3 khóa, nên không thêm/gỡ thủ công.</p>}
           <ErrorBanner message={detail.isError ? errorMessage(detail.error, 'Không tải được chi tiết lớp.') : null} onRetry={() => void detail.refetch()} />
           {detail.isPending ? (
             <div className="flex gap-1.5" role="status" aria-label="Đang tải học viên">
@@ -72,43 +76,23 @@ export const ClassExpandedRow: React.FC<{ cls: PortalClassRow; onAssign: (c: Por
           ) : (
             <div className="flex flex-wrap items-center gap-1.5">
               {shown.map((s) => (
-                <span key={s.id} title={s.email} className="rounded-full bg-white px-2.5 py-0.5 text-xs text-[var(--text-main)] ring-1 ring-inset ring-neutral-200 dark:bg-neutral-900 dark:ring-neutral-700">
-                  {s.fullName || s.email}
-                </span>
+                <RemovableTag
+                  key={s.id}
+                  label={s.fullName || s.email}
+                  tone="plain"
+                  title={s.email}
+                  removeLabel={`Gỡ ${s.fullName || s.email} khỏi lớp`}
+                  onRemove={cls.kind === 'SCHOOL' ? () => studentOps.remove.mutate(s) : undefined}
+                />
               ))}
               {students.length > NAME_PREVIEW && (
-                <button onClick={() => setAllNames((v) => !v)} className={btnGhost}>
+                <button onClick={() => setAllNames((v) => !v)} className="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-50 dark:text-indigo-300 dark:hover:bg-indigo-500/10">
                   {allNames ? 'Thu gọn' : `+${students.length - NAME_PREVIEW} người khác`}
                 </button>
               )}
             </div>
           )}
         </section>
-
-        {cls.kind === 'SCHOOL' && (
-          <section aria-label="Quản lý nâng cao">
-            <button onClick={() => setAdvanced((v) => !v)} aria-expanded={advanced} className={btnGhost}>
-              {advanced ? 'Ẩn quản lý học viên' : 'Quản lý học viên & bài tập (thêm, xóa, nhập Excel)'}
-            </button>
-            {advanced && (
-              <div className="mt-3">
-                {legacy.isPending ? (
-                  <SkeletonRows rows={3} cols={3} />
-                ) : (
-                  <AdminClassPanel
-                    classes={(legacy.data ?? []).filter((c) => c.id === cls.id)}
-                    selectedId={cls.id}
-                    onSelect={() => undefined}
-                    onChanged={() => {
-                      void qc.invalidateQueries({ queryKey: QK.classDetail(cls.id) });
-                      onChanged();
-                    }}
-                  />
-                )}
-              </div>
-            )}
-          </section>
-        )}
       </div>
 
       <section aria-label="Bài tập của lớp" className="min-w-0">

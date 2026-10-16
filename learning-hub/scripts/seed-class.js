@@ -5,6 +5,8 @@
  *   node scripts/seed-class.js --dry-run                         # chỉ in kế hoạch
  *   node scripts/seed-class.js                                   # ghi vào CSDL trong BE/.env (idempotent)
  *   node scripts/seed-class.js --add-email=ban@gmail.com         # ghi danh thêm tài khoản học sinh thật vào lớp đúng khối (lặp được)
+ *   node scripts/seed-class.js --reactivate                       # đưa các lớp MẪU đang ở Lưu trữ về Đang hoạt động (mặc định không đè lựa chọn của Admin)
+ *   node scripts/seed-class.js --fix-dangling                    # gỡ id học viên/giảng viên trỏ tới tài khoản KHÔNG còn tồn tại khỏi mọi lớp (toàn vẹn khóa ngoại)
  *   node scripts/seed-class.js --remove                          # gỡ đúng dữ liệu mẫu này
  *
  * Mốc thời gian tính theo NGÀY CHẠY SCRIPT (giờ Việt Nam): ngày 1-2 đã quá hạn, ngày 3-4 đang mở, ngày 5 chưa mở.
@@ -21,6 +23,8 @@ const uri = process.env.DATABASE_URL || h.readEnvValue(envText, 'DATABASE_URL') 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const remove = args.includes('--remove');
+const reactivate = args.includes('--reactivate');
+const fixDangling = args.includes('--fix-dangling');
 // Tài khoản học sinh test được ghi danh sẵn vào lớp đúng khối (thêm bằng --add-email=... cho tài khoản khác).
 const DEFAULT_TEST_ACCOUNTS = ['muoi@gmail.com'];
 const addEmails = [
@@ -292,6 +296,27 @@ function vnMorning(dayOffset, now) {
         { $set: { name: c.name, description: c.description, courseKey: c.courseKey, ...tf, updatedAt: now }, $setOnInsert: { code: c.code, createdAt: now, studentIds: [], exerciseSlugs: [], archived: false } },
         { upsert: true },
       );
+    }
+    if (reactivate && !dryRun) {
+      const r = await classes.updateMany({ code: { $in: [...CLASSES, ...CAREER_CLASSES].map((c) => c.code) }, archived: true }, { $set: { archived: false, updatedAt: now } });
+      console.log(`Đã kích hoạt lại ${r.modifiedCount} lớp mẫu từng ở Lưu trữ.`);
+    }
+    if (fixDangling) {
+      const existing = new Set((await users.find({}, { projection: { _id: 1 } }).toArray()).map((u) => String(u._id)));
+      let fixed = 0;
+      for (const c of await classes.find({}).toArray()) {
+        const keep = (c.studentIds || []).filter((id) => existing.has(String(id)));
+        const tIds = (c.teacherIds || []).filter((id) => existing.has(String(id)));
+        const set = {};
+        if (keep.length !== (c.studentIds || []).length) set.studentIds = keep;
+        if (c.teacherIds && tIds.length !== c.teacherIds.length && tIds.length > 0) { set.teacherIds = tIds; if (!existing.has(String(c.teacherId))) set.teacherId = tIds[0]; }
+        if (Object.keys(set).length) {
+          console.log(`  ${dryRun ? '(dry-run) ' : ''}${c.name}: gỡ ${(c.studentIds || []).length - keep.length} học viên và ${(c.teacherIds || []).length - tIds.length} giảng viên không còn tồn tại`);
+          if (!dryRun) await classes.updateOne({ _id: c._id }, { $set: set });
+          fixed++;
+        }
+      }
+      console.log(`Toàn vẹn khóa ngoại: đã sửa ${fixed} lớp.`);
     }
     if (!adults.length) console.log('  (!) Chưa có tài khoản Người đi làm: chạy node scripts/seed-career-adult.js để tạo nguoidilam1/2@gmail.com.');
     console.log(dryRun ? 'Xong dry-run.' : 'Xong. Ghi danh học sinh thật: node scripts/seed-class.js --add-email=<email>');

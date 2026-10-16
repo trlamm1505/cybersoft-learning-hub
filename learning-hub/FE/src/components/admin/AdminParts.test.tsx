@@ -3,6 +3,8 @@ import { renderToString } from 'react-dom/server';
 import { AgeGroupBars, HealthSummaryCard, MetricCard, SubmissionBars } from './DashboardParts';
 import { ConfirmModal, errorMessage, Modal, Pill } from './AdminUi';
 import { ClassStatusBadge } from './ClassStatusBadge';
+import { RemovableTag } from './ClassPickers';
+import { Collapse, PanelToggle } from './ClassPanels';
 import { ClusterCard, HealthGrid } from '../../pages/AdminHealthPage';
 import { DiffView } from '../../pages/AdminAuditPage';
 import type { HealthReport } from '../../types/adminPortal';
@@ -146,5 +148,37 @@ describe('Modal đóng được', () => {
     expect(html).toContain('aria-label="Đóng"');
     expect(html).toContain('bg-neutral-950/50');
     expect(text(html)).toContain('nội dung');
+  });
+});
+
+describe('thao tác tại chỗ', () => {
+  it('RemovableTag có nút ✕ gỡ với nhãn rõ ràng; bị khóa (có lý do) khi là giảng viên cuối cùng', () => {
+    const html = renderToString(<RemovableTag label="Cô Lan" tone="violet" removeLabel="Gỡ Cô Lan khỏi lớp" onRemove={() => {}} />);
+    expect(html).toContain('aria-label="Gỡ Cô Lan khỏi lớp"');
+    expect(html).toContain('group-hover:opacity-100');
+    const sole = renderToString(<RemovableTag label="Cô Lan" tone="violet" removeLabel="Gỡ" onRemove={() => {}} disabledReason="Lớp cần ít nhất một giảng viên" />);
+    expect(sole).toContain('aria-disabled="true"');
+    expect(sole).toContain('Lớp cần ít nhất một giảng viên');
+    expect(renderToString(<RemovableTag label="HS" tone="plain" removeLabel="Gỡ" />)).not.toContain('<button');
+  });
+
+  it('Collapse nằm trong luồng trang (không absolute/fixed): mở thì 1fr đẩy nội dung xuống, đóng thì 0fr và inert', () => {
+    const open = renderToString(<Collapse open>nội dung</Collapse>);
+    expect(open).toContain('grid-rows-[1fr]');
+    expect(open).not.toContain('inert');
+    const closed = renderToString(<Collapse open={false}>nội dung</Collapse>);
+    expect(closed).toContain('grid-rows-[0fr]');
+    expect(closed).toContain('inert');
+    for (const html of [open, closed]) {
+      expect(html).not.toMatch(/(absolute|fixed)/);
+      expect(html).not.toContain('role="dialog"');
+    }
+  });
+
+  it('PanelToggle: đóng thì là nút "+ nhãn", mở thì thành "Đóng"', () => {
+    expect(text(renderToString(<PanelToggle open={false} onClick={() => {}} label="Thêm học viên" controls="p" />))).toContain('Thêm học viên');
+    const open = renderToString(<PanelToggle open onClick={() => {}} label="Thêm học viên" controls="p" />);
+    expect(text(open)).toContain('Đóng');
+    expect(open).toContain('aria-expanded="true"');
   });
 });
