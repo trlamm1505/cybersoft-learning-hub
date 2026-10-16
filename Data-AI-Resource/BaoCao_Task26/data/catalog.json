@@ -1,0 +1,141 @@
+[
+  {
+    "resource_id": "ds-retail-ecommerce-sales-v1",
+    "name": "E-Commerce Multi-Table Sales Dataset",
+    "type": "dataset",
+    "domain": "retail_commerce",
+    "target_roles": ["DATA_ANALYST", "AI_ENGINEER"],
+    "description": "Bộ dữ liệu bán hàng thương mại điện tử đa bảng chuẩn hóa (5 bảng: customers, employees, products, orders, order_details) gồm 3.073 dòng.",
+    "current_version": "v1.1.0",
+    "published_versions": ["v1.0.0", "v1.1.0"],
+    "status": "ACTIVE",
+    "tags": ["sql_grader", "da_lab", "ecommerce", "multi_table"],
+    "data_dictionary": [
+      {
+        "table_name": "customers",
+        "row_count": 200,
+        "primary_key": "customer_id",
+        "description": "Thông tin khách hàng",
+        "columns": [
+          {"name": "customer_id", "data_type": "VARCHAR(32)", "is_primary_key": true, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Mã định danh khách hàng duy nhất"},
+          {"name": "full_name", "data_type": "VARCHAR(128)", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Họ và tên khách hàng (đã khử PII)"},
+          {"name": "email", "data_type": "VARCHAR(128)", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Địa chỉ email (synthetic)"},
+          {"name": "city", "data_type": "VARCHAR(64)", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Tỉnh / Thành phố"}
+        ]
+      },
+      {
+        "table_name": "orders",
+        "row_count": 1000,
+        "primary_key": "order_id",
+        "description": "Bản ghi đơn hàng",
+        "columns": [
+          {"name": "order_id", "data_type": "VARCHAR(32)", "is_primary_key": true, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Mã đơn hàng"},
+          {"name": "customer_id", "data_type": "VARCHAR(32)", "is_primary_key": false, "is_foreign_key": true, "foreign_key_target": "customers.customer_id", "nullable": false, "description": "Khóa ngoại khách hàng"},
+          {"name": "order_date", "data_type": "TIMESTAMP", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Thời gian đặt hàng"},
+          {"name": "total_amount", "data_type": "NUMERIC(14,2)", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Tổng giá trị đơn hàng"}
+        ]
+      },
+      {
+        "table_name": "order_details",
+        "row_count": 1803,
+        "primary_key": "order_detail_id",
+        "description": "Chi tiết dòng sản phẩm trong đơn hàng",
+        "columns": [
+          {"name": "order_detail_id", "data_type": "VARCHAR(32)", "is_primary_key": true, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Khóa chính chi tiết đơn"},
+          {"name": "order_id", "data_type": "VARCHAR(32)", "is_primary_key": false, "is_foreign_key": true, "foreign_key_target": "orders.order_id", "nullable": false, "description": "Mã đơn hàng liên kết"},
+          {"name": "product_id", "data_type": "VARCHAR(32)", "is_primary_key": false, "is_foreign_key": true, "foreign_key_target": "products.product_id", "nullable": false, "description": "Mã sản phẩm"},
+          {"name": "quantity", "data_type": "INTEGER", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Số lượng mua"},
+          {"name": "line_total", "data_type": "NUMERIC(14,2)", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Thành tiền dòng hàng"}
+        ]
+      }
+    ],
+    "sample_download_url": "/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1/tables/orders?format=csv",
+    "sandbox_schema": "public",
+    "sha256_checksum": "3f1c14f32c4cac5e353b4dddbf07ccd995fd88a1e20438cf9e8c"
+  },
+  {
+    "resource_id": "ds-customer-churn-v1",
+    "name": "Customer Churn & Behavioral ML Dataset",
+    "type": "dataset",
+    "domain": "telecom_retention",
+    "target_roles": ["DATA_ANALYST", "AI_ENGINEER"],
+    "description": "Tập dữ liệu phân tích tỷ lệ khách hàng rời bỏ dịch vụ gồm 7.043 bản ghi và 21 thuộc tính nhân khẩu, hợp đồng và dịch vụ sử dụng.",
+    "current_version": "v1.1.0",
+    "published_versions": ["v1.0.0", "v1.1.0"],
+    "status": "ACTIVE",
+    "tags": ["machine_learning", "classification", "retention", "lineage_verified"],
+    "data_dictionary": [
+      {
+        "table_name": "customer_churn",
+        "row_count": 7043,
+        "primary_key": "customer_id",
+        "description": "Dữ liệu khách hàng và nhãn rời bỏ Churn (Yes/No)",
+        "columns": [
+          {"name": "customer_id", "data_type": "VARCHAR(32)", "is_primary_key": true, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Mã khách hàng duy nhất"},
+          {"name": "tenure_months", "data_type": "INTEGER", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Thời gian gắn bó tính theo tháng"},
+          {"name": "monthly_charges", "data_type": "NUMERIC(10,2)", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Cước phí hàng tháng"},
+          {"name": "churn", "data_type": "VARCHAR(8)", "is_primary_key": false, "is_foreign_key": false, "foreign_key_target": null, "nullable": false, "description": "Nhãn rời dịch vụ (Yes/No)"}
+        ]
+      }
+    ],
+    "sample_download_url": "/api/v1/registry/datasets/ds-customer-churn-v1/tables/customer_churn?format=csv",
+    "sandbox_schema": "ml_sandbox",
+    "sha256_checksum": "8b52a465dbce0f2b982635905d41f71dfb68d6c701832049e491"
+  },
+  {
+    "resource_id": "eval-rag-golden-v1",
+    "name": "Golden RAG Evaluation Benchmark (30 Items)",
+    "type": "evaluation_set",
+    "domain": "rag_benchmarking",
+    "target_roles": ["AI_ENGINEER"],
+    "description": "Bộ 30 câu hỏi chuẩn hóa đánh giá Retrieval-Augmented Generation bao gồm 4 tình huống kiểm thử: Đơn bước, Đa bước, Ngoài ngữ cảnh và Chống Injection.",
+    "current_version": "v1.0.0",
+    "published_versions": ["v1.0.0"],
+    "status": "ACTIVE",
+    "tags": ["ai_lab", "rag_eval", "golden_set", "llm_as_judge"],
+    "total_questions": 30,
+    "sha256_checksum": "a71f021948e58319e782e4f01488b1cc924e2311894b9e"
+  },
+  {
+    "resource_id": "eval-policy-curriculum-v1",
+    "name": "CyberSoft Academic Policy & Curriculum Benchmark (100 Items)",
+    "type": "evaluation_set",
+    "domain": "academic_policy",
+    "target_roles": ["AI_ENGINEER"],
+    "description": "Bộ 100 câu hỏi đánh giá khả năng trích xuất chính sách học vụ, điều kiện bảo lưu và quy chế thi cử với chỉ số Abstention chống hallucination.",
+    "current_version": "v1.0.0",
+    "published_versions": ["v1.0.0"],
+    "status": "ACTIVE",
+    "tags": ["ai_lab", "policy_rag", "hallucination_guard", "rubric_scoring"],
+    "total_questions": 100,
+    "sha256_checksum": "f4591bc32e99d82138a0f9b6c41d1e0281239aa827b"
+  },
+  {
+    "resource_id": "proj-da-inventory-v1",
+    "name": "DA-02 Smart Warehouse Inventory Capstone Template",
+    "type": "project_template",
+    "domain": "supply_chain",
+    "target_roles": ["DATA_ANALYST"],
+    "description": "Mẫu dự án tốt nghiệp DA-02 mô phỏng vận hành chuỗi cung ứng với 8 bài toán góc cạnh nghiệp vụ (Dead Stock, Lead Time, Reorder Point, Stockout).",
+    "current_version": "v1.0.0",
+    "published_versions": ["v1.0.0"],
+    "status": "ACTIVE",
+    "tags": ["capstone", "da_02", "inventory", "edge_cases"],
+    "starter_repo_url": "https://github.com/cybersoft-lab/starter-da-inventory.git",
+    "sha256_checksum": "5d24b619f9e138a221f7c810237da827110e5b99a81"
+  },
+  {
+    "resource_id": "proj-ai-rag-capstone-v1",
+    "name": "AI-01 Dual RAG Enterprise Search Capstone Template",
+    "type": "project_template",
+    "domain": "ai_engineering",
+    "target_roles": ["AI_ENGINEER"],
+    "description": "Mẫu dự án tốt nghiệp AI-01 xây dựng hệ thống hỏi đáp tài liệu doanh nghiệp tích hợp BM25 + Dense Hybrid Search và Reciprocal Rank Fusion (RRF).",
+    "current_version": "v1.0.0",
+    "published_versions": ["v1.0.0"],
+    "status": "ACTIVE",
+    "tags": ["capstone", "ai_01", "hybrid_search", "rrf_rerank"],
+    "starter_repo_url": "https://github.com/cybersoft-lab/starter-ai-rag-capstone.git",
+    "sha256_checksum": "7c88a912e75bf14a9042b380291e1cc098132aa778d"
+  }
+]
