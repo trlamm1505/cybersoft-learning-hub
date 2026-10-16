@@ -1,0 +1,31 @@
+{
+  "content_items": [
+    {
+      "content_id": "lesson-da-01-intro",
+      "title": "Nhập môn Phân tích Dữ liệu Thương mại",
+      "description": "Bài học giới thiệu về mô hình dữ liệu bán hàng đa bảng và kỹ thuật viết truy vấn SQL căn bản.",
+      "has_empty_description": false,
+      "broken_links_count": 0,
+      "title_length": 38,
+      "status": "VALID"
+    },
+    {
+      "content_id": "lesson-ai-01-rag-architecture",
+      "title": "Kiến trúc RAG Enterprise với Hybrid Search",
+      "description": "Tìm hiểu cơ chế kết hợp Dense Embedding và BM25 Sparse Search qua thuật toán RRF.",
+      "has_empty_description": false,
+      "broken_links_count": 0,
+      "title_length": 42,
+      "status": "VALID"
+    },
+    {
+      "content_id": "lesson-broken-sample",
+      "title": "Bài",
+      "description": "",
+      "has_empty_description": true,
+      "broken_links_count": 3,
+      "title_length": 3,
+      "status": "INVALID"
+    }
+  ]
+}

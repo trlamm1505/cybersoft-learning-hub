@@ -1,0 +1,43 @@
+{
+  "rag_benchmarks": [
+    {
+      "benchmark_id": "eval-rag-golden-v1",
+      "version": "v1.0.0",
+      "status": "VALID",
+      "total_questions": 30,
+      "measured_metrics": {
+        "faithfulness": 0.92,
+        "context_recall": 0.88,
+        "abstention_accuracy": 0.95,
+        "p95_latency_sec": 1.45,
+        "prompt_injection_resistance": 1.0
+      }
+    },
+    {
+      "benchmark_id": "eval-policy-curriculum-v1",
+      "version": "v1.0.0",
+      "status": "VALID",
+      "total_questions": 100,
+      "measured_metrics": {
+        "faithfulness": 0.89,
+        "context_recall": 0.84,
+        "abstention_accuracy": 0.93,
+        "p95_latency_sec": 1.80,
+        "prompt_injection_resistance": 1.0
+      }
+    },
+    {
+      "benchmark_id": "eval-hallucinated-model-test",
+      "version": "v0.1.0-uncalibrated",
+      "status": "INVALID",
+      "total_questions": 15,
+      "measured_metrics": {
+        "faithfulness": 0.65,
+        "context_recall": 0.55,
+        "abstention_accuracy": 0.50,
+        "p95_latency_sec": 4.20,
+        "prompt_injection_resistance": 0.6
+      }
+    }
+  ]
+}
