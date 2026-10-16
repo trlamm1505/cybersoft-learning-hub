@@ -1,0 +1,43 @@
+{
+  "datasets": [
+    {
+      "resource_id": "ds-retail-ecommerce-sales-v1",
+      "version": "v1.1.0",
+      "status": "VALID",
+      "tables_count": 5,
+      "total_rows": 3073,
+      "orphan_records": 0,
+      "missing_pk_count": 0,
+      "sample_text": "Sample clean retail record: order_id=ORD-1001, customer_id=CUST-001, amount=1250000.00",
+      "pii_leak_count": 0,
+      "secret_leak_count": 0,
+      "sha256_checksum": "3f1c14f32c4cac5e353b4dddbf07ccd995fd88a1e20438cf9e8c"
+    },
+    {
+      "resource_id": "ds-customer-churn-v1",
+      "version": "v1.1.0",
+      "status": "VALID",
+      "tables_count": 1,
+      "total_rows": 7043,
+      "orphan_records": 0,
+      "missing_pk_count": 0,
+      "sample_text": "Sample churn feature vector: customer_id=CHURN-7001, tenure=24, monthly_charges=75.50",
+      "pii_leak_count": 0,
+      "secret_leak_count": 0,
+      "sha256_checksum": "8b52a465dbce0f2b982635905d41f71dfb68d6c701832049e491"
+    },
+    {
+      "resource_id": "ds-corrupted-sample-test",
+      "version": "v0.9.1-dirty",
+      "status": "INVALID",
+      "tables_count": 2,
+      "total_rows": 150,
+      "orphan_records": 12,
+      "missing_pk_count": 1,
+      "sample_text": "LEAKED CREDENTIAL: auth_secret_token=SAMPLE_CORRUPTED_SECRET_TOKEN_XYZ contact=0912345678",
+      "pii_leak_count": 2,
+      "secret_leak_count": 1,
+      "sha256_checksum": "corrupted_hash_999999"
+    }
+  ]
+}

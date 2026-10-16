@@ -1,0 +1,67 @@
+{
+  "rules_version": "v1.0.0",
+  "issued_by": "TTS 03 - QA AI Evaluation (Tran Quoc Nguyen)",
+  "adopted_by": "TTS 01 - Data & AI Resource Engineer (Dao Trung Kien)",
+  "sync_date": "2026-10-06",
+  "quality_rules": [
+    {
+      "rule_id": "QA-RULE-01",
+      "category": "SECURITY_SECRET",
+      "title": "Tuyệt đối không để lộ khóa bí mật trong mã nguồn hoặc dữ liệu",
+      "severity": "CRITICAL",
+      "description": "Chặn đứng mọi chuỗi API Key thật (OpenAI, Gemini), JWT Secret, Private Key, mật khẩu DB trong artifacts.",
+      "tolerance": 0,
+      "gate_action": "BLOCK_RELEASE"
+    },
+    {
+      "rule_id": "QA-RULE-02",
+      "category": "PRIVACY_PII",
+      "title": "Zero Real PII trong toàn bộ datasets phát hành",
+      "severity": "CRITICAL",
+      "description": "100% dữ liệu phát hành phải là dữ liệu tổng hợp (synthetic) hoặc được che giấu (masked/redacted) hoàn toàn.",
+      "tolerance": 0,
+      "gate_action": "BLOCK_RELEASE"
+    },
+    {
+      "rule_id": "QA-RULE-03",
+      "category": "DATASET_INTEGRITY",
+      "title": "Toàn vẹn cấu trúc bảng biểu và ràng buộc dữ liệu",
+      "severity": "HIGH",
+      "description": "100% bảng phải có Primary Key, không có bản ghi mồ côi (orphan records), tỷ lệ null trên cột bắt buộc = 0%.",
+      "tolerance": 0,
+      "gate_action": "BLOCK_RELEASE"
+    },
+    {
+      "rule_id": "QA-RULE-04",
+      "category": "RAG_QUALITY",
+      "title": "Ngưỡng đánh giá mô hình RAG và chống Hallucination",
+      "severity": "HIGH",
+      "description": "Faithfulness >= 0.85, Context Recall >= 0.80, Abstention Accuracy trên câu hỏi ngoài phạm vi >= 90%, Latency P95 <= 2.5s.",
+      "tolerance_thresholds": {
+        "min_faithfulness": 0.85,
+        "min_context_recall": 0.80,
+        "min_abstention_accuracy": 0.90,
+        "max_p95_latency_sec": 2.5
+      },
+      "gate_action": "BLOCK_RELEASE"
+    },
+    {
+      "rule_id": "QA-RULE-05",
+      "category": "CONTENT_LINT",
+      "title": "Chuẩn mực nội dung học tập và đề bài",
+      "severity": "MEDIUM",
+      "description": "Không có bài học trống nội dung, tiêu đề >= 5 ký tự, đề bài có mô tả rõ ràng, không chứa liên kết gãy.",
+      "tolerance": 0,
+      "gate_action": "WARNING"
+    },
+    {
+      "rule_id": "QA-RULE-06",
+      "category": "GOVERNANCE_BYPASS",
+      "title": "Nghiêm cấm bỏ qua chốt chặn phát hành âm thầm (Zero Silent Bypass)",
+      "severity": "CRITICAL",
+      "description": "Mọi ngoại lệ bỏ qua Quality Gate bắt buộc phải có lý do giải trình cụ thể và được cấp phép bởi Tech Lead/QA.",
+      "tolerance": 0,
+      "gate_action": "BLOCK_RELEASE"
+    }
+  ]
+}
