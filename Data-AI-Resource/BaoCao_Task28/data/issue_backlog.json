@@ -1,0 +1,138 @@
+[
+  {
+    "issue_id": "ISS-001",
+    "title": "Bộ lọc đa điều kiện (Multi-facet) thiếu nút hoàn tác và đếm bộ lọc kích hoạt",
+    "severity": "CRITICAL",
+    "impact": "HIGH",
+    "effort": "LOW",
+    "status": "RESOLVED",
+    "reported_by": [
+      "USR-001",
+      "USR-003"
+    ],
+    "description": "Khi người dùng chọn đồng thời Domain + Level + License, nếu không có kết quả thì người dùng phải bỏ chọn thủ công từng ô, gây mất thời gian.",
+    "resolution_plan": "Bổ sung nút 'Xóa toàn bộ bộ lọc' (1-click Reset) và hiển thị huy hiệu đếm số lượng bộ lọc đang kích hoạt."
+  },
+  {
+    "issue_id": "ISS-002",
+    "title": "Khung xem trước dữ liệu CSV bị tràn màn hình ngang trên laptop màn hình nhỏ",
+    "severity": "CRITICAL",
+    "impact": "HIGH",
+    "effort": "MEDIUM",
+    "status": "RESOLVED",
+    "reported_by": [
+      "USR-001",
+      "USR-003"
+    ],
+    "description": "Các bảng dữ liệu có trên 15 cột hiển thị tràn ra ngoài lề trang web, thiếu thanh cuộn ngang mượt mà và thiếu phân trang giới hạn 10 dòng đầu.",
+    "resolution_plan": "Đóng gói bảng xem trước trong container responsive overflow-x-auto, cố định tiêu đề cột (sticky header) và phân trang 10 dòng/trang."
+  },
+  {
+    "issue_id": "ISS-003",
+    "title": "Thẻ trích dẫn AI Tutor [doc_id#section_id] chưa có tính năng sao chép 1-click",
+    "severity": "HIGH",
+    "impact": "HIGH",
+    "effort": "LOW",
+    "status": "RESOLVED",
+    "reported_by": [
+      "USR-001",
+      "USR-002",
+      "USR-004"
+    ],
+    "description": "Giảng viên cần sao chép trích dẫn vào giáo án phải bôi đen thủ công đoạn text ngắn trong ngoặc vuông, dễ bị thiếu ký tự.",
+    "resolution_plan": "Thêm nút bấm 'Sao chép trích dẫn' trực tiếp bên cạnh mỗi thẻ citation kèm thông báo tooltip 'Đã sao chép vào bộ nhớ tạm'."
+  },
+  {
+    "issue_id": "ISS-004",
+    "title": "Thông báo lỗi xác thực schema Pydantic hiển thị tiếng Anh kỹ thuật khó hiểu",
+    "severity": "HIGH",
+    "impact": "HIGH",
+    "effort": "MEDIUM",
+    "status": "RESOLVED",
+    "reported_by": [
+      "USR-003",
+      "USR-005"
+    ],
+    "description": "Khi gửi file sai cấu trúc, API trả về 'value_error.missing' hoặc 'type_error.integer' khiến học viên bối rối không biết sửa ở đâu.",
+    "resolution_plan": "Xây dựng bộ chuyển đổi lỗi song ngữ (Vietnamese Error Transformer) chuyển các mã lỗi thành hướng dẫn tiếng Việt rõ ràng, chỉ rõ dòng và cột bị lỗi."
+  },
+  {
+    "issue_id": "ISS-005",
+    "title": "Tải tệp dữ liệu lớn thiếu thanh chỉ báo tiến độ và thông tin dung lượng tệp trước khi tải",
+    "severity": "HIGH",
+    "impact": "HIGH",
+    "effort": "LOW",
+    "status": "RESOLVED",
+    "reported_by": [
+      "USR-003",
+      "USR-005"
+    ],
+    "description": "Người dùng bấm nút tải tệp CSV > 10MB nhưng không thấy phản hồi tức thời, tưởng hệ thống bị treo nên bấm nhiều lần.",
+    "resolution_plan": "Bổ sung hiển thị kích thước tệp (ví dụ: '12.4 MB') trên nút tải và hiệu ứng thanh tiến trình (Loading Indicator) khi đang xử lý tải xuống."
+  },
+  {
+    "issue_id": "ISS-006",
+    "title": "Độ tương phản màu sắc của nhãn độ khó (Beginner/Intermediate/Advanced) chưa tối ưu ở Dark Mode",
+    "severity": "MEDIUM",
+    "impact": "MEDIUM",
+    "effort": "LOW",
+    "status": "BACKLOG_V1_1",
+    "reported_by": [
+      "USR-004"
+    ],
+    "description": "Màu xanh lá của Beginner hơi chói trên nền tối #0B0F19.",
+    "resolution_plan": "Điều chỉnh bảng mã màu theo chuẩn WCAG 2.1 AA trong bản phát hành v1.1."
+  },
+  {
+    "issue_id": "ISS-007",
+    "title": "Thiếu phím tắt Enter để kích hoạt tìm kiếm nhanh từ ô input",
+    "severity": "MEDIUM",
+    "impact": "MEDIUM",
+    "effort": "LOW",
+    "status": "BACKLOG_V1_1",
+    "reported_by": [
+      "USR-002"
+    ],
+    "description": "Người dùng gõ từ khóa xong phải dùng chuột nhấn nút Tìm kiếm.",
+    "resolution_plan": "Bổ sung listener onKeyDown kiểm tra key == 'Enter' trong v1.1."
+  },
+  {
+    "issue_id": "ISS-008",
+    "title": "Biểu tượng định dạng tệp (CSV vs Parquet vs JSON) chưa phân biệt trực quan",
+    "severity": "LOW",
+    "impact": "LOW",
+    "effort": "LOW",
+    "status": "BACKLOG_V1_1",
+    "reported_by": [
+      "USR-003"
+    ],
+    "description": "Cần thêm badge màu riêng: CSV màu cam, Parquet màu tím, JSON màu xanh.",
+    "resolution_plan": "Bổ sung icon và badge màu định dạng trong v1.1."
+  },
+  {
+    "issue_id": "ISS-009",
+    "title": "Mục hướng dẫn sử dụng nhanh cần đưa lên đầu thanh bên Sidebar thay vì chân trang",
+    "severity": "LOW",
+    "impact": "LOW",
+    "effort": "LOW",
+    "status": "BACKLOG_V1_1",
+    "reported_by": [
+      "USR-005"
+    ],
+    "description": "Người dùng mới vào khó tìm thấy mục hướng dẫn ở chân trang.",
+    "resolution_plan": "Chuyển widget Quick Guide vào Header hoặc Sidebar trong v1.1."
+  },
+  {
+    "issue_id": "ISS-010",
+    "title": "Hiển thị thêm mốc thời gian cập nhật gần nhất bên cạnh số phiên bản tài nguyên",
+    "severity": "LOW",
+    "impact": "LOW",
+    "effort": "LOW",
+    "status": "BACKLOG_V1_1",
+    "reported_by": [
+      "USR-001"
+    ],
+    "description": "Chỉ có 'v1.0', muốn biết được cập nhật ngày nào.",
+    "resolution_plan": "Bổ sung thuộc tính updated_at trong metadata card ở v1.1."
+  }
+]
