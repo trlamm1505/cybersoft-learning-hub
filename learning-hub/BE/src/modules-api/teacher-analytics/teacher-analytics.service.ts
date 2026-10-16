@@ -47,6 +47,7 @@ import {
 export interface ClassInput {
   name?: unknown;
   teacherId?: unknown;
+  teacherIds?: string[];
   description?: unknown;
   archived?: unknown;
   studentIds?: unknown;
@@ -202,7 +203,7 @@ export class TeacherAnalyticsService {
 
   async listClasses(user: JwtPayload, includeArchived = false) {
     const filter: Record<string, unknown> =
-      user.role === 'ADMIN' ? {} : { teacherId: user.sub };
+      user.role === 'ADMIN' ? {} : { $or: [{ teacherId: user.sub }, { teacherIds: user.sub }] };
     if (!includeArchived) filter.archived = { $ne: true };
     const docs = await this.classes
       .find(filter)
@@ -307,6 +308,8 @@ export class TeacherAnalyticsService {
     this.assertAdmin(user);
     const cls = await this.resolveClass(user, classId);
     const data = await this.validateClassInput(body, false);
+    // Lưu thông tin lớp gửi kèm teacherId không đổi thì giữ nguyên danh sách nhiều giảng viên Admin đã phân công.
+    if (data.teacherId === cls.teacherId) delete data.teacherIds;
     const updated = await this.classes
       .findByIdAndUpdate(cls._id, { $set: data }, { new: true })
       .lean<ClassLean>();
@@ -631,7 +634,7 @@ export class TeacherAnalyticsService {
     }
     const cls = await this.classes.findById(classId).lean<ClassLean>();
     if (!cls) throw new NotFoundException('Không tìm thấy lớp.');
-    if (user.role !== 'ADMIN' && cls.teacherId !== user.sub) {
+    if (user.role !== 'ADMIN' && cls.teacherId !== user.sub && !cls.teacherIds?.includes(user.sub)) {
       throw new ForbiddenException('Bạn không có quyền với lớp này.');
     }
     return cls;
@@ -767,6 +770,7 @@ export class TeacherAnalyticsService {
         Classroom,
         | 'name'
         | 'teacherId'
+        | 'teacherIds'
         | 'description'
         | 'archived'
         | 'studentIds'
@@ -793,6 +797,8 @@ export class TeacherAnalyticsService {
         throw new BadRequestException('Giảng viên phụ trách không tồn tại.');
       }
       out.teacherId = id;
+      // Chuyển giao một giảng viên (luồng cũ) thay toàn bộ danh sách phụ trách để không lệch với teacherIds.
+      out.teacherIds = [id];
     }
     if (body.description !== undefined) {
       if (

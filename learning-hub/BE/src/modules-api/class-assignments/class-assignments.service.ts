@@ -369,7 +369,7 @@ export class ClassAssignmentsService {
     if (!isValidObjectId(classId)) throw new NotFoundException('Không tìm thấy lớp học.');
     const cls = await this.classes.findById(classId).lean();
     if (!cls) throw new NotFoundException('Không tìm thấy lớp học.');
-    if (user.role !== 'ADMIN' && cls.teacherId !== user.sub) {
+    if (user.role !== 'ADMIN' && cls.teacherId !== user.sub && !(cls as { teacherIds?: string[] }).teacherIds?.includes(user.sub)) {
       throw new ForbiddenException('Bạn chỉ quản lý được bài tập của lớp do mình phụ trách.');
     }
     return cls;

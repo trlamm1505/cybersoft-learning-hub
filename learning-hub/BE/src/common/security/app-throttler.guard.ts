@@ -26,6 +26,8 @@ export const RATE_LIMITS = {
   /** Nộp bài cuộc thi chạy cả bộ test: chặn bấm liên tục làm nghẽn bộ chạy code. */
   contestSubmit: { default: { ttl: 60_000, limit: 15 } },
   /** Sự kiện rời màn hình: mỗi lần rời một yêu cầu, nhưng chặn client giả mạo gửi dồn dập. */
+  /** Kiểm tra sức khỏe hệ thống: 1 lần / 10 giây cho mỗi Admin (mỗi lần chạy 5 phép ping). */
+  adminHealth: { default: { ttl: 10_000, limit: 1 } },
   proctorLeave: { default: { ttl: 60_000, limit: 40 } },
 } as const;
 

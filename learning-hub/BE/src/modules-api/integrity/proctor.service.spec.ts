@@ -158,7 +158,7 @@ describe('ProctorService', () => {
       const chain: any = { sort: jest.fn(() => chain), limit: jest.fn(() => chain), lean: jest.fn().mockResolvedValue([]) };
       alerts.find.mockReturnValue(chain);
       await service.listForTeacher({ sub: 'tea1', role: 'TEACHER' } as any);
-      expect(alerts.find.mock.calls[0][0].$or).toEqual([{ kind: 'CONTEST' }, { teacherId: 'tea1' }]);
+      expect(alerts.find.mock.calls[0][0].$or).toEqual([{ kind: 'CONTEST' }, { teacherId: 'tea1' }, { teacherIds: 'tea1' }]);
       await service.listForTeacher({ sub: 'adm', role: 'ADMIN' } as any);
       expect(alerts.find.mock.calls[1][0].$or).toBeUndefined();
     });

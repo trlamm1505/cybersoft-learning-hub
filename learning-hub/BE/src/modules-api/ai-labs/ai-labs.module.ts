@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { SystemConfigService } from '../admin-portal/system-config.service';
 import { DatabaseModule } from '../../modules-system/database/database.module';
 import { CommonAuthModule } from '../../common/auth/common-auth.module';
 import { DatasetIntegrationModule } from '../../integration/dataset-integration.module';
@@ -21,11 +21,11 @@ import { AI_LAB_LIVE_LLM, GeminiAiLabLiveLlm } from './ai-lab-live-run';
     AiLabGraderService,
     {
       provide: AI_LAB_LIVE_LLM,
-      inject: [ConfigService],
-      // null: chưa có GEMINI_API_KEY thì chỉ chấm bằng bộ mô phỏng như trước.
-      useFactory: (config: ConfigService) => {
-        const apiKey = config.get<string>('GEMINI_API_KEY');
-        return apiKey ? new GeminiAiLabLiveLlm(apiKey) : null;
+      inject: [SystemConfigService],
+      // null: chưa có khóa Gemini thì chỉ chấm bằng bộ mô phỏng như trước.
+      useFactory: async (sys: SystemConfigService) => {
+        await sys.ensureLoaded();
+        return sys.currentGeminiKey() ? new GeminiAiLabLiveLlm(sys.currentGeminiKey) : null;
       },
     },
   ],

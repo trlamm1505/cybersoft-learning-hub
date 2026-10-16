@@ -39,6 +39,9 @@ export class ProctorAlert {
   @Prop({ type: String, index: true })
   teacherId?: string;
 
+  @Prop({ type: [String], default: undefined, index: true })
+  teacherIds?: string[];
+
   @Prop({ type: Number, default: 0 })
   leaveCount: number;
 

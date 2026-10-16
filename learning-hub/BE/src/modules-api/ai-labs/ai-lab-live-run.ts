@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
-import { GoogleGenAI } from '@google/genai';
+import { GeminiClientCache } from '../../common/gemini-client-cache';
+import type { GeminiKeySource } from '../../common/gemini-client-cache';
 import type { EvaluationItem } from '../../integration/dataset-contract.types';
 
 export const AI_LAB_LIVE_LLM = 'AI_LAB_LIVE_LLM';
@@ -16,15 +17,15 @@ export interface AiLabLiveLlm {
 
 export class GeminiAiLabLiveLlm implements AiLabLiveLlm {
   private readonly logger = new Logger(GeminiAiLabLiveLlm.name);
-  private readonly client: GoogleGenAI;
+  private readonly gemini: GeminiClientCache;
   readonly model = 'gemini-flash-lite-latest';
 
-  constructor(apiKey: string) {
-    this.client = new GoogleGenAI({ apiKey });
+  constructor(apiKey: GeminiKeySource) {
+    this.gemini = new GeminiClientCache(apiKey);
   }
 
   async generate(systemPrompt: string, question: string): Promise<string> {
-    const res = await this.client.models.generateContent({
+    const res = await this.gemini.get().models.generateContent({
       model: this.model,
       contents: question,
       config: { systemInstruction: systemPrompt, temperature: 0.2, maxOutputTokens: LIVE_MAX_OUTPUT_TOKENS },

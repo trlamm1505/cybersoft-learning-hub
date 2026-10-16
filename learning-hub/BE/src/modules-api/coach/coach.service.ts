@@ -37,6 +37,8 @@ import type { LlmClient } from './coach-llm.client';
 import { COACH_LLM_CLIENT, COACH_MAX_OUTPUT_TOKENS } from './coach.constants';
 import { CoachChatDto } from './dto/coach-chat.dto';
 import { analyzeDebugLoop } from './coach-debug-loop';
+import { PROMPT_PROVIDER } from '../../common/prompt-provider';
+import type { PromptProvider } from '../../common/prompt-provider';
 import {
   DEBUG_ANALYSES_EXHAUSTED_MESSAGE,
   MAX_DEBUG_ANALYSES_PER_EXERCISE,
@@ -91,6 +93,10 @@ export class CoachService {
     @Optional()
     @Inject(COACH_DEBUG_EXPLAINER)
     private readonly debugExplainer?: DebugExplainer,
+    // System prompt do Admin chỉnh (cache trong bộ nhớ); không có thì dùng SYSTEM_PROMPT mặc định.
+    @Optional()
+    @Inject(PROMPT_PROVIDER)
+    private readonly prompts?: PromptProvider,
   ) {}
 
   async chat(dto: CoachChatDto, userId: string) {
@@ -198,8 +204,9 @@ export class CoachService {
       };
     }
 
+    const systemPrompt = this.prompts ? await this.prompts.get('coach', SYSTEM_PROMPT) : SYSTEM_PROMPT;
     const llmResult = await this.llmClient.chat(
-      SYSTEM_PROMPT,
+      systemPrompt,
       context,
       message,
     );

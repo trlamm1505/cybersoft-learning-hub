@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import {
+  Activity,
   ChevronDown,
+  ClipboardList,
   LayoutDashboard,
   LogOut,
   Menu,
   Moon,
   ChevronLeft,
-  Layers,
   ChevronRight,
   School,
+  Settings,
   ShieldCheck,
   Sun,
   UserRound,
@@ -35,12 +37,14 @@ interface NavEntry {
   Icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
 }
 
-/** Chỉ có mục quản trị: không có khóa học, trắc nghiệm, playground hay cuộc thi của học viên/giảng viên. */
+/** Đúng 6 mục quản trị (soạn bài là việc của Giảng viên nên không nằm ở đây): không có khóa học, trắc nghiệm, playground hay cuộc thi của học viên/giảng viên. */
 const ADMIN_NAV: NavEntry[] = [
-  { to: '/admin/dashboard', label: 'Tổng quan hệ thống', Icon: LayoutDashboard },
-  { to: '/admin/users', label: 'Quản lý người dùng', Icon: Users },
-  { to: '/admin/classes', label: 'Quản lý lớp học', Icon: School },
-  { to: '/admin/exercises', label: 'Soạn bài theo nhóm tuổi', Icon: Layers },
+  { to: '/admin/dashboard', label: 'Tổng quan', Icon: LayoutDashboard },
+  { to: '/admin/users', label: 'Người dùng', Icon: Users },
+  { to: '/admin/classes', label: 'Lớp học', Icon: School },
+  { to: '/admin/settings', label: 'Cấu hình', Icon: Settings },
+  { to: '/admin/health', label: 'Trạng thái API', Icon: Activity },
+  { to: '/admin/audit', label: 'Nhật ký', Icon: ClipboardList },
 ];
 
 export interface AdminOutletContext {

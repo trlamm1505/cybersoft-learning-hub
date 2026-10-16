@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Zap, Loader2 } from 'lucide-react';
 import authApi from '../axios/authApi';
 import type { AuthResponse } from '../types/auth';
@@ -13,6 +13,9 @@ interface LoginPageProps {
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
   const navigate = useNavigate();
+  // /login?locked=1: Admin vừa khóa tài khoản đang đăng nhập (BE trả 401 ACCOUNT_LOCKED).
+  const [params] = useSearchParams();
+  const lockedNotice = params.get('locked') === '1' ? 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.' : null;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [touched, setTouched] = useState({ email: false, password: false });
@@ -52,6 +55,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
           <h1 className="text-xl font-black text-[var(--text-main)]">Đăng nhập</h1>
           <p className="text-xs text-[var(--text-muted)]">Chào mừng bạn quay lại CyberSoft Hub.</p>
         </div>
+
+        {lockedNotice && !errorMsg && (
+          <div role="alert" className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs font-semibold text-amber-800 dark:text-amber-300">
+            {lockedNotice}
+          </div>
+        )}
 
         {errorMsg && (
           <div role="alert" className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs font-semibold text-rose-700 dark:text-rose-300">

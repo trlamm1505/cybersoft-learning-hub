@@ -4,6 +4,9 @@ import { clearAuthSession } from './authSession';
 // Get Base URL from Vite environment variable or fallback to NestJS Backend API endpoint
 const BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api';
 
+/** BE trả 401 kèm `code: 'ACCOUNT_LOCKED'` khi Admin khóa tài khoản đang đăng nhập. */
+export const isAccountLocked = (data: unknown): boolean => (data as { code?: string } | undefined)?.code === 'ACCOUNT_LOCKED';
+
 /**
  * Pre-configured Axios Instance for CyberSoft Learning & Contest Hub
  */
@@ -53,9 +56,11 @@ axiosClient.interceptors.response.use(
           const url: string = error.config?.url ?? '';
           const isAuthForm = /\/auth\/(login|register|forgot-password|reset-password)/.test(url);
           if (!isAuthForm) {
+            // Admin khóa tài khoản giữa chừng: đăng xuất ngay và báo đúng lý do thay vì "hết phiên".
+            const locked = isAccountLocked(data);
             clearAuthSession();
             if (window.location.pathname !== '/login') {
-              window.location.assign('/login?expired=1');
+              window.location.assign(locked ? '/login?locked=1' : '/login?expired=1');
             }
           }
           break;

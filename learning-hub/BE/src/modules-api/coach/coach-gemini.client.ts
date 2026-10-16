@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
-import { GoogleGenAI } from '@google/genai';
+import { GeminiClientCache } from '../../common/gemini-client-cache';
+import type { GeminiKeySource } from '../../common/gemini-client-cache';
 import { CoachContext } from './coach-context.types';
 import { estimateTokens, StubLlmClient } from './coach-llm.client';
 import type { LlmChatResult, LlmClient } from './coach-llm.client';
@@ -42,15 +43,15 @@ export function buildGeminiUserContent(
  */
 export class GeminiCoachLlmClient implements LlmClient {
   private readonly logger = new Logger(GeminiCoachLlmClient.name);
-  private readonly client: GoogleGenAI;
+  private readonly gemini: GeminiClientCache;
   // Cùng model nhẹ đang dùng ở Problem Generator (Day 19).
   private readonly model = 'gemini-flash-lite-latest';
 
   constructor(
-    apiKey: string,
+    apiKey: GeminiKeySource,
     private readonly fallback: LlmClient = new StubLlmClient(),
   ) {
-    this.client = new GoogleGenAI({ apiKey });
+    this.gemini = new GeminiClientCache(apiKey);
   }
 
   async chat(
@@ -60,7 +61,7 @@ export class GeminiCoachLlmClient implements LlmClient {
   ): Promise<LlmChatResult> {
     const contents = buildGeminiUserContent(context, userMessage);
     try {
-      const result = await this.client.models.generateContent({
+      const result = await this.gemini.get().models.generateContent({
         model: this.model,
         contents,
         config: {

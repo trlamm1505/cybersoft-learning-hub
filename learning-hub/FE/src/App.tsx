@@ -38,6 +38,9 @@ import { TeacherDashboardPage } from './pages/TeacherDashboardPage';
 import { AdminClassesPage } from './pages/AdminClassesPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
+import { AdminSettingsPage } from './pages/AdminSettingsPage';
+import { AdminHealthPage } from './pages/AdminHealthPage';
+import { AdminAuditPage } from './pages/AdminAuditPage';
 import { AdminLayout } from './components/AdminLayout';
 import { portalHome } from './pages/adminDashboardModel';
 import { ContestListPage } from './pages/ContestListPage';
@@ -272,7 +275,9 @@ export function App() {
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/classes" element={<AdminClassesPage />} />
-          <Route path="/admin/exercises" element={<TeacherExerciseFormPage isAdmin />} />
+          <Route path="/admin/settings" element={<AdminSettingsPage />} />
+          <Route path="/admin/health" element={<AdminHealthPage />} />
+          <Route path="/admin/audit" element={<AdminAuditPage />} />
           <Route
             path="/admin/profile"
             element={<ProfilePage authUser={authUser} onAvatarChange={handleAvatarChanged} onProfileChange={handleProfileUpdated} />}

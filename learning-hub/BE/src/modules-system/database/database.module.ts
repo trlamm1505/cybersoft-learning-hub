@@ -27,6 +27,7 @@ import {
 import { Counter, CounterSchema } from './schemas/counter.schema';
 import { ProctorAlert, ProctorAlertSchema } from './schemas/proctor-alert.schema';
 import { CourseCertificate, CourseCertificateSchema } from './schemas/course-certificate.schema';
+import { AuditLog, AuditLogSchema, SystemConfig, SystemConfigSchema } from './schemas/admin-portal.schemas';
 import {
   PasswordReset,
   PasswordResetSchema,
@@ -81,6 +82,8 @@ import {
       { name: Counter.name, schema: CounterSchema },
       { name: ProctorAlert.name, schema: ProctorAlertSchema },
       { name: CourseCertificate.name, schema: CourseCertificateSchema },
+      { name: SystemConfig.name, schema: SystemConfigSchema },
+      { name: AuditLog.name, schema: AuditLogSchema },
       { name: PasswordReset.name, schema: PasswordResetSchema },
       { name: BlockPuzzleProgress.name, schema: BlockPuzzleProgressSchema },
       { name: TesterLab.name, schema: TesterLabSchema },

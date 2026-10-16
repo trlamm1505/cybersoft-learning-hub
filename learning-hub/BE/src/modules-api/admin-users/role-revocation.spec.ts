@@ -222,7 +222,8 @@ describe('Thu hồi quyền giảng viên', () => {
 
   it('controller chuyển mode (mặc định STUDENT) vào service', async () => {
     const service: any = { revokeTeacher: jest.fn().mockResolvedValue({}) };
-    const c = new AdminUsersController(service);
+    const audit: any = { record: jest.fn(), userSnapshot: jest.fn().mockResolvedValue(null) };
+    const c = new AdminUsersController(service, audit);
     await c.revokeTeacher(ADMIN, T_ID, { mode: 'LOCK' });
     await c.revokeTeacher(ADMIN, T_ID, undefined as any);
     expect(service.revokeTeacher).toHaveBeenNthCalledWith(

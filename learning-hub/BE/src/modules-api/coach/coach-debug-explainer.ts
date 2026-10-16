@@ -1,5 +1,7 @@
 import { Logger } from '@nestjs/common';
-import { GoogleGenAI } from '@google/genai';
+import { GeminiClientCache } from '../../common/gemini-client-cache';
+import type { GeminiKeySource } from '../../common/gemini-client-cache';
+import type { PromptProvider } from '../../common/prompt-provider';
 import type { DebugLoopTestInput } from './coach-debug-loop.types';
 
 export const COACH_DEBUG_EXPLAINER = 'COACH_DEBUG_EXPLAINER';
@@ -58,20 +60,24 @@ export interface DebugExplainer {
 
 export class GeminiDebugExplainer implements DebugExplainer {
   private readonly logger = new Logger(GeminiDebugExplainer.name);
-  private readonly client: GoogleGenAI;
+  private readonly gemini: GeminiClientCache;
   private readonly model = 'gemini-flash-lite-latest';
 
-  constructor(apiKey: string) {
-    this.client = new GoogleGenAI({ apiKey });
+  constructor(
+    apiKey: GeminiKeySource,
+    private readonly prompts?: PromptProvider,
+  ) {
+    this.gemini = new GeminiClientCache(apiKey);
   }
 
   async explain(prompt: string): Promise<string> {
     try {
-      const res = await this.client.models.generateContent({
+      const systemInstruction = this.prompts ? await this.prompts.get('debug', DEBUG_SYSTEM_INSTRUCTION) : DEBUG_SYSTEM_INSTRUCTION;
+      const res = await this.gemini.get().models.generateContent({
         model: this.model,
         contents: prompt,
         config: {
-          systemInstruction: DEBUG_SYSTEM_INSTRUCTION,
+          systemInstruction,
           temperature: 0.2,
           maxOutputTokens: 150,
         },

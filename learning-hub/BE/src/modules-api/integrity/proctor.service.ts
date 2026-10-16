@@ -178,6 +178,7 @@ export class ProctorService {
             classId: String(cls._id),
             className: cls.name,
             teacherId: cls.teacherId,
+            teacherIds: cls.teacherIds?.length ? cls.teacherIds : [cls.teacherId],
             lastLeaveAt: now,
           },
         },
@@ -212,7 +213,7 @@ export class ProctorService {
       severity: { $in: ['WARNING', 'LOCKED'] },
     };
     if (user.role !== 'ADMIN') {
-      filter.$or = [{ kind: 'CONTEST' }, { teacherId: user.sub }];
+      filter.$or = [{ kind: 'CONTEST' }, { teacherId: user.sub }, { teacherIds: user.sub }];
     }
     const docs = await this.alerts.find(filter).sort({ updatedAt: -1 }).limit(limit).lean();
     return docs.map((d: any) => ({
@@ -234,7 +235,7 @@ export class ProctorService {
   async acknowledge(id: string, user: JwtPayload) {
     if (!isValidObjectId(id)) throw new NotFoundException('Không tìm thấy cảnh báo.');
     const filter: Record<string, unknown> = { _id: id };
-    if (user.role !== 'ADMIN') filter.$or = [{ kind: 'CONTEST' }, { teacherId: user.sub }];
+    if (user.role !== 'ADMIN') filter.$or = [{ kind: 'CONTEST' }, { teacherId: user.sub }, { teacherIds: user.sub }];
     const res = await this.alerts.updateOne(filter, {
       $set: { status: 'ACKNOWLEDGED', acknowledgedBy: user.sub, acknowledgedAt: new Date() },
     });

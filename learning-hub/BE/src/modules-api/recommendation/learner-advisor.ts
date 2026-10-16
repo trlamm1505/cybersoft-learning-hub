@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
-import { GoogleGenAI } from '@google/genai';
+import { GeminiClientCache } from '../../common/gemini-client-cache';
+import type { GeminiKeySource } from '../../common/gemini-client-cache';
 import { ADVISOR_SYSTEM_INSTRUCTION } from './learner-advice';
 
 export const LEARNER_ADVISOR = 'LEARNER_ADVISOR';
@@ -12,16 +13,16 @@ export interface LearnerAdvisor {
 /** Gọi Gemini thật để cố vấn bài tập kế tiếp từ lịch sử làm bài. */
 export class GeminiLearnerAdvisor implements LearnerAdvisor {
   private readonly logger = new Logger(GeminiLearnerAdvisor.name);
-  private readonly client: GoogleGenAI;
+  private readonly gemini: GeminiClientCache;
   private readonly model = 'gemini-flash-lite-latest';
 
-  constructor(apiKey: string) {
-    this.client = new GoogleGenAI({ apiKey });
+  constructor(apiKey: GeminiKeySource) {
+    this.gemini = new GeminiClientCache(apiKey);
   }
 
   async advise(prompt: string): Promise<string | null> {
     try {
-      const res = await this.client.models.generateContent({
+      const res = await this.gemini.get().models.generateContent({
         model: this.model,
         contents: prompt,
         config: {

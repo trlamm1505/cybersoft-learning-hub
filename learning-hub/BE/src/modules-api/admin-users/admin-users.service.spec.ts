@@ -680,8 +680,9 @@ describe('AdminUsersController: RBAC', () => {
       setStatus: jest.fn().mockResolvedValue({}),
       getProfile: jest.fn().mockResolvedValue({}),
     };
-    const c = new AdminUsersController(service);
-    await c.list(ADMIN, 'STUDENT', 'LOCKED', 'an', '2', '10');
+    const audit: any = { record: jest.fn(), userSnapshot: jest.fn().mockResolvedValue(null) };
+    const c = new AdminUsersController(service, audit);
+    await c.list(ADMIN, 'STUDENT', 'LOCKED', undefined, 'an', '2', '10');
     await c.create(ADMIN, { fullName: 'A' });
     await c.setRole(ADMIN, S1, { role: 'TEACHER' });
     await c.setStatus(ADMIN, S1, { status: 'LOCKED' });
@@ -689,6 +690,7 @@ describe('AdminUsersController: RBAC', () => {
     expect(service.list).toHaveBeenCalledWith(ADMIN, {
       role: 'STUDENT',
       status: 'LOCKED',
+      ageGroup: undefined,
       q: 'an',
       page: '2',
       pageSize: '10',

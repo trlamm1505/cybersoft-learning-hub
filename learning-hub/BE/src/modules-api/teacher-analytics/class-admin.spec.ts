@@ -195,6 +195,15 @@ describe('Admin: tạo lớp và gán giảng viên', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('nhiều giảng viên (teacherIds): lưu thông tin lớp với teacherId không đổi KHÔNG làm mất giảng viên phụ trách thêm; chuyển giao thì thay hẳn', async () => {
+    const { service, models } = build();
+    (models.classes as any).rows.find((c: any) => c._id === C1).teacherIds = [TEACHER1, TEACHER2];
+    await service.updateClass(ADMIN, C1, { name: 'Đổi tên', teacherId: TEACHER1 });
+    await expect(service.getOverview(T2, C1)).resolves.toBeDefined();
+    await service.updateClass(ADMIN, C1, { teacherId: TEACHER2 });
+    await expect(service.getOverview(T1, C1)).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
   it('Admin sửa tên/mô tả; chỉ gửi trường nào thì đổi trường đó', async () => {
     const { service, models } = build();
     await service.updateClass(ADMIN, C1, { name: 'Tên mới' });

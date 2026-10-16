@@ -1,220 +1,55 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Link, useOutletContext } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
-import adminUsersApi from '../axios/adminUsersApi';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Lock, Pencil, Plus, Search, Unlock, X } from 'lucide-react';
+import adminPortalApi from '../axios/adminPortalApi';
 import type { AdminOutletContext } from '../components/AdminLayout';
-import { control, hairline, selectControl } from '../components/adminStyles';
 import { StudentProfileDrawer } from '../components/StudentProfileDrawer';
-import type { AdminUserList, AdminUserRow, UserRole } from '../types/teacherAnalytics';
+import { btnDanger, btnGhost, btnPrimary, btnSecondary, card, ConfirmModal, ErrorBanner, errorMessage, PageHeader, Pill, selectCls, inputCls, SkeletonRows } from '../components/admin/AdminUi';
+import { RevokeTeacherModal } from '../components/admin/RevokeTeacherModal';
+import { CreateUserModal, EditUserModal } from '../components/admin/UserFormModal';
+import { useToast } from '../components/Toast';
+import type { AgeGroupKey, PortalUserRow } from '../types/adminPortal';
+import type { UserRole, UserStatus } from '../types/teacherAnalytics';
+import { pageInfo, ROLE_VI } from './adminModel';
 import {
-  ASSIGNABLE_ROLES,
-  formatDateTime,
-  pageInfo,
-  ROLE_FILTERS,
-  ROLE_VI,
-  STATUS_VI,
-  validateNewUser,
-  type RevokeMode,
-  type RoleFilter,
-} from './adminModel';
-
-const head = 'px-3 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)] whitespace-nowrap';
-const cell = 'px-3 py-2 text-sm text-[var(--text-main)] align-middle';
-const link = 'cursor-pointer text-xs text-[var(--text-muted)] underline hover:text-[var(--text-main)] disabled:cursor-default disabled:no-underline disabled:opacity-50';
-const linkMain = 'cursor-pointer text-sm text-indigo-600 underline disabled:cursor-default disabled:no-underline disabled:opacity-50 dark:text-indigo-400';
-
-const errorMessage = (err: unknown, fallback: string) =>
-  (err as { response?: { data?: { message?: string } } })?.response?.data?.message || fallback;
+  AGE_GROUP_LABEL,
+  AGE_GROUP_ORDER,
+  ageGroupLabel,
+  isLocked,
+  isSelectable,
+  QUERY_STALE_MS,
+  ROLE_TONE,
+  selectionLabel,
+  STATUS_PILL,
+  toggleId,
+  togglePage,
+} from './adminPortalModel';
+import { QK } from './adminPortalQueries';
 
 const PAGE_SIZE = 20;
+const th = 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)] whitespace-nowrap';
+const td = 'px-4 py-3 text-sm text-[var(--text-main)] align-middle';
 
-/** Hộp nhỏ tạo tài khoản: trường rõ ràng, một hành động chính, đóng bằng Esc hoặc bấm nền. */
-const CreateUserModal: React.FC<{ onClose: () => void; onCreated: () => void }> = ({ onClose, onCreated }) => {
-  const [form, setForm] = useState({ fullName: '', email: '', password: '', role: 'STUDENT' as UserRole });
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type ConfirmState = { kind: 'toggle'; user: PortalUserRow } | { kind: 'bulk'; isActive: boolean } | null;
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const problem = validateNewUser(form);
-    if (problem) return setError(problem);
-    setBusy(true);
-    setError(null);
-    try {
-      await adminUsersApi.create({ ...form, fullName: form.fullName.trim(), email: form.email.trim() });
-      onCreated();
-    } catch (err) {
-      setError(errorMessage(err, 'Không tạo được tài khoản.'));
-      setBusy(false);
-    }
-  };
-
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-24" role="dialog" aria-modal="true" aria-label="Tạo tài khoản">
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <form onSubmit={submit} className={`relative w-full max-w-sm space-y-3 rounded-md border bg-white p-5 shadow-lg dark:bg-neutral-950 ${hairline}`}>
-        <h2 className="text-sm font-semibold text-[var(--text-main)]">Tạo tài khoản</h2>
-        <label className="block">
-          <span className="mb-1 block text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Họ tên</span>
-          <input autoFocus value={form.fullName} maxLength={100} onChange={set('fullName')} className={`${control} w-full`} />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Email</span>
-          <input type="email" value={form.email} onChange={set('email')} className={`${control} w-full`} />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Mật khẩu ban đầu</span>
-          <input type="password" autoComplete="new-password" value={form.password} onChange={set('password')} className={`${control} w-full`} />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Vai trò</span>
-          <select value={form.role} onChange={set('role')} className={`${selectControl} w-full`}>
-            {ASSIGNABLE_ROLES.map((r) => (
-              <option key={r} value={r}>
-                {ROLE_VI[r]}
-              </option>
-            ))}
-          </select>
-        </label>
-        {error && (
-          <p role="alert" className="text-xs text-rose-500">
-            {error}
-          </p>
-        )}
-        <div className="flex items-center gap-4 pt-1">
-          <button type="submit" disabled={busy} className={linkMain}>
-            {busy ? 'Đang tạo...' : 'Tạo tài khoản'}
-          </button>
-          <button type="button" onClick={onClose} className={link}>
-            Hủy
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-interface RevokeConflict {
-  message: string;
-  classes: Array<{ id: string; name: string }>;
-}
-
-/** Thu hồi quyền giảng viên: chọn hạ về học viên hoặc khóa hẳn; còn phụ trách lớp thì báo phải chuyển giao trước. */
-const RevokeTeacherModal: React.FC<{ user: AdminUserRow; onClose: () => void; onDone: (msg: string) => void }> = ({
-  user,
-  onClose,
-  onDone,
-}) => {
-  const [mode, setMode] = useState<RevokeMode>('STUDENT');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [conflict, setConflict] = useState<RevokeConflict | null>(null);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  const submit = async () => {
-    setBusy(true);
-    setError(null);
-    setConflict(null);
-    try {
-      await adminUsersApi.revokeTeacher(user.id, mode);
-      onDone(mode === 'LOCK' ? 'Đã khóa tài khoản và hủy phiên đăng nhập.' : 'Đã thu hồi quyền giảng viên và hủy phiên đăng nhập.');
-    } catch (err) {
-      const data = (err as { response?: { status?: number; data?: Partial<RevokeConflict> } })?.response;
-      if (data?.status === 409 && data.data?.classes?.length) {
-        setConflict({ message: data.data.message ?? '', classes: data.data.classes });
-      } else {
-        setError(errorMessage(err, 'Không thu hồi được quyền.'));
-      }
-      setBusy(false);
-    }
-  };
-
-  const options: Array<{ key: RevokeMode; title: string; note: string }> = [
-    { key: 'STUDENT', title: 'Hạ về học viên', note: 'Giữ tài khoản, mất quyền giảng viên, phải đăng nhập lại.' },
-    { key: 'LOCK', title: 'Khóa tài khoản', note: 'Không đăng nhập hay truy cập được cho tới khi mở khóa.' },
-  ];
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-24" role="dialog" aria-modal="true" aria-label="Thu hồi quyền giảng viên">
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className={`relative w-full max-w-sm space-y-3 rounded-md border bg-white p-5 shadow-lg dark:bg-neutral-950 ${hairline}`}>
-        <h2 className="text-sm font-semibold text-[var(--text-main)]">Thu hồi quyền giảng viên</h2>
-        <p className="text-xs text-[var(--text-muted)]">
-          {user.fullName || user.email} ({user.email}). Mọi phiên đăng nhập hiện có của tài khoản này bị hủy ngay.
-        </p>
-        <fieldset className="space-y-1.5">
-          <legend className="sr-only">Cách thu hồi</legend>
-          {options.map((o) => (
-            <label key={o.key} className={`flex cursor-pointer items-start gap-2 rounded-md border px-3 py-2 ${hairline} ${mode === o.key ? 'bg-neutral-100 dark:bg-neutral-800' : ''}`}>
-              <input type="radio" name="revoke-mode" checked={mode === o.key} onChange={() => setMode(o.key)} className="mt-0.5" />
-              <span>
-                <span className="block text-sm text-[var(--text-main)]">{o.title}</span>
-                <span className="block text-xs text-[var(--text-muted)]">{o.note}</span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-        {conflict && (
-          <div role="alert" className="space-y-1 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-300">
-            <p>{conflict.message}</p>
-            <ul className="list-disc pl-4">
-              {conflict.classes.map((c) => (
-                <li key={c.id}>{c.name}</li>
-              ))}
-            </ul>
-            <Link to="/admin/classes" className="underline">
-              Đi tới Quản lý lớp học để chuyển giao
-            </Link>
-          </div>
-        )}
-        {error && (
-          <p role="alert" className="text-xs text-rose-500">
-            {error}
-          </p>
-        )}
-        <div className="flex items-center gap-4 pt-1">
-          <button onClick={() => void submit()} disabled={busy} className="cursor-pointer text-sm text-rose-600 underline disabled:no-underline disabled:opacity-50 dark:text-rose-400">
-            {busy ? 'Đang xử lý...' : 'Thu hồi quyền'}
-          </button>
-          <button onClick={onClose} className={link}>
-            Hủy
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/** Quản lý người dùng (Admin): bảng hairline, lọc theo vai trò, tìm kiếm, tạo tài khoản, đổi vai trò, khóa/mở khóa, mở hồ sơ. */
+/** Quản lý người dùng (/admin/users): tìm kiếm, bộ lọc, chọn nhiều để khóa/mở khóa hàng loạt, thêm/sửa, khóa nhanh có xác nhận. */
 export const AdminUsersPage: React.FC = () => {
   const { authUser } = useOutletContext<AdminOutletContext>();
-  const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
+  const qc = useQueryClient();
+  const { showToast } = useToast();
   const [search, setSearch] = useState('');
   const [debounced, setDebounced] = useState('');
+  const [role, setRole] = useState<'' | UserRole>('');
+  const [ageGroup, setAgeGroup] = useState<'' | AgeGroupKey>('');
+  const [status, setStatus] = useState<'' | UserStatus>('');
   const [page, setPage] = useState(1);
-  const [data, setData] = useState<AdminUserList | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [creating, setCreating] = useState(false);
-  const [revoking, setRevoking] = useState<AdminUserRow | null>(null);
+  const [editing, setEditing] = useState<PortalUserRow | null>(null);
+  const [revoking, setRevoking] = useState<PortalUserRow | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmState>(null);
   const [openId, setOpenId] = useState<string | null>(null);
-  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -224,162 +59,189 @@ export const AdminUsersPage: React.FC = () => {
     return () => clearTimeout(t);
   }, [search]);
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    adminUsersApi
-      .list({ role: roleFilter === 'ALL' ? undefined : roleFilter, q: debounced || undefined, page, pageSize: PAGE_SIZE })
-      .then((d) => {
-        if (cancelled) return;
-        setData(d);
-        setError(null);
-      })
-      .catch((err) => !cancelled && setError(errorMessage(err, 'Không tải được danh sách.')))
-      .finally(() => !cancelled && setLoading(false));
-    return () => {
-      cancelled = true;
-    };
-  }, [roleFilter, debounced, page, reloadKey]);
+  const query = useQuery({
+    queryKey: [...QK.users, { role, ageGroup, status, q: debounced, page }],
+    queryFn: () =>
+      adminPortalApi.users({
+        role: role || undefined,
+        ageGroup: ageGroup || undefined,
+        status: status || undefined,
+        q: debounced || undefined,
+        page,
+        pageSize: PAGE_SIZE,
+      }),
+    placeholderData: keepPreviousData,
+    staleTime: QUERY_STALE_MS,
+  });
 
-  const act = useCallback(async (id: string, action: () => Promise<unknown>, done: string) => {
-    setBusyId(id);
-    setNotice(null);
-    setError(null);
-    try {
-      await action();
-      setNotice(done);
-      setReloadKey((k) => k + 1);
-    } catch (err) {
-      setError(errorMessage(err, 'Thao tác thất bại.'));
-    } finally {
-      setBusyId(null);
-    }
-  }, []);
+  const refreshAll = () => {
+    void qc.invalidateQueries({ queryKey: QK.users });
+    void qc.invalidateQueries({ queryKey: QK.summary });
+    void qc.invalidateQueries({ queryKey: QK.audit });
+  };
 
+  const toggle = useMutation({
+    mutationFn: (u: PortalUserRow) => adminPortalApi.setStatus(u.id, isLocked(u) ? 'ACTIVE' : 'LOCKED'),
+    onSuccess: (_r, u) => {
+      showToast(isLocked(u) ? 'Đã mở khóa tài khoản.' : 'Đã khóa tài khoản. Người dùng bị đăng xuất ngay ở yêu cầu kế tiếp.', 'success');
+      setConfirm(null);
+      refreshAll();
+    },
+    onError: (err) => {
+      showToast(errorMessage(err, 'Thao tác thất bại.'), 'error');
+      setConfirm(null);
+    },
+  });
+
+  const bulk = useMutation({
+    mutationFn: (isActive: boolean) => adminPortalApi.bulkStatus([...selected], isActive),
+    onSuccess: (res, isActive) => {
+      const skipped = res.skipped.length ? ` (bỏ qua ${res.skipped.length})` : '';
+      showToast(`${isActive ? 'Đã mở khóa' : 'Đã khóa'} ${res.updated} tài khoản${skipped}.`, res.updated > 0 ? 'success' : 'warning');
+      setConfirm(null);
+      setSelected(new Set());
+      refreshAll();
+    },
+    onError: (err) => {
+      showToast(errorMessage(err, 'Thao tác hàng loạt thất bại.'), 'error');
+      setConfirm(null);
+    },
+  });
+
+  const data = query.data;
+  const items = useMemo(() => data?.items ?? [], [data]);
+  const selectableIds = useMemo(() => items.filter((u) => isSelectable(u, authUser.id)).map((u) => u.id), [items, authUser.id]);
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
   const info = data ? pageInfo(data.page, data.pageSize, data.total) : null;
+  const filtered = !!(debounced || role || ageGroup || status);
+
+  const resetPage = <T,>(set: (v: T) => void) => (v: T) => {
+    set(v);
+    setPage(1);
+    setSelected(new Set());
+  };
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-[var(--text-main)]">Quản lý người dùng</h1>
-        <button onClick={() => setCreating(true)} className={linkMain}>
-          Tạo tài khoản
-        </button>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-5 pb-24">
+      <PageHeader
+        title="Quản lý người dùng"
+        subtitle="Khóa hoặc mở khóa có hiệu lực ngay ở yêu cầu kế tiếp của người dùng. Không có thao tác xóa vĩnh viễn."
+        actions={
+          <button onClick={() => setCreating(true)} className={btnPrimary}>
+            <Plus size={16} /> Thêm người dùng mới
+          </button>
+        }
+      />
 
-      <div className={`flex flex-wrap items-center gap-x-5 gap-y-2 border-b pb-2 ${hairline}`}>
-        <div className="flex gap-4" role="tablist" aria-label="Lọc theo vai trò">
-          {ROLE_FILTERS.map((f) => (
-            <button
-              key={f.key}
-              role="tab"
-              aria-selected={roleFilter === f.key}
-              onClick={() => {
-                setRoleFilter(f.key);
-                setPage(1);
-              }}
-              className={`cursor-pointer border-b-2 px-0.5 pb-1 text-sm ${
-                roleFilter === f.key ? 'border-indigo-600 font-medium text-[var(--text-main)]' : 'border-transparent text-[var(--text-muted)]'
-              }`}
-            >
-              {f.label}
-            </button>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+        <div className="relative">
+          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+          <input
+            aria-label="Tìm theo tên hoặc email"
+            placeholder="Tìm theo tên hoặc email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={`${inputCls} pl-9`}
+          />
+        </div>
+        <select aria-label="Lọc theo vai trò" value={role} onChange={(e) => resetPage(setRole)(e.target.value as '' | UserRole)} className={`${selectCls} lg:w-44`}>
+          <option value="">Tất cả vai trò</option>
+          {(['STUDENT', 'TEACHER', 'ADMIN'] as const).map((r) => (
+            <option key={r} value={r}>
+              {ROLE_VI[r]}
+            </option>
           ))}
-        </div>
-        <input
-          aria-label="Tìm theo tên, email hoặc mã số"
-          placeholder="Tìm theo tên, email hoặc mã số"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={`${control} w-full max-w-xs`}
-        />
-        {(notice || error) && (
-          <span role="status" className={`text-xs ${error ? 'text-rose-500' : 'text-[var(--text-muted)]'}`}>
-            {error ?? notice}
-          </span>
-        )}
+        </select>
+        <select aria-label="Lọc theo khối học" value={ageGroup} onChange={(e) => resetPage(setAgeGroup)(e.target.value as '' | AgeGroupKey)} className={`${selectCls} lg:w-48`}>
+          <option value="">Tất cả khối học</option>
+          {AGE_GROUP_ORDER.map((g) => (
+            <option key={g} value={g}>
+              {AGE_GROUP_LABEL[g]}
+            </option>
+          ))}
+        </select>
+        <select aria-label="Lọc theo trạng thái" value={status} onChange={(e) => resetPage(setStatus)(e.target.value as '' | UserStatus)} className={`${selectCls} lg:w-44`}>
+          <option value="">Mọi trạng thái</option>
+          <option value="ACTIVE">Hoạt động</option>
+          <option value="LOCKED">Đã khóa</option>
+        </select>
       </div>
 
-      {loading && !data ? (
-        <div className="flex items-center py-8 text-sm text-[var(--text-muted)]">
-          <Loader2 className="mr-2 animate-spin" size={16} /> Đang tải...
-        </div>
-      ) : data && data.items.length === 0 ? (
-        <p className="py-8 text-sm text-[var(--text-muted)]">{debounced || roleFilter !== 'ALL' ? 'Không có người dùng phù hợp.' : 'Chưa có người dùng nào.'}</p>
-      ) : data ? (
-        <div className={loading ? 'opacity-60' : ''}>
-          <div className="overflow-x-auto">
+      <ErrorBanner message={query.isError ? errorMessage(query.error, 'Không tải được danh sách người dùng.') : null} onRetry={() => void query.refetch()} />
+
+      <div className={`${card} overflow-hidden`}>
+        {query.isPending ? (
+          <SkeletonRows rows={8} cols={6} />
+        ) : items.length === 0 ? (
+          <p className="px-6 py-14 text-center text-sm text-[var(--text-muted)]">{filtered ? 'Không có người dùng nào phù hợp bộ lọc.' : 'Chưa có người dùng nào.'}</p>
+        ) : (
+          <div className={`overflow-x-auto ${query.isPlaceholderData ? 'opacity-60 transition-opacity' : ''}`}>
             <table className="min-w-full">
-              <thead>
+              <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950/50">
                 <tr>
-                  {['Họ tên', 'Mã số', 'Email', 'Vai trò', 'Trạng thái', 'Ngày tạo', ''].map((h) => (
-                    <th key={h} className={head}>
+                  <th className="w-10 px-4 py-3">
+                    <input
+                      type="checkbox"
+                      aria-label="Chọn tất cả trên trang"
+                      checked={allSelected}
+                      disabled={selectableIds.length === 0}
+                      onChange={() => setSelected(togglePage(selected, selectableIds))}
+                      className="h-4 w-4 cursor-pointer accent-indigo-600"
+                    />
+                  </th>
+                  {['Họ tên', 'Email', 'Vai trò', 'Khối học', 'Trạng thái', ''].map((h) => (
+                    <th key={h || 'actions'} className={th}>
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody>
-                {data.items.map((u: AdminUserRow) => {
+              <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                {items.map((u) => {
                   const self = u.id === authUser.id;
-                  const busy = busyId === u.id;
+                  const canSelect = isSelectable(u, authUser.id);
+                  const pill = STATUS_PILL[u.status] ?? STATUS_PILL.ACTIVE;
                   return (
-                    <tr
-                      key={u.id}
-                      onClick={() => setOpenId(u.id)}
-                      className={`cursor-pointer border-t hover:bg-neutral-50 dark:hover:bg-neutral-900 ${hairline} ${u.status === 'LOCKED' ? 'opacity-70' : ''}`}
-                    >
-                      <td className={`${cell} font-medium`}>{u.fullName || '—'}</td>
-                      <td className={`${cell} tabular-nums text-[var(--text-muted)]`}>{u.studentCode ?? '—'}</td>
-                      <td className={`${cell} text-[var(--text-muted)]`}>{u.email}</td>
-                      <td className={cell} onClick={(e) => e.stopPropagation()}>
-                        {u.role === 'ADMIN' ? (
-                          // Quyền Admin không cấp và không đổi được từ giao diện (chống leo thang đặc quyền).
-                          <span className="text-xs text-[var(--text-muted)]">{ROLE_VI.ADMIN}</span>
-                        ) : u.role === 'TEACHER' ? (
-                          <span className="flex items-center gap-3">
-                            <span className="text-xs text-[var(--text-main)]">{ROLE_VI.TEACHER}</span>
-                            <button className={link} disabled={busy} onClick={() => setRevoking(u)}>
-                              Thu hồi quyền
-                            </button>
-                          </span>
-                        ) : (
-                          <select
-                            aria-label={`Vai trò của ${u.fullName || u.email}`}
-                            value={u.role}
-                            disabled={busy}
-                            onChange={(e) => void act(u.id, () => adminUsersApi.setRole(u.id, e.target.value as UserRole), 'Đã đổi vai trò.')}
-                            className={`${selectControl} py-0.5 text-xs`}
-                          >
-                            {ASSIGNABLE_ROLES.map((r) => (
-                              <option key={r} value={r}>
-                                {ROLE_VI[r]}
-                              </option>
-                            ))}
-                          </select>
-                        )}
+                    <tr key={u.id} className={`hover:bg-neutral-50 dark:hover:bg-neutral-800/40 ${selected.has(u.id) ? 'bg-indigo-50/60 dark:bg-indigo-500/10' : ''}`}>
+                      <td className="px-4 py-3">
+                        <input
+                          type="checkbox"
+                          aria-label={`Chọn ${u.fullName || u.email}`}
+                          checked={selected.has(u.id)}
+                          disabled={!canSelect}
+                          title={!canSelect ? (self ? 'Không thể chọn chính mình' : 'Không khóa hàng loạt tài khoản Admin') : undefined}
+                          onChange={() => setSelected(toggleId(selected, u.id))}
+                          className="h-4 w-4 cursor-pointer accent-indigo-600 disabled:cursor-not-allowed"
+                        />
                       </td>
-                      <td className={cell}>
-                        <span className={u.status === 'LOCKED' ? 'text-rose-500' : 'text-[var(--text-muted)]'}>{STATUS_VI[u.status]}</span>
-                        {u.role === 'STUDENT' && u.classCount !== undefined && u.classCount !== null && (
-                          <span className="ml-2 text-xs text-[var(--text-muted)]">· {u.classCount === 0 ? 'Chưa vào lớp' : `${u.classCount} lớp`}</span>
-                        )}
+                      <td className={td}>
+                        <button onClick={() => setOpenId(u.id)} className="cursor-pointer text-left font-medium hover:text-indigo-700 hover:underline dark:hover:text-indigo-300">
+                          {u.fullName || '—'}
+                        </button>
+                        {u.studentCode && <div className="text-xs tabular-nums text-[var(--text-muted)]">{u.studentCode}</div>}
                       </td>
-                      <td className={`${cell} whitespace-nowrap text-[var(--text-muted)]`}>{formatDateTime(u.createdAt)}</td>
-                      <td className={`${cell} text-right`} onClick={(e) => e.stopPropagation()}>
+                      <td className={`${td} text-[var(--text-muted)]`}>{u.email}</td>
+                      <td className={td}>
+                        <Pill tone={ROLE_TONE[u.role] ?? 'slate'}>{ROLE_VI[u.role]}</Pill>
+                      </td>
+                      <td className={`${td} text-[var(--text-muted)]`}>{u.ageGroup ? ageGroupLabel(u.ageGroup) : '—'}</td>
+                      <td className={td}>
+                        <Pill tone={pill.tone}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${isLocked(u) ? 'bg-rose-500' : 'bg-emerald-500'}`} aria-hidden="true" />
+                          {pill.label}
+                        </Pill>
+                      </td>
+                      <td className={`${td} whitespace-nowrap text-right`}>
+                        <button onClick={() => setEditing(u)} className={btnGhost}>
+                          <Pencil size={13} /> Sửa
+                        </button>
                         <button
-                          className={link}
-                          disabled={self || busy}
-                          title={self ? 'Không thể tự khóa tài khoản của mình' : undefined}
-                          onClick={() =>
-                            void act(
-                              u.id,
-                              () => adminUsersApi.setStatus(u.id, u.status === 'LOCKED' ? 'ACTIVE' : 'LOCKED'),
-                              u.status === 'LOCKED' ? 'Đã mở khóa.' : 'Đã khóa tài khoản.',
-                            )
-                          }
+                          onClick={() => setConfirm({ kind: 'toggle', user: u })}
+                          disabled={self || u.role === 'ADMIN'}
+                          title={self ? 'Không thể tự khóa chính mình' : u.role === 'ADMIN' ? 'Không khóa tài khoản Admin' : undefined}
+                          className={`${btnGhost} ${isLocked(u) ? '' : '!text-rose-700 hover:!bg-rose-50 dark:!text-rose-300 dark:hover:!bg-rose-500/10'}`}
                         >
-                          {u.status === 'LOCKED' ? 'Mở khóa' : 'Khóa'}
+                          {isLocked(u) ? <Unlock size={13} /> : <Lock size={13} />} {isLocked(u) ? 'Mở khóa' : 'Khóa'}
                         </button>
                       </td>
                     </tr>
@@ -388,31 +250,65 @@ export const AdminUsersPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-          {info && (
-            <div className={`flex items-center justify-between border-t pt-2 text-xs text-[var(--text-muted)] ${hairline}`}>
-              <span>{info.label}</span>
-              <span className="flex gap-4">
-                <button className={link} disabled={!info.hasPrev} onClick={() => setPage((p) => p - 1)}>
-                  Trước
-                </button>
-                <button className={link} disabled={!info.hasNext} onClick={() => setPage((p) => p + 1)}>
-                  Sau
-                </button>
-              </span>
-            </div>
-          )}
+        )}
+        {info && items.length > 0 && (
+          <div className="flex items-center justify-between border-t border-neutral-200 px-4 py-3 text-sm text-[var(--text-muted)] dark:border-neutral-800">
+            <span>{info.label}</span>
+            <span className="flex gap-2">
+              <button className={btnSecondary} disabled={!info.hasPrev} onClick={() => setPage((p) => p - 1)}>
+                Trước
+              </button>
+              <button className={btnSecondary} disabled={!info.hasNext} onClick={() => setPage((p) => p + 1)}>
+                Sau
+              </button>
+            </span>
+          </div>
+        )}
+      </div>
+
+      {selected.size > 0 && (
+        <div
+          role="toolbar"
+          aria-label="Thao tác hàng loạt"
+          className="fixed bottom-6 left-1/2 z-40 flex w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-xl dark:border-neutral-700 dark:bg-neutral-900 md:left-[calc(50%+var(--sidebar-w,240px)/2)]"
+        >
+          <span className="text-sm font-medium text-[var(--text-main)]">{selectionLabel(selected.size)}</span>
+          <span className="flex flex-wrap items-center gap-2">
+            <button onClick={() => setConfirm({ kind: 'bulk', isActive: false })} className={btnDanger}>
+              <Lock size={14} /> Khóa tài khoản đã chọn
+            </button>
+            <button onClick={() => setConfirm({ kind: 'bulk', isActive: true })} className={btnSecondary}>
+              <Unlock size={14} /> Mở khóa đã chọn
+            </button>
+            <button onClick={() => setSelected(new Set())} aria-label="Bỏ chọn tất cả" className="cursor-pointer rounded-md p-1.5 text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-neutral-800">
+              <X size={16} />
+            </button>
+          </span>
         </div>
-      ) : (
-        error && <p className="text-sm text-rose-500">{error}</p>
       )}
 
       {creating && (
         <CreateUserModal
           onClose={() => setCreating(false)}
-          onCreated={() => {
+          onDone={(m) => {
             setCreating(false);
-            setNotice('Đã tạo tài khoản.');
-            setReloadKey((k) => k + 1);
+            showToast(m, 'success');
+            refreshAll();
+          }}
+        />
+      )}
+      {editing && (
+        <EditUserModal
+          user={editing}
+          onClose={() => setEditing(null)}
+          onDone={(m) => {
+            setEditing(null);
+            showToast(m, 'success');
+            refreshAll();
+          }}
+          onRevoke={(u) => {
+            setEditing(null);
+            setRevoking(u);
           }}
         />
       )}
@@ -420,11 +316,47 @@ export const AdminUsersPage: React.FC = () => {
         <RevokeTeacherModal
           user={revoking}
           onClose={() => setRevoking(null)}
-          onDone={(msg) => {
+          onDone={(m) => {
             setRevoking(null);
-            setNotice(msg);
-            setReloadKey((k) => k + 1);
+            showToast(m, 'success');
+            refreshAll();
           }}
+        />
+      )}
+      {confirm?.kind === 'toggle' && (
+        <ConfirmModal
+          title={isLocked(confirm.user) ? 'Mở khóa tài khoản?' : 'Khóa tài khoản?'}
+          danger={!isLocked(confirm.user)}
+          confirmLabel={isLocked(confirm.user) ? 'Mở khóa' : 'Khóa tài khoản'}
+          busy={toggle.isPending}
+          onClose={() => setConfirm(null)}
+          onConfirm={() => toggle.mutate(confirm.user)}
+          message={
+            isLocked(confirm.user) ? (
+              <>
+                <strong>{confirm.user.fullName || confirm.user.email}</strong> sẽ đăng nhập và sử dụng hệ thống trở lại.
+              </>
+            ) : (
+              <>
+                <strong>{confirm.user.fullName || confirm.user.email}</strong> sẽ bị đăng xuất ngay ở yêu cầu kế tiếp và không thể đăng nhập cho tới khi được mở khóa.
+              </>
+            )
+          }
+        />
+      )}
+      {confirm?.kind === 'bulk' && (
+        <ConfirmModal
+          title={confirm.isActive ? 'Mở khóa các tài khoản đã chọn?' : 'Khóa các tài khoản đã chọn?'}
+          danger={!confirm.isActive}
+          confirmLabel={confirm.isActive ? `Mở khóa ${selected.size} tài khoản` : `Khóa ${selected.size} tài khoản`}
+          busy={bulk.isPending}
+          onClose={() => setConfirm(null)}
+          onConfirm={() => bulk.mutate(confirm.isActive)}
+          message={
+            confirm.isActive
+              ? `${selectionLabel(selected.size)} sẽ được phép đăng nhập trở lại.`
+              : `${selectionLabel(selected.size)} sẽ bị đăng xuất ngay và không thể đăng nhập cho tới khi được mở khóa. Tài khoản Admin và chính bạn được tự động bỏ qua.`
+          }
         />
       )}
       <StudentProfileDrawer userId={openId} onClose={() => setOpenId(null)} />

@@ -27,6 +27,17 @@ export class Classroom {
   @Prop({ required: true, type: String, index: true })
   teacherId: string;
 
+  /** Mọi giảng viên được gán phụ trách lớp (Admin Portal v2). teacherId là giảng viên chính (người đầu danh sách). */
+  @Prop({ type: [String], default: undefined, index: true })
+  teacherIds?: string[];
+
+  /**
+   * Khóa chuyên ngành của Người đi làm (tester-qa | data-sql | ai-prompt) mà lớp này đại diện. Có giá trị thì đây là "lớp khóa học":
+   * học viên ghi danh là mọi tài khoản CAREER_ADULT (không lưu trong studentIds), giảng viên phụ trách do Admin phân công.
+   */
+  @Prop({ type: String, enum: ['tester-qa', 'data-sql', 'ai-prompt'], index: true, sparse: true })
+  courseKey?: string;
+
   @Prop({ type: [String], default: [] })
   studentIds: string[];
 

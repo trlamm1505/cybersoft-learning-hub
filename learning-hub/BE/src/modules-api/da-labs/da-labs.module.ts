@@ -16,6 +16,9 @@ import {
   SANDBOX_SQL_EXECUTOR,
 } from './sandbox-sql.executor';
 import { SqliteSandboxExecutor } from './sqlite-sandbox.executor';
+import { SystemConfigService } from '../admin-portal/system-config.service';
+import { PROMPT_PROVIDER } from '../../common/prompt-provider';
+import type { PromptProvider } from '../../common/prompt-provider';
 import {
   GeminiInsightLlmClient,
   INSIGHT_LLM_CLIENT,
@@ -40,14 +43,16 @@ import {
     },
     {
       provide: INSIGHT_LLM_CLIENT,
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        const apiKey = config.get<string>('GEMINI_API_KEY');
-        return apiKey
-          ? new GeminiInsightLlmClient(apiKey)
+      inject: [SystemConfigService, PROMPT_PROVIDER],
+      // Khóa Gemini lấy theo khóa hiện hành (Admin có thể đổi không cần khởi động lại); prompt giám khảo do Admin chỉnh.
+      useFactory: async (sys: SystemConfigService, prompts: PromptProvider) => {
+        await sys.ensureLoaded();
+        return sys.currentGeminiKey()
+          ? new GeminiInsightLlmClient(sys.currentGeminiKey, prompts)
           : new UnconfiguredInsightLlmClient();
       },
     },
   ],
+  exports: [SANDBOX_SQL_EXECUTOR],
 })
 export class DaLabsModule {}

@@ -58,7 +58,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Phiên đăng nhập không còn hợp lệ.');
     }
     if (user.status === 'LOCKED') {
-      throw new UnauthorizedException('Tài khoản đã bị khóa.');
+      throw new UnauthorizedException({
+        code: 'ACCOUNT_LOCKED',
+        message: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.',
+      });
     }
     // Phiên cấp trước lúc Admin thu hồi thì không dùng được nữa (phải đăng nhập lại).
     if (

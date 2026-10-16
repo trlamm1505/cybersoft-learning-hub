@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Seed 2 lớp học mẫu (Khối 6–9 và Khối 10–12) với giảng viên, mã lớp, bài giao theo ngày (trắc nghiệm + code) có hạn chót
+ * Seed lớp học mẫu cho cả 4 khối (3–5, 6–9, 10–12 và 3 khóa Người đi làm: Tester QA, Data SQL, AI Prompt) với giảng viên riêng, mã lớp, bài giao theo ngày (trắc nghiệm + code) có hạn chót
  * và kết quả của các học sinh mẫu để trang "Lớp học của tôi" và bảng xếp hạng lớp có dữ liệu:
  *   node scripts/seed-class.js --dry-run                         # chỉ in kế hoạch
  *   node scripts/seed-class.js                                   # ghi vào CSDL trong BE/.env (idempotent)
@@ -30,19 +30,37 @@ const addEmails = [
   ]),
 ];
 
-const TEACHER_EMAIL = 'seed-teacher-1@demo.cybersoft.local';
+// Giảng viên mẫu phụ trách từng lớp/khóa (tài khoản có cờ isSeedClassDemo, mật khẩu ngẫu nhiên).
+const TEACHERS = {
+  kid: { email: 'seed-teacher-kid@demo.cybersoft.local', fullName: 'Cô Phạm Thu Hương' },
+  py: { email: 'seed-teacher-1@demo.cybersoft.local', fullName: 'Cô Nguyễn Thị Lan' },
+  algo: { email: 'seed-teacher-algo@demo.cybersoft.local', fullName: 'Thầy Trần Minh Khoa' },
+  qa: { email: 'seed-teacher-qa@demo.cybersoft.local', fullName: 'Thầy Lê Quốc Bảo' },
+  data: { email: 'seed-teacher-data@demo.cybersoft.local', fullName: 'Cô Võ Ngọc Mai' },
+  ai: { email: 'seed-teacher-ai@demo.cybersoft.local', fullName: 'Thầy Đặng Anh Tuấn' },
+};
 const DEMO_TEST_ID = '673f22222222222222222222';
 const DAY = 24 * 60 * 60 * 1000;
 
 const STUDENTS = {
+  '3-5': ['Bé Nguyễn Gia Hân', 'Bé Trần Minh Khang', 'Bé Lê Bảo An', 'Bé Phạm Tuệ Lâm', 'Bé Hoàng Anh Khôi', 'Bé Đỗ Diệp Chi'],
   '6-9': ['Nguyễn Hoàng Nam', 'Trần Thu Hà', 'Lê Minh Quân', 'Phạm Ngọc Anh', 'Hoàng Gia Bảo', 'Đỗ Khánh Linh'],
   '10-12': ['Bùi Quang Minh', 'Đặng Phương Thảo', 'Ngô Thành Đạt', 'Lý Hải Yến', 'Trịnh Tuấn Kiệt', 'Mai Bảo Châu'],
 };
 
 const CLASSES = [
   {
+    band: '3-5',
+    teacher: 'kid',
+    name: 'Lập trình Sáng tạo Nhí (K3-5)',
+    code: 'CL-35KID01',
+    description: 'Lớp làm quen lập trình qua trò chơi kéo-thả khối lệnh cho bé 3–5 tuổi (học theo trò chơi, không có bài code/trắc nghiệm giao theo hạn).',
+    noAssignments: true,
+  },
+  {
     band: '6-9',
-    name: 'Lớp Python Khối 6–9 — K01',
+    teacher: 'py',
+    name: 'Python Căn bản & Tư duy Thuật toán (K6-9)',
     code: 'CL-69PY01',
     description: 'Lớp Python căn bản dành cho học sinh Khối 6–9: bài tập hằng ngày gồm trắc nghiệm và code.',
     quizBank: { category: 'Python', gradeBands: '6-9' },
@@ -50,12 +68,20 @@ const CLASSES = [
   },
   {
     band: '10-12',
-    name: 'Lớp Thuật toán Khối 10–12 — K01',
+    teacher: 'algo',
+    name: 'Luyện thi Thuật toán Chuyên sâu (K10-12)',
     code: 'CL-1012A1',
     description: 'Lớp luyện thuật toán cho học sinh Khối 10–12: trắc nghiệm thuật toán và bài Algo Judge.',
     quizBank: { tag: 'seed-contest-algo', fallback: { gradeBands: '10-12' } },
     codes: ['day15-dem-cap-tong-bang-target', 'day15-gia-tri-xuat-hien-nhieu-nhat', 'day15-dem-nghich-the', 'day15-ghep-so-lon-nhat', 'day15-k-gia-tri-lon-nhat', 'day15-tim-kiem-mang-da-xoay'],
   },
+];
+
+// 3 khóa chuyên ngành của Người đi làm (CAREER_ADULT) quản lý như lớp: có giảng viên phụ trách, học viên ghi danh là mọi tài khoản CAREER_ADULT.
+const CAREER_CLASSES = [
+  { courseKey: 'tester-qa', teacher: 'qa', code: 'CL-CAREER-TESTER', name: 'Kiểm thử phần mềm thực chiến (Tester QA)', description: 'Khóa Tester QA cho người đi làm/trái ngành: thực hành 12 phòng lab kiểm thử có giảng viên chấm theo rubric.' },
+  { courseKey: 'data-sql', teacher: 'data', code: 'CL-CAREER-DATA', name: 'Phân tích dữ liệu & Truy vấn SQL (Data Lab)', description: 'Khóa Data SQL: truy vấn SQL trên SQLite in-memory và viết insight có giảng viên nhận xét.' },
+  { courseKey: 'ai-prompt', teacher: 'ai', code: 'CL-CAREER-AI', name: 'Kỹ nghệ Prompt & Ứng dụng AI (AI Lab)', description: 'Khóa AI Prompt: thực hành viết prompt, chấm theo rubric kèm Gemini.' },
 ];
 
 /** Bài giao: dayOffset so với hôm nay (VN), giờ bắt đầu 08:00 VN, hạn chót sau `dueHours` giờ. */
@@ -95,7 +121,7 @@ function vnMorning(dayOffset, now) {
     if (remove) {
       const seeded = await users.find({ isSeedClassDemo: true }, { projection: { _id: 1 } }).toArray();
       const seedIds = seeded.map((u) => String(u._id));
-      const cls = await classes.find({ code: { $in: CLASSES.map((c) => c.code) } }).toArray();
+      const cls = await classes.find({ code: { $in: [...CLASSES, ...CAREER_CLASSES].map((c) => c.code) } }).toArray();
       const clsIds = cls.map((c) => String(c._id));
       const asg = await assignments.find({ classId: { $in: clsIds } }, { projection: { _id: 1 } }).toArray();
       const asgIds = asg.map((a) => String(a._id));
@@ -129,10 +155,20 @@ function vnMorning(dayOffset, now) {
       return String(res._id);
     };
 
-    const teacherId = await upsertUser(TEACHER_EMAIL, { fullName: 'Cô Nguyễn Thị Lan', role: 'TEACHER' });
-    console.log('Giảng viên mẫu: Cô Nguyễn Thị Lan (' + TEACHER_EMAIL + ')');
+    const teacherIds = {};
+    for (const [k, t] of Object.entries(TEACHERS)) {
+      teacherIds[k] = await upsertUser(t.email, { fullName: t.fullName, role: 'TEACHER' });
+      console.log(`Giảng viên mẫu: ${t.fullName} (${t.email})`);
+    }
+    // Chỉ đặt giảng viên khi lớp chưa có hoặc đang do giảng viên MẪU phụ trách: không đè phân công thật của Admin.
+    const seedTeacherSet = new Set(Object.values(teacherIds));
+    const teacherFields = async (existing, teacherId) => {
+      const keep = existing && existing.teacherId && !seedTeacherSet.has(String(existing.teacherId)) && !(await users.findOne({ _id: new OID(String(existing.teacherId)), isSeedClassDemo: true }));
+      return keep ? {} : { teacherId, teacherIds: [teacherId] };
+    };
 
     for (const c of CLASSES) {
+      const teacherId = teacherIds[c.teacher];
       // ---- học sinh mẫu ----
       const ids = [];
       for (let i = 0; i < STUDENTS[c.band].length; i++) {
@@ -151,15 +187,19 @@ function vnMorning(dayOffset, now) {
       // ---- lớp ----
       let clsDoc = dryRun ? null : await classes.findOne({ code: c.code });
       if (!dryRun) {
+        const tf = await teacherFields(clsDoc, teacherId);
         await classes.updateOne(
           { code: c.code },
-          { $set: { name: c.name, description: c.description, teacherId, archived: false, updatedAt: now }, $setOnInsert: { code: c.code, createdAt: now, exerciseSlugs: [] }, $addToSet: { studentIds: { $each: [...ids, ...realIds] } } },
+          // archived chỉ đặt khi tạo mới: không kích hoạt lại lớp mà Admin đã chuyển vào Lưu trữ.
+          { $set: { name: c.name, description: c.description, ...tf, updatedAt: now }, $setOnInsert: { code: c.code, createdAt: now, exerciseSlugs: [], archived: false }, $addToSet: { studentIds: { $each: [...ids, ...realIds] } } },
           { upsert: true },
         );
         clsDoc = await classes.findOne({ code: c.code });
       }
       const classId = clsDoc ? String(clsDoc._id) : c.code;
       console.log(`- ${c.name} [${c.code}]: ${ids.length} học sinh mẫu${realIds.length ? ` + ${realIds.length} học sinh thật` : ''}`);
+
+      if (c.noAssignments) continue; // lớp khối 3–5 học qua trò chơi, không có bài giao theo hạn
 
       // ---- câu hỏi trắc nghiệm ----
       let bank = [];
@@ -240,6 +280,20 @@ function vnMorning(dayOffset, now) {
       }
       console.log(`  kết quả mẫu: ${nSub} bài nộp code, ${nQuiz} lượt trắc nghiệm`);
     }
+    // ---- 3 khóa Người đi làm ----
+    const adults = await users.find({ role: 'STUDENT', ageGroup: 'CAREER_ADULT' }, { projection: { email: 1 } }).toArray();
+    for (const c of CAREER_CLASSES) {
+      console.log(`- ${c.name} [${c.code}]: giảng viên ${TEACHERS[c.teacher].fullName}; ghi danh ${adults.length} học viên Người đi làm (${adults.map((a) => a.email).join(', ') || 'chưa có tài khoản nào'})`);
+      if (dryRun) continue;
+      const existing = await classes.findOne({ code: c.code });
+      const tf = await teacherFields(existing, teacherIds[c.teacher]);
+      await classes.updateOne(
+        { code: c.code },
+        { $set: { name: c.name, description: c.description, courseKey: c.courseKey, ...tf, updatedAt: now }, $setOnInsert: { code: c.code, createdAt: now, studentIds: [], exerciseSlugs: [], archived: false } },
+        { upsert: true },
+      );
+    }
+    if (!adults.length) console.log('  (!) Chưa có tài khoản Người đi làm: chạy node scripts/seed-career-adult.js để tạo nguoidilam1/2@gmail.com.');
     console.log(dryRun ? 'Xong dry-run.' : 'Xong. Ghi danh học sinh thật: node scripts/seed-class.js --add-email=<email>');
   } finally {
     await mongoose.disconnect();
