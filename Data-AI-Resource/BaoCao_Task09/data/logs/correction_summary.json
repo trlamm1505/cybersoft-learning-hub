@@ -1,0 +1,39 @@
+{
+  "total_requested": 100,
+  "passed_immediate_iter0": 94,
+  "corrected_in_loop": 6,
+  "fallback_applied": 0,
+  "total_retries_executed": 6,
+  "correction_events": [
+    {
+      "record_id": "REC-CYB-0008",
+      "resolved_at_attempt": 1,
+      "status": "CORRECTED"
+    },
+    {
+      "record_id": "REC-CYB-0019",
+      "resolved_at_attempt": 1,
+      "status": "CORRECTED"
+    },
+    {
+      "record_id": "REC-CYB-0036",
+      "resolved_at_attempt": 1,
+      "status": "CORRECTED"
+    },
+    {
+      "record_id": "REC-CYB-0053",
+      "resolved_at_attempt": 1,
+      "status": "CORRECTED"
+    },
+    {
+      "record_id": "REC-CYB-0069",
+      "resolved_at_attempt": 1,
+      "status": "CORRECTED"
+    },
+    {
+      "record_id": "REC-CYB-0084",
+      "resolved_at_attempt": 1,
+      "status": "CORRECTED"
+    }
+  ]
+}

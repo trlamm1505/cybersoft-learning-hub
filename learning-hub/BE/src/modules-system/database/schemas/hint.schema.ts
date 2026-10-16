@@ -54,7 +54,8 @@ export class Hint {
         const level = this.level ?? (this.get ? this.get('level') : undefined);
         return validateTier1NoCode(v, level);
       },
-      message: 'Hint Tầng 1 (Khái niệm) tuyệt đối không được chứa code hoàn chỉnh hoặc cú pháp lập trình!',
+      message:
+        'Hint Tầng 1 (Khái niệm) tuyệt đối không được chứa code hoàn chỉnh hoặc cú pháp lập trình!',
     },
   })
   content: string;
@@ -74,6 +75,8 @@ HintSchema.index({ exerciseSlug: 1, level: 1 }, { unique: true });
 // Pre-save hook validation
 HintSchema.pre('save', function () {
   if (this.level === 1 && !validateTier1NoCode(this.content, 1)) {
-    throw new Error('Hint Tầng 1 (Khái niệm) tuyệt đối không được chứa code hoàn chỉnh hoặc cú pháp lập trình!');
+    throw new Error(
+      'Hint Tầng 1 (Khái niệm) tuyệt đối không được chứa code hoàn chỉnh hoặc cú pháp lập trình!',
+    );
   }
 });

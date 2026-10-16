@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "day14-mo-phong-tui-do",
+    "title": "Mô phỏng túi đồ trong game nhập vai",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Một túi đồ có sức chứa tối đa C vật phẩm (C là số nguyên dương). Dòng đầu là C. Dòng hai là số lượng lệnh N. N dòng tiếp theo, mỗi dòng là một lệnh: \"ADD <ten>\" (thêm vật phẩm nếu túi chưa đầy, nếu đầy thì bỏ qua) hoặc \"REMOVE <ten>\" (xóa vật phẩm nếu có trong túi, nếu không có thì bỏ qua). Sau khi xử lý hết lệnh, in ra danh sách vật phẩm còn lại trong túi theo đúng thứ tự đã thêm vào, mỗi tên trên một dòng. Nếu túi rỗng, không in gì cả.",
+    "starterCode": "c = int(input())\nn = int(input())\ntui = []\nfor _ in range(n):\n    lenh = input().split()\n    # Viết code của bạn ở đây\n    pass\n",
+    "solutionCode": "c = int(input())\nn = int(input())\ntui = []\nfor _ in range(n):\n    lenh = input().split()\n    hanh_dong = lenh[0]\n    ten = lenh[1]\n    if hanh_dong == \"ADD\":\n        if len(tui) < c:\n            tui.append(ten)\n    elif hanh_dong == \"REMOVE\":\n        if ten in tui:\n            tui.remove(ten)\nfor vat_pham in tui:\n    print(vat_pham)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\n3\nADD kiem\nADD khien\nADD thuoc",
+        "expectedOutput": "kiem\nkhien\nthuoc",
+        "isHidden": false
+      },
+      {
+        "input": "2\n4\nADD kiem\nADD khien\nADD thuoc\nREMOVE khien",
+        "expectedOutput": "kiem",
+        "isHidden": false
+      },
+      {
+        "input": "1\n1\nREMOVE kiem",
+        "expectedOutput": "",
+        "isHidden": true
+      },
+      {
+        "input": "2\n5\nADD a\nADD b\nADD c\nREMOVE a\nADD c",
+        "expectedOutput": "b\nc",
+        "isHidden": true
+      },
+      {
+        "input": "5\n0",
+        "expectedOutput": "",
+        "isHidden": true
+      }
+    ]
+  }
+]

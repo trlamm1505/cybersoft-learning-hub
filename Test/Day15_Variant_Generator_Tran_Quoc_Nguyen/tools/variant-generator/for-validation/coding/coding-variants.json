@@ -1,0 +1,710 @@
+[
+  {
+    "slug": "tinh-tong-hai-so-nguyen-v01",
+    "title": "Tính tổng hai số nguyên (Biến thể 1)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho hai số nguyên A và B, mỗi số trên một dòng. In ra kết quả tổng A + B trên một dòng.",
+    "starterCode": "a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "a = int(input())\nb = int(input())\nprint(a + b)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "2\n9",
+        "expectedOutput": "11",
+        "isHidden": false
+      },
+      {
+        "input": "15\n27",
+        "expectedOutput": "42",
+        "isHidden": false
+      },
+      {
+        "input": "-6\n20",
+        "expectedOutput": "14",
+        "isHidden": true
+      },
+      {
+        "input": "500000\n400000",
+        "expectedOutput": "900000",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tinh-tong-hai-so-nguyen-v02",
+    "title": "Tính tổng hai số nguyên (Biến thể 2)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho hai số nguyên A và B, mỗi số trên một dòng. In ra kết quả tổng A + B trên một dòng.",
+    "starterCode": "a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "a = int(input())\nb = int(input())\nprint(a + b)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "41\n17",
+        "expectedOutput": "58",
+        "isHidden": false
+      },
+      {
+        "input": "-30\n-12",
+        "expectedOutput": "-42",
+        "isHidden": false
+      },
+      {
+        "input": "0\n0",
+        "expectedOutput": "0",
+        "isHidden": true
+      },
+      {
+        "input": "999999\n-999999",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tinh-tong-hai-so-nguyen-v03",
+    "title": "Tính tổng hai số nguyên (Biến thể 3)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho hai số nguyên A và B, mỗi số trên một dòng. In ra kết quả tổng A + B trên một dòng.",
+    "starterCode": "a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "a = int(input())\nb = int(input())\nprint(a + b)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "7\n8",
+        "expectedOutput": "15",
+        "isHidden": false
+      },
+      {
+        "input": "-100\n250",
+        "expectedOutput": "150",
+        "isHidden": false
+      },
+      {
+        "input": "123456\n654321",
+        "expectedOutput": "777777",
+        "isHidden": true
+      },
+      {
+        "input": "-1\n1",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tinh-tong-hai-so-nguyen-v04",
+    "title": "Tính tổng hai số nguyên (Biến thể 4)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho hai số nguyên A và B, mỗi số trên một dòng. In ra kết quả tổng A + B trên một dòng.",
+    "starterCode": "a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "a = int(input())\nb = int(input())\nprint(a + b)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "300\n700",
+        "expectedOutput": "1000",
+        "isHidden": false
+      },
+      {
+        "input": "-55\n55",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "input": "999999\n1",
+        "expectedOutput": "1000000",
+        "isHidden": true
+      },
+      {
+        "input": "-999999\n-1",
+        "expectedOutput": "-1000000",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tinh-tong-hai-so-nguyen-v05",
+    "title": "Tính tổng hai số nguyên (Biến thể 5)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho hai số nguyên A và B, mỗi số trên một dòng. In ra kết quả tổng A + B trên một dòng.",
+    "starterCode": "a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "a = int(input())\nb = int(input())\nprint(a + b)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "12\n34",
+        "expectedOutput": "46",
+        "isHidden": false
+      },
+      {
+        "input": "-8\n-9",
+        "expectedOutput": "-17",
+        "isHidden": false
+      },
+      {
+        "input": "0\n987654",
+        "expectedOutput": "987654",
+        "isHidden": true
+      },
+      {
+        "input": "500000\n-500001",
+        "expectedOutput": "-1",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tinh-tong-hai-so-nguyen-v06",
+    "title": "Tính tổng hai số nguyên (Biến thể 6)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho hai số nguyên A và B, mỗi số trên một dòng. In ra kết quả tổng A + B trên một dòng.",
+    "starterCode": "a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "a = int(input())\nb = int(input())\nprint(a + b)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "1000\n2000",
+        "expectedOutput": "3000",
+        "isHidden": false
+      },
+      {
+        "input": "-3000\n1500",
+        "expectedOutput": "-1500",
+        "isHidden": false
+      },
+      {
+        "input": "-999999\n999999",
+        "expectedOutput": "0",
+        "isHidden": true
+      },
+      {
+        "input": "222\n-222",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-chan-le-v01",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 1)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "8",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "13",
+        "expectedOutput": "Lẻ",
+        "isHidden": false
+      },
+      {
+        "input": "0",
+        "expectedOutput": "Chẵn",
+        "isHidden": true
+      },
+      {
+        "input": "-4",
+        "expectedOutput": "Chẵn",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-chan-le-v02",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 2)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "21",
+        "expectedOutput": "Lẻ",
+        "isHidden": false
+      },
+      {
+        "input": "-7",
+        "expectedOutput": "Lẻ",
+        "isHidden": false
+      },
+      {
+        "input": "100000",
+        "expectedOutput": "Chẵn",
+        "isHidden": true
+      },
+      {
+        "input": "-1",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-chan-le-v03",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 3)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "2",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "999999",
+        "expectedOutput": "Lẻ",
+        "isHidden": false
+      },
+      {
+        "input": "-999998",
+        "expectedOutput": "Chẵn",
+        "isHidden": true
+      },
+      {
+        "input": "17",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-chan-le-v04",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 4)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "0",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "-2",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "55555",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      },
+      {
+        "input": "-55555",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-chan-le-v05",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 5)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "4",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "9",
+        "expectedOutput": "Lẻ",
+        "isHidden": false
+      },
+      {
+        "input": "-3",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      },
+      {
+        "input": "1000000",
+        "expectedOutput": "Chẵn",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-chan-le-v06",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 6)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "-6",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "6",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "777",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      },
+      {
+        "input": "-777",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-nguyen-to-v01",
+    "title": "Kiểm tra số nguyên tố (Biến thể 1)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Cho một số nguyên dương N. In ra \"YES\" nếu N là số nguyên tố, ngược lại in ra \"NO\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\ndef is_prime(x):\n    if x < 2:\n        return False\n    for i in range(2, int(x ** 0.5) + 1):\n        if x % i == 0:\n            return False\n    return True\nprint(\"YES\" if is_prime(n) else \"NO\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "11",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "21",
+        "expectedOutput": "NO",
+        "isHidden": false
+      },
+      {
+        "input": "1",
+        "expectedOutput": "NO",
+        "isHidden": true
+      },
+      {
+        "input": "89",
+        "expectedOutput": "YES",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-nguyen-to-v02",
+    "title": "Kiểm tra số nguyên tố (Biến thể 2)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Cho một số nguyên dương N. In ra \"YES\" nếu N là số nguyên tố, ngược lại in ra \"NO\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\ndef is_prime(x):\n    if x < 2:\n        return False\n    for i in range(2, int(x ** 0.5) + 1):\n        if x % i == 0:\n            return False\n    return True\nprint(\"YES\" if is_prime(n) else \"NO\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "13",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "33",
+        "expectedOutput": "NO",
+        "isHidden": false
+      },
+      {
+        "input": "1",
+        "expectedOutput": "NO",
+        "isHidden": true
+      },
+      {
+        "input": "101",
+        "expectedOutput": "YES",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-nguyen-to-v03",
+    "title": "Kiểm tra số nguyên tố (Biến thể 3)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Cho một số nguyên dương N. In ra \"YES\" nếu N là số nguyên tố, ngược lại in ra \"NO\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\ndef is_prime(x):\n    if x < 2:\n        return False\n    for i in range(2, int(x ** 0.5) + 1):\n        if x % i == 0:\n            return False\n    return True\nprint(\"YES\" if is_prime(n) else \"NO\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "17",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "51",
+        "expectedOutput": "NO",
+        "isHidden": false
+      },
+      {
+        "input": "1",
+        "expectedOutput": "NO",
+        "isHidden": true
+      },
+      {
+        "input": "199",
+        "expectedOutput": "YES",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-nguyen-to-v04",
+    "title": "Kiểm tra số nguyên tố (Biến thể 4)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Cho một số nguyên dương N. In ra \"YES\" nếu N là số nguyên tố, ngược lại in ra \"NO\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\ndef is_prime(x):\n    if x < 2:\n        return False\n    for i in range(2, int(x ** 0.5) + 1):\n        if x % i == 0:\n            return False\n    return True\nprint(\"YES\" if is_prime(n) else \"NO\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "19",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "77",
+        "expectedOutput": "NO",
+        "isHidden": false
+      },
+      {
+        "input": "1",
+        "expectedOutput": "NO",
+        "isHidden": true
+      },
+      {
+        "input": "211",
+        "expectedOutput": "YES",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-nguyen-to-v05",
+    "title": "Kiểm tra số nguyên tố (Biến thể 5)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Cho một số nguyên dương N. In ra \"YES\" nếu N là số nguyên tố, ngược lại in ra \"NO\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\ndef is_prime(x):\n    if x < 2:\n        return False\n    for i in range(2, int(x ** 0.5) + 1):\n        if x % i == 0:\n            return False\n    return True\nprint(\"YES\" if is_prime(n) else \"NO\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "23",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "91",
+        "expectedOutput": "NO",
+        "isHidden": false
+      },
+      {
+        "input": "2",
+        "expectedOutput": "YES",
+        "isHidden": true
+      },
+      {
+        "input": "307",
+        "expectedOutput": "YES",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "kiem-tra-so-nguyen-to-v06",
+    "title": "Kiểm tra số nguyên tố (Biến thể 6)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Cho một số nguyên dương N. In ra \"YES\" nếu N là số nguyên tố, ngược lại in ra \"NO\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\ndef is_prime(x):\n    if x < 2:\n        return False\n    for i in range(2, int(x ** 0.5) + 1):\n        if x % i == 0:\n            return False\n    return True\nprint(\"YES\" if is_prime(n) else \"NO\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "29",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "121",
+        "expectedOutput": "NO",
+        "isHidden": false
+      },
+      {
+        "input": "1",
+        "expectedOutput": "NO",
+        "isHidden": true
+      },
+      {
+        "input": "401",
+        "expectedOutput": "YES",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tim-so-lon-nhat-v01",
+    "title": "Tìm số lớn nhất trong danh sách (Biến thể 1)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Dòng đầu là số lượng phần tử N. Dòng tiếp theo gồm N số nguyên cách nhau bởi dấu cách. In ra giá trị lớn nhất.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "4\n3 9 -2 7",
+        "expectedOutput": "9",
+        "isHidden": false
+      },
+      {
+        "input": "1\n5",
+        "expectedOutput": "5",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tim-so-lon-nhat-v02",
+    "title": "Tìm số lớn nhất trong danh sách (Biến thể 2)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Dòng đầu là số lượng phần tử N. Dòng tiếp theo gồm N số nguyên cách nhau bởi dấu cách. In ra giá trị lớn nhất.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "4\n-10 -3 -7 -1",
+        "expectedOutput": "-1",
+        "isHidden": false
+      },
+      {
+        "input": "5\n100 -50 0 99 100",
+        "expectedOutput": "100",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tim-so-lon-nhat-v03",
+    "title": "Tìm số lớn nhất trong danh sách (Biến thể 3)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Dòng đầu là số lượng phần tử N. Dòng tiếp theo gồm N số nguyên cách nhau bởi dấu cách. In ra giá trị lớn nhất.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\n1000 -1000 500",
+        "expectedOutput": "1000",
+        "isHidden": false
+      },
+      {
+        "input": "4\n7 7 7 7",
+        "expectedOutput": "7",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tim-so-lon-nhat-v04",
+    "title": "Tìm số lớn nhất trong danh sách (Biến thể 4)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Dòng đầu là số lượng phần tử N. Dòng tiếp theo gồm N số nguyên cách nhau bởi dấu cách. In ra giá trị lớn nhất.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\n-1 -2 -3",
+        "expectedOutput": "-1",
+        "isHidden": false
+      },
+      {
+        "input": "1\n42",
+        "expectedOutput": "42",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tim-so-lon-nhat-v05",
+    "title": "Tìm số lớn nhất trong danh sách (Biến thể 5)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Dòng đầu là số lượng phần tử N. Dòng tiếp theo gồm N số nguyên cách nhau bởi dấu cách. In ra giá trị lớn nhất.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "4\n8 8 9 -9",
+        "expectedOutput": "9",
+        "isHidden": false
+      },
+      {
+        "input": "4\n-5 -5 -5 -6",
+        "expectedOutput": "-5",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "slug": "tim-so-lon-nhat-v06",
+    "title": "Tìm số lớn nhất trong danh sách (Biến thể 6)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Dòng đầu là số lượng phần tử N. Dòng tiếp theo gồm N số nguyên cách nhau bởi dấu cách. In ra giá trị lớn nhất.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "3\n0 0 0",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "input": "4\n123 456 -789 456",
+        "expectedOutput": "456",
+        "isHidden": true
+      }
+    ]
+  }
+]

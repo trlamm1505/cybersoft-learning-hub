@@ -1,0 +1,5 @@
+
+> be@0.0.1 test
+> jest --runInBand src/integration/dataset-integration.service.spec.ts src/integration/real-registry-contract.spec.ts src/modules-api/da-labs/da-labs.submissions.spec.ts src/modules-api/da-labs/teacher-submissions.controller.spec.ts src/modules-api/ai-labs/ai-lab-grader.service.spec.ts src/integration/ai-exercise-to-lesson-publish.spec.ts
+
+[33m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [33m   WARN[39m [38;5;3m[DatasetIntegrationService] [39m[33mMáy chủ dữ liệu http://tts01:8000 không trả lời; tạm dùng dữ liệu tích hợp sẵn (DATA_SERVICE_FALLBACK=embedded).[39m

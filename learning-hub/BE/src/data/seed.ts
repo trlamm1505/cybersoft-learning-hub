@@ -2,100 +2,226 @@ import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import * as bcrypt from 'bcrypt';
 import { INITIAL_USERS, INITIAL_COURSES } from './initial-data';
+import { getInitialContests } from './initial-contests';
 
 dotenv.config();
 
-const MONGO_URI = process.env.DATABASE_URL || 'mongodb://localhost:27017/cybersoft';
+const MONGO_URI =
+  process.env.DATABASE_URL || 'mongodb://localhost:27017/cybersoft';
 
 // --------------------------------------------------------
 // MONGOOSE SCHEMAS FOR ALL 8 CORE TABLES
 // --------------------------------------------------------
 
-const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  fullName: { type: String, required: true },
-  role: { type: String, enum: ['ADMIN', 'TEACHER', 'STUDENT'], default: 'STUDENT' },
-  avatar: String,
-  bio: String,
-}, { timestamps: true });
-
-const courseSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  slug: { type: String, required: true, unique: true },
-  description: String,
-  thumbnail: String,
-  level: { type: String, enum: ['KID', 'TEEN', 'PRO', 'ADULT'], default: 'TEEN' },
-  isPublished: { type: Boolean, default: false },
-  authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-}, { timestamps: true });
-
-const lessonSchema = new mongoose.Schema({
-  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-  title: { type: String, required: true },
-  slug: { type: String, required: true },
-  content: String,
-  videoUrl: String,
-  orderIndex: { type: Number, default: 0 },
-}, { timestamps: true });
-
-const exerciseSchema = new mongoose.Schema({
-  lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' },
-  title: { type: String, required: true },
-  slug: { type: String, required: true, unique: true },
-  description: { type: String, required: true },
-  type: { type: String, enum: ['QUIZ', 'CODE_BLOCK', 'CODE_TEXT', 'SQL_LAB'], default: 'CODE_TEXT' },
-  difficulty: { type: String, enum: ['EASY', 'MEDIUM', 'HARD'], default: 'EASY' },
-  points: { type: Number, default: 10 },
-  starterCode: String,
-  solutionCode: String,
-}, { timestamps: true });
-
-const testSchema = new mongoose.Schema({
-  exerciseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise', required: true },
-  version: { type: Number, default: 1 },
-  isActive: { type: Boolean, default: true },
-  testCases: [{
-    input: String,
-    expectedOutput: String,
-    isHidden: Boolean,
-  }],
-  timeLimitMs: { type: Number, default: 2000 },
-  memoryLimitMb: { type: Number, default: 128 },
-}, { timestamps: true });
-
-const attemptSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  exerciseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise', required: true },
-  code: { type: String, required: true },
-  status: { type: String, enum: ['PENDING', 'RUNNING', 'COMPLETED', 'FAILED'], default: 'PENDING' },
-}, { timestamps: true });
-
-const submissionSchema = new mongoose.Schema({
-  attemptId: { type: mongoose.Schema.Types.ObjectId, ref: 'Attempt' },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  exerciseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise', required: true },
-  testId: { type: mongoose.Schema.Types.ObjectId, ref: 'Test' },
-  code: { type: String, required: true },
-  status: { 
-    type: String, 
-    enum: ['PASSED', 'WRONG_ANSWER', 'TIME_LIMIT_EXCEEDED', 'MEMORY_LIMIT_EXCEEDED', 'COMPILE_ERROR', 'RUNTIME_ERROR', 'PENDING'], 
-    default: 'PENDING' 
+const userSchema = new mongoose.Schema(
+  {
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    fullName: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ['ADMIN', 'TEACHER', 'STUDENT'],
+      default: 'STUDENT',
+    },
+    avatar: String,
+    bio: String,
   },
-  executionTimeMs: Number,
-  memoryUsedMb: Number,
-  errorMessage: String,
-}, { timestamps: true });
+  { timestamps: true },
+);
 
-const scoreSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  exerciseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise', required: true },
-  score: { type: Number, default: 0 },
-  maxScore: { type: Number, default: 100 },
-  attemptsCount: { type: Number, default: 0 },
-  isPassed: { type: Boolean, default: false },
-  lastGradedAt: { type: Date, default: Date.now },
-}, { timestamps: true });
+const courseSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    description: String,
+    thumbnail: String,
+    level: {
+      type: String,
+      enum: ['KID', 'TEEN', 'PRO', 'ADULT'],
+      default: 'TEEN',
+    },
+    isPublished: { type: Boolean, default: false },
+    authorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+  },
+  { timestamps: true },
+);
+
+const lessonSchema = new mongoose.Schema(
+  {
+    courseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Course',
+      required: true,
+    },
+    title: { type: String, required: true },
+    slug: { type: String, required: true },
+    content: String,
+    videoUrl: String,
+    orderIndex: { type: Number, default: 0 },
+  },
+  { timestamps: true },
+);
+
+const exerciseSchema = new mongoose.Schema(
+  {
+    lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' },
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    description: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ['QUIZ', 'CODE_BLOCK', 'CODE_TEXT', 'SQL_LAB'],
+      default: 'CODE_TEXT',
+    },
+    difficulty: {
+      type: String,
+      enum: ['EASY', 'MEDIUM', 'HARD'],
+      default: 'EASY',
+    },
+    points: { type: Number, default: 10 },
+    starterCode: String,
+    solutionCode: String,
+  },
+  { timestamps: true },
+);
+
+const testSchema = new mongoose.Schema(
+  {
+    exerciseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Exercise',
+      required: true,
+    },
+    version: { type: Number, default: 1 },
+    isActive: { type: Boolean, default: true },
+    testCases: [
+      {
+        input: String,
+        expectedOutput: String,
+        isHidden: Boolean,
+      },
+    ],
+    timeLimitMs: { type: Number, default: 2000 },
+    memoryLimitMb: { type: Number, default: 128 },
+  },
+  { timestamps: true },
+);
+
+const attemptSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    exerciseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Exercise',
+      required: true,
+    },
+    code: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ['PENDING', 'RUNNING', 'COMPLETED', 'FAILED'],
+      default: 'PENDING',
+    },
+  },
+  { timestamps: true },
+);
+
+const submissionSchema = new mongoose.Schema(
+  {
+    attemptId: { type: mongoose.Schema.Types.ObjectId, ref: 'Attempt' },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    exerciseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Exercise',
+      required: true,
+    },
+    testId: { type: mongoose.Schema.Types.ObjectId, ref: 'Test' },
+    code: { type: String, required: true },
+    status: {
+      type: String,
+      enum: [
+        'PASSED',
+        'WRONG_ANSWER',
+        'TIME_LIMIT_EXCEEDED',
+        'MEMORY_LIMIT_EXCEEDED',
+        'COMPILE_ERROR',
+        'RUNTIME_ERROR',
+        'PENDING',
+      ],
+      default: 'PENDING',
+    },
+    executionTimeMs: Number,
+    memoryUsedMb: Number,
+    errorMessage: String,
+  },
+  { timestamps: true },
+);
+
+const scoreSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    exerciseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Exercise',
+      required: true,
+    },
+    score: { type: Number, default: 0 },
+    maxScore: { type: Number, default: 100 },
+    attemptsCount: { type: Number, default: 0 },
+    isPassed: { type: Boolean, default: false },
+    lastGradedAt: { type: Date, default: Date.now },
+  },
+  { timestamps: true },
+);
+
+const contestSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    description: String,
+    startTime: { type: Date, required: true },
+    endTime: { type: Date, required: true },
+    durationMinutes: { type: Number, default: 90 },
+    problems: [
+      {
+        title: String,
+        slug: String,
+        type: { type: String, enum: ['coding', 'quiz'], default: 'coding' },
+        points: Number,
+        order: Number,
+      },
+    ],
+    registrations: [
+      {
+        studentId: String,
+        studentName: String,
+        registeredAt: Date,
+      },
+    ],
+    status: {
+      type: String,
+      enum: ['draft', 'published'],
+      default: 'published',
+    },
+    authorId: { type: String, default: 'teacher-1' },
+  },
+  { timestamps: true },
+);
 
 async function seed() {
   console.log('🌱 Connecting to MongoDB:', MONGO_URI);
@@ -112,8 +238,9 @@ async function seed() {
     const Attempt = mongoose.model('Attempt', attemptSchema);
     const Submission = mongoose.model('Submission', submissionSchema);
     const Score = mongoose.model('Score', scoreSchema);
+    const Contest = mongoose.model('Contest', contestSchema);
 
-    // 1. Clean existing 8 collections
+    // 1. Clean existing collections
     await User.deleteMany({});
     await Course.deleteMany({});
     await Lesson.deleteMany({});
@@ -122,7 +249,13 @@ async function seed() {
     await Attempt.deleteMany({});
     await Submission.deleteMany({});
     await Score.deleteMany({});
-    console.log('🧹 Cleaned all 8 MongoDB collections');
+    await Contest.deleteMany({});
+    console.log('🧹 Cleaned MongoDB collections including Contests');
+
+    // Seed Contests
+    const sampleContests = getInitialContests();
+    await Contest.insertMany(sampleContests);
+    console.log(`✅ Seeded ${sampleContests.length} Contests into MongoDB`);
 
     // 2. Create Users
     const userMap = new Map<string, mongoose.Types.ObjectId>();
@@ -164,7 +297,8 @@ async function seed() {
           title: lessonData.title,
           slug: lessonData.slug,
           content: lessonData.content,
-          videoUrl: 'videoUrl' in lessonData ? (lessonData as any).videoUrl : undefined,
+          videoUrl:
+            'videoUrl' in lessonData ? (lessonData as any).videoUrl : undefined,
           orderIndex: lessonData.orderIndex,
         });
 
@@ -222,7 +356,9 @@ async function seed() {
           }
         }
       }
-      console.log(`✅ Created Course, Exercises, Attempts, Submissions & Scores: "${course.title}"`);
+      console.log(
+        `✅ Created Course, Exercises, Attempts, Submissions & Scores: "${course.title}"`,
+      );
     }
 
     console.log('🎉 ALL 8 MONGODB CORE TABLES SEEDED SUCCESSFULLY!');

@@ -1,0 +1,29 @@
+{
+  "name": "learning-hub",
+  "private": true,
+  "scripts": {
+    "setup": "node scripts/setup.js",
+    "seed:all": "node scripts/setup.js --seed-only --force",
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm --prefix BE run start:dev",
+    "dev:web": "npm --prefix FE run dev",
+    "dev:mock": "npm --prefix BE run mock:data-service",
+    "sandbox": "node scripts/ensure-sandbox.js",
+    "ingest:sandbox": "node scripts/ingest-sandbox.js",
+    "bootstrap:sandbox": "node scripts/bootstrap-sandbox.js",
+    "doctor": "node scripts/doctor.js",
+    "release:check": "node scripts/release-pipeline.js",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:full": "docker compose --profile full up -d --build",
+    "docker:full:down": "docker compose --profile full down",
+    "docker:up:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile full up -d --build",
+    "test:scripts": "node --test scripts/lib/*.test.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  },
+  "engines": {
+    "node": ">=20.12.0"
+  }
+}

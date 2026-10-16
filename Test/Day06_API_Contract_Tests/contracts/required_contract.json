@@ -1,0 +1,16 @@
+{
+  "paths": {
+    "/auth/login": ["post"],
+    "/resources/{resource_id}": ["get"],
+    "/resources": ["post"],
+    "/exercises/{exercise_id}": ["get"],
+    "/exercises": ["post"],
+    "/submissions": ["post"]
+  },
+  "schemas": {
+    "LoginResponse": ["token", "token_type", "user_id", "role"],
+    "ResourceResponse": ["id", "name", "type", "version"],
+    "ExerciseResponse": ["id", "title", "exercise_type", "max_score", "published"],
+    "SubmissionResponse": ["id", "user_id", "exercise_id", "status", "score"]
+  }
+}

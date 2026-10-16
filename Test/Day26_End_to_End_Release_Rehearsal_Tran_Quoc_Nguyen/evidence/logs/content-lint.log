@@ -1,0 +1,28 @@
+ERROR Không hỗ trợ định dạng file: C:\Users\USER\AppData\Local\Temp\unsupported.txt (chỉ hỗ trợ .json, .md)
+CẢNH BÁO: thư mục "C:\Users\USER\AppData\Local\Temp\content-lint-emptydir-83dNMf" không có file .json/.md nào để lint.
+ERROR: không tìm thấy file .json/.md nào để lint (kiểm tra lại đường dẫn/thư mục truyền vào).
+✔ có đúng 20 rule (CT001-CT020) (3.0866ms)
+✔ mỗi rule có mã, severity hợp lệ và hướng sửa không rỗng (0.5877ms)
+✔ JSON hợp lệ (lesson-good.json) -> CLI chạy được, exit 0, 0 finding (60.2969ms)
+✔ Markdown hợp lệ (lesson-good.md) -> CLI chạy được, exit 0, 0 finding (56.124ms)
+✔ JSON không hợp lệ (lesson-invalid.json) -> báo lỗi parse CTPARSE, exit khác 0 (55.7435ms)
+✔ lesson-bad.json + lesson-bad.md cùng nhau kích hoạt đủ cả 20 rule (74.7113ms)
+✔ lesson-bad.json bắt đúng lỗi title is missing tại dòng có key "title" (69.9386ms)
+✔ lesson-bad.md bắt đúng terminology "JS" is inconsistent (63.6891ms)
+✔ lesson-bad.json bắt CT010 - prerequisite tham chiếu bài học không tồn tại (63.5734ms)
+✔ content-lint không được sửa/ghi đè file input (65.7845ms)
+✔ --out-dir sinh ra lint-report.json và lint-report.csv có field line/path/rule/fix (70.1575ms)
+✔ findings được sắp xếp ERROR trước WARNING (67.7626ms)
+✔ --fail-on never luôn trả exit code 0 kể cả khi có lỗi (66.6205ms)
+✔ định dạng file không hỗ trợ (.txt) báo lỗi rõ ràng thay vì crash im lặng (57.2482ms)
+✔ truyền 1 thư mục -> tự quét đệ quy hết file .json/.md bên trong (91.8372ms)
+✔ truyền 1 thư mục rỗng -> báo lỗi rõ ràng, không crash (59.3735ms)
+✔ --check-links: phân biệt đúng link OK (200) / DEAD (404 thật) / UNREACHABLE (không có server) (155.4302ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1164.6114

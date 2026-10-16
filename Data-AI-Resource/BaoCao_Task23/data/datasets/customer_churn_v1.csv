@@ -1,0 +1,8 @@
+customer_id,contract_type,monthly_charges,total_charges,tenure_months,churn_label
+CUST-901,Month-to-month,65.5,1310.0,20,Yes
+CUST-902,Two year,89.2,4281.6,48,No
+CUST-903,One year,54.0,648.0,12,No
+CUST-904,Month-to-month,79.8,239.4,3,Yes
+CUST-905,Two year,105.0,7560.0,72,No
+CUST-906,Month-to-month,45.2,45.2,1,Yes
+CUST-907,One year,92.4,2217.6,24,No

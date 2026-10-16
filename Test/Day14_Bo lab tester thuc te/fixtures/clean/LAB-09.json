@@ -1,0 +1,10 @@
+{
+  "labId": "LAB-09",
+  "mode": "clean",
+  "faultId": "F-D14-009",
+  "rule": "Email phải duy nhất sau chuẩn hóa; mọi attempt phải có user.",
+  "data": {
+    "duplicateEmails": 0,
+    "orphanAttempts": 0
+  }
+}

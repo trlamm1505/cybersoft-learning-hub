@@ -1,0 +1,193 @@
+[
+  {
+    "id": "FIX-B01",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B01-CP001.json",
+    "targetRule": "CP001",
+    "what": "description rỗng"
+  },
+  {
+    "id": "FIX-B02",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B02-CP002.json",
+    "targetRule": "CP002",
+    "what": "đề không có cận số học"
+  },
+  {
+    "id": "FIX-B03",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B03-CP003.json",
+    "targetRule": "CP003",
+    "what": "không có sample test"
+  },
+  {
+    "id": "FIX-B04",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B04-CP004.json",
+    "targetRule": "CP004",
+    "what": "test thiếu expectedOutput"
+  },
+  {
+    "id": "FIX-B05",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B05-CP005.json",
+    "targetRule": "CP005",
+    "what": "thiếu solutionCode"
+  },
+  {
+    "id": "FIX-B06",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B06-CP006.json",
+    "targetRule": "CP006",
+    "what": "reference sai (luôn in YES)"
+  },
+  {
+    "id": "FIX-B07",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B07-CP007.json",
+    "targetRule": "CP007",
+    "what": "timeLimitMs = 0"
+  },
+  {
+    "id": "FIX-B08",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B08-CP008.json",
+    "targetRule": "CP008",
+    "what": "expectedOutput có nhãn \"Result:\""
+  },
+  {
+    "id": "FIX-B09",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B09-CP009.json",
+    "targetRule": "CP009",
+    "what": "không có hidden test"
+  },
+  {
+    "id": "FIX-B10",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B10-CP010.json",
+    "targetRule": "CP010",
+    "what": "input 0 trong khi đề nói nguyên dương"
+  },
+  {
+    "id": "FIX-B11",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B11-CP011.json",
+    "targetRule": "CP011",
+    "what": "hai test cùng input"
+  },
+  {
+    "id": "FIX-B12",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B12-CP012.json",
+    "targetRule": "CP012",
+    "what": "hidden trùng input với sample"
+  },
+  {
+    "id": "FIX-B13",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B13-CP013.json",
+    "targetRule": "CP013",
+    "what": "chỉ 3 test (1 hidden)"
+  },
+  {
+    "id": "FIX-B14",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B14-CP014.json",
+    "targetRule": "CP014",
+    "what": "starterCode = solutionCode"
+  },
+  {
+    "id": "FIX-B15",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B15-CP015.json",
+    "targetRule": "CP015",
+    "what": "reference import os"
+  },
+  {
+    "id": "FIX-B16",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B16-CP016.json",
+    "targetRule": "CP016",
+    "what": "giá trị hidden nằm trong đề"
+  },
+  {
+    "id": "FIX-B17",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B17-CP017.json",
+    "targetRule": "CP017",
+    "what": "slug trùng nhau"
+  },
+  {
+    "id": "FIX-B18",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B18-CP018.json",
+    "targetRule": "CP018",
+    "what": "expectedOutput thừa dòng trống cuối"
+  },
+  {
+    "id": "FIX-B19",
+    "kind": "bad",
+    "file": "fixtures/bad/FIX-B19-CP019.json",
+    "targetRule": "CP019",
+    "what": "expectedOutput > 64KB"
+  },
+  {
+    "id": "FIX-G01",
+    "kind": "good",
+    "file": "fixtures/good/FIX-G01-clean-prime.json",
+    "expect": "clean",
+    "mustNotFire": [],
+    "what": "bài sạch hoàn toàn (0 finding)"
+  },
+  {
+    "id": "FIX-G02",
+    "kind": "good",
+    "file": "fixtures/good/FIX-G02-multiline-output-real-xep-loai.json",
+    "expect": "no-false-positive",
+    "mustNotFire": [
+      "CP008"
+    ],
+    "what": "output nhiều dòng, mỗi dòng thuộc tập {A,B,C,D,F}; câu \"mỗi kết quả trên một dòng\" KHÔNG phải yêu cầu output 1 dòng"
+  },
+  {
+    "id": "FIX-G03",
+    "kind": "good",
+    "file": "fixtures/good/FIX-G03-positive-N-with-zero-price-real-hoa-don.json",
+    "expect": "no-false-positive",
+    "mustNotFire": [
+      "CP010"
+    ],
+    "what": "N nguyên dương ở dòng 2, dòng 3 là giá tiền = 0 (hợp lệ)"
+  },
+  {
+    "id": "FIX-G04",
+    "kind": "good",
+    "file": "fixtures/good/FIX-G04-function-starter-with-driver-real-giai-thua.json",
+    "expect": "no-false-positive",
+    "mustNotFire": [
+      "CP014"
+    ],
+    "what": "starterCode có sẵn dòng print() gọi hàm của học viên - đó là khung, không phải đáp án"
+  },
+  {
+    "id": "FIX-G05",
+    "kind": "good",
+    "file": "fixtures/good/FIX-G05-empty-expected-output-real-tui-do.json",
+    "expect": "no-false-positive",
+    "mustNotFire": [
+      "CP004",
+      "CP008",
+      "CP018"
+    ],
+    "what": "expectedOutput rỗng \"\" hợp lệ (đề: túi rỗng thì không in gì)"
+  },
+  {
+    "id": "FIX-G06",
+    "kind": "good",
+    "file": "fixtures/good/FIX-G06-structured-constraints.json",
+    "expect": "clean",
+    "mustNotFire": [],
+    "what": "constraints khai báo dạng cấu trúc và mọi test nằm trong khoảng"
+  }
+]

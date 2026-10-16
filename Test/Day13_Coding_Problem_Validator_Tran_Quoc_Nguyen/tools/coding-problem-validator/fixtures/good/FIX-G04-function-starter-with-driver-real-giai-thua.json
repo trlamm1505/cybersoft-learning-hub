@@ -1,0 +1,39 @@
+[
+  {
+    "slug": "day14-ham-tinh-giai-thua",
+    "title": "Hàm tính giai thừa có kiểm tra đầu vào",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Viết hàm factorial(n) trả về giai thừa của n (n! = 1*2*...*n, quy ước 0! = 1). Nếu n âm, hàm trả về -1 (giá trị báo lỗi). Chương trình đọc một số nguyên N, gọi hàm và in kết quả trả về.",
+    "starterCode": "def factorial(n):\n    # Viết code của bạn ở đây\n    pass\n\nn = int(input())\nprint(factorial(n))\n",
+    "solutionCode": "def factorial(n):\n    if n < 0:\n        return -1\n    ket_qua = 1\n    for i in range(2, n + 1):\n        ket_qua *= i\n    return ket_qua\n\nn = int(input())\nprint(factorial(n))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "5",
+        "expectedOutput": "120",
+        "isHidden": false
+      },
+      {
+        "input": "0",
+        "expectedOutput": "1",
+        "isHidden": false
+      },
+      {
+        "input": "-3",
+        "expectedOutput": "-1",
+        "isHidden": true
+      },
+      {
+        "input": "1",
+        "expectedOutput": "1",
+        "isHidden": true
+      },
+      {
+        "input": "10",
+        "expectedOutput": "3628800",
+        "isHidden": true
+      }
+    ]
+  }
+]

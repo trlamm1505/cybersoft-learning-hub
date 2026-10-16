@@ -1,0 +1,142 @@
+# Postgres Sandbox cho DA Lab (bản mô phỏng DB cô lập do TTS 01 cấp phát).
+# Tự bật khi chạy `npm run dev` ở thư mục learning-hub (scripts/ensure-sandbox.js),
+# hoặc bật riêng: npm run docker:up
+# Learning Hub chỉ kết nối bằng lab_reader (chỉ đọc, statement_timeout 5s, tối đa
+# 20 kết nối; tạo trong 02-lab-reader.sh). POSTGRES_DB phải là sales_v1 vì các
+# script khởi tạo cấp quyền theo tên DB này.
+#
+# Biến cấu hình đặt trong learning-hub/.env (xem .env.example): Compose tự đọc
+# file này, mock data-service cũng đọc nó để dựng sandbox_db_url, nên mật khẩu
+# lab_reader chỉ khai báo một nơi. Mặc định bên dưới phải khớp
+# BE/src/common/config/sandbox-env.ts (có test kiểm tra).
+#
+# Mật khẩu mặc định bên dưới CHỈ dành cho máy local. Production dùng thêm
+# docker-compose.prod.yml (bắt buộc đặt mật khẩu, không mở cổng ra ngoài):
+#   npm run docker:up:prod
+#
+# Chạy TRỌN BỘ (MongoDB + Postgres sandbox + backend + web) bằng một lệnh, dùng để
+# deploy hoặc demo trên máy chỉ có Docker: npm run docker:full
+# (đặt JWT_SECRET, GEMINI_API_KEY... trong learning-hub/.env, xem .env.example).
+# Profile `full`: mặc định `docker compose up` vẫn chỉ bật sandbox như khi dev.
+services:
+  postgres-sandbox:
+    image: postgres:16-alpine
+    container_name: da-sandbox-sales-v1
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sales_v1
+      POSTGRES_USER: ${SANDBOX_DB_OWNER:-sandbox_owner}
+      POSTGRES_PASSWORD: ${SANDBOX_DB_OWNER_PASSWORD:-sandbox_owner_pw}
+      LAB_READER_PASSWORD: ${LAB_READER_PASSWORD:-lab_reader_pw}
+    # Chỉ nghe trên loopback: máy khác trong mạng không kết nối được sandbox.
+    ports:
+      - '127.0.0.1:${SANDBOX_DB_PORT:-55432}:5432'
+    volumes:
+      - ./BE/mock-data-service/sandbox/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./BE/mock-data-service/sandbox/02-lab-reader.sh:/docker-entrypoint-initdb.d/02-lab-reader.sh:ro
+      - sandbox-data:/var/lib/postgresql/data
+    # Giới hạn tài nguyên: truy vấn nặng của học viên không làm treo máy chủ.
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+          pids: 200
+        reservations:
+          memory: 256M
+    shm_size: 128m
+    command:
+      - postgres
+      - -c
+      - max_connections=40
+      - -c
+      - shared_buffers=128MB
+      - -c
+      - work_mem=4MB
+      - -c
+      - temp_file_limit=256MB
+      - -c
+      - idle_in_transaction_session_timeout=30s
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d sales_v1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB cho máy dev chưa cài MongoDB: publish 27017 (chỉ loopback) để backend chạy ngoài
+  # Docker kết nối được. Tự bật bởi `npm run setup` / `npm run dev` khi cổng 27017 đang trống.
+  # Máy đã có MongoDB local thì không cần (và không bị bật).
+  mongo-dev:
+    profiles: [dev]
+    image: mongo:7
+    container_name: learning-hub-mongo-dev
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:27017:27017'
+    volumes:
+      - mongo-dev-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping").ok']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mongo:
+    profiles: [full]
+    image: mongo:7
+    container_name: learning-hub-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping").ok']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    profiles: [full]
+    build:
+      context: .
+      dockerfile: BE/Dockerfile
+    container_name: learning-hub-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: mongodb://mongo:27017/cybersoft
+      # Bắt buộc ở production: backend từ chối khởi động nếu thiếu (xem jwt-secret.ts).
+      # Không dùng `:?` ở đây vì Compose nội suy biến của cả dịch vụ không thuộc profile,
+      # sẽ làm `docker compose up` (chỉ bật sandbox khi dev) lỗi.
+      JWT_SECRET: ${JWT_SECRET:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      # Để trống: dùng dữ liệu tích hợp sẵn; đặt địa chỉ server TTS 01 để dùng dữ liệu thật.
+      DATA_SERVICE_BASE_URL: ${DATA_SERVICE_BASE_URL:-}
+      DATA_SERVICE_API_KEY: ${DATA_SERVICE_API_KEY:-}
+      # Trong mạng Docker, backend gọi sandbox bằng tên dịch vụ và cổng nội bộ 5432
+      # (SANDBOX_DB_PORT ở trên chỉ là cổng publish ra máy chủ).
+      SANDBOX_DB_HOST: postgres-sandbox
+      SANDBOX_DB_PORT: '5432'
+      LAB_READER_PASSWORD: ${LAB_READER_PASSWORD:-lab_reader_pw}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      postgres-sandbox:
+        condition: service_healthy
+
+  frontend:
+    profiles: [full]
+    build:
+      context: .
+      dockerfile: FE/Dockerfile
+    container_name: learning-hub-web
+    restart: unless-stopped
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  sandbox-data:
+  mongo-data:
+  mongo-dev-data:

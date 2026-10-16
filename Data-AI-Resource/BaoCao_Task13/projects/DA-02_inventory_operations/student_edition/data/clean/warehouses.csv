@@ -1,0 +1,4 @@
+warehouse_id,warehouse_name,region,capacity_sqm,manager_name,status
+WH-HN01,Kho Trung Tam Ha Noi,North,5000,Nguyen Van Binh,ACTIVE
+WH-DN01,Kho Mien Trung Da Nang,Central,2500,Le Thi Mai,ACTIVE
+WH-HCM01,Kho Tong TP. Ho Chi Minh,South,8000,Tran Huu Duc,ACTIVE

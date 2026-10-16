@@ -1,0 +1,6 @@
+S-MAN-01 | 08/10/2026 20:45-20:47 | Block Puzzle > Robot Về Nhà bài 1 (khu vực không nằm trong charter AI nào)
+5 trò chơi hiện đúng tiến độ (Mê Cung 0/10, Rùa 0/10, Chim 1/10, Ghép Hình 0/1, Robot 0/15); bài 2..15 khóa
+Bấm (click) vào khối "Đi tới" 6 lần -> không thêm khối nào, "Chạy Thử" vẫn bị mờ (chỉ kéo thả mới thêm được)
+Kéo 1 khối vào vùng xếp lệnh -> (1/5), Chạy Thử bật; chạy 1 bước -> robot đi 1 ô và báo "Chưa tới đích rồi, thử xếp lại các khối lệnh nhé!" (đạt)
+Ghi chú: 3 lần kéo liên tiếp chỉ thêm được 1 khối; chưa rõ do công cụ kéo thả tự động hay lỗi, nên không báo bug.
+Không có bug mới hợp lệ trong phiên này.

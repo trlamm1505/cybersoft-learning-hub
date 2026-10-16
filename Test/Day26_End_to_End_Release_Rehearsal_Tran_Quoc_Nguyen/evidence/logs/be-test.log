@@ -1,0 +1,368 @@
+
+> be@0.0.1 test
+> jest --runInBand
+
+PASS src/integration/ai-exercise-to-lesson-publish.spec.ts
+PASS src/modules-api/problem-generator/problem-generator.service.spec.ts
+PASS src/common/helper/code-runner.helper.spec.ts
+PASS src/common/helper/python-guard.helper.spec.ts
+PASS src/modules-api/problem-generator/problem-validator.spec.ts
+PASS src/modules-api/admin-users/admin-users.service.spec.ts
+PASS src/common/security/route-guards.spec.ts
+PASS src/modules-api/auth/auth.service.spec.ts
+PASS src/common/auth/student-only.guard.spec.ts
+PASS src/modules-api/teacher-analytics/class-admin.spec.ts
+PASS src/common/security/app-throttler.guard.spec.ts
+[32m[Nest] 7720  - [39m10/10/2026, 8:06:30 AM [32m    LOG[39m [38;5;3m[DefaultAdminService] [39m[32mĐã tạo tài khoản Admin mẫu admin@gmail.com (chỉ dùng cho dev).[39m
+PASS src/modules-api/auth/default-admin.service.spec.ts
+[32m[Nest] 7720  - [39m10/10/2026, 8:06:30 AM [32m    LOG[39m [38;5;3m[DefaultAdminService] [39m[32mĐã tạo tài khoản Admin mẫu admin@gmail.com (chỉ dùng cho dev).[39m
+[33m[Nest] 7720  - [39m10/10/2026, 8:06:30 AM [33m   WARN[39m [38;5;3m[DefaultAdminService] [39m[33mKhông tạo được tài khoản Admin mẫu: mongo down[39m
+PASS src/modules-api/da-labs/teacher-submissions.controller.spec.ts
+PASS src/modules-api/admin-users/role-revocation.spec.ts
+PASS src/modules-api/coach/coach.service.spec.ts
+[31m[Nest] 7720  - [39m10/10/2026, 8:06:32 AM [31m  ERROR[39m [38;5;3m[DaLabsService] [39m[31mChấm Insight "da-insight-01" lỗi hệ thống, chuyển giảng viên chấm: sandbox down[39m
+PASS src/modules-api/da-labs/da-labs.service.spec.ts
+PASS src/modules-api/teacher-analytics/student-classes.spec.ts
+PASS src/modules-api/teacher-analytics/teacher-analytics.service.spec.ts
+PASS src/modules-api/contest/contest-manage.service.spec.ts
+PASS src/modules-api/ai-labs/ai-labs.service.spec.ts
+PASS src/modules-api/da-labs/da-labs.submissions.spec.ts
+PASS src/modules-api/contest/contest.service.spec.ts
+PASS src/modules-api/authoring/authoring.service.spec.ts
+  ● Console
+
+    console.warn
+      Slug exercise "bai-coding" đã bị nguồn khác chiếm (không có sourceLessonSlug khớp lesson này) — đồng bộ lesson "bai-coding" sang slug thay thế "bai-coding-2" thay vì ghi đè.
+
+    [0m [90m 282 |[39m
+     [90m 283 |[39m       [36mif[39m ([33m![39mownedByThisLesson) {
+    [31m[1m>[22m[39m[90m 284 |[39m         console[33m.[39mwarn(
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 285 |[39m           [32m`Slug exercise "${lesson.slug}" đã bị nguồn khác chiếm (không có sourceLessonSlug khớp lesson này) — `[39m [33m+[39m
+     [90m 286 |[39m             [32m`đồng bộ lesson "${lesson.slug}" sang slug thay thế "${targetSlug}" thay vì ghi đè.`[39m[33m,[39m
+     [90m 287 |[39m         )[33m;[39m[0m
+
+      at AuthoringService.syncPublishedCodingLessonToExerciseBank (modules-api/authoring/authoring.service.ts:284:17)
+      at AuthoringService.createLesson (modules-api/authoring/authoring.service.ts:360:5)
+      at Object.<anonymous> (modules-api/authoring/authoring.service.spec.ts:235:7)
+
+    console.warn
+      Slug exercise "bai-coding" đã bị nguồn khác chiếm (không có sourceLessonSlug khớp lesson này) — đồng bộ lesson "bai-coding" sang slug thay thế "bai-coding-4" thay vì ghi đè.
+
+    [0m [90m 282 |[39m
+     [90m 283 |[39m       [36mif[39m ([33m![39mownedByThisLesson) {
+    [31m[1m>[22m[39m[90m 284 |[39m         console[33m.[39mwarn(
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 285 |[39m           [32m`Slug exercise "${lesson.slug}" đã bị nguồn khác chiếm (không có sourceLessonSlug khớp lesson này) — `[39m [33m+[39m
+     [90m 286 |[39m             [32m`đồng bộ lesson "${lesson.slug}" sang slug thay thế "${targetSlug}" thay vì ghi đè.`[39m[33m,[39m
+     [90m 287 |[39m         )[33m;[39m[0m
+
+      at AuthoringService.syncPublishedCodingLessonToExerciseBank (modules-api/authoring/authoring.service.ts:284:17)
+      at AuthoringService.createLesson (modules-api/authoring/authoring.service.ts:360:5)
+      at Object.<anonymous> (modules-api/authoring/authoring.service.spec.ts:263:7)
+
+PASS src/modules-api/coach/eval/coach-eval.spec.ts
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=230 tokens, completion=92 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=248 tokens, completion=93 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=107 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=242 tokens, completion=95 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=91 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=18 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=241 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=234 tokens, completion=23 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=52 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=240 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=235 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=265 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=251 tokens, completion=69 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=231 tokens, completion=64 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=63 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=233 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=261 tokens, completion=62 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=232 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=222 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=230 tokens, completion=92 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=248 tokens, completion=93 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=107 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=242 tokens, completion=95 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=91 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=18 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=241 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=234 tokens, completion=23 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=52 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=240 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=235 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=265 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=251 tokens, completion=69 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=231 tokens, completion=64 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=63 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=233 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=261 tokens, completion=62 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=232 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=222 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=230 tokens, completion=92 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=248 tokens, completion=93 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=107 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=242 tokens, completion=95 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=91 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=18 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=241 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=234 tokens, completion=23 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=52 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=240 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=235 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=265 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=251 tokens, completion=69 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=231 tokens, completion=64 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=63 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=233 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=261 tokens, completion=62 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=232 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=222 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=230 tokens, completion=92 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=248 tokens, completion=93 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=107 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=242 tokens, completion=95 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=91 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=18 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=245 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=241 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=234 tokens, completion=23 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=243 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=73 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=52 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=77 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=240 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=235 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=265 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=237 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=251 tokens, completion=69 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=231 tokens, completion=64 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=244 tokens, completion=63 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=233 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=239 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=261 tokens, completion=62 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=246 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=226 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=232 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=228 tokens, completion=70 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=225 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=221 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=224 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=220 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=222 tokens, completion=81 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:36 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=223 tokens, completion=81 tokens[39m
+PASS src/modules-api/contest/contest-submission.service.spec.ts
+PASS src/modules-api/integrity/integrity.service.spec.ts
+PASS src/app.controller.spec.ts
+PASS src/modules-api/exercise/exercise.service.spec.ts
+PASS src/modules-api/contest/contest-attempt.service.spec.ts
+PASS src/modules-api/tester-labs/tester-labs.service.spec.ts
+[32m[Nest] 7720  - [39m10/10/2026, 8:06:38 AM [32m    LOG[39m [38;5;3m[TesterLabsService] [39m[32mĐã đồng bộ 10 Tester Lab mặc định[39m
+[32m[Nest] 7720  - [39m10/10/2026, 8:06:38 AM [32m    LOG[39m [38;5;3m[TesterLabsService] [39m[32mĐã đồng bộ 10 Tester Lab mặc định[39m
+PASS src/modules-api/learner-activity/learner-activity.service.spec.ts
+PASS src/modules-api/coach/coach-gemini.client.spec.ts
+[33m[Nest] 7720  - [39m10/10/2026, 8:06:38 AM [33m   WARN[39m [38;5;3m[GeminiCoachLlmClient] [39m[33mGọi Gemini cho AI Coach thất bại, dùng câu trả lời mẫu: 429 RESOURCE_EXHAUSTED[39m
+PASS src/modules-api/leaderboard/leaderboard.service.spec.ts
+PASS src/modules-api/recommendation/recommendation.service.spec.ts
+PASS src/modules-api/coach/coach-context.builder.spec.ts
+PASS src/modules-api/quiz/quiz.service.spec.ts
+PASS src/modules-api/hint/hint.service.spec.ts
+PASS src/modules-api/judge/judge-queue.service.spec.ts
+PASS src/modules-api/leaderboard/leaderboard.controller.spec.ts
+PASS src/modules-api/block-puzzle/block-puzzle.service.spec.ts
+PASS src/modules-api/teacher-analytics/roster-import.spec.ts
+PASS src/modules-api/da-labs/insight-grader.service.spec.ts
+PASS src/modules-api/problem-generator/problem-generator-gemini.client.spec.ts
+[33m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [33m   WARN[39m [38;5;3m[GeminiProblemGeneratorClient] [39m[33mLỗi mạng/quá tải gọi Gemini cho spec spec-retry-test, thử lại lần 2/3 sau 1ms.[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [95m  DEBUG[39m [38;5;3m[GeminiProblemGeneratorClient] [39m[95mGemini generated draft for spec spec-retry-test: Bai kiem thu[39m
+[33m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [33m   WARN[39m [38;5;3m[GeminiProblemGeneratorClient] [39m[33mLỗi mạng/quá tải gọi Gemini cho spec spec-retry-test, thử lại lần 2/3 sau 1ms.[39m
+[33m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [33m   WARN[39m [38;5;3m[GeminiProblemGeneratorClient] [39m[33mLỗi mạng/quá tải gọi Gemini cho spec spec-retry-test, thử lại lần 3/3 sau 2ms.[39m
+[33m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [33m   WARN[39m [38;5;3m[GeminiProblemGeneratorClient] [39m[33mJSON Gemini bị cắt cụt cho spec spec-retry-test (lần thử 1/3), sinh lại với prompt yêu cầu súc tích hơn.[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [95m  DEBUG[39m [38;5;3m[GeminiProblemGeneratorClient] [39m[95mGemini generated draft for spec spec-retry-test: Bai kiem thu[39m
+PASS src/modules-api/problem-generator/problem-duplicate-check.spec.ts
+PASS src/modules-api/ai-labs/ai-lab-grader.service.spec.ts
+[31m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1): ECONNREFUSED[39m
+[31m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/evaluation-sets/eval-policy-curriculum-v1): connect ECONNREFUSED 127.0.0.1:8010[39m
+[31m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/evaluation-sets/eval-policy-curriculum-v1): fail[39m
+[31m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/evaluation-sets/eval-policy-curriculum-v1): fail[39m
+[31m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/evaluation-sets/eval-policy-curriculum-v1): fail[39m
+[31m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1): Server Error[39m
+[31m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://tts01:8000/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1): refused[39m
+[31m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://tts01:8000/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1): refused[39m
+PASS src/integration/dataset-integration.service.spec.ts
+[33m[Nest] 7720  - [39m10/10/2026, 8:06:42 AM [33m   WARN[39m [38;5;3m[DatasetIntegrationService] [39m[33mMáy chủ dữ liệu http://tts01:8000 không trả lời; tạm dùng dữ liệu tích hợp sẵn (DATA_SERVICE_FALLBACK=embedded).[39m
+PASS src/modules-api/da-labs/sql-grader.service.spec.ts
+PASS src/integration/real-registry-contract.spec.ts
+PASS src/modules-api/tester-labs/artifact-upload.service.spec.ts
+PASS src/modules-api/tester-labs/rubric-evaluation.engine.spec.ts
+PASS src/modules-api/problem-generator/problem-generator-llm.client.spec.ts
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-01: Tính tổng dãy số theo điều kiện (EASY)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-02: Kiểm tra chuỗi đối xứng (EASY)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-03: Tìm phần tử lớn thứ hai trong danh sách (MEDIUM)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-04: Tính tổng dãy số theo điều kiện (MEDIUM)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-05: So sánh hai số nguyên (EASY)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-06: Kiểm tra chuỗi đối xứng (MEDIUM)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-07: Tìm phần tử lớn thứ hai trong danh sách (HARD)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-08: Tính tổng dãy số theo điều kiện (HARD)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-09: Kiểm tra chuỗi đối xứng (MEDIUM)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-10: So sánh hai số nguyên (EASY)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-01: Tính tổng dãy số theo điều kiện (EASY)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-02: Kiểm tra chuỗi đối xứng (EASY)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-03: Tìm phần tử lớn thứ hai trong danh sách (MEDIUM)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-04: Tính tổng dãy số theo điều kiện (MEDIUM)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-05: So sánh hai số nguyên (EASY)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-06: Kiểm tra chuỗi đối xứng (MEDIUM)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-07: Tìm phần tử lớn thứ hai trong danh sách (HARD)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-08: Tính tổng dãy số theo điều kiện (HARD)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-09: Kiểm tra chuỗi đối xứng (MEDIUM)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-10: So sánh hai số nguyên (EASY)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubProblemGeneratorClient] [39m[95mGenerated draft for spec spec-01: Tính tổng dãy số theo điều kiện (EASY)[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=148 tokens, completion=90 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=124 tokens, completion=92 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=124 tokens, completion=64 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=124 tokens, completion=47 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=119 tokens, completion=79 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=120 tokens, completion=18 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=118 tokens, completion=27 tokens[39m
+[95m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [95m  DEBUG[39m [38;5;3m[StubLlmClient] [39m[95mStub LLM chat: prompt=149 tokens, completion=79 tokens[39m
+PASS src/modules-api/coach/coach-llm.client.spec.ts
+PASS src/modules-api/coach/ai-coach-preprocessor.spec.ts
+PASS src/modules-api/da-labs/sandbox-sql.executor.spec.ts
+PASS src/modules-api/coach/coach-debug-explainer.spec.ts
+PASS src/modules-api/da-labs/sql-guard.spec.ts
+[33m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [33m   WARN[39m [38;5;3m[GeminiDebugExplainer] [39m[33mGemini phân tích lỗi thất bại: [429 Too Many Requests] RESOURCE_EXHAUSTED[39m
+[33m[Nest] 7720  - [39m10/10/2026, 8:06:43 AM [33m   WARN[39m [38;5;3m[GeminiDebugExplainer] [39m[33mGemini phân tích lỗi thất bại: ECONNRESET[39m
+PASS src/modules-api/teacher-analytics/demo-cleanup.spec.ts
+PASS src/common/security/secret-patterns.spec.ts
+PASS src/modules-api/teacher-analytics/analytics-core.spec.ts
+PASS src/modules-api/coach/coach-policy.spec.ts
+PASS src/common/helper/code-runner.docker.spec.ts
+PASS src/common/helper/concurrency-limiter.spec.ts
+PASS src/modules-api/recommendation/recommendation.spec.ts
+PASS src/modules-api/integrity/integrity-signals.spec.ts
+PASS src/common/auth/jwt-secret.spec.ts
+PASS src/modules-api/integrity/code-similarity.spec.ts
+PASS src/modules-api/coach/coach-canned-replies.spec.ts
+PASS src/common/config/sandbox-env.spec.ts
+PASS src/modules-api/coach/coach-injection-guard.spec.ts
+PASS src/modules-api/coach/coach-debug-loop.spec.ts
+PASS src/modules-api/auth/avatar.spec.ts
+PASS src/common/utils/sanitize-text-input.util.spec.ts
+PASS src/common/helper/prng.helper.spec.ts
+
+Test Suites: 73 passed, 73 total
+Tests:       2 skipped, 924 passed, 926 total
+Snapshots:   0 total
+Time:        29.754 s, estimated 37 s
+Ran all test suites.

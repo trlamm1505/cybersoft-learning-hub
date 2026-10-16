@@ -1,0 +1,579 @@
+{
+  "$schema": "https://cybersoft.edu.vn/schemas/project.schema.json",
+  "metadata": {
+    "id": "proj-sales-performance-analytics",
+    "title": "CyberSoft Mart - Sales Performance & Customer Retention Intelligence Capstone",
+    "domain": "retail_ecommerce",
+    "level": "intermediate",
+    "target_role": "data_analyst",
+    "estimated_hours": 12,
+    "version": "1.0.0",
+    "author": "CyberSoft Data & AI Lab",
+    "created_date": "2026-09-15",
+    "tags": [
+      "retail",
+      "ecommerce",
+      "sales_analytics",
+      "rfm_segmentation",
+      "executive_dashboard",
+      "sql",
+      "python"
+    ],
+    "edition": "student"
+  },
+  "business_context": {
+    "company_name": "CyberSoft Mart E-commerce",
+    "industry": "Retail & E-commerce",
+    "problem_statement": "CyberSoft Mart trải qua mức tăng trưởng nhanh nhưng tỷ lệ hủy đơn hàng và thất thoát khách hàng sau lần mua đầu tiên đang có chiều hướng tăng cao. Ban giám đốc yêu cầu phòng Data Analytics rà soát toàn diện hiệu quả bán hàng, bóc tách biên lợi nhuận theo danh mục, tính toán chỉ số AOV và triển khai phân khúc RFM để tái kích hoạt tập khách hàng trung thành.",
+    "business_objectives": [
+      "Làm sạch và hợp nhất 4 bảng dữ liệu đơn hàng, sản phẩm và khách hàng",
+      "Tính toán các chỉ số kinh doanh then chốt: Doanh thu thực nhận, AOV, Tỷ lệ hủy/hoàn đơn, Biên lợi nhuận gộp",
+      "Phân khúc tập khách hàng theo mô hình RFM định lượng 5 nhóm",
+      "Xây dựng Dashboard phân tích xu hướng và đề xuất 3 giải pháp cải thiện kinh doanh"
+    ],
+    "target_stakeholders": [
+      "Chief Commercial Officer (CCO)",
+      "Head of Marketing & Retention",
+      "Customer Experience & Operations Manager"
+    ]
+  },
+  "datasets": [
+    {
+      "dataset_id": "ds-orders",
+      "name": "Bảng Đơn Hàng (Orders)",
+      "file_path": "data/orders.csv",
+      "format": "csv",
+      "description": "Chứa 402 giao dịch đơn hàng thực tế kèm 2 bản ghi trùng lặp và 5 giá trị trạng thái khuyết thiếu.",
+      "record_count": 402,
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "VARCHAR(36)",
+          "description": "Mã đơn hàng",
+          "primary_key": true
+        },
+        {
+          "name": "customer_id",
+          "type": "VARCHAR(36)",
+          "description": "Mã khách hàng",
+          "foreign_key": "customers.customer_id"
+        },
+        {
+          "name": "order_date",
+          "type": "TIMESTAMP",
+          "description": "Thời điểm đặt hàng"
+        },
+        {
+          "name": "order_status",
+          "type": "VARCHAR(20)",
+          "description": "Trạng thái đơn (completed, cancelled, returned)"
+        },
+        {
+          "name": "total_amount",
+          "type": "DECIMAL(12,2)",
+          "description": "Tổng giá trị đơn hàng"
+        },
+        {
+          "name": "payment_method",
+          "type": "VARCHAR(30)",
+          "description": "Phương thức thanh toán"
+        },
+        {
+          "name": "shipping_fee",
+          "type": "DECIMAL(10,2)",
+          "description": "Phí vận chuyển"
+        }
+      ],
+      "known_data_issues": [
+        "2 bản ghi trùng lặp khóa chính order_id",
+        "5 bản ghi khuyết thiếu giá trị order_status"
+      ]
+    },
+    {
+      "dataset_id": "ds-order-items",
+      "name": "Bảng Chi Tiết Đơn Hàng (Order Items)",
+      "file_path": "data/order_items.csv",
+      "format": "csv",
+      "description": "Chứa 997 mục hàng chi tiết thuộc các đơn hàng.",
+      "record_count": 997,
+      "columns": [
+        {
+          "name": "item_id",
+          "type": "VARCHAR(36)",
+          "description": "Mã chi tiết đơn hàng",
+          "primary_key": true
+        },
+        {
+          "name": "order_id",
+          "type": "VARCHAR(36)",
+          "description": "Mã đơn hàng",
+          "foreign_key": "orders.order_id"
+        },
+        {
+          "name": "product_id",
+          "type": "VARCHAR(36)",
+          "description": "Mã sản phẩm",
+          "foreign_key": "products.product_id"
+        },
+        {
+          "name": "quantity",
+          "type": "INT",
+          "description": "Số lượng mua"
+        },
+        {
+          "name": "unit_price",
+          "type": "DECIMAL(10,2)",
+          "description": "Đơn giá niêm yết"
+        },
+        {
+          "name": "discount_amount",
+          "type": "DECIMAL(10,2)",
+          "description": "Số tiền chiết khấu"
+        }
+      ]
+    },
+    {
+      "dataset_id": "ds-customers",
+      "name": "Bảng Khách Hàng (Customers)",
+      "file_path": "data/customers.csv",
+      "format": "csv",
+      "description": "Chứa thông tin hồ sơ của 100 khách hàng tích cực.",
+      "record_count": 100,
+      "columns": [
+        {
+          "name": "customer_id",
+          "type": "VARCHAR(36)",
+          "description": "Mã khách hàng",
+          "primary_key": true
+        },
+        {
+          "name": "full_name",
+          "type": "VARCHAR(100)",
+          "description": "Họ và tên khách hàng"
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR(100)",
+          "description": "Địa chỉ email"
+        },
+        {
+          "name": "city",
+          "type": "VARCHAR(50)",
+          "description": "Tỉnh thành sinh sống"
+        },
+        {
+          "name": "registration_date",
+          "type": "DATE",
+          "description": "Ngày đăng ký tài khoản"
+        },
+        {
+          "name": "loyalty_tier",
+          "type": "VARCHAR(20)",
+          "description": "Hạng hội viên (Bronze, Silver, Gold, Platinum)"
+        }
+      ]
+    },
+    {
+      "dataset_id": "ds-products",
+      "name": "Bảng Sản Phẩm (Products)",
+      "file_path": "data/products.csv",
+      "format": "csv",
+      "description": "Danh mục 50 mặt hàng kinh doanh thuộc 5 ngành hàng chính.",
+      "record_count": 50,
+      "columns": [
+        {
+          "name": "product_id",
+          "type": "VARCHAR(36)",
+          "description": "Mã sản phẩm",
+          "primary_key": true
+        },
+        {
+          "name": "product_name",
+          "type": "VARCHAR(100)",
+          "description": "Tên sản phẩm"
+        },
+        {
+          "name": "category",
+          "type": "VARCHAR(50)",
+          "description": "Ngành hàng"
+        },
+        {
+          "name": "cost_price",
+          "type": "DECIMAL(10,2)",
+          "description": "Giá vốn nhập hàng"
+        },
+        {
+          "name": "list_price",
+          "type": "DECIMAL(10,2)",
+          "description": "Giá niêm yết bán lẻ"
+        }
+      ]
+    }
+  ],
+  "requirements": {
+    "total_core_points": 70,
+    "total_extension_points": 30,
+    "core_tasks": [
+      {
+        "task_id": "TASK-01",
+        "name": "Tiền xử lý và làm sạch dữ liệu đa bảng (Data Cleaning & Quality)",
+        "description": "Loại bỏ hoàn toàn bản ghi trùng lặp khóa chính, xử lý giá trị null ở order_status, kiểm tra tính toàn vẹn khóa ngoại PK-FK.",
+        "points": 20,
+        "learning_outcomes": [
+          "Thành thạo làm sạch dữ liệu dạng bảng trong Pandas và SQL",
+          "Hiểu rõ tác động của dirty data đến báo cáo tài chính"
+        ],
+        "expected_outputs": [
+          "orders_cleaned.csv",
+          "data_cleaning_log.md"
+        ]
+      },
+      {
+        "task_id": "TASK-02",
+        "name": "Tính toán và tổng hợp KPI kinh doanh then chốt (Core Business KPIs)",
+        "description": "Viết truy vấn và script tính chính xác Net Revenue, AOV, Cancellation Rate, Return Rate, và Gross Margin %.",
+        "points": 25,
+        "learning_outcomes": [
+          "Tính toán chính xác các chỉ số tài chính e-commerce",
+          "Sử dụng thành thạo GROUP BY, CASE WHEN và JOIN"
+        ],
+        "expected_outputs": [
+          "kpi_summary.json",
+          "kpi_queries.sql"
+        ]
+      },
+      {
+        "task_id": "TASK-03",
+        "name": "Phân tích xu hướng và Trực quan hóa Báo cáo (Visual Dashboard)",
+        "description": "Tạo 4 biểu đồ trực quan hóa doanh thu theo tháng, cơ cấu doanh thu theo ngành hàng, tỷ lệ hủy đơn theo phương thức thanh toán và phân bổ AOV.",
+        "points": 25,
+        "learning_outcomes": [
+          "Xây dựng biểu đồ trực quan hóa dữ liệu chuẩn UX",
+          "Trình bày insight nghiệp vụ mạch lạc"
+        ],
+        "expected_outputs": [
+          "dashboard_charts.png",
+          "executive_summary.md"
+        ]
+      }
+    ],
+    "extension_tasks": [
+      {
+        "task_id": "TASK-EXT-01",
+        "name": "Mô hình Phân khúc Khách hàng RFM (Recency, Frequency, Monetary)",
+        "description": "Tính điểm R, F, M cho từng khách hàng và phân thành 5 nhóm chiến lược (Champions, Loyal, Potential, At Risk, Lost).",
+        "points": 15,
+        "learning_outcomes": [
+          "Ứng dụng mô hình RFM trong bài toán giữ chân khách hàng",
+          "Kỹ thuật phân vị quantile trong phân tích dữ liệu"
+        ],
+        "expected_outputs": [
+          "rfm_customer_segments.csv",
+          "rfm_insights.md"
+        ]
+      },
+      {
+        "task_id": "TASK-EXT-02",
+        "name": "Phân tích Giỏ Hàng & Tối ưu Tỷ lệ Hủy đơn (Market Basket & Churn)",
+        "description": "Phân tích các cặp sản phẩm thường mua cùng nhau (Co-occurrence) và xác định yếu tố làm tăng tỷ lệ hủy đơn hàng.",
+        "points": 15,
+        "learning_outcomes": [
+          "Kỹ thuật phân tích cross-sell",
+          "Phân tích nguyên nhân gốc rễ (Root cause analysis) của đơn hủy"
+        ],
+        "expected_outputs": [
+          "product_affinity.csv",
+          "churn_reduction_action_plan.md"
+        ]
+      }
+    ]
+  },
+  "kpis": {
+    "business_kpis": [
+      {
+        "kpi_id": "KPI-NET-REV",
+        "name": "Tổng Doanh Thu Hợp Lệ (Net Revenue)",
+        "formula": "SUM(total_amount) WHERE order_status = 'completed'",
+        "expected_value": null,
+        "unit": "USD",
+        "tolerance_pct": 0.05
+      },
+      {
+        "kpi_id": "KPI-AOV",
+        "name": "Giá Trị Trung Bình Đơn Hàng (Average Order Value)",
+        "formula": "Net Revenue / COUNT(order_id WHERE order_status = 'completed')",
+        "expected_value": null,
+        "unit": "USD",
+        "tolerance_pct": 0.1
+      },
+      {
+        "kpi_id": "KPI-CANCEL-RATE",
+        "name": "Tỷ Lệ Hủy Đơn Hàng (Cancellation Rate)",
+        "formula": "COUNT(order_id WHERE order_status = 'cancelled') / COUNT(order_id) * 100",
+        "expected_value": null,
+        "unit": "%",
+        "tolerance_pct": 0.2
+      },
+      {
+        "kpi_id": "KPI-GROSS-MARGIN",
+        "name": "Tỷ Suất Biên Lợi Nhuận Gộp (Gross Margin)",
+        "formula": "(Item Revenue - Item Cost) / Item Revenue * 100",
+        "expected_value": null,
+        "unit": "%",
+        "tolerance_pct": 0.5
+      }
+    ],
+    "technical_kpis": [
+      {
+        "kpi_id": "TECH-CLEAN-PK",
+        "name": "Tỷ Lệ Toàn Vẹn Khóa Chính Sau Làm Sạch",
+        "formula": "COUNT(DISTINCT order_id) / COUNT(order_id) * 100",
+        "expected_value": null,
+        "unit": "%",
+        "tolerance_pct": 0.0
+      },
+      {
+        "kpi_id": "TECH-NULL-IMPUTE",
+        "name": "Tỷ Lệ Khuyết Thiếu Trạng Thái Đơn Sau Xử Lý",
+        "formula": "COUNT(order_id WHERE order_status IS NULL) / COUNT(order_id) * 100",
+        "expected_value": null,
+        "unit": "%",
+        "tolerance_pct": 0.0
+      }
+    ]
+  },
+  "rubrics": {
+    "total_points": 100,
+    "categories": [
+      {
+        "category_id": "CAT-CLEANING",
+        "name": "Chất Lượng Làm Sạch Dữ Liệu",
+        "weight": 20,
+        "criteria": [
+          {
+            "criterion_id": "CRIT-01",
+            "name": "Xử lý trùng lặp và giá trị null",
+            "max_points": 20,
+            "quantitative_metric": "Loại bỏ chính xác 100% (2/2) bản ghi trùng lặp; 100% (5/5) giá trị null ở order_status được quy chuẩn hóa về 'completed' có giải trình log.",
+            "scoring_levels": [
+              {
+                "level": "exemplary",
+                "points": 20,
+                "descriptor": "Loại bỏ hoàn toàn 2 bản ghi duplicate; quy chuẩn sạch 5 null; xuất log tường minh."
+              },
+              {
+                "level": "proficient",
+                "points": 16,
+                "descriptor": "Loại bỏ được duplicate nhưng xóa bỏ đơn null thay vì quy chuẩn có căn cứ."
+              },
+              {
+                "level": "developing",
+                "points": 10,
+                "descriptor": "Vẫn để sót 1 bản ghi duplicate hoặc làm mất dữ liệu đơn hàng hợp lệ."
+              },
+              {
+                "level": "unsatisfactory",
+                "points": 0,
+                "descriptor": "Không thực hiện làm sạch dữ liệu."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "category_id": "CAT-KPI-METRICS",
+        "name": "Độ Chính Xác Tính Toán Chỉ Số Kinh Doanh",
+        "weight": 25,
+        "criteria": [
+          {
+            "criterion_id": "CRIT-02",
+            "name": "Tính toán chỉ số Doanh thu & AOV",
+            "max_points": 25,
+            "quantitative_metric": "Doanh thu Net $388,850.28 và AOV $1,150.44 tính toán sai lệch <= 0.05% so với Ground Truth.",
+            "scoring_levels": [
+              {
+                "level": "exemplary",
+                "points": 25,
+                "descriptor": "Số liệu chính xác tuyệt đối trong sai số cho phép <= 0.05%."
+              },
+              {
+                "level": "proficient",
+                "points": 20,
+                "descriptor": "Sai số từ 0.05% đến 0.5% do tính cả đơn hủy vào doanh thu."
+              },
+              {
+                "level": "developing",
+                "points": 12,
+                "descriptor": "Sai số từ 0.5% đến 5.0% do nhầm lẫn giữa giá niêm yết và giá sau chiết khấu."
+              },
+              {
+                "level": "unsatisfactory",
+                "points": 0,
+                "descriptor": "Số liệu sai lệch > 5.0% hoặc không tính được chỉ số."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "category_id": "CAT-VISUALS-INSIGHT",
+        "name": "Trực Quan Hóa & Báo Cáo Insight",
+        "weight": 25,
+        "criteria": [
+          {
+            "criterion_id": "CRIT-03",
+            "name": "Báo cáo Trực quan hóa & Khuyến nghị",
+            "max_points": 25,
+            "quantitative_metric": "Đủ tối thiểu 4 biểu đồ đúng chuẩn loại dữ liệu, có tiêu đề và trục tọa độ ghi rõ đơn vị; bản tóm tắt có tối thiểu 3 đề xuất định lượng cụ thể.",
+            "scoring_levels": [
+              {
+                "level": "exemplary",
+                "points": 25,
+                "descriptor": "Đủ 4 biểu đồ chuẩn xác, thiết kế chuyên nghiệp, 3 đề xuất kinh doanh có số liệu chứng minh."
+              },
+              {
+                "level": "proficient",
+                "points": 20,
+                "descriptor": "Đủ 4 biểu đồ nhưng đề xuất còn mang tính chung chung, thiếu số liệu định lượng."
+              },
+              {
+                "level": "developing",
+                "points": 12,
+                "descriptor": "Chỉ có 2-3 biểu đồ hoặc dùng sai dạng biểu đồ."
+              },
+              {
+                "level": "unsatisfactory",
+                "points": 0,
+                "descriptor": "Dưới 2 biểu đồ hoặc không có báo cáo insight."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "category_id": "CAT-EXTENSION",
+        "name": "Nhiệm Vụ Nâng Cao (RFM & Churn)",
+        "weight": 30,
+        "criteria": [
+          {
+            "criterion_id": "CRIT-04",
+            "name": "Phân khúc RFM 5 nhóm khách hàng",
+            "max_points": 15,
+            "quantitative_metric": "Phân khúc chính xác tối thiểu 5 nhóm (Champions, Loyal, Potential, At Risk, Lost) theo phân vị quantile với bảng phân phối số lượng khách hàng cụ thể.",
+            "scoring_levels": [
+              {
+                "level": "exemplary",
+                "points": 15,
+                "descriptor": "Phân khúc chuẩn 5 nhóm, tính điểm R, F, M chính xác, có chiến lược tái kích hoạt cụ thể."
+              },
+              {
+                "level": "proficient",
+                "points": 12,
+                "descriptor": "Tính được điểm RFM nhưng chỉ phân loại được 3 nhóm."
+              },
+              {
+                "level": "developing",
+                "points": 8,
+                "descriptor": "Chỉ tính được 1 hoặc 2 trong 3 chỉ số R, F, M."
+              },
+              {
+                "level": "unsatisfactory",
+                "points": 0,
+                "descriptor": "Không thực hiện bài toán RFM."
+              }
+            ]
+          },
+          {
+            "criterion_id": "CRIT-05",
+            "name": "Phân tích nguyên nhân hủy đơn & Tối ưu",
+            "max_points": 15,
+            "quantitative_metric": "Bóc tách được tỷ lệ hủy đơn theo phương thức thanh toán (COD vs E-Wallet/Card) kèm kế hoạch hành động giảm tỷ lệ hủy xuống dưới 8%.",
+            "scoring_levels": [
+              {
+                "level": "exemplary",
+                "points": 15,
+                "descriptor": "Phân tích sâu nguyên nhân gốc, chỉ ra COD có tỷ lệ hủy cao nhất, có giải pháp khả thi."
+              },
+              {
+                "level": "proficient",
+                "points": 12,
+                "descriptor": "Chỉ ra được phương thức hủy nhưng giải pháp chưa định lượng."
+              },
+              {
+                "level": "developing",
+                "points": 8,
+                "descriptor": "Phân tích sơ sài, thiếu số liệu kiểm chứng."
+              },
+              {
+                "level": "unsatisfactory",
+                "points": 0,
+                "descriptor": "Không thực hiện phần phân tích hủy đơn."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": 1,
+      "tier_name": "Tier 1: Conceptual & Business Logic Hints",
+      "task_hints": {
+        "TASK-01": "Hãy kiểm tra khóa chính order_id xem có xuất hiện nhiều lần không; các đơn hàng bị thiếu status nhưng có đầy đủ chi tiết mặt hàng và thanh toán thì bản chất là đơn hàng đã hoàn tất.",
+        "TASK-02": "Doanh thu thuần (Net Revenue) chỉ ghi nhận trên các đơn hàng có trạng thái 'completed'. Đơn 'cancelled' không mang lại dòng tiền thực tế.",
+        "TASK-03": "Nên dùng biểu đồ Bar Chart so sánh doanh thu theo Category và Line Chart cho diễn biến doanh thu theo thời gian.",
+        "TASK-EXT-01": "Recency là khoảng cách ngày giữa ngày đơn hàng gần nhất của khách và ngày chốt sổ (ví dụ: ngày muộn nhất trong dataset).",
+        "TASK-EXT-02": "Thanh toán khi nhận hàng (COD) thường có tỷ lệ hủy cao hơn đáng kể so với trả trước qua thẻ/ví điện tử."
+      }
+    },
+    {
+      "tier": 2,
+      "tier_name": "Tier 2: Technical Implementation & Syntax Hints",
+      "task_hints": {
+        "TASK-01": "Trong Pandas: df.drop_duplicates(subset=['order_id'], keep='first'); df['order_status'] = df['order_status'].fillna('completed').replace('', 'completed').",
+        "TASK-02": "Trong SQL: SUM(CASE WHEN order_status = 'completed' THEN total_amount ELSE 0 END) AS net_revenue.",
+        "TASK-03": "Sử dụng thư viện Seaborn/Matplotlib với sns.barplot và sns.lineplot, hoặc xuất bảng pivot sang Excel/PowerBI.",
+        "TASK-EXT-01": "Sử dụng pd.qcut(df['recency'], q=5, labels=[5,4,3,2,1]) (lưu ý Recency càng nhỏ thì điểm càng cao).",
+        "TASK-EXT-02": "Dùng df.groupby('payment_method')['order_status'].value_counts(normalize=True) để tính tỷ lệ hủy."
+      }
+    },
+    {
+      "tier": 3,
+      "tier_name": "Tier 3: Edge Cases & Data Anomalies",
+      "task_hints": {
+        "TASK-01": "Bản ghi duplicate có cùng order_id nhưng có thể lệch vài mili-giây do hệ thống gửi lặp webhook; giữ lại bản ghi đầu tiên.",
+        "TASK-02": "Kiểm tra giá trị chiết khấu discount_amount trong bảng order_items để không nhầm giữa doanh thu gộp niêm yết và doanh thu thực nhận.",
+        "TASK-03": "Đảm bảo định dạng trục Y hiển thị số tiền USD có dấu phân cách hàng nghìn để báo cáo chuyên nghiệp.",
+        "TASK-EXT-01": "Với khách hàng có Monetary bằng nhau, phân vị qcut có thể ném lỗi Duplicate Bin; hãy dùng ranking method='first'.",
+        "TASK-EXT-02": "Đơn hàng 'returned' đã hoàn tất trước khi bị trả lại; cần bóc tách riêng doanh thu ròng sau hoàn hàng."
+      }
+    }
+  ],
+  "expected_artifacts": [
+    {
+      "artifact_id": "ART-01",
+      "name": "Mã nguồn Làm sạch & Phân tích Python",
+      "type": "code",
+      "file_pattern": "src/sales_analysis\\.py",
+      "required": true,
+      "description": "File Python chạy được từ đầu đến cuối xử lý toàn bộ bài toán."
+    },
+    {
+      "artifact_id": "ART-02",
+      "name": "Truy vấn SQL Phân tích KPI",
+      "type": "sql",
+      "file_pattern": "queries/sales_kpis\\.sql",
+      "required": true,
+      "description": "Script SQL chứa các truy vấn giải quyết 5 bài toán kinh doanh."
+    },
+    {
+      "artifact_id": "ART-03",
+      "name": "Báo cáo Insight Tóm tắt (Executive Summary)",
+      "type": "report",
+      "file_pattern": "reports/executive_summary\\.md",
+      "required": true,
+      "description": "Báo cáo tóm tắt insight và 3 khuyến nghị hành động cho ban giám đốc."
+    }
+  ]
+}

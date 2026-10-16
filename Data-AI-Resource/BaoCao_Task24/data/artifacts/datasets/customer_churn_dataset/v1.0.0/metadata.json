@@ -1,0 +1,23 @@
+{
+  "id": "dataset_customer_churn_dataset_v1.0.0",
+  "name": "Customer Churn Dataset",
+  "artifact_type": "dataset",
+  "version": "v1.0.0",
+  "state": "active",
+  "description": "Bộ dữ liệu dự báo tỷ lệ khách hàng rời bỏ mạng viễn thông vi mô.",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.257795+00:00",
+  "file_path": "data/artifacts/datasets/customer_churn_dataset/v1.0.0/customer_churn.csv",
+  "file_size_bytes": 124,
+  "content_hash": "8965f90eba608ba353c141f27248a8ef461a0ea86e80063fc6a94d7368aef9ec",
+  "upstream_ids": [],
+  "tags": [
+    "churn",
+    "telecom",
+    "classification"
+  ],
+  "deprecation_reason": "Nâng cấp cấu trúc dữ liệu viễn thông sang chuẩn hợp nhất v2.0.0.",
+  "superseded_by": "dataset_customer_churn_dataset_v2.0.0",
+  "sunset_date": "2026-12-31T23:59:59Z",
+  "extra_metadata": {}
+}

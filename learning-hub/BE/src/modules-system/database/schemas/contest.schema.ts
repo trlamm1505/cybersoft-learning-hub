@@ -1,0 +1,105 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+
+export type ContestDocument = Contest & Document;
+
+@Schema({ _id: false })
+export class ContestProblem {
+  /**
+   * Nguồn đề: 'lesson' (bài giảng viên soạn, qua lessonId), 'exercise' (Code
+   * Playground, qua exerciseSlug) hoặc 'bank' (phần trắc nghiệm ghép từ ngân
+   * hàng câu hỏi, qua questionIds). Dữ liệu cũ không có trường này là 'lesson'.
+   */
+  @Prop({ type: String, enum: ['lesson', 'exercise', 'bank'], default: 'lesson' })
+  source?: 'lesson' | 'exercise' | 'bank';
+
+  @Prop({ type: String })
+  lessonId?: string;
+
+  @Prop({ type: String })
+  exerciseSlug?: string;
+
+  @Prop({ type: [String], default: undefined })
+  questionIds?: string[];
+
+  @Prop({ required: true, type: String })
+  title: string;
+
+  @Prop({ required: true, type: String })
+  slug: string;
+
+  @Prop({ type: String, enum: ['coding', 'quiz'], default: 'coding' })
+  type: 'coding' | 'quiz';
+
+  @Prop({ type: Number, default: 100 })
+  points: number;
+
+  @Prop({ type: Number, default: 1 })
+  order: number;
+}
+
+export const ContestProblemSchema =
+  SchemaFactory.createForClass(ContestProblem);
+
+@Schema({ _id: false })
+export class ContestRegistration {
+  @Prop({ required: true, type: String })
+  studentId: string;
+
+  @Prop({ type: String, default: 'Học viên' })
+  studentName?: string;
+
+  @Prop({ type: Date, default: Date.now })
+  registeredAt: Date;
+}
+
+export const ContestRegistrationSchema =
+  SchemaFactory.createForClass(ContestRegistration);
+
+@Schema({ timestamps: true, collection: 'contests' })
+export class Contest {
+  @Prop({ required: true, type: String, trim: true })
+  title: string;
+
+  @Prop({ required: true, type: String, unique: true, trim: true })
+  slug: string;
+
+  @Prop({ type: String, default: '' })
+  description: string;
+
+  @Prop({ required: true, type: Date })
+  startTime: Date;
+
+  @Prop({ required: true, type: Date })
+  endTime: Date;
+
+  @Prop({ type: Number, default: 90 })
+  durationMinutes: number;
+
+  @Prop({ type: [ContestProblemSchema], default: [] })
+  problems: ContestProblem[];
+
+  @Prop({ type: [ContestRegistrationSchema], default: [] })
+  registrations: ContestRegistration[];
+
+  @Prop({ type: String, enum: ['draft', 'published'], default: 'published' })
+  status: 'draft' | 'published';
+
+  @Prop({ type: String, default: 'teacher-1' })
+  authorId: string;
+
+  // Optional override for the leaderboard freeze window; when unset the leaderboard
+  // computes it from durationMinutes (see LeaderboardService.getConfig).
+  @Prop({ type: Number })
+  freezeMinutes?: number;
+
+  /**
+   * Bật tín hiệu liêm chính (Day 24): thời gian làm bài, lần rời màn hình,
+   * tương đồng mã. Chỉ để giảng viên xem xét, không tự trừ điểm. Học viên
+   * được thông báo trước khi vào thi.
+   */
+  @Prop({ type: Boolean, default: true })
+  integrityEnabled: boolean;
+}
+
+export const ContestSchema = SchemaFactory.createForClass(Contest);

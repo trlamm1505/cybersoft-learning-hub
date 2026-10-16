@@ -1,0 +1,28 @@
+[
+  {
+    "title": "",
+    "slug": "ab",
+    "learningOutcome": [
+      "ok",
+      "ok"
+    ],
+    "prerequisite": [
+      { "title": "Kiến thức JS cơ bản (Bài 99)", "description": "Cần hoàn thành bài trước" }
+    ],
+    "content": "Bài học dùng Html và CSS, cũng có JS và Js lẫn lộn trong ví dụ. TODO: viết thêm phần thực hành.",
+    "videoUrl": "not-a-valid-url",
+    "link": "",
+    "links": [
+      "http://insecure.example.com/video",
+      "javascript:alert(1)",
+      "http://insecure.example.com/video"
+    ],
+    "points": "10",
+    "isPublished": "true"
+  },
+  {
+    "title": "Bài học ví dụ có title rất dài để kiểm tra rule title quá dài phải vượt qua một trăm ký tự cho chắc chắn luôn nhé bạn ơi",
+    "learningOutcome": [],
+    "prerequisite": []
+  }
+]

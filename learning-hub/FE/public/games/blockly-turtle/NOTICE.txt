@@ -1,0 +1,9 @@
+Rùa Vẽ Hình trong Block Puzzle dựa trên trò chơi "Turtle" của Blockly Games
+(https://github.com/blockly-games/blockly-games), Copyright 2012 Google LLC,
+phát hành theo Apache License 2.0 (xem LICENSE-blockly-games.txt).
+
+Tệp win.mp3 được sao chép nguyên bản từ appengine/turtle của kho đó.
+
+Luật chơi và màn chơi được chuyển sang TypeScript/React (xem FE/src/games/blocklyTurtle).
+Thay đổi so với bản gốc: bỏ Closure Library và JS-Interpreter, dùng thư viện Blockly
+(npm "blockly", Apache-2.0), thông báo tiếng Việt, tiến độ lưu theo tài khoản Learning Hub.

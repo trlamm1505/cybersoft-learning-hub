@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSoft Lineage & Versioning Explorer v0.1</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-badge">
+        <span class="brand-logo">⚡ CYBERSOFT</span>
+        <span class="sub-brand">DATA & AI LAB</span>
+      </div>
+      <div class="header-title">
+        <h1>Lineage & Versioning Explorer <span class="tag-version">v0.1</span></h1>
+        <p class="header-subtitle">Hệ thống theo dõi nguồn gốc dữ liệu, kiểm soát phiên bản bất biến (WORM) & quản trị bản phát hành</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- METRICS SUMMARY BAR -->
+  <section class="metrics-bar">
+    <div class="metric-card">
+      <span class="metric-icon">💎</span>
+      <div class="metric-info">
+        <span class="metric-val" id="metric-total-artifacts">16</span>
+        <span class="metric-lbl">Tài Nguyên WORM</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <span class="metric-icon">🔗</span>
+      <div class="metric-info">
+        <span class="metric-val" id="metric-total-edges">25</span>
+        <span class="metric-lbl">Quan Hệ Nhân Quả</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <span class="metric-icon">🌱</span>
+      <div class="metric-info">
+        <span class="metric-val" id="metric-root-sources">4</span>
+        <span class="metric-lbl">Dataset Gốc (Roots)</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <span class="metric-icon">📦</span>
+      <div class="metric-info">
+        <span class="metric-val" id="metric-total-releases">2</span>
+        <span class="metric-lbl">Bản Phát Hành (Releases)</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <span class="metric-icon">⏳</span>
+      <div class="metric-info">
+        <span class="metric-val" id="metric-deprecated">2</span>
+        <span class="metric-lbl">Đang Deprecated</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="tab-dag">
+      <span class="tab-icon">🗺️</span> Đồ Thị Nguồn Gốc (Lineage DAG)
+    </button>
+    <button class="tab-btn" data-tab="tab-manifests">
+      <span class="tab-icon">📦</span> Bản Đồ Phát Hành (Release Manifests)
+    </button>
+    <button class="tab-btn" data-tab="tab-changelog">
+      <span class="tab-icon">⏱️</span> Nhật Ký Thay Đổi (Changelog)
+    </button>
+    <button class="tab-btn" data-tab="tab-lifecycle">
+      <span class="tab-icon">🛡️</span> Quản Lý Vòng Đời (Lifecycle & Deprecate)
+    </button>
+    <button class="tab-btn" data-tab="tab-rollback">
+      <span class="tab-icon">🔄</span> Hướng Dẫn Hoàn Tác (Rollback Note)
+    </button>
+  </nav>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="main-content">
+
+    <!-- TAB 1: LINEAGE DAG & PROVENANCE TRACE -->
+    <div class="tab-pane active" id="tab-dag">
+      <div class="pane-toolbar">
+        <div class="view-mode-toggle">
+          <button class="mode-btn active" id="mode-pipeline" title="Xem dạng luồng phân cột nhân quả">
+            🌐 Luồng Nhân Quả (Pipeline Flow)
+          </button>
+          <button class="mode-btn" id="mode-grid" title="Xem dạng thẻ lưới chi tiết">
+            📋 Lưới Thẻ (Grid View)
+          </button>
+        </div>
+
+        <div class="filter-group">
+          <label>Phân loại:</label>
+          <select id="filter-type">
+            <option value="all">Tất cả (6 nhóm)</option>
+            <option value="dataset">Dataset (Dữ liệu)</option>
+            <option value="prompt">Prompt (Chỉ dẫn)</option>
+            <option value="model">Model (Mô hình)</option>
+            <option value="index">Index (Chỉ mục)</option>
+            <option value="evaluation">Evaluation (Đánh giá)</option>
+            <option value="exercise">Exercise & Release (Bài tập & Bản phát hành)</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Trạng thái:</label>
+          <select id="filter-state">
+            <option value="all">Tất cả</option>
+            <option value="active">Active (Vận hành)</option>
+            <option value="deprecated">Deprecated (Sắp ngừng)</option>
+            <option value="retired">Retired (Đã thu hồi)</option>
+          </select>
+        </div>
+
+        <div class="search-box">
+          <input type="text" id="dag-search-input" placeholder="🔍 Tìm kiếm tài nguyên, tag, SHA-256...">
+        </div>
+
+        <button class="btn btn-primary" id="btn-quick-trace">
+          🎯 Truy Vết Nguồn Gốc Bài Tập (DoD)
+        </button>
+      </div>
+
+      <div class="dag-layout">
+        <div class="dag-canvas-container" id="dag-container">
+          <!-- PIPELINE VIEW (DEFAULT) -->
+          <div class="pipeline-container" id="pipeline-view">
+            <div class="pipeline-lane" id="lane-datasets">
+              <div class="lane-header">
+                <span class="lane-badge">CỘT 1</span>
+                <h4>Dữ Liệu Nguồn (Datasets)</h4>
+              </div>
+              <div class="lane-nodes" id="lane-nodes-datasets"></div>
+            </div>
+
+            <div class="pipeline-lane" id="lane-models">
+              <div class="lane-header">
+                <span class="lane-badge">CỘT 2</span>
+                <h4>Mô Hình & Prompt</h4>
+              </div>
+              <div class="lane-nodes" id="lane-nodes-models"></div>
+            </div>
+
+            <div class="pipeline-lane" id="lane-indices">
+              <div class="lane-header">
+                <span class="lane-badge">CỘT 3</span>
+                <h4>Chỉ Mục & Đánh Giá</h4>
+              </div>
+              <div class="lane-nodes" id="lane-nodes-indices"></div>
+            </div>
+
+            <div class="pipeline-lane" id="lane-products">
+              <div class="lane-header">
+                <span class="lane-badge">CỘT 4</span>
+                <h4>Bài Tập & Bản Phát Hành</h4>
+              </div>
+              <div class="lane-nodes" id="lane-nodes-products"></div>
+            </div>
+          </div>
+
+          <!-- GRID VIEW (ALTERNATIVE) -->
+          <div class="dag-grid" id="dag-grid" style="display: none;"></div>
+        </div>
+
+        <!-- RIGHT DETAIL SIDEBAR -->
+        <aside class="dag-sidebar" id="dag-sidebar">
+          <div class="sidebar-header">
+            <h3>Chi Tiết Tài Nguyên</h3>
+            <span class="badge-type" id="side-type">N/A</span>
+          </div>
+          <div class="sidebar-body" id="side-content">
+            <div class="empty-state-box">
+              <span class="empty-icon">👆</span>
+              <p class="empty-hint">Bấm chuột vào một nút trên đồ thị để mở khóa bảng phân tích nguồn gốc nhân quả và đối soát mã băm bất biến.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- TAB 2: RELEASE MANIFESTS -->
+    <div class="tab-pane" id="tab-manifests">
+      <div class="manifests-layout">
+        <div class="manifest-selector">
+          <h3>Bản Phát Hành (Releases)</h3>
+          <div class="release-list" id="release-list"></div>
+        </div>
+        <div class="manifest-detail-view" id="manifest-detail">
+          <div class="manifest-card-header">
+            <div>
+              <h2 id="manifest-title">Chọn một bản phát hành</h2>
+              <span class="manifest-sub" id="manifest-sub"></span>
+            </div>
+            <div class="manifest-checksum-box">
+              <span class="checksum-label">MÃ KIỂM TRA TOÀN VẸN (HOLISTIC CHECKSUM):</span>
+              <code class="checksum-val" id="manifest-checksum">--</code>
+            </div>
+          </div>
+          <div class="manifest-sections">
+            <h4>Danh Mục Thành Phần Bất Biến (WORM Components):</h4>
+            <div class="component-table-wrapper">
+              <table class="data-table" id="table-manifest-components">
+                <thead>
+                  <tr>
+                    <th>Loại</th>
+                    <th>Tên Tài Nguyên</th>
+                    <th>Phiên Bản</th>
+                    <th>Trạng Thái</th>
+                    <th>SHA-256 Hash</th>
+                    <th>Đường Dẫn Bất Biến</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: CHANGELOG TIMELINE -->
+    <div class="tab-pane" id="tab-changelog">
+      <div class="changelog-container">
+        <div class="changelog-header">
+          <h2>Nhật Ký Thay Đổi Bản Phát Hành (Release Changelog)</h2>
+          <p>Tự động phân tích sai khác (diff) giữa các bản phát hành chuẩn CyberSoft: Thêm Mới, Nâng Cấp và Deprecate</p>
+        </div>
+        <div class="timeline" id="changelog-timeline"></div>
+      </div>
+    </div>
+
+    <!-- TAB 4: LIFECYCLE & DEPRECATION -->
+    <div class="tab-pane" id="tab-lifecycle">
+      <div class="lifecycle-container">
+        <div class="lifecycle-card">
+          <div class="card-head">
+            <h3>Quy Trình Chuyển Đổi Vòng Đời & Deprecation (DoD)</h3>
+            <span class="badge-status status-active">State Machine Enforced</span>
+          </div>
+          <p class="desc">
+            Quy tắc DoD: Không bao giờ xóa hoặc ghi đè artifact cũ. Khi tài nguyên lạc hậu, thực hiện chuyển đổi
+            sang <code>DEPRECATED</code>, chỉ định phiên bản thay thế và ấn định ngày hết hạn (sunset date).
+          </p>
+
+          <form id="form-deprecate" class="deprecate-form">
+            <div class="form-row">
+              <label>Chọn tài nguyên cần Deprecate:</label>
+              <select id="deprecate-target" required></select>
+            </div>
+            <div class="form-row">
+              <label>Lý do kỹ thuật / nghiệp vụ:</label>
+              <input type="text" id="deprecate-reason" placeholder="Ví dụ: Nâng cấp mô hình Hybrid search v1.1.0..." required>
+            </div>
+            <div class="form-row">
+              <label>Tài nguyên thay thế (Superseded by):</label>
+              <select id="deprecate-replacement"></select>
+            </div>
+            <div class="form-row">
+              <label>Ngày hết hạn hỗ trợ (Sunset Date):</label>
+              <input type="date" id="deprecate-sunset" value="2026-12-31" required>
+            </div>
+            <button type="submit" class="btn btn-warning">
+              ⚠️ Thực Hiện Deprecate & Phân Tích Cảnh Báo
+            </button>
+          </form>
+
+          <div class="lifecycle-result-box" id="lifecycle-result" style="display: none;">
+            <h4>Kết Quả & Cảnh Báo Hạ Nguồn (Impact Analysis):</h4>
+            <div class="alert-box alert-warning" id="lifecycle-alert-msg"></div>
+            <div id="lifecycle-downstream-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: ROLLBACK NOTE -->
+    <div class="tab-pane" id="tab-rollback">
+      <div class="rollback-container">
+        <div class="rollback-card">
+          <div class="card-head">
+            <h3>Kế Hoạch & Hướng Dẫn Hoàn Tác (Rollback Note)</h3>
+            <span class="badge-status status-dod">An Toàn Tuyệt Đối (WORM)</span>
+          </div>
+          <p class="desc">
+            Tự động sinh tài liệu hướng dẫn hoàn tác an toàn từ phiên bản hiện tại về phiên bản trước đó.
+            Tuân thủ nghiêm ngặt quy định: <strong>Chuẩn hóa thuật ngữ kỹ thuật, không dùng từ cấm</strong>.
+          </p>
+          <div class="rollback-controls">
+            <div class="control-pair">
+              <span>Phiên bản hiện tại:</span>
+              <strong class="tag-curr">v1.1.0</strong>
+            </div>
+            <span class="arrow-rollback">➔</span>
+            <div class="control-pair">
+              <span>Phiên bản khôi phục đích:</span>
+              <strong class="tag-target">v1.0.0</strong>
+            </div>
+            <button class="btn btn-primary" id="btn-refresh-rollback">
+              🔄 Tải Lại Hướng Dẫn Hoàn Tác Mới Nhất
+            </button>
+          </div>
+
+          <div class="rollback-note-preview" id="rollback-note-container">
+            <div class="loading-spinner">Đang tải tài liệu hoàn tác...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: PROVENANCE TRACE DETAIL -->
+  <div class="modal-backdrop" id="modal-trace" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>🎯 Truy Vết Nguồn Gốc (Provenance Backtrace To Source)</h2>
+        <button class="btn-close" id="btn-close-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-trace-body"></div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <span>CYBERSOFT ACADEMY — HỆ SINH THÁI ĐÀO TẠO DATA & AI TIÊN TIẾN</span>
+    <span>Thực hiện: Đào Trung Kiên | Báo cáo Ngày 24</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

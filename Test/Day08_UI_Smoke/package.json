@@ -1,0 +1,22 @@
+{
+  "name": "day08-ui-smoke",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:headless": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "test:list": "playwright test --list --reporter=list",
+    "report": "playwright show-report reports/html",
+    "browsers": "playwright install chromium",
+    "test:regressions": "playwright test --config=playwright.regressions.config.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.13.4",
+    "dotenv": "17.4.2",
+    "mongodb": "6.21.0",
+    "typescript": "5.9.3"
+  }
+}

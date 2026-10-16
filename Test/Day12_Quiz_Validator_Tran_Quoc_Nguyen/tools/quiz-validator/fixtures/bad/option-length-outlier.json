@@ -1,0 +1,29 @@
+[
+  {
+    "content": "Câu hỏi mẫu hợp lệ dùng để kiểm tra rule.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "useEffect (dùng để gọi API, đăng ký event listener sau khi render)",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "useState",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "useRef",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

@@ -1,0 +1,167 @@
+[
+  {
+    "id": "GQA-01",
+    "query": "Chính sách chuyên cần của CyberSoft quy định sinh viên được vắng tối đa bao nhiêu buổi?",
+    "expected_doc_id": "CS-POL-001",
+    "expected_keywords": [
+      "chuyên cần",
+      "vắng",
+      "buổi"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-02",
+    "query": "Tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone của học viên CyberSoft gồm những tiêu chí nào?",
+    "expected_doc_id": "CS-POL-003",
+    "expected_keywords": [
+      "đồ án",
+      "tốt nghiệp",
+      "capstone"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-03",
+    "query": "Quy định về thời hạn và thủ tục bảo lưu khóa học tại CyberSoft như thế nào?",
+    "expected_doc_id": "CS-POL-002",
+    "expected_keywords": [
+      "bảo lưu",
+      "thời hạn",
+      "thủ tục"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-04",
+    "query": "Hướng dẫn cài đặt môi trường WSL2 và Ubuntu 22.04 LTS cho học viên?",
+    "expected_doc_id": "CS-ENV-001",
+    "expected_keywords": [
+      "WSL2",
+      "Ubuntu",
+      "cài đặt"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-05",
+    "query": "Quy chuẩn định dạng code Python và kiểm tra PEP8 trong các bài tập lab?",
+    "expected_doc_id": "CS-COD-001",
+    "expected_keywords": [
+      "PEP8",
+      "Python",
+      "format"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-06",
+    "query": "Lớp học online tương tác trực tiếp qua Zoom hay nền tảng nào?",
+    "expected_doc_id": "CS-CRS-001",
+    "expected_keywords": [
+      "online",
+      "tương tác",
+      "Zoom"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-07",
+    "query": "Yêu cầu đầu vào và kiến thức tiên quyết của khóa học Data AI Engineer?",
+    "expected_doc_id": "CS-CRS-002",
+    "expected_keywords": [
+      "đầu vào",
+      "tiên quyết",
+      "Data"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-08",
+    "query": "Hậu quả và hình thức xử lý khi học viên vi phạm bản quyền tài liệu hoặc đạo văn đồ án?",
+    "expected_doc_id": "CS-POL-004",
+    "expected_keywords": [
+      "bản quyền",
+      "đạo văn",
+      "xử lý"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-09",
+    "query": "Cấu hình Visual Studio Code và các extension cần thiết cho lập trình Python?",
+    "expected_doc_id": "CS-ENV-002",
+    "expected_keywords": [
+      "Visual Studio Code",
+      "VS Code",
+      "extension"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-10",
+    "query": "Các vật dụng bị cấm mang vào phòng thi kiểm tra trực tiếp tại CyberSoft?",
+    "expected_doc_id": "CS-EXM-001",
+    "expected_keywords": [
+      "vật dụng",
+      "cấm",
+      "phòng thi"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-11",
+    "query": "Quy trình nộp bài tập lớn và hạn chót submission qua hệ thống LMS CyberSoft?",
+    "expected_doc_id": "CS-POL-001",
+    "expected_keywords": [
+      "nộp bài",
+      "submission",
+      "LMS"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-12",
+    "query": "Quy định về việc chuyển đổi ca học hoặc học bù khi sinh viên có việc đột xuất?",
+    "expected_doc_id": "CS-POL-002",
+    "expected_keywords": [
+      "chuyển đổi",
+      "ca học",
+      "học bù"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-13",
+    "query": "Các tiêu chí chấm điểm bài kiểm tra giữa kỳ trắc nghiệm và thực hành?",
+    "expected_doc_id": "CS-EXM-001",
+    "expected_keywords": [
+      "chấm điểm",
+      "trắc nghiệm",
+      "thực hành"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-14",
+    "query": "Cách thiết lập Git và SSH key để clone repository bài tập từ CyberSoft GitLab?",
+    "expected_doc_id": "CS-ENV-001",
+    "expected_keywords": [
+      "Git",
+      "SSH",
+      "key"
+    ],
+    "expected_status": "ANSWERED"
+  },
+  {
+    "id": "GQA-15",
+    "query": "Mô hình triển khai Docker và Docker Compose cho các dịch vụ Lab?",
+    "expected_doc_id": "CS-ENV-002",
+    "expected_keywords": [
+      "Docker",
+      "Compose",
+      "Lab"
+    ],
+    "expected_status": "ANSWERED"
+  }
+]

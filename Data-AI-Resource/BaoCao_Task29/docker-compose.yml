@@ -1,0 +1,32 @@
+services:
+  data-ai-lab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cybersoft-data-ai-lab
+    image: cybersoft/data-ai-lab:v1.0
+    restart: unless-stopped
+    ports:
+      - "8029:8029"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8029
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./data:/app/data:ro
+      - ./logs:/app/logs:rw
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1024M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8029/api/v1/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

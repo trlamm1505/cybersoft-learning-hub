@@ -1,0 +1,17 @@
+{
+  "prompt_id": "PROMPT-SYNTH-V2",
+  "version": "2.1.0",
+  "type": "few_shot_constrained",
+  "description": "Bản prompt tối ưu hóa kèm mẫu chuẩn (Few-shot), ràng buộc tổng trọng số 100% và bảng ánh xạ execution_status sang khoảng điểm",
+  "system_instruction": "Bạn là Principal AI Curriculum Synthesis Engine tại CyberSoft. Bạn CHỈ xuất ra JSON hợp lệ tuân thủ CS-SCHEMA-SYNTHETIC-LEARN-V1, không có markdown phụ trợ hay lời chào. Mọi tiêu chí rubric phải có tổng trọng số đúng 100. Điểm số score phải tuân thủ nghiêm ngặt execution_status: PASSED (70-100), FAILED_TESTS (30-69), SYNTAX_ERROR/TIMEOUT (0-29). Cấm các từ khóa rò rỉ hoặc placeholder.",
+  "user_template": "Sinh record REC-CYB-{index:04d} cho học viên {student_name} (Mã: {student_id}, Chuyên ngành: {track}, Module: {current_module}, Kinh nghiệm: {exp_months} tháng). Chủ đề: {topic}, Cấp độ: {difficulty}. Trạng thái nộp bài giả định: {target_status}. Seed tất định: {seed}.\nÁp dụng mẫu Few-Shot:\n{\n  \"record_id\": \"REC-CYB-0001\",\n  \"student_profile\": {\"student_id\": \"HV-10293\", \"full_name\": \"Nguyễn Văn An\", \"email\": \"an.nguyen@cybersoft.edu.vn\", \"track\": \"Fullstack Web\", \"current_module\": \"NodeJS Backend & PostgreSQL\", \"prior_coding_experience_months\": 6},\n  \"learning_assessment\": {\"challenge_id\": \"CHAL-WEB-001\", \"topic\": \"JWT Authentication & Refresh Token Rotation\", \"difficulty_level\": \"Intermediate\", \"problem_statement\": \"Xây dựng middleware xác thực JWT cho API Express kết hợp cơ chế quay vòng Refresh Token trong Redis nhằm ngăn chặn Replay Attack.\", \"expected_solution_concept\": \"Sử dụng crypto token bảo mật lưu trong HttpOnly Cookie, cập nhật token family trong Redis khi cấp access token mới.\", \"rubric_criteria\": [{\"criterion_name\": \"Xác thực JWT Middleware\", \"weight_percent\": 40, \"description\": \"Kiểm tra đúng chữ ký và thời hạn của token\"}, {\"criterion_name\": \"Quay vòng Refresh Token\", \"weight_percent\": 35, \"description\": \"Xử lý thu hồi token cũ và sinh cặp token mới an toàn\"}, {\"criterion_name\": \"Xử lý Ngoại lệ và Bảo mật Cookie\", \"weight_percent\": 25, \"description\": \"Trả về mã lỗi 401/403 chuẩn RESTful và cấu hình flag Secure/SameSite\"}]},\n  \"student_submission\": {\"submission_code\": \"const verifyToken = (req, res, next) => { ... };\", \"submission_timestamp\": \"2026-09-11T08:30:00Z\", \"execution_status\": \"PASSED\", \"score\": 92, \"mentor_feedback\": \"Bài làm rất tốt, áp dụng đúng cấu trúc token family trong Redis. Chú ý tối ưu hóa thời gian hết hạn của Access Token xuống dưới 15 phút.\"},\n  \"generation_metadata\": {\"seed\": 42, \"prompt_version\": \"v2_few_shot_constrained\", \"generator_iteration\": 0, \"validation_status\": \"PASSED\", \"checksum_sha256\": \"...\"}\n}",
+  "invariants": {
+    "rubric_sum": 100,
+    "score_ranges": {
+      "PASSED": [70, 100],
+      "FAILED_TESTS": [30, 69],
+      "SYNTAX_ERROR": [0, 29],
+      "TIMEOUT": [0, 29]
+    }
+  }
+}

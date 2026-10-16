@@ -1,0 +1,17 @@
+{
+  "backup_id": "BKP-20261011-140354",
+  "created_at": "2026-10-11T14:03:54.761949Z",
+  "total_files": 2,
+  "files": [
+    {
+      "filename": "catalog_snapshot.json",
+      "size_bytes": 461,
+      "sha256": "c51597f7986039505443da24a4cfbe4f44e2cbffd3a01081b43b64ead2e501c0"
+    },
+    {
+      "filename": "vector_index_snapshot.bin",
+      "size_bytes": 87,
+      "sha256": "dcc9ac9052e6961045fde5409efbf1c6e00d7872df5dab3f070d73bf3a1b4ef1"
+    }
+  ]
+}

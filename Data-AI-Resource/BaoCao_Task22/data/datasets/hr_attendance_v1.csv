@@ -1,0 +1,9 @@
+employee_id,full_name,department,work_date,check_in,check_out,work_hours,status
+EMP-001,Nguyen Van An,Engineering,2026-09-01,08:25:00,17:35:00,8.17,OnTime
+EMP-002,Tran Thi Binh,Marketing,2026-09-01,08:32:00,17:30:00,7.97,Late
+EMP-003,Le Hoang Cuong,DataLab,2026-09-01,08:15:00,18:00:00,8.75,OnTime
+EMP-004,Pham Minh Duc,Operations,2026-09-01,08:29:00,17:31:00,8.03,OnTime
+EMP-005,Vo Thi Mai,HR,2026-09-01,08:20:00,17:40:00,8.33,OnTime
+EMP-006,Dang Quoc Nam,Engineering,2026-09-01,08:45:00,17:45:00,8.00,Late
+EMP-007,Bui Ngoc Oanh,Product,2026-09-01,08:10:00,17:15:00,8.08,OnTime
+EMP-008,Doan Thanh Phong,DataLab,2026-09-01,08:22:00,17:50:00,8.47,OnTime

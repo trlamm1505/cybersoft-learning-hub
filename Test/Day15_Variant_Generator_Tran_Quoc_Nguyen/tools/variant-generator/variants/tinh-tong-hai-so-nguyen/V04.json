@@ -1,0 +1,73 @@
+{
+  "variantId": "tinh-tong-hai-so-nguyen-V04",
+  "sourceId": "tinh-tong-hai-so-nguyen",
+  "sourceVersion": "1.0",
+  "variantVersion": "1.0",
+  "sourceType": "CODING",
+  "parameters": {
+    "pairs": [
+      {
+        "a": 300,
+        "b": 700
+      },
+      {
+        "a": -55,
+        "b": 55
+      },
+      {
+        "a": 999999,
+        "b": 1
+      },
+      {
+        "a": -999999,
+        "b": -1
+      }
+    ]
+  },
+  "generationMethod": "ai-selected-parameters + program-recomputed-answer (python3/node, khong tin truc tiep AI)",
+  "content": {
+    "slug": "tinh-tong-hai-so-nguyen-v04",
+    "title": "Tính tổng hai số nguyên (Biến thể 4)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho hai số nguyên A và B, mỗi số trên một dòng. In ra kết quả tổng A + B trên một dòng.",
+    "starterCode": "a = int(input())\nb = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "a = int(input())\nb = int(input())\nprint(a + b)",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "300\n700",
+        "expectedOutput": "1000",
+        "isHidden": false
+      },
+      {
+        "input": "-55\n55",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "input": "999999\n1",
+        "expectedOutput": "1000000",
+        "isHidden": true
+      },
+      {
+        "input": "-999999\n-1",
+        "expectedOutput": "-1000000",
+        "isHidden": true
+      }
+    ]
+  },
+  "__testCaseNotes": [
+    "a=300, b=700",
+    "a=-55, b=55",
+    "a=999999, b=1",
+    "a=-999999, b=-1"
+  ],
+  "validationStatus": "PENDING",
+  "humanReview": {
+    "equivalenceAccepted": null,
+    "reviewer": "",
+    "notes": "",
+    "reviewedAt": ""
+  }
+}

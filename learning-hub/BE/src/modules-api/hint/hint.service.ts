@@ -7,8 +7,15 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Hint, HintDocument, validateTier1NoCode } from '../../modules-system/database/schemas/hint.schema';
-import { HintUsage, HintUsageDocument } from '../../modules-system/database/schemas/hint-usage.schema';
+import {
+  Hint,
+  HintDocument,
+  validateTier1NoCode,
+} from '../../modules-system/database/schemas/hint.schema';
+import {
+  HintUsage,
+  HintUsageDocument,
+} from '../../modules-system/database/schemas/hint-usage.schema';
 import { UnlockHintDto } from './dto/unlock-hint.dto';
 import { INITIAL_HINTS } from '../../data/initial-hints';
 
@@ -18,7 +25,8 @@ export class HintService implements OnModuleInit {
 
   constructor(
     @InjectModel(Hint.name) private readonly hintModel: Model<HintDocument>,
-    @InjectModel(HintUsage.name) private readonly hintUsageModel: Model<HintUsageDocument>,
+    @InjectModel(HintUsage.name)
+    private readonly hintUsageModel: Model<HintUsageDocument>,
   ) {}
 
   /**
@@ -61,11 +69,14 @@ export class HintService implements OnModuleInit {
         .exec();
 
       if (lastUsage) {
-        const timePassedSeconds = (Date.now() - new Date(lastUsage.unlockedAt).getTime()) / 1000;
+        const timePassedSeconds =
+          (Date.now() - new Date(lastUsage.unlockedAt).getTime()) / 1000;
         // Default cooldown threshold is 30s
         const defaultCooldown = 30;
         if (timePassedSeconds < defaultCooldown) {
-          cooldownRemainingSeconds = Math.ceil(defaultCooldown - timePassedSeconds);
+          cooldownRemainingSeconds = Math.ceil(
+            defaultCooldown - timePassedSeconds,
+          );
         }
       }
     }
@@ -97,12 +108,14 @@ export class HintService implements OnModuleInit {
   /**
    * Mở (Unlock) một gợi ý cấp độ requested cho học viên
    */
-  async unlockHint(dto: UnlockHintDto) {
-    const { exerciseSlug, level, userId } = dto;
+  async unlockHint(dto: UnlockHintDto, userId: string) {
+    const { exerciseSlug, level } = dto;
 
     const hint = await this.hintModel.findOne({ exerciseSlug, level }).exec();
     if (!hint) {
-      throw new NotFoundException(`Không tìm thấy gợi ý tầng ${level} cho bài tập "${exerciseSlug}"`);
+      throw new NotFoundException(
+        `Không tìm thấy gợi ý tầng ${level} cho bài tập "${exerciseSlug}"`,
+      );
     }
 
     // 1. Kiểm tra nếu học viên đã unlock level này trước đây
@@ -127,16 +140,34 @@ export class HintService implements OnModuleInit {
       };
     }
 
-    // 2. Kiểm tra Cooldown kể từ lần mở gợi ý gần nhất của bài tập này
+    // 2. Bắt buộc mở lần lượt theo thứ tự: Tầng N chỉ mở được khi Tầng N-1
+    // đã được mở trước đó (không cho "nhảy cóc" thẳng lên Tầng 2/3).
+    if (level > 1) {
+      const previousLevelUsage = await this.hintUsageModel
+        .findOne({ userId, exerciseSlug, level: level - 1 })
+        .exec();
+      if (!previousLevelUsage) {
+        throw new BadRequestException({
+          statusCode: 400,
+          error: 'PreviousTierLocked',
+          message: `Bạn cần mở Tầng ${level - 1} trước khi mở Tầng ${level}.`,
+        });
+      }
+    }
+
+    // 3. Kiểm tra Cooldown kể từ lần mở gợi ý gần nhất của bài tập này
     const lastUsage = await this.hintUsageModel
       .findOne({ userId, exerciseSlug })
       .sort({ unlockedAt: -1 })
       .exec();
 
     if (lastUsage) {
-      const timePassedSeconds = (Date.now() - new Date(lastUsage.unlockedAt).getTime()) / 1000;
+      const timePassedSeconds =
+        (Date.now() - new Date(lastUsage.unlockedAt).getTime()) / 1000;
       if (timePassedSeconds < hint.cooldownSeconds) {
-        const remainingSeconds = Math.ceil(hint.cooldownSeconds - timePassedSeconds);
+        const remainingSeconds = Math.ceil(
+          hint.cooldownSeconds - timePassedSeconds,
+        );
         throw new BadRequestException({
           statusCode: 400,
           error: 'CooldownActive',
@@ -146,7 +177,7 @@ export class HintService implements OnModuleInit {
       }
     }
 
-    // 3. Đăng ký mở gợi ý mới và trừ điểm (simulated points cost)
+    // 4. Đăng ký mở gợi ý mới và trừ điểm (simulated points cost)
     const newUsage = await this.hintUsageModel.create({
       userId,
       exerciseSlug,
@@ -225,7 +256,10 @@ export class HintService implements OnModuleInit {
    * Trả về dữ liệu 30 hint mẫu phục vụ kiểm thử
    */
   async get30SampleHints() {
-    const hints = await this.hintModel.find().sort({ exerciseSlug: 1, level: 1 }).exec();
+    const hints = await this.hintModel
+      .find()
+      .sort({ exerciseSlug: 1, level: 1 })
+      .exec();
     if (hints.length < 30) {
       await this.seedHints();
       return this.hintModel.find().sort({ exerciseSlug: 1, level: 1 }).exec();

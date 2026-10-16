@@ -1,0 +1,61 @@
+{
+  "variantId": "kiem-tra-so-chan-le-V02",
+  "sourceId": "kiem-tra-so-chan-le",
+  "sourceVersion": "1.0",
+  "variantVersion": "1.0",
+  "sourceType": "CODING",
+  "parameters": {
+    "n": [
+      21,
+      -7,
+      100000,
+      -1
+    ]
+  },
+  "generationMethod": "ai-selected-parameters + program-recomputed-answer (python3/node, khong tin truc tiep AI)",
+  "content": {
+    "slug": "kiem-tra-so-chan-le-v02",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 2)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "21",
+        "expectedOutput": "Lẻ",
+        "isHidden": false
+      },
+      {
+        "input": "-7",
+        "expectedOutput": "Lẻ",
+        "isHidden": false
+      },
+      {
+        "input": "100000",
+        "expectedOutput": "Chẵn",
+        "isHidden": true
+      },
+      {
+        "input": "-1",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      }
+    ]
+  },
+  "__testCaseNotes": [
+    "n=21",
+    "n=-7",
+    "n=100000",
+    "n=-1"
+  ],
+  "validationStatus": "PENDING",
+  "humanReview": {
+    "equivalenceAccepted": null,
+    "reviewer": "",
+    "notes": "",
+    "reviewedAt": ""
+  }
+}

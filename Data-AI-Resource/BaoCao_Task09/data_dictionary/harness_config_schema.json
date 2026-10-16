@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DataQualityHarnessConfigSchema",
+  "description": "Cấu hình tham số kiểm soát ngưỡng và chính sách của Data Quality Harness",
+  "type": "object",
+  "required": [
+    "max_retries",
+    "enable_fallback",
+    "strict_schema_validation",
+    "business_rules",
+    "prohibited_substrings"
+  ],
+  "properties": {
+    "max_retries": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 3
+    },
+    "enable_fallback": {
+      "type": "boolean",
+      "default": true
+    },
+    "strict_schema_validation": {
+      "type": "boolean",
+      "default": true
+    },
+    "business_rules": {
+      "type": "object",
+      "properties": {
+        "enforce_rubric_sum_100": { "type": "boolean", "default": true },
+        "enforce_score_status_consistency": { "type": "boolean", "default": true },
+        "min_problem_length": { "type": "integer", "default": 50 },
+        "min_feedback_length": { "type": "integer", "default": 40 }
+      },
+      "additionalProperties": false
+    },
+    "prohibited_substrings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

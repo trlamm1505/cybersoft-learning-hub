@@ -1,0 +1,309 @@
+{
+  "info": {
+    "_postman_id": "cybersoft-data-ai-api-v1",
+    "name": "CyberSoft Data & AI Lab API v1.0",
+    "description": "Collection kiểm thử và tích hợp toàn diện API CyberSoft Data & AI Lab phục vụ TTS 02 (Learning Hub) và TTS 03 (QA Platform).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health & Metadata",
+      "item": [
+        {
+          "name": "GET Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET API Info & SLA",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "info"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Dataset Registry",
+      "item": [
+        {
+          "name": "GET List Datasets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{student_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registry/datasets?limit=10&offset=0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "registry",
+                "datasets"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET Dataset Detail by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{student_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "registry",
+                "datasets",
+                "ds-retail-ecommerce-sales-v1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET List Capstone Projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{instructor_api_key}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/registry/projects",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "registry",
+                "projects"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Semantic Search",
+      "item": [
+        {
+          "name": "POST Semantic Hybrid Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{student_api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"thuật toán hybrid search RRF kết hợp BM25 và Vector\",\n  \"top_k\": 3,\n  \"similarity_threshold\": 0.1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/search/semantic",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "search",
+                "semantic"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. AI Tutor RAG",
+      "item": [
+        {
+          "name": "POST Chat with AI Tutor (Grounded)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{student_api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Quy định về thời hạn nộp bài tập và gia hạn đồ án tại CyberSoft như thế nào?\",\n  \"top_k\": 3,\n  \"strict_abstention\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tutor/chat",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tutor",
+                "chat"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST Chat with AI Tutor (Safe Abstention)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{student_api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Hướng dẫn cách nấu phở bò Nam Định truyền thống\",\n  \"top_k\": 3,\n  \"strict_abstention\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tutor/chat",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tutor",
+                "chat"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Data Quality & QA Metrics",
+      "item": [
+        {
+          "name": "POST Validate Clean Dataset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{qa_api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"ds-retail-ecommerce-sales-v1\",\n  \"check_rules\": [\n    \"schema_conformance\",\n    \"missing_values\",\n    \"duplicate_rows\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/quality/validate-dataset",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quality",
+                "validate-dataset"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET Quality & RAG Metrics (For TTS 03 Dashboard)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{qa_api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/quality/metrics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quality",
+                "metrics"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

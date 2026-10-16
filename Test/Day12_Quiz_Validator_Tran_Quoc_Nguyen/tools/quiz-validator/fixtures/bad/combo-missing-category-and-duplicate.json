@@ -1,0 +1,28 @@
+[
+  {
+    "content": "Câu hỏi mẫu hợp lệ dùng để kiểm tra rule.",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Trùng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "trùng",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Khác",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

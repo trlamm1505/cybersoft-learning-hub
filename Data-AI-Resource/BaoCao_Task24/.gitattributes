@@ -1,0 +1,2 @@
+# Keep WORM storage artifact payloads exact without CRLF normalization
+data/artifacts/** -text

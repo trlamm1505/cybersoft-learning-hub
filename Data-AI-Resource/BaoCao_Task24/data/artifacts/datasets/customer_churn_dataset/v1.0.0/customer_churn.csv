@@ -1,0 +1,3 @@
+customer_id,tenure_months,contract_type,monthly_charges,churn_label
+C-101,12,One-Year,65.50,0
+C-102,3,Month-to-Month,85.20,1

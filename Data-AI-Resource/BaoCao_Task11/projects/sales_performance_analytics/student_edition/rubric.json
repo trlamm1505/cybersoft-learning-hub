@@ -1,0 +1,173 @@
+{
+  "total_points": 100,
+  "categories": [
+    {
+      "category_id": "CAT-CLEANING",
+      "name": "Chất Lượng Làm Sạch Dữ Liệu",
+      "weight": 20,
+      "criteria": [
+        {
+          "criterion_id": "CRIT-01",
+          "name": "Xử lý trùng lặp và giá trị null",
+          "max_points": 20,
+          "quantitative_metric": "Loại bỏ chính xác 100% (2/2) bản ghi trùng lặp; 100% (5/5) giá trị null ở order_status được quy chuẩn hóa về 'completed' có giải trình log.",
+          "scoring_levels": [
+            {
+              "level": "exemplary",
+              "points": 20,
+              "descriptor": "Loại bỏ hoàn toàn 2 bản ghi duplicate; quy chuẩn sạch 5 null; xuất log tường minh."
+            },
+            {
+              "level": "proficient",
+              "points": 16,
+              "descriptor": "Loại bỏ được duplicate nhưng xóa bỏ đơn null thay vì quy chuẩn có căn cứ."
+            },
+            {
+              "level": "developing",
+              "points": 10,
+              "descriptor": "Vẫn để sót 1 bản ghi duplicate hoặc làm mất dữ liệu đơn hàng hợp lệ."
+            },
+            {
+              "level": "unsatisfactory",
+              "points": 0,
+              "descriptor": "Không thực hiện làm sạch dữ liệu."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "category_id": "CAT-KPI-METRICS",
+      "name": "Độ Chính Xác Tính Toán Chỉ Số Kinh Doanh",
+      "weight": 25,
+      "criteria": [
+        {
+          "criterion_id": "CRIT-02",
+          "name": "Tính toán chỉ số Doanh thu & AOV",
+          "max_points": 25,
+          "quantitative_metric": "Doanh thu Net $388,850.28 và AOV $1,150.44 tính toán sai lệch <= 0.05% so với Ground Truth.",
+          "scoring_levels": [
+            {
+              "level": "exemplary",
+              "points": 25,
+              "descriptor": "Số liệu chính xác tuyệt đối trong sai số cho phép <= 0.05%."
+            },
+            {
+              "level": "proficient",
+              "points": 20,
+              "descriptor": "Sai số từ 0.05% đến 0.5% do tính cả đơn hủy vào doanh thu."
+            },
+            {
+              "level": "developing",
+              "points": 12,
+              "descriptor": "Sai số từ 0.5% đến 5.0% do nhầm lẫn giữa giá niêm yết và giá sau chiết khấu."
+            },
+            {
+              "level": "unsatisfactory",
+              "points": 0,
+              "descriptor": "Số liệu sai lệch > 5.0% hoặc không tính được chỉ số."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "category_id": "CAT-VISUALS-INSIGHT",
+      "name": "Trực Quan Hóa & Báo Cáo Insight",
+      "weight": 25,
+      "criteria": [
+        {
+          "criterion_id": "CRIT-03",
+          "name": "Báo cáo Trực quan hóa & Khuyến nghị",
+          "max_points": 25,
+          "quantitative_metric": "Đủ tối thiểu 4 biểu đồ đúng chuẩn loại dữ liệu, có tiêu đề và trục tọa độ ghi rõ đơn vị; bản tóm tắt có tối thiểu 3 đề xuất định lượng cụ thể.",
+          "scoring_levels": [
+            {
+              "level": "exemplary",
+              "points": 25,
+              "descriptor": "Đủ 4 biểu đồ chuẩn xác, thiết kế chuyên nghiệp, 3 đề xuất kinh doanh có số liệu chứng minh."
+            },
+            {
+              "level": "proficient",
+              "points": 20,
+              "descriptor": "Đủ 4 biểu đồ nhưng đề xuất còn mang tính chung chung, thiếu số liệu định lượng."
+            },
+            {
+              "level": "developing",
+              "points": 12,
+              "descriptor": "Chỉ có 2-3 biểu đồ hoặc dùng sai dạng biểu đồ."
+            },
+            {
+              "level": "unsatisfactory",
+              "points": 0,
+              "descriptor": "Dưới 2 biểu đồ hoặc không có báo cáo insight."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "category_id": "CAT-EXTENSION",
+      "name": "Nhiệm Vụ Nâng Cao (RFM & Churn)",
+      "weight": 30,
+      "criteria": [
+        {
+          "criterion_id": "CRIT-04",
+          "name": "Phân khúc RFM 5 nhóm khách hàng",
+          "max_points": 15,
+          "quantitative_metric": "Phân khúc chính xác tối thiểu 5 nhóm (Champions, Loyal, Potential, At Risk, Lost) theo phân vị quantile với bảng phân phối số lượng khách hàng cụ thể.",
+          "scoring_levels": [
+            {
+              "level": "exemplary",
+              "points": 15,
+              "descriptor": "Phân khúc chuẩn 5 nhóm, tính điểm R, F, M chính xác, có chiến lược tái kích hoạt cụ thể."
+            },
+            {
+              "level": "proficient",
+              "points": 12,
+              "descriptor": "Tính được điểm RFM nhưng chỉ phân loại được 3 nhóm."
+            },
+            {
+              "level": "developing",
+              "points": 8,
+              "descriptor": "Chỉ tính được 1 hoặc 2 trong 3 chỉ số R, F, M."
+            },
+            {
+              "level": "unsatisfactory",
+              "points": 0,
+              "descriptor": "Không thực hiện bài toán RFM."
+            }
+          ]
+        },
+        {
+          "criterion_id": "CRIT-05",
+          "name": "Phân tích nguyên nhân hủy đơn & Tối ưu",
+          "max_points": 15,
+          "quantitative_metric": "Bóc tách được tỷ lệ hủy đơn theo phương thức thanh toán (COD vs E-Wallet/Card) kèm kế hoạch hành động giảm tỷ lệ hủy xuống dưới 8%.",
+          "scoring_levels": [
+            {
+              "level": "exemplary",
+              "points": 15,
+              "descriptor": "Phân tích sâu nguyên nhân gốc, chỉ ra COD có tỷ lệ hủy cao nhất, có giải pháp khả thi."
+            },
+            {
+              "level": "proficient",
+              "points": 12,
+              "descriptor": "Chỉ ra được phương thức hủy nhưng giải pháp chưa định lượng."
+            },
+            {
+              "level": "developing",
+              "points": 8,
+              "descriptor": "Phân tích sơ sài, thiếu số liệu kiểm chứng."
+            },
+            {
+              "level": "unsatisfactory",
+              "points": 0,
+              "descriptor": "Không thực hiện phần phân tích hủy đơn."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
