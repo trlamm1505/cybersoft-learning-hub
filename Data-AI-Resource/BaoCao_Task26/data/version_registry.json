@@ -1,0 +1,91 @@
+{
+  "ds-retail-ecommerce-sales-v1": {
+    "v1.0.0": {
+      "version": "v1.0.0",
+      "status": "ACTIVE",
+      "release_date": "2026-09-12",
+      "snapshot_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcdef0",
+      "changelog": "Initial stable release with 5 tables and 3,073 rows in public schema.",
+      "total_rows": 3073,
+      "columns_count": 28
+    },
+    "v1.1.0": {
+      "version": "v1.1.0",
+      "status": "ACTIVE",
+      "release_date": "2026-10-01",
+      "snapshot_hash": "e9f8d7c6b5a41234567890abcdef1234567890abcdef1234567890abcdef1234",
+      "changelog": "Added customer segmentation tier and payment method tracking columns.",
+      "total_rows": 3073,
+      "columns_count": 30
+    },
+    "v0.9.0-beta": {
+      "version": "v0.9.0-beta",
+      "status": "DEPRECATED",
+      "release_date": "2026-09-01",
+      "snapshot_hash": "778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566",
+      "changelog": "Early beta testing dataset without complete foreign keys.",
+      "deprecated_reason": "Thiếu ràng buộc toàn vẹn khóa ngoại; đã thay thế bằng v1.0.0.",
+      "suggested_version": "v1.0.0"
+    }
+  },
+  "ds-customer-churn-v1": {
+    "v1.0.0": {
+      "version": "v1.0.0",
+      "status": "ACTIVE",
+      "release_date": "2026-09-28",
+      "snapshot_hash": "11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff",
+      "changelog": "Full 7,043 rows baseline customer churn dataset with synthetic PII masking.",
+      "total_rows": 7043,
+      "columns_count": 21
+    },
+    "v1.1.0": {
+      "version": "v1.1.0",
+      "status": "ACTIVE",
+      "release_date": "2026-10-02",
+      "snapshot_hash": "ffeeddccbbaa00998877665544332211ffeeddccbbaa00998877665544332211",
+      "changelog": "Integrated lineage tracking manifest v1.1.0 with STRIDE security compliance.",
+      "total_rows": 7043,
+      "columns_count": 21
+    }
+  },
+  "eval-rag-golden-v1": {
+    "v1.0.0": {
+      "version": "v1.0.0",
+      "status": "ACTIVE",
+      "release_date": "2026-09-18",
+      "snapshot_hash": "33445566778899aabbccddeeff00112233445566778899aabbccddeeff001122",
+      "changelog": "30 golden Q&A items across 4 eval scenarios.",
+      "total_items": 30
+    }
+  },
+  "eval-policy-curriculum-v1": {
+    "v1.0.0": {
+      "version": "v1.0.0",
+      "status": "ACTIVE",
+      "release_date": "2026-09-20",
+      "snapshot_hash": "99aabbccddeeff00112233445566778899aabbccddeeff001122334455667788",
+      "changelog": "100 curriculum and policy Q&A with strict abstention rubrics.",
+      "total_items": 100
+    }
+  },
+  "proj-da-inventory-v1": {
+    "v1.0.0": {
+      "version": "v1.0.0",
+      "status": "ACTIVE",
+      "release_date": "2026-09-15",
+      "snapshot_hash": "445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233",
+      "changelog": "Starter kit for DA-02 capstone project with automated unit grading harness.",
+      "total_edge_cases": 8
+    }
+  },
+  "proj-ai-rag-capstone-v1": {
+    "v1.0.0": {
+      "version": "v1.0.0",
+      "status": "ACTIVE",
+      "release_date": "2026-09-16",
+      "snapshot_hash": "66778899aabbccddeeff00112233445566778899aabbccddeeff001122334455",
+      "changelog": "Starter kit for AI-01 capstone project with BM25 + dense hybrid search pipeline.",
+      "total_test_suites": 4
+    }
+  }
+}
