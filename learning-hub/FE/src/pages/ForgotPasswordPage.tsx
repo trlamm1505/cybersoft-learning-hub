@@ -9,6 +9,7 @@ export const ForgotPasswordPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  const [notice, setNotice] = useState<{ message: string; devResetLink?: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +17,8 @@ export const ForgotPasswordPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await authApi.forgotPassword({ email });
+      const res = await authApi.forgotPassword({ email });
+      setNotice({ message: res?.message ?? '', devResetLink: res?.devResetLink });
       setSent(true);
     } catch (err: any) {
       setErrorMsg(err?.response?.data?.message || 'Không thể gửi yêu cầu. Vui lòng thử lại.');
@@ -46,8 +48,13 @@ export const ForgotPasswordPage: React.FC = () => {
           <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-sm text-emerald-700 dark:text-emerald-300 flex items-start gap-2.5">
             <MailCheck size={18} className="shrink-0 mt-0.5" />
             <span>
-              Nếu email này đã đăng ký, một liên kết đặt lại mật khẩu đã được gửi tới hộp thư của bạn. Liên kết có
+              {notice?.message || 'Nếu email này đã đăng ký, một liên kết đặt lại mật khẩu đã được gửi tới hộp thư của bạn.'} Liên kết có
               hiệu lực trong 15 phút.
+              {notice?.devResetLink && (
+                <a href={notice.devResetLink} className="mt-2 block break-all font-semibold underline">
+                  Dev mode: bấm vào đây để đặt lại mật khẩu
+                </a>
+              )}
             </span>
           </div>
         ) : (

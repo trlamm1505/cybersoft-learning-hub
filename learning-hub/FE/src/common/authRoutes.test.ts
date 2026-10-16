@@ -18,7 +18,7 @@ describe('homeFor (trang đích sau đăng nhập)', () => {
   it('Người đi làm / Trái ngành vào Hub phòng thực hành chuyên ngành', () =>
     expect(homeFor({ role: 'STUDENT', ageGroup: 'CAREER_ADULT' })).toBe('/career-labs'));
   it('giảng viên vào soạn bài, admin vào trang quản trị', () => {
-    expect(homeFor({ role: 'TEACHER' })).toBe('/authoring');
+    expect(homeFor({ role: 'TEACHER' })).toBe('/teacher/dashboard');
     expect(homeFor({ role: 'ADMIN' })).toBe('/admin/dashboard');
   });
   it('chưa đăng nhập về /login', () => expect(homeFor(null)).toBe('/login'));

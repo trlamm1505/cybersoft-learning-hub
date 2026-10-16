@@ -305,3 +305,25 @@ describe('giảng viên chưa phân công', () => {
     expect(unassignedTeachers(all, ['a', 'b', 'c'])).toEqual([]);
   });
 });
+
+describe('nhật ký: lớp và học viên', () => {
+  it('nhãn và màu cho 5 hành động mới', () => {
+    expect(auditActionLabel({ action: 'CLASS_CREATE', targetId: 'c' })).toBe('TẠO LỚP');
+    expect(auditActionLabel({ action: 'CLASS_UPDATE', targetId: 'c' })).toBe('SỬA LỚP');
+    expect(auditActionLabel({ action: 'CLASS_DELETE', targetId: 'c' })).toBe('XÓA LỚP');
+    expect(auditActionLabel({ action: 'STUDENT_ADD', targetId: 'c' })).toBe('THÊM HỌC VIÊN');
+    expect(auditActionLabel({ action: 'STUDENT_REMOVE', targetId: 'c' })).toBe('GỠ HỌC VIÊN');
+    for (const a of ['CLASS_CREATE', 'CLASS_UPDATE', 'CLASS_DELETE', 'STUDENT_ADD', 'STUDENT_REMOVE'] as const) expect(AUDIT_TONE[a]).toBeTruthy();
+  });
+
+  it('thêm/gỡ học viên hiện danh sách tên; tạo/xóa/sửa lớp hiện thay đổi nghiệp vụ, không có id', () => {
+    const add = buildDiffView({ action: 'STUDENT_ADD', targetId: '6ac7380b1f77bcf86cd79943', diff: { before: { className: 'L', students: [] }, after: { className: 'L', students: ['An', 'Bình'] } } });
+    expect(add[0]).toEqual({ label: 'Học viên trong lớp', before: { type: 'tags', values: [] }, after: { type: 'tags', values: ['An', 'Bình'] } });
+    const del = buildDiffView({ action: 'CLASS_DELETE', targetId: 'c', diff: { before: { className: 'Lớp A' }, after: null } });
+    expect(del[0]).toMatchObject({ label: 'Lớp', before: { value: 'Lớp A' }, after: { value: 'Đã xóa' } });
+    const created = buildDiffView({ action: 'CLASS_CREATE', targetId: 'c', diff: { before: null, after: { className: 'Lớp B', teacherNames: ['Cô Lan'] } } });
+    expect(created.map((r) => r.label)).toEqual(['Lớp mới', 'Giảng viên phụ trách']);
+    const upd = buildDiffView({ action: 'CLASS_UPDATE', targetId: 'c', diff: { before: { className: 'A', archived: false, teacherNames: ['X'] }, after: { className: 'B', archived: false, teacherNames: ['X'] } } });
+    expect(upd.map((r) => r.label)).toEqual(['Tên lớp']);
+  });
+});

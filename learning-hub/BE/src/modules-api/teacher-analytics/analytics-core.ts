@@ -42,6 +42,8 @@ export interface AnalyticsSubmission {
   exerciseSlug: string;
   status: string;
   at: Date;
+  /** Điểm lượt nộp 0..100 (số test đạt / tổng test) nếu nguồn có ghi; bài AC mà thiếu điểm tính 100. */
+  scorePercent?: number;
 }
 
 /**
@@ -128,6 +130,8 @@ export interface StudentRow {
   avgAttempts: number | null;
   hintUnlocks: number;
   lastActiveAt: string | null;
+  /** Điểm trung bình (0..100) trên mọi bài được giao, bài chưa làm tính 0; null khi lớp chưa có bài hoặc học viên chưa nộp lượt nào. */
+  bestScorePercent: number | null;
 }
 
 export type PairStatus = 'PASSED' | 'ATTEMPTED' | 'NOT_STARTED';
@@ -151,6 +155,8 @@ interface Pair {
   passed: boolean;
   hints: number;
   lastAt: Date | null;
+  /** Điểm cao nhất (0..100) trong các lượt nộp của cặp này. */
+  best: number;
 }
 
 const ratio = (n: number, d: number, digits = 4): number | null =>
@@ -188,7 +194,7 @@ export function buildPairs(input: AnalyticsInput): Map<string, Pair> {
     if (!p)
       pairs.set(
         k,
-        (p = { attempts: 0, passed: false, hints: 0, lastAt: null }),
+        (p = { attempts: 0, passed: false, hints: 0, lastAt: null, best: 0 }),
       );
     return p;
   };
@@ -198,6 +204,7 @@ export function buildPairs(input: AnalyticsInput): Map<string, Pair> {
     const p = get(sub.userId, sub.exerciseSlug);
     p.attempts += 1;
     if (sub.status === PASS_STATUS) p.passed = true;
+    p.best = Math.max(p.best, sub.scorePercent ?? (sub.status === PASS_STATUS ? 100 : 0));
     if (!p.lastAt || sub.at > p.lastAt) p.lastAt = sub.at;
   }
   for (const h of input.hints) {
@@ -353,6 +360,10 @@ export function computeClassAnalytics(input: AnalyticsInput): ClassAnalytics {
         : null,
       hintUnlocks: a.hintUnlocks,
       lastActiveAt: a.last ? a.last.toISOString() : null,
+      bestScorePercent:
+        a.attemptedPairs > 0 && E > 0
+          ? Math.round(input.exercises.reduce((sum, e) => sum + (pairs.get(key(s.id, e.slug))?.best ?? 0), 0) / E)
+          : null,
     };
   });
 

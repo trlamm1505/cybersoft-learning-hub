@@ -5,7 +5,7 @@ export type ProctorAlertDocument = ProctorAlert & Document;
 
 export type ProctorAlertKind = 'CONTEST' | 'CLASS_ASSIGNMENT';
 export type ProctorAlertSeverity = 'INFO' | 'WARNING' | 'LOCKED';
-export type ProctorAlertStatus = 'OPEN' | 'ACKNOWLEDGED';
+export type ProctorAlertStatus = 'OPEN' | 'ACKNOWLEDGED' | 'INVALIDATED';
 
 /**
  * Cảnh báo "rời màn hình làm bài" gửi giảng viên. Mỗi (loại, học viên, bài/cuộc thi) một
@@ -51,11 +51,32 @@ export class ProctorAlert {
   @Prop({ type: String, default: '' })
   message: string;
 
-  @Prop({ type: String, enum: ['OPEN', 'ACKNOWLEDGED'], default: 'OPEN' })
+  @Prop({ type: String, enum: ['OPEN', 'ACKNOWLEDGED', 'INVALIDATED'], default: 'OPEN' })
   status: ProctorAlertStatus;
 
   @Prop({ type: Date })
   lastLeaveAt?: Date;
+
+  /** Tổng thời gian rời màn hình (giây), nếu nguồn ghi nhận có đo. */
+  @Prop({ type: Number })
+  awaySeconds?: number;
+
+  /** Giảng viên hủy kết quả bài làm vì vi phạm: lý do bắt buộc, có ghi audit log. */
+  @Prop({ type: String })
+  invalidReason?: string;
+
+  @Prop({ type: String })
+  invalidatedBy?: string;
+
+  @Prop({ type: Date })
+  invalidatedAt?: Date;
+
+  /** Số lần heartbeat đứt quãng nghi vấn (không do mất mạng cục bộ). */
+  @Prop({ type: Number, default: 0 })
+  interruptions: number;
+
+  @Prop({ type: Date })
+  lastInterruptionAt?: Date;
 
   @Prop({ type: String })
   acknowledgedBy?: string;

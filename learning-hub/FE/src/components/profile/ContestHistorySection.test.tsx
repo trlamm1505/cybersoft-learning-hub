@@ -55,3 +55,21 @@ describe('ClassResultModal', () => {
     expect(BACK_TO_CLASS_LABEL).toBe('⬅ Quay lại Lớp học của tôi');
   });
 });
+
+describe('ContestHistoryTable: kết quả bị không công nhận', () => {
+  it('vẫn hiện điểm của học viên nhưng thay hạng bằng nhãn "Không công nhận kết quả"', () => {
+    const html = renderToString(
+      <MemoryRouter>
+        <ContestHistoryTable
+          items={[
+            { contestId: 'c1', title: 'Thi cuối kỳ', joinedAt: '2026-10-01T01:00:00.000Z', score: 90, maxScore: 100, durationMinutes: 30, rank: null, totalParticipants: 10, provisional: false, disqualified: true, disqualifiedReason: 'Rời màn hình 3 lần' },
+          ]}
+        />
+      </MemoryRouter>,
+    );
+    const t = text(html);
+    expect(t).toContain('90/100');
+    expect(t).toContain('Không công nhận kết quả');
+    expect(t).not.toContain('Hạng');
+  });
+});

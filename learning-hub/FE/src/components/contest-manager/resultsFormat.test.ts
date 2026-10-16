@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterParticipants, PARTICIPANT_STATUS_LABEL, sortParticipants, toCsv } from './resultsFormat';
+import { filterParticipants, PARTICIPANT_STATUS_LABEL, sortByRank, sortParticipants, toCsv } from './resultsFormat';
 import type { ContestManageResults, ContestParticipantRow } from '../../types/contest';
 
 const row = (
@@ -16,6 +16,12 @@ const row = (
   startedAt: null,
   finishedAt: null,
   totalScore,
+  leaveCount: 0,
+  completionMinutes: null,
+  officialRank: null,
+  disqualified: false,
+  disqualifiedReason: null,
+  canDisqualify: false,
   perProblem: [],
   integrity: reviewStatus
     ? { flag: 'REVIEW', reviewStatus, decision: null, similarityScore: 0.9, focusCount: 0, awaySeconds: 0, activeSeconds: 0 }
@@ -55,8 +61,25 @@ describe('kết quả cuộc thi cho giảng viên', () => {
       ],
     } as unknown as ContestManageResults;
     const lines = toCsv(data).split('\r\n');
-    expect(lines[0]).toBe('Thí sinh,Trạng thái,"Bài ""A"", khó (/60)",Quiz (/40),Tổng (/100)');
-    expect(lines[1]).toBe('"\'=HYPERLINK(""x"")",Đã nộp,60,,60');
-    expect(lines[2]).toBe('Bình,Chưa vào thi,,,0');
+    expect(lines[0]).toBe('Thí sinh,Trạng thái,Hạng chính thức,Số lần rời màn hình,Thời gian hoàn thành (phút),"Bài ""A"", khó (/60)",Quiz (/40),Tổng (/100)');
+    expect(lines[1]).toBe('"\'=HYPERLINK(""x"")",Đã nộp,,0,,60,,60');
+    expect(lines[2]).toBe('Bình,Chưa vào thi,,0,,,,0');
+  });
+});
+
+describe('bảng xếp hạng chính thức', () => {
+  it('xếp theo hạng chính thức; chưa có hạng rồi thí sinh bị không công nhận xuống cuối', () => {
+    const rows = [
+      row('Bị loại', 100, undefined, { disqualified: true, leaveCount: 4 }),
+      row('Hạng 2', 70, undefined, { officialRank: 2 }),
+      row('Chưa thi', 0, undefined, { status: 'NOT_STARTED' }),
+      row('Hạng 1', 90, undefined, { officialRank: 1 }),
+    ];
+    expect(sortByRank(rows).map((r) => r.studentName)).toEqual(['Hạng 1', 'Hạng 2', 'Chưa thi', 'Bị loại']);
+  });
+
+  it('CSV ghi "Không công nhận" và để trống hạng của thí sinh bị loại', () => {
+    const data = { contest: { problems: [], maxScore: 100, slug: 'x' }, rows: [row('An', 100, undefined, { disqualified: true, leaveCount: 3, completionMinutes: 20 })] } as unknown as ContestManageResults;
+    expect(toCsv(data).split('\r\n')[1]).toBe('An,Không công nhận,,3,20,100');
   });
 });

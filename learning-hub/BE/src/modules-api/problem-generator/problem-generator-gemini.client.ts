@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GoogleGenAI, Type } from '@google/genai';
 import { slugify } from '../../common/utils/slug.util';
+import { randomUUID } from 'crypto';
 import { buildProblemPrompt } from './problem-prompt-builder';
+import { assertNoPromptLeak, GeneratedProblemSchema, PromptLeakError } from './problem-safety';
 import { ProblemDraft, ProblemSpec } from './problem-generator.types';
 import { ProblemGeneratorLlmClient } from './problem-generator-llm.client';
 
@@ -138,7 +140,9 @@ export class GeminiProblemGeneratorClient implements ProblemGeneratorLlmClient {
   private readonly maxTruncationRetries = 2;
 
   async generate(spec: ProblemSpec): Promise<ProblemDraft> {
-    const basePrompt = buildProblemPrompt(spec);
+    // Mã canary bí mật riêng cho mỗi lần gọi: xuất hiện trong output nghĩa là model đã làm lộ system prompt.
+    const canary = randomUUID();
+    const basePrompt = buildProblemPrompt(spec, canary);
 
     let raw = '';
     let lastParseError: Error | undefined;
@@ -158,9 +162,14 @@ export class GeminiProblemGeneratorClient implements ProblemGeneratorLlmClient {
       }
 
       try {
+        assertNoPromptLeak(raw, canary);
         const parsed = JSON.parse(raw) as GeminiProblemResponse;
         return this.toDraft(spec, parsed);
       } catch (err) {
+        if (err instanceof PromptLeakError) {
+          this.logger.warn(`[SECURITY] Output Gemini làm lộ system prompt/canary cho spec ${spec.id}; đã hủy kết quả.`);
+          throw err;
+        }
         lastParseError = err as Error;
         if (
           attempt < this.maxTruncationRetries &&
@@ -185,12 +194,14 @@ export class GeminiProblemGeneratorClient implements ProblemGeneratorLlmClient {
     );
   }
 
-  private toDraft(spec: ProblemSpec, parsed: GeminiProblemResponse): ProblemDraft {
-    if (!parsed.title || !parsed.solutionCode || !Array.isArray(parsed.testCases)) {
-      throw new Error(
-        `Response Gemini thiếu field bắt buộc cho spec ${spec.id}: ${JSON.stringify(parsed).slice(0, 500)}`,
-      );
+  private toDraft(spec: ProblemSpec, parsedInput: GeminiProblemResponse): ProblemDraft {
+    let parsed = parsedInput;
+    // Output phải khớp Zod schema của đề bài; sai cấu trúc thì từ chối, không đưa gì vào bản nháp.
+    const checked = GeneratedProblemSchema.safeParse(parsed);
+    if (!checked.success) {
+      throw new Error(`Output AI sai cấu trúc cho spec ${spec.id}: ${checked.error.issues.map((i) => i.path.join('.')).join(', ')}`);
     }
+    parsed = checked.data;
 
     this.logger.debug(`Gemini generated draft for spec ${spec.id}: ${parsed.title}`);
 

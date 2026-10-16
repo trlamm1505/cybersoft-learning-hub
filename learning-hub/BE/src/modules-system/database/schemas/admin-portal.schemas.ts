@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { createHash } from 'crypto';
 import { Document } from 'mongoose';
 
 // ---------------------------------------------------------------------------------------------
@@ -46,12 +47,22 @@ export const AUDIT_ACTIONS = [
   'ROLE_CHANGE',
   'CLASS_ASSIGN',
   'CLASS_ARCHIVE',
+  'CLASS_CREATE',
+  'CLASS_UPDATE',
+  'CLASS_DELETE',
+  'STUDENT_ADD',
+  'STUDENT_REMOVE',
   'CONFIG_UPDATE',
   'BULK_LOCK',
   'BULK_UNLOCK',
+  'SUBMISSION_INVALIDATE',
+  'SUBMISSION_FINALIZE',
+  'SUBMISSION_REVIEW_REQUEST',
+  'CONTEST_DISQUALIFY',
+  'CONTEST_REINSTATE',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
-export type AuditTargetType = 'USER' | 'CLASS' | 'CONFIG';
+export type AuditTargetType = 'USER' | 'CLASS' | 'CONFIG' | 'SUBMISSION' | 'CONTEST_ATTEMPT';
 
 @Schema({ collection: 'audit_logs' })
 export class AuditLog {
@@ -64,7 +75,7 @@ export class AuditLog {
   @Prop({ required: true, type: String, enum: AUDIT_ACTIONS, index: true })
   action: AuditAction;
 
-  @Prop({ required: true, type: String, enum: ['USER', 'CLASS', 'CONFIG'] })
+  @Prop({ required: true, type: String, enum: ['USER', 'CLASS', 'CONFIG', 'SUBMISSION', 'CONTEST_ATTEMPT'] })
   targetType: AuditTargetType;
 
   @Prop({ required: true, type: String })
@@ -74,9 +85,39 @@ export class AuditLog {
   @Prop({ type: Object, default: {} })
   diff: { before: unknown; after: unknown };
 
+  /** Lý do (bắt buộc với hủy kết quả bài nộp, từ 10 ký tự). */
+  @Prop({ type: String })
+  reason?: string;
+
+  /** Chuỗi băm: hash = SHA256(previousHash + actorId + action + targetId + timestamp). Sửa/xóa một bản ghi làm đứt chuỗi. */
+  @Prop({ type: String, default: '' })
+  previousHash?: string;
+
+  @Prop({ type: String, index: true })
+  hash?: string;
+
   @Prop({ type: Date, default: Date.now, index: true })
   timestamp: Date;
 }
 
 export const AuditLogSchema = SchemaFactory.createForClass(AuditLog);
 AuditLogSchema.index({ timestamp: -1 });
+
+/** Hash của một bản ghi audit; timestamp luôn ở dạng ISO để tính lại được khi kiểm tra. */
+export function computeAuditHash(previousHash: string, actorId: string, action: string, targetId: string, timestamp: Date): string {
+  return createHash('sha256').update(`${previousHash}${actorId}${action}${targetId}${timestamp.toISOString()}`).digest('hex');
+}
+
+/**
+ * Append-Only: mọi đường sửa/xóa qua mongoose (document và query) đều bị chặn ở tầng schema, nên không có route hay logic nào
+ * cập nhật được audit_logs. (Chặn ở CSDL cần thêm quyền người dùng Mongo chỉ có insert/find cho collection này.)
+ */
+const IMMUTABLE_MESSAGE = 'audit_logs là Append-Only: không được sửa hoặc xóa bản ghi.';
+for (const op of ['updateOne', 'updateMany', 'findOneAndUpdate', 'findOneAndReplace', 'replaceOne', 'deleteOne', 'deleteMany', 'findOneAndDelete'] as const) {
+  AuditLogSchema.pre(op as any, function () {
+    throw new Error(IMMUTABLE_MESSAGE);
+  });
+}
+AuditLogSchema.pre('save', function () {
+  if (!this.isNew) throw new Error(IMMUTABLE_MESSAGE);
+});

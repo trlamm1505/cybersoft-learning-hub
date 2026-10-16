@@ -7,6 +7,8 @@ import { isValidObjectId, Model } from 'mongoose';
 import { UnauthorizedException } from '@nestjs/common';
 import { User, UserDocument } from '../../modules-system/database/schemas/user.schema';
 import { jwtSecretFrom } from './jwt-secret';
+import { ACCESS_COOKIE, readCookie } from '../security/cookies';
+import { tokenRevocation } from '../security/token-revocation';
 
 export interface JwtPayload {
   sub: string; // userId
@@ -16,6 +18,9 @@ export interface JwtPayload {
   ageGroup?: string;
   /** Thời điểm cấp token (giây), do JWT tự thêm. */
   iat?: number;
+  /** Hạn token (giây) và mã định danh token, dùng để thu hồi khi đăng xuất. */
+  exp?: number;
+  jti?: string;
 }
 
 /**
@@ -31,7 +36,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     @InjectModel(User.name) private readonly users: Model<UserDocument>,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      // Bearer header (script/API) hoặc cookie httpOnly `access_token` (trình duyệt).
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req: { headers?: { cookie?: string } }) => readCookie(req?.headers?.cookie, ACCESS_COOKIE) ?? null,
+      ]),
       ignoreExpiration: false,
       secretOrKey: jwtSecretFrom(configService),
     });
@@ -42,6 +51,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * từ chối ngay (không chờ hết hạn 7 ngày), và vai trò lấy từ CSDL nên đổi vai trò có hiệu lực tức thì.
    */
   async validate(payload: JwtPayload): Promise<JwtPayload> {
+    if (tokenRevocation.isRevoked(payload.jti)) {
+      throw new UnauthorizedException('Phiên đăng nhập đã kết thúc. Vui lòng đăng nhập lại.');
+    }
     if (!isValidObjectId(payload.sub)) {
       throw new UnauthorizedException('Phiên đăng nhập không còn hợp lệ.');
     }

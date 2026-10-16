@@ -158,3 +158,41 @@ describe('SystemConfigService: system prompts', () => {
     expect(res.encryptionReady).toBe(true);
   });
 });
+
+describe('SystemConfigService: trim và key giả', () => {
+  beforeEach(() => generate.mockReset());
+
+  it('key dán có dấu cách/xuống dòng ở đầu cuối được cắt sạch rồi mới mã hóa và lưu', async () => {
+    const { svc, docs } = build();
+    await svc.setGeminiKey(`  
+	${KEY}  
+`, 'a');
+    expect(decryptSecret(docs[GEMINI_KEY].value, SECRET)).toBe(KEY);
+    expect(svc.currentGeminiKey()).toBe(KEY);
+  });
+
+  it('key giả bị Gemini từ chối thì KHÔNG lưu gì và báo 400', async () => {
+    const { svc, docs, configs } = build();
+    generate.mockRejectedValue(new Error('API key not valid. Please pass a valid API key.'));
+    await expect(svc.setGeminiKey(KEY, 'a')).rejects.toThrow(/Gemini từ chối|bị Gemini từ chối/);
+    expect(configs.updateOne).not.toHaveBeenCalled();
+    expect(docs[GEMINI_KEY]).toBeUndefined();
+  });
+
+  it('lỗi mạng/timeout/hết hạn mức không đổ lỗi cho key: vẫn lưu được', async () => {
+    const { svc, docs } = build();
+    generate.mockRejectedValueOnce(new Error('fetch failed ECONNRESET'));
+    await expect(svc.setGeminiKey(KEY, 'a')).resolves.toBeDefined();
+    expect(docs[GEMINI_KEY]).toBeDefined();
+    generate.mockRejectedValueOnce(new Error('429 RESOURCE_EXHAUSTED quota'));
+    await expect(svc.setGeminiKey(KEY + 'x', 'a')).resolves.toBeDefined();
+  });
+
+  it('khóa mã hóa không bao giờ xuất hiện trong kết quả trả về hay thông báo lỗi', async () => {
+    const { svc } = build();
+    const info = JSON.stringify(await svc.list());
+    expect(info).not.toContain(SECRET);
+    const err = await build({ env: { CONFIG_ENCRYPTION_KEY: 'ngan' } }).svc.setGeminiKey(KEY, 'a').catch((e: Error) => e.message);
+    expect(String(err)).not.toContain('ngan');
+  });
+});

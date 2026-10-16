@@ -44,6 +44,7 @@ describe('AuthService', () => {
   const mockConfigService = { get: jest.fn() };
   const mockMailService = {
     sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+    isConfigured: jest.fn().mockReturnValue(true),
   };
 
   beforeEach(async () => {
@@ -238,6 +239,60 @@ describe('AuthService', () => {
 
       expect(result.message).toContain('Nếu email này đã đăng ký');
       expect(mockMailService.sendPasswordResetEmail).not.toHaveBeenCalled();
+    });
+
+    it('email sai định dạng hoặc rỗng -> 400, không tra CSDL', async () => {
+      for (const bad of ['', '   ', 'khong-phai-email', 'a@b', 'a b@c.com']) {
+        await expect(service.forgotPassword({ email: bad })).rejects.toThrow(BadRequestException);
+      }
+      await expect(service.forgotPassword({} as never)).rejects.toThrow(BadRequestException);
+      expect(mockUserModel.findOne).not.toHaveBeenCalled();
+    });
+
+    it('phản hồi ngay dù SMTP chậm hoặc lỗi: gửi thư chạy nền, không chặn và không ném lỗi', async () => {
+      mockUserModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ _id: 'user1', email: 'a@b.com' }) });
+      mockConfigService.get.mockReturnValue('http://localhost:5173');
+      mockMailService.sendPasswordResetEmail.mockReturnValueOnce(new Promise(() => undefined)); // không bao giờ xong
+      const res = await service.forgotPassword({ email: 'a@b.com' });
+      expect(res.success).toBe(true);
+      mockMailService.sendPasswordResetEmail.mockRejectedValueOnce(new Error('SMTP down'));
+      await expect(service.forgotPassword({ email: 'a@b.com' })).resolves.toMatchObject({ success: true });
+    });
+
+    describe('chưa cấu hình SMTP (Development Mock Mode)', () => {
+      const OLD_ENV = process.env.NODE_ENV;
+      beforeEach(() => {
+        mockMailService.isConfigured.mockReturnValue(false);
+        mockUserModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ _id: 'user1', email: 'a@b.com' }) });
+        mockConfigService.get.mockReturnValue('http://localhost:5173');
+      });
+      afterEach(() => {
+        mockMailService.isConfigured.mockReturnValue(true);
+        process.env.NODE_ENV = OLD_ENV;
+      });
+
+      it('không gửi thư; trả success + thông báo Dev mode kèm liên kết đặt lại', async () => {
+        process.env.NODE_ENV = 'development';
+        const res = await service.forgotPassword({ email: 'a@b.com' });
+        expect(res.success).toBe(true);
+        expect(res.message).toContain('Dev mode');
+        expect(res.devResetLink).toContain('http://localhost:5173/reset-password?token=');
+        expect(mockMailService.sendPasswordResetEmail).not.toHaveBeenCalled();
+        expect(mockPasswordResetModel.create).toHaveBeenCalled();
+      });
+
+      it('production: tuyệt đối không trả liên kết trong response', async () => {
+        process.env.NODE_ENV = 'production';
+        const res = await service.forgotPassword({ email: 'a@b.com' });
+        expect(res).not.toHaveProperty('devResetLink');
+      });
+
+      it('email không tồn tại: không lộ liên kết', async () => {
+        process.env.NODE_ENV = 'development';
+        mockUserModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
+        const res = await service.forgotPassword({ email: 'khong@co.com' });
+        expect(res).not.toHaveProperty('devResetLink');
+      });
     });
 
     it('sinh token, xoá token cũ chưa dùng, và gửi email khi email tồn tại', async () => {

@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { AssessmentModule } from './modules-api/assessment/assessment.module';
+import { CsrfGuard } from './common/security/csrf.guard';
+import { TraceErrorFilter } from './common/security/trace-error.filter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import {
   AppThrottlerGuard,
@@ -20,6 +23,7 @@ import { LeaderboardModule } from './modules-api/leaderboard/leaderboard.module'
 import { CoachModule } from './modules-api/coach/coach.module';
 import { BlockPuzzleModule } from './modules-api/block-puzzle/block-puzzle.module';
 import { ProblemGeneratorModule } from './modules-api/problem-generator/problem-generator.module';
+import { QuestionBankModule } from './modules-api/question-bank/question-bank.module';
 import { RecommendationModule } from './modules-api/recommendation/recommendation.module';
 import { TesterLabsModule } from './modules-api/tester-labs/tester-labs.module';
 import { DaLabsModule } from './modules-api/da-labs/da-labs.module';
@@ -51,6 +55,7 @@ import { ResilienceSecurityModule } from './modules-api/resilience-security/resi
     CoachModule,
     BlockPuzzleModule,
     ProblemGeneratorModule,
+    QuestionBankModule,
     RecommendationModule,
     TesterLabsModule,
     DaLabsModule,
@@ -60,6 +65,7 @@ import { ResilienceSecurityModule } from './modules-api/resilience-security/resi
     AdminPortalModule,
     LearnerActivityModule,
     TeacherAnalyticsModule,
+    AssessmentModule,
     AdminUsersModule,
     DatasetIntegrationModule,
     QaHarnessModule,
@@ -70,6 +76,8 @@ import { ResilienceSecurityModule } from './modules-api/resilience-security/resi
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: AppThrottlerGuard },
+    { provide: APP_GUARD, useClass: CsrfGuard },
+    { provide: APP_FILTER, useClass: TraceErrorFilter },
     { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
   ],
 })

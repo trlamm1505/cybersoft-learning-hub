@@ -8,6 +8,7 @@ export const getStoredToken = (): string | null =>
 /** Xoá phiên đăng nhập; giữ nguyên tiến độ học tập lưu theo id tài khoản. */
 export function clearAuthSession() {
   TOKEN_KEYS.forEach((k) => localStorage.removeItem(k));
+  localStorage.removeItem('csrf_token');
   localStorage.removeItem(AUTH_USER_KEY);
 }
 

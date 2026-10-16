@@ -45,6 +45,22 @@ export class ContestAttempt {
   @Prop({ type: Number, default: 0 })
   leaveCount?: number;
 
+  /**
+   * Giảng viên không công nhận kết quả (vd rời màn hình từ 3 lần): học viên vẫn xem được bài và điểm của mình,
+   * nhưng bị loại khỏi bảng xếp hạng chính thức. Có thể khôi phục.
+   */
+  @Prop({ type: Boolean, default: false })
+  disqualified?: boolean;
+
+  @Prop({ type: String })
+  disqualifiedReason?: string;
+
+  @Prop({ type: String })
+  disqualifiedBy?: string;
+
+  @Prop({ type: Date })
+  disqualifiedAt?: Date;
+
   /** Chỉ có khi cuộc thi bật giám sát; không bao giờ ảnh hưởng điểm. */
   @Prop({ type: Object })
   integrity?: ContestIntegrity;

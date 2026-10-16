@@ -51,6 +51,8 @@ export interface LeaderboardResult {
   isFrozen: boolean;
   serverTime: string;
   rows: LeaderboardRow[];
+  /** Số thí sinh bị giảng viên không công nhận (đã loại khỏi `rows`). */
+  disqualifiedCount: number;
 }
 
 @Injectable()
@@ -164,8 +166,9 @@ export class LeaderboardService {
 
     // Mốc bắt đầu của từng thí sinh: giờ vào thi của họ; chưa có lượt thi thì tính từ giờ mở cuộc thi.
     const attemptRows: any[] = this.attemptModel
-      ? await this.attemptModel.find({ contestId: String(contest._id) }).select('studentId startedAt').lean()
+      ? await this.attemptModel.find({ contestId: String(contest._id) }).select('studentId startedAt disqualified').lean()
       : [];
+    const disqualified = new Set<string>(attemptRows.filter((a) => a.disqualified === true).map((a) => String(a.studentId)));
     const startByStudent = new Map<string, number>();
     for (const a of attemptRows) {
       if (a.startedAt) startByStudent.set(String(a.studentId), new Date(a.startedAt).getTime());
@@ -223,6 +226,7 @@ export class LeaderboardService {
     }
 
     const rows = Array.from(students.values())
+      .filter((s) => !disqualified.has(s.studentId))
       .sort((a, b) => {
         if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
         const aTie = a.timeMinutes + a.penaltyMinutes;
@@ -246,6 +250,7 @@ export class LeaderboardService {
       isFrozen,
       serverTime: now.toISOString(),
       rows,
+      disqualifiedCount: disqualified.size,
     };
   }
 }

@@ -277,8 +277,13 @@ export class AdminUsersService {
    * Sửa thông tin cơ bản (họ tên, khối học) và/hoặc đặt lại mật khẩu. Không đổi email/vai trò ở đây (vai trò đi qua
    * setRole để giữ luồng bàn giao lớp). Đặt lại mật khẩu hủy mọi phiên đăng nhập đang có của người đó.
    */
-  async update(user: JwtPayload, id: string, body: { fullName?: unknown; ageGroup?: unknown; password?: unknown }) {
+  async update(user: JwtPayload, id: string, body: { fullName?: unknown; ageGroup?: unknown; password?: unknown; role?: unknown; status?: unknown }) {
     this.assertAdmin(user);
+    // Vai trò/trạng thái chỉ đổi qua endpoint riêng (có chặn leo quyền, bàn giao lớp và audit): nhận cả hai ở đây là lỗ hổng tiềm ẩn.
+    if (body.role === 'ADMIN') throw new ForbiddenException('Không được gán quyền quản trị viên cho tài khoản nào.');
+    if (body.role !== undefined || body.status !== undefined) {
+      throw new BadRequestException('Không đổi vai trò hoặc trạng thái ở đây: dùng chức năng đổi vai trò / khóa tài khoản.');
+    }
     const target = await this.findTarget(id);
     const set: Record<string, unknown> = {};
     if (body.fullName !== undefined) {

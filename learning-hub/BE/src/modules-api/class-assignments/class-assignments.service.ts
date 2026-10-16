@@ -27,6 +27,9 @@ import {
 } from './class-scoring';
 import { CreateAssignmentDto, validateAssignmentInput } from './dto/create-assignment.dto';
 import { certificateCode, summarizeEnrollment } from './class-completion';
+import { bandOfClass, bandOfExercise, exerciseBandFilter, exerciseFitsBand, normalizeBankBand, questionBandFilter } from '../exercise/exercise-matrix';
+import { assignmentWindow, escapeRegex, groupByDay, normalizeDifficulty, normalizePage, toPaged, type PageInput } from './assignment-days';
+import { isCareerCourseClass } from '../assessment/domain/tester-progress';
 
 export interface AssignmentResult {
   done: boolean;
@@ -197,26 +200,13 @@ export class ClassAssignmentsService {
         : null;
 
     const rows = list.map((a) => this.toRow(a, res.get(asId(a._id))?.get(user.sub) ?? EMPTY, now));
-    const days: Array<{
-      date: string;
-      dayNumber: number;
-      totalCount: number;
-      doneCount: number;
-      pendingCount: number;
-      assignments: ReturnType<ClassAssignmentsService['toRow']>[];
-    }> = [];
-    for (const row of rows) {
-      const key = vnDayKey(new Date(row.startAt));
-      let day = days.find((d) => d.date === key);
-      if (!day) {
-        day = { date: key, dayNumber: days.length + 1, totalCount: 0, doneCount: 0, pendingCount: 0, assignments: [] };
-        days.push(day);
-      }
-      day.assignments.push(row);
-      day.totalCount++;
-      if (row.done) day.doneCount++;
-      else day.pendingCount++;
-    }
+    // Cùng cách gom ngày với trang Giảng viên (groupByDay) nên Ngày n của hai bên luôn trùng nhau.
+    const days = groupByDay(rows).map((d) => ({
+      ...d,
+      totalCount: d.assignments.length,
+      doneCount: d.assignments.filter((a) => a.done).length,
+      pendingCount: d.assignments.filter((a) => !a.done).length,
+    }));
 
     const names = memberIds.map((id) => ({ id, name: '' }));
     const ranked = rankMembers(this.totals(list, res, names));
@@ -381,16 +371,98 @@ export class ClassAssignmentsService {
     return list.map((a) => ({ ...a, id: asId(a._id) }));
   }
 
+  /**
+   * Bài của lớp theo NGÀY (Ngày 1, 2, 3...), cùng cấu trúc học viên thấy ở "Lớp học của tôi": mỗi bài kèm loại (Trắc nghiệm / Code), hạn nộp,
+   * trạng thái mở/hết hạn và tiến độ (số học viên đã hoàn thành trên sĩ số). Nguồn duy nhất: collection class_assignments.
+   */
+  async daysForTeacher(classId: string, user: JwtPayload, now: Date = new Date()) {
+    const cls = await this.ownedClass(classId, user);
+    const list = (await this.assignments.find({ classId: asId(cls._id) }).sort({ startAt: 1, order: 1 }).lean()) as Array<ClassAssignment & { _id: unknown }>;
+    const memberIds = cls.studentIds ?? [];
+    const res = await this.results(list, memberIds);
+    const rows = list.map((a) => ({
+      id: asId(a._id),
+      type: a.type,
+      title: a.title,
+      exerciseSlug: a.exerciseSlug ?? null,
+      questionCount: a.questionIds?.length ?? null,
+      maxPoints: a.maxPoints,
+      startAt: a.startAt,
+      dueAt: a.dueAt,
+      window: assignmentWindow(new Date(a.startAt), new Date(a.dueAt), now),
+      doneCount: memberIds.filter((m) => res.get(asId(a._id))?.get(m)?.done).length,
+      memberCount: memberIds.length,
+    }));
+    return { classId: asId(cls._id), archived: cls.archived === true, band: bandOfClass((cls as { ageGroup?: string }).ageGroup), days: groupByDay(rows) };
+  }
+
+  /** Ngân hàng bài code (Python) để gán vào ngày học: tìm theo tên/slug, lọc độ khó, phân trang (mặc định 10 bài/trang). */
+  async catalogExercises(user: JwtPayload, q: { q?: string; difficulty?: string; band?: string } & PageInput) {
+    this.assertStaff(user);
+    const { page, pageSize } = normalizePage(q);
+    const term = (q.q ?? '').trim().slice(0, 60);
+    const difficulty = normalizeDifficulty(q.difficulty);
+    const band = normalizeBankBand(q.band);
+    const rx = { $regex: escapeRegex(term), $options: 'i' };
+    const filter: Record<string, unknown> = { type: 'CODE_TEXT', resource_id: { $exists: false } };
+    const and: Record<string, unknown>[] = [];
+    if (term) and.push({ $or: [{ title: rx }, { slug: rx }, { tags: rx }] });
+    if (band) and.push(exerciseBandFilter(band));
+    if (and.length) filter.$and = and;
+    if (difficulty) filter.difficulty = difficulty;
+    const [total, docs] = await Promise.all([
+      this.exercises.countDocuments(filter),
+      this.exercises.find(filter).select('slug title difficulty tags points targetGroup gradeBand bankBand').sort({ title: 1 }).skip((page - 1) * pageSize).limit(pageSize).lean<Array<{ slug: string; title: string; difficulty?: string; tags?: string[]; points?: number; targetGroup?: string; gradeBand?: string; bankBand?: string }>>(),
+    ]);
+    return toPaged(docs.map((e) => ({ slug: e.slug, title: e.title, band: bandOfExercise(e), difficulty: e.difficulty ?? null, tags: e.tags ?? [], points: e.points ?? null })), total, page, pageSize);
+  }
+
+  /** Ngân hàng câu trắc nghiệm: tìm theo nội dung/chủ đề, lọc độ khó, phân trang. */
+  async catalogQuestions(user: JwtPayload, q: { q?: string; difficulty?: string; band?: string } & PageInput) {
+    this.assertStaff(user);
+    const { page, pageSize } = normalizePage(q);
+    const term = (q.q ?? '').trim().slice(0, 60);
+    const difficulty = normalizeDifficulty(q.difficulty);
+    const rx = { $regex: escapeRegex(term), $options: 'i' };
+    const filter: Record<string, unknown> = {};
+    const band = normalizeBankBand(q.band);
+    const and: Record<string, unknown>[] = [];
+    if (term) and.push({ $or: [{ content: rx }, { category: rx }, { tags: rx }] });
+    if (band) and.push(questionBandFilter(band));
+    if (and.length) filter.$and = and;
+    if (difficulty) filter.difficulty = difficulty;
+    const [total, docs] = await Promise.all([
+      this.questions.countDocuments(filter),
+      this.questions.find(filter).select('content difficulty category tags').sort({ _id: 1 }).skip((page - 1) * pageSize).limit(pageSize).lean<Array<{ _id: unknown; content: string; difficulty?: string; category?: string; tags?: string[] }>>(),
+    ]);
+    return toPaged(docs.map((d) => ({ id: asId(d._id), content: d.content, difficulty: d.difficulty ?? null, category: d.category ?? null, tags: d.tags ?? [] })), total, page, pageSize);
+  }
+
+  private assertStaff(user: JwtPayload) {
+    if (user.role !== 'TEACHER' && user.role !== 'ADMIN') throw new ForbiddenException('Chỉ giảng viên được xem ngân hàng đề.');
+  }
+
   async create(classId: string, dto: CreateAssignmentDto, user: JwtPayload) {
     const cls = await this.ownedClass(classId, user);
+    // Lớp Career (Tester QA, Data SQL, AI Prompt) học theo Lab cố định: không giao bài tập lẻ.
+    if (isCareerCourseClass(cls)) {
+      throw new BadRequestException({ code: 'E400_CAREER_CLASS_NO_ASSIGNMENT', message: 'Lớp khóa Career học theo các Lab cố định, không giao bài tập riêng.' });
+    }
+    if (cls.archived === true) {
+      throw new BadRequestException({ code: 'E400_CLASS_ARCHIVED', message: 'Lớp đã lưu trữ, không thể giao thêm bài.' });
+    }
     const input = validateAssignmentInput(dto);
     if ((await this.assignments.countDocuments({ classId: asId(cls._id) })) >= MAX_ASSIGNMENTS_PER_CLASS) {
       throw new BadRequestException(`Mỗi lớp tối đa ${MAX_ASSIGNMENTS_PER_CLASS} bài tập.`);
     }
     if (input.type === 'CODING') {
-      const ex = await this.exercises.findOne({ slug: input.exerciseSlug }).select('type resource_id title').lean();
+      const ex = await this.exercises.findOne({ slug: input.exerciseSlug }).select('type resource_id title targetGroup gradeBand bankBand').lean<{ type?: string; resource_id?: unknown; targetGroup?: string; gradeBand?: string }>();
       if (!ex || ex.type !== 'CODE_TEXT' || ex.resource_id) {
         throw new BadRequestException(`Không tìm thấy bài code Python "${input.exerciseSlug}".`);
+      }
+      const classBand = bandOfClass((cls as { ageGroup?: string }).ageGroup);
+      if (classBand && !exerciseFitsBand(ex, classBand)) {
+        throw new BadRequestException({ code: 'E400_BAND_MISMATCH', message: `Bài này thuộc khối khác, không gán được cho lớp khối ${classBand}.` });
       }
     } else {
       const ids = input.questionIds ?? [];
@@ -399,14 +471,24 @@ export class ClassAssignmentsService {
     }
     const order = (await this.assignments.countDocuments({ classId: asId(cls._id) })) + 1;
     const created = await this.assignments.create({ ...input, classId: asId(cls._id), order, createdBy: user.sub });
+    // Bài code được giao thì cũng nằm trong danh sách bài theo dõi của lớp (thống kê tiến độ đọc exerciseSlugs).
+    if (input.type === 'CODING' && input.exerciseSlug) await this.classes.updateOne({ _id: cls._id }, { $addToSet: { exerciseSlugs: input.exerciseSlug } });
     return { ...created.toObject(), id: asId(created._id) };
   }
 
   async remove(classId: string, assignmentId: string, user: JwtPayload) {
     const cls = await this.ownedClass(classId, user);
     if (!isValidObjectId(assignmentId)) throw new NotFoundException('Không tìm thấy bài tập.');
+    if (cls.archived === true) {
+      throw new BadRequestException({ code: 'E400_CLASS_ARCHIVED', message: 'Lớp đã lưu trữ, không thể xóa bài.' });
+    }
+    const target = await this.assignments.findOne({ _id: assignmentId, classId: asId(cls._id) }).select('type exerciseSlug').lean<{ type: string; exerciseSlug?: string }>();
     const del = await this.assignments.deleteOne({ _id: assignmentId, classId: asId(cls._id) });
     if (del.deletedCount === 0) throw new NotFoundException('Không tìm thấy bài tập.');
+    // Gỡ bài code khỏi danh sách theo dõi nếu không còn bài giao nào dùng nó.
+    if (target?.type === 'CODING' && target.exerciseSlug && (await this.assignments.countDocuments({ classId: asId(cls._id), exerciseSlug: target.exerciseSlug })) === 0) {
+      await this.classes.updateOne({ _id: cls._id }, { $pull: { exerciseSlugs: target.exerciseSlug } });
+    }
     return { deleted: true };
   }
 }

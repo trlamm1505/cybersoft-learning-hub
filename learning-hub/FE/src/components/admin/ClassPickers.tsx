@@ -2,9 +2,11 @@ import React from 'react';
 import { X } from 'lucide-react';
 
 /** Thẻ tag có dấu ✕ nhỏ hiện khi rê chuột (hoặc focus bàn phím) để gỡ nhanh. */
-export const RemovableTag: React.FC<{ label: string; tone: 'violet' | 'slate' | 'plain'; title?: string; onRemove?: () => void; removeLabel: string; disabledReason?: string }> = ({ label, tone, title, onRemove, removeLabel, disabledReason }) => {
+export const RemovableTag: React.FC<{ label: string; tone: 'violet' | 'slate' | 'plain' | 'locked'; title?: string; onRemove?: () => void; removeLabel: string; disabledReason?: string }> = ({ label, tone, title, onRemove, removeLabel, disabledReason }) => {
   const base =
-    tone === 'plain'
+    tone === 'locked'
+      ? 'bg-neutral-200 text-neutral-500 line-through decoration-neutral-400 ring-neutral-300 dark:bg-neutral-800 dark:text-neutral-500 dark:ring-neutral-700'
+      : tone === 'plain'
       ? 'bg-white text-[var(--text-main)] ring-neutral-200 dark:bg-neutral-900 dark:ring-neutral-700'
       : tone === 'violet'
         ? 'bg-violet-50 text-violet-700 ring-violet-600/20 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-400/30'

@@ -86,6 +86,16 @@ describe('AdminUsersService.update', () => {
   });
 });
 
+describe('AdminUsersService.update: không là đường leo quyền', () => {
+  it('role=ADMIN → 403; role/status khác → 400; không có lệnh ghi nào xuống CSDL', async () => {
+    const { svc, users } = build([{ _id: U1, email: 'a@x.vn', role: 'STUDENT' }]);
+    await expect(svc.update(ADMIN, U1, { fullName: 'x', role: 'ADMIN' })).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(svc.update(ADMIN, U1, { role: 'TEACHER' })).rejects.toBeInstanceOf(BadRequestException);
+    await expect(svc.update(ADMIN, U1, { status: 'LOCKED' })).rejects.toBeInstanceOf(BadRequestException);
+    expect(users.updateOne).not.toHaveBeenCalled();
+  });
+});
+
 describe('AdminUsersService.bulkSetStatus', () => {
   const rows = () => [
     { _id: U1, email: 'a@x.vn', role: 'STUDENT', status: 'ACTIVE' },

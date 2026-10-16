@@ -13,6 +13,9 @@ export interface ContestHistoryItem {
   rank: number | null;
   totalParticipants: number;
   provisional: boolean;
+  /** Giảng viên không công nhận kết quả: vẫn thấy điểm của mình nhưng không có hạng chính thức. */
+  disqualified?: boolean;
+  disqualifiedReason?: string | null;
 }
 
 export const contestHistoryApi = {
@@ -77,7 +80,16 @@ export const ContestHistoryTable: React.FC<{ items: ContestHistoryItem[] }> = ({
                 {c.score}/{c.maxScore}
               </td>
               <td className={`${cell} whitespace-nowrap`}>{formatDuration(c.durationMinutes)}</td>
-              <td className={`${cell} whitespace-nowrap font-semibold`}>{formatRank(c.rank, c.totalParticipants, c.provisional)}</td>
+              <td className={`${cell} whitespace-nowrap font-semibold`}>
+                {c.disqualified ? (
+                  <span className="inline-flex flex-col items-start gap-0.5" title={c.disqualifiedReason ?? undefined}>
+                    <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-xs font-semibold text-rose-700 dark:text-rose-300">Không công nhận kết quả</span>
+                    <span className="text-[11px] font-normal text-[var(--text-muted)]">Không có trong bảng xếp hạng chính thức</span>
+                  </span>
+                ) : (
+                  formatRank(c.rank, c.totalParticipants, c.provisional)
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

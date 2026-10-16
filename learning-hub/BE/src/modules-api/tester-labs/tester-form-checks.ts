@@ -5,7 +5,8 @@ export const MAX_TEST_CASES = 100;
 export const MAX_BUG_REPORTS = 30;
 export const MIN_TEST_CASES = 5;
 const MAX_FIELD = 1000;
-export const BUG_SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
+/** Thang chuẩn Blocker / Critical / Major / Minor; LOW, MEDIUM, HIGH là giá trị của biểu mẫu cũ, vẫn nhận để không làm hỏng bài đã nộp. */
+export const BUG_SEVERITIES = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'LOW', 'MEDIUM', 'HIGH'] as const;
 
 export interface TesterTestCase {
   code: string;
@@ -46,7 +47,7 @@ export function sanitizeTesterForm(raw: unknown): TesterFormData {
       steps: str(b?.steps, 3000),
       expected: str(b?.expected),
       actual: str(b?.actual),
-      severity: (BUG_SEVERITIES as readonly string[]).includes(b?.severity) ? b.severity : 'MEDIUM',
+      severity: (BUG_SEVERITIES as readonly string[]).includes(b?.severity) ? b.severity : 'MAJOR',
     }))
     .filter((b) => b.title || b.steps || b.expected || b.actual);
   if (testCases.length === 0 && bugReports.length === 0) {

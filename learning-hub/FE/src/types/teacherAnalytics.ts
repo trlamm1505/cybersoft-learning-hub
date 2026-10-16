@@ -82,6 +82,8 @@ export interface StudentRow {
   avgAttempts: number | null;
   hintUnlocks: number;
   lastActiveAt: string | null;
+  /** Điểm trung bình 0..100 trên mọi bài được giao; null khi chưa nộp lượt nào. */
+  bestScorePercent: number | null;
 }
 
 export type PairStatus = 'PASSED' | 'ATTEMPTED' | 'NOT_STARTED';
@@ -113,9 +115,20 @@ export interface ExerciseDetail {
   students: Array<{ id: string; name: string } & PairRow>;
 }
 
+export interface ClassAssignmentItem {
+  id: string;
+  title: string;
+  type: 'CODING' | 'QUIZ' | string;
+  startAt: string;
+  dueAt: string;
+  maxPoints: number | null;
+}
+
 export interface ClassDetail extends ClassSummary {
   students: CatalogStudent[];
   exercises: CatalogExercise[];
+  /** Bài giao có hạn nộp của lớp (đang mở / hết hạn tính theo startAt, dueAt). */
+  assignments?: ClassAssignmentItem[];
 }
 
 export interface PersonRef {
@@ -194,4 +207,16 @@ export interface AdminUserProfile {
   } | null;
   recent: ProfileRecent[];
   activity: { from: string; to: string; total: number; activeDays: number; days: Array<{ date: string; count: number }> } | null;
+}
+
+/** Hợp đồng `GET /teacher/classes`: lớp giảng viên đang phụ trách. */
+export interface TeacherClassSummary extends ClassSummary {
+  code: string;
+  /** Khóa Career Adult (tester-qa | data-sql | ai-prompt); null với lớp phổ thông. */
+  courseKey: string | null;
+  ageGroup: '3-5' | '6-9' | '10-12' | 'CAREER_ADULT' | null;
+  status: 'ACTIVE' | 'ARCHIVED';
+  pendingSubmissions: number;
+  isPrimaryTeacher: boolean;
+  coTeachers: string[];
 }

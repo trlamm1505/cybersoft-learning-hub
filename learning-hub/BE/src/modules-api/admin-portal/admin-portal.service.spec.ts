@@ -158,11 +158,11 @@ describe('AdminPortalService: lớp và giảng viên', () => {
       }),
     });
     users.find
-      .mockReturnValueOnce(lean([{ _id: T1, fullName: 'Cô Lan' }]))
+      .mockReturnValueOnce(lean([{ _id: T1, fullName: 'Cô Lan', status: 'ACTIVE' }]))
       .mockReturnValueOnce(lean([{ _id: 's1', ageGroup: '6-9' }, { _id: 's2', ageGroup: '6-9' }, { _id: 's3', ageGroup: '3-5' }]));
     const rows = await svc.classesOverview(ADMIN);
     expect(rows[0]).toMatchObject({ code: 'A1', ageGroup: '6-9', studentCount: 3, status: 'OPEN' });
-    expect(rows[0].teachers).toEqual([{ id: T1, name: 'Cô Lan' }, { id: T2, name: 'Giảng viên không còn tồn tại' }]);
+    expect(rows[0].teachers).toEqual([{ id: T1, name: 'Cô Lan', locked: false }, { id: T2, name: 'Giảng viên không còn tồn tại', locked: false }]);
     expect(rows[1]).toMatchObject({ status: 'ARCHIVED', ageGroup: null, studentCount: 0 });
   });
 });
@@ -283,5 +283,24 @@ describe('AdminPortalService: khóa Người đi làm, chi tiết và lưu trữ
     expect(audit.record).not.toHaveBeenCalled();
     await expect(svc.setArchived(ADMIN, CLASS_ID, 'yes')).rejects.toBeInstanceOf(BadRequestException);
     await expect(svc.setArchived(TEACHER, CLASS_ID, true)).rejects.toBeInstanceOf(ForbiddenException);
+  });
+});
+
+describe('AdminPortalService: giảng viên bị khóa vẫn hiện trên lớp kèm cờ locked', () => {
+  it('giữ lịch sử phân công nhưng đánh dấu tài khoản giảng viên đang bị khóa', async () => {
+    const { svc, classes, users } = build();
+    classes.find.mockReturnValue({ sort: () => ({ lean: () => Promise.resolve([{ _id: 'c1', name: 'Lớp A', teacherIds: [T1, T2], studentIds: [] }]) }) });
+    users.find
+      .mockReturnValueOnce(lean([{ _id: T1, fullName: 'Cô Lan', status: 'LOCKED' }, { _id: T2, fullName: 'Thầy Hùng', status: 'ACTIVE' }]))
+      .mockReturnValueOnce(lean([]));
+    const rows = await svc.classesOverview(ADMIN);
+    expect(rows[0].teachers).toEqual([{ id: T1, name: 'Cô Lan', locked: true }, { id: T2, name: 'Thầy Hùng', locked: false }]);
+  });
+
+  it('lớp có ageGroup đã đặt thì dùng khối đó thay vì suy ra từ học viên', async () => {
+    const { svc, classes, users } = build();
+    classes.find.mockReturnValue({ sort: () => ({ lean: () => Promise.resolve([{ _id: 'c1', name: 'Lớp A', ageGroup: '10-12', teacherId: T1, studentIds: [] }]) }) });
+    users.find.mockReturnValue(lean([{ _id: T1, fullName: 'Cô Lan' }]));
+    expect((await svc.classesOverview(ADMIN))[0].ageGroup).toBe('10-12');
   });
 });

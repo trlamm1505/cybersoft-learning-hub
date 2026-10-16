@@ -38,6 +38,13 @@ export class Classroom {
   @Prop({ type: String, enum: ['tester-qa', 'data-sql', 'ai-prompt'], index: true, sparse: true })
   courseKey?: string;
 
+  /**
+   * Khối tuổi của lớp phổ thông (3-5 | 6-9 | 10-12). Có giá trị thì chỉ học viên đúng khối được thêm vào lớp; lớp cũ chưa có thì
+   * khối được suy ra từ nhóm đông nhất trong các học viên hiện có.
+   */
+  @Prop({ type: String, enum: ['3-5', '6-9', '10-12'] })
+  ageGroup?: string;
+
   @Prop({ type: [String], default: [] })
   studentIds: string[];
 

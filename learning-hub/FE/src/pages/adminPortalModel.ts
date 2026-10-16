@@ -62,6 +62,11 @@ export const AUDIT_LABEL: Record<AuditAction, string> = {
   ROLE_CHANGE: 'ĐỔI VAI TRÒ',
   CLASS_ASSIGN: 'GÁN LỚP',
   CLASS_ARCHIVE: 'LƯU TRỮ LỚP',
+  CLASS_CREATE: 'TẠO LỚP',
+  CLASS_UPDATE: 'SỬA LỚP',
+  CLASS_DELETE: 'XÓA LỚP',
+  STUDENT_ADD: 'THÊM HỌC VIÊN',
+  STUDENT_REMOVE: 'GỠ HỌC VIÊN',
   CONFIG_UPDATE: 'ĐỔI CẤU HÌNH',
   BULK_LOCK: 'KHÓA HÀNG LOẠT',
   BULK_UNLOCK: 'MỞ KHÓA HÀNG LOẠT',
@@ -77,6 +82,11 @@ export const AUDIT_TONE: Record<AuditAction, Tone> = {
   ROLE_CHANGE: 'violet',
   CLASS_ASSIGN: 'blue',
   CLASS_ARCHIVE: 'slate',
+  CLASS_CREATE: 'green',
+  CLASS_UPDATE: 'slate',
+  CLASS_DELETE: 'red',
+  STUDENT_ADD: 'green',
+  STUDENT_REMOVE: 'red',
   CONFIG_UPDATE: 'yellow',
   USER_CREATE: 'green',
   USER_UPDATE: 'slate',
@@ -89,6 +99,11 @@ export const AUDIT_FILTERS: Array<{ key: '' | AuditAction; label: string }> = [
   { key: 'ROLE_CHANGE', label: 'Đổi vai trò' },
   { key: 'CLASS_ASSIGN', label: 'Gán lớp' },
   { key: 'CLASS_ARCHIVE', label: 'Lưu trữ lớp' },
+  { key: 'CLASS_CREATE', label: 'Tạo lớp' },
+  { key: 'CLASS_UPDATE', label: 'Sửa lớp' },
+  { key: 'CLASS_DELETE', label: 'Xóa lớp' },
+  { key: 'STUDENT_ADD', label: 'Thêm học viên' },
+  { key: 'STUDENT_REMOVE', label: 'Gỡ học viên' },
   { key: 'CONFIG_UPDATE', label: 'Đổi cấu hình' },
   { key: 'BULK_LOCK', label: 'Khóa hàng loạt' },
   { key: 'BULK_UNLOCK', label: 'Mở khóa hàng loạt' },
@@ -365,6 +380,26 @@ export function buildDiffView(item: Pick<AuditLogItem, 'action' | 'targetId' | '
       const before = Array.isArray(item.diff?.before) ? (item.diff.before as Array<Record<string, unknown>>) : [];
       const after = Array.isArray(item.diff?.after) ? (item.diff.after as Array<Record<string, unknown>>) : [];
       after.forEach((p, i) => push(String(p.email ?? `Người dùng ${i + 1}`), text(STATUS_VI[String(before[i]?.status)] ?? before[i]?.status), text(STATUS_VI[String(p.status)] ?? p.status)));
+      break;
+    }
+    case 'CLASS_CREATE':
+      push('Lớp mới', NONE, text(a.className));
+      if (Array.isArray(a.teacherNames)) push('Giảng viên phụ trách', NONE, teacherCell(a));
+      break;
+    case 'CLASS_DELETE':
+      push('Lớp', text(b.className), { type: 'text', value: 'Đã xóa' });
+      break;
+    case 'CLASS_UPDATE': {
+      if (!same(b.className, a.className)) push('Tên lớp', text(b.className), text(a.className));
+      if (!same(b.description, a.description)) push('Mô tả', text(b.description), text(a.description));
+      if (!same(b.archived, a.archived)) push('Trạng thái lớp', text(b.archived ? 'Lưu trữ / Đã bế giảng' : 'Đang hoạt động'), text(a.archived ? 'Lưu trữ / Đã bế giảng' : 'Đang hoạt động'));
+      if (!same(b.teacherNames, a.teacherNames)) push('Giảng viên phụ trách', teacherCell(b), teacherCell(a));
+      break;
+    }
+    case 'STUDENT_ADD':
+    case 'STUDENT_REMOVE': {
+      const names = (v: unknown): DiffCell => ({ type: 'tags', values: Array.isArray(v) ? (v as unknown[]).map((n) => hideIds(String(n || 'Học viên'))) : [] });
+      push('Học viên trong lớp', names(b.students), names(a.students));
       break;
     }
     case 'CONFIG_UPDATE':

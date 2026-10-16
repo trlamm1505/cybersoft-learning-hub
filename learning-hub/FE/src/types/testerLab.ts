@@ -53,3 +53,18 @@ export interface TesterLabSubmission {
 export interface ReviewableSubmission extends TesterLabSubmission {
   userId: string;
 }
+
+/** Một dòng trong hàng chờ chấm Tester QA của giảng viên (GET /tester-labs/review-queue). */
+export interface ReviewQueueItem {
+  id: string;
+  status: 'SUBMITTED';
+  submittedAt: string;
+  kind: 'FILE' | 'FORM';
+  lab: { labCode: string; title: string; rubricCriteria: RubricCriterion[] };
+  student: { id: string; fullName: string; email: string };
+  formData: {
+    testCases: Array<{ code: string; description: string; input: string; expected: string }>;
+    bugReports: Array<{ title: string; steps: string; expected: string; actual: string; severity: string }>;
+  } | null;
+  autoCheckResults: AutoCheckResult[];
+}

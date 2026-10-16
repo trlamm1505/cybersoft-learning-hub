@@ -59,9 +59,12 @@ export interface ProctorAlertRow {
   id: string;
   kind: 'CONTEST' | 'CLASS_ASSIGNMENT';
   severity: 'WARNING' | 'LOCKED';
-  status: 'OPEN' | 'ACKNOWLEDGED';
+  status: 'OPEN' | 'ACKNOWLEDGED' | 'INVALIDATED';
   message: string;
   leaveCount: number;
+  /** Tổng thời gian rời màn hình (giây) nếu có đo. */
+  awaySeconds?: number | null;
+  interruptions?: number;
   student: { id: string; fullName: string };
   refId: string;
   refTitle: string;

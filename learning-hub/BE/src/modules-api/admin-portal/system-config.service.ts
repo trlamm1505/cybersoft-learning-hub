@@ -17,6 +17,7 @@ export const GEMINI_KEY = 'GEMINI_API_KEY';
 /** Thời gian giữ prompt/khóa trong bộ nhớ trước khi đọc lại CSDL (Admin sửa thì được làm mới ngay). */
 export const CONFIG_CACHE_TTL_MS = 60_000;
 export const GEMINI_PING_TIMEOUT_MS = 3_000;
+export const REJECTED_REASON = 'Gemini từ chối API key.';
 export const MIN_PROMPT_CHARS = 20;
 export const MAX_PROMPT_CHARS = 8_000;
 
@@ -123,10 +124,16 @@ export class SystemConfigService implements PromptProvider, OnModuleInit {
     };
   }
 
-  async setGeminiKey(plain: unknown, adminId: string) {
+  async setGeminiKey(plain: unknown, adminId: string, verify = true) {
+    // Khoảng trắng/xuống dòng ở đầu cuối (dán từ trình soạn thảo) được cắt sạch trước khi kiểm tra và mã hóa.
     const key = typeof plain === 'string' ? plain.trim() : '';
     if (key.length < 20 || key.length > 200 || /\s/.test(key)) {
       throw new BadRequestException('API key không hợp lệ (20-200 ký tự, không có khoảng trắng).');
+    }
+    // Key giả/sai: hỏi Gemini trước khi lưu. Chỉ chặn khi Gemini TỪ CHỐI key; lỗi mạng/timeout/hết hạn mức vẫn cho lưu (không đổ lỗi cho key).
+    if (verify) {
+      const ping = await this.pingGemini(key);
+      if (!ping.valid && ping.reason === REJECTED_REASON) throw new BadRequestException('API key bị Gemini từ chối (key giả hoặc đã bị thu hồi). Chưa lưu gì.');
     }
     let encrypted: string;
     try {
@@ -167,7 +174,7 @@ export class SystemConfigService implements PromptProvider, OnModuleInit {
       const msg = String((err as Error)?.message ?? '');
       const latencyMs = Date.now() - started;
       if (msg === 'TIMEOUT') return { valid: false, latencyMs, reason: 'Gemini phản hồi quá 3 giây.' };
-      if (/API key|API_KEY|invalid|401|403|PERMISSION/i.test(msg)) return { valid: false, latencyMs, reason: 'Gemini từ chối API key.' };
+      if (/API key|API_KEY|invalid|401|403|PERMISSION/i.test(msg)) return { valid: false, latencyMs, reason: REJECTED_REASON };
       if (/429|quota|RESOURCE_EXHAUSTED/i.test(msg)) return { valid: true, latencyMs, reason: 'Key hợp lệ nhưng đang hết hạn mức (quota).' };
       return { valid: false, latencyMs, reason: 'Không gọi được Gemini.' };
     } finally {

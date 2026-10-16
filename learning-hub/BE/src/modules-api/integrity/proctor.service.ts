@@ -2,7 +2,10 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { AuditLogService } from '../admin-portal/audit-log.service';
+import { requireReason } from '../tester-labs/tester-labs.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import {
@@ -38,7 +41,12 @@ import {
   CONTEST_LOCK_AT,
 } from './proctor-rules';
 
+import { HEARTBEAT_MISSED_BEATS, HeartbeatTracker } from './heartbeat-tracker';
+
 export type ProctorScope = 'CONTEST' | 'CLASS_ASSIGNMENT';
+
+/** Người đi làm / trái ngành (CAREER_ADULT) không bị giám sát rời màn hình. */
+export const isUnmonitored = (user: { ageGroup?: string }): boolean => user.ageGroup === 'CAREER_ADULT';
 
 export interface LeaveResult {
   /** Tổng số lần rời màn hình do máy chủ đếm. */
@@ -72,7 +80,71 @@ export class ProctorService {
     private readonly classes: Model<ClassroomDocument>,
     @InjectModel(User.name)
     private readonly users: Model<UserDocument>,
+    @Optional() private readonly audit?: AuditLogService,
   ) {}
+
+  private readonly heartbeats = new HeartbeatTracker();
+
+  /**
+   * Nhịp tim 5 giây/lần từ phòng thi. Máy chủ tự phát hiện đứt quãng: mất >= 2 nhịp liên tiếp mà client không báo offline cục bộ
+   * thì ghi 1 sự kiện nghi vấn gián đoạn vào cảnh báo của học viên (chỉ để giảng viên xem, không đổi điểm).
+   */
+  async heartbeat(
+    scope: string,
+    refId: string,
+    user: JwtPayload,
+    wasOffline = false,
+    now: number = Date.now(),
+  ): Promise<{ ok: true; suspicious: boolean }> {
+    if (scope !== 'CONTEST' && scope !== 'CLASS_ASSIGNMENT') throw new BadRequestException('Loại bài không hợp lệ.');
+    if (isUnmonitored(user)) return { ok: true, suspicious: false };
+    const target = await this.resolveHeartbeatTarget(scope, refId, user);
+    const key = `${scope}:${target.id}:${user.sub}`;
+    const beat = this.heartbeats.beat(key, wasOffline, now);
+    if (!beat.suspicious) return { ok: true, suspicious: false };
+    const name = await this.studentName(user.sub);
+    const when = new Date(now);
+    const doc: any = await this.alerts
+      .findOneAndUpdate(
+        { kind: scope, userId: user.sub, refId: target.id },
+        {
+          $inc: { interruptions: 1 },
+          $set: { lastInterruptionAt: when, studentName: name, refTitle: target.title, ...target.extra },
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+      )
+      .lean();
+    if (doc && doc.severity === 'INFO') {
+      await this.alerts.updateOne(
+        { _id: doc._id, severity: 'INFO' },
+        { $set: { severity: 'WARNING', status: 'OPEN', message: `Học viên ${name} bị gián đoạn kết nối nghi vấn khi đang làm bài (mất liên tục ${HEARTBEAT_MISSED_BEATS} nhịp heartbeat).` } },
+      );
+    }
+    return { ok: true, suspicious: true };
+  }
+
+  /** Chỉ nhận nhịp tim từ người đang thật sự làm bài đó (lượt thi chưa kết thúc / học viên thuộc lớp). */
+  private async resolveHeartbeatTarget(scope: ProctorScope, refId: string, user: JwtPayload): Promise<{ id: string; title: string; extra: Record<string, unknown> }> {
+    if (scope === 'CONTEST') {
+      const contest: any = isValidObjectId(refId)
+        ? await this.contests.findById(refId).lean()
+        : await this.contests.findOne({ slug: refId }).lean();
+      if (!contest) throw new NotFoundException('Không tìm thấy cuộc thi.');
+      const attempt: any = await this.attempts.findOne({ contestId: String(contest._id), studentId: user.sub }).lean();
+      if (!attempt || attempt.finishedAt) throw new NotFoundException('Bạn không ở trong phòng thi này.');
+      return { id: String(contest._id), title: contest.title ?? '', extra: {} };
+    }
+    if (!isValidObjectId(refId)) throw new NotFoundException('Không tìm thấy bài tập của lớp.');
+    const a: any = await this.assignments.findById(refId).lean();
+    if (!a) throw new NotFoundException('Không tìm thấy bài tập của lớp.');
+    const cls: any = await this.classes.findOne({ _id: a.classId, studentIds: user.sub, archived: { $ne: true } }).lean();
+    if (!cls) throw new NotFoundException('Không tìm thấy lớp học của bạn.');
+    return {
+      id: String(a._id),
+      title: a.title ?? '',
+      extra: { classId: String(cls._id), className: cls.name, teacherId: cls.teacherId, teacherIds: cls.teacherIds?.length ? cls.teacherIds : [cls.teacherId] },
+    };
+  }
 
   async recordLeave(
     scope: string,
@@ -80,6 +152,8 @@ export class ProctorService {
     user: JwtPayload,
     now: Date = new Date(),
   ): Promise<LeaveResult> {
+    // Học viên Career Adult (kể cả lớp Tester QA) được tra cứu spec/mở công cụ ngoài hợp lệ: không đo, không ghi cảnh báo out-tab.
+    if (isUnmonitored(user)) return { count: 0, locked: false, closed: false, teacherNotified: false };
     if (scope === 'CONTEST') return this.contestLeave(refId, user, now);
     if (scope === 'CLASS_ASSIGNMENT') return this.assignmentLeave(refId, user, now);
     throw new BadRequestException('Loại bài không hợp lệ.');
@@ -206,12 +280,20 @@ export class ProctorService {
   // ----------------------------- Giảng viên -----------------------------
 
   /** Cảnh báo giảng viên cần xem: bài lớp do mình phụ trách + mọi cuộc thi (admin: tất cả). */
-  async listForTeacher(user: JwtPayload, status?: string, limit = 100) {
+  /**
+   * @param classId có giá trị: CHỈ cảnh báo của bài tập được giao trong chính lớp đó (kind CLASS_ASSIGNMENT). Cảnh báo cuộc thi là sự kiện
+   * chung của hệ thống nên không bao giờ lọt vào bảng học viên của một lớp.
+   */
+  async listForTeacher(user: JwtPayload, status?: string, limit = 100, classId?: string) {
     const wantAck = status === 'ACKNOWLEDGED';
     const filter: Record<string, unknown> = {
       status: wantAck ? 'ACKNOWLEDGED' : 'OPEN',
       severity: { $in: ['WARNING', 'LOCKED'] },
     };
+    if (classId) {
+      filter.kind = 'CLASS_ASSIGNMENT';
+      filter.classId = classId;
+    }
     if (user.role !== 'ADMIN') {
       filter.$or = [{ kind: 'CONTEST' }, { teacherId: user.sub }, { teacherIds: user.sub }];
     }
@@ -229,7 +311,33 @@ export class ProctorService {
       classId: d.classId ?? null,
       className: d.className ?? null,
       lastLeaveAt: d.lastLeaveAt ?? null,
+      awaySeconds: d.awaySeconds ?? null,
+      interruptions: d.interruptions ?? 0,
     }));
+  }
+
+  /**
+   * Hủy kết quả bài làm của học viên vi phạm (bắt buộc lý do >= 10 ký tự, có audit log). Cuộc thi: khóa lượt thi như CHEAT_LOCK;
+   * bài lớp: đánh dấu cảnh báo đã hủy kết quả để giảng viên/Admin đối chiếu. Cảnh báo rời hàng chờ.
+   */
+  async invalidateAlert(id: string, user: JwtPayload & { email?: string }, reasonInput: unknown) {
+    if (!isValidObjectId(id)) throw new NotFoundException('Không tìm thấy cảnh báo.');
+    const filter: Record<string, unknown> = { _id: id };
+    if (user.role !== 'ADMIN') filter.$or = [{ kind: 'CONTEST' }, { teacherId: user.sub }, { teacherIds: user.sub }];
+    const alert: any = await this.alerts.findOne(filter).lean();
+    if (!alert) throw new NotFoundException('Không tìm thấy cảnh báo.');
+    const reason = requireReason(reasonInput);
+    const now = new Date();
+    await this.alerts.updateOne({ _id: id }, { $set: { status: 'INVALIDATED', invalidReason: reason, invalidatedBy: user.sub, invalidatedAt: now } });
+    if (alert.kind === 'CONTEST') {
+      await this.attempts.updateOne(
+        { contestId: alert.refId, studentId: alert.userId },
+        { $set: { finishReason: 'CHEAT_LOCK' } },
+      );
+      await this.attempts.updateOne({ contestId: alert.refId, studentId: alert.userId, finishedAt: { $exists: false } }, { $set: { finishedAt: now } });
+    }
+    await this.audit?.record({ sub: user.sub, email: user.email ?? '' }, 'SUBMISSION_INVALIDATE', 'SUBMISSION', `${alert.kind}:${alert.refId}:${alert.userId}`, { status: alert.status }, { status: 'INVALIDATED', leaveCount: alert.leaveCount }, reason);
+    return { id, status: 'INVALIDATED' };
   }
 
   async acknowledge(id: string, user: JwtPayload) {

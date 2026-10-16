@@ -176,9 +176,11 @@ export const AdminClassesPage: React.FC = () => {
                         ) : (
                           <div className="flex flex-wrap gap-1">
                             {c.teachers.slice(0, 2).map((t, i) => (
-                              <Pill key={t.id} tone={i === 0 ? 'violet' : 'slate'} className="max-w-full truncate">
-                                {t.name}
-                              </Pill>
+                              <span key={t.id} title={t.locked ? 'Tài khoản đang bị khóa' : undefined} className="max-w-full">
+                                <Pill tone={t.locked ? 'slate' : i === 0 ? 'violet' : 'slate'} className={`max-w-full truncate ${t.locked ? 'bg-neutral-200 text-neutral-500 line-through dark:bg-neutral-800' : ''}`}>
+                                  {t.name}
+                                </Pill>
+                              </span>
                             ))}
                             {c.teachers.length > 2 && <Pill tone="slate">+{c.teachers.length - 2}</Pill>}
                           </div>

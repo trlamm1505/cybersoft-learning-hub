@@ -98,6 +98,19 @@ function createFakeModel<T extends { _id?: string }>() {
   model.find = (filter: any = {}) =>
     chainable(store.filter((d) => matches(d, filter)).map((d) => ({ ...d })));
 
+  // Chỉ hỗ trợ đúng pipeline danh sách của AuthoringService.findAll: $match -> $addFields testCaseCount -> $project bỏ testCases.
+  model.aggregate = async (pipeline: any[]) => {
+    const match = pipeline.find((s) => s.$match)?.$match ?? {};
+    const dropTestCases = pipeline.some((s) => s.$project && s.$project.testCases === 0);
+    return store
+      .filter((d) => matches(d, match))
+      .map((d: any) => {
+        const row: any = { ...d, testCaseCount: Array.isArray(d.testCases) ? d.testCases.length : 0 };
+        if (dropTestCases) delete row.testCases;
+        return row;
+      });
+  };
+
   model.findOne = (filter: any = {}) => {
     const found = store.find((d) => matches(d, filter));
     return chainable(found ? { ...found } : null);
@@ -203,6 +216,7 @@ describe('Integration: AI-generated exercise -> save to bank -> pull into Lesson
     // bấm "Lưu vào ngân hàng đề".
     const generated = await problemGeneratorService.generateMany([
       {
+        band: '6-9' as const,
         learningOutcome: 'Vận dụng vòng lặp for để tính tổng có điều kiện',
         level: 'EASY',
         constraints: [],
@@ -232,6 +246,11 @@ describe('Integration: AI-generated exercise -> save to bank -> pull into Lesson
     expect(orphanEntry).toBeDefined();
     expect((orphanEntry as any).learningOutcome?.trim().length).toBeGreaterThan(0);
     expect((orphanEntry as any).sourceCollection).toBe('exercise');
+    // Danh sách không kéo bộ test về (chỉ số lượng); chi tiết lấy riêng khi mở bài.
+    expect((orphanEntry as any).testCases).toEqual([]);
+    expect((orphanEntry as any).testCaseCount).toBe(exerciseInBank.testCases.length);
+    const detail: any = await authoringService.findOne(String((exerciseInBank as any)._id), { sub: 'teacher-integration-test', role: 'TEACHER' });
+    expect(detail.testCases).toHaveLength(exerciseInBank.testCases.length);
 
     // Bước 3: Giáo viên bấm "Sửa" rồi "Xuất bản" — gọi updateLesson với
     // chính _id của exercise đó (đúng luồng thật FE dùng: lesson._id trong
@@ -263,6 +282,7 @@ describe('Integration: AI-generated exercise -> save to bank -> pull into Lesson
   it('không throw BadRequestException khi publish bài mồ côi mà giáo viên không tự sửa learningOutcome (regression cho bug đã fix)', async () => {
     const generated = await problemGeneratorService.generateMany([
       {
+        band: '10-12' as const,
         learningOutcome: 'Kiểm tra chuỗi đối xứng (palindrome)',
         level: 'EASY',
         constraints: [],

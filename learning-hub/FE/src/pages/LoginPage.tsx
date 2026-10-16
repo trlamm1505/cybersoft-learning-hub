@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Zap, Loader2 } from 'lucide-react';
 import authApi from '../axios/authApi';
 import type { AuthResponse } from '../types/auth';
+import { consumeSessionExpiredNotice, SESSION_NOTICE } from '../common/sessionGuard';
 import { homeFor } from '../common/authRoutes';
 import { emailError, normalizeEmail } from '../common/authValidation';
 import { FieldError, authInputCls } from '../components/auth/AuthFormParts';
@@ -15,7 +16,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onAuthSuccess }) => {
   const navigate = useNavigate();
   // /login?locked=1: Admin vừa khóa tài khoản đang đăng nhập (BE trả 401 ACCOUNT_LOCKED).
   const [params] = useSearchParams();
-  const lockedNotice = params.get('locked') === '1' ? 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.' : null;
+  const [expiredFromInit] = useState(() => consumeSessionExpiredNotice());
+  const lockedNotice =
+    params.get('locked') === '1' ? SESSION_NOTICE.locked : params.get('expired') === '1' || expiredFromInit ? SESSION_NOTICE.expired : null;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [touched, setTouched] = useState({ email: false, password: false });

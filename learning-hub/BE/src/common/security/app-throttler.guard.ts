@@ -12,6 +12,7 @@ import type {
   ThrottlerStorage,
 } from '@nestjs/throttler';
 import { jwtSecretFrom } from '../auth/jwt-secret';
+import { ACCESS_COOKIE, readCookie } from './cookies';
 
 /** Giới hạn mặc định: đủ rộng cho polling kết quả chấm (~1 request/0,7s). */
 export const DEFAULT_RATE_LIMIT = { ttl: 60_000, limit: 600 };
@@ -19,6 +20,8 @@ export const DEFAULT_RATE_LIMIT = { ttl: 60_000, limit: 600 };
 /** Giới hạn chặt cho các route tốn tài nguyên hoặc dễ bị dò. */
 export const RATE_LIMITS = {
   login: { default: { ttl: 60_000, limit: 5 } },
+  /** Quên mật khẩu: 5 lần / phút / IP, chặn dùng endpoint để spam hộp thư người khác. */
+  forgotPassword: { default: { ttl: 60_000, limit: 5 } },
   coachChat: { default: { ttl: 60_000, limit: 10 } },
   aiLabSubmit: { default: { ttl: 60_000, limit: 10 } },
   sqlRun: { default: { ttl: 60_000, limit: 30 } },
@@ -29,6 +32,14 @@ export const RATE_LIMITS = {
   /** Kiểm tra sức khỏe hệ thống: 1 lần / 10 giây cho mỗi Admin (mỗi lần chạy 5 phép ping). */
   adminHealth: { default: { ttl: 10_000, limit: 1 } },
   proctorLeave: { default: { ttl: 60_000, limit: 40 } },
+  /** AI tạo đề: 5 lượt / 10 phút / giảng viên. */
+  aiGenerate: { default: { ttl: 600_000, limit: 5 } },
+  /** Hủy kết quả bài nộp hàng loạt: 10 lượt / phút / giảng viên. */
+  invalidate: { default: { ttl: 60_000, limit: 10 } },
+  /** Chấm bài Tester Lab: 30 lượt / phút / giảng viên. */
+  labReview: { default: { ttl: 60_000, limit: 30 } },
+  /** Nhịp heartbeat phòng thi: 5 giây/lần, nới đủ cho nhiều tab. */
+  heartbeat: { default: { ttl: 60_000, limit: 40 } },
 } as const;
 
 export const RATE_LIMIT_MESSAGE =
@@ -68,8 +79,9 @@ export function resolveRateLimitTracker(
     return `login:${ip}:${email.trim().toLowerCase()}`;
   }
   const auth = req.headers?.authorization;
-  if (typeof auth === 'string' && auth.startsWith('Bearer ')) {
-    const sub = verify(auth.slice(7).trim());
+  const bearer = typeof auth === 'string' && auth.startsWith('Bearer ') ? auth.slice(7).trim() : readCookie(req.headers?.cookie, ACCESS_COOKIE);
+  if (bearer) {
+    const sub = verify(bearer);
     if (sub) return `user:${sub}`;
   }
   return `ip:${ip}`;

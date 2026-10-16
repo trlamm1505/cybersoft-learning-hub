@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/auth/roles.guard';
 import { Roles } from '../../common/auth/roles.decorator';
@@ -51,6 +51,23 @@ export class StudentClassAssignmentsController {
 @Roles('TEACHER', 'ADMIN')
 export class TeacherClassAssignmentsController {
   constructor(private readonly service: ClassAssignmentsService) {}
+
+  /** Ngân hàng đề phân trang (đặt trước ':classId' để "catalog" không bị hiểu là id lớp). */
+  @Get('catalog/exercises')
+  catalogExercises(@CurrentUser() user: JwtPayload, @Query('q') q?: string, @Query('difficulty') difficulty?: string, @Query('page') page?: string, @Query('pageSize') pageSize?: string, @Query('band') band?: string) {
+    return this.service.catalogExercises(user, { q, difficulty, page, pageSize, band });
+  }
+
+  @Get('catalog/questions')
+  catalogQuestions(@CurrentUser() user: JwtPayload, @Query('q') q?: string, @Query('difficulty') difficulty?: string, @Query('page') page?: string, @Query('pageSize') pageSize?: string, @Query('band') band?: string) {
+    return this.service.catalogQuestions(user, { q, difficulty, page, pageSize, band });
+  }
+
+  /** Bài của lớp theo Ngày 1, 2, 3... (cùng cấu trúc học viên thấy). */
+  @Get(':classId/days')
+  days(@Param('classId') classId: string, @CurrentUser() user: JwtPayload) {
+    return this.service.daysForTeacher(classId, user);
+  }
 
   @Get(':classId')
   list(@Param('classId') classId: string, @CurrentUser() user: JwtPayload) {

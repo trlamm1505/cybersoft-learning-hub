@@ -16,6 +16,18 @@ export const sortParticipants = (rows: ContestParticipantRow[]): ContestParticip
   );
 };
 
+/** Bảng xếp hạng chính thức: hạng tăng dần; chưa có hạng (chưa thi) rồi bị loại xuống cuối. */
+export const sortByRank = (rows: ContestParticipantRow[]): ContestParticipantRow[] => {
+  const bucket = (r: ContestParticipantRow) => (r.officialRank !== null ? 0 : r.disqualified ? 2 : 1);
+  return [...rows].sort(
+    (a, b) =>
+      bucket(a) - bucket(b) ||
+      (a.officialRank ?? 0) - (b.officialRank ?? 0) ||
+      b.totalScore - a.totalScore ||
+      a.studentName.localeCompare(b.studentName, 'vi'),
+  );
+};
+
 export const filterParticipants = (rows: ContestParticipantRow[], onlyReview: boolean): ContestParticipantRow[] =>
   onlyReview ? rows.filter((r) => r.integrity?.reviewStatus === 'NEEDS_REVIEW') : rows;
 
@@ -31,12 +43,18 @@ export const toCsv = (data: ContestManageResults): string => {
   const head = [
     'Thí sinh',
     'Trạng thái',
+    'Hạng chính thức',
+    'Số lần rời màn hình',
+    'Thời gian hoàn thành (phút)',
     ...data.contest.problems.map((p) => `${p.title} (/${p.maxPoints})`),
     `Tổng (/${data.contest.maxScore})`,
   ];
   const lines = data.rows.map((r) => [
     r.studentName,
-    PARTICIPANT_STATUS_LABEL[r.status],
+    r.disqualified ? 'Không công nhận' : PARTICIPANT_STATUS_LABEL[r.status],
+    r.officialRank ?? '',
+    r.leaveCount,
+    r.completionMinutes ?? '',
     ...data.contest.problems.map((p) => r.perProblem.find((x) => x.slug === p.slug)?.score ?? ''),
     r.totalScore,
   ]);

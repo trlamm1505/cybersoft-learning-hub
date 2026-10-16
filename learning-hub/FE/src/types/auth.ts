@@ -31,6 +31,8 @@ export interface AuthUser {
 
 export interface AuthResponse {
   accessToken: string;
+  /** Mã CSRF (Double Submit Cookie) cấp cùng lúc với cookie phiên. */
+  csrfToken?: string;
   user: AuthUser;
 }
 

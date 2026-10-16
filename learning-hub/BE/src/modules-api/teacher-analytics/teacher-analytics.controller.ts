@@ -2,16 +2,22 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
+  Post,
   Put,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { TeacherPiiScrubInterceptor } from '../../common/security/pii-scrub.interceptor';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/auth/roles.guard';
 import { Roles } from '../../common/auth/roles.decorator';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
+import { Throttle } from '@nestjs/throttler';
+import { RATE_LIMITS } from '../../common/security/app-throttler.guard';
 import { TeacherAnalyticsService } from './teacher-analytics.service';
 
 /**
@@ -22,21 +28,34 @@ import { TeacherAnalyticsService } from './teacher-analytics.service';
 @Controller('teacher/classes')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('TEACHER', 'ADMIN')
+@UseInterceptors(TeacherPiiScrubInterceptor)
 export class TeacherAnalyticsController {
   constructor(private readonly service: TeacherAnalyticsService) {}
 
   @Get()
-  list(
+  async list(
     @CurrentUser() user: JwtPayload,
     @Query('includeArchived') includeArchived?: string,
   ) {
-    return this.service.listClasses(user, includeArchived === 'true');
+    const data = await this.service.listClasses(user, includeArchived === 'true');
+    return { success: true, data };
   }
 
   // Khai báo trước các route có :classId để "catalog" không bị hiểu là id lớp.
   @Get('catalog/exercises')
   catalogExercises(@Query('q') q?: string) {
     return this.service.catalogExercises(q);
+  }
+
+  @Post(':classId/invalidate')
+  @HttpCode(200)
+  @Throttle(RATE_LIMITS.invalidate)
+  invalidate(
+    @CurrentUser() user: JwtPayload,
+    @Param('classId') classId: string,
+    @Body() body: { submissionId?: unknown; reason?: unknown },
+  ) {
+    return this.service.invalidateSubmission(user, classId, body);
   }
 
   @Get(':classId')

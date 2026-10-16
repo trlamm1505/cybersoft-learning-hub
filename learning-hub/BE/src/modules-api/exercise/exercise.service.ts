@@ -46,25 +46,27 @@ export class ExerciseService {
   async findAll(user?: JwtPayload) {
     // Bài DA lab (có resource_id) chấm trên sandbox SQL ở module da-labs,
     // không dùng được trong ngân hàng đề Python nên không liệt kê ở đây.
-    const exercises = await this.exerciseModel
-      .find({ resource_id: { $exists: false }, ...this.visibleToFilter(user) })
-      .select(
-        'title slug description type difficulty points starterCode timeLimitMs tags prerequisiteSlug gradeBand topic orderInTopic targetGroup labType storyContext illustrationUrl datasetId testCases solutionCode sourceLessonSlug',
-      )
-      .lean();
+    // testCases/solutionCode có thể nặng hàng MB mỗi bài: tính hasSolution/testCaseCount NGAY TRÊN MÁY CHỦ CSDL và loại hai trường
+    // này khỏi kết quả, nên danh sách chỉ truyền về vài chục KB thay vì cả bộ test.
+    const exercises = await this.exerciseModel.aggregate([
+      // Bài của Ngân hàng đề (bankOnly: chỉ gán vào lớp/cuộc thi) không hiện trong danh mục Code Playground của học viên và khách.
+      { $match: { resource_id: { $exists: false }, ...(user?.role === 'TEACHER' || user?.role === 'ADMIN' ? {} : { bankOnly: { $ne: true } }), ...this.visibleToFilter(user) } },
+      {
+        $project: {
+          title: 1, slug: 1, description: 1, type: 1, difficulty: 1, points: 1, starterCode: 1, timeLimitMs: 1, tags: 1,
+          prerequisiteSlug: 1, gradeBand: 1, topic: 1, orderInTopic: 1, targetGroup: 1, labType: 1, storyContext: 1,
+          illustrationUrl: 1, datasetId: 1, sourceLessonSlug: 1,
+          hasSolution: { $gt: [{ $strLenCP: { $trim: { input: { $ifNull: ['$solutionCode', ''] } } } }, 0] },
+          testCaseCount: { $size: { $cond: [{ $isArray: '$testCases' }, '$testCases', []] } },
+        },
+      },
+    ]);
 
     // Không trả testCases/solutionCode thô qua route dùng chung này (có thể
     // lộ đáp án ẩn cho học viên) — chỉ tính sẵn 2 cờ trạng thái để FE (bank
     // picker của Teacher Authoring) hiển thị badge "Draft/Ready/Validated"
     // mà không cần fetch riêng :slug/full cho từng item trong danh sách.
-    return exercises.map((ex) => {
-      const { testCases, solutionCode, ...rest } = ex as any;
-      return {
-        ...rest,
-        hasSolution: Boolean(solutionCode?.trim()),
-        testCaseCount: Array.isArray(testCases) ? testCases.length : 0,
-      };
-    });
+    return exercises as Array<Record<string, unknown> & { hasSolution: boolean; testCaseCount: number }>;
   }
 
   /**
@@ -268,8 +270,11 @@ export class ExerciseService {
     if (await this.exerciseModel.exists({ slug: data.slug })) {
       throw new ConflictException(`Slug "${data.slug}" đã tồn tại.`);
     }
+    // Giảng viên soạn bài cho khối 6-9 / 10-12: bài thuộc Ngân hàng đề (chỉ để gán vào lớp/cuộc thi), không vào Code Playground.
+    const bankBand = user.role === 'TEACHER' ? (data.targetGroup === 'K6_9' ? '6-9' : data.targetGroup === 'K10_12' ? '10-12' : undefined) : undefined;
     const created = await this.exerciseModel.create({
       ...data,
+      ...(bankBand ? { bankOnly: true, bankBand } : {}),
       authorId: user.sub,
     });
     return this.findBySlugFull(created.slug);

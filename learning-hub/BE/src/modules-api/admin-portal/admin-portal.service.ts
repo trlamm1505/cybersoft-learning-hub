@@ -169,7 +169,7 @@ export class AdminPortalService {
     this.assertAdmin(user);
     if (ageGroupFilter && !(AGE_GROUPS as readonly string[]).includes(ageGroupFilter)) throw new BadRequestException('Khối đào tạo không hợp lệ.');
     const classes = await this.classes.find({}).sort({ archived: 1, name: 1 }).lean<
-      Array<{ _id: unknown; name: string; code?: string; description?: string; courseKey?: string; archived?: boolean; teacherId?: string; teacherIds?: string[]; studentIds?: string[]; exerciseSlugs?: string[] }>
+      Array<{ _id: unknown; name: string; code?: string; description?: string; ageGroup?: string; courseKey?: string; archived?: boolean; teacherId?: string; teacherIds?: string[]; studentIds?: string[]; exerciseSlugs?: string[] }>
     >();
     const hasCareer = classes.some((c) => c.courseKey);
     const [labCounts, careerCount, asgCounts] = await Promise.all([
@@ -186,10 +186,11 @@ export class AdminPortalService {
     }
     const valid = (ids: Set<string>) => [...ids].filter(isValidObjectId);
     const [teachers, students] = await Promise.all([
-      this.users.find({ _id: { $in: valid(teacherIds) } }).select('fullName email').lean<Array<{ _id: unknown; fullName?: string; email?: string }>>(),
+      this.users.find({ _id: { $in: valid(teacherIds) } }).select('fullName email status').lean<Array<{ _id: unknown; fullName?: string; email?: string; status?: string }>>(),
       this.users.find({ _id: { $in: valid(studentIds) } }).select('ageGroup').lean<Array<{ _id: unknown; ageGroup?: string }>>(),
     ]);
     const tName = new Map(teachers.map((t) => [String(t._id), t.fullName || t.email || String(t._id)]));
+    const tLocked = new Set(teachers.filter((t) => t.status === 'LOCKED').map((t) => String(t._id)));
     const sAge = new Map(students.map((s) => [String(s._id), s.ageGroup]));
     const rows = classes.map((c) => {
       const counts = new Map<string, number>();
@@ -207,8 +208,9 @@ export class AdminPortalService {
         description: c.description ?? '',
         kind: career ? ('CAREER' as const) : ('SCHOOL' as const),
         courseKey: c.courseKey ?? null,
-        ageGroup: career ? ('CAREER_ADULT' as const) : band,
-        teachers: this.teachersOf(c).map((id) => ({ id, name: tName.get(id) ?? 'Giảng viên không còn tồn tại' })),
+        ageGroup: career ? ('CAREER_ADULT' as const) : ((c.ageGroup as typeof band) ?? band),
+        // locked: tài khoản giảng viên đang bị khóa; lịch sử phân công vẫn giữ nhưng giao diện cảnh báo bằng badge xám.
+        teachers: this.teachersOf(c).map((id) => ({ id, name: tName.get(id) ?? 'Giảng viên không còn tồn tại', locked: tLocked.has(id) })),
         studentCount: career ? careerCount : (c.studentIds ?? []).length,
         exerciseCount,
         status: c.archived ? ('ARCHIVED' as const) : ('OPEN' as const),

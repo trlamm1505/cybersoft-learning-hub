@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import teacherAnalyticsApi from '../axios/teacherAnalyticsApi';
 import { ClassAssignPanel } from '../components/ClassAssignPanel';
@@ -462,7 +463,8 @@ type View = 'overview' | 'assign';
 export const TeacherDashboardPage: React.FC = () => {
   const [view, setView] = useState<View>('overview');
   const [classes, setClasses] = useState<ClassSummary[] | null>(null);
-  const [classId, setClassId] = useState('');
+  const [params] = useSearchParams();
+  const [classId, setClassId] = useState(() => params.get('classId') ?? '');
   const [reloadKey, setReloadKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
 

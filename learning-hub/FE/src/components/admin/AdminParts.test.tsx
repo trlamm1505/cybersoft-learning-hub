@@ -162,6 +162,13 @@ describe('thao tác tại chỗ', () => {
     expect(renderToString(<RemovableTag label="HS" tone="plain" removeLabel="Gỡ" />)).not.toContain('<button');
   });
 
+  it('giảng viên bị khóa: tag xám gạch ngang kèm tooltip "Tài khoản đang bị khóa"', () => {
+    const html = renderToString(<RemovableTag label="Cô Lan · Đã khóa" tone="locked" title="Tài khoản đang bị khóa" removeLabel="Gỡ" />);
+    expect(html).toContain('line-through');
+    expect(html).toContain('title="Tài khoản đang bị khóa"');
+    expect(html).toContain('bg-neutral-200');
+  });
+
   it('Collapse nằm trong luồng trang (không absolute/fixed): mở thì 1fr đẩy nội dung xuống, đóng thì 0fr và inert', () => {
     const open = renderToString(<Collapse open>nội dung</Collapse>);
     expect(open).toContain('grid-rows-[1fr]');

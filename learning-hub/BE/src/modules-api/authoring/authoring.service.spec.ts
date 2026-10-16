@@ -504,6 +504,7 @@ describe('AuthoringService — bài DA Lab không lọt vào luồng lesson Pyth
     mockLessonModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
     mockExerciseModel = {
       find: jest.fn().mockReturnValue(chain([])),
+      aggregate: jest.fn().mockResolvedValue([]),
       findById: jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(daExercise) }),
       findByIdAndDelete: jest.fn().mockReturnValue({ exec: jest.fn() }),
       deleteOne: jest.fn(),
@@ -524,11 +525,28 @@ describe('AuthoringService — bài DA Lab không lọt vào luồng lesson Pyth
     async (forStudent) => {
       await service.findAll(forStudent);
 
-      expect(mockExerciseModel.find).toHaveBeenCalledWith(
-        expect.objectContaining({ resource_id: { $exists: false } }),
-      );
+      const pipeline = mockExerciseModel.aggregate.mock.calls[0][0];
+      expect(pipeline[0].$match).toEqual(expect.objectContaining({ resource_id: { $exists: false } }));
     },
   );
+
+  it('danh sách bài không kéo testCases của bài ngân hàng đề (chỉ testCaseCount tính trên CSDL)', async () => {
+    mockExerciseModel.aggregate.mockResolvedValue([{ _id: 'e1', slug: 'bai-ai', title: 'Bài AI', testCaseCount: 40 }]);
+    const list: any[] = await service.findAll(false);
+    const pipeline = mockExerciseModel.aggregate.mock.calls[0][0];
+    expect(pipeline.some((s: any) => s.$project && s.$project.testCases === 0)).toBe(true);
+    const row = list.find((l) => l.slug === 'bai-ai');
+    expect(row).toMatchObject({ sourceCollection: 'exercise', testCases: [], testCaseCount: 40 });
+  });
+
+  it('findOne trả đủ testCases cho bài ngân hàng đề để giáo viên xem/sửa', async () => {
+    mockLessonModel.findById = jest.fn().mockReturnValue({ exec: jest.fn().mockResolvedValue(null) });
+    mockExerciseModel.findById = jest.fn().mockReturnValue({
+      lean: () => ({ exec: jest.fn().mockResolvedValue({ _id: 'e1', slug: 'bai-ai', title: 'Bài AI', testCases: [{ input: '1', expectedOutput: '2' }] }) }),
+    });
+    const res: any = await service.findOne('64b000000000000000000001', teacher);
+    expect(res.testCases).toHaveLength(1);
+  });
 
   it('updateLesson không chuyển bài DA thành lesson coding, không xoá exercise gốc', async () => {
     await expect(

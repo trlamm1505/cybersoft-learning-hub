@@ -130,7 +130,10 @@ export const StudentPanel: React.FC<{ id: string; cls: PortalClassRow; open: boo
       void qc.invalidateQueries({ queryKey: QK.users });
       void qc.invalidateQueries({ queryKey: QK.summary });
     },
-    onError: (err) => setResult({ ok: false, msg: errorMessage(err, 'Không thêm được học viên.') }),
+    onError: (err) => {
+      const bad = (err as { response?: { data?: { mismatched?: string[] } } })?.response?.data?.mismatched;
+      setResult({ ok: false, msg: `${errorMessage(err, 'Không thêm được học viên.')}${bad?.length ? `: ${bad.join(', ')}` : ''}. Chưa thêm ai.` });
+    },
   });
   const ids = parseIdentifiers(text);
 

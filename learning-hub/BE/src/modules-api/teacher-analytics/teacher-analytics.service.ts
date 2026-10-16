@@ -7,6 +7,11 @@ import {
   Optional,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { AuditLogService } from '../admin-portal/audit-log.service';
+import { isCareerCourseClass, isTesterClass } from '../assessment/domain/tester-progress';
+import { ClassAssignment, ClassAssignmentDocument } from '../../modules-system/database/schemas/class-assignment.schema';
+import { finalizedError, requireReason } from '../tester-labs/tester-labs.service';
+import { TesterLabSubmission, TesterLabSubmissionDocument } from '../../modules-system/database/schemas/tester-lab-submission.schema';
 import { isValidObjectId, Model, Types } from 'mongoose';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 import { TesterLab, TesterLabDocument } from '../../modules-system/database/schemas/tester-lab.schema';
@@ -52,6 +57,7 @@ export interface ClassInput {
   teacherIds?: string[];
   description?: unknown;
   archived?: unknown;
+  ageGroup?: unknown;
   studentIds?: unknown;
   exerciseSlugs?: unknown;
 }
@@ -139,6 +145,11 @@ export class TeacherAnalyticsService {
     // Chỉ để đếm bài lab của khóa Người đi làm; thiếu (test cũ) thì số bài của khóa tính bằng 0.
     @Optional() @InjectModel(TesterLab.name)
     private readonly testerLabs?: Model<TesterLabDocument>,
+    @Optional() @InjectModel(TesterLabSubmission.name)
+    private readonly testerSubmissions?: Model<TesterLabSubmissionDocument>,
+    @Optional() private readonly audit?: AuditLogService,
+    @Optional() @InjectModel(ClassAssignment.name)
+    private readonly classAssignments?: Model<ClassAssignmentDocument>,
   ) {}
 
   // ---------- Quản trị lớp (chỉ ADMIN) ----------
@@ -233,7 +244,71 @@ export class TeacherAnalyticsService {
       .find(filter)
       .sort({ name: 1 })
       .lean<ClassLean[]>();
-    return (await this.withCareerRoster(docs)).map((c) => this.describe(c));
+    const rows = await this.withCareerRoster(docs);
+    const coIds = [...new Set(rows.flatMap((c) => this.teacherIdsOf(c)))].filter(isValidObjectId);
+    const studentIds = [...new Set(rows.flatMap((c) => c.studentIds ?? []))];
+    const [people, pending] = await Promise.all([
+      coIds.length
+        ? this.users.find({ _id: { $in: coIds } }).select('fullName email').lean<Array<{ _id: unknown; fullName?: string; email?: string }>>()
+        : [],
+      studentIds.length
+        ? this.daLabs.find({ status: 'PENDING_REVIEW', userId: { $in: studentIds } }).select('userId').lean<Array<{ userId: string }>>()
+        : [],
+    ]);
+    const pendingTester = rows.some((c) => isTesterClass(c)) && this.testerSubmissions ? await this.testerSubmissions.countDocuments({ status: 'SUBMITTED', invalidated: { $ne: true } }) : 0;
+    const names = new Map(people.map((u) => [asId(u._id), u.fullName || u.email || asId(u._id)]));
+    const pendingByUser = new Map<string, number>();
+    for (const p of pending) pendingByUser.set(p.userId, (pendingByUser.get(p.userId) ?? 0) + 1);
+    return rows.map((c) => ({
+      ...this.describe(c),
+      code: c.code ?? '',
+      ageGroup: c.courseKey ? 'CAREER_ADULT' : (c.ageGroup ?? null),
+      status: c.archived === true ? ('ARCHIVED' as const) : ('ACTIVE' as const),
+      courseKey: c.courseKey ?? null,
+      // Lớp Tester QA: bài chờ chấm là bài Tester Lab chờ chấm của học viên khóa; lớp khác: bài DA Lab chờ chấm của học viên trong lớp.
+      pendingSubmissions: isTesterClass(c) ? pendingTester : (c.studentIds ?? []).reduce((n, id) => n + (pendingByUser.get(id) ?? 0), 0),
+      isPrimaryTeacher: c.teacherId === user.sub,
+      coTeachers: this.teacherIdsOf(c)
+        .filter((id) => id !== user.sub)
+        .map((id) => names.get(id) ?? id),
+    }));
+  }
+
+  /** Mọi giảng viên phụ trách lớp, giảng viên chính đứng đầu, không trùng. */
+  private teacherIdsOf(c: ClassLean): string[] {
+    return [...new Set([c.teacherId, ...(c.teacherIds ?? [])].filter(Boolean))];
+  }
+
+  // ---------- Hủy kết quả bài nộp ----------
+
+  /**
+   * Hủy kết quả một bài nộp Tester Lab của học viên trong lớp mình phụ trách. Bắt buộc có lý do (>= 10 ký tự); bài đã chốt điểm
+   * không hủy được (phải qua phúc khảo). Mọi lần hủy đều ghi audit log kèm lý do.
+   */
+  async invalidateSubmission(user: JwtPayload, classId: string, body: { submissionId?: unknown; reason?: unknown }) {
+    const cls = await this.resolveClass(user, classId);
+    const reason = requireReason(body?.reason);
+    const submissionId = typeof body?.submissionId === 'string' ? body.submissionId : '';
+    if (!this.testerSubmissions || !isValidObjectId(submissionId)) {
+      throw new NotFoundException('Không tìm thấy bài nộp.');
+    }
+    const submission = await this.testerSubmissions.findById(submissionId);
+    if (!submission) throw new NotFoundException('Không tìm thấy bài nộp.');
+    const inClass = cls.courseKey
+      ? !!(await this.users.exists({ _id: submission.userId, role: 'STUDENT', ageGroup: 'CAREER_ADULT' }))
+      : (cls.studentIds ?? []).includes(submission.userId);
+    if (!inClass) {
+      throw new ForbiddenException({ code: 'E403_CLASS_NOT_OWNED', message: 'Bài nộp này không thuộc lớp của bạn.' });
+    }
+    if (submission.isFinalized) throw finalizedError();
+    const before = { status: submission.status, invalidated: submission.invalidated === true };
+    submission.invalidated = true;
+    submission.invalidReason = reason;
+    submission.rubricGrades = [];
+    submission.status = 'SUBMITTED';
+    await submission.save();
+    await this.audit?.record({ sub: user.sub, email: user.email ?? '' }, 'SUBMISSION_INVALIDATE', 'SUBMISSION', submissionId, before, { status: 'SUBMITTED', invalidated: true, classId }, reason);
+    return { id: submissionId, invalidated: true };
   }
 
   // ---------- Lớp của học viên ----------
@@ -331,6 +406,9 @@ export class TeacherAnalyticsService {
   async updateClass(user: JwtPayload, classId: string, body: ClassInput) {
     this.assertAdmin(user);
     const cls = await this.resolveClass(user, classId);
+    if (cls.courseKey && ((body.name !== undefined && body.name !== cls.name) || body.ageGroup !== undefined)) {
+      throw new BadRequestException('Không được đổi tên hoặc khối của khóa chuyên ngành Người đi làm (chỉ phân công giảng viên hoặc lưu trữ).');
+    }
     const data = await this.validateClassInput(body, false);
     // Lưu thông tin lớp gửi kèm teacherId không đổi thì giữ nguyên danh sách nhiều giảng viên Admin đã phân công.
     if (data.teacherId === cls.teacherId) delete data.teacherIds;
@@ -343,6 +421,9 @@ export class TeacherAnalyticsService {
   async deleteClass(user: JwtPayload, classId: string) {
     this.assertAdmin(user);
     const cls = await this.resolveClass(user, classId);
+    if (cls.courseKey) {
+      throw new BadRequestException('Không được xóa khóa chuyên ngành của Người đi làm.');
+    }
     await this.classes.deleteOne({ _id: cls._id });
     return { id: asId(cls._id), deleted: true };
   }
@@ -381,8 +462,12 @@ export class TeacherAnalyticsService {
           .select('fullName email')
           .lean<Array<{ _id: unknown; fullName?: string; email?: string }>>()
       : [];
+    const assignmentDocs = this.classAssignments
+      ? await this.classAssignments.find({ classId: asId(cls._id) }).sort({ order: 1, startAt: 1 }).select('title type startAt dueAt maxPoints').lean<Array<{ _id: unknown; title: string; type: string; startAt: Date; dueAt: Date; maxPoints?: number }>>()
+      : [];
     return {
       ...this.describe(cls),
+      assignments: assignmentDocs.map((a) => ({ id: asId(a._id), title: a.title, type: a.type, startAt: a.startAt, dueAt: a.dueAt, maxPoints: a.maxPoints ?? null })),
       teacher: teacher[0]
         ? {
             id: asId(teacher[0]._id),
@@ -478,16 +563,18 @@ export class TeacherAnalyticsService {
         role: 'STUDENT',
         $or: [{ email: { $in: emails } }, { studentCode: { $in: codes } }],
       })
-      .select('fullName email studentCode')
+      .select('fullName email studentCode ageGroup')
       .lean<
         Array<{
           _id: unknown;
           fullName?: string;
           email?: string;
           studentCode?: string;
+          ageGroup?: string;
         }>
       >();
 
+    await this.assertAgeGroupFits(cls, found, new Set((cls.studentIds ?? []).map(String)));
     // Một học viên chỉ xuất hiện MỘT lần trong lớp: bỏ trùng trong kết quả tra cứu và đối chiếu với danh sách hiện có.
     const members = new Set((cls.studentIds ?? []).map(String));
     const added: Array<{ id: string; name: string }> = [];
@@ -534,6 +621,10 @@ export class TeacherAnalyticsService {
   /** Thay toàn bộ danh mục bài được giao (danh sách tích chọn gửi lên là bản đầy đủ). */
   async setExercises(user: JwtPayload, classId: string, slugs: unknown) {
     const cls = await this.resolveClass(user, classId);
+    // Lớp khóa Career (Tester QA, Data SQL, AI Prompt) theo khung Lab cố định: không có bài giao riêng.
+    if (isCareerCourseClass(cls)) {
+      throw new BadRequestException({ code: 'E400_TESTER_CLASS_NO_ASSIGNMENT', message: 'Lớp khóa Career học theo các Lab cố định, không giao bài tập riêng.' });
+    }
     const data = await this.validateClassInput({ exerciseSlugs: slugs }, false);
     await this.classes.updateOne(
       { _id: cls._id },
@@ -650,6 +741,59 @@ export class TeacherAnalyticsService {
     };
   }
 
+  /** Khối của lớp phổ thông: khối đã đặt, nếu chưa có thì nhóm đông nhất trong học viên hiện có (không có ai thì chưa ràng buộc). */
+  private async classBand(cls: ClassLean): Promise<string | null> {
+    if (cls.ageGroup) return cls.ageGroup;
+    const ids = (cls.studentIds ?? []).filter(isValidObjectId);
+    if (ids.length === 0) return null;
+    const members = await this.users.find({ _id: { $in: ids } }).select('ageGroup').lean<Array<{ ageGroup?: string }>>();
+    const counts = new Map<string, number>();
+    for (const m of members) if (m.ageGroup && m.ageGroup !== 'CAREER_ADULT') counts.set(m.ageGroup, (counts.get(m.ageGroup) ?? 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  }
+
+  /**
+   * Chặn học viên lệch khối tuổi (vd đưa học sinh 10-12 vào lớp 6-9, hoặc tài khoản Người đi làm vào lớp phổ thông) bằng 400.
+   * Học viên chưa có khối (tài khoản cũ) và người đã ở trong lớp không bị chặn.
+   */
+  private async assertAgeGroupFits(
+    cls: ClassLean,
+    candidates: Array<{ _id: unknown; email?: string; ageGroup?: string }>,
+    members: Set<string>,
+  ) {
+    const band = await this.classBand(cls);
+    const bad = candidates.filter((u) => {
+      if (members.has(asId(u._id)) || !u.ageGroup) return false;
+      return u.ageGroup === 'CAREER_ADULT' || (!!band && u.ageGroup !== band);
+    });
+    if (bad.length > 0) {
+      throw new BadRequestException({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: 'Học viên không thuộc độ tuổi phù hợp với lớp học này',
+        mismatched: bad.map((u) => u.email ?? asId(u._id)),
+      });
+    }
+  }
+
+  /** Nhãn để ghi nhật ký (tên lớp, giảng viên, học viên) mà không để lộ id ra giao diện. */
+  async auditContext(classId: string, userIds: string[] = []) {
+    const cls = isValidObjectId(classId)
+      ? await this.classes.findById(classId).select('name description archived teacherId teacherIds').lean<{ name: string; description?: string; archived?: boolean; teacherId?: string; teacherIds?: string[] }>()
+      : null;
+    const ids = [...new Set([...(cls?.teacherIds?.length ? cls.teacherIds : cls?.teacherId ? [cls.teacherId] : []), ...userIds])].filter(isValidObjectId);
+    const people = ids.length ? await this.users.find({ _id: { $in: ids } }).select('fullName email').lean<Array<{ _id: unknown; fullName?: string; email?: string }>>() : [];
+    const nameOf = (id: string) => people.find((p) => asId(p._id) === id)?.fullName || people.find((p) => asId(p._id) === id)?.email || '';
+    const tIds = cls?.teacherIds?.length ? cls.teacherIds : cls?.teacherId ? [cls.teacherId] : [];
+    return {
+      className: cls?.name ?? '',
+      description: cls?.description ?? '',
+      archived: cls?.archived === true,
+      teacherNames: tIds.map(nameOf),
+      nameOf,
+    };
+  }
+
   /** Khóa Người đi làm tự ghi danh theo tài khoản CAREER_ADULT nên không thêm/gỡ học viên thủ công. */
   private assertRosterEditable(cls: ClassLean) {
     if (cls.courseKey) {
@@ -669,7 +813,7 @@ export class TeacherAnalyticsService {
     const cls = await this.classes.findById(classId).lean<ClassLean>();
     if (!cls) throw new NotFoundException('Không tìm thấy lớp.');
     if (user.role !== 'ADMIN' && cls.teacherId !== user.sub && !cls.teacherIds?.includes(user.sub)) {
-      throw new ForbiddenException('Bạn không có quyền với lớp này.');
+      throw new ForbiddenException({ code: 'E403_CLASS_NOT_OWNED', message: 'Bạn không có quyền với lớp này.' });
     }
     return (await this.withCareerRoster([cls]))[0];
   }
@@ -731,13 +875,15 @@ export class TeacherAnalyticsService {
           exerciseId: { $in: [...exerciseIdToSlug.keys()] },
           status: { $in: [...GRADED_STATUSES] },
         })
-        .select('userId exerciseId status createdAt')
+        .select('userId exerciseId status createdAt passedCount totalCount')
         .lean<
           Array<{
             userId: string;
             exerciseId: string;
             status: string;
             createdAt: Date;
+            passedCount?: number;
+            totalCount?: number;
           }>
         >(),
       this.hints
@@ -763,6 +909,7 @@ export class TeacherAnalyticsService {
       exerciseSlug: exerciseIdToSlug.get(s.exerciseId)!,
       status: s.status,
       at: s.createdAt,
+      ...(s.totalCount ? { scorePercent: Math.round(((s.passedCount ?? 0) / s.totalCount) * 100) } : {}),
     }));
     for (const r of daDocs) {
       submissions.push(
@@ -807,6 +954,7 @@ export class TeacherAnalyticsService {
         | 'teacherIds'
         | 'description'
         | 'archived'
+        | 'ageGroup'
         | 'studentIds'
         | 'exerciseSlugs'
       >
@@ -833,6 +981,12 @@ export class TeacherAnalyticsService {
       out.teacherId = id;
       // Chuyển giao một giảng viên (luồng cũ) thay toàn bộ danh sách phụ trách để không lệch với teacherIds.
       out.teacherIds = [id];
+    }
+    if (body.ageGroup !== undefined) {
+      if (body.ageGroup !== null && !['3-5', '6-9', '10-12'].includes(body.ageGroup as string)) {
+        throw new BadRequestException('Khối lớp không hợp lệ (3-5, 6-9 hoặc 10-12).');
+      }
+      if (body.ageGroup) out.ageGroup = body.ageGroup as string;
     }
     if (body.description !== undefined) {
       if (

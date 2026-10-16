@@ -15,6 +15,10 @@ import {
   sanitizeFreeformText,
   sanitizeFreeformTextArray,
 } from '../../common/utils/sanitize-text-input.util';
+import { Throttle } from '@nestjs/throttler';
+import { RATE_LIMITS } from '../../common/security/app-throttler.guard';
+import { assertNoInjection, assertSafeTopic } from './problem-safety';
+import { normalizeBankBand } from '../exercise/exercise-matrix';
 import { ProblemGeneratorService } from './problem-generator.service';
 import { GenerateProblemDto } from './dto/generate-problem.dto';
 import { SaveProblemDto } from './dto/save-problem.dto';
@@ -49,7 +53,14 @@ export class ProblemGeneratorController {
   @Post('generate')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER', 'ADMIN')
-  async generate(@Body() dto: GenerateProblemDto) {
+  @Throttle(RATE_LIMITS.aiGenerate)
+  async generate(@Body() dto: GenerateProblemDto, @CurrentUser() user: JwtPayload) {
+    return this.runGenerate(dto, user);
+  }
+
+  /** Dùng chung cho cả /problem-generator/generate và alias /teacher/ai-generator. */
+  async runGenerate(dto: GenerateProblemDto, user: JwtPayload) {
+    await this.problemGeneratorService.assertCanUse(user);
     if (!Array.isArray(dto.specs) || dto.specs.length === 0) {
       throw new BadRequestException('specs phải là mảng có ít nhất 1 phần tử.');
     }
@@ -59,19 +70,19 @@ export class ProblemGeneratorController {
       );
     }
 
+    const band = normalizeBankBand(dto.band);
+    if (!band) throw new BadRequestException({ code: 'E400_INVALID_BAND', message: 'Hãy chọn khối đối tượng: 6-9 hoặc 10-12.' });
+
     // Sanitize TRƯỚC khi đưa vào prompt Gemini: cắt ký tự điều khiển ẩn,
     // giới hạn độ dài từng field và số lượng phần tử mảng — learningOutcome/
     // constraints/tags đều do giáo viên gõ tự do, một chuỗi quá dài hoặc
     // chứa ký tự ẩn có thể dùng để "nhồi" prompt injection vào request gửi
     // lên Gemini.
     const inputs = dto.specs.map((spec, i) => {
-      const learningOutcome = sanitizeFreeformText(
-        spec.learningOutcome,
-        MAX_FREEFORM_TEXT_LENGTH,
-      );
-      if (!learningOutcome) {
-        throw new BadRequestException(`specs[${i}].learningOutcome không được để trống.`);
-      }
+      // Chủ đề phải khớp allowlist ký tự, tối đa 120 ký tự và không chứa lệnh ép lộ prompt (400 nếu sai).
+      const learningOutcome = assertSafeTopic(spec.learningOutcome, `specs[${i}].learningOutcome`);
+      assertNoInjection(spec.constraints, `specs[${i}].constraints`);
+      assertNoInjection(spec.tags, `specs[${i}].tags`);
       if (!spec.level || !VALID_LEVELS.includes(spec.level)) {
         throw new BadRequestException(`specs[${i}].level phải là EASY, MEDIUM hoặc HARD.`);
       }
@@ -82,6 +93,7 @@ export class ProblemGeneratorController {
           maxItemLength: MAX_CONSTRAINT_LENGTH,
         }),
         tags: sanitizeFreeformTextArray(spec.tags),
+        band,
       };
     });
 
@@ -104,6 +116,7 @@ export class ProblemGeneratorController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER', 'ADMIN')
   async save(@CurrentUser() user: JwtPayload, @Body() dto: SaveProblemDto) {
+    await this.problemGeneratorService.assertCanUse(user);
     if (!dto.draft) {
       throw new BadRequestException('draft không được để trống.');
     }
@@ -124,10 +137,28 @@ export class ProblemGeneratorController {
   @Post('revalidate')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER', 'ADMIN')
-  async revalidate(@Body() dto: RevalidateProblemDto) {
+  async revalidate(@Body() dto: RevalidateProblemDto, @CurrentUser() user: JwtPayload) {
+    await this.problemGeneratorService.assertCanUse(user);
     if (!dto.draft) {
       throw new BadRequestException('draft không được để trống.');
     }
     return this.problemGeneratorService.revalidateDraft(dto.draft);
+  }
+}
+
+/**
+ * Lối vào chuẩn của Teacher Studio V2: POST /api/teacher/ai-generator (5 lượt / 10 phút / giảng viên).
+ * Cùng logic và cùng kiểm tra an ninh với /problem-generator/generate.
+ */
+@Controller('teacher/ai-generator')
+export class TeacherAiGeneratorController {
+  constructor(private readonly generator: ProblemGeneratorController) {}
+
+  @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  @Throttle(RATE_LIMITS.aiGenerate)
+  generate(@Body() dto: GenerateProblemDto, @CurrentUser() user: JwtPayload) {
+    return this.generator.runGenerate(dto, user);
   }
 }

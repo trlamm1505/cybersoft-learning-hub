@@ -81,6 +81,8 @@ export class ContestAttemptService {
       serverTime: now.toISOString(),
       durationMinutes: contest.durationMinutes,
       integrityEnabled: contest.integrityEnabled !== false,
+      disqualified: attempt.disqualified === true,
+      disqualifiedReason: attempt.disqualified === true ? (attempt.disqualifiedReason ?? null) : null,
     };
   }
 

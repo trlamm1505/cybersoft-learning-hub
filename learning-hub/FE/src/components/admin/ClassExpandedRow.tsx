@@ -45,8 +45,9 @@ export const ClassExpandedRow: React.FC<{ cls: PortalClassRow; panel: RowPanel; 
               {cls.teachers.map((t, i) => (
                 <RemovableTag
                   key={t.id}
-                  label={`${t.name}${i === 0 && cls.teachers.length > 1 ? ' · chính' : ''}`}
-                  tone={i === 0 ? 'violet' : 'slate'}
+                  label={`${t.name}${i === 0 && cls.teachers.length > 1 ? ' · chính' : ''}${t.locked ? ' · Đã khóa' : ''}`}
+                  tone={t.locked ? 'locked' : i === 0 ? 'violet' : 'slate'}
+                  title={t.locked ? 'Tài khoản đang bị khóa' : undefined}
                   removeLabel={`Gỡ ${t.name} khỏi lớp`}
                   disabledReason={cls.teachers.length <= 1 ? 'Lớp cần ít nhất một giảng viên' : undefined}
                   onRemove={() => teacherOps.remove(t.id)}

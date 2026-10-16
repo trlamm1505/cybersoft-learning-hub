@@ -35,6 +35,12 @@ import { CareerLabsPage } from './pages/CareerLabsPage';
 import { CareerMyClassPage } from './pages/CareerMyClassPage';
 import { careerBlockedPath, isCareerAdult } from './common/userGroups';
 import { TeacherDashboardPage } from './pages/TeacherDashboardPage';
+import { TeacherOverviewPage } from './pages/TeacherOverviewPage';
+import { TeacherClassesPage } from './pages/TeacherClassesPage';
+import { TeacherLayout } from './components/TeacherLayout';
+import { AUTHORING_TABS, TeacherSubNav } from './components/TeacherSubNav';
+import { TeacherGradingPage } from './pages/TeacherGradingPage';
+import { AiGeneratorGate } from './components/AiGeneratorGate';
 import { AdminClassesPage } from './pages/AdminClassesPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
@@ -44,6 +50,8 @@ import { AdminAuditPage } from './pages/AdminAuditPage';
 import { AdminLayout } from './components/AdminLayout';
 import { portalHome } from './pages/adminDashboardModel';
 import { ContestListPage } from './pages/ContestListPage';
+import { TeacherQuestionBankPage } from './pages/TeacherQuestionBankPage';
+import { TeacherContestAuthoring } from './components/TeacherContestAuthoring';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
@@ -55,6 +63,7 @@ import type { AuthUser, AuthResponse } from './types/auth';
 import { isStaff } from './types/auth';
 import { authoringApi } from './axios/authoringApi';
 import { authApi } from './axios/authApi';
+import { browserSessionGuard, markSessionExpiredNotice } from './common/sessionGuard';
 import { AUTH_USER_KEY, clearAuthSession, getStoredToken, isTokenExpired } from './common/authSession';
 import './styles/main.css';
 
@@ -75,6 +84,8 @@ export function App() {
     const token = getStoredToken();
     const saved = localStorage.getItem(AUTH_USER_KEY);
     if (!token || isTokenExpired(token) || !saved) {
+      // Có token cũ nhưng đã hết hạn: báo thân thiện ở trang đăng nhập thay vì chỉ lặng lẽ đẩy ra.
+      if (token && isTokenExpired(token)) markSessionExpiredNotice();
       clearAuthSession();
       return null;
     }
@@ -181,7 +192,9 @@ export function App() {
   };
 
   const handleAuthSuccess = (auth: AuthResponse) => {
+    browserSessionGuard.reset();
     localStorage.setItem('token', auth.accessToken);
+    if (auth.csrfToken) localStorage.setItem('csrf_token', auth.csrfToken);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(auth.user));
     setAuthUser(auth.user);
     setAuthVerified(true);
@@ -225,6 +238,8 @@ export function App() {
     // Tiến độ đó phải được GIỮ LẠI để lần sau đăng nhập đúng tài khoản này
     // vẫn thấy đúng những gì đã hoàn thành; namespace theo id đã đủ để tách
     // biệt giữa các tài khoản khác nhau trên cùng trình duyệt, không cần xoá.
+    // Thu hồi token phía server trước khi xoá bản lưu cục bộ; lỗi mạng không chặn đăng xuất.
+    authApi.logout().catch(() => undefined);
     clearAuthSession();
     setAuthUser(null);
     // Học sinh Kid Mode về trang đăng nhập sạch; người dùng khác giữ hành vi cũ.
@@ -285,6 +300,66 @@ export function App() {
         </Route>
         {/* Mọi đường dẫn khác (kể cả trang học tập) đưa Admin về Admin Portal. */}
         <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+      </Routes>
+    );
+  }
+
+  if (authUser?.role === 'TEACHER') {
+    // Công cụ soạn bài giảng/đề trắc nghiệm đời đầu và các màn QA nội bộ giữ nguyên tại /teacher/lessons (ẩn khỏi menu).
+    const toLessons = (view?: string) => (
+      <Navigate to={`/teacher/lessons${view ? `?view=${view}` : location.search}`} replace />
+    );
+    return (
+      <Routes>
+        <Route
+          element={
+            <TeacherLayout
+              authUser={authUser}
+              isLightTheme={isLightTheme}
+              onToggleTheme={() => setIsLightTheme(!isLightTheme)}
+              onLogout={handleLogout}
+            />
+          }
+        >
+          <Route path="/teacher" element={<TeacherOverviewPage />} />
+          <Route path="/teacher/dashboard" element={<TeacherOverviewPage />} />
+          <Route path="/teacher/classes" element={<TeacherClassesPage />} />
+          <Route path="/teacher/analytics" element={<TeacherDashboardPage />} />
+          <Route path="/teacher/grading" element={<TeacherGradingPage />} />
+          <Route path="/teacher/grading/insight" element={<TeacherReviewQueue />} />
+          <Route path="/teacher/grading/labs" element={<TeacherLabSubmissionsPage />} />
+          <Route path="/teacher/grading/integrity" element={<TeacherIntegrityQueuePage />} />
+          <Route path="/teacher/authoring" element={<TeacherSubNav title="Soạn đề" items={AUTHORING_TABS} />}>
+            <Route index element={<TeacherExerciseFormPage />} />
+            <Route path="ai" element={<AiGeneratorGate><TeacherProblemGeneratorPage /></AiGeneratorGate>} />
+            <Route path="bank" element={<AiGeneratorGate><TeacherQuestionBankPage /></AiGeneratorGate>} />
+          </Route>
+          <Route path="/teacher/contests" element={<AiGeneratorGate redirectTo="/teacher/dashboard"><TeacherContestAuthoring /></AiGeneratorGate>} />
+          <Route
+            path="/teacher/lessons"
+            element={<TeacherAuthoringPage onLessonSaved={handleLessonSaved} onLessonDeleted={handleLessonDeleted} />}
+          />
+          {/* Công cụ nội bộ: ẩn khỏi sidebar nhưng vẫn vào được bằng URL cho đội QA/Dev. */}
+          <Route path="/teacher/harness" element={toLessons('qa')} />
+          <Route path="/teacher/usability" element={toLessons('usability')} />
+          <Route path="/teacher/resilience" element={toLessons('resilience')} />
+          <Route path="/tester-labs" element={<TesterLabListPage />} />
+          <Route path="/tester-labs/:labCode" element={<TesterLabDetailPage isStudent={false} />} />
+          <Route
+            path="/teacher/profile"
+            element={<ProfilePage authUser={authUser} onAvatarChange={handleAvatarChanged} onProfileChange={handleProfileUpdated} />}
+          />
+          {/* Đường dẫn cũ của giao diện giảng viên trước V2. */}
+          <Route path="/authoring" element={toLessons()} />
+          <Route path="/teacher/exercises" element={<Navigate to="/teacher/authoring" replace />} />
+          <Route path="/problem-generator" element={<Navigate to="/teacher/authoring/ai" replace />} />
+          <Route path="/teacher/authoring/exercises" element={<Navigate to="/teacher/authoring" replace />} />
+          <Route path="/teacher/authoring/generator" element={<Navigate to="/teacher/authoring/ai" replace />} />
+          <Route path="/teacher/review-queue" element={<Navigate to="/teacher/grading/insight" replace />} />
+          <Route path="/teacher/lab-submissions" element={<Navigate to="/teacher/grading/labs" replace />} />
+          <Route path="/teacher/integrity" element={<Navigate to="/teacher/grading/integrity" replace />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/teacher/dashboard" replace />} />
       </Routes>
     );
   }
@@ -397,39 +472,6 @@ export function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
-            path="/authoring"
-            element={
-              isStaff(authUser?.role) ? (
-                <TeacherAuthoringPage
-                  onLessonSaved={handleLessonSaved}
-                  onLessonDeleted={handleLessonDeleted}
-                />
-              ) : (
-                <Navigate to={authUser ? '/catalog' : '/login'} replace />
-              )
-            }
-          />
-          <Route
-            path="/teacher/exercises"
-            element={
-              isStaff(authUser?.role) ? (
-                <TeacherExerciseFormPage />
-              ) : (
-                <Navigate to={authUser ? '/catalog' : '/login'} replace />
-              )
-            }
-          />
-          <Route
-            path="/problem-generator"
-            element={
-              isStaff(authUser?.role) ? (
-                <TeacherProblemGeneratorPage />
-              ) : (
-                <Navigate to={authUser ? '/catalog' : '/login'} replace />
-              )
-            }
-          />
-          <Route
             path="/progress"
             element={
               kidMode ? (
@@ -449,48 +491,12 @@ export function App() {
             path="/tester-labs/:labCode"
             element={authUser ? <TesterLabDetailPage isStudent={authUser.role === 'STUDENT'} /> : <Navigate to="/login" replace />}
           />
-          <Route
-            path="/teacher/review-queue"
-            element={
-              isStaff(authUser?.role) ? (
-                <TeacherReviewQueue />
-              ) : (
-                <Navigate to={authUser ? '/catalog' : '/login'} replace />
-              )
-            }
-          />
-          <Route
-            path="/teacher/lab-submissions"
-            element={
-              isStaff(authUser?.role) ? (
-                <TeacherLabSubmissionsPage />
-              ) : (
-                <Navigate to={authUser ? '/catalog' : '/login'} replace />
-              )
-            }
-          />
+          {/* Teacher Studio có khung riêng; người không phải giảng viên vào /teacher/* bị đưa về trang chủ của vai trò mình (hoặc /login). */}
+          <Route path="/teacher/*" element={<Navigate to={authUser ? homeFor(authUser) : '/login'} replace />} />
+          <Route path="/authoring" element={<Navigate to={authUser ? homeFor(authUser) : '/login'} replace />} />
+          <Route path="/problem-generator" element={<Navigate to={authUser ? homeFor(authUser) : '/login'} replace />} />
           {/* Admin Portal có khung riêng; ai không phải ADMIN vào /admin/* đều bị đưa về trang chủ của vai trò mình. */}
           <Route path="/admin/*" element={<Navigate to={authUser ? portalHome(authUser.role) : '/login'} replace />} />
-          <Route
-            path="/teacher/dashboard"
-            element={
-              isStaff(authUser?.role) ? (
-                <TeacherDashboardPage />
-              ) : (
-                <Navigate to={authUser ? '/catalog' : '/login'} replace />
-              )
-            }
-          />
-          <Route
-            path="/teacher/integrity"
-            element={
-              isStaff(authUser?.role) ? (
-                <TeacherIntegrityQueuePage />
-              ) : (
-                <Navigate to={authUser ? '/catalog' : '/login'} replace />
-              )
-            }
-          />
           <Route path="/my-class" element={<StudentRoute authUser={authUser}>{isCareerAdult(authUser) ? <CareerMyClassPage /> : <MyClassPage />}</StudentRoute>} />
           <Route
             path="/da-labs"

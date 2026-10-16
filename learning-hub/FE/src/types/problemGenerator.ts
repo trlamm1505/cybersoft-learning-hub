@@ -7,7 +7,11 @@ export interface ProblemSpecInput {
   tags: string[];
 }
 
+export type GeneratorBand = '6-9' | '10-12';
+
 export interface GenerateProblemPayload {
+  /** Khối đối tượng bắt buộc: quyết định chỉ thị sư phạm gửi cho AI và nhãn khi lưu vào ngân hàng đề. */
+  band: GeneratorBand;
   specs: ProblemSpecInput[];
 }
 
@@ -27,6 +31,9 @@ export interface ProblemDraft {
   starterCode: string;
   solutionCode: string;
   testCases: ProblemDraftTestCase[];
+  band?: GeneratorBand;
+  /** Kết quả đối chiếu test case với lời giải mẫu: expectedOutput lấy từ kết quả chạy thật. */
+  grounding?: { checked: number; corrected: number; dropped: number };
 }
 
 export interface TestCaseResult {

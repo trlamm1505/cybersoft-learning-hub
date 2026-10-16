@@ -245,3 +245,28 @@ describe('analytics-core: công thức và trường hợp biên', () => {
     expect(two.tags[0].bottleneck).toBe(true);
   });
 });
+
+describe('analytics-core: điểm trung bình theo học viên (bestScorePercent)', () => {
+  const ex = (slug: string) => ({ slug, title: slug, tags: [] as string[] });
+  const at = new Date('2026-01-01T00:00:00Z');
+  const input = {
+    students: [
+      { id: 'ok', name: 'Đạt' },
+      { id: 'wa', name: 'Sai' },
+      { id: 'none', name: 'Chưa nộp' },
+    ],
+    exercises: [ex('e1'), ex('e2')],
+    hints: [],
+    submissions: [
+      { userId: 'ok', exerciseSlug: 'e1', status: 'AC', at },
+      { userId: 'ok', exerciseSlug: 'e2', status: 'AC', at },
+      { userId: 'wa', exerciseSlug: 'e1', status: 'WA', at, scorePercent: 60 },
+      { userId: 'wa', exerciseSlug: 'e2', status: 'WA', at, scorePercent: 60 },
+    ],
+  };
+
+  it('AC không ghi điểm tính 100; WA lấy điểm cao nhất; chưa nộp là null', () => {
+    const rows = Object.fromEntries(computeClassAnalytics(input).students.map((s) => [s.id, s.bestScorePercent]));
+    expect(rows).toEqual({ ok: 100, wa: 60, none: null });
+  });
+});

@@ -33,6 +33,9 @@ export interface ContestHistoryRow {
   totalParticipants: number;
   /** Bảng xếp hạng còn đang đóng băng/cuộc thi chưa kết thúc: hạng có thể còn đổi. */
   provisional: boolean;
+  /** Giảng viên không công nhận kết quả: học viên vẫn thấy điểm của mình nhưng không có hạng chính thức. */
+  disqualified: boolean;
+  disqualifiedReason: string | null;
 }
 
 export function durationMinutesOf(start: Date | undefined, end: Date | undefined): number | null {
@@ -50,6 +53,14 @@ export class ContestHistoryService {
     @InjectModel(ContestAttempt.name) private readonly attempts: Model<ContestAttemptDocument>,
     private readonly leaderboard: LeaderboardService,
   ) {}
+
+  /** Tổng điểm tốt nhất mỗi đề của chính học viên (dùng khi không còn trên bảng xếp hạng chính thức). */
+  private async ownScore(contestId: string, userId: string): Promise<number> {
+    const subs: any[] = await this.submissions.find({ contestId, studentId: userId, isLate: false }).select('problemSlug score').lean();
+    const best = new Map<string, number>();
+    for (const s of subs) best.set(s.problemSlug, Math.max(best.get(s.problemSlug) ?? 0, s.score ?? 0));
+    return Math.round([...best.values()].reduce((a, b) => a + b, 0));
+  }
 
   async myHistory(userId: string): Promise<ContestHistoryRow[]> {
     const subs: any[] = await this.submissions
@@ -78,8 +89,11 @@ export class ContestHistoryService {
     for (const c of contests) {
       const id = String(c._id);
       const lb = await this.leaderboard.computeLeaderboard(id);
-      const mine = lb.rows.find((r) => r.studentId === userId);
       const attempt = attemptBy.get(id);
+      const isDq = attempt?.disqualified === true;
+      const mine = lb.rows.find((r) => r.studentId === userId);
+      // Bị không công nhận thì không còn trên bảng chính thức: điểm cá nhân tính lại từ bài nộp của chính họ.
+      const ownScore = isDq ? await this.ownScore(id, userId) : null;
       const joinedAt: Date = attempt?.startedAt ?? firstSubmit.get(id)!;
       const duration =
         durationMinutesOf(attempt?.startedAt, attempt?.finishedAt ?? lastSubmit.get(id)) ??
@@ -88,12 +102,14 @@ export class ContestHistoryService {
         contestId: id,
         title: c.title,
         joinedAt,
-        score: mine?.totalScore ?? 0,
+        score: isDq ? (ownScore ?? 0) : (mine?.totalScore ?? 0),
         maxScore: (c.problems ?? []).reduce((s: number, p: { points: number }) => s + (p.points ?? 0), 0),
         durationMinutes: duration,
-        rank: mine?.rank ?? null,
+        rank: isDq ? null : (mine?.rank ?? null),
         totalParticipants: lb.rows.length,
         provisional: lb.computedStatus !== 'ENDED' || lb.isFrozen,
+        disqualified: isDq,
+        disqualifiedReason: isDq ? (attempt?.disqualifiedReason ?? null) : null,
       });
     }
     return rows.sort((a, b) => b.joinedAt.getTime() - a.joinedAt.getTime()).slice(0, MAX_HISTORY);

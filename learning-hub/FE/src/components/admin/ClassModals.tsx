@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import adminClassesApi from '../../axios/adminClassesApi';
+import { AGE_GROUP_LABEL } from '../../pages/adminPortalModel';
 import { QK, useActiveTeachers } from '../../pages/adminPortalQueries';
 import { btnPrimary, btnSecondary, errorMessage, Field, inputCls, Modal, selectCls } from './AdminUi';
 
@@ -12,9 +13,10 @@ export const CreateClassModal: React.FC<{ onClose: () => void; onDone: (msg: str
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [teacherId, setTeacherId] = useState('');
+  const [ageGroup, setAgeGroup] = useState('');
   const [error, setError] = useState<string | null>(null);
   const create = useMutation({
-    mutationFn: () => adminClassesApi.create({ name: name.trim(), description: description.trim() || undefined, teacherId }),
+    mutationFn: () => adminClassesApi.create({ name: name.trim(), description: description.trim() || undefined, teacherId, ageGroup: ageGroup || undefined }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: QK.classes });
       onDone('Đã tạo lớp mới.');
@@ -50,6 +52,16 @@ export const CreateClassModal: React.FC<{ onClose: () => void; onDone: (msg: str
         </Field>
         <Field label="Mô tả (tùy chọn)">
           <input value={description} maxLength={500} onChange={(e) => setDescription(e.target.value)} className={inputCls} />
+        </Field>
+        <Field label="Khối tuổi" hint="Chỉ học viên đúng khối mới thêm được vào lớp. Bỏ trống thì khối tự suy ra từ học viên đầu tiên.">
+          <select value={ageGroup} onChange={(e) => setAgeGroup(e.target.value)} className={selectCls}>
+            <option value="">Chưa chọn</option>
+            {(['3-5', '6-9', '10-12'] as const).map((g) => (
+              <option key={g} value={g}>
+                {AGE_GROUP_LABEL[g]}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field label="Giảng viên phụ trách">
           <select value={teacherId} onChange={(e) => setTeacherId(e.target.value)} className={selectCls} disabled={teachers.isPending}>

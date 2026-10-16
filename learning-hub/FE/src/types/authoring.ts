@@ -59,6 +59,9 @@ export interface BlockPuzzleConfig {
 
 export interface LessonAuthoring {
   _id?: string;
+  /** 'exercise': dòng lấy từ ngân hàng đề; danh sách KHÔNG kèm testCases (chỉ testCaseCount), mở bài để xem/sửa thì tải chi tiết. */
+  sourceCollection?: 'exercise';
+  testCaseCount?: number;
   title: string;
   slug: string;
   description?: string;

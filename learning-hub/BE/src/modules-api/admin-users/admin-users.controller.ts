@@ -100,7 +100,7 @@ export class AdminUsersController {
   async update(
     @CurrentUser() user: JwtPayload,
     @Param('id') id: string,
-    @Body() body: { fullName?: unknown; ageGroup?: unknown; password?: unknown },
+    @Body() body: { fullName?: unknown; ageGroup?: unknown; password?: unknown; role?: unknown; status?: unknown },
   ) {
     const before = await this.audit.userSnapshot(id);
     const result = await this.service.update(user, id, body ?? {});

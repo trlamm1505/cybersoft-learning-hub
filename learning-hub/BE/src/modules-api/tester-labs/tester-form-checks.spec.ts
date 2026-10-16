@@ -13,7 +13,7 @@ describe('sanitizeTesterForm', () => {
     });
     expect(f.testCases).toHaveLength(1);
     expect(f.testCases[0].description.length).toBe(1000);
-    expect(f.bugReports[0].severity).toBe('MEDIUM');
+    expect(f.bugReports[0].severity).toBe('MAJOR');
   });
 
   it('không nhận dữ liệu rỗng hoặc quá số lượng', () => {

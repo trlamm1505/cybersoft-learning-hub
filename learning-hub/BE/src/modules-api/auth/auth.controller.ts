@@ -1,6 +1,9 @@
 import { Throttle } from '@nestjs/throttler';
 import { RATE_LIMITS } from '../../common/security/app-throttler.guard';
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Put, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import { SessionCookieInterceptor } from './session-cookie.interceptor';
+import { ACCESS_COOKIE, CSRF_COOKIE, isProduction, serializeCookie } from '../../common/security/cookies';
+import { tokenRevocation } from '../../common/security/token-revocation';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -21,6 +24,7 @@ export class AuthController {
    * Route: POST /api/auth/register
    */
   @Post('register')
+  @UseInterceptors(SessionCookieInterceptor)
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -30,6 +34,7 @@ export class AuthController {
    * Route: POST /api/auth/login
    */
   @Post('login')
+  @UseInterceptors(SessionCookieInterceptor)
   @Throttle(RATE_LIMITS.login)
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
@@ -41,6 +46,21 @@ export class AuthController {
    * (lấy userId từ token) để không ai đặt hộ nhóm tuổi cho tài khoản khác.
    * Route: PUT /api/auth/age-group
    */
+  /**
+   * Đăng xuất phía server: đưa `jti` của token vào danh sách thu hồi (TTL = thời hạn còn lại) nên token cũ bị 401 ngay,
+   * và xóa cookie phiên. Route: POST /api/auth/logout
+   */
+  @Post('logout')
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  logout(@CurrentUser() user: JwtPayload, @Res({ passthrough: true }) res: { append: (k: string, v: string) => void }) {
+    if (user.jti) tokenRevocation.revoke(user.jti, user.exp);
+    const secure = isProduction();
+    res.append('Set-Cookie', serializeCookie(ACCESS_COOKIE, '', { maxAgeMs: 0, httpOnly: true, secure }));
+    res.append('Set-Cookie', serializeCookie(CSRF_COOKIE, '', { maxAgeMs: 0, httpOnly: false, secure }));
+    return { success: true };
+  }
+
   /**
    * Hồ sơ của tài khoản đang đăng nhập (vai trò đọc từ DB).
    * Route: GET /api/auth/me
@@ -79,6 +99,7 @@ export class AuthController {
    * Route: POST /api/auth/forgot-password
    */
   @Post('forgot-password')
+  @Throttle(RATE_LIMITS.forgotPassword)
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
   }

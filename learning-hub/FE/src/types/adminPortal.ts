@@ -41,7 +41,8 @@ export interface PortalClassRow {
   kind: 'CAREER' | 'SCHOOL';
   courseKey: 'tester-qa' | 'data-sql' | 'ai-prompt' | null;
   ageGroup: AgeGroupKey | null;
-  teachers: Array<{ id: string; name: string }>;
+  /** locked: tài khoản giảng viên đang bị khóa (vẫn giữ lịch sử phân công). */
+  teachers: Array<{ id: string; name: string; locked?: boolean }>;
   studentCount: number;
   /** Số bài tập: bài giao cho lớp phổ thông, hoặc số bài lab của khóa. */
   exerciseCount: number;
@@ -67,6 +68,11 @@ export type AuditAction =
   | 'ROLE_CHANGE'
   | 'CLASS_ASSIGN'
   | 'CLASS_ARCHIVE'
+  | 'CLASS_CREATE'
+  | 'CLASS_UPDATE'
+  | 'CLASS_DELETE'
+  | 'STUDENT_ADD'
+  | 'STUDENT_REMOVE'
   | 'CONFIG_UPDATE'
   | 'BULK_LOCK'
   | 'BULK_UNLOCK'

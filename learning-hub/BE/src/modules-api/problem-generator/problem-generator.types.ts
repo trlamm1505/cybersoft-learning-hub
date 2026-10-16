@@ -2,6 +2,8 @@
 // bài ngày 19 yêu cầu ("Tạo prompt từ learning outcome, level, constraints").
 export interface ProblemSpec {
   id: string;
+  /** Khối đối tượng: quyết định chỉ thị sư phạm gửi cho mô hình và nhãn lưu trên bài. */
+  band?: '6-9' | '10-12';
   learningOutcome: string;
   level: 'EASY' | 'MEDIUM' | 'HARD';
   constraints: string[];
@@ -30,4 +32,10 @@ export interface ProblemDraft {
   starterCode: string;
   solutionCode: string;
   testCases: ProblemDraftTestCase[];
+  /** Bản sinh bởi AI luôn là DRAFT; chỉ xuất bản khi giảng viên bấm Duyệt & Lưu. */
+  status?: 'DRAFT';
+  /** Khối đối tượng của đề ('6-9' | '10-12'); lưu vào ngân hàng đề dưới dạng targetGroup K6_9 / K10_12. */
+  band?: '6-9' | '10-12';
+  /** Kết quả đối chiếu test case với lời giải mẫu (expectedOutput lấy từ kết quả chạy thật). */
+  grounding?: { checked: number; corrected: number; dropped: number };
 }

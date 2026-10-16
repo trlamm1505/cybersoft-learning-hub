@@ -68,30 +68,30 @@ describe('evaluateRubric', () => {
   const criteria = INITIAL_TESTER_LABS[0].rubricCriteria;
   const grade = (score: number) => criteria.map((c) => ({ key: c.key, score }));
 
-  it('tổng hợp riêng severity và quality trên thang 10', () => {
+  it('tổng hợp riêng severity và quality trên thang 100', () => {
     const grades = criteria.map((c) => ({
       key: c.key,
-      score: c.kind === 'severity' ? 1 : 2,
+      score: c.kind === 'severity' ? 20 : c.maxScore,
     }));
     const summary = evaluateRubric(criteria, grades);
 
     expect(summary).toMatchObject({
-      severityScore: 1,
-      severityMax: 2,
-      qualityScore: 8,
-      qualityMax: 8,
-      total: 9,
-      max: 10,
+      severityScore: 20,
+      severityMax: 30,
+      qualityScore: 70,
+      qualityMax: 70,
+      total: 90,
+      max: 100,
     });
   });
 
   it('cho điểm tối đa và tối thiểu', () => {
-    expect(evaluateRubric(criteria, grade(2)).total).toBe(10);
+    expect(evaluateRubric(criteria, criteria.map((c) => ({ key: c.key, score: c.maxScore }))).total).toBe(100);
     expect(evaluateRubric(criteria, grade(0)).total).toBe(0);
   });
 
   it('từ chối điểm vượt maxScore hoặc âm', () => {
-    expect(() => evaluateRubric(criteria, grade(3))).toThrow(BadRequestException);
+    expect(() => evaluateRubric(criteria, grade(41))).toThrow(BadRequestException);
     expect(() => evaluateRubric(criteria, grade(-1))).toThrow(BadRequestException);
   });
 
@@ -111,10 +111,14 @@ describe('evaluateRubric', () => {
     expect(() => evaluateRubric(criteria, grade(1).slice(1))).toThrow(BadRequestException);
   });
 
-  it('seed có đúng 12 lab, mỗi rubric 10 điểm với 1 tiêu chí severity', () => {
+  it('seed có đúng 12 lab, mọi lab dùng rubric chuẩn 40/30/30 (thang 100)', () => {
     expect(INITIAL_TESTER_LABS).toHaveLength(12);
     for (const lab of INITIAL_TESTER_LABS) {
-      expect(lab.rubricCriteria.reduce((s, c) => s + c.maxScore, 0)).toBe(10);
+      expect(lab.rubricCriteria.map((c) => [c.key, c.maxScore])).toEqual([
+        ['test-coverage', 40],
+        ['bug-report-clarity', 30],
+        ['severity-classification', 30],
+      ]);
       expect(lab.rubricCriteria.filter((c) => c.kind === 'severity')).toHaveLength(1);
     }
   });

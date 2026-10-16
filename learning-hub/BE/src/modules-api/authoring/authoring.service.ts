@@ -503,18 +503,17 @@ export class AuthoringService implements OnModuleInit {
     const lessonSlugs = new Set(lessons.map((l) => l.slug));
     // Bài DA Lab (có resource_id) chấm bằng SQL trên sandbox ở module
     // da-labs, không phải bài Python: không được map thành lesson 'coding'.
-    const orphanExercises = await this.exerciseModel
-      .find({
-        slug: { $nin: Array.from(lessonSlugs) },
-        resource_id: { $exists: false },
-      })
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+    // Bộ test của một bài ngân hàng đề có thể nặng vài MB (cả bộ bài day15-* là ~13,5 MB, từng làm danh sách này treo 136 giây trên Atlas):
+    // loại testCases khỏi truy vấn danh sách, chỉ giữ testCaseCount tính ngay trên máy chủ CSDL. Chi tiết (kèm testCases) lấy qua
+    // GET /authoring/lessons/:id khi giáo viên mở một bài để xem/sửa.
+    const orphanExercises = await this.exerciseModel.aggregate([
+      { $match: { slug: { $nin: Array.from(lessonSlugs) }, resource_id: { $exists: false } } },
+      { $sort: { createdAt: -1 } },
+      { $addFields: { testCaseCount: { $size: { $cond: [{ $isArray: '$testCases' }, '$testCases', []] } } } },
+      { $project: { testCases: 0 } },
+    ]);
 
-    const mappedExercises = orphanExercises.map((ex) =>
-      this.mapExerciseToLessonShape(ex),
-    );
+    const mappedExercises = orphanExercises.map((ex) => ({ ...this.mapExerciseToLessonShape(ex), testCases: [], testCaseCount: ex.testCaseCount ?? 0 }));
 
     const combined = [...lessons, ...mappedExercises] as any[];
 
@@ -606,6 +605,9 @@ export class AuthoringService implements OnModuleInit {
   ): Promise<LessonDocument> {
     const lesson = await this.lessonModel.findById(id).exec();
     if (!lesson) {
+      // Bài lấy từ ngân hàng đề (hiện trong danh sách dưới dạng lesson): trả đủ testCases để giáo viên xem/sửa.
+      const exercise = await this.exerciseModel.findById(id).lean().exec();
+      if (exercise && !(exercise as any).resource_id) return this.mapExerciseToLessonShape(exercise) as LessonDocument;
       throw new NotFoundException(`Không tìm thấy bài học với ID: ${id}`);
     }
     this.assertCanModify(lesson, requester);

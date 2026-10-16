@@ -66,3 +66,49 @@ export const allowedGradeBands = (ageGroup?: string | null): string[] | null => 
   if (ageGroup === 'CAREER_ADULT') return ['CAREER_ADULT'];
   return null;
 };
+
+
+// ----------------------------------------------------------------------------------------------------------------------------------
+// Khối của Ngân hàng đề (AI Tạo Đề, chọn bài gán vào Ngày học / Cuộc thi): chỉ hai khối phổ thông có bài code.
+// ----------------------------------------------------------------------------------------------------------------------------------
+export const BANK_BANDS = ['6-9', '10-12'] as const;
+export type BankBand = (typeof BANK_BANDS)[number];
+
+export const normalizeBankBand = (v: unknown): BankBand | undefined => (BANK_BANDS as readonly string[]).includes(String(v)) ? (v as BankBand) : undefined;
+
+/** Nhãn lưu trên bài: targetGroup / labType / gradeBand theo khối (khớp ma trận nhóm x lab). */
+export const bankLabels = (band: BankBand): { targetGroup: TargetGroup; labType: LabType; gradeBand: string } =>
+  band === '6-9' ? { targetGroup: 'K6_9', labType: 'PYTHON_CODE', gradeBand: '6-9' } : { targetGroup: 'K10_12', labType: 'ALGO_JUDGE', gradeBand: '9-12' };
+
+/** Bộ lọc Mongo: bài thuộc khối (targetGroup, hoặc bài cũ chỉ có gradeBand). */
+export const exerciseBandFilter = (band: BankBand): Record<string, unknown> => ({
+  // bankBand (phân loại của Ngân hàng đề) được ưu tiên; bài chưa có thì xét targetGroup, rồi gradeBand.
+  $or: [
+    { bankBand: band },
+    ...(band === '6-9'
+      ? [{ bankBand: { $exists: false }, targetGroup: 'K6_9' }, { bankBand: { $exists: false }, targetGroup: { $exists: false }, gradeBand: '6-9' }]
+      : [{ bankBand: { $exists: false }, targetGroup: 'K10_12' }, { bankBand: { $exists: false }, targetGroup: { $exists: false }, gradeBand: { $in: ['9-12', '10-12'] } }]),
+  ],
+});
+
+/** Khối của một bài trong Ngân hàng đề (null: chưa phân loại). bankBand > targetGroup > gradeBand. */
+export function bandOfExercise(ex: { bankBand?: string | null; targetGroup?: string | null; gradeBand?: string | null }): BankBand | null {
+  if (ex.bankBand === '6-9' || ex.bankBand === '10-12') return ex.bankBand;
+  if (ex.targetGroup === 'K6_9') return '6-9';
+  if (ex.targetGroup === 'K10_12') return '10-12';
+  if (ex.gradeBand === '6-9') return '6-9';
+  if (ex.gradeBand === '9-12' || ex.gradeBand === '10-12') return '10-12';
+  return null;
+}
+
+/** Câu trắc nghiệm: đúng khối hoặc câu cũ chưa gắn khối (hiện cho mọi khối). */
+export const questionBandFilter = (band: BankBand): Record<string, unknown> => ({ $or: [{ gradeBands: band }, { gradeBands: { $exists: false } }] });
+
+/** Khối của một lớp phổ thông (null với lớp khác). */
+export const bandOfClass = (ageGroup?: string | null): BankBand | null => (ageGroup === '6-9' || ageGroup === '10-12' ? ageGroup : null);
+
+/** Bài đã gắn khối khác với khối của lớp/cuộc thi thì không gán được (học viên sẽ bị chặn khi mở bài). Bài chưa gắn khối thì được. */
+export function exerciseFitsBand(ex: { bankBand?: string | null; targetGroup?: string | null; gradeBand?: string | null }, band: BankBand): boolean {
+  const own = bandOfExercise(ex);
+  return own === null || own === band;
+}

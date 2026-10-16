@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   BadRequestException,
   ForbiddenException,
   ConflictException,
@@ -41,8 +42,12 @@ const RESET_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 phút
 const STUDENT_CODE_COUNTER_KEY = 'studentCode';
 const STUDENT_CODE_DIGITS = 4; // C0001, C0002, ...
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
@@ -222,20 +227,25 @@ export class AuthService {
    * không — tránh lộ danh sách email đã đăng ký qua phản hồi khác nhau
    * (cùng nguyên tắc chống user-enumeration như login()).
    */
-  async forgotPassword(dto: ForgotPasswordDto): Promise<{ message: string }> {
-    const { email } = dto;
-    if (!email) {
+  async forgotPassword(dto: ForgotPasswordDto): Promise<{ success: true; message: string; devResetLink?: string }> {
+    const email = typeof dto?.email === 'string' ? dto.email : '';
+    if (!email.trim()) {
       throw new BadRequestException('Vui lòng nhập email.');
     }
-
     const normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail.length > 254 || !EMAIL_PATTERN.test(normalizedEmail)) {
+      throw new BadRequestException('Email không hợp lệ.');
+    }
+    const mailReady = this.mailService.isConfigured();
     const user = await this.userModel
       .findOne({ email: normalizedEmail })
       .lean();
 
     const genericResponse = {
-      message:
-        'Nếu email này đã đăng ký, một liên kết đặt lại mật khẩu đã được gửi tới hộp thư của bạn.',
+      success: true as const,
+      message: mailReady
+        ? 'Nếu email này đã đăng ký, một liên kết đặt lại mật khẩu đã được gửi tới hộp thư của bạn.'
+        : 'Đã gửi hướng dẫn đặt lại mật khẩu (Dev mode: kiểm tra console hoặc màn hình)',
     };
 
     if (!user) {
@@ -262,7 +272,21 @@ export class AuthService {
       this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
     const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
 
-    await this.mailService.sendPasswordResetEmail(user.email, resetLink);
+    if (!mailReady) {
+      // Development Mock Mode: không có SMTP, in liên kết ra console backend. Chỉ ngoài production mới trả liên kết trong response,
+      // để người dùng thử luồng đặt lại mật khẩu ngay trên màn hình.
+      this.logger.warn(`[DEV MAIL MOCK] Liên kết đặt lại mật khẩu của ${user.email} (hiệu lực 15 phút): ${resetLink}`);
+      return process.env.NODE_ENV === 'production' ? genericResponse : { ...genericResponse, devResetLink: resetLink };
+    }
+
+    // Gửi thư chạy nền: phản hồi ngay, không treo theo tốc độ SMTP, và thời gian phản hồi không lộ email có tồn tại hay không.
+    try {
+      void Promise.resolve(this.mailService.sendPasswordResetEmail(user.email, resetLink)).catch((err: Error) =>
+        this.logger.error(`Gửi email đặt lại mật khẩu thất bại: ${err.message}`),
+      );
+    } catch (err) {
+      this.logger.error(`Gửi email đặt lại mật khẩu thất bại: ${(err as Error).message}`);
+    }
 
     return genericResponse;
   }
@@ -367,7 +391,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, { jwtid: crypto.randomUUID() });
 
     return {
       accessToken,

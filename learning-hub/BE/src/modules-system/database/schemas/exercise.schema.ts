@@ -124,6 +124,20 @@ export class Exercise {
   @Prop({ type: String, select: false })
   officialSolution?: string;
 
+  /**
+   * Bài do giảng viên tạo cho NGÂN HÀNG ĐỀ (AI Tạo Đề, soạn thủ công): chỉ để gán vào Ngày học của lớp hoặc đề thi Cuộc thi.
+   * Không hiện trong danh mục Code Playground của học viên (kho bài Playground là cố định).
+   */
+  @Prop({ type: Boolean, default: false })
+  bankOnly?: boolean;
+
+  /**
+   * Khối của Ngân hàng đề ('6-9' | '10-12'). Trường BỔ SUNG, Code Playground không đọc: dùng để phân loại bài cũ mà không đổi
+   * targetGroup/gradeBand (vốn quyết định học viên nào thấy bài trong Playground).
+   */
+  @Prop({ type: String, enum: ['6-9', '10-12'], index: true })
+  bankBand?: '6-9' | '10-12';
+
   // Grade band this exercise targets ('3-5' | '6-9' | '9-12', ...). Lets the UI
   // filter the catalog by class level instead of showing every exercise flat.
   @Prop({ type: String })

@@ -54,7 +54,7 @@ describe('adminOverview', () => {
 describe('portalHome', () => {
   it('Admin vào Admin Portal; giảng viên và học viên không bao giờ được trả về đường dẫn /admin', () => {
     expect(portalHome('ADMIN')).toBe('/admin/dashboard');
-    expect(portalHome('TEACHER')).toBe('/authoring');
+    expect(portalHome('TEACHER')).toBe('/teacher/dashboard');
     expect(portalHome('STUDENT')).toBe('/catalog');
     expect(portalHome(undefined)).toBe('/catalog');
     for (const r of ['TEACHER', 'STUDENT', undefined, 'admin', '']) expect(portalHome(r)).not.toMatch(/^\/admin/);

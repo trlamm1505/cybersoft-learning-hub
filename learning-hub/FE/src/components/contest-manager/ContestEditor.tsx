@@ -264,7 +264,7 @@ export const ContestEditor: React.FC<ContestEditorProps> = ({ contest, onClose, 
         )}
 
         {step === 1 && (
-          <ProblemPicker problems={form.problems} onChange={(problems) => patch({ problems })} locked={locked} />
+          <ProblemPicker problems={form.problems} onChange={(problems) => patch({ problems })} locked={locked} defaultBand={form.gradeBand === '6-9' || form.gradeBand === '10-12' ? form.gradeBand : ''} />
         )}
 
         {step === 2 && (

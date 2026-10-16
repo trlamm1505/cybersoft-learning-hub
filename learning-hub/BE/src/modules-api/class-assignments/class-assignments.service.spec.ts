@@ -13,7 +13,7 @@ const TEACHER = hex(200);
 /** Chuỗi truy vấn mongoose giả: select/sort/limit trả chính nó, lean/exec trả giá trị. */
 const q = (value: unknown) => {
   const chain: Record<string, unknown> = {};
-  for (const m of ['select', 'sort', 'limit']) chain[m] = () => chain;
+  for (const m of ['select', 'sort', 'limit', 'skip']) chain[m] = () => chain;
   chain.lean = () => Promise.resolve(value);
   chain.exec = () => Promise.resolve(value);
   return chain;
@@ -47,13 +47,14 @@ const quizAttempts = [{ assignmentId: hex(12), userId: U1, score: 90, maxScore: 
 const cls = { _id: C1, name: 'Lớp Python 6-9', code: 'CL-6A9F2K', description: 'Lớp demo', teacherId: TEACHER, studentIds: [U1, U2, U3] };
 
 function build() {
-  const classes = { findOne: jest.fn((filter: { studentIds?: string }) => q(filter.studentIds && [U1, U2, U3].includes(filter.studentIds) ? cls : null)), findById: jest.fn(() => q(cls)), };
+  const classes = { findOne: jest.fn((filter: { studentIds?: string }) => q(filter.studentIds && [U1, U2, U3].includes(filter.studentIds) ? cls : null)), findById: jest.fn(() => q(cls)), updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }) };
   const assignmentModel = {
     find: jest.fn(() => q(assignments)),
     findById: jest.fn((id: string) => q(assignments.find((a) => a._id === id) ?? null)),
     countDocuments: jest.fn().mockResolvedValue(0),
     create: jest.fn(),
     deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }),
+    findOne: jest.fn(() => q({ type: 'CODING', exerciseSlug: 'tinh-tong' })),
   };
   const subModel = { find: jest.fn(() => q(submissions)) };
   const attemptModel = { find: jest.fn(() => q(quizAttempts)) };
@@ -61,10 +62,17 @@ function build() {
     findById: jest.fn(() => q({ fullName: 'Cô Lan', email: 'lan@x.vn', avatar: 'a.png' })),
     find: jest.fn(() => q([{ _id: U1, fullName: 'An Nguyễn' }, { _id: U2, fullName: 'Bình Trần' }, { _id: U3, fullName: 'Chi Lê' }])),
   };
-  const exercises = { findOne: jest.fn(() => q({ type: 'CODE_TEXT' })) };
-  const questions = { countDocuments: jest.fn().mockResolvedValue(1) };
+  const exercises = {
+    findOne: jest.fn(() => q({ type: 'CODE_TEXT' })),
+    countDocuments: jest.fn().mockResolvedValue(23),
+    find: jest.fn(() => q([{ slug: 'a', title: 'Bài A', difficulty: 'EASY', tags: ['loop'], points: 10 }])),
+  };
+  const questions = {
+    countDocuments: jest.fn().mockResolvedValue(1),
+    find: jest.fn(() => q([{ _id: hex(900), content: 'HTML là gì?', difficulty: 'EASY', category: 'HTML', tags: [] }])),
+  };
   const service = new ClassAssignmentsService(classes as never, assignmentModel as never, subModel as never, attemptModel as never, users as never, exercises as never, questions as never);
-  return { service, classes, assignmentModel };
+  return { service, classes, assignmentModel, exercises, questions };
 }
 
 const student = (sub: string) => ({ sub, email: 'x@x.vn', role: 'STUDENT' });
@@ -183,6 +191,104 @@ describe('giảng viên giao bài', () => {
     await service.create(C1, { type: 'CODING', title: ' Bài mới ', exerciseSlug: 'tinh-tong', startAt: '2026-10-20T00:00:00Z', dueAt: '2026-10-21T00:00:00Z', classId: 'hack', createdBy: 'hack' } as never, teacher);
     const arg = assignmentModel.create.mock.calls[0][0];
     expect(arg).toMatchObject({ classId: C1, createdBy: TEACHER, title: 'Bài mới', maxPoints: 10 });
+  });
+});
+
+describe('giảng viên: bài theo ngày, ngân hàng đề phân trang, lớp Career', () => {
+  const teacher = { sub: TEACHER, email: 't@x.vn', role: 'TEACHER' };
+  const create = { type: 'CODING', title: 'Bài', exerciseSlug: 'tinh-tong', startAt: '2026-10-20T00:00:00Z', dueAt: '2026-10-21T00:00:00Z' } as const;
+
+  it('daysForTeacher: gom Ngày 1, 2, ... cùng cách gom với học viên, kèm trạng thái mở/hết hạn và tiến độ', async () => {
+    const { service } = build();
+    const r = await service.daysForTeacher(C1, teacher, NOW);
+    expect(r.days.length).toBeGreaterThan(0);
+    expect(r.days.map((d) => d.dayNumber)).toEqual(r.days.map((_, i) => i + 1));
+    const a = r.days[0].assignments[0];
+    expect(['UPCOMING', 'OPEN', 'EXPIRED']).toContain(a.window);
+    expect(a).toMatchObject({ memberCount: 3 });
+    const student = await service.overview(C1, { sub: U1, email: 'x', role: 'STUDENT' }, NOW);
+    expect(r.days.map((d) => [d.date, d.assignments.length])).toEqual(student.days.map((d) => [d.date, d.assignments.length]));
+  });
+
+  it('giảng viên lớp khác không xem được bài theo ngày (403)', async () => {
+    const { service } = build();
+    await expect(service.daysForTeacher(C1, { sub: hex(555), email: '', role: 'TEACHER' })).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('giao bài code: slug được thêm vào danh sách theo dõi của lớp', async () => {
+    const { service, assignmentModel, classes } = build();
+    assignmentModel.create.mockResolvedValue({ _id: hex(78), toObject: () => ({ title: 'x' }) });
+    await service.create(C1, create as never, teacher);
+    expect(classes.updateOne).toHaveBeenCalledWith({ _id: expect.anything() }, { $addToSet: { exerciseSlugs: 'tinh-tong' } });
+  });
+
+  it('xóa bài code cuối cùng dùng slug thì gỡ slug khỏi danh sách theo dõi; còn bài khác dùng thì giữ', async () => {
+    const { service, assignmentModel, classes } = build();
+    assignmentModel.countDocuments.mockResolvedValue(0);
+    await service.remove(C1, hex(1), teacher);
+    expect(classes.updateOne).toHaveBeenCalledWith({ _id: expect.anything() }, { $pull: { exerciseSlugs: 'tinh-tong' } });
+    classes.updateOne.mockClear();
+    assignmentModel.countDocuments.mockResolvedValue(1);
+    await service.remove(C1, hex(1), teacher);
+    expect(classes.updateOne).not.toHaveBeenCalled();
+  });
+
+  it('lớp Career (Tester QA / Data SQL / AI Prompt) và lớp đã lưu trữ không giao được bài -> 400', async () => {
+    const { service, classes } = build();
+    classes.findById.mockReturnValueOnce(q({ ...cls, courseKey: 'data-sql', code: 'CL-CAREER-DATA' }));
+    await expect(service.create(C1, create as never, teacher)).rejects.toMatchObject({ response: { code: 'E400_CAREER_CLASS_NO_ASSIGNMENT' } });
+    classes.findById.mockReturnValueOnce(q({ ...cls, archived: true }));
+    await expect(service.create(C1, create as never, teacher)).rejects.toMatchObject({ response: { code: 'E400_CLASS_ARCHIVED' } });
+  });
+
+  it('ngân hàng bài code: phân trang 10 bài/trang, lọc độ khó và từ khóa (thoát ký tự regex)', async () => {
+    const { service, exercises } = build();
+    const r = await service.catalogExercises(teacher, { q: 'a.b*', difficulty: 'HARD', page: '3' });
+    expect(r).toMatchObject({ total: 23, page: 3, pageSize: 10, totalPages: 3 });
+    const filter = exercises.countDocuments.mock.calls[0][0] as Record<string, any>;
+    expect(filter).toMatchObject({ type: 'CODE_TEXT', difficulty: 'HARD' });
+    expect(filter.$and[0].$or[0].title.$regex).toBe('a\\.b\\*');
+    expect(exercises.find.mock.results[0].value).toBeDefined();
+  });
+
+  it('độ khó lạ bị bỏ qua; pageSize bị chặn tối đa 50; học viên không xem được ngân hàng', async () => {
+    const { service, exercises } = build();
+    await service.catalogExercises(teacher, { difficulty: 'IMPOSSIBLE', pageSize: '999', page: '-4' });
+    expect(exercises.countDocuments.mock.calls[0][0]).not.toHaveProperty('difficulty');
+    expect((await service.catalogExercises(teacher, { pageSize: '999' })).pageSize).toBe(50);
+    await expect(service.catalogExercises(student(U1), {})).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(service.catalogQuestions(student(U1), {})).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('lọc theo khối: catalog gộp điều kiện khối với tìm kiếm, khối lạ bị bỏ qua', async () => {
+    const { service, exercises, questions } = build();
+    await service.catalogExercises(teacher, { q: 'tong', band: '10-12' });
+    const f = exercises.countDocuments.mock.calls[0][0] as Record<string, any>;
+    expect(f.$and).toHaveLength(2);
+    expect(JSON.stringify(f.$and[1])).toContain('K10_12');
+    await service.catalogExercises(teacher, { band: '3-5' });
+    expect(exercises.countDocuments.mock.calls[1][0]).not.toHaveProperty('$and');
+    await service.catalogQuestions(teacher, { band: '6-9' });
+    expect(JSON.stringify((questions.countDocuments.mock.calls[0][0] as any).$and)).toContain('6-9');
+  });
+
+  it('không gán bài khác khối cho lớp (400 E400_BAND_MISMATCH); đúng khối hoặc bài chưa gắn khối thì được', async () => {
+    const { service, classes, exercises, assignmentModel } = build();
+    classes.findById.mockReturnValue(q({ ...cls, ageGroup: '6-9' }));
+    assignmentModel.create.mockResolvedValue({ _id: hex(78), toObject: () => ({ title: 'x' }) });
+    exercises.findOne.mockReturnValue(q({ type: 'CODE_TEXT', targetGroup: 'K10_12' }));
+    await expect(service.create(C1, create as never, teacher)).rejects.toMatchObject({ response: { code: 'E400_BAND_MISMATCH' } });
+    exercises.findOne.mockReturnValue(q({ type: 'CODE_TEXT', targetGroup: 'K6_9' }));
+    await expect(service.create(C1, create as never, teacher)).resolves.toBeDefined();
+    exercises.findOne.mockReturnValue(q({ type: 'CODE_TEXT' }));
+    await expect(service.create(C1, create as never, teacher)).resolves.toBeDefined();
+  });
+
+  it('ngân hàng câu trắc nghiệm phân trang', async () => {
+    const { service } = build();
+    const r = await service.catalogQuestions(teacher, { q: 'html' });
+    expect(r.items[0]).toMatchObject({ content: 'HTML là gì?', difficulty: 'EASY' });
+    expect(r.pageSize).toBe(10);
   });
 });
 

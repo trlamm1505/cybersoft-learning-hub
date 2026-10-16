@@ -5,6 +5,7 @@ import {
   AUDIT_ACTIONS,
   AuditLog,
   AuditLogDocument,
+  computeAuditHash,
   type AuditAction,
   type AuditTargetType,
 } from '../../modules-system/database/schemas/admin-portal.schemas';
@@ -35,15 +36,36 @@ export class AuditLogService {
     @InjectModel(User.name) private readonly users: Model<UserDocument>,
   ) {}
 
-  async record(
+  /** Ghi tuần tự trong tiến trình để chuỗi băm không bị rẽ nhánh khi hai thao tác ghi cùng lúc. */
+  private tail: Promise<unknown> = Promise.resolve();
+
+  record(
     actor: Pick<JwtPayload, 'sub' | 'email'>,
     action: AuditAction,
     targetType: AuditTargetType,
     targetId: string,
     before: unknown,
     after: unknown,
+    reason?: string,
+  ): Promise<void> {
+    const run = this.tail.then(() => this.append(actor, action, targetType, targetId, before, after, reason));
+    this.tail = run.catch(() => undefined);
+    return run;
+  }
+
+  private async append(
+    actor: Pick<JwtPayload, 'sub' | 'email'>,
+    action: AuditAction,
+    targetType: AuditTargetType,
+    targetId: string,
+    before: unknown,
+    after: unknown,
+    reason?: string,
   ): Promise<void> {
     try {
+      const last = await this.logs.findOne({ hash: { $exists: true } }).sort({ _id: -1 }).select('hash').lean<{ hash?: string }>();
+      const previousHash = last?.hash ?? '';
+      const timestamp = new Date();
       await this.logs.create({
         actorId: actor.sub,
         actorEmail: actor.email ?? '',
@@ -51,7 +73,10 @@ export class AuditLogService {
         targetType,
         targetId: String(targetId),
         diff: { before: before ?? null, after: after ?? null },
-        timestamp: new Date(),
+        ...(reason ? { reason } : {}),
+        previousHash,
+        hash: computeAuditHash(previousHash, actor.sub, action, String(targetId), timestamp),
+        timestamp,
       });
     } catch (err) {
       this.logger.error(`Không ghi được audit log ${action} (${targetType}:${targetId}): ${(err as Error).message}`);
@@ -87,6 +112,19 @@ export class AuditLogService {
     }
   }
 
+  /** Duyệt lại toàn bộ chuỗi băm theo thứ tự ghi; trả vị trí bản ghi đầu tiên bị sửa/xóa nếu có. */
+  async verifyChain(): Promise<{ ok: boolean; checked: number; brokenAt?: string }> {
+    const rows = await this.logs.find({ hash: { $exists: true } }).sort({ _id: 1 }).lean<Array<{ _id: unknown; actorId: string; action: string; targetId: string; timestamp: Date; previousHash?: string; hash?: string }>>();
+    let prev = '';
+    for (const r of rows) {
+      if ((r.previousHash ?? '') !== prev || r.hash !== computeAuditHash(prev, r.actorId, r.action, r.targetId, new Date(r.timestamp))) {
+        return { ok: false, checked: rows.length, brokenAt: String(r._id) };
+      }
+      prev = r.hash ?? '';
+    }
+    return { ok: true, checked: rows.length };
+  }
+
   async list(q: { page?: string; pageSize?: string; action?: string; actor?: string }) {
     const filter: Record<string, unknown> = {};
     if (q.action) {
@@ -112,6 +150,8 @@ export class AuditLogService {
         targetType: r.targetType,
         targetId: r.targetId,
         diff: r.diff,
+        reason: r.reason ?? null,
+        hash: r.hash ?? null,
       })),
       total,
       page,

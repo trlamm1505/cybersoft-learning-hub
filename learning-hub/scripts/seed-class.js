@@ -6,6 +6,7 @@
  *   node scripts/seed-class.js                                   # ghi vào CSDL trong BE/.env (idempotent)
  *   node scripts/seed-class.js --add-email=ban@gmail.com         # ghi danh thêm tài khoản học sinh thật vào lớp đúng khối (lặp được)
  *   node scripts/seed-class.js --reactivate                       # đưa các lớp MẪU đang ở Lưu trữ về Đang hoạt động (mặc định không đè lựa chọn của Admin)
+ *   node scripts/seed-class.js --fix-grade                        # đưa học viên LỆCH KHỐI ra khỏi các lớp mẫu (vd học sinh 10-12 lọt vào lớp 6-9)
  *   node scripts/seed-class.js --fix-dangling                    # gỡ id học viên/giảng viên trỏ tới tài khoản KHÔNG còn tồn tại khỏi mọi lớp (toàn vẹn khóa ngoại)
  *   node scripts/seed-class.js --remove                          # gỡ đúng dữ liệu mẫu này
  *
@@ -25,6 +26,7 @@ const dryRun = args.includes('--dry-run');
 const remove = args.includes('--remove');
 const reactivate = args.includes('--reactivate');
 const fixDangling = args.includes('--fix-dangling');
+const fixGrade = args.includes('--fix-grade');
 // Tài khoản học sinh test được ghi danh sẵn vào lớp đúng khối (thêm bằng --add-email=... cho tài khoản khác).
 const DEFAULT_TEST_ACCOUNTS = ['muoi@gmail.com'];
 const addEmails = [
@@ -195,7 +197,7 @@ function vnMorning(dayOffset, now) {
         await classes.updateOne(
           { code: c.code },
           // archived chỉ đặt khi tạo mới: không kích hoạt lại lớp mà Admin đã chuyển vào Lưu trữ.
-          { $set: { name: c.name, description: c.description, ...tf, updatedAt: now }, $setOnInsert: { code: c.code, createdAt: now, exerciseSlugs: [], archived: false }, $addToSet: { studentIds: { $each: [...ids, ...realIds] } } },
+          { $set: { name: c.name, description: c.description, ageGroup: c.band, ...tf, updatedAt: now }, $setOnInsert: { code: c.code, createdAt: now, exerciseSlugs: [], archived: false }, $addToSet: { studentIds: { $each: [...ids, ...realIds] } } },
           { upsert: true },
         );
         clsDoc = await classes.findOne({ code: c.code });
@@ -300,6 +302,17 @@ function vnMorning(dayOffset, now) {
     if (reactivate && !dryRun) {
       const r = await classes.updateMany({ code: { $in: [...CLASSES, ...CAREER_CLASSES].map((c) => c.code) }, archived: true }, { $set: { archived: false, updatedAt: now } });
       console.log(`Đã kích hoạt lại ${r.modifiedCount} lớp mẫu từng ở Lưu trữ.`);
+    }
+    if (fixGrade) {
+      for (const c of CLASSES) {
+        const doc = await classes.findOne({ code: c.code });
+        if (!doc) continue;
+        const members = await users.find({ _id: { $in: (doc.studentIds || []).filter((i) => OID.isValid(i)).map((i) => new OID(String(i))) } }, { projection: { email: 1, ageGroup: 1 } }).toArray();
+        const wrong = members.filter((u) => u.ageGroup && u.ageGroup !== c.band);
+        for (const u of wrong) console.log(`  ${dryRun ? '(dry-run) ' : ''}${c.name}: gỡ ${u.email} (khối ${u.ageGroup}, lớp khối ${c.band})`);
+        if (wrong.length && !dryRun) await classes.updateOne({ _id: doc._id }, { $pull: { studentIds: { $in: wrong.map((u) => String(u._id)) } } });
+      }
+      console.log('Đã rà khối tuổi các lớp mẫu.');
     }
     if (fixDangling) {
       const existing = new Set((await users.find({}, { projection: { _id: 1 } }).toArray()).map((u) => String(u._id)));

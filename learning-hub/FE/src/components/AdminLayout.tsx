@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   Activity,
   ChevronDown,
@@ -31,10 +31,35 @@ import {
 } from '../pages/adminModel';
 import { UserAvatar } from './UserAvatar';
 
-interface NavEntry {
+export interface NavSubItem {
+  key: string;
+  /** Đường dẫn kèm query (vd /teacher/classes?classId=...): mục con sáng khi đường dẫn và mọi tham số query khớp. */
+  to: string;
+  label: string;
+  /** Biểu tượng ngắn (emoji) đứng trước nhãn. */
+  icon?: string;
+  /** Nhãn nhỏ màu xám cạnh tên (vd "Đã lưu trữ"). */
+  badge?: string;
+}
+
+export interface NavEntry {
   to: string;
   label: string;
   Icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
+  /** Có giá trị thì mục này là accordion: bấm để xổ/thu danh sách con. null = đang tải. */
+  subItems?: NavSubItem[] | null;
+  /** Thông báo khi danh sách con rỗng. */
+  emptyText?: string;
+}
+
+/** Mục con đang mở: cùng pathname và mọi tham số query của mục con đều khớp URL hiện tại. */
+export function isSubItemActive(to: string, pathname: string, search: string): boolean {
+  const [path, query = ''] = to.split('?');
+  if (path !== pathname) return false;
+  const want = new URLSearchParams(query);
+  const have = new URLSearchParams(search);
+  for (const [k, v] of want) if (have.get(k) !== v) return false;
+  return true;
 }
 
 /** Đúng 6 mục quản trị (soạn bài là việc của Giảng viên nên không nằm ở đây): không có khóa học, trắc nghiệm, playground hay cuộc thi của học viên/giảng viên. */
@@ -53,6 +78,10 @@ export interface AdminOutletContext {
 
 interface Props {
   authUser: AuthUser;
+  /** Mục điều hướng; mặc định là menu Admin. Teacher Studio truyền menu riêng, dùng chung khung. */
+  nav?: NavEntry[];
+  portalLabel?: string;
+  profilePath?: string;
   isLightTheme: boolean;
   onToggleTheme: () => void;
   onLogout: () => void;
@@ -66,12 +95,22 @@ const itemBase = 'group relative flex items-center gap-2.5 rounded-md py-2 text-
  * với thông tin tài khoản ở góc phải (đổi sáng/tối, đăng xuất) và vùng nội dung. Không dùng Header/Footer của
  * học viên hay giảng viên. Dưới 768px sidebar thành ngăn kéo.
  */
-export const AdminLayout: React.FC<Props> = ({ authUser, isLightTheme, onToggleTheme, onLogout }) => {
+export const AdminLayout: React.FC<Props> = ({ authUser, nav = ADMIN_NAV, portalLabel = 'Admin Portal', profilePath = '/admin/profile', isLightTheme, onToggleTheme, onLogout }) => {
   const [sidebar, setSidebar] = useState<SidebarState>(() => loadSidebarState());
   const [drawer, setDrawer] = useState(false);
   const [menu, setMenu] = useState(false);
   const [dragging, setDragging] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  // Accordion đang mở: mặc định mở mục chứa trang hiện tại.
+  const [openKeys, setOpenKeys] = useState<Set<string>>(() => new Set(nav.filter((n) => n.subItems !== undefined && location.pathname.startsWith(n.to)).map((n) => n.to)));
+  const toggleOpen = (key: string) =>
+    setOpenKeys((cur) => {
+      const next = new Set(cur);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   const widthPx = sidebarPixelWidth(sidebar);
 
   const update = useCallback((next: SidebarState) => {
@@ -123,35 +162,80 @@ export const AdminLayout: React.FC<Props> = ({ authUser, isLightTheme, onToggleT
     e.preventDefault();
   };
 
+  const navClass = (active: boolean, collapsed: boolean) =>
+    `${itemBase} ${collapsed ? 'justify-center px-0' : 'px-3'} ${
+      active
+        ? 'bg-neutral-100 font-medium text-[var(--text-main)] dark:bg-neutral-800'
+        : 'text-[var(--text-muted)] hover:bg-neutral-100 hover:text-[var(--text-main)] dark:hover:bg-neutral-800'
+    }`;
+
   const renderNav = (collapsed: boolean) => (
-    <nav aria-label="Điều hướng quản trị" className="flex-1 space-y-0.5 px-2 py-3">
-      {ADMIN_NAV.map(({ to, label, Icon }) => (
-        <NavLink
-          key={to}
-          to={to}
-          title={collapsed ? label : undefined}
-          onClick={() => setDrawer(false)}
-          className={({ isActive }) =>
-            `${itemBase} ${collapsed ? 'justify-center px-0' : 'px-3'} ${
-              isActive
-                ? 'bg-neutral-100 font-medium text-[var(--text-main)] dark:bg-neutral-800'
-                : 'text-[var(--text-muted)] hover:bg-neutral-100 hover:text-[var(--text-main)] dark:hover:bg-neutral-800'
-            }`
-          }
-        >
-          <Icon size={16} strokeWidth={1.75} />
-          {collapsed ? (
-            <span
-              role="tooltip"
-              className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-800 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+    <nav aria-label={`Điều hướng ${portalLabel}`} className="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
+      {nav.map(({ to, label, Icon, subItems, emptyText }) => {
+        const accordion = subItems !== undefined && !collapsed;
+        const open = accordion && openKeys.has(to);
+        return (
+          <div key={to}>
+            <NavLink
+              to={to}
+              title={collapsed ? label : undefined}
+              aria-expanded={accordion ? open : undefined}
+              onClick={() => {
+                if (accordion) toggleOpen(to);
+                setDrawer(false);
+              }}
+              className={({ isActive }) => navClass(isActive, collapsed)}
             >
-              {label}
-            </span>
-          ) : (
-            <span className="truncate">{label}</span>
-          )}
-        </NavLink>
-      ))}
+              <Icon size={16} strokeWidth={1.75} />
+              {collapsed ? (
+                <span
+                  role="tooltip"
+                  className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-800 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+                >
+                  {label}
+                </span>
+              ) : (
+                <span className="flex-1 truncate">{label}</span>
+              )}
+              {accordion && <ChevronDown size={14} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />}
+            </NavLink>
+            {open && (
+              <ul role="group" aria-label={label} className="mb-1 ml-4 mt-0.5 space-y-0.5 border-l border-neutral-200 pl-2 dark:border-neutral-800">
+                {subItems === null ? (
+                  <li className="px-2 py-1.5 text-xs text-[var(--text-muted)]">Đang tải...</li>
+                ) : subItems!.length === 0 ? (
+                  <li className="px-2 py-1.5 text-xs text-[var(--text-muted)]">{emptyText ?? 'Chưa có mục nào.'}</li>
+                ) : (
+                  subItems!.map((sub) => {
+                    const active = isSubItemActive(sub.to, location.pathname, location.search);
+                    return (
+                      <li key={sub.key}>
+                        <Link
+                          to={sub.to}
+                          onClick={() => setDrawer(false)}
+                          aria-current={active ? 'page' : undefined}
+                          title={sub.label}
+                          className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs ${
+                            active
+                              ? 'bg-indigo-50 font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
+                              : 'text-[var(--text-muted)] hover:bg-neutral-100 hover:text-[var(--text-main)] dark:hover:bg-neutral-800'
+                          }`}
+                        >
+                          {sub.icon && <span aria-hidden>{sub.icon}</span>}
+                          <span className="truncate">{sub.label}</span>
+                          {sub.badge && (
+                            <span className="ml-auto shrink-0 rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-medium text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300">{sub.badge}</span>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })
+                )}
+              </ul>
+            )}
+          </div>
+        );
+      })}
     </nav>
   );
 
@@ -163,7 +247,7 @@ export const AdminLayout: React.FC<Props> = ({ authUser, isLightTheme, onToggleT
       {!collapsed && (
         <div className="min-w-0 flex-1 leading-tight">
           <div className="truncate text-sm font-semibold text-[var(--text-main)]">CyberSoft Hub</div>
-          <div className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Admin Portal</div>
+          <div className="text-[10px] uppercase tracking-wider text-[var(--text-muted)]">{portalLabel}</div>
         </div>
       )}
     </div>
@@ -242,7 +326,7 @@ export const AdminLayout: React.FC<Props> = ({ authUser, isLightTheme, onToggleT
             >
               <Menu size={20} />
             </button>
-            <span className="text-xs uppercase tracking-wider text-[var(--text-muted)] md:hidden">Admin Portal</span>
+            <span className="text-xs uppercase tracking-wider text-[var(--text-muted)] md:hidden">{portalLabel}</span>
           </div>
 
           <div className="relative" ref={menuRef}>
@@ -275,7 +359,7 @@ export const AdminLayout: React.FC<Props> = ({ authUser, isLightTheme, onToggleT
                 <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">{ROLE_LABEL[authUser.role]}</div>
                 <Link
                   role="menuitem"
-                  to="/admin/profile"
+                  to={profilePath}
                   onClick={() => setMenu(false)}
                   className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[var(--text-main)] hover:bg-neutral-100 dark:hover:bg-neutral-800"
                 >

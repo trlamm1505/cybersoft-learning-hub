@@ -151,7 +151,17 @@ export const TeacherAuthoringPage: React.FC<TeacherAuthoringPageProps> = ({
       .catch(() => {});
   }, [loadExistingLessons]);
 
-  const handleSelectLessonToEdit = (lesson: LessonAuthoring) => {
+  const handleSelectLessonToEdit = async (listed: LessonAuthoring) => {
+    let lesson = listed;
+    // Danh sách không kèm bộ test của bài ngân hàng đề (rất nặng): tải chi tiết đúng bài đó khi mở để sửa.
+    if (listed.sourceCollection === 'exercise' && listed._id) {
+      try {
+        lesson = await authoringApi.getLessonById(listed._id);
+      } catch {
+        showToast('Không tải được chi tiết bài. Vui lòng thử lại.');
+        return;
+      }
+    }
     const isQuiz = lesson.type === 'quiz';
     setTypeFilter(isQuiz ? 'quiz' : 'coding');
     setFormData({

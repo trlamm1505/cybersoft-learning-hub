@@ -621,6 +621,13 @@ export const ContestExamWorkspace: React.FC<ContestExamWorkspaceProps> = ({
           </div>
         </div>
 
+        {attempt?.disqualified && (
+          <div role="alert" className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-700 dark:text-rose-300">
+            <strong>Kết quả của bạn không được công nhận</strong> trong bảng xếp hạng chính thức
+            {attempt.disqualifiedReason ? ` (lý do: ${attempt.disqualifiedReason})` : ''}. Bạn vẫn xem được bài làm và điểm của mình bên dưới.
+          </div>
+        )}
+
         {/* Score overview cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main score pill */}
