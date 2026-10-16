@@ -75,6 +75,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     const data = await res.json();
     dsActionRes.textContent = JSON.stringify(data, null, 2);
+
+    // NẾU CẤP PHÉP TẢI XUỐNG THÀNH CÔNG (BẢN PUBLISHED) -> TẢI FILE CSV THẬT VỀ MÁY
+    if (action === "download" && data.success) {
+      const item = catalogItems.find(d => d.id === dataset_id);
+      if (item && item.columns && item.preview_rows) {
+        const header = item.columns.join(",");
+        const rows = item.preview_rows.map(r => r.map(val => {
+          const str = String(val);
+          return str.includes(",") ? `"${str}"` : str;
+        }).join(","));
+        const csvContent = [header, ...rows].join("\r\n");
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = `${dataset_id}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
+      }
+    }
   }
 
   function showPreview(item) {
