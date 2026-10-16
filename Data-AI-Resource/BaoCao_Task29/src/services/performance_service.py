@@ -134,7 +134,11 @@ class BackupRestoreEngine:
                     restored_at=datetime.utcnow().isoformat() + "Z",
                     details=f"Missing file: {entry.filename}"
                 )
-            actual_sha = hashlib.sha256(target.read_bytes()).hexdigest()
+            raw_bytes = target.read_bytes()
+            # Chuẩn hóa ký tự xuống dòng (CRLF -> LF) cho tệp text/json để bảo đảm tính nhất quán mã băm đa nền tảng (Windows / Linux / Docker)
+            if target.suffix in (".json", ".txt", ".md"):
+                raw_bytes = raw_bytes.replace(b"\r\n", b"\n")
+            actual_sha = hashlib.sha256(raw_bytes).hexdigest()
             verified_count += 1
             if actual_sha != entry.sha256:
                 return RestoreResult(

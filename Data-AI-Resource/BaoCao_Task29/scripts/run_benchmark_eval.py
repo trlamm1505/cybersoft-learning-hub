@@ -81,7 +81,10 @@ def evaluate():
     for entry in manifest["files"]:
         p = backup_dir / entry["filename"]
         assert p.exists(), f"Thiếu tệp {entry['filename']}"
-        actual_sha = hashlib.sha256(p.read_bytes()).hexdigest()
+        raw_b = p.read_bytes()
+        if p.suffix in (".json", ".txt", ".md"):
+            raw_b = raw_b.replace(b"\r\n", b"\n")
+        actual_sha = hashlib.sha256(raw_b).hexdigest()
         assert actual_sha == entry["sha256"], f"Sai lệch mã băm SHA-256 tại {entry['filename']}"
     print(f"  ✓ Đạt chuẩn: 2/2 tệp tin sao lưu khớp chính xác 100% mã băm SHA-256.")
     stages_passed += 1

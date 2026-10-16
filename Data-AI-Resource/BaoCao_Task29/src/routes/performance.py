@@ -164,17 +164,17 @@ def search_unified_rag(q: str = Query("chính sách bảo mật PII", min_length
 @router.post("/hub/exercise-lineage")
 def handle_exercise_and_lineage(payload: Dict[str, Any] = Body(...)):
     """Xử lý AI Sinh bài tập theo thang Bloom (Task 23) & Kiểm chứng kho bất biến WORM (Task 24)."""
+    if payload.get("attempt_overwrite"):
+        return {
+            "status": "BLOCKED_409", "error_code": "IMMUTABLE_ARTIFACT_OVERWRITE_BLOCKED",
+            "message": "Chặn đứng ghi đè (HTTP 409 - Task 24 WORM Store): Hiện vật đã khóa bất biến Write-Once-Read-Many. Bắt buộc phát hành phiên bản mới (v1.2.0) thay vì ghi đè lịch sử."
+        }
     mode = payload.get("mode", "generate_exercise")
     hub = profiler.get_unified_hub()
     if mode == "generate_exercise":
         bloom = payload.get("bloom_level", "Apply")
         tpl = hub.get("exercise_templates", {}).get(bloom, hub["exercise_templates"]["Apply"])
         return {"status": "GENERATED", "dataset_id": payload.get("dataset_id", "ds-retail-ecommerce-sales-v1"), **tpl}
-    if payload.get("attempt_overwrite"):
-        return {
-            "status": "BLOCKED_409", "error_code": "IMMUTABLE_ARTIFACT_OVERWRITE_BLOCKED",
-            "message": "Chặn đứng ghi đè (HTTP 409 - Task 24 WORM Store): Hiện vật đã khóa bất biến Write-Once-Read-Many. Bắt buộc phát hành phiên bản mới (v1.2.0) thay vì ghi đè lịch sử."
-        }
     return {"status": "VERIFIED", "lineage_dag": hub.get("lineage_dag", [])}
 
 
