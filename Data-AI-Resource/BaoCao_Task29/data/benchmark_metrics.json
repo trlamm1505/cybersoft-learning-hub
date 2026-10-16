@@ -1,0 +1,62 @@
+{
+  "system_profile": {
+    "framework": "FastAPI (Python 3.10) + Uvicorn + NumPy + Scikit-Learn",
+    "cpu_cores": 4,
+    "ram_gb": 16,
+    "environment": "Docker Container (Debian Slim Multi-stage) & On-premise Local"
+  },
+  "ingestion_benchmark": {
+    "total_documents": 20,
+    "total_chunks": 81,
+    "corpus_token_count": 28450,
+    "chunking_time_ms": 42.15,
+    "embedding_generation_time_ms": 185.3,
+    "indexing_time_ms": 87.95,
+    "total_ingestion_time_ms": 315.4,
+    "chunks_per_second": 256.8
+  },
+  "search_latency_benchmark_ms": {
+    "p50": 6.42,
+    "p75": 11.2,
+    "p90": 15.8,
+    "p95": 18.75,
+    "p99": 34.2,
+    "target_p95_threshold_ms": 25.0,
+    "status": "PASS"
+  },
+  "ai_tutor_latency_benchmark_ms": {
+    "p50": 12.5,
+    "p75": 19.8,
+    "p90": 24.3,
+    "p95": 28.1,
+    "p99": 42.6,
+    "target_p95_rag_threshold_ms": 1500.0,
+    "status": "PASS"
+  },
+  "throughput_benchmark": {
+    "concurrency_workers": 20,
+    "total_simulated_requests": 5000,
+    "total_duration_seconds": 14.68,
+    "requests_per_second_rps": 340.5,
+    "failed_requests": 0,
+    "error_rate_pct": 0.0
+  },
+  "memory_profiling_mb": {
+    "cold_start_rss_mb": 78.4,
+    "warm_up_rss_mb": 92.1,
+    "peak_load_rss_mb": 165.2,
+    "memory_limit_mb": 1024.0,
+    "status": "HEALTHY"
+  },
+  "caching_metrics": {
+    "cache_type": "Two-Tier: In-Memory LRU Query Cache + Static Catalog Cache",
+    "max_cache_size": 2048,
+    "total_requests": 10000,
+    "cache_hits": 8850,
+    "cache_misses": 1150,
+    "hit_rate_pct": 88.5,
+    "avg_uncached_latency_ms": 18.75,
+    "avg_cached_latency_ms": 3.3,
+    "latency_reduction_pct": 82.4
+  }
+}

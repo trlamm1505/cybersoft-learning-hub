@@ -1,0 +1,24 @@
+{
+  "datasets": [
+    {
+      "id": "DS-SALES-001",
+      "name": "Retail Sales v1",
+      "records": 5000,
+      "status": "PUBLISHED"
+    },
+    {
+      "id": "DS-HR-002",
+      "name": "HR Operations v1",
+      "records": 5200,
+      "status": "PUBLISHED"
+    },
+    {
+      "id": "DS-RAG-003",
+      "name": "AI Knowledge Corpus v1",
+      "records": 81,
+      "status": "PUBLISHED"
+    }
+  ],
+  "version": "1.0.0",
+  "exported_at": "2026-10-11T08:00:00Z"
+}
