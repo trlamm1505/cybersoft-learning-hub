@@ -1,0 +1,52 @@
+[
+  {
+    "fix_id": "FIX-001",
+    "target_issue": "ISS-001",
+    "component": "Portal UI & Filtering Engine",
+    "file_changed": "portal/app.js & src/services/usability_engine.py",
+    "commit_tag": "feat(ux): add 1-click active filter reset and counter badge",
+    "before_behavior": "Người dùng phải click bỏ từng ô lọc; không biết có bao nhiêu bộ lọc đang chạy.",
+    "after_behavior": "Nút 'Xóa bộ lọc (3)' xóa tức thì toàn bộ tiêu chí; hiển thị badge đếm số bộ lọc kích hoạt.",
+    "test_verified": "test_filter_reset_and_active_count (PASSED)"
+  },
+  {
+    "fix_id": "FIX-002",
+    "target_issue": "ISS-002",
+    "component": "Dataset Preview Container",
+    "file_changed": "portal/styles.css & portal/app.js",
+    "commit_tag": "fix(ui): responsive scrollable table preview with sticky headers and pagination",
+    "before_behavior": "Bảng >15 cột tràn lề ngang, không cuộn được, vỡ giao diện trên laptop nhỏ.",
+    "after_behavior": "Bảng nằm trong container scroll ngang mượt mà, cố định tiêu đề cột, giới hạn 10 dòng/trang.",
+    "test_verified": "test_dataset_preview_responsiveness (PASSED)"
+  },
+  {
+    "fix_id": "FIX-003",
+    "target_issue": "ISS-003",
+    "component": "AI Tutor Citation Tag",
+    "file_changed": "portal/app.js & src/services/issue_resolver.py",
+    "commit_tag": "feat(tutor): 1-click copy citation button with tooltip feedback",
+    "before_behavior": "Phải bôi đen chuột thủ công để sao chép mã trích dẫn [doc_id#section_id].",
+    "after_behavior": "Nút bấm icon Copy cạnh mỗi thẻ citation tự động đưa chuỗi trích dẫn chuẩn vào Clipboard.",
+    "test_verified": "test_1click_copy_citation_tag (PASSED)"
+  },
+  {
+    "fix_id": "FIX-004",
+    "target_issue": "ISS-004",
+    "component": "Error Envelope & Validation Transformer",
+    "file_changed": "src/schemas/usability.py & src/services/issue_resolver.py",
+    "commit_tag": "fix(api): vietnamese error transformer for pydantic validation exceptions",
+    "before_behavior": "Lỗi tiếng Anh kỹ thuật: 'field required', 'value_error.missing'.",
+    "after_behavior": "Lỗi Việt hóa chuẩn mực: 'Trường bắt buộc không được để trống: [cột]', có chỉ dẫn sửa lỗi cụ thể.",
+    "test_verified": "test_vietnamese_error_transformer (PASSED)"
+  },
+  {
+    "fix_id": "FIX-005",
+    "target_issue": "ISS-005",
+    "component": "Download Controller & File Pre-check",
+    "file_changed": "src/routes/usability.py & portal/app.js",
+    "commit_tag": "feat(download): pre-display file size in MB and animated download progress indicator",
+    "before_behavior": "Nút tải tệp không hiển thị dung lượng, không có trạng thái tải, người dùng bấm nhiều lần.",
+    "after_behavior": "Nút tải ghi rõ '(12.4 MB)', khi bấm hiển thị spinner và thanh trạng thái tiến độ.",
+    "test_verified": "test_download_size_header_and_progress (PASSED)"
+  }
+]

@@ -1,0 +1,312 @@
+[
+  {
+    "user_id": "USR-001",
+    "name": "Nguyễn Văn An",
+    "role": "Mentor Data Analyst",
+    "experience_years": 5,
+    "tasks": [
+      {
+        "task_id": "TSK-01",
+        "task_name": "Tìm và tải Retail Sales Dataset",
+        "time_to_find_sec": 42.0,
+        "time_after_fix_sec": 16.5,
+        "success": true,
+        "notes": "Tìm tốt nhưng ban đầu bộ lọc nhiều tiêu chí hơi rối."
+      },
+      {
+        "task_id": "TSK-02",
+        "task_name": "Lọc đồ án Capstone DA mức Intermediate",
+        "time_to_find_sec": 38.5,
+        "time_after_fix_sec": 14.0,
+        "success": true,
+        "notes": "Hiển thị rõ rubric 100 điểm."
+      },
+      {
+        "task_id": "TSK-03",
+        "task_name": "Tra cứu quy chế bảo lưu qua AI Tutor",
+        "time_to_find_sec": 28.0,
+        "time_after_fix_sec": 12.0,
+        "success": true,
+        "notes": "Cần nút 1-click copy trích dẫn."
+      },
+      {
+        "task_id": "TSK-04",
+        "task_name": "Kiểm tra Data Quality Gate với CSV lỗi",
+        "time_to_find_sec": 55.0,
+        "time_after_fix_sec": 22.0,
+        "success": true,
+        "notes": "Báo cáo lỗi chi tiết rất tốt."
+      },
+      {
+        "task_id": "TSK-05",
+        "task_name": "Xem Data Dictionary của HR Operations",
+        "time_to_find_sec": 45.0,
+        "time_after_fix_sec": 15.0,
+        "success": true,
+        "notes": "Preview bảng rộng bị tràn ngang."
+      }
+    ],
+    "sus_answers": [
+      5,
+      1,
+      5,
+      1,
+      5,
+      2,
+      5,
+      1,
+      5,
+      1
+    ],
+    "csat_rating": 5,
+    "qualitative_feedback": "Hệ thống tài nguyên chuẩn bị rất chỉn chu, sát với nhu cầu giảng dạy thực chiến tại CyberSoft."
+  },
+  {
+    "user_id": "USR-002",
+    "name": "Lê Thị Bích",
+    "role": "Mentor AI Engineer",
+    "experience_years": 4,
+    "tasks": [
+      {
+        "task_id": "TSK-01",
+        "task_name": "Tìm và tải RAG Knowledge Chunks",
+        "time_to_find_sec": 35.0,
+        "time_after_fix_sec": 14.0,
+        "success": true,
+        "notes": "Dữ liệu chunking rất chuẩn."
+      },
+      {
+        "task_id": "TSK-02",
+        "task_name": "Lọc đồ án Capstone AI RAG Benchmark",
+        "time_to_find_sec": 32.0,
+        "time_after_fix_sec": 12.5,
+        "success": true,
+        "notes": "Có sẵn golden set 100 câu."
+      },
+      {
+        "task_id": "TSK-03",
+        "task_name": "Hỏi câu bẫy Adversarial với AI Tutor",
+        "time_to_find_sec": 24.0,
+        "time_after_fix_sec": 10.0,
+        "success": true,
+        "notes": "Cơ chế từ chối Abstain hoạt động chuẩn."
+      },
+      {
+        "task_id": "TSK-04",
+        "task_name": "Kiểm tra Quality Gate RAG Ingestion",
+        "time_to_find_sec": 48.0,
+        "time_after_fix_sec": 18.0,
+        "success": true,
+        "notes": "Bắt đúng lỗi Frontmatter."
+      },
+      {
+        "task_id": "TSK-05",
+        "task_name": "Đọc tài liệu Lineage và Version Registry",
+        "time_to_find_sec": 40.0,
+        "time_after_fix_sec": 16.0,
+        "success": true,
+        "notes": "Truy vết nguồn gốc rõ ràng."
+      }
+    ],
+    "sus_answers": [
+      5,
+      1,
+      5,
+      1,
+      4,
+      1,
+      5,
+      1,
+      5,
+      1
+    ],
+    "csat_rating": 5,
+    "qualitative_feedback": "RAG Evaluation Harness và AI Tutor hoạt động xuất sắc, độ trễ sub-50ms rất ấn tượng."
+  },
+  {
+    "user_id": "USR-003",
+    "name": "Trần Minh Tuấn",
+    "role": "Học viên Data Analyst Lớp K28",
+    "experience_years": 1,
+    "tasks": [
+      {
+        "task_id": "TSK-01",
+        "task_name": "Tìm và tải Retail Sales Dataset",
+        "time_to_find_sec": 68.0,
+        "time_after_fix_sec": 24.0,
+        "success": true,
+        "notes": "Ban đầu hơi lúng túng khi chọn bản clean vs dirty."
+      },
+      {
+        "task_id": "TSK-02",
+        "task_name": "Lọc đồ án Capstone DA mức Beginner",
+        "time_to_find_sec": 52.0,
+        "time_after_fix_sec": 20.0,
+        "success": true,
+        "notes": "Đề bài có KPI rõ ràng."
+      },
+      {
+        "task_id": "TSK-03",
+        "task_name": "Hỏi chính sách điểm danh qua AI Tutor",
+        "time_to_find_sec": 45.0,
+        "time_after_fix_sec": 18.0,
+        "success": true,
+        "notes": "Trả lời đúng trọng tâm quy chế."
+      },
+      {
+        "task_id": "TSK-04",
+        "task_name": "Chạy thử script kiểm tra CSV",
+        "time_to_find_sec": 75.0,
+        "time_after_fix_sec": 28.0,
+        "success": false,
+        "notes": "Lỗi schema tiếng Anh hơi khó hiểu ban đầu."
+      },
+      {
+        "task_id": "TSK-05",
+        "task_name": "Xem trước 10 dòng đầu của bảng Sales",
+        "time_to_find_sec": 60.0,
+        "time_after_fix_sec": 22.0,
+        "success": true,
+        "notes": "Preview bảng ban đầu bị tràn ngang."
+      }
+    ],
+    "sus_answers": [
+      4,
+      2,
+      5,
+      2,
+      4,
+      2,
+      5,
+      2,
+      4,
+      1
+    ],
+    "csat_rating": 4,
+    "qualitative_feedback": "Giao diện dễ nhìn, học liệu rất đầy đủ, sau khi được hướng dẫn thao tác rất nhanh."
+  },
+  {
+    "user_id": "USR-004",
+    "name": "Phạm Hoàng Nam",
+    "role": "Học viên AI Engineer Lớp K29",
+    "experience_years": 1,
+    "tasks": [
+      {
+        "task_id": "TSK-01",
+        "task_name": "Tìm và tải RAG Knowledge Chunks",
+        "time_to_find_sec": 58.0,
+        "time_after_fix_sec": 21.0,
+        "success": true,
+        "notes": "Tải về giải nén dùng được ngay."
+      },
+      {
+        "task_id": "TSK-02",
+        "task_name": "Lọc đồ án Capstone AI RAG",
+        "time_to_find_sec": 44.0,
+        "time_after_fix_sec": 16.0,
+        "success": true,
+        "notes": "Có sẵn starter repository."
+      },
+      {
+        "task_id": "TSK-03",
+        "task_name": "Thử nghiệm đặt câu hỏi AI Tutor",
+        "time_to_find_sec": 36.0,
+        "time_after_fix_sec": 14.0,
+        "success": true,
+        "notes": "Trích nguồn rất tiện lợi."
+      },
+      {
+        "task_id": "TSK-04",
+        "task_name": "Kiểm tra Quality Gate tài nguyên",
+        "time_to_find_sec": 62.0,
+        "time_after_fix_sec": 22.0,
+        "success": true,
+        "notes": "Exit code 0 chuẩn xác."
+      },
+      {
+        "task_id": "TSK-05",
+        "task_name": "Tra cứu metadata bộ dữ liệu",
+        "time_to_find_sec": 50.0,
+        "time_after_fix_sec": 18.0,
+        "success": true,
+        "notes": "Có đầy đủ cột và kiểu dữ liệu."
+      }
+    ],
+    "sus_answers": [
+      4,
+      1,
+      5,
+      2,
+      5,
+      2,
+      4,
+      1,
+      5,
+      1
+    ],
+    "csat_rating": 5,
+    "qualitative_feedback": "Rất thích tính năng AI Tutor trích nguồn chính xác từng điều khoản quy chế."
+  },
+  {
+    "user_id": "USR-005",
+    "name": "Vũ Thu Trang",
+    "role": "Trợ giảng & Điều phối Học vụ",
+    "experience_years": 3,
+    "tasks": [
+      {
+        "task_id": "TSK-01",
+        "task_name": "Tìm dataset nhân sự HR Operations",
+        "time_to_find_sec": 44.0,
+        "time_after_fix_sec": 16.0,
+        "success": true,
+        "notes": "Dữ liệu lớn trên 5.000 dòng."
+      },
+      {
+        "task_id": "TSK-02",
+        "task_name": "Lọc danh mục bài tập theo tuần học",
+        "time_to_find_sec": 40.0,
+        "time_after_fix_sec": 15.0,
+        "success": true,
+        "notes": "Dễ dàng phân phát cho học viên."
+      },
+      {
+        "task_id": "TSK-03",
+        "task_name": "Tra cứu mức học phí qua AI Tutor",
+        "time_to_find_sec": 30.0,
+        "time_after_fix_sec": 12.0,
+        "success": true,
+        "notes": "Trích dẫn đúng tài liệu FAQ."
+      },
+      {
+        "task_id": "TSK-04",
+        "task_name": "Xem chốt chặn phát hành Master Gate",
+        "time_to_find_sec": 50.0,
+        "time_after_fix_sec": 19.0,
+        "success": true,
+        "notes": "Biết ngay tài nguyên nào đạt chuẩn."
+      },
+      {
+        "task_id": "TSK-05",
+        "task_name": "Kiểm tra dung lượng file tải về",
+        "time_to_find_sec": 46.0,
+        "time_after_fix_sec": 17.0,
+        "success": true,
+        "notes": "Cần hiển thị rõ kích thước tệp MB."
+      }
+    ],
+    "sus_answers": [
+      5,
+      1,
+      5,
+      1,
+      4,
+      2,
+      5,
+      1,
+      5,
+      1
+    ],
+    "csat_rating": 5,
+    "qualitative_feedback": "Tiết kiệm 80% thời gian tìm kiếm tài nguyên và giải đáp học vụ hàng tuần."
+  }
+]
