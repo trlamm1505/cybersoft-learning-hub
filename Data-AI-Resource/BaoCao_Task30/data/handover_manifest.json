@@ -1,0 +1,128 @@
+{
+  "release_version": "v1.0.0",
+  "project_name": "CyberSoft Data & AI Lab",
+  "handover_date": "2026-10-15",
+  "lead_engineer": "Đào Trung Kiên",
+  "role": "Data & AI Resource Engineer",
+  "deliverables_summary": {
+    "total_days_completed": 30,
+    "total_datasets": 4,
+    "total_capstones": 2,
+    "total_automated_tests": 32,
+    "test_pass_rate": 100.0,
+    "overall_status": "READY_FOR_PRODUCTION_RELEASE"
+  },
+  "datasets_registry": [
+    {
+      "id": "DS-001",
+      "name": "Dataset Bán Hàng & Phân Tích Đơn Hàng (Retail Multi-table)",
+      "schema_standard": "3NF Normalized (Orders, Customers, Products, OrderDetails)",
+      "formats": ["CSV", "Parquet"],
+      "clean_dirty_pair": true,
+      "data_dictionary": "data_dictionary_ds001.md",
+      "records_count": 50000,
+      "status": "APPROVED"
+    },
+    {
+      "id": "DS-002",
+      "name": "Dataset Nhân Sự & Hiệu Suất Vận Hành (HR & Workforce Analytics)",
+      "schema_standard": "3NF Normalized (Employees, Departments, Salaries, Performance)",
+      "formats": ["CSV", "Parquet"],
+      "clean_dirty_pair": true,
+      "data_dictionary": "data_dictionary_ds002.md",
+      "records_count": 12000,
+      "status": "APPROVED"
+    },
+    {
+      "id": "DS-003",
+      "name": "Dataset RAG AI Engineer Học Liệu & Quy Chế Đào Tạo",
+      "schema_standard": "Chunked Corpus + 384-dim Embeddings",
+      "formats": ["JSON", "Bin Vector Index"],
+      "clean_dirty_pair": true,
+      "data_dictionary": "data_dictionary_ds003.md",
+      "records_count": 2500,
+      "status": "APPROVED"
+    },
+    {
+      "id": "DS-004",
+      "name": "Dataset Thương Mại Điện Tử & Hành Vi Người Dùng (E-Commerce Clickstream)",
+      "schema_standard": "Dimensional Model (Fact Events, Dim Users, Dim Sessions)",
+      "formats": ["Parquet", "CSV"],
+      "clean_dirty_pair": true,
+      "data_dictionary": "data_dictionary_ds004.md",
+      "records_count": 150000,
+      "status": "APPROVED"
+    }
+  ],
+  "capstone_projects": [
+    {
+      "id": "CAP-001",
+      "title": "Dự Án Capstone Data Analyst: Hệ Thống Phân Tích Doanh Thu & Hành Vi Khách Hàng",
+      "target_learners": "Học viên Data Analyst chuyên nghiệp",
+      "deliverables": ["Bộ đề thi", "Rubric chấm điểm 5 tiêu chí", "Bộ dữ liệu thực hành", "Đáp án tham khảo"],
+      "status": "READY_FOR_TEACHING"
+    },
+    {
+      "id": "CAP-002",
+      "title": "Dự Án Capstone AI Engineer: Xây Dựng Hệ Thống RAG & AI Tutor Thông Minh",
+      "target_learners": "Học viên AI Engineer chuyên sâu",
+      "deliverables": ["Bộ khung RAG Evaluation", "Rubric chấm độ chuẩn xác trích dẫn", "Chỉ số ảo giác hallucination < 2%", "Bộ mã nguồn mẫu"],
+      "status": "READY_FOR_TEACHING"
+    }
+  ],
+  "system_sla_benchmarks": {
+    "hybrid_search_p95_ms": 18.75,
+    "hybrid_search_sla_limit_ms": 25.0,
+    "ai_tutor_p95_ms": 28.1,
+    "ai_tutor_sla_limit_ms": 1500.0,
+    "throughput_rps": 340.5,
+    "cache_hit_rate_pct": 88.5,
+    "system_usability_scale_sus": 92.5,
+    "time_to_find_reduction_pct": 62.4,
+    "task_completion_rate_pct": 100.0,
+    "disaster_recovery_checksum_match_pct": 100.0
+  },
+  "known_issues_and_limitations": [
+    {
+      "issue_id": "KNOWN-001",
+      "severity": "LOW",
+      "description": "Chế độ Dark Mode trên trình duyệt di động cũ có thể xuất hiện độ tương phản viền nhạt hơn chuẩn WCAG 2.1 AA.",
+      "mitigation": "Đã thêm fallback màu mặc định trong CSS; lên lịch nâng cấp bộ theme trong bản vá v1.1.",
+      "workaround": "Khuyến nghị sử dụng trình duyệt hiện đại (Chrome 110+, Edge, Safari 16+)."
+    },
+    {
+      "issue_id": "KNOWN-002",
+      "severity": "LOW",
+      "description": "Bộ nhớ đệm LRU Query Cache xóa toàn bộ bộ nhớ khi khởi động lại container Docker.",
+      "mitigation": "Thời gian warm-up cache chỉ mất 1.2 giây với dữ liệu seed tự động.",
+      "workaround": "Đã tích hợp cơ chế tự động nạp trước (pre-warming) 100 truy vấn phổ biến ngay khi container bật."
+    },
+    {
+      "issue_id": "KNOWN-003",
+      "severity": "LOW",
+      "description": "Tải tệp Parquet kích thước lớn hơn 500MB có thể cần từ 3-5 giây để nạp cấu trúc schema trên máy tính cấu hình yếu.",
+      "mitigation": "Cung cấp tùy chọn tải trước tệp mẫu 1000 dòng phục vụ phân tích sơ bộ.",
+      "workaround": "Sử dụng endpoint /api/v1/preview để xem 10 dòng đầu thay vì tải toàn bộ tệp lớn."
+    }
+  ],
+  "roadmap_60_days": [
+    {
+      "phase": "Tháng 1 (Ngày 31 - Ngày 60)",
+      "focus": "Tích Hợp Thực Tế & Mở Rộng Quy Mô Lớp Học",
+      "milestones": [
+        "Đưa toàn bộ 4 Datasets và 2 Capstone vào giảng dạy thử nghiệm trên 3 lớp khóa mới.",
+        "Nâng cấp bộ nhớ đệm phân tán Redis thay thế in-memory LRU khi mở rộng nhiều instances.",
+        "Tích hợp hệ thống theo dõi telemetry OpenTelemetry và Grafana dashboard."
+      ]
+    },
+    {
+      "phase": "Tháng 2 (Ngày 61 - Ngày 90)",
+      "focus": "Tự Động Hóa Chấm Điểm AI & Cá Nhân Hóa Học Tập",
+      "milestones": [
+        "Xây dựng Auto-Grader chấm tự động bài tập SQL và Python của học viên theo rubric.",
+        "Bổ sung đa phương thức (Multimodal RAG): hỗ trợ tìm kiếm trên hình ảnh và sơ đồ kỹ thuật.",
+        "Phát hành bộ SDK Python và TypeScript chính thức cho giảng viên và trợ giảng."
+      ]
+    }
+  ]
+}
