@@ -34,7 +34,7 @@
       "total_rows": 150,
       "orphan_records": 12,
       "missing_pk_count": 1,
-      "sample_text": "LEAKED CREDENTIAL: openai_key=sk-proj-DEMO1234567890abcdef1234567890 contact=0912345678",
+      "sample_text": "LEAKED CREDENTIAL: auth_secret_token=SAMPLE_CORRUPTED_SECRET_TOKEN_XYZ contact=0912345678",
       "pii_leak_count": 2,
       "secret_leak_count": 1,
       "sha256_checksum": "corrupted_hash_999999"
