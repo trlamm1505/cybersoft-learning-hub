@@ -311,7 +311,15 @@ export class AdminUsersService {
       passwordReset = true;
     }
     if (Object.keys(set).length === 0) throw new BadRequestException('Không có thông tin nào để cập nhật.');
+    const ageGroupChanged = typeof set.ageGroup === 'string' && set.ageGroup !== target.ageGroup;
     await this.users.updateOne({ _id: target._id }, { $set: set });
+    // Đổi khối (vd 3-5 → Người đi làm): rút khỏi mọi lớp thuộc khối khác. Lớp khóa Người đi làm không lưu studentIds nên không bị ảnh hưởng.
+    if (ageGroupChanged) {
+      await this.classes.updateMany(
+        { studentIds: asId(target._id), ageGroup: { $ne: set.ageGroup as string } },
+        { $pull: { studentIds: asId(target._id) } },
+      );
+    }
     const { password: _pw, sessionsRevokedAt: _sr, ...visible } = set;
     return { ...toRow({ ...target, ...visible } as UserLean), passwordReset };
   }

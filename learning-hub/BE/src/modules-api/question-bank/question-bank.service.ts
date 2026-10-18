@@ -151,7 +151,8 @@ export class QuestionBankService {
   }
 
   private async load(slug: string, withHidden = false): Promise<Lean> {
-    const sel = this.exercises.findOne({ slug: String(slug), ...this.baseFilter() });
+    // $and: baseFilter() cũng có khóa `slug` (loại bài demo) nên KHÔNG được spread chung, nếu không nó ghi đè điều kiện slug và truy vấn trả về bài đầu tiên bất kỳ.
+    const sel = this.exercises.findOne({ $and: [{ slug: String(slug) }, this.baseFilter()] });
     if (withHidden) sel.select('+hiddenTestCases');
     const doc = await sel.lean<Lean>();
     if (!doc) throw new NotFoundException('Không tìm thấy bài trong Ngân hàng đề.');

@@ -163,6 +163,27 @@ describe('QuizService Unit & Integration Tests', () => {
       }
     });
 
+    it('lượt luyện tập đang làm dở còn thời gian: tiếp tục lượt đó, đồng hồ = thời gian CÒN LẠI thật', async () => {
+      const resumable = { _id: new Types.ObjectId(validAttemptId), testId: new Types.ObjectId(validTestId), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(Date.now() - 600 * 1000), timeLimitSeconds: 1800, save: jest.fn() };
+      mockQuizAttemptModel.findOne.mockResolvedValue(resumable);
+      const r = await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '6-9');
+      expect(r.attemptId.toString()).toBe(validAttemptId);
+      expect(r.timeLimitSeconds).toBeGreaterThan(1190);
+      expect(r.timeLimitSeconds).toBeLessThanOrEqual(1200);
+      expect(resumable.save).not.toHaveBeenCalled();
+    });
+
+    it('lượt luyện tập bỏ dở quá giờ: đóng lại (EXPIRED) và mở lượt mới, không trả đồng hồ 0 để tự nộp bài trống', async () => {
+      const stale = { _id: new Types.ObjectId(), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(Date.now() - 3 * 3600 * 1000), timeLimitSeconds: 1800, save: jest.fn().mockResolvedValue(true) };
+      mockQuizAttemptModel.findOne.mockResolvedValue(stale);
+      mockQuizAttemptModel.create.mockResolvedValue({ _id: new Types.ObjectId(), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(), timeLimitSeconds: 1800, maxScore: 0 });
+      const r = await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '6-9');
+      expect(stale.status).toBe('EXPIRED');
+      expect(stale.save).toHaveBeenCalled();
+      expect(mockQuizAttemptModel.create).toHaveBeenCalled();
+      expect(r.timeLimitSeconds).toBe(1800);
+    });
+
     it('[Day 30] câu Ngân hàng đề (bankOnly) không vào /quiz tự luyện; bộ đề công khai không nhận câu bankOnly dù cùng chủ đề', async () => {
       mockQuizAttemptModel.findOne.mockResolvedValue(null);
       mockQuizAttemptModel.create.mockImplementation(async (doc: any) => ({ _id: new Types.ObjectId(), status: 'IN_PROGRESS', startedAt: new Date(), ...doc }));
@@ -208,31 +229,52 @@ describe('QuizService Unit & Integration Tests', () => {
       expect(mockAttemptDoc.save).toHaveBeenCalled();
     });
 
-    it('2.2 Should block overdue submission, update status to EXPIRED and throw BadRequestException', async () => {
-      const overdueStartedAt = new Date(Date.now() - 2000000); // 2000s ago (> 1800s limit)
+    const overdueDoc = (extra: Record<string, unknown> = {}) => ({
+      _id: new Types.ObjectId(validAttemptId),
+      userId: new Types.ObjectId(validUserId),
+      startedAt: new Date(Date.now() - 2000000), // 2000s trước (> 1800s)
+      timeLimitSeconds: 1800,
+      status: 'IN_PROGRESS',
+      score: 0,
+      maxScore: 20,
+      shuffledQuestions: [
+        { questionId: new Types.ObjectId(validQuestionId1), optionKeysOrder: ['B', 'A', 'C', 'D'] },
+        { questionId: new Types.ObjectId(validQuestionId2), optionKeysOrder: ['A', 'B', 'C', 'D'] },
+      ],
+      save: jest.fn().mockResolvedValue(true),
+      ...extra,
+    });
 
-      const mockOverdueAttemptDoc = {
-        _id: new Types.ObjectId(validAttemptId),
-        userId: new Types.ObjectId(validUserId),
-        startedAt: overdueStartedAt,
-        timeLimitSeconds: 1800,
-        status: 'IN_PROGRESS',
-        score: 0,
-        maxScore: 20,
-        shuffledQuestions: [],
-        save: jest.fn().mockResolvedValue(true),
-      };
+    it('2.2 [/quiz luyện tập] nộp trễ do hết giờ vẫn được chấm GRADED, câu chưa chọn là bỏ trống', async () => {
+      const doc = overdueDoc();
+      mockQuizAttemptModel.findOne.mockResolvedValue(doc);
 
-      mockQuizAttemptModel.findOne.mockResolvedValue(mockOverdueAttemptDoc);
+      const result = await service.submitAttempt(validAttemptId, validUserId, {
+        answers: [{ questionId: validQuestionId1, selectedOptionKey: 'B' }],
+      });
 
-      await expect(
-        service.submitAttempt(validAttemptId, validUserId, {
-          answers: [],
-        }),
-      ).rejects.toThrow(BadRequestException);
+      expect(result.status).toBe('GRADED');
+      expect(result.score).toBe(10);
+      expect(doc.status).toBe('GRADED');
+      expect(doc.shuffledQuestions[1]).toMatchObject({ isCorrect: false, scoreEarned: 0 });
+      expect(doc.save).toHaveBeenCalled();
+    });
 
-      expect(mockOverdueAttemptDoc.status).toBe('EXPIRED');
-      expect(mockOverdueAttemptDoc.save).toHaveBeenCalled();
+    it('2.2b [/quiz luyện tập] nộp trễ rất lâu (máy ngủ đông) với danh sách trống vẫn GRADED điểm 0, không EXPIRED', async () => {
+      const doc = overdueDoc({ startedAt: new Date(Date.now() - 6 * 3600 * 1000) });
+      mockQuizAttemptModel.findOne.mockResolvedValue(doc);
+      const result = await service.submitAttempt(validAttemptId, validUserId, { answers: [] });
+      expect(result).toMatchObject({ status: 'GRADED', score: 0 });
+    });
+
+    it('2.3 bài giao của lớp (có assignmentId) nộp quá hạn vẫn bị khóa: EXPIRED + BadRequestException', async () => {
+      const doc = overdueDoc({ assignmentId: 'asg-1' });
+      mockQuizAttemptModel.findOne.mockResolvedValue(doc);
+
+      await expect(service.submitAttempt(validAttemptId, validUserId, { answers: [] })).rejects.toThrow(BadRequestException);
+
+      expect(doc.status).toBe('EXPIRED');
+      expect(doc.save).toHaveBeenCalled();
     });
   });
 

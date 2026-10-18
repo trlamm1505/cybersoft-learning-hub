@@ -330,6 +330,39 @@ const BAND_KEY = { '6-9': '6-9', '10-12': '10-12' };
       return pgk.status === 200 && pgk.json?.total === 0 && sub.status === 403 && sub.json?.code === 'E403_KID_NO_CODE_QUIZ';
     })());
 
+    // ============================ G. Hết giờ /quiz + lớp 6-9 / 10-12 không có "chờ chấm" ============================
+    {
+      // /quiz là ôn luyện: nộp trễ (đồng hồ về 00:00, máy ngủ đông...) vẫn được chấm GRADED và xem được kết quả; câu chưa chọn là bỏ trống.
+      const att = await call(TT.a, 'POST', '/quiz/start', { testId: '673f22222222222222222222', category: 'Python' });
+      const attemptId = att.json?.attemptId;
+      let lateOk = false;
+      let detail = `start HTTP ${att.status}`;
+      if (attemptId) {
+        const q0 = att.json.questions?.[0];
+        await db.collection('quizattempts').updateOne({ _id: new OID(attemptId) }, { $set: { startedAt: new Date(Date.now() - 3 * 3600 * 1000) } });
+        const sub = await call(TT.a, 'POST', `/quiz/${attemptId}/submit`, { answers: q0 ? [{ questionId: String(q0.questionId), selectedOptionKey: q0.options[0].key }] : [] });
+        const rev = await call(TT.a, 'GET', `/quiz/${attemptId}/review`);
+        const blank = (rev.json?.questions ?? []).filter((x) => !x.selectedOptionKey).length;
+        lateOk = sub.status === 201 || sub.status === 200;
+        lateOk = lateOk && sub.json?.status === 'GRADED' && rev.status === 200 && (rev.json?.questions ?? []).length === 20 && blank === 19;
+        detail = `nộp trễ 3 giờ HTTP ${sub.status} status=${sub.json?.status}; review HTTP ${rev.status}, ${(rev.json?.questions ?? []).length} câu, bỏ trống ${blank}`;
+        await db.collection('quizattempts').deleteOne({ _id: new OID(attemptId) });
+      }
+      check('G-01', '/quiz hết giờ: nộp trễ vẫn được chấm GRADED (không EXPIRED/400) và vào được màn kết quả với 20 câu, câu chưa chọn là Bỏ trống', lateOk, detail);
+    }
+    {
+      // Khối 6-9 / 10-12 chấm bằng máy: không có bài nào ở trạng thái chờ chấm/chờ công bố, bảng điểm lớp luôn là điểm chính thức.
+      const schoolClasses = await db.collection('classrooms').find({ ageGroup: { $in: ['6-9', '10-12'] }, courseKey: { $exists: false }, archived: { $ne: true } }).toArray();
+      const stuck = await db.collection('assessment_submissions').countDocuments({ classId: { $in: schoolClasses.map((c) => String(c._id)) }, state: { $in: ['SUBMITTED', 'LATE', 'GRADING', 'GRADED'] } });
+      const rows = [];
+      for (const c of schoolClasses) {
+        const g = await call(T.admin, 'GET', `/teacher/classes/${String(c._id)}/final-grades`);
+        for (const s of g.json?.students ?? []) rows.push({ cls: c.code, pending: s.pending, provisional: s.provisional });
+      }
+      check('G-02', 'Lớp Khối 6-9 và 10-12: 0 bài nộp treo chờ chấm/chờ công bố; bảng điểm lớp không học viên nào "Tạm thời" hay còn bài chờ chấm',
+        schoolClasses.length >= 2 && stuck === 0 && rows.length > 0 && rows.every((r) => r.pending === 0 && r.provisional === false), `${schoolClasses.length} lớp, ${rows.length} học viên, bài treo ${stuck}, tạm thời ${rows.filter((r) => r.provisional).length}`);
+    }
+
     // ============================ F. Tài khoản test cũ + hồi quy ============================
     const legacy = await users.findOne({ email: 'a@gmail.com' });
     if (legacy) {

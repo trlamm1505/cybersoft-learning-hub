@@ -47,6 +47,22 @@ describe('QuestionBankService: phân quyền', () => {
   });
 });
 
+describe('QuestionBankService: tra cứu đúng bài theo slug', () => {
+  it('detail/sửa/xóa luôn truy vấn ĐÚNG slug được chọn (điều kiện loại bài demo không được ghi đè slug)', async () => {
+    const { svc, exercises } = build();
+    await svc.detail(teacher, 'bai-ai');
+    await svc.update(teacher, 'bai-ai', { title: 'Mới' });
+    await svc.remove(teacher, 'bai-ai');
+    expect(exercises.findOne.mock.calls.length).toBeGreaterThanOrEqual(3);
+    for (const call of exercises.findOne.mock.calls as unknown as Array<[Record<string, any>]>) {
+      const [filter] = call;
+      expect(filter.$and).toEqual(expect.arrayContaining([{ slug: 'bai-ai' }]));
+      expect(filter.$and[1].slug).toHaveProperty('$not');
+      expect(filter.slug).toBeUndefined();
+    }
+  });
+});
+
 describe('QuestionBankService: danh sách', () => {
   it('phân trang 10 bài, lọc khối + độ khó + từ khóa (thoát regex), gắn nguồn và khả năng sửa', async () => {
     const { svc, exercises } = build();

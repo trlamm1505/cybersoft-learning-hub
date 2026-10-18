@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Eye, Loader2, Pencil, Plus, Search, Trash2, X } from 'lucide-react';
 import questionBankApi from '../axios/questionBankApi';
 import { control, hairline, selectControl } from '../components/adminStyles';
@@ -255,16 +255,24 @@ const DetailDrawer: React.FC<{ slug: string; onClose: () => void; onSaved: () =>
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const load = useCallback(() => {
+  // Chỉ nhận phản hồi của lần gọi MỚI NHẤT: chế độ StrictMode (dev) gọi effect hai lần, phản hồi thứ hai đến muộn sẽ đặt lại form
+  // và xóa mất chữ người dùng đang gõ dở trong ô tiêu đề.
+  useEffect(() => {
+    let alive = true;
     questionBankApi
       .detail(slug)
       .then((d) => {
+        if (!alive) return;
         setDetail(d);
         setForm(formFromDetail(d));
       })
-      .catch((err) => setError(apiMessage(err, 'Không tải được chi tiết bài.')));
+      .catch((err) => {
+        if (alive) setError(apiMessage(err, 'Không tải được chi tiết bài.'));
+      });
+    return () => {
+      alive = false;
+    };
   }, [slug]);
-  useEffect(load, [load]);
 
   const editable = detail?.editable === true;
   const set = (patch: Partial<EditForm>) => setForm((f) => (f ? { ...f, ...patch } : f));

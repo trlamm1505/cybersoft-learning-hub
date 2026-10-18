@@ -332,10 +332,12 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
   };
 
   // Handle Time Expired Auto Submit
+  // Hết giờ: tự nộp các đáp án đã chọn đến lúc đó (câu chưa chọn là "Bỏ trống") rồi vào thẳng màn hình kết quả.
+  // Không dùng alert() chặn luồng: thông báo nhẹ, còn việc nộp và hiện kết quả chạy ngay.
   const handleTimeExpired = () => {
     if (stage === 'TAKING') {
-      alert('⏰ Đã hết thời gian nộp bài! Hệ thống đang tự động gửi nộp bài thi của bạn.');
-      handleSubmitQuiz();
+      showToast('⏰ Đã hết giờ! Hệ thống đang tự nộp các câu bạn đã chọn.', 'info');
+      void handleSubmitQuiz();
     }
   };
 

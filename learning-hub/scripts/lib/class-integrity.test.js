@@ -25,3 +25,11 @@ test('repairClassRefs: lớp sạch → null; giảng viên đã bị hạ quy�
   const u = repairClassRefs({ teacherId: 'x', teacherIds: ['x', 't1'] }, alive('x', 't1'), alive('t1'));
   assert.deepEqual(u, { $set: { teacherIds: ['t1'], teacherId: 't1' } });
 });
+
+test('repairClassRefs: học viên đã đổi khối khỏi lớp cũ bị gỡ, người cùng khối giữ nguyên', () => {
+  const age = { s1: 'CAREER_ADULT', s2: '3-5', s3: undefined };
+  const fits = (id, c) => !c.ageGroup || !age[id] || age[id] === c.ageGroup;
+  const u = repairClassRefs({ ageGroup: '3-5', teacherId: 't1', teacherIds: ['t1'], studentIds: ['s1', 's2', 's3'] }, () => true, () => true, fits);
+  assert.deepEqual(u, { $set: { studentIds: ['s2', 's3'] } });
+  assert.equal(repairClassRefs({ teacherId: 't1', teacherIds: ['t1'], studentIds: ['s1'] }, () => true, () => true, fits), null);
+});

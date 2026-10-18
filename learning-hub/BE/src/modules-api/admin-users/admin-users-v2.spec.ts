@@ -26,7 +26,7 @@ function build(found: any[] = []) {
     exists: jest.fn().mockResolvedValue(null),
     create: jest.fn((d: any) => Promise.resolve({ toObject: () => ({ _id: 'new1', ...d }) })),
   };
-  const classes: any = { find: jest.fn(() => sel([])) };
+  const classes: any = { find: jest.fn(() => sel([])), updateMany: jest.fn(async () => ({ modifiedCount: 0 })) };
   const counters: any = { findOneAndUpdate: jest.fn().mockResolvedValue({ seq: 1 }) };
   const svc = new AdminUsersService(users, counters, classes, {} as any, {} as any, {} as any, {} as any, {} as any);
   return { svc, users, classes };

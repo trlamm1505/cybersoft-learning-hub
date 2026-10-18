@@ -32,6 +32,30 @@ describe('setRole STUDENT → TEACHER', () => {
   });
 });
 
+describe('đổi khối học của học viên', () => {
+  const classes = () => [
+    { _id: OID(50), name: 'K3-5', ageGroup: '3-5', teacherId: T1, studentIds: [S1, OID(12)] },
+    { _id: OID(51), name: 'K6-9', ageGroup: '6-9', teacherId: T1, studentIds: [OID(13)] },
+  ];
+
+  it('3-5 → Người đi làm: rút khỏi lớp 3-5, người khác trong lớp giữ nguyên', async () => {
+    const { service, m } = build(classes());
+    await service.update(ADMIN, S1, { ageGroup: 'CAREER_ADULT' });
+    expect(m.classes.rows[0].studentIds).toEqual([OID(12)]);
+    expect(m.classes.rows[1].studentIds).toEqual([OID(13)]);
+  });
+
+  it('3-5 → 6-9: rút khỏi lớp 3-5; chỉ đổi tên (không đổi khối) thì giữ nguyên lớp', async () => {
+    const { service, m } = build(classes());
+    await service.update(ADMIN, S1, { fullName: 'Bé Na 2' });
+    expect(m.classes.rows[0].studentIds).toEqual([S1, OID(12)]);
+    await service.update(ADMIN, S1, { ageGroup: '3-5' });
+    expect(m.classes.rows[0].studentIds).toEqual([S1, OID(12)]);
+    await service.update(ADMIN, S1, { ageGroup: '6-9' });
+    expect(m.classes.rows[0].studentIds).toEqual([OID(12)]);
+  });
+});
+
 describe('create / update: giảng viên không có khối học', () => {
   it('tạo giảng viên kèm ageGroup → không lưu ageGroup', async () => {
     const { service, m } = build();

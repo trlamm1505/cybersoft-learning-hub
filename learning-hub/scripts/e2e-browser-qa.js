@@ -209,7 +209,7 @@ const noIssues = (id, name, s) => {
       let cs = await cards(s);
       const lineOf = (arr) => arr.map((c) => (/Đã hoàn thành/.test(c.text) ? 'c' : /Đang mở/.test(c.text) ? 'a' : /Chưa mở khóa/.test(c.text) ? 'l' : '?')).join('');
       chk('2.69.list', 'Đúng 20 bài #1..#20; #1 #2 "Đã hoàn thành", #3 "Đang mở", #4 trở đi "Chưa mở khóa"', cs.length === 20 && lineOf(cs) === `cca${'l'.repeat(17)}` && cs.every((c, i) => c.n === i + 1), `${cs.length} bài: ${lineOf(cs)}`);
-      chk('2.69.progress', 'Header /playground hiện "Tiến độ: 2/20 bài đã hoàn thành"', body.includes('Tiến độ: 2/20 bài đã hoàn thành'));
+      chk('2.69.progress', 'Header /playground hiện "Tiến độ: 2/20 bài đã hoàn thành"', (await s.text()).includes('Tiến độ: 2/20 bài đã hoàn thành'));
       chk('2.69.locked-disabled', 'Bài #4..#20 là nút bị vô hiệu thật (disabled + aria-disabled), bài #1 không có icon khóa', cs.slice(3).every((c) => c.disabled) && !cs[0].disabled && !/Chưa mở khóa/.test(cs[0].text));
 
       // Click bài #4 đang khóa: không vào được editor.
@@ -378,6 +378,35 @@ const noIssues = (id, name, s) => {
       await s.shot('quiz-result-69');
       const decks69 = await deckTotals(s);
       chk('2.69.quiz-deck-counts', 'lop6-9: cả 3 bộ đề (Python, HTML5, CSS3): số câu ghi ngoài thẻ = số câu thực tế bên trong = 20', deckOk(decks69), JSON.stringify(decks69));
+
+      // ---------- Hết giờ /quiz: tự nộp đáp án đã chọn rồi vào thẳng màn hình kết quả (không alert, không bị đẩy ra ngoài) ----------
+      {
+        const me = await db.collection('users').findOne({ email: 'lop6-9@gmail.com' });
+        // Lượt Python còn dở từ bước đếm câu ở trên: rút còn ~13 giây để đồng hồ chạy về 00:00 thật.
+        await db.collection('quizattempts').updateOne({ userId: me._id, category: 'Python', status: 'IN_PROGRESS' }, { $set: { timeLimitSeconds: 14, startedAt: new Date(Date.now() - 1000) } });
+        let dialogs = 0;
+        const onDialog = (d) => { dialogs++; d.dismiss().catch(() => undefined); };
+        s.page.on('dialog', onDialog);
+        await s.goto('quiz');
+        await s.page.evaluate(() => [...document.querySelectorAll('[role=button][aria-label^="Chọn bộ đề"]')].find((d) => d.getAttribute('aria-label').includes('Python'))?.click());
+        await sleep(400);
+        await s.clickText('Bắt Đầu Làm Bài Trắc Nghiệm');
+        await s.page.waitForSelector('button[aria-label^="Đáp án A:"]', { timeout: 30000 });
+        const timerAtStart = await s.page.evaluate(() => (document.body.innerText.match(/\b(\d\d):(\d\d)\b/) || [])[0] || '');
+        await s.page.click('button[aria-label^="Đáp án A:"]'); // chỉ chọn 1 câu, các câu còn lại bỏ trống
+        const auto = await s.waitFor(() => /Số Câu Đúng/.test(document.body.innerText), null, 40000);
+        s.page.off('dialog', onDialog);
+        const rt = await s.text();
+        const blank = Number((rt.match(/Bỏ trống (\d+)/) || [])[1]);
+        const url = s.page.url();
+        chk('2.69.quiz-timeout', `Hết giờ /quiz (đồng hồ ${timerAtStart} → 00:00, KHÔNG bấm nộp): tự nộp và hiện thẳng màn hình kết quả (Đúng/Sai/Bỏ trống, nút "Làm Lại Bài Thi Mới"), không alert chặn, vẫn ở /quiz`,
+          auto && /Làm Lại Bài Thi Mới/.test(rt) && blank >= 19 && dialogs === 0 && /\/quiz/.test(url), `bỏ trống ${blank}, alert ${dialogs}, ${url}`);
+        await s.shot('quiz-timeout-result-69');
+        const graded = await db.collection('quizattempts').findOne({ userId: me._id, category: 'Python', status: 'GRADED' }, { sort: { submittedAt: -1 } });
+        chk('2.69.quiz-timeout-db', 'Lượt hết giờ được lưu GRADED (không EXPIRED) với đúng số câu trả lời đã chọn', !!graded && graded.shuffledQuestions.filter((q) => q.selectedOptionKey).length === 1, graded ? `status=${graded.status}, đã chọn ${graded.shuffledQuestions.filter((q) => q.selectedOptionKey).length}` : 'không thấy lượt GRADED');
+        await s.clickText('Làm Lại Bài Thi Mới');
+        chk('2.69.quiz-timeout-retry', 'Từ màn hình kết quả bấm "Làm Lại Bài Thi Mới" → quay về chọn bộ đề (người dùng tự quyết định làm lại)', await s.waitText('Bắt Đầu Làm Bài Trắc Nghiệm', 10000), '');
+      }
       noIssues('2.69.quiz.clean', 'Thi trắc nghiệm lop6-9', s);
 
       // ---------- Cuộc thi ----------
@@ -615,11 +644,11 @@ const noIssues = (id, name, s) => {
       await t.waitText('Sửa bài tập', 8000);
       const titleInput = await t.page.evaluateHandle((v) => [...document.querySelectorAll('[role=dialog] input')].find((i) => i.value === v) || null, codeTitle);
       const el = titleInput.asElement();
-      if (el) { await el.click({ clickCount: 3 }); await el.type(`${codeTitle} (đã sửa)`); }
+      if (el) { await el.click({ clickCount: 3 }); await el.type(`${codeTitle} (đã sửa)`, { delay: 8 }); }
       await t.page.evaluate(() => { const d = document.querySelector('[role=dialog]'); [...d.querySelectorAll('button')].reverse().find((b) => /^Lưu/.test(b.innerText.trim()))?.click(); });
       await sleep(1500);
       const edited = await db.collection('exercises').findOne({ title: `${codeTitle} (đã sửa)` });
-      chk('3.edit', 'Sửa bài Code trong Ngân hàng đề (đổi tiêu đề) → lưu được, vẫn bankOnly', !!edited && edited.bankOnly === true, edited ? '' : 'không lưu được');
+      chk('3.edit', 'Sửa bài Code trong Ngân hàng đề (đổi tiêu đề) → lưu được, vẫn bankOnly', !!edited && edited.bankOnly === true, edited ? '' : `không lưu được; ${el ? 'có ô tiêu đề' : 'KHÔNG thấy ô tiêu đề'}; sự cố mạng: ${JSON.stringify(t.issues.slice(-3))}; trong DB: ${JSON.stringify((await db.collection('exercises').find({ title: /Nhân đôi số/ }).project({ title: 1, bankOnly: 1 }).toArray()).map((d) => d.title))}; hộp thoại: ${(await t.page.evaluate(() => (document.querySelector('[role=dialog]')?.innerText || 'đã đóng').replace(/s+/g, ' ').slice(0, 300)))}`);
 
       // ---- Chấm bài: 3 link thừa đã biến mất ----
       await t.goto('teacher/grading');

@@ -129,8 +129,17 @@ export class QuizService {
     });
 
     if (existingAttempt) {
-      // Re-use active in-progress attempt to prevent duplication
-      return this.formatSanitizedQuestions(existingAttempt);
+      const elapsed = (Date.now() - new Date(existingAttempt.startedAt).getTime()) / 1000;
+      if (elapsed < existingAttempt.timeLimitSeconds) {
+        // Re-use active in-progress attempt to prevent duplication; đồng hồ phía client chạy theo thời gian CÒN LẠI thật.
+        const resumed = await this.formatSanitizedQuestions(existingAttempt);
+        return { ...resumed, timeLimitSeconds: Math.max(1, Math.ceil(existingAttempt.timeLimitSeconds - elapsed)) };
+      }
+      // Lượt cũ đã bỏ dở quá giờ (học viên rời đi, không còn đáp án nào ở client): đóng lại và mở lượt mới thay vì
+      // trả về đồng hồ đã về 0 làm tự nộp một bài trống.
+      existingAttempt.status = 'EXPIRED';
+      existingAttempt.submittedAt = new Date();
+      await existingAttempt.save();
     }
 
     // Fetch questions for this quiz topic. Each SYSTEM_QUIZZES topic maps 1:1 to a
@@ -224,12 +233,14 @@ export class QuizService {
       );
     }
 
-    // Check time limit with 15-second grace period for network latency
+    // /quiz là khu vực ôn luyện: hết giờ thì FE tự nộp đáp án đang chọn (câu chưa chọn là bỏ trống) và bài LUÔN được chấm,
+    // kể cả khi nộp trễ (máy ngủ đông, tab bị trình duyệt làm chậm). Chỉ bài giao của lớp (có assignmentId) mới bị khóa theo hạn chót.
+    // Cho phép 15 giây trễ mạng.
     const elapsedSeconds =
       (Date.now() - new Date(attempt.startedAt).getTime()) / 1000;
     const allowedTimeSeconds = attempt.timeLimitSeconds + 15;
 
-    if (elapsedSeconds > allowedTimeSeconds) {
+    if (attempt.assignmentId && elapsedSeconds > allowedTimeSeconds) {
       attempt.status = 'EXPIRED';
       attempt.submittedAt = new Date();
       attempt.score = 0;

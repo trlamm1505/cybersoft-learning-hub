@@ -330,8 +330,8 @@ const log = (m) => console.log(m);
       docs.push(sub(C, s1, 1, 'PUBLISHED', 84), sub(E, s1, 1, 'PUBLISHED', 78, { details: { tests: [{ input: '5', expected: '120', passed: true }] } }));
     }
     if (s2) {
-      // Đang phúc khảo bài thi; bài tuần 4 vừa nộp, chờ chấm.
-      docs.push(sub(A[0], s2, 1, 'PUBLISHED', 65), sub(A[1], s2, 1, 'PUBLISHED', 72), sub(A[2], s2, 1, 'PUBLISHED', 60), sub(A[3], s2, 1, 'SUBMITTED', 0));
+      // Đang phúc khảo bài thi. Khối 10-12 chấm bằng máy nên mọi bài đã nộp đều có điểm ngay (không có bài "chờ chấm").
+      docs.push(sub(A[0], s2, 1, 'PUBLISHED', 65), sub(A[1], s2, 1, 'PUBLISHED', 72), sub(A[2], s2, 1, 'PUBLISHED', 60), sub(A[3], s2, 1, 'PUBLISHED', 68));
       docs.push(sub(C, s2, 1, 'PUBLISHED', 58), sub(E, s2, 1, 'APPEALING', 49, { appeal: { reason: 'Em nghĩ câu 4 bị chấm thiếu ý trường hợp mảng rỗng', at: minutesAgo(day) } }));
     }
     if (s3) {
@@ -339,13 +339,23 @@ const log = (m) => console.log(m);
       docs.push(sub(A[0], s3, 1, 'PUBLISHED', 90), sub(A[1], s3, 1, 'PUBLISHED', 85), sub(C, s3, 1, 'PUBLISHED', 95), sub(E, s3, 1, 'FINALIZED', 91));
     }
     if (s4) {
-      // Cuộc thi bị hệ thống tự nộp do rời màn hình 3 lần.
-      docs.push(sub(A[0], s4, 1, 'SUBMITTED', 0), sub(A[1], s4, 1, 'SUBMITTED', 0), sub(A[2], s4, 1, 'PUBLISHED', 75));
-      docs.push({ ...sub(C, s4, 1, 'SUBMITTED', 0), leaveCount: 3, forceSubmitted: true, flags: ['OUT_TAB_FORCE_SUBMIT'], history: [{ from: null, to: 'DRAFT', by: String(s4._id), actor: 'OWNER', at: minutesAgo(10 * day) }, { from: 'DRAFT', to: 'SUBMITTED', by: 'system', actor: 'SYSTEM', at: minutesAgo(10 * day - 30), reason: 'Rời màn hình 3 lần (mỗi lần >= 5 giây): hệ thống tự nộp bài.' }] });
+      // Cuộc thi bị hệ thống tự nộp do rời màn hình 3 lần; máy chấm phần đã làm nên bài vẫn có điểm chính thức (cờ OUT_TAB_FORCE_SUBMIT giữ lại để giảng viên xem).
+      docs.push(sub(A[0], s4, 1, 'PUBLISHED', 80), sub(A[1], s4, 1, 'PUBLISHED', 70), sub(A[2], s4, 1, 'PUBLISHED', 75));
+      docs.push({
+        ...sub(C, s4, 1, 'PUBLISHED', 45),
+        leaveCount: 3,
+        forceSubmitted: true,
+        flags: ['OUT_TAB_FORCE_SUBMIT'],
+        history: [
+          { from: null, to: 'DRAFT', by: String(s4._id), actor: 'OWNER', at: minutesAgo(10 * day) },
+          { from: 'DRAFT', to: 'SUBMITTED', by: 'system', actor: 'SYSTEM', at: minutesAgo(10 * day - 30), reason: 'Rời màn hình 3 lần (mỗi lần >= 5 giây): hệ thống tự nộp bài.' },
+          ...hist(PATH.PUBLISHED, String(s4._id)).slice(2),
+        ],
+      });
     }
     if (docs.length) await asubs.insertMany(docs);
     const count = (st) => docs.filter((d) => d.state === st).length;
-    log(`  Đánh giá K10-12: 4 Assignment + 1 Contest + 1 Exam; bài nộp SUBMITTED=${count('SUBMITTED')}, PUBLISHED=${count('PUBLISHED')}, APPEALING=${count('APPEALING')}, FINALIZED=${count('FINALIZED')}`);
+    log(`  Đánh giá K10-12: 4 Assignment + 1 Contest + 1 Exam; bài nộp PUBLISHED=${count('PUBLISHED')}, APPEALING=${count('APPEALING')}, FINALIZED=${count('FINALIZED')}, chờ chấm=${count('SUBMITTED')} (luôn 0: khối 10-12 máy chấm)`);
   }
 
   // ---- 8. Tiến độ khối 3-5: ghi vào block_puzzle_progress, CHÍNH collection hồ sơ của bé (/profile) đọc ------------
