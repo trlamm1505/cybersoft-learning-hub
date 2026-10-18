@@ -1,7 +1,13 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { shouldWriteReportArtifacts } from '../../common/utils/report-artifact.util';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SubmitUsabilityFeedbackDto, AgeGroup } from './dto/submit-usability-feedback.dto';
+
+/** Khối tuổi của hệ thống (học viên) cũng được nhận khi ghi phiên kiểm thử; mọi khối dưới 18 tuổi là vị thành niên. */
+const SYSTEM_MINOR_BANDS = ['3-5', '6-9', '10-12'];
+export const USABILITY_AGE_GROUPS: string[] = [...Object.values(AgeGroup), ...SYSTEM_MINOR_BANDS];
+export const MINOR_AGE_GROUPS: string[] = [AgeGroup.KIDS_8_12, AgeGroup.TEENS_13_17, ...SYSTEM_MINOR_BANDS];
 
 export interface AgeGroupUsabilityMetric {
   ageGroup: AgeGroup;
@@ -251,13 +257,18 @@ export class UsabilityTestingService {
    * - Không thu dữ liệu trẻ em thật nếu chưa có quy trình đồng ý của phụ huynh (parentalConsentVerified).
    */
   async recordUsabilitySession(dto: SubmitUsabilityFeedbackDto): Promise<{ success: boolean; message: string; session: SubmitUsabilityFeedbackDto }> {
-    // Child Safety Rule Check
-    if (dto.ageGroup === AgeGroup.KIDS_8_12) {
-      if (dto.parentalConsentVerified !== true) {
-        throw new BadRequestException(
-          'An Toàn Trẻ Em (Child Safety Guard): Bắt buộc phải có quy trình xác nhận đồng ý của phụ huynh (Parental Consent) trước khi lưu dữ liệu kiểm thử từ trẻ em (8-12 tuổi).',
-        );
-      }
+    // Day 29 (SEC-22, PRV-08): nhóm tuổi phải hợp lệ (không còn lách bằng chuỗi lạ vì không có ValidationPipe), và MỌI
+    // nhóm vị thành niên — kể cả khối 3-5 / 6-9 / 10-12 của hệ thống — bắt buộc có consent của phụ huynh dạng boolean true.
+    if (typeof dto?.ageGroup !== 'string' || !USABILITY_AGE_GROUPS.includes(dto.ageGroup)) {
+      throw new BadRequestException(`Nhóm tuổi không hợp lệ (chỉ nhận ${USABILITY_AGE_GROUPS.join(', ')}).`);
+    }
+    if (dto.parentalConsentVerified !== undefined && typeof dto.parentalConsentVerified !== 'boolean') {
+      throw new BadRequestException('parentalConsentVerified phải là true hoặc false.');
+    }
+    if (MINOR_AGE_GROUPS.includes(dto.ageGroup) && dto.parentalConsentVerified !== true) {
+      throw new BadRequestException(
+        'An Toàn Trẻ Em (Child Safety Guard): Bắt buộc phải có quy trình xác nhận đồng ý của phụ huynh (Parental Consent) trước khi lưu dữ liệu kiểm thử từ trẻ em (dưới 18 tuổi, gồm các khối 3-5, 6-9, 10-12).',
+      );
     }
 
     // PII Sanitizer: Tự động loại bỏ thông tin cá nhân nhạy cảm trong nhận xét
@@ -291,6 +302,8 @@ export class UsabilityTestingService {
 
   /** Xuất các artifact nghiệm thu Day 28: usability-report.json và before-after-evidence.md. */
   private saveUsabilityArtifacts(report: UsabilityReport): void {
+    // Chỉ ghi vào docs khi bật WRITE_REPORT_ARTIFACTS=true (không làm bẩn git status mỗi lần chạy test/API).
+    if (!shouldWriteReportArtifacts()) return;
     try {
       const rootDir = path.resolve(__dirname, '../../../../');
       const docsDay28 = path.join(rootDir, 'docs/day28');

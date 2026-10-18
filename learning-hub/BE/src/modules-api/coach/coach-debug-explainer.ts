@@ -3,6 +3,7 @@ import { GeminiClientCache } from '../../common/gemini-client-cache';
 import type { GeminiKeySource } from '../../common/gemini-client-cache';
 import type { PromptProvider } from '../../common/prompt-provider';
 import type { DebugLoopTestInput } from './coach-debug-loop.types';
+import { summarizeError } from './coach-debug-loop';
 
 export const COACH_DEBUG_EXPLAINER = 'COACH_DEBUG_EXPLAINER';
 
@@ -42,9 +43,10 @@ export function buildDebugPrompt(
       ` Sai ở test ${t.index}. Input: "${clip(t.input, MAX_FIELD_CHARS)}"` +
       ` — Kỳ vọng: "${clip(t.expectedOutput, MAX_FIELD_CHARS)}"` +
       ` — Thực tế: "${clip(t.actualOutput, MAX_FIELD_CHARS)}"`;
-    if (t.stderr) error += ` — Lỗi: ${clip(t.stderr, MAX_FIELD_CHARS)}`;
+    // Chỉ dòng lỗi cuối, đã che đường dẫn máy chủ (Day 30, DEF-035): Gemini không nhận/lặp lại traceback nội bộ.
+    if (t.stderr) error += ` — Lỗi: ${clip(summarizeError(t.stderr), MAX_FIELD_CHARS)}`;
   } else if (failure.errorMessage) {
-    error += ` Lỗi: ${clip(failure.errorMessage, MAX_FIELD_CHARS)}`;
+    error += ` Lỗi: ${clip(summarizeError(failure.errorMessage), MAX_FIELD_CHARS)}`;
   }
   return [
     `Đề bài: ${clip(description, MAX_DESCRIPTION_CHARS)}`,

@@ -1,5 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "test", "dist", "mock-data-service", "jest.setup-env.ts", "**/*spec.ts"]
+  "exclude": ["node_modules", "test", "dist", "uploads", "mock-data-service", "jest.setup-env.ts", "**/*spec.ts"],
+  // `nest start --watch`: chỉ theo dõi mã nguồn. Bỏ qua thư mục sinh ra khi chạy (dist, uploads ảnh bằng chứng Tester Lab),
+  // file tsbuildinfo và spec để typecheck/jest/audit không làm backend tự khởi động lại giữa lúc đang kiểm thử hay chấm bài.
+  "watchOptions": {
+    "excludeDirectories": ["**/node_modules", "dist", "uploads", "docs", "reports"],
+    "excludeFiles": ["**/*.tsbuildinfo", "**/*.spec.ts", "**/*.log"]
+  }
 }

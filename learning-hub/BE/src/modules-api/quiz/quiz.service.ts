@@ -22,6 +22,27 @@ import { seededShuffle } from '../../common/helper/prng.helper';
 import { quizBandOfStudent } from './quiz-grade';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 import { ClassAssignmentsService } from '../class-assignments/class-assignments.service';
+import { optionalString, requireString } from '../../common/utils/input.util';
+
+/** Số câu trả lời tối đa trong một lần nộp (chặn payload phình to). */
+const MAX_ANSWERS = 500;
+
+/**
+ * answers phải là mảng [{ questionId, selectedOptionKey }] với hai trường là chuỗi (Day 30, DEF-052). Sai định dạng thì
+ * 400 TRƯỚC khi đụng tới lượt thi, nên lượt thi vẫn giữ nguyên IN_PROGRESS.
+ */
+export function parseQuizAnswers(raw: unknown): Array<{ questionId: string; selectedOptionKey: string }> {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw)) throw new BadRequestException('answers phải là mảng các câu trả lời { questionId, selectedOptionKey }.');
+  if (raw.length > MAX_ANSWERS) throw new BadRequestException(`answers tối đa ${MAX_ANSWERS} câu.`);
+  return raw.map((item, i) => {
+    const it = item as { questionId?: unknown; selectedOptionKey?: unknown } | null;
+    if (!it || typeof it !== 'object' || typeof it.questionId !== 'string' || typeof it.selectedOptionKey !== 'string') {
+      throw new BadRequestException(`answers[${i}] phải có questionId và selectedOptionKey dạng chuỗi.`);
+    }
+    return { questionId: it.questionId, selectedOptionKey: it.selectedOptionKey };
+  });
+}
 
 @Injectable()
 export class QuizService {
@@ -85,7 +106,10 @@ export class QuizService {
   }
 
   async startAttempt(userId: string, dto: StartAttemptDto, ageGroup?: string | null, user?: JwtPayload) {
-    const { testId, category } = dto;
+    // Kiểu dữ liệu sai (vd object { $ne: null }) → 400 rõ ràng, không lọt vào truy vấn hay ném 500 (DEF-050).
+    const testId = requireString(dto?.testId, 'testId', { max: 64 });
+    const category = optionalString(dto?.category, 'category', { max: 60 }) || undefined;
+    optionalString(dto?.assignmentId, 'assignmentId', { max: 64 });
 
     if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(testId)) {
       throw new BadRequestException('ID người dùng hoặc bài thi không hợp lệ.');
@@ -115,11 +139,15 @@ export class QuizService {
     const questionFilter: Record<string, unknown> = !category ? {} : { category };
     // Học viên 6-9 / 10-12 chỉ nhận câu ôn tập của đúng khối (câu chưa gắn khối vẫn hiện cho mọi khối).
     const band = quizBandOfStudent(ageGroup);
-    let questions = await this.questionModel
-      .find(band ? { ...questionFilter, $or: [{ gradeBands: band }, { gradeBands: { $exists: false } }] } : questionFilter)
-      .exec();
-    // Khối chưa có câu nào cho chủ đề này thì dùng toàn bộ chủ đề thay vì chặn học viên.
-    if (band && questions.length === 0) questions = await this.questionModel.find(questionFilter).exec();
+    // Câu do giảng viên soạn trong Ngân hàng đề chỉ dùng cho bài giao của lớp và cuộc thi, KHÔNG xuất hiện ở /quiz tự luyện.
+    const notBank = (list: QuestionDocument[] | null | undefined) => (list ?? []).filter((q) => (q as { bankOnly?: boolean }).bankOnly !== true);
+    let questions = notBank(
+      await this.questionModel
+        .find(band ? { ...questionFilter, $or: [{ gradeBands: band }, { gradeBands: { $exists: false } }] } : questionFilter)
+        .exec(),
+    );
+    // Khối chưa có câu công khai nào cho chủ đề này thì dùng toàn bộ chủ đề thay vì chặn học viên (xét SAU khi bỏ câu Ngân hàng đề).
+    if (band && questions.length === 0) questions = notBank(await this.questionModel.find(questionFilter).exec());
     if (!questions || questions.length === 0) {
       throw new NotFoundException(
         'Không tìm thấy câu hỏi nào trong hệ thống bài thi.',
@@ -171,7 +199,8 @@ export class QuizService {
     userId: string,
     dto: SubmitAttemptDto,
   ) {
-    const { answers } = dto;
+    // Kiểm tra định dạng answers trước khi đọc lượt thi: sai thì 400, lượt thi giữ nguyên IN_PROGRESS (DEF-052).
+    const answers = parseQuizAnswers(dto?.answers);
 
     if (!Types.ObjectId.isValid(attemptId) || !Types.ObjectId.isValid(userId)) {
       throw new BadRequestException(
@@ -211,11 +240,9 @@ export class QuizService {
 
     // Map answers by questionId
     const answerMap = new Map<string, string>();
-    if (answers && Array.isArray(answers)) {
-      answers.forEach((ans) => {
-        answerMap.set(ans.questionId, ans.selectedOptionKey);
-      });
-    }
+    answers.forEach((ans) => {
+      answerMap.set(ans.questionId, ans.selectedOptionKey);
+    });
 
     // Fetch questions to grade
     const questionIds = attempt.shuffledQuestions.map((sq) => sq.questionId);

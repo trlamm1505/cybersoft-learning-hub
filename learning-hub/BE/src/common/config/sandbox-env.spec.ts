@@ -37,33 +37,25 @@ describe('sandbox-env: một nguồn cấu hình cho Postgres Sandbox', () => {
     ).toBe('postgresql://x:y@h:1/d');
   });
 
+  // Day 30 bỏ Docker và learning-hub/.env(.example): BE/.env.example là nơi khai báo DUY NHẤT; để trống = SANDBOX_DEFAULTS.
   describe('không lệch giữa các nơi khai báo', () => {
-    const compose = fs.readFileSync(
-      path.join(ROOT, 'docker-compose.yml'),
+    const envExample = fs.readFileSync(
+      path.join(ROOT, 'BE/.env.example'),
       'utf8',
     );
-    const envExample = fs.readFileSync(path.join(ROOT, '.env.example'), 'utf8');
 
-    it('mặc định trong docker-compose.yml khớp SANDBOX_DEFAULTS', () => {
-      expect(compose).toContain(
-        `\${LAB_READER_PASSWORD:-${SANDBOX_DEFAULTS.labReaderPassword}}`,
-      );
-      expect(compose).toContain(
-        `\${SANDBOX_DB_PORT:-${SANDBOX_DEFAULTS.port}}`,
-      );
-      expect(compose).toContain(`POSTGRES_DB: ${SANDBOX_DEFAULTS.database}`);
+    it('chỉ còn một nguồn cấu hình: không còn docker-compose.yml và .env.example ở learning-hub/', () => {
+      expect(fs.existsSync(path.join(ROOT, 'docker-compose.yml'))).toBe(false);
+      expect(fs.existsSync(path.join(ROOT, '.env.example'))).toBe(false);
     });
 
-    it('.env.example khai báo đúng biến và đúng giá trị mặc định', () => {
-      expect(envExample).toMatch(
-        new RegExp(
-          `^LAB_READER_PASSWORD=${SANDBOX_DEFAULTS.labReaderPassword}$`,
-          'm',
-        ),
-      );
-      expect(envExample).toMatch(
-        new RegExp(`^SANDBOX_DB_PORT=${SANDBOX_DEFAULTS.port}$`, 'm'),
-      );
+    it('BE/.env.example khai báo biến sandbox; để trống thì dùng đúng SANDBOX_DEFAULTS', () => {
+      for (const key of ['SANDBOX_DB_HOST', 'SANDBOX_DB_PORT', 'LAB_READER_PASSWORD']) {
+        expect(envExample).toMatch(new RegExp(`^${key}=$`, 'm'));
+      }
+      expect(
+        buildSandboxDbUrl({ SANDBOX_DB_HOST: '', SANDBOX_DB_PORT: '', LAB_READER_PASSWORD: '' }),
+      ).toBe(buildSandboxDbUrl({}));
     });
 
     it('mock data-service không còn viết cứng mật khẩu', () => {

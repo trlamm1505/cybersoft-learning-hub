@@ -25,6 +25,9 @@ import { JudgeStatus } from './judge-status.enum';
 const STALE_RUNNING_THRESHOLD_MS = 30_000;
 const SWEEP_INTERVAL_MS = 30_000;
 const MAX_ATTEMPTS = 3;
+/** Số bài giữ trong bộ nhớ đệm bộ test của máy chấm (bộ test ẩn Ngày 15 nặng 0,6–2 MB mỗi bài). */
+const EXERCISE_CACHE_MAX = 12;
+type JudgeExercise = Exercise & { _id: unknown };
 
 /** Thông báo tổng quát cho lỗi xảy ra ở test ẩn (không chứa input/expected/stderr). */
 const GENERIC_ERROR: Partial<Record<JudgeStatus, string>> = {
@@ -46,6 +49,8 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(JudgeQueueService.name);
   private queue: string[] = [];
   private processing = false;
+  /** Bộ test (kể cả test ẩn) theo bài, đối chiếu bằng updatedAt: bài được sửa thì lần chấm sau tự nạp lại. */
+  private readonly exerciseCache = new Map<string, { stamp: number; doc: JudgeExercise }>();
   private sweepTimer?: NodeJS.Timeout;
 
   constructor(
@@ -67,6 +72,24 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
 
   onModuleDestroy() {
     if (this.sweepTimer) clearInterval(this.sweepTimer);
+  }
+
+  /**
+   * Nạp bài kèm test ẩn để chấm. Tải 0,6–2 MB mỗi bài Ngày 15 từ CSDL từ xa mất 6–20 giây mỗi lần nộp (làm FE báo hết giờ chờ), nên giữ trong
+   * bộ nhớ đệm; mỗi lần chấm chỉ hỏi CSDL `updatedAt` (vài chục byte) để biết bản đệm còn mới không.
+   */
+  private async loadExerciseForJudge(exerciseId: string): Promise<JudgeExercise | null> {
+    const head = await this.exerciseModel.findById(exerciseId).select('updatedAt').lean<{ updatedAt?: Date } | null>();
+    const stamp = head?.updatedAt ? new Date(head.updatedAt).getTime() : 0;
+    const hit = this.exerciseCache.get(exerciseId);
+    if (stamp && hit && hit.stamp === stamp) return hit.doc;
+    const doc = await this.exerciseModel.findById(exerciseId).select('+hiddenTestCases').lean<JudgeExercise | null>();
+    if (doc && stamp) {
+      this.exerciseCache.delete(exerciseId);
+      this.exerciseCache.set(exerciseId, { stamp, doc });
+      while (this.exerciseCache.size > EXERCISE_CACHE_MAX) this.exerciseCache.delete(this.exerciseCache.keys().next().value as string);
+    }
+    return doc;
   }
 
   enqueue(submissionId: string): void {
@@ -104,11 +127,8 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
     if (!claimed) return;
 
     try {
-      // Luồng chấm nội bộ: chủ động lấy hiddenTestCases (select:false) để chấm đủ test ẩn.
-      const exercise = await this.exerciseModel
-        .findById(claimed.exerciseId)
-        .select('+hiddenTestCases')
-        .lean();
+      // Luồng chấm nội bộ: cần cả hiddenTestCases (select:false) để chấm đủ test ẩn (có bộ nhớ đệm, xem loadExerciseForJudge).
+      const exercise = await this.loadExerciseForJudge(claimed.exerciseId);
       if (!exercise) {
         await this.finish(submissionId, {
           status: JudgeStatus.FAILED,

@@ -28,9 +28,6 @@ import { DaLabWorkspacePage } from './pages/DaLabWorkspacePage';
 import { AiLabListPage } from './pages/AiLabListPage';
 import { StudentRoute } from './components/StudentRoute';
 import { AiLabWorkspacePage } from './pages/AiLabWorkspacePage';
-import { TeacherReviewQueue } from './components/TeacherReviewQueue';
-import { TeacherLabSubmissionsPage } from './pages/TeacherLabSubmissionsPage';
-import { TeacherIntegrityQueuePage } from './pages/TeacherIntegrityQueuePage';
 import { CareerLabsPage } from './pages/CareerLabsPage';
 import { CareerMyClassPage } from './pages/CareerMyClassPage';
 import { careerBlockedPath, isCareerAdult } from './common/userGroups';
@@ -48,7 +45,6 @@ import { AdminSettingsPage } from './pages/AdminSettingsPage';
 import { AdminHealthPage } from './pages/AdminHealthPage';
 import { AdminAuditPage } from './pages/AdminAuditPage';
 import { AdminLayout } from './components/AdminLayout';
-import { portalHome } from './pages/adminDashboardModel';
 import { ContestListPage } from './pages/ContestListPage';
 import { TeacherQuestionBankPage } from './pages/TeacherQuestionBankPage';
 import { TeacherContestAuthoring } from './components/TeacherContestAuthoring';
@@ -64,7 +60,7 @@ import { isStaff } from './types/auth';
 import { authoringApi } from './axios/authoringApi';
 import { authApi } from './axios/authApi';
 import { browserSessionGuard, markSessionExpiredNotice } from './common/sessionGuard';
-import { AUTH_USER_KEY, clearAuthSession, getStoredToken, isTokenExpired } from './common/authSession';
+import { AUTH_USER_KEY, clearAuthSession, getStoredToken, isTokenExpired, migrateLegacyToken, saveSession } from './common/authSession';
 import './styles/main.css';
 
 export function App() {
@@ -80,7 +76,9 @@ export function App() {
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
-    // Không có token hoặc token đã hết hạn thì bản user lưu sẵn là vô nghĩa.
+    // Trình duyệt còn JWT thô của bản cũ: đổi sang dấu phiên (JWT thật nằm trong cookie httpOnly).
+    migrateLegacyToken();
+    // Không có phiên hoặc phiên đã hết hạn thì bản user lưu sẵn là vô nghĩa.
     const token = getStoredToken();
     const saved = localStorage.getItem(AUTH_USER_KEY);
     if (!token || isTokenExpired(token) || !saved) {
@@ -141,12 +139,14 @@ export function App() {
     }
   }, []);
 
+  // GET /authoring/lessons bắt buộc đăng nhập và lọc theo khối của người gọi: chỉ tải khi đã đăng nhập, tải lại khi đổi tài khoản.
+  const authUserId = authUser?.id;
   useEffect(() => {
-    fetchTeacherLessons();
-  }, [fetchTeacherLessons]);
+    if (authUserId) fetchTeacherLessons();
+  }, [fetchTeacherLessons, authUserId]);
 
-  // Filter published lessons for student views (Draft lessons are hidden from users)
-  const publishedTeacherLessons = teacherLessons.filter(
+  // Filter published lessons for student views (Draft lessons are hidden from users). Đã đăng xuất thì không dùng danh sách cũ.
+  const publishedTeacherLessons = (authUserId ? teacherLessons : []).filter(
     (l) => l.status === 'published' || l.status === undefined
   );
 
@@ -193,7 +193,8 @@ export function App() {
 
   const handleAuthSuccess = (auth: AuthResponse) => {
     browserSessionGuard.reset();
-    localStorage.setItem('token', auth.accessToken);
+    // Không lưu JWT vào localStorage (Day 29 SEC-18): chỉ lưu dấu phiên chứa hạn dùng.
+    saveSession(auth.accessToken);
     if (auth.csrfToken) localStorage.setItem('csrf_token', auth.csrfToken);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(auth.user));
     setAuthUser(auth.user);
@@ -326,9 +327,6 @@ export function App() {
           <Route path="/teacher/classes" element={<TeacherClassesPage />} />
           <Route path="/teacher/analytics" element={<TeacherDashboardPage />} />
           <Route path="/teacher/grading" element={<TeacherGradingPage />} />
-          <Route path="/teacher/grading/insight" element={<TeacherReviewQueue />} />
-          <Route path="/teacher/grading/labs" element={<TeacherLabSubmissionsPage />} />
-          <Route path="/teacher/grading/integrity" element={<TeacherIntegrityQueuePage />} />
           <Route path="/teacher/authoring" element={<TeacherSubNav title="Soạn đề" items={AUTHORING_TABS} />}>
             <Route index element={<TeacherExerciseFormPage />} />
             <Route path="ai" element={<AiGeneratorGate><TeacherProblemGeneratorPage /></AiGeneratorGate>} />
@@ -355,9 +353,6 @@ export function App() {
           <Route path="/problem-generator" element={<Navigate to="/teacher/authoring/ai" replace />} />
           <Route path="/teacher/authoring/exercises" element={<Navigate to="/teacher/authoring" replace />} />
           <Route path="/teacher/authoring/generator" element={<Navigate to="/teacher/authoring/ai" replace />} />
-          <Route path="/teacher/review-queue" element={<Navigate to="/teacher/grading/insight" replace />} />
-          <Route path="/teacher/lab-submissions" element={<Navigate to="/teacher/grading/labs" replace />} />
-          <Route path="/teacher/integrity" element={<Navigate to="/teacher/grading/integrity" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/teacher/dashboard" replace />} />
       </Routes>
@@ -456,7 +451,7 @@ export function App() {
           />
           <Route
             path="/playground"
-            element={<CodePlaygroundPage isDark={!isLightTheme} teacherLessons={publishedTeacherLessons} authUser={authUser} kidMode={kidMode} />}
+            element={<CodePlaygroundPage isDark={!isLightTheme} authUser={authUser} />}
           />
           <Route
             path="/block-puzzle"
@@ -496,7 +491,7 @@ export function App() {
           <Route path="/authoring" element={<Navigate to={authUser ? homeFor(authUser) : '/login'} replace />} />
           <Route path="/problem-generator" element={<Navigate to={authUser ? homeFor(authUser) : '/login'} replace />} />
           {/* Admin Portal có khung riêng; ai không phải ADMIN vào /admin/* đều bị đưa về trang chủ của vai trò mình. */}
-          <Route path="/admin/*" element={<Navigate to={authUser ? portalHome(authUser.role) : '/login'} replace />} />
+          <Route path="/admin/*" element={<Navigate to={authUser ? homeFor(authUser) : '/login'} replace />} />
           <Route path="/my-class" element={<StudentRoute authUser={authUser}>{isCareerAdult(authUser) ? <CareerMyClassPage /> : <MyClassPage />}</StudentRoute>} />
           <Route
             path="/da-labs"

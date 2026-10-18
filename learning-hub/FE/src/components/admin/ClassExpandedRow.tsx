@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import adminPortalApi from '../../axios/adminPortalApi';
 import type { PortalClassRow } from '../../types/adminPortal';
-import { EXERCISE_KIND, EXERCISE_STATUS, formatDateTimeVi, QUERY_STALE_MS } from '../../pages/adminPortalModel';
+import { canRemoveTeacherTag, EXERCISE_KIND, EXERCISE_STATUS, formatDateTimeVi, QUERY_STALE_MS } from '../../pages/adminPortalModel';
 import { QK } from '../../pages/adminPortalQueries';
 import { ErrorBanner, errorMessage, Pill, Skeleton } from './AdminUi';
 import { RemovableTag } from './ClassPickers';
@@ -42,17 +42,20 @@ export const ClassExpandedRow: React.FC<{ cls: PortalClassRow; panel: RowPanel; 
             <Pill tone="yellow">Chưa gán giảng viên</Pill>
           ) : (
             <div className="flex flex-wrap gap-1.5">
-              {cls.teachers.map((t, i) => (
-                <RemovableTag
-                  key={t.id}
-                  label={`${t.name}${i === 0 && cls.teachers.length > 1 ? ' · chính' : ''}${t.locked ? ' · Đã khóa' : ''}`}
-                  tone={t.locked ? 'locked' : i === 0 ? 'violet' : 'slate'}
-                  title={t.locked ? 'Tài khoản đang bị khóa' : undefined}
-                  removeLabel={`Gỡ ${t.name} khỏi lớp`}
-                  disabledReason={cls.teachers.length <= 1 ? 'Lớp cần ít nhất một giảng viên' : undefined}
-                  onRemove={() => teacherOps.remove(t.id)}
-                />
-              ))}
+              {cls.teachers.map((t, i) => {
+                const missing = (cls.missingTeacherIds ?? []).includes(t.id);
+                return (
+                  <RemovableTag
+                    key={t.id}
+                    label={`${t.name}${i === 0 && cls.teachers.length > 1 && !missing ? ' · chính' : ''}${t.locked ? ' · Đã khóa' : ''}`}
+                    tone={t.locked || missing ? 'locked' : i === 0 ? 'violet' : 'slate'}
+                    title={missing ? 'Tài khoản không còn tồn tại: gỡ để phân công giảng viên khác' : t.locked ? 'Tài khoản đang bị khóa' : undefined}
+                    removeLabel={`Gỡ ${t.name} khỏi lớp`}
+                    disabledReason={canRemoveTeacherTag(cls, t.id) ? undefined : 'Lớp cần ít nhất một giảng viên'}
+                    onRemove={() => teacherOps.remove(t.id)}
+                  />
+                );
+              })}
             </div>
           )}
           <TeacherPanel id={`teacher-panel-${cls.id}`} cls={cls} open={panel === 'teachers'} onClose={() => onPanel(null)} />

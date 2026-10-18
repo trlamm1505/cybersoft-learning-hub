@@ -27,8 +27,9 @@ describe('kidMode', () => {
   });
 
   it('Kid Mode chỉ cho vào Góc Học Tập, Block Puzzle, Thành tích, Hồ sơ, Đăng nhập', () => {
-    for (const p of ['/playground', '/block-puzzle', '/progress', '/kid-leaderboard', '/profile', '/login']) expect(isKidAllowedPath(p)).toBe(true);
-    for (const p of ['/catalog', '/da-labs', '/authoring', '/teacher/exercises', '/admin/users', '/playgroundx']) {
+    for (const p of ['/block-puzzle', '/progress', '/kid-leaderboard', '/profile', '/login']) expect(isKidAllowedPath(p)).toBe(true);
+    // Day 30: Lớp 3-5 không còn vào Playground hay trang trắc nghiệm.
+    for (const p of ['/playground', '/quiz', '/catalog', '/da-labs', '/authoring', '/teacher/exercises', '/admin/users', '/playgroundx']) {
       expect(isKidAllowedPath(p)).toBe(false);
     }
   });

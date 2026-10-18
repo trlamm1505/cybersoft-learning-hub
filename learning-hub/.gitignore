@@ -25,3 +25,7 @@ yarn-error.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Báo cáo do script kiểm thử sinh ra mỗi lần chạy (không commit)
+reports/
+*.tsbuildinfo

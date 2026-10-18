@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { AssessmentModule } from './modules-api/assessment/assessment.module';
 import { CsrfGuard } from './common/security/csrf.guard';
+import { RejectOperatorKeysPipe } from './common/security/reject-operator-keys.pipe';
 import { TraceErrorFilter } from './common/security/trace-error.filter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import {
@@ -77,6 +78,8 @@ import { ResilienceSecurityModule } from './modules-api/resilience-security/resi
     AppService,
     { provide: APP_GUARD, useClass: AppThrottlerGuard },
     { provide: APP_GUARD, useClass: CsrfGuard },
+    // Chặn 400 mọi payload chứa toán tử MongoDB ($ne, $gt...) trước khi tới service (Day 30, DEF-050).
+    { provide: APP_PIPE, useClass: RejectOperatorKeysPipe },
     { provide: APP_FILTER, useClass: TraceErrorFilter },
     { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
   ],

@@ -37,7 +37,8 @@ export const CreateUserModal: React.FC<{ onClose: () => void; onDone: (msg: stri
         email: form.email.trim(),
         password: form.password,
         role: form.role,
-        ...(form.ageGroup ? { ageGroup: form.ageGroup } : {}),
+        // Khối học chỉ dành cho học viên.
+        ...(form.ageGroup && form.role === 'STUDENT' ? { ageGroup: form.ageGroup } : {}),
       });
       onDone('Đã tạo người dùng mới.');
     } catch (err) {
@@ -82,10 +83,14 @@ export const CreateUserModal: React.FC<{ onClose: () => void; onDone: (msg: stri
             </select>
           </Field>
           <Field label="Khối học">
-            <select value={form.ageGroup} onChange={set('ageGroup')} className={selectCls}>
-              <option value="">{form.role === 'STUDENT' ? 'Chọn khối...' : 'Không áp dụng'}</option>
-              {AGE_OPTIONS}
-            </select>
+            {form.role === 'STUDENT' ? (
+              <select value={form.ageGroup} onChange={set('ageGroup')} className={selectCls}>
+                <option value="">Chọn khối...</option>
+                {AGE_OPTIONS}
+              </select>
+            ) : (
+              <input value="Chỉ áp dụng cho học viên" disabled readOnly aria-label="Khối học" className={inputCls} />
+            )}
           </Field>
         </div>
         {error && (
@@ -116,20 +121,28 @@ export const EditUserModal: React.FC<{
     e.preventDefault();
     if (!fullName.trim()) return setError('Nhập họ tên.');
     if (password && password.length < 6) return setError('Mật khẩu mới từ 6 ký tự.');
+    if (fullName.trim().length > 100) return setError('Họ tên tối đa 100 ký tự.');
+    const roleChanged = user.role === 'STUDENT' && role === 'TEACHER';
     const patch: { fullName?: string; ageGroup?: AgeGroupKey; password?: string } = {};
     if (fullName.trim() !== user.fullName) patch.fullName = fullName.trim();
-    if (ageGroup && ageGroup !== user.ageGroup) patch.ageGroup = ageGroup;
+    // Lên giảng viên thì khối học bị bỏ ở máy chủ: không gửi khối học kèm theo.
+    if (!roleChanged && user.role === 'STUDENT' && ageGroup && ageGroup !== user.ageGroup) patch.ageGroup = ageGroup;
     if (password) patch.password = password;
-    const roleChanged = user.role === 'STUDENT' && role === 'TEACHER';
     if (Object.keys(patch).length === 0 && !roleChanged) return setError('Chưa có thay đổi nào.');
     setBusy(true);
     setError(null);
+    // Đổi vai trò trước (bước duy nhất máy chủ có thể từ chối vì nghiệp vụ); dữ liệu còn lại đã được kiểm tra ở trên
+    // theo đúng luật của máy chủ, nên không còn trường hợp đổi vai trò xong mà hồ sơ lưu dở.
+    let roleDone = false;
     try {
+      if (roleChanged) {
+        await adminUsersApi.setRole(user.id, 'TEACHER');
+        roleDone = true;
+      }
       if (Object.keys(patch).length) await adminPortalApi.updateUser(user.id, patch);
-      if (roleChanged) await adminUsersApi.setRole(user.id, 'TEACHER');
       onDone(password ? 'Đã lưu và đặt lại mật khẩu (các phiên cũ bị hủy).' : 'Đã lưu thay đổi.');
     } catch (err) {
-      setError(errorMessage(err, 'Không lưu được thay đổi.'));
+      setError(roleDone ? `Đã đổi vai trò nhưng chưa lưu được thông tin khác: ${errorMessage(err, 'lỗi không xác định')}` : errorMessage(err, 'Không lưu được thay đổi.'));
       setBusy(false);
     }
   };
@@ -158,10 +171,14 @@ export const EditUserModal: React.FC<{
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Khối học">
-            <select value={ageGroup} onChange={(e) => setAgeGroup(e.target.value as '' | AgeGroupKey)} className={selectCls}>
-              <option value="">{user.ageGroup ? 'Giữ nguyên' : 'Chưa chọn'}</option>
-              {AGE_OPTIONS}
-            </select>
+            {user.role === 'STUDENT' && role === 'STUDENT' ? (
+              <select value={ageGroup} onChange={(e) => setAgeGroup(e.target.value as '' | AgeGroupKey)} className={selectCls}>
+                <option value="">{user.ageGroup ? 'Giữ nguyên' : 'Chưa chọn'}</option>
+                {AGE_OPTIONS}
+              </select>
+            ) : (
+              <input value="Chỉ áp dụng cho học viên" disabled readOnly aria-label="Khối học" className={inputCls} />
+            )}
           </Field>
           <Field label="Vai trò">
             {user.role === 'STUDENT' ? (

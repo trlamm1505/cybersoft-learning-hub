@@ -1,3 +1,4 @@
+import { notDemoExercise } from '../exercise/playground-catalog';
 import { generateClassCode } from './class-code';
 import {
   BadRequestException,
@@ -10,6 +11,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { AuditLogService } from '../admin-portal/audit-log.service';
 import { isCareerCourseClass, isTesterClass } from '../assessment/domain/tester-progress';
 import { ClassAssignment, ClassAssignmentDocument } from '../../modules-system/database/schemas/class-assignment.schema';
+import { ProctorAlert, ProctorAlertDocument } from '../../modules-system/database/schemas/proctor-alert.schema';
 import { finalizedError, requireReason } from '../tester-labs/tester-labs.service';
 import { TesterLabSubmission, TesterLabSubmissionDocument } from '../../modules-system/database/schemas/tester-lab-submission.schema';
 import { isValidObjectId, Model, Types } from 'mongoose';
@@ -150,6 +152,8 @@ export class TeacherAnalyticsService {
     @Optional() private readonly audit?: AuditLogService,
     @Optional() @InjectModel(ClassAssignment.name)
     private readonly classAssignments?: Model<ClassAssignmentDocument>,
+    @Optional() @InjectModel(ProctorAlert.name)
+    private readonly proctorAlerts?: Model<ProctorAlertDocument>,
   ) {}
 
   // ---------- Quản trị lớp (chỉ ADMIN) ----------
@@ -425,6 +429,12 @@ export class TeacherAnalyticsService {
       throw new BadRequestException('Không được xóa khóa chuyên ngành của Người đi làm.');
     }
     await this.classes.deleteOne({ _id: cls._id });
+    // Dọn dữ liệu con trỏ tới lớp đã xóa (bài giao, cảnh báo giám sát) để không còn bản ghi mồ côi.
+    // Bài nộp/lượt làm của học viên là lịch sử học tập của chính họ nên được giữ.
+    await Promise.all([
+      this.classAssignments?.deleteMany({ classId: asId(cls._id) }),
+      this.proctorAlerts?.deleteMany({ classId: asId(cls._id) }),
+    ]);
     return { id: asId(cls._id), deleted: true };
   }
 
@@ -638,8 +648,8 @@ export class TeacherAnalyticsService {
     const term = (q ?? '').trim().slice(0, 60);
     const rx = { $regex: this.escape(term), $options: 'i' };
     const filter = term
-      ? { $or: [{ title: rx }, { slug: rx }, { tags: rx }] }
-      : {};
+      ? { $or: [{ title: rx }, { slug: rx }, { tags: rx }], slug: notDemoExercise }
+      : { slug: notDemoExercise };
     const docs = await this.exercises
       .find(filter)
       .select('slug title type difficulty tags')
@@ -972,11 +982,11 @@ export class TeacherAnalyticsService {
         throw new BadRequestException('Chọn giảng viên phụ trách lớp.');
       }
       const teacher = await this.users
-        .find({ _id: { $in: [id] }, role: 'TEACHER' })
+        .find({ _id: { $in: [id] }, role: 'TEACHER', status: { $ne: 'LOCKED' } })
         .select('_id')
         .lean<Array<{ _id: unknown }>>();
       if (teacher.length !== 1) {
-        throw new BadRequestException('Giảng viên phụ trách không tồn tại.');
+        throw new BadRequestException('Giảng viên phụ trách không tồn tại hoặc đang bị khóa.');
       }
       out.teacherId = id;
       // Chuyển giao một giảng viên (luồng cũ) thay toàn bộ danh sách phụ trách để không lệch với teacherIds.

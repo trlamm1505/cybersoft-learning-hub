@@ -16,8 +16,7 @@ import {
   loadSharedEnvFiles,
 } from '../src/common/config/sandbox-env';
 
-// learning-hub/.env là nguồn chung cho LAB_READER_PASSWORD, SANDBOX_DB_PORT
-// (Docker Compose đọc cùng file), nên sandbox_db_url luôn khớp role lab_reader.
+// BE/.env là nguồn cấu hình duy nhất (LAB_READER_PASSWORD, SANDBOX_DB_PORT...), nên sandbox_db_url luôn khớp role lab_reader.
 loadSharedEnvFiles(path.resolve(__dirname, '..'));
 
 const PORT = Number(process.env.MOCK_DATA_SERVICE_PORT ?? 8010);

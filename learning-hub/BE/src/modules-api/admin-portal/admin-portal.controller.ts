@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/auth/roles.guard';
@@ -85,6 +85,12 @@ export class AdminPortalController {
   @Put('classes/:classId/teachers')
   assignTeachers(@CurrentUser() user: JwtPayload, @Param('classId') classId: string, @Body() body: { teacherIds?: unknown }) {
     return this.portal.assignTeachers(user, classId, body?.teacherIds);
+  }
+
+  /** Gỡ một giảng viên; được gỡ cả thẻ duy nhất nếu đó là tài khoản không còn tồn tại hoặc đang bị khóa. */
+  @Delete('classes/:classId/teachers/:teacherId')
+  removeTeacher(@CurrentUser() user: JwtPayload, @Param('classId') classId: string, @Param('teacherId') teacherId: string) {
+    return this.portal.removeTeacher(user, classId, teacherId);
   }
 
   /** Kiểm tra song song 5 cụm chức năng. Giới hạn 1 yêu cầu / 10 giây cho mỗi Admin. */

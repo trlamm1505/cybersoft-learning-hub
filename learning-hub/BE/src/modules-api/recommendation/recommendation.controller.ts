@@ -57,6 +57,7 @@ export class RecommendationController {
   async getRecommendations(@CurrentUser() user: JwtPayload) {
     const recommendations = await this.recommendationService.getRecommendations(
       user.sub,
+      user.ageGroup,
     );
     return { recommendations };
   }

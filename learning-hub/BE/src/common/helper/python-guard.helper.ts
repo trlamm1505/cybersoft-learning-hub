@@ -285,6 +285,8 @@ export async function scanPythonForViolations(
  * cú pháp, không chạy code của học viên.
  */
 function resolveGuardPythonBin(): string {
+  // Cùng biến PYTHON_BIN với bộ chạy code (BE/.env) để guard và runner luôn dùng một trình thông dịch.
+  if (process.env.PYTHON_BIN?.trim()) return process.env.PYTHON_BIN.trim();
   if (process.platform !== 'win32') return 'python3';
 
   const fs = require('fs') as typeof import('fs');

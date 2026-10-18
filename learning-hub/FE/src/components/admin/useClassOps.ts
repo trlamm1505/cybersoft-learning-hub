@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import adminClassesApi from '../../axios/adminClassesApi';
 import adminPortalApi from '../../axios/adminPortalApi';
 import type { PortalClassDetail, PortalClassRow } from '../../types/adminPortal';
-import { removeTeacher, toggleTeacher } from '../../pages/adminPortalModel';
+import { liveTeacherIds, removeTeacher, toggleTeacher } from '../../pages/adminPortalModel';
 import { QK, useActiveTeachers } from '../../pages/adminPortalQueries';
 import { useToast } from '../Toast';
 import { errorMessage } from './AdminUi';
@@ -21,30 +21,52 @@ export function useAssignTeachers(cls: PortalClassRow) {
     const t = teachers.data?.items.find((x) => x.id === id);
     return t?.fullName || t?.email || cls.teachers.find((x) => x.id === id)?.name || id;
   };
+  const lockedOf = (id: string) => cls.teachers.find((x) => x.id === id)?.locked;
+  const patchTeachers = (ids: string[]) =>
+    qc.setQueryData<Rows>(QK.classes, (rows) =>
+      patchRow(rows, cls.id, (r) => ({ ...r, teachers: ids.map((id) => ({ id, name: nameOf(id), locked: lockedOf(id) })), missingTeacherIds: (r.missingTeacherIds ?? []).filter((x) => ids.includes(x)) })),
+    );
+  const onError = (err: unknown, ctx: { prev: Rows } | undefined) => {
+    if (ctx?.prev) qc.setQueryData(QK.classes, ctx.prev);
+    showToast(errorMessage(err, 'Không phân công được giảng viên.'), 'error');
+  };
+  const onSettled = () => {
+    void qc.invalidateQueries({ queryKey: QK.classes });
+    void qc.invalidateQueries({ queryKey: QK.audit });
+  };
   const m = useMutation({
     mutationFn: (ids: string[]) => adminPortalApi.assignTeachers(cls.id, ids),
     onMutate: async (ids) => {
       await qc.cancelQueries({ queryKey: QK.classes });
       const prev = qc.getQueryData<Rows>(QK.classes);
-      qc.setQueryData<Rows>(QK.classes, (rows) => patchRow(rows, cls.id, (r) => ({ ...r, teachers: ids.map((id) => ({ id, name: nameOf(id) })) })));
+      patchTeachers(ids);
       return { prev };
     },
-    onError: (err, _ids, ctx) => {
-      if (ctx?.prev) qc.setQueryData(QK.classes, ctx.prev);
-      showToast(errorMessage(err, 'Không phân công được giảng viên.'), 'error');
+    onError: (err, _ids, ctx) => onError(err, ctx),
+    onSettled,
+  });
+  // Gỡ một thẻ qua endpoint riêng: được gỡ cả thẻ duy nhất khi đó là id "ma" hoặc tài khoản đã khóa.
+  const one = useMutation({
+    mutationFn: (id: string) => adminPortalApi.removeTeacher(cls.id, id),
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: QK.classes });
+      const prev = qc.getQueryData<Rows>(QK.classes);
+      patchTeachers(cls.teachers.map((t) => t.id).filter((x) => x !== id));
+      return { prev };
     },
-    onSettled: () => {
-      void qc.invalidateQueries({ queryKey: QK.classes });
-      void qc.invalidateQueries({ queryKey: QK.audit });
-    },
+    onError: (err, _id, ctx) => onError(err, ctx),
+    onSettled,
   });
   const current = cls.teachers.map((t) => t.id);
+  // Danh sách gửi lên luôn bỏ id "ma" để request không bao giờ bị từ chối vì một tài khoản đã bị xóa từ trước.
+  const live = liveTeacherIds(cls);
+  const missing = new Set(cls.missingTeacherIds ?? []);
   return {
     teachers,
     current,
-    pending: m.isPending,
-    toggle: (id: string) => m.mutate(toggleTeacher(current, id)),
-    remove: (id: string) => m.mutate(removeTeacher(current, id)),
+    pending: m.isPending || one.isPending,
+    toggle: (id: string) => m.mutate(toggleTeacher(live, id)),
+    remove: (id: string) => (missing.has(id) || lockedOf(id) || live.length <= 1 ? one.mutate(id) : m.mutate(removeTeacher(live, id))),
   };
 }
 

@@ -15,11 +15,18 @@ describe('jwtSecretFrom', () => {
     expect(jwtSecretFrom(config('khoa-bi-mat-that'))).toBe('khoa-bi-mat-that');
   });
 
-  it('dev/test thiếu JWT_SECRET: dùng khóa mặc định để chạy được ngay', () => {
+  it('dev/test thiếu JWT_SECRET: khóa NGẪU NHIÊN của tiến trình (ổn định giữa các lần gọi), không còn chuỗi cố định', () => {
     process.env.NODE_ENV = 'development';
-    expect(jwtSecretFrom(config())).toBe('dev-secret-key');
+    const a = jwtSecretFrom(config());
     process.env.NODE_ENV = 'test';
-    expect(jwtSecretFrom(config(''))).toBe('dev-secret-key');
+    expect(jwtSecretFrom(config(''))).toBe(a);
+    expect(a).not.toBe('dev-secret-key');
+    expect(a.length).toBeGreaterThanOrEqual(64);
+  });
+
+  it('khóa mặc định đã lộ (dev-secret-key) bị từ chối ở mọi môi trường', () => {
+    process.env.NODE_ENV = 'development';
+    expect(() => jwtSecretFrom(config('dev-secret-key'))).toThrow(/đã bị lộ/);
   });
 
   it('production thiếu JWT_SECRET: dừng ngay, không ký token bằng khóa mặc định ai cũng biết', () => {

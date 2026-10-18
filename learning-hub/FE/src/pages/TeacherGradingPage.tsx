@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { AlertTriangle, CheckCircle2, Inbox, Loader2, ShieldAlert } from 'lucide-react';
 import testerLabApi from '../axios/testerLabApi';
 import integrityApi from '../axios/integrityApi';
@@ -164,11 +163,20 @@ const TesterQueue: React.FC = () => {
   const [items, setItems] = useState<ReviewQueueItem[] | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notOwner, setNotOwner] = useState(false);
 
   const load = useCallback(() => {
+    // Hỏi quyền trước (luôn 200): giảng viên không phụ trách lớp Tester QA không gọi hàng chờ (tránh 403 đỏ ở console).
     testerLabApi
-      .getReviewQueue()
-      .then(setItems)
+      .getCapabilities()
+      .then((c) => {
+        if (!c.canReviewTesterQueue) {
+          setNotOwner(true);
+          setItems([]);
+          return undefined;
+        }
+        return testerLabApi.getReviewQueue().then(setItems);
+      })
       .catch((err) => {
         setError(errorMessage(err, 'Không tải được hàng chờ chấm.'));
         setItems([]);
@@ -191,7 +199,7 @@ const TesterQueue: React.FC = () => {
         </div>
       ) : items.length === 0 ? (
         <div className={`flex items-center gap-2 rounded-lg border p-4 text-sm text-[var(--text-muted)] ${hairline}`}>
-          <Inbox size={16} /> Không có bài nào đang chờ chấm.
+          <Inbox size={16} /> {notOwner ? 'Bạn chưa phụ trách lớp Tester QA nào nên không có hàng chờ chấm.' : 'Không có bài nào đang chờ chấm.'}
         </div>
       ) : (
         <div className={`overflow-x-auto rounded-lg border ${hairline}`}>
@@ -405,20 +413,6 @@ export const TeacherGradingPage: React.FC = () => (
     <h1 className="text-xl font-semibold text-[var(--text-main)]">Chấm bài &amp; Duyệt Lab</h1>
     <TesterQueue />
     <IntegrityQueue />
-    <p className="text-xs text-[var(--text-muted)]">
-      Công cụ khác:{' '}
-      <Link to="/teacher/grading/insight" className="underline">
-        Chấm DA Insight
-      </Link>{' '}
-      ·{' '}
-      <Link to="/teacher/grading/labs" className="underline">
-        Bài nộp DA/AI Lab
-      </Link>{' '}
-      ·{' '}
-      <Link to="/teacher/grading/integrity" className="underline">
-        Xem xét trung thực chi tiết
-      </Link>
-    </p>
   </div>
 );
 

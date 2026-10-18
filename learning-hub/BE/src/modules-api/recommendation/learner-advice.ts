@@ -56,6 +56,8 @@ const WRONG_STATUSES = new Set(['WA', 'RE']);
 export function buildHistorySummary(
   attempts: AdviceAttempt[],
   exercises: AdviceExercise[],
+  /** Chỉ các bài này được đề xuất làm tiếp (vd bài đang mở khóa và chưa hoàn thành ở Playground); bỏ trống = mọi bài chưa giải. */
+  candidateIds?: ReadonlySet<string>,
 ): HistorySummary {
   const byId = new Map(exercises.map((e) => [e.id, e]));
   const solved = new Set(attempts.filter((a) => a.status === 'AC').map((a) => a.exerciseId));
@@ -76,7 +78,7 @@ export function buildHistorySummary(
   const weakTopic = weakSorted[0] ?? null;
 
   const candidates = exercises
-    .filter((e) => !solved.has(e.id))
+    .filter((e) => (candidateIds ? candidateIds.has(e.id) : !solved.has(e.id)))
     .map((e) => {
       const g = topicGroupOf(e);
       return { slug: e.slug, title: e.title, difficulty: e.difficulty, topicKey: g.key, topicLabel: g.label };

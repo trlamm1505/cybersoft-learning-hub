@@ -14,9 +14,7 @@ import {
   Sparkles,
   FlaskConical,
   ClipboardCheck,
-  ListChecks,
   BarChart3,
-  ShieldAlert,
   ShieldCheck,
   User,
   Users,
@@ -64,9 +62,6 @@ const TEACHER_NAV: NavItem[] = [
   { key: 'teacher-usability', label: 'Usability & Age UI', Icon: Users, path: '/authoring?view=usability' },
   { key: 'teacher-resilience', label: 'Bảo Mật & Tải', Icon: ShieldCheck, path: '/authoring?view=resilience' },
   { key: 'problem-generator', label: 'AI Tạo Đề', Icon: Sparkles, path: '/problem-generator' },
-  { key: 'review-queue', label: 'Chấm Insight', Icon: ClipboardCheck, path: '/teacher/review-queue' },
-  { key: 'lab-submissions', label: 'Bài nộp Lab', Icon: ListChecks, path: '/teacher/lab-submissions' },
-  { key: 'integrity', label: 'Xem xét trung thực', Icon: ShieldAlert, path: '/teacher/integrity' },
   { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
 ];
 

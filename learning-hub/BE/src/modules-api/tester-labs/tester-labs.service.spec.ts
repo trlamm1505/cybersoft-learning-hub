@@ -160,3 +160,20 @@ describe('TesterLabsService.capabilities', () => {
     expect(svc().capabilities({ sub: 's', role: 'STUDENT' })).toMatchObject({ canReview: true, peerReview: true });
   });
 });
+
+describe('TesterLabsService.canSeeReviewQueue (cờ để FE khỏi gọi hàng chờ rồi nhận 403)', () => {
+  const withClasses = (owned: boolean) => {
+    const exists = jest.fn().mockResolvedValue(owned ? { _id: 'c1' } : null);
+    return { svc: new TesterLabsService({} as any, {} as any, {} as any, { exists } as any), exists };
+  };
+  it('giảng viên chỉ thấy khi đang phụ trách lớp Tester QA chưa lưu trữ; hỏi đúng bộ lọc lớp', async () => {
+    const yes = withClasses(true);
+    await expect(yes.svc.canSeeReviewQueue({ sub: 't1', role: 'TEACHER' })).resolves.toBe(true);
+    expect(yes.exists).toHaveBeenCalledWith({ courseKey: 'tester-qa', archived: { $ne: true }, $or: [{ teacherId: 't1' }, { teacherIds: 't1' }] });
+    await expect(withClasses(false).svc.canSeeReviewQueue({ sub: 't2', role: 'TEACHER' })).resolves.toBe(false);
+  });
+  it('Admin luôn thấy; học viên không bao giờ thấy', async () => {
+    await expect(withClasses(false).svc.canSeeReviewQueue({ sub: 'a', role: 'ADMIN' })).resolves.toBe(true);
+    await expect(withClasses(true).svc.canSeeReviewQueue({ sub: 's', role: 'STUDENT' })).resolves.toBe(false);
+  });
+});

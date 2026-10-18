@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { GeminiClientCache } from '../../common/gemini-client-cache';
 import type { GeminiKeySource } from '../../common/gemini-client-cache';
 import { CoachContext } from './coach-context.types';
+import { maskPii } from '../../common/utils/pii-mask.util';
 import { estimateTokens, StubLlmClient } from './coach-llm.client';
 import type { LlmChatResult, LlmClient } from './coach-llm.client';
 import { COACH_MAX_OUTPUT_TOKENS } from './coach.constants';
@@ -27,12 +28,15 @@ export function buildGeminiUserContent(
   context: CoachContext,
   userMessage: string,
 ): string {
+  // Không gửi định danh học viên (userId) sang Gemini; tin nhắn và lịch sử chat được che email/số điện thoại/CCCD.
+  const { userId: _omit, ...rest } = context;
+  const safe = { ...rest, recentHistory: (rest.recentHistory ?? []).map((t) => ({ ...t, content: maskPii(t.content) })) };
   return [
     'Context bài tập (JSON):',
-    `<context>${JSON.stringify(context)}</context>`,
+    `<context>${JSON.stringify(safe)}</context>`,
     '',
     'Tin nhắn của học viên:',
-    `<hoc_vien>${userMessage}</hoc_vien>`,
+    `<hoc_vien>${maskPii(userMessage)}</hoc_vien>`,
   ].join('\n');
 }
 

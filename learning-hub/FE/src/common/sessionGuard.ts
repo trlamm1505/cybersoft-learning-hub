@@ -1,4 +1,4 @@
-import { clearAuthSession, isTokenExpired } from './authSession';
+import { clearAuthSession, getStoredToken, isTokenExpired } from './authSession';
 
 export type SessionEndReason = 'expired' | 'locked';
 
@@ -80,5 +80,5 @@ export const browserSessionGuard = createSessionGuard({
   clear: clearAuthSession,
   redirect: (url) => window.location.assign(url),
   currentPath: () => window.location.pathname,
-  getToken: () => localStorage.getItem('token') || localStorage.getItem('accessToken'),
+  getToken: getStoredToken,
 });

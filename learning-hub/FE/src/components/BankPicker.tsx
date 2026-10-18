@@ -40,7 +40,10 @@ export const BankPicker: React.FC<Props> = ({ type, selectedSlug, selectedIds, o
   const [q, setQ] = useState('');
   const [difficulty, setDifficulty] = useState<Difficulty | ''>('');
   const [page, setPage] = useState(1);
-  const [data, setData] = useState<Paged<BankExercise | BankQuestion> | null>(null);
+  // Kết quả kèm LOẠI bài đã tải: khi đổi tab Code <-> Trắc nghiệm, một lần render chạy với loại mới trong lúc dữ liệu vẫn của loại cũ
+  // (setData(null) chỉ chạy sau render) nên bài Code bị vẽ như câu hỏi (qs.id undefined => thiếu key, nháy sai nội dung).
+  const [loaded, setLoaded] = useState<{ type: Props['type']; res: Paged<BankExercise | BankQuestion> } | null>(null);
+  const data = loaded && loaded.type === type ? loaded.res : null;
   const [error, setError] = useState<string | null>(null);
 
   // Đổi từ khóa/độ khó/loại bài thì về trang 1.
@@ -48,12 +51,12 @@ export const BankPicker: React.FC<Props> = ({ type, selectedSlug, selectedIds, o
 
   useEffect(() => {
     let cancelled = false;
-    setData(null);
+    setLoaded(null);
     setError(null);
     const t = setTimeout(() => {
       const load = type === 'CODING' ? teacherClassAssignmentsApi.catalogExercises({ q, difficulty, band, page, pageSize: 10 }) : teacherClassAssignmentsApi.catalogQuestions({ q, difficulty, band, page, pageSize: 10 });
       load
-        .then((r) => !cancelled && setData(r as Paged<BankExercise | BankQuestion>))
+        .then((r) => !cancelled && setLoaded({ type, res: r as Paged<BankExercise | BankQuestion> }))
         .catch(() => !cancelled && setError('Không tải được ngân hàng đề.'));
     }, 250);
     return () => {

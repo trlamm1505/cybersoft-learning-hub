@@ -43,6 +43,8 @@ export interface PortalClassRow {
   ageGroup: AgeGroupKey | null;
   /** locked: tài khoản giảng viên đang bị khóa (vẫn giữ lịch sử phân công). */
   teachers: Array<{ id: string; name: string; locked?: boolean }>;
+  /** Id giảng viên "ma" (tài khoản đã bị xóa hoặc không còn là giảng viên): không gửi lại khi phân công, gỡ được tự do. */
+  missingTeacherIds?: string[];
   studentCount: number;
   /** Số bài tập: bài giao cho lớp phổ thông, hoặc số bài lab của khóa. */
   exerciseCount: number;

@@ -5,9 +5,9 @@
  *   node scripts/seed-kid-leaderboard.js             # ghi vào CSDL trong BE/.env
  *   node scripts/seed-kid-leaderboard.js --remove    # xóa đúng các bé mẫu này và tiến độ của họ
  *
- * Xếp hạng là "ai phá đảo SỚM hơn xếp trước", nên thời điểm phá đảo của các bé mẫu được đặt ở NGÀY SAU
- * (mặc định 18-21/10/2026, chỉnh bằng SEED_FIRST_DAY=YYYY-MM-DD): bé thật chơi xong trước các mốc đó sẽ đứng trên
- * họ và chiếm hạng 1. Các bé mẫu có email @demo.cybersoft.local (không đăng nhập được: mật khẩu ngẫu nhiên) và cờ
+ * Xếp hạng theo THỜI GIAN CHƠI (từ màn đầu tới màn cuối; ngày phá đảo chỉ là tiêu chí phụ), nên ngày phá đảo của các bé mẫu luôn nằm trong
+ * QUÁ KHỨ (mặc định 6 ngày trước tới hôm qua; chỉnh bằng SEED_FIRST_DAY=YYYY-MM-DD): Bảng Vinh Danh không bao giờ hiện ngày tương lai.
+ * Các bé mẫu có email @demo.cybersoft.local (không đăng nhập được: mật khẩu ngẫu nhiên) và cờ
  * isSeedDemo=true; chạy lại không tạo trùng (upsert), --remove chỉ đụng đúng các bản ghi đó.
  */
 const fs = require('fs');
@@ -20,7 +20,8 @@ const envText = fs.existsSync(path.join(BE, '.env')) ? fs.readFileSync(path.join
 const uri = process.env.DATABASE_URL || h.readEnvValue(envText, 'DATABASE_URL') || '';
 const dryRun = process.argv.includes('--dry-run');
 const remove = process.argv.includes('--remove');
-const FIRST_DAY = process.env.SEED_FIRST_DAY || '2026-10-18';
+// Ngày bắt đầu của dãy mốc phá đảo: 6 ngày trước (dayOffset 0..5 => 6 ngày trước ... hôm qua), luôn là quá khứ.
+const FIRST_DAY = process.env.SEED_FIRST_DAY || new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10);
 
 // Khớp BE/src/modules-api/block-puzzle/block-puzzle-games.ts
 const lv = (id, n) => Array.from({ length: n }, (_, i) => `${id}-level-${i + 1}`);
@@ -115,7 +116,7 @@ function rng(seedStr) {
         { email: kid.email },
         {
           $set: { fullName: kid.fullName, role: 'STUDENT', ageGroup: '3-5', status: 'ACTIVE', isSeedDemo: true, updatedAt: new Date() },
-          $setOnInsert: { email: kid.email, password: pwHash, phone: '', bio: '', createdAt: new Date() },
+          $setOnInsert: { email: kid.email, password: pwHash, createdAt: new Date() },
         },
         { upsert: true, returnDocument: 'after' },
       );

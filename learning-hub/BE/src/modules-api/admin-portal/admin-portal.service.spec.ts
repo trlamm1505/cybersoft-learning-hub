@@ -20,6 +20,7 @@ function build(over: Record<string, any> = {}) {
   };
   const classes: any = {
     countDocuments: jest.fn().mockResolvedValue(0),
+    aggregate: jest.fn().mockResolvedValue([]),
     find: jest.fn(),
     findById: jest.fn(),
     updateOne: jest.fn().mockResolvedValue({}),

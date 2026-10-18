@@ -175,6 +175,17 @@ export class TesterLabsService implements OnModuleInit {
     return { role: user.role, canReview: this.canReview(user.role), peerReview: user.role === 'STUDENT' && this.canReview('STUDENT') };
   }
 
+  /**
+   * Có xem được hàng chờ chấm Tester QA không: Admin luôn được; giảng viên chỉ khi đang phụ trách một lớp Tester QA (cùng luật với
+   * assertTeacherScope). FE hỏi cờ này (luôn 200) trước khi tải hàng chờ, thay vì gọi rồi nhận 403 đỏ trong console.
+   */
+  async canSeeReviewQueue(user: TesterLabUser): Promise<boolean> {
+    if (user.role === 'ADMIN') return true;
+    if (user.role !== 'TEACHER') return false;
+    if (!this.classModel) return true;
+    return !!(await this.classModel.exists({ courseKey: 'tester-qa', archived: { $ne: true }, $or: [{ teacherId: user.sub }, { teacherIds: user.sub }] }));
+  }
+
   /** Chỉ TEACHER/ADMIN chấm chính thức; STUDENT chỉ khi bật cờ peer-review. */
   private canReview(role: string): boolean {
     if (role === 'TEACHER' || role === 'ADMIN') return true;

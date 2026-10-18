@@ -278,11 +278,13 @@ export const CoachPanel: React.FC<CoachPanelProps> = ({ exerciseSlug, userId, la
             }
           }}
           placeholder="Hỏi AI Coach về bài tập này..."
+          aria-label="Câu hỏi cho AI Coach"
           className="flex-1 resize-none px-3 py-2 text-sm rounded-lg bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] focus:outline-none focus:border-indigo-500"
         />
         <button
           onClick={handleSend}
           disabled={isSending || !draft.trim()}
+          aria-label={isSending ? 'Đang gửi câu hỏi' : 'Gửi câu hỏi cho AI Coach'}
           className="px-3.5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
         >
           {isSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}

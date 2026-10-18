@@ -17,6 +17,7 @@ import {
 } from './learner-advice';
 import { LEARNER_ADVISOR, type LearnerAdvisor } from './learner-advisor';
 import { ExerciseSummary, RecommendedExercise, TagMastery } from './recommendation.types';
+import { playgroundBandOf, playgroundFilter, playgroundStatuses } from '../exercise/playground-catalog';
 
 const MAX_RECOMMENDATIONS = 3;
 
@@ -53,8 +54,29 @@ export class RecommendationService {
   }
 
   /**
-   * Thống kê cho trang Tiến độ: lượt nộp AC/WA/TLE/RE/CE và tỷ lệ hoàn thành theo chủ đề trong danh sách bài của đúng khối
-   * học viên (6-9, 10-12; nhóm khác tính toàn bộ bài). userId lấy từ JWT.
+   * Lộ trình Playground chuẩn của học viên Khối 6-9 / 10-12, đã sắp #1..#N (cùng bộ lọc và thứ tự với GET /exercises/playground).
+   * null = học viên không có lộ trình Playground (nhóm khác). Đây là danh sách duy nhất làm mẫu số cho "Bài đã giải X/N".
+   */
+  private async playgroundTrack(ageGroup?: string) {
+    const band = playgroundBandOf(ageGroup);
+    if (!band) return null;
+    const docs = await this.exerciseModel
+      .find(playgroundFilter(band))
+      .select('title slug difficulty tags prerequisiteSlug orderInTopic')
+      .lean();
+    return [...docs].sort((a, b) => (a.orderInTopic ?? 0) - (b.orderInTopic ?? 0) || a.slug.localeCompare(b.slug));
+  }
+
+  /** Id các bài trên lộ trình theo trạng thái (cùng hàm mở khóa với /exercises/playground). */
+  private idsByStatus(track: Array<{ _id: unknown }>, solvedIds: ReadonlySet<string>, wanted: ReadonlyArray<'completed' | 'available' | 'locked'>): Set<string> {
+    const ids = track.map((t) => String(t._id));
+    const status = playgroundStatuses(ids, solvedIds);
+    return new Set(ids.filter((_, i) => wanted.includes(status[i])));
+  }
+
+  /**
+   * Thống kê cho trang Tiến độ: lượt nộp AC/WA/TLE/RE/CE và tỷ lệ hoàn thành theo chủ đề. Học viên 6-9 / 10-12 tính trên ĐÚNG lộ
+   * trình Playground của khối (X/N khớp 100% với /playground); nhóm khác tính trên các bài của khối. userId lấy từ JWT.
    */
   private bandFilterFor(ageGroup?: string) {
     return ageGroup === '6-9'
@@ -70,13 +92,19 @@ export class RecommendationService {
    * ứng viên thật; lỗi/thiếu cấu hình thì dùng lời khuyên theo luật. userId lấy từ JWT.
    */
   async getAiAdvice(userId: string, ageGroup?: string, now: Date = new Date()): Promise<LearnerAdviceResult> {
-    const [attempts, exercises] = await Promise.all([
+    const [attempts, track, bandExercises] = await Promise.all([
       this.masteryService.getGradedAttempts(userId),
-      this.exerciseModel
-        .find({ resource_id: { $exists: false }, ...this.bandFilterFor(ageGroup) })
-        .select('title slug difficulty tags')
-        .lean(),
+      this.playgroundTrack(ageGroup),
+      playgroundBandOf(ageGroup)
+        ? Promise.resolve(null)
+        : this.exerciseModel
+            .find({ resource_id: { $exists: false }, ...this.bandFilterFor(ageGroup) })
+            .select('title slug difficulty tags')
+            .lean(),
     ]);
+    const exercises = track ?? bandExercises ?? [];
+    // Lộ trình Playground: chỉ đề xuất bài đang mở khóa và chưa hoàn thành (bài còn khóa thì nộp sẽ bị từ chối).
+    const candidateIds = track ? this.idsByStatus(track, await this.masteryService.getPlaygroundSolvedIds(userId), ['available']) : undefined;
     const summary = buildHistorySummary(
       attempts.map((a) => ({ exerciseId: a.exerciseId, status: a.status })),
       exercises.map((e) => ({
@@ -86,6 +114,7 @@ export class RecommendationService {
         difficulty: e.difficulty,
         tags: e.tags ?? [],
       })),
+      candidateIds,
     );
 
     const cacheKey = `${summary.totalAttempts}:${summary.solvedCount}:${summary.candidates.map((c) => c.slug).join(',')}`;
@@ -115,30 +144,39 @@ export class RecommendationService {
 
   async getStats(userId: string, ageGroup?: string): Promise<LearnerStats> {
     const bandFilter = this.bandFilterFor(ageGroup);
-    const [attempts, exercises] = await Promise.all([
-      this.masteryService.getGradedAttempts(userId),
-      this.exerciseModel
+    const [attempts, track] = await Promise.all([this.masteryService.getGradedAttempts(userId), this.playgroundTrack(ageGroup)]);
+    // Học viên có lộ trình: "đã giải" tính theo đúng định nghĩa của Playground để X/N khớp 100% (xem PRACTICE_AC_FILTER).
+    const playgroundSolved = track ? await this.masteryService.getPlaygroundSolvedIds(userId) : undefined;
+    const exercises =
+      track ??
+      (await this.exerciseModel
         .find({ resource_id: { $exists: false }, ...bandFilter })
         .select('tags slug title')
-        .lean(),
-    ]);
+        .lean());
     return computeLearnerStats(
       attempts.map((a) => ({ exerciseId: a.exerciseId, status: a.status })),
       exercises.map((e) => ({ id: String(e._id), tags: e.tags ?? [], slug: e.slug, title: e.title })),
+      playgroundSolved,
     );
   }
 
-  async getRecommendations(userId: string): Promise<RecommendedExercise[]> {
-    const [tagMastery, solvedExerciseIds, exercises] = await Promise.all([
+  async getRecommendations(userId: string, ageGroup?: string): Promise<RecommendedExercise[]> {
+    const track = await this.playgroundTrack(ageGroup);
+    const [tagMastery, solvedExerciseIds, allExercises] = await Promise.all([
       this.masteryService.getTagMastery(userId),
-      this.masteryService.getSolvedExerciseIds(userId),
+      track ? this.masteryService.getPlaygroundSolvedIds(userId) : this.masteryService.getSolvedExerciseIds(userId),
       // Chỉ gợi ý bài Python: bài DA Lab (có resource_id) học viên không
       // làm được ở Playground và không nộp được qua judge Python.
-      this.exerciseModel
-        .find({ resource_id: { $exists: false } })
-        .select('title slug difficulty tags prerequisiteSlug')
-        .lean(),
+      track
+        ? Promise.resolve(track)
+        : this.exerciseModel
+            .find({ resource_id: { $exists: false } })
+            .select('title slug difficulty tags prerequisiteSlug')
+            .lean(),
     ]);
+    // Học viên 6-9 / 10-12: chỉ gợi ý bài trong lộ trình Playground và đang mở khóa (không gợi ý bài khóa, bài khối khác, bài Ngân hàng đề).
+    const unlocked = track ? this.idsByStatus(track, new Set([...solvedExerciseIds].map(String)), ['completed', 'available']) : null;
+    const exercises = unlocked ? allExercises.filter((e) => unlocked.has(String(e._id))) : allExercises;
 
     const exerciseSummaries: ExerciseSummary[] = exercises.map((ex) => ({
       id: String(ex._id),

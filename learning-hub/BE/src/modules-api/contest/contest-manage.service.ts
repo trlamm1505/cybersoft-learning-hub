@@ -1,3 +1,4 @@
+import { notDemoExercise } from '../exercise/playground-catalog';
 import {
   Optional,
   BadRequestException,
@@ -364,7 +365,7 @@ export class ContestManageService {
 
   /** Bài Code Playground (Python) có thể đưa vào cuộc thi. */
   async listExerciseBank(query: { q?: string; topic?: string; band?: string }) {
-    const filter: Record<string, unknown> = { type: 'CODE_TEXT' };
+    const filter: Record<string, unknown> = { type: 'CODE_TEXT', slug: notDemoExercise };
     const band = normalizeBankBand(query.band);
     if (band) Object.assign(filter, exerciseBandFilter(band));
     if (query.topic) filter.topic = String(query.topic);

@@ -20,6 +20,7 @@
 const fs = require('fs');
 const path = require('path');
 const h = require('./lib/setup-helpers');
+const { repairAllClasses } = require('./lib/class-integrity');
 
 const BE = path.join(__dirname, '..', 'BE');
 const envText = fs.readFileSync(path.join(BE, '.env'), 'utf8');
@@ -60,8 +61,9 @@ const log = (m) => console.log(m);
   if (remove) {
     if (!dryRun) {
       for (const c of ["assessments", "assessment_submissions", "block_puzzle_progress", "da_lab_submissions", "ai_lab_submissions"]) await db.collection(c).deleteMany({ [FLAG]: true });
-      await classes.updateMany({}, { $pull: { studentIds: { $in: demoUsers.map((u) => String(u._id)) } } });
       await users.deleteMany({ [FLAG]: true });
+      // Gỡ tài khoản demo khỏi studentIds VÀ teacherIds/teacherId (không để lại id "ma").
+      await repairAllClasses(db);
     }
     log('Đã dọn dữ liệu demo của giảng viên.');
     await mongoose.disconnect();
@@ -85,7 +87,11 @@ const log = (m) => console.log(m);
       log(`Đã tạo lớp ${t.label}`);
     }
     if (!(c.teacherId === tid || (c.teacherIds || []).includes(tid))) {
-      if (!dryRun) await classes.updateOne({ _id: c._id }, { $set: { teacherIds: [...new Set([c.teacherId, ...(c.teacherIds || []), tid].filter(Boolean))], updatedAt: now } });
+      // Chỉ chép lại những giảng viên còn tồn tại: trước đây teacherId "ma" bị chép vào đầu teacherIds (thẻ tím "không còn tồn tại").
+      const current = [...new Set([c.teacherId, ...(c.teacherIds || [])].filter(Boolean).map(String))];
+      const alive = new Set((await users.find({ _id: { $in: current.filter((x) => mongoose.Types.ObjectId.isValid(x)).map((x) => new mongoose.Types.ObjectId(x)) }, role: 'TEACHER' }, { projection: { _id: 1 } }).toArray()).map((u) => String(u._id)));
+      const next = [...current.filter((x) => alive.has(x)), tid];
+      if (!dryRun) await classes.updateOne({ _id: c._id }, { $set: { teacherIds: next, teacherId: next[0], updatedAt: now } });
       log(`＋ ${t.label}: thêm ${TEACHER_EMAIL} làm giảng viên phụ trách`);
     } else log(`✔ ${t.label}: ${TEACHER_EMAIL} đã phụ trách`);
     // Lấy lại bản đã cập nhật: các cảnh báo mẫu bên dưới chép teacherIds từ bản này (nếu thiếu giảng viên demo thì họ không thấy cảnh báo của lớp).
@@ -501,6 +507,6 @@ const log = (m) => console.log(m);
     log(`  Career sandbox: ${daN} bài SQL (Data SQL Lab) và ${aiN} bài prompt (AI Prompt Lab) của học viên khóa`);
   }
 
-  log('\nXong. Đăng nhập teacher@gmail.com (mật khẩu 123456) để xem dữ liệu.');
+  log('\nXong. Đăng nhập teacher@gmail.com (mật khẩu = DEFAULT_SEED_PASSWORD trong BE/.env) để xem dữ liệu.');
   await mongoose.disconnect();
 })().catch((e) => { console.error(e.message); process.exit(1); });

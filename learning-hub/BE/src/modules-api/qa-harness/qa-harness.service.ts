@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { shouldWriteReportArtifacts } from '../../common/utils/report-artifact.util';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as fs from 'fs';
@@ -6,6 +7,7 @@ import * as path from 'path';
 import { Lesson, LessonDocument } from '../../modules-system/database/schemas/lesson.schema';
 import { QA_SHARED_FIXTURES, QASharedFixture } from './fixtures/qa-shared-fixtures';
 import { EvaluateGateDto } from './dto/evaluate-gate.dto';
+import { runAuthoringIdorProbe } from './idor-probe';
 
 export interface QATestResultItem {
   testId: string;
@@ -204,6 +206,11 @@ export class QaHarnessService {
           status = 'FAILED';
           details = `${invalid.length} bài quiz published thiếu đáp án đúng`;
         }
+      } else if (fix.testId === 'security-idor-authoring') {
+        // Chạy thật các kịch bản IDOR trên logic phân quyền đang dùng (không còn là PASSED mặc định).
+        const probe = runAuthoringIdorProbe();
+        status = probe.passed ? 'PASSED' : 'FAILED';
+        details = probe.details;
       }
 
       results.push({
@@ -221,6 +228,8 @@ export class QaHarnessService {
 
   /** Ghi báo cáo artifact phục vụ nghiệm thu Day 27. */
   private saveReportArtifact(report: QualityDashboardReport): void {
+    // Chỉ ghi vào docs khi bật WRITE_REPORT_ARTIFACTS=true (không làm bẩn git status mỗi lần chạy test/API).
+    if (!shouldWriteReportArtifacts()) return;
     try {
       const rootDir = path.resolve(__dirname, '../../../../');
       const docsDay27 = path.join(rootDir, 'docs/day27');

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import * as bcrypt from 'bcrypt';
 import { INITIAL_USERS, INITIAL_COURSES } from './initial-data';
+import { seedPassword } from './seed-password';
 import { getInitialContests } from './initial-contests';
 
 dotenv.config();
@@ -260,13 +261,19 @@ async function seed() {
     // 2. Create Users
     const userMap = new Map<string, mongoose.Types.ObjectId>();
 
+    // Mật khẩu khởi tạo đọc từ DEFAULT_SEED_PASSWORD (BE/.env), không hard-code trong mã nguồn.
+    const initialPassword = seedPassword();
+    if (!initialPassword) {
+      throw new Error('Chưa đặt DEFAULT_SEED_PASSWORD (≥ 6 ký tự) trong BE/.env: không tạo được tài khoản mẫu.');
+    }
     for (const userData of INITIAL_USERS) {
-      const hashedPassword = await bcrypt.hash(userData.passwordRaw, 10);
+      const hashedPassword = await bcrypt.hash(initialPassword, 10);
       const user: any = await User.create({
         email: userData.email,
         password: hashedPassword,
         fullName: userData.fullName,
         role: userData.role as any,
+        ...(userData.ageGroup ? { ageGroup: userData.ageGroup } : {}),
         bio: userData.bio,
         avatar: userData.avatar,
       });

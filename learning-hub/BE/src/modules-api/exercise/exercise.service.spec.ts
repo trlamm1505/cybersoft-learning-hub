@@ -76,13 +76,15 @@ function findOneReturning(value: any) {
 
 describe('ExerciseService.submitCode — chặn nộp Python vào bài DA Lab', () => {
   let service: ExerciseService;
-  const mockExerciseModel = { findOne: jest.fn() };
+  // aggregate = testSummary: số test tính trên CSDL (không tải bộ test về Node).
+  const mockExerciseModel = { findOne: jest.fn(), aggregate: jest.fn() };
   const mockSubmissionModel = { create: jest.fn() };
   const mockJudge = { enqueue: jest.fn() };
   const mockIntegrity = { evaluate: jest.fn().mockResolvedValue({ flag: 'NONE' }) };
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    mockExerciseModel.aggregate.mockResolvedValue([{ total: 3, hiddenInline: 1, visible: [] }]);
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ExerciseService,
@@ -125,6 +127,18 @@ describe('ExerciseService.submitCode — chặn nộp Python vào bài DA Lab', 
 
     expect(res).toEqual({ submissionId: 'sub1', status: 'QUEUED' });
     expect(mockJudge.enqueue).toHaveBeenCalledWith('sub1');
+  });
+
+  it('không tải bộ test về Node khi nộp bài: loại testCases khỏi truy vấn, totalCount lấy từ tính toán trên CSDL', async () => {
+    const chain = findOneReturning({ _id: 'ex1', slug: 'day15-nang', type: 'CODE_TEXT' });
+    mockExerciseModel.findOne.mockReturnValue(chain);
+    mockSubmissionModel.create.mockResolvedValue({ _id: 'sub9' });
+    await service.submitCode('day15-nang', { code: 'print(1)' } as any, 'u1');
+    expect(chain.select).toHaveBeenCalledWith('-testCases');
+    expect(mockSubmissionModel.create.mock.calls[0][0].totalCount).toBe(3);
+    const pipeline = JSON.stringify(mockExerciseModel.aggregate.mock.calls[0][0]);
+    expect(pipeline).toContain('$filter');
+    expect(pipeline).toContain('$size');
   });
   it('lưu tín hiệu liêm chính cùng bài nộp nhưng KHÔNG đổi trạng thái chấm (vẫn QUEUED, không điểm)', async () => {
     mockExerciseModel.findOne.mockReturnValue(
@@ -237,6 +251,7 @@ describe('ExerciseService — ma trận, quyền sở hữu, truy cập theo nh�
   });
 
   it('findBySlug: học viên K3_5 vào bài K10_12 -> 403; khách -> 401; bài cũ không giới hạn', async () => {
+    model.aggregate = jest.fn().mockResolvedValue([{ total: 0, hiddenInline: 0, visible: [] }]);
     const sel = (v: any) => ({ select: () => leanOf(v) });
     model.findOne.mockReturnValue(sel({ slug: 'k', targetGroup: 'K10_12', testCases: [] }));
     await expect(
@@ -251,7 +266,19 @@ describe('ExerciseService — ma trận, quyền sở hữu, truy cập theo nh�
     await expect(service.findBySlug('cu')).resolves.toMatchObject({ slug: 'cu' });
   });
 
+  it('findBySlug: chỉ trả test HIỂN THỊ (lọc trên CSDL), không tải testCases về Node, báo số test ẩn', async () => {
+    model.aggregate = jest.fn().mockResolvedValue([{ total: 5, hiddenInline: 3, visible: [{ input: '1', expectedOutput: '2', isHidden: false }, { input: '3', expectedOutput: '4' }] }]);
+    const select = jest.fn(() => leanOf({ slug: 'day15-nang', title: 'T' }));
+    model.findOne.mockReturnValue({ select });
+    const res: any = await service.findBySlug('day15-nang', { sub: 't', email: 'e', role: 'TEACHER' });
+    expect(res.testCases).toHaveLength(2);
+    expect(res.hiddenTestCount).toBe(3);
+    expect((select.mock.calls as any[][])[0][0]).not.toMatch(/testCases/);
+    expect(JSON.stringify((model.aggregate as jest.Mock).mock.calls[0][0])).toContain('"$ne":["$$t.isHidden",true]');
+  });
+
   it('bài chỉ gắn gradeBand (không có targetGroup) cũng không lọt sang khối khác (403)', async () => {
+    model.aggregate = jest.fn().mockResolvedValue([{ total: 0, hiddenInline: 0, visible: [] }]);
     const sel = (v: any) => ({ select: () => leanOf(v) });
     model.findOne.mockReturnValue(sel({ slug: 'a', gradeBand: '9-12', testCases: [] }));
     await expect(

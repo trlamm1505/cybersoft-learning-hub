@@ -6,8 +6,11 @@ import {
   ConflictException,
   UnauthorizedException,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { RevokedToken, RevokedTokenDocument } from '../../modules-system/database/schemas/revoked-token.schema';
+import { tokenRevocation } from '../../common/security/token-revocation';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -44,6 +47,9 @@ const STUDENT_CODE_DIGITS = 4; // C0001, C0002, ...
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/** Học viên Lớp 3-5 (trẻ em): áp quy tắc tối thiểu hóa dữ liệu cá nhân. */
+const isKidAccount = (user: { role?: string; ageGroup?: string }): boolean => user.role === 'STUDENT' && user.ageGroup === '3-5';
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -61,7 +67,21 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
+
+    // Thu hồi token lưu bền (Day 29 L3). Thiếu (test cũ) thì chỉ thu hồi trong bộ nhớ.
+    @Optional()
+    @InjectModel(RevokedToken.name)
+    private readonly revokedTokenModel?: Model<RevokedTokenDocument>,
   ) {}
+
+  /** Đăng xuất: thu hồi `jti` ngay trong bộ nhớ và lưu bền tới lúc token hết hạn (sống qua restart/nhiều instance). */
+  async revokeToken(jti: string, expSeconds?: number): Promise<void> {
+    tokenRevocation.revoke(jti, expSeconds);
+    if (!this.revokedTokenModel) return;
+    const expiresAt = new Date(expSeconds ? expSeconds * 1000 : Date.now() + 7 * 24 * 3600 * 1000);
+    if (expiresAt.getTime() <= Date.now()) return;
+    await this.revokedTokenModel.updateOne({ jti }, { $setOnInsert: { jti, expiresAt } }, { upsert: true });
+  }
 
   /**
    * Đăng ký tài khoản mới. Đăng ký công khai LUÔN tạo role STUDENT — Teacher/
@@ -189,9 +209,10 @@ export class AuthService {
    * Đăng nhập bằng email + mật khẩu, trả về JWT access token.
    */
   async login(dto: LoginDto) {
-    const { email, password } = dto;
+    const { email, password } = dto ?? ({} as LoginDto);
 
-    if (!email || !password) {
+    // Chỉ nhận chuỗi: object kiểu { $ne: null } (NoSQL injection) bị từ chối 400 thay vì làm crash 500.
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
       throw new BadRequestException('Vui lòng nhập email và mật khẩu.');
     }
 
@@ -275,8 +296,11 @@ export class AuthService {
     if (!mailReady) {
       // Development Mock Mode: không có SMTP, in liên kết ra console backend. Chỉ ngoài production mới trả liên kết trong response,
       // để người dùng thử luồng đặt lại mật khẩu ngay trên màn hình.
-      this.logger.warn(`[DEV MAIL MOCK] Liên kết đặt lại mật khẩu của ${user.email} (hiệu lực 15 phút): ${resetLink}`);
-      return process.env.NODE_ENV === 'production' ? genericResponse : { ...genericResponse, devResetLink: resetLink };
+      // Day 29 (H6, L1): liên kết chỉ được trả về khi CHỦ ĐỘNG bật DEV_MAIL_MOCK=true ngoài production (nếu không, ai biết
+      // email admin cũng tự lấy được link đặt lại mật khẩu). Log không bao giờ chứa token, liên kết hay email.
+      const devMock = process.env.DEV_MAIL_MOCK === 'true' && process.env.NODE_ENV !== 'production';
+      this.logger.warn(`[DEV MAIL MOCK] Chưa cấu hình SMTP: đã tạo một yêu cầu đặt lại mật khẩu${devMock ? ' (liên kết trả trong phản hồi API vì DEV_MAIL_MOCK=true)' : ''}.`);
+      return devMock ? { ...genericResponse, devResetLink: resetLink } : genericResponse;
     }
 
     // Gửi thư chạy nền: phản hồi ngay, không treo theo tốc độ SMTP, và thời gian phản hồi không lộ email có tồn tại hay không.
@@ -366,7 +390,15 @@ export class AuthService {
     if (!user) throw new NotFoundException('Không tìm thấy tài khoản.');
     const checked = checkProfileInput(body, user.email);
     if (!checked.ok) throw new BadRequestException(checked.message);
-    Object.assign(user, checked.value);
+    const value: Record<string, unknown> = { ...checked.value };
+    // Day 29 (SEC-19, PRV-01/02): tài khoản Lớp 3-5 không thu thập số điện thoại / giới thiệu bản thân (tối thiểu hóa dữ liệu trẻ em).
+    if (isKidAccount(user)) {
+      delete value.phone;
+      delete value.bio;
+      user.set('phone', undefined);
+      user.set('bio', undefined);
+    }
+    Object.assign(user, value);
     await user.save();
     return this.buildAuthResponse(user).user;
   }
@@ -403,8 +435,9 @@ export class AuthService {
         ageGroup: user.ageGroup,
         studentCode: user.studentCode,
         avatar: user.avatar,
-        phone: user.phone ?? '',
-        bio: user.bio ?? '',
+        // Trẻ Lớp 3-5: không trả số điện thoại / giới thiệu (kể cả dữ liệu cũ còn sót).
+        phone: isKidAccount(user) ? '' : (user.phone ?? ''),
+        bio: isKidAccount(user) ? '' : (user.bio ?? ''),
       },
     };
   }

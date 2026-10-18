@@ -14,11 +14,13 @@ import { CoachService } from './coach.service';
 import { CoachChatDto } from './dto/coach-chat.dto';
 import { DebugLoopDto } from './dto/debug-loop.dto';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
+import { NoKidCodeGuard } from '../../common/auth/no-kid-code.guard';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 
 @Controller('coach')
-@UseGuards(JwtAuthGuard)
+// Học sinh Lớp 3-5 không làm bài code/trắc nghiệm, không hỏi AI Coach về bài code (Day 30, RISK-02).
+@UseGuards(JwtAuthGuard, NoKidCodeGuard)
 export class CoachController {
   constructor(private readonly coachService: CoachService) {}
 
@@ -31,7 +33,7 @@ export class CoachController {
   @Post('chat')
   @Throttle(RATE_LIMITS.coachChat)
   async chat(@Body() dto: CoachChatDto, @CurrentUser() user: JwtPayload) {
-    return this.coachService.chat(dto, user.sub);
+    return this.coachService.chat(dto, user.sub, user);
   }
 
   /**

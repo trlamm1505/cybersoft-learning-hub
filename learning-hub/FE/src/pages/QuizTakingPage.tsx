@@ -403,10 +403,21 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
               {availableQuizzes.map((quiz) => {
                 const isSelected = quiz.id === selectedQuizId;
                 return (
+                  // Chọn được bằng bàn phím: Tab tới thẻ, Enter/Space để chọn (Day 30, DEF-004 / TC_UI_01).
                   <div
                     key={quiz.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isSelected}
+                    aria-label={`Chọn bộ đề ${quiz.title}`}
                     onClick={() => setSelectedQuizId(quiz.id)}
-                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedQuizId(quiz.id);
+                      }
+                    }}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${
                       isSelected
                         ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-600 dark:border-indigo-500 shadow-md scale-[1.02]'
                         : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-300'

@@ -16,7 +16,6 @@ import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { ImportLessonDto } from './dto/import-lesson.dto';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
-import { OptionalJwtAuthGuard } from '../../common/auth/optional-jwt-auth.guard';
 import { RolesGuard } from '../../common/auth/roles.guard';
 import { Roles } from '../../common/auth/roles.decorator';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
@@ -53,20 +52,16 @@ export class AuthoringController {
   }
 
   /**
-   * GET /api/authoring/lessons — route CÔNG KHAI (khách vãng lai xem catalog
-   * không cần đăng nhập), NHƯNG cũng được TeacherAuthoringPage dùng để nạp
-   * danh sách bài của chính giáo viên đó cho việc edit (cần solutionCode/đáp
-   * án đầy đủ). Dùng OptionalJwtAuthGuard: có Bearer token hợp lệ + role
-   * TEACHER thì trả đủ dữ liệu; không có token (hoặc token không phải
-   * TEACHER) thì luôn trả bản đã lọc (ẩn solutionCode, hidden testCase
-   * output, quiz isCorrect/explanation) — client KHÔNG còn cách nào tự tắt
-   * việc lọc này bằng query param như code cũ (`?forStudent=false`).
+   * GET /api/authoring/lessons — bắt buộc đăng nhập (không token → 401). Giảng viên/Admin nhận đủ dữ liệu để soạn/sửa;
+   * học viên luôn nhận bản đã lọc theo khối (ẩn solutionCode, authorId, output test ẩn, đáp án trắc nghiệm) — client
+   * KHÔNG có cách nào tự tắt việc lọc này bằng query param.
    */
   @Get()
-  @UseGuards(OptionalJwtAuthGuard)
-  async findAll(@CurrentUser() user?: JwtPayload) {
+  @UseGuards(JwtAuthGuard)
+  async findAll(@CurrentUser() user: JwtPayload) {
+    // Day 29 (SEC-03/24): bắt buộc đăng nhập. Học viên chỉ nhận bài đã xuất bản, đúng khối, đã lọc đáp án/authorId.
     const isStaff = user?.role === 'TEACHER' || user?.role === 'ADMIN';
-    return this.authoringService.findAll(!isStaff);
+    return this.authoringService.findAll(!isStaff, user);
   }
 
   @Get('export/:id')

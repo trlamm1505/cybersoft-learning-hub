@@ -12,22 +12,6 @@ export const GROUP_LAB_MATRIX: Record<TargetGroup, readonly LabType[]> = {
   CAREER_ADULT: ['DATA_SQL', 'AI_PROMPT', 'TESTER_QA'],
 };
 
-export const TARGET_GROUP_OPTIONS: ReadonlyArray<{ value: TargetGroup; band: string; label: string }> = [
-  { value: 'K3_5', band: '3-5', label: 'Lớp 3–5 (3-5)' },
-  { value: 'K6_9', band: '6-9', label: 'Lớp 6–9 (6-9)' },
-  { value: 'K10_12', band: '10-12', label: 'Lớp 10–12 (10-12)' },
-  { value: 'CAREER_ADULT', band: 'CAREER_ADULT', label: 'Người lớn / Chuyên ngành (CAREER_ADULT)' },
-];
-
-export const LAB_TYPE_LABEL: Record<LabType, string> = {
-  PUZZLE_BLOCK: 'Puzzle Block (xếp khối)',
-  PYTHON_CODE: 'Python Code',
-  ALGO_JUDGE: 'Algo Judge (thuật toán)',
-  DATA_SQL: 'Data Lab (SQL)',
-  AI_PROMPT: 'AI Lab (Prompting)',
-  TESTER_QA: 'Tester Lab (Bug Report)',
-};
-
 /** Danh sách labType được phép của một nhóm (rỗng nếu nhóm không hợp lệ). */
 export const labTypesFor = (group: TargetGroup | ''): readonly LabType[] => (group ? GROUP_LAB_MATRIX[group] : []);
 
@@ -41,9 +25,23 @@ export const labTypeAfterGroupChange = (group: TargetGroup | '', current: LabTyp
 /** Khóa nhóm hiển thị ở Code Playground ('3-5' | '6-9' | '9-12' | 'CAREER_ADULT' | '__ungraded__'). */
 export const UNGRADED = '__ungraded__';
 const TARGET_TO_BAND: Record<string, string> = { K3_5: '3-5', K6_9: '6-9', K10_12: '9-12', CAREER_ADULT: 'CAREER_ADULT' };
+/** gradeBand khối 10-12 có hai nhãn lịch sử ('9-12' và '10-12'): quy về một khóa nhóm để không bài nào rơi khỏi Playground. */
+const GRADE_TO_BAND: Record<string, string> = { '10-12': '9-12' };
 export const bandOfExercise = (ex: { targetGroup?: string; gradeBand?: string }): string =>
-  (ex.targetGroup && TARGET_TO_BAND[ex.targetGroup]) || ex.gradeBand || UNGRADED;
+  (ex.targetGroup && TARGET_TO_BAND[ex.targetGroup]) || (ex.gradeBand && (GRADE_TO_BAND[ex.gradeBand] ?? ex.gradeBand)) || UNGRADED;
 
 /** Nhóm tuổi của học viên (3-5/6-9/10-12) -> khóa nhóm ở Playground; học viên chưa có nhóm tuổi là người lớn. */
 export const bandOfStudent = (ageGroup?: string): string =>
   ageGroup === '10-12' ? '9-12' : ageGroup || 'CAREER_ADULT';
+
+/**
+ * Khối Teacher Studio được soạn đề (Day 30): chỉ 6–9 và 10–12. Lớp 3–5 là game Blockly dựng sẵn, khối Người lớn dùng
+ * các phòng Lab riêng. Nhóm + loại lab tự suy ra từ khối (mỗi khối chỉ có một loại), nên form không còn ô chọn lab.
+ */
+export const TEACHER_BANDS = [
+  { band: '6-9', targetGroup: 'K6_9', labType: 'PYTHON_CODE', label: 'Khối 6–9' },
+  { band: '10-12', targetGroup: 'K10_12', labType: 'ALGO_JUDGE', label: 'Khối 10–12' },
+] as const;
+export type TeacherBand = (typeof TEACHER_BANDS)[number]['band'];
+export const teacherBandOf = (targetGroup?: string | null): TeacherBand | null =>
+  TEACHER_BANDS.find((b) => b.targetGroup === targetGroup)?.band ?? null;

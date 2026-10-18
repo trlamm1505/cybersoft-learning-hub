@@ -26,6 +26,7 @@ import {
 } from './schemas/coach-message.schema';
 import { Counter, CounterSchema } from './schemas/counter.schema';
 import { ProctorAlert, ProctorAlertSchema } from './schemas/proctor-alert.schema';
+import { RevokedToken, RevokedTokenSchema } from './schemas/revoked-token.schema';
 import { CourseCertificate, CourseCertificateSchema } from './schemas/course-certificate.schema';
 import { AuditLog, AuditLogSchema, SystemConfig, SystemConfigSchema } from './schemas/admin-portal.schemas';
 import {
@@ -95,6 +96,7 @@ import {
       { name: AiLabSubmission.name, schema: AiLabSubmissionSchema },
       { name: Classroom.name, schema: ClassroomSchema },
       { name: ClassAssignment.name, schema: ClassAssignmentSchema },
+      { name: RevokedToken.name, schema: RevokedTokenSchema },
     ]),
   ],
   exports: [MongooseModule],

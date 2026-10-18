@@ -1,6 +1,7 @@
 import axiosClient from '../common/configAxios';
 import type {
   ExerciseListItem,
+  PlaygroundResponse,
   ExerciseDetail,
   ExerciseFullDetail,
   ExerciseTestCase,
@@ -60,6 +61,14 @@ export const exerciseApi = {
    */
   listExercises: async (): Promise<ExerciseListItem[]> => {
     return stripSecrets(await axiosClient.get('/exercises')) as ExerciseListItem[];
+  },
+
+  /**
+   * GET /api/exercises/playground — lộ trình Code Playground chuẩn #1..#N kèm trạng thái mở khóa do máy chủ tính.
+   * Học viên: khối lấy từ tài khoản (bỏ qua `band`). Giảng viên/Admin: chọn khối '6-9' | '10-12'.
+   */
+  listPlayground: async (band?: '6-9' | '10-12'): Promise<PlaygroundResponse> => {
+    return stripSecrets(await axiosClient.get('/exercises/playground', { params: band ? { band } : undefined })) as PlaygroundResponse;
   },
 
   /** POST /api/exercises/legacy/assign-grade — chỉ ADMIN: gán 6-9/K6_9/PYTHON_CODE cho bài Python cũ chưa phân nhóm. */

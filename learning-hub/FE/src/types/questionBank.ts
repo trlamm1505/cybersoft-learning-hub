@@ -39,3 +39,44 @@ export interface QuestionBankUpdate {
   difficulty?: Difficulty;
   testCases?: BankTestCase[];
 }
+
+// ------------------------------- Ngân hàng đề trắc nghiệm (Day 30) -------------------------------
+
+export interface QuizOptionInput {
+  text: string;
+  isCorrect: boolean;
+}
+
+export interface QuizBankRow {
+  id: string;
+  content: string;
+  difficulty: Difficulty;
+  band: BankBand | null;
+  category: string | null;
+  tags: string[];
+  points: number;
+  optionCount: number;
+  usage: { classes: number; contests: number };
+  inUse: boolean;
+  /** Câu do chính người đang xem soạn. */
+  mine: boolean;
+  createdAt: string | null;
+}
+
+export interface QuizBankDetail extends QuizBankRow {
+  codeSnippet: string;
+  explanation: string;
+  options: Array<{ key: string; text: string; isCorrect: boolean }>;
+}
+
+export interface QuizQuestionPayload {
+  content: string;
+  codeSnippet?: string;
+  options: QuizOptionInput[];
+  explanation: string;
+  difficulty: Difficulty;
+  band: BankBand;
+  category?: string;
+  tags?: string[];
+  points?: number;
+}

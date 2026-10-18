@@ -40,7 +40,7 @@ export const axiosClient = axios.create({
 
 /**
  * Request Interceptor:
- * Automatically attaches JWT Authorization Bearer Token if available in localStorage
+ * Phiên đăng nhập đi bằng cookie httpOnly `access_token` (withCredentials): JS không đọc/gửi JWT (Day 29 SEC-18).
  */
 const PUBLIC_AUTH_URL = /\/auth\/(login|register|forgot-password|reset-password)/;
 
@@ -49,10 +49,6 @@ axiosClient.interceptors.request.use(
     // Phiên đã hết hạn/bị từ chối: hủy request ngay ở client (không gọi API), tránh dội 401 liên tục khi đang chờ chuyển về /login.
     if (!browserSessionGuard.allowRequest(PUBLIC_AUTH_URL.test(config.url ?? ''))) {
       return Promise.reject(new axios.CanceledError('Phiên đăng nhập đã kết thúc'));
-    }
-    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
-    if (token && config.headers) {
-      (config.headers as any).Authorization = `Bearer ${token}`;
     }
     // Double Submit Cookie: request đổi trạng thái gửi lại mã CSRF (cookie `csrf_token`) trong header x-csrf-token.
     const method = (config.method ?? 'get').toLowerCase();
@@ -63,7 +59,8 @@ axiosClient.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('❌ [Axios Request Error]:', error);
+    // Không in cả object lỗi (chứa config/headers của request).
+    console.error('❌ [Axios Request Error]:', error?.message ?? 'unknown');
     return Promise.reject(error);
   }
 );

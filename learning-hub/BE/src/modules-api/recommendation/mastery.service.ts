@@ -10,6 +10,7 @@ import {
   SubmissionDocument,
 } from '../../modules-system/database/schemas/submission.schema';
 import { computeTagMastery } from './mastery.calculator';
+import { PRACTICE_AC_FILTER } from '../exercise/playground-catalog';
 import { GradedAttempt, TagMastery } from './recommendation.types';
 
 @Injectable()
@@ -63,6 +64,12 @@ export class MasteryService {
   }
 
   /** Tập exerciseId mà học viên đã AC ít nhất một lần — dùng để loại khỏi gợi ý. */
+  /** Id bài đã hoàn thành ở Code Playground (AC luyện tập tự do, không tính bài giao của lớp, không tính bài nộp nhảy cóc cũ). */
+  async getPlaygroundSolvedIds(userId: string): Promise<Set<string>> {
+    const rows = await this.submissionModel.find({ userId, ...PRACTICE_AC_FILTER }).select('exerciseId').lean();
+    return new Set(rows.map((s) => String(s.exerciseId)));
+  }
+
   async getSolvedExerciseIds(userId: string): Promise<Set<string>> {
     const solved = await this.submissionModel
       .find({ userId, status: 'AC' })

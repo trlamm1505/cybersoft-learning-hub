@@ -41,6 +41,10 @@ export const adminPortalApi = {
   assignTeachers: async (classId: string, teacherIds: string[]) =>
     await axiosClient.put(`/admin/classes/${encodeURIComponent(classId)}/teachers`, { teacherIds }),
 
+  /** Gỡ một giảng viên (được gỡ cả thẻ duy nhất nếu là tài khoản không còn tồn tại hoặc đang bị khóa). */
+  removeTeacher: async (classId: string, teacherId: string) =>
+    await axiosClient.delete(`/admin/classes/${encodeURIComponent(classId)}/teachers/${encodeURIComponent(teacherId)}`),
+
   configs: async (): Promise<ConfigsResponse> => await axiosClient.get('/admin/configs'),
 
   saveConfig: async (key: string, value: string): Promise<{ key: string; masked?: string; updated?: boolean }> =>

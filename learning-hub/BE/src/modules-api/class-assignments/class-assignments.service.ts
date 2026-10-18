@@ -1,3 +1,4 @@
+import { notDemoExercise } from '../exercise/playground-catalog';
 import {
   BadRequestException,
   ConflictException,
@@ -44,6 +45,9 @@ const EMPTY: AssignmentResult = { done: false, attempts: 0, wrongCount: 0, score
 const MAX_ASSIGNMENTS_PER_CLASS = 200;
 
 const asId = (v: unknown): string => String(v);
+/** Ứng viên giảng viên của lớp theo thứ tự ưu tiên: người chính (teacherId) rồi tới teacherIds, bỏ id sai định dạng. */
+const teacherCandidates = (c: { teacherId?: string; teacherIds?: string[] }): string[] =>
+  [...new Set([c.teacherId, ...(c.teacherIds ?? [])])].filter((t): t is string => !!t && isValidObjectId(t));
 
 @Injectable()
 export class ClassAssignmentsService {
@@ -194,10 +198,12 @@ export class ClassAssignmentsService {
     const memberIds = cls.studentIds ?? [];
     const res = await this.results(list, memberIds);
 
-    const teacher =
-      cls.teacherId && isValidObjectId(cls.teacherId)
-        ? await this.users.findById(cls.teacherId).select('fullName email avatar').lean()
-        : null;
+    // Giảng viên chính đã bị xóa (id "ma") thì lấy giảng viên còn tồn tại kế tiếp trong teacherIds, để học viên luôn thấy tên người phụ trách.
+    let teacher: { fullName?: string; email?: string; avatar?: string } | null = null;
+    for (const id of teacherCandidates(cls)) {
+      teacher = await this.users.findById(id).select('fullName email avatar').lean();
+      if (teacher) break;
+    }
 
     const rows = list.map((a) => this.toRow(a, res.get(asId(a._id))?.get(user.sub) ?? EMPTY, now));
     // Cùng cách gom ngày với trang Giảng viên (groupByDay) nên Ngày n của hai bên luôn trùng nhau.
@@ -279,9 +285,11 @@ export class ClassAssignmentsService {
     if (classes.length === 0) return [];
     const me = await this.users.findById(user.sub).select('fullName').lean();
     const studentName = me?.fullName || 'Học viên';
-    const teacherIds = [...new Set(classes.map((c) => c.teacherId).filter((t) => t && isValidObjectId(t)))];
+    const teacherIds = [...new Set(classes.flatMap((c) => teacherCandidates(c)))];
     const teachers = teacherIds.length ? await this.users.find({ _id: { $in: teacherIds } }).select('fullName').lean() : [];
-    const teacherName = new Map(teachers.map((t) => [asId(t._id), t.fullName]));
+    const known = new Map(teachers.map((t) => [asId(t._id), t.fullName]));
+    // Tên giảng viên của từng lớp: người chính, hoặc người còn tồn tại kế tiếp nếu người chính là id "ma".
+    const teacherName = new Map(classes.map((c) => [asId(c._id), teacherCandidates(c).map((id) => known.get(id)).find(Boolean) ?? null]));
 
     const out = [];
     for (const cls of classes) {
@@ -300,7 +308,7 @@ export class ClassAssignmentsService {
         classId,
         className: cls.name,
         classCode: cls.code ?? null,
-        teacherName: teacherName.get(cls.teacherId) ?? null,
+        teacherName: teacherName.get(classId) ?? null,
         status: summary.status,
         totalAssignments: summary.totalAssignments,
         doneCount: summary.doneCount,
@@ -311,7 +319,7 @@ export class ClassAssignmentsService {
           ? {
               studentName,
               className: cls.name,
-              teacherName: teacherName.get(cls.teacherId) ?? null,
+              teacherName: teacherName.get(classId) ?? null,
               finalScore: summary.percent,
               earned: summary.earned,
               max: summary.max,
@@ -404,7 +412,7 @@ export class ClassAssignmentsService {
     const difficulty = normalizeDifficulty(q.difficulty);
     const band = normalizeBankBand(q.band);
     const rx = { $regex: escapeRegex(term), $options: 'i' };
-    const filter: Record<string, unknown> = { type: 'CODE_TEXT', resource_id: { $exists: false } };
+    const filter: Record<string, unknown> = { type: 'CODE_TEXT', resource_id: { $exists: false }, slug: notDemoExercise };
     const and: Record<string, unknown>[] = [];
     if (term) and.push({ $or: [{ title: rx }, { slug: rx }, { tags: rx }] });
     if (band) and.push(exerciseBandFilter(band));

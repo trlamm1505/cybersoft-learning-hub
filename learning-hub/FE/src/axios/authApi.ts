@@ -1,5 +1,4 @@
 import axiosClient, { readCsrfToken } from '../common/configAxios';
-import { getStoredToken } from '../common/authSession';
 import type {
   AuthUser,
   AuthResponse,
@@ -34,11 +33,10 @@ export const authApi = {
    * POST /api/auth/logout — thu hồi token phía server (jti vào blacklist) và xóa cookie phiên.
    */
   logout: async (): Promise<{ success: boolean }> => {
-    // Chụp token/mã CSRF ngay lúc gọi: interceptor chạy bất đồng bộ, còn phiên cục bộ sắp bị xoá.
-    const token = getStoredToken();
+    // Chụp mã CSRF ngay lúc gọi: interceptor chạy bất đồng bộ, còn phiên cục bộ sắp bị xoá. JWT đi bằng cookie httpOnly.
     const csrf = readCsrfToken();
     return await axiosClient.post('/auth/logout', undefined, {
-      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(csrf ? { 'x-csrf-token': csrf } : {}) },
+      headers: { ...(csrf ? { 'x-csrf-token': csrf } : {}) },
     });
   },
 

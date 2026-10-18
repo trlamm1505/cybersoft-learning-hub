@@ -22,7 +22,8 @@ const ROOT = path.resolve(__dirname, '..');
 const DEFAULT_DATASET = 'ds-retail-ecommerce-sales-v1';
 
 function loadEnv() {
-  for (const f of [path.join(ROOT, '.env'), path.join(ROOT, 'BE', '.env')]) {
+  // BE/.env là nguồn cấu hình duy nhất của dự án (Day 30: bỏ learning-hub/.env).
+  for (const f of [path.join(ROOT, 'BE', '.env')]) {
     try {
       process.loadEnvFile(f);
     } catch {

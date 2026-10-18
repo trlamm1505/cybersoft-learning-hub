@@ -541,10 +541,12 @@ export class ContestService implements OnModuleInit {
       c.startTime,
       c.endTime,
     );
-    const { registrations, problems, ...rest } = c.toObject();
+    const { registrations, problems, authorId, ...rest } = c.toObject();
     const staff = isStaff(viewer?.role);
     return {
       ...rest,
+      // authorId là ObjectId tài khoản giảng viên: chỉ staff thấy (Day 29 C2, không lộ định danh cho khách/học viên).
+      ...(staff ? { authorId } : {}),
       problems: (problems ?? []).map((p: ContestProblem) =>
         staff
           ? p

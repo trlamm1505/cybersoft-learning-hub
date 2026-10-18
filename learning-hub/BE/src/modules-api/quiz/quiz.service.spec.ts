@@ -149,6 +149,22 @@ describe('QuizService Unit & Integration Tests', () => {
       await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '3-5');
       expect(mockQuestionModel.find).toHaveBeenCalledWith({ category: 'Python' });
     });
+
+    it('[Day 30] câu Ngân hàng đề (bankOnly) không vào /quiz tự luyện; khối chỉ có câu bankOnly thì dự phòng sang câu công khai của chủ đề', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue(null);
+      mockQuizAttemptModel.create.mockImplementation(async (doc: any) => ({ _id: new Types.ObjectId(), status: 'IN_PROGRESS', startedAt: new Date(), ...doc }));
+      const bankQ = { ...mockQuestions[0], _id: new Types.ObjectId(), bankOnly: true, gradeBands: ['6-9'] };
+      // Lần 1 (lọc theo khối): chỉ có câu bankOnly → bị bỏ; lần 2 (dự phòng toàn chủ đề): câu công khai.
+      mockQuestionModel.find
+        .mockReturnValueOnce({ exec: jest.fn().mockResolvedValue([bankQ]) })
+        .mockReturnValueOnce({ exec: jest.fn().mockResolvedValue([bankQ, mockQuestions[1]]) });
+
+      await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '6-9');
+      expect(mockQuestionModel.find.mock.calls[1][0]).toEqual({ category: 'Python' });
+      const used = mockQuizAttemptModel.create.mock.calls[0][0].shuffledQuestions.map((q: any) => String(q.questionId));
+      expect(used).toEqual([validQuestionId2]);
+      expect(used).not.toContain(String(bankQ._id));
+    });
   });
 
   describe('2. Overdue Submission Check', () => {

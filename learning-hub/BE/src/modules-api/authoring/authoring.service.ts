@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   NotFoundException,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -23,6 +24,39 @@ import { INITIAL_HINTS } from '../../data/initial-hints';
 import { INITIAL_BLOCK_LESSONS } from '../../data/initial-block-lessons';
 import { stripControlChars } from '../../common/utils/sanitize-text-input.util';
 import { DatasetIntegrationService } from '../../integration/dataset-integration.service';
+import type { JwtPayload } from '../../common/auth/jwt.strategy';
+import { ClassAssignment, ClassAssignmentDocument } from '../../modules-system/database/schemas/class-assignment.schema';
+import { Classroom, ClassroomDocument } from '../../modules-system/database/schemas/classroom.schema';
+import { Contest, ContestDocument } from '../../modules-system/database/schemas/contest.schema';
+import { bandOfExercise, bankLabels, studentExerciseFilter } from '../exercise/exercise-matrix';
+import { isSqlOrLabItem, notDemoExercise, playgroundBandOf, playgroundFilter } from '../exercise/playground-catalog';
+import { assertCanModifyExercise, assertExerciseNotInUse, type UsageModels } from '../exercise/exercise-usage';
+
+/** authorId mặc định của schema Lesson: bài seed dùng chung, mọi giảng viên được sửa (xem AuthoringService). */
+export const SHARED_LESSON_AUTHOR_ID = 'teacher-1';
+
+/**
+ * Luật sở hữu bài giảng, tách thành hàm thuần để QA Harness (security-idor-authoring) kiểm tra ĐÚNG logic đang chạy:
+ * ADMIN được mọi bài; bài dùng chung (không tác giả / 'teacher-1') mọi giảng viên được sửa; còn lại chỉ chính tác giả.
+ */
+export function assertLessonOwnership(lesson: { authorId?: string }, requester: { sub: string; role: string }): void {
+  if (requester.role === 'ADMIN') return;
+  const owner = lesson.authorId || SHARED_LESSON_AUTHOR_ID;
+  if (owner === SHARED_LESSON_AUTHOR_ID) return;
+  if (owner !== requester.sub) {
+    throw new ForbiddenException(
+      'Bạn không có quyền thao tác trên bài học này — bài thuộc sở hữu của giáo viên khác.',
+    );
+  }
+}
+
+/** Loại bài giảng (lessons) học viên từng khối được thấy: Lớp 3-5 chỉ Block Puzzle, khối lớn chỉ bài code/trắc nghiệm. */
+const LESSON_TYPES_BY_AGE: Record<string, string[]> = {
+  '3-5': ['block'],
+  '6-9': ['coding', 'quiz'],
+  '10-12': ['coding', 'quiz'],
+  CAREER_ADULT: ['coding', 'quiz'],
+};
 
 @Injectable()
 export class AuthoringService implements OnModuleInit {
@@ -32,7 +66,18 @@ export class AuthoringService implements OnModuleInit {
     @InjectModel(Exercise.name)
     private readonly exerciseModel: Model<ExerciseDocument>,
     private readonly datasetIntegrationService: DatasetIntegrationService,
+    // Đếm mức sử dụng của bài (lớp/cuộc thi) trước khi xóa/chuyển đổi. Thiếu (test cũ) thì bỏ qua bước đếm.
+    @Optional() @InjectModel(ClassAssignment.name)
+    private readonly assignmentModel?: Model<ClassAssignmentDocument>,
+    @Optional() @InjectModel(Classroom.name)
+    private readonly classroomModel?: Model<ClassroomDocument>,
+    @Optional() @InjectModel(Contest.name)
+    private readonly contestModel?: Model<ContestDocument>,
   ) {}
+
+  private get usageModels(): UsageModels {
+    return { assignments: this.assignmentModel, classes: this.classroomModel, contests: this.contestModel };
+  }
 
   async onModuleInit() {
     await this.seedSystemLessons();
@@ -102,12 +147,11 @@ export class AuthoringService implements OnModuleInit {
   // "tài nguyên dùng chung của hệ sinh thái", KHÔNG phải sở hữu riêng của một
   // giáo viên cụ thể nào — mọi TEACHER đều được sửa, tránh việc enforce
   // ownership chặt làm khoá cứng toàn bộ nội dung seed khỏi mọi giáo viên
-  // thật (không ai có sub === 'teacher-1').
-  private static readonly SHARED_AUTHOR_ID = 'teacher-1';
+  // thật (không ai có sub === 'teacher-1'). Hằng số: SHARED_LESSON_AUTHOR_ID (đầu file).
 
   /**
    * Chặn TEACHER sửa/xoá/xem chi tiết lesson KHÔNG do chính họ tạo và KHÔNG
-   * phải tài nguyên dùng chung (SHARED_AUTHOR_ID) — vá lỗ hổng IDOR "giáo
+   * phải tài nguyên dùng chung (SHARED_LESSON_AUTHOR_ID) — vá lỗ hổng IDOR "giáo
    * viên A đoán/biết ObjectId của giáo viên B là sửa/xoá được ngay". ADMIN
    * bỏ qua mọi kiểm tra này, được xem/duyệt toàn bộ theo đúng yêu cầu.
    */
@@ -115,14 +159,7 @@ export class AuthoringService implements OnModuleInit {
     lesson: { authorId?: string },
     requester: { sub: string; role: string },
   ): void {
-    if (requester.role === 'ADMIN') return;
-    const owner = lesson.authorId || AuthoringService.SHARED_AUTHOR_ID;
-    if (owner === AuthoringService.SHARED_AUTHOR_ID) return;
-    if (owner !== requester.sub) {
-      throw new ForbiddenException(
-        'Bạn không có quyền thao tác trên bài học này — bài thuộc sở hữu của giáo viên khác.',
-      );
-    }
+    assertLessonOwnership(lesson, requester);
   }
 
   /**
@@ -303,6 +340,9 @@ export class AuthoringService implements OnModuleInit {
             solutionCode: lesson.solutionCode || '',
             testCases: lesson.testCases || [],
             sourceLessonSlug: lesson.slug,
+            // Bài do giảng viên soạn luôn thuộc Ngân hàng đề: chỉ giao cho lớp/cuộc thi, KHÔNG hiện ở Code Playground (Day 30).
+            bankOnly: true,
+            ...(lesson.bankBand ? { bankBand: lesson.bankBand, ...bankLabels(lesson.bankBand) } : {}),
             resource_id: lesson.resource_id,
             resource_version: lesson.resource_version,
             assignedResourceVersion: lesson.assignedResourceVersion,
@@ -345,6 +385,13 @@ export class AuthoringService implements OnModuleInit {
     dto: CreateLessonDto,
     authorId: string,
   ): Promise<LessonDocument> {
+    // Lớp 3-5 học bằng game Blockly dựng sẵn: Teacher Studio không soạn bài Block (Day 30).
+    if ((dto as { type?: string }).type === 'block') {
+      throw new ForbiddenException({
+        code: 'E403_BAND_NOT_AUTHORABLE',
+        message: 'Teacher Studio không soạn bài cho Lớp 3–5 (game Blockly dựng sẵn).',
+      });
+    }
     const existing = await this.lessonModel.findOne({ slug: dto.slug }).exec();
     if (existing) {
       throw new BadRequestException(
@@ -436,11 +483,17 @@ export class AuthoringService implements OnModuleInit {
       // Exercise mồ côi không có field authorId (chỉ Lesson mới có) nên
       // không cần assertCanModify ở đây — mặc định coi là tài nguyên dùng
       // chung; người sửa đầu tiên trở thành authorId của bản Lesson mới.
+      // Chuyển exercise thành lesson sẽ xóa bản gốc: chỉ bài do mình tạo (hoặc bài chung không tác giả), không phải bài
+      // Playground cố định, và không đang được dùng trong lớp/cuộc thi (tránh để lại tham chiếu tới bài không còn tồn tại).
+      assertCanModifyExercise(exercise as any, requester as JwtPayload);
+      await assertExerciseNotInUse(this.usageModels, exercise.slug);
       await this.exerciseModel.deleteOne({ _id: id });
       const created = new this.lessonModel({
         ...sanitized,
         status: targetStatus,
         authorId: requester.sub,
+        // Giữ khối của bài Ngân hàng đề gốc để bản đồng bộ lại vẫn đúng khối và vẫn là bankOnly.
+        ...(bandOfExercise(exercise as never) ? { bankBand: bandOfExercise(exercise as never) } : {}),
       });
       const saved = await created.save();
       await this.syncPublishedCodingLessonToExerciseBank(saved);
@@ -484,13 +537,30 @@ export class AuthoringService implements OnModuleInit {
     return updated;
   }
 
-  async findAll(forStudent?: boolean): Promise<LessonDocument[]> {
-    const filter: any = forStudent ? { status: { $ne: 'draft' } } : {};
-    const lessons = await this.lessonModel
-      .find(filter)
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+  /**
+   * forStudent=false: giảng viên/Admin, trả đủ. forStudent=true: học viên (viewer), chỉ bài đã XUẤT BẢN (bài thiếu trường
+   * status cũng không trả), đúng loại bài của khối, và bài từ kho exercises lọc theo cùng luật khối với GET /exercises.
+   */
+  async findAll(forStudent?: boolean, viewer?: Pick<JwtPayload, 'ageGroup'>): Promise<LessonDocument[]> {
+    const lessonTypes = LESSON_TYPES_BY_AGE[viewer?.ageGroup ?? ''] ?? [];
+    // Học viên chỉ nhận bài giảng HỆ THỐNG (tác giả chung). Bài do giảng viên soạn là nội dung Ngân hàng đề: chỉ dùng cho
+    // bài giao của lớp và cuộc thi, không xuất hiện ở Playground/trang luyện tập công khai (Day 30).
+    const filter: any = forStudent
+      ? { status: 'published', type: { $in: lessonTypes }, $or: [{ authorId: SHARED_LESSON_AUTHOR_ID }, { authorId: { $exists: false } }] }
+      : {};
+    // Học viên Khối 6-9 / 10-12 (Day 31): chỉ bài thuộc lộ trình Playground chuẩn của khối. Bài giảng "coding" cũ không thuộc
+    // lộ trình (bài khối khác, bài lẻ) và mọi bài SQL / Data / AI / Tester Lab bị loại khỏi danh sách của họ.
+    const studentBand = forStudent ? playgroundBandOf(viewer?.ageGroup) : null;
+    const trackSlugs = studentBand
+      ? new Set((await this.exerciseModel.find(playgroundFilter(studentBand)).select('slug').lean()).map((e) => e.slug))
+      : null;
+    const lessons = (
+      await this.lessonModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .lean()
+        .exec()
+    ).filter((l) => !trackSlugs || (!isSqlOrLabItem(l as never) && (l.type !== 'coding' || trackSlugs.has(l.slug))));
 
     // Bài lưu THẲNG vào `exercises` (qua AI Tạo Đề, chưa từng "Chọn từ Ngân
     // hàng đề" -> Xuất bản trong Soạn Thảo) không có bản ghi tương ứng trong
@@ -507,7 +577,14 @@ export class AuthoringService implements OnModuleInit {
     // loại testCases khỏi truy vấn danh sách, chỉ giữ testCaseCount tính ngay trên máy chủ CSDL. Chi tiết (kèm testCases) lấy qua
     // GET /authoring/lessons/:id khi giáo viên mở một bài để xem/sửa.
     const orphanExercises = await this.exerciseModel.aggregate([
-      { $match: { slug: { $nin: Array.from(lessonSlugs) }, resource_id: { $exists: false } } },
+      {
+        $match: {
+          slug: { $nin: Array.from(lessonSlugs), ...notDemoExercise },
+          resource_id: { $exists: false },
+          // Học viên: không lấy bài chỉ thuộc Ngân hàng đề, và chỉ bài đúng khối (cùng luật với GET /exercises).
+          ...(forStudent ? { bankOnly: { $ne: true }, ...(studentBand ? playgroundFilter(studentBand) : studentExerciseFilter(viewer?.ageGroup)) } : {}),
+        },
+      },
       { $sort: { createdAt: -1 } },
       { $addFields: { testCaseCount: { $size: { $cond: [{ $isArray: '$testCases' }, '$testCases', []] } } } },
       { $project: { testCases: 0 } },
@@ -578,7 +655,11 @@ export class AuthoringService implements OnModuleInit {
   }
 
   private stripLearnerSensitiveFields(lesson: any): any {
-    const sanitized: any = { ...lesson, solutionCode: undefined };
+    // authorId (id giảng viên) không lộ cho học viên; gợi ý tầng 3 mặc định là chính solutionCode nên cũng bị bỏ.
+    const sanitized: any = { ...lesson, solutionCode: undefined, authorId: undefined };
+    if (lesson.hints && typeof lesson.hints === 'object') {
+      sanitized.hints = { hint1: lesson.hints.hint1 ?? '', hint2: lesson.hints.hint2 ?? '', hint3: '' };
+    }
 
     if (Array.isArray(lesson.testCases)) {
       sanitized.testCases = lesson.testCases.map((tc: any) =>
@@ -694,6 +775,8 @@ export class AuthoringService implements OnModuleInit {
 
     if (lesson) {
       this.assertCanModify(lesson, requester);
+      // Bài code đã xuất bản có bản đồng bộ trong exercises: xóa lesson kéo theo xóa bản đó, nên chặn nếu bài đang được dùng.
+      if (lesson.type === 'coding') await assertExerciseNotInUse(this.usageModels, lesson.slug);
       await this.lessonModel.findByIdAndDelete(id).exec();
 
       // Xoá lesson coding không tự kéo theo xoá bản đồng bộ bên `exercises`
@@ -729,6 +812,8 @@ export class AuthoringService implements OnModuleInit {
     if (!exercise || exercise.resource_id) {
       throw new NotFoundException(`Không tìm thấy bài học với ID: ${id}`);
     }
+    assertCanModifyExercise(exercise as any, requester as JwtPayload);
+    await assertExerciseNotInUse(this.usageModels, exercise.slug);
     await this.exerciseModel.findByIdAndDelete(id).exec();
     return { message: `Đã xóa bài học '${exercise.title}' thành công.` };
   }

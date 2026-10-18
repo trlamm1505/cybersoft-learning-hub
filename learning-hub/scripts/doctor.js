@@ -2,7 +2,7 @@
 /**
  * Kiểm tra nhanh mọi thứ Learning Hub cần để chạy và in cách sửa nếu thiếu:
  *   npm run doctor
- * Không thay đổi gì, chỉ đọc trạng thái (Docker, backend, nguồn dữ liệu, sandbox, web).
+ * Không thay đổi gì, chỉ đọc trạng thái (Python, backend, MongoDB, nguồn dữ liệu, web). Hệ thống không dùng Docker.
  */
 const { spawnSync } = require('child_process');
 
@@ -34,10 +34,11 @@ async function get(url, ms = 3000) {
 }
 
 (async () => {
-  const docker = spawnSync('docker', ['info', '--format', '{{.ServerVersion}}'], { encoding: 'utf8' });
-  docker.status === 0
-    ? line(OK, 'Docker', `đang chạy (v${docker.stdout.trim()})`)
-    : line(WARN, 'Docker', 'chưa bật', 'Mở Docker Desktop, hoặc chạy `npm run sandbox` (tự mở Docker). Cần cho DA Lab chạy SQL và bài Python.');
+  // Bộ chạy bài code dùng Python 3 trên máy (không Docker).
+  const py = ['python3', 'python', 'py'].map((c) => spawnSync(c, c === 'py' ? ['-3', '--version'] : ['--version'], { encoding: 'utf8' })).find((r) => r.status === 0 && /Python 3\./.test(`${r.stdout}${r.stderr}`));
+  py
+    ? line(OK, 'Python', `${py.stdout || py.stderr}`.trim())
+    : line(WARN, 'Python', 'không tìm thấy Python 3', 'Cài Python 3.10+ (python.org). Cần để chạy/nộp bài code.');
 
   const health = await get(`${API}/health`);
   if (!health.ok) {
@@ -50,7 +51,8 @@ async function get(url, ms = 3000) {
       const ds = deps.json.dataService;
       line(OK, 'Nguồn dữ liệu Lab', ds.mode === 'embedded' ? 'tích hợp sẵn trong backend (không cần server riêng)' : `server ngoài ${ds.baseUrl}`);
       const sb = deps.json.sandboxDb;
-      line(sb.reachable ? OK : WARN, 'Postgres sandbox', `${sb.host}:${sb.port} ${sb.reachable ? 'sẵn sàng' : 'không kết nối được'}`, sb.hint || undefined);
+      // Postgres chỉ cần khi SQL_ENGINE=postgres; mặc định SQLite chạy sẵn trong backend.
+      if (sb.reachable) line(OK, 'Postgres sandbox', `${sb.host}:${sb.port} sẵn sàng`);
       line(OK, 'Chạy Python', `chế độ ${deps.json.pythonSandbox}`);
     } else {
       line(WARN, 'Chẩn đoán phụ thuộc', 'backend cũ chưa có /health/dependencies', 'Khởi động lại backend để cập nhật.');

@@ -7,6 +7,13 @@ import type { BankBand, Difficulty, Paged } from '../types/classDays';
 import type { QuestionBankDetail, QuestionBankRow } from '../types/questionBank';
 import { DIFFICULTY_LABEL, pageLabel } from './classDaysModel';
 import { apiMessage, bandLabel, diffUpdate, formFromDetail, sourceLabel, usageLabel, validateEditForm, type EditForm } from './questionBankModel';
+import { QuizBankPanel } from '../components/teacher/QuizBankPanel';
+
+/** Hai loại đề của Ngân hàng đề (Day 30). */
+const KIND_TABS: Array<{ value: 'code' | 'quiz'; label: string }> = [
+  { value: 'code', label: 'Bài Code' },
+  { value: 'quiz', label: 'Câu Trắc nghiệm' },
+];
 
 const BAND_TABS: Array<{ value: BankBand | ''; label: string }> = [
   { value: '', label: 'Tất cả' },
@@ -35,6 +42,7 @@ export const TeacherQuestionBankPage: React.FC = () => {
   const [reload, setReload] = useState(0);
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<QuestionBankRow | null>(null);
+  const [kind, setKind] = useState<'code' | 'quiz'>('code');
 
   useEffect(() => setPage(1), [q, band, difficulty]);
 
@@ -60,8 +68,16 @@ export const TeacherQuestionBankPage: React.FC = () => {
       <div>
         <h2 className="text-lg font-semibold text-[var(--text-main)]">Ngân hàng đề</h2>
         <p className="text-sm text-[var(--text-muted)]">
-          Bài tập code theo khối để gán vào Ngày học của lớp hoặc đề thi Cuộc thi. Bài của Code Playground là kho cố định nên chỉ xem; bài do bạn hoặc AI tạo thì sửa/xóa được.
+          Bài tập code và câu trắc nghiệm theo khối, chỉ dùng để giao bài theo Ngày cho lớp hoặc đưa vào đề Cuộc thi (không hiện ở Code Playground hay trang trắc nghiệm công khai). Bài của Code Playground là kho cố định nên chỉ xem.
         </p>
+      </div>
+
+      <div role="tablist" aria-label="Loại đề" className="flex gap-1.5">
+        {KIND_TABS.map((t) => (
+          <button key={t.value} role="tab" aria-selected={kind === t.value} onClick={() => setKind(t.value)} className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium ${kind === t.value ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900' : 'border border-neutral-300 text-[var(--text-main)] dark:border-neutral-700'}`}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -84,6 +100,10 @@ export const TeacherQuestionBankPage: React.FC = () => {
         </select>
       </div>
 
+      {kind === 'quiz' ? (
+        <QuizBankPanel band={band} q={q} difficulty={difficulty} />
+      ) : (
+        <>
       {error && <p className="text-sm text-rose-500">{error}</p>}
       {data === null && !error ? (
         <div className="flex items-center py-6 text-sm text-[var(--text-muted)]">
@@ -151,6 +171,8 @@ export const TeacherQuestionBankPage: React.FC = () => {
         </div>
       )}
 
+        </>
+      )}
       {openSlug && (
         <DetailDrawer
           slug={openSlug}

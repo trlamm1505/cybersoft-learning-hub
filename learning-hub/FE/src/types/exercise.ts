@@ -135,3 +135,22 @@ export interface SubmitCodeResponse {
   errorMessage?: string;
   memoryUsedMb?: number;
 }
+
+/** Trạng thái một bài trong lộ trình Playground, do MÁY CHỦ tính từ bài nộp AC (Day 31). */
+export type PlaygroundStatus = 'completed' | 'available' | 'locked';
+
+export interface PlaygroundExercise extends ExerciseListItem {
+  /** Số thứ tự cố định #1..#N trong lộ trình của khối. */
+  order: number;
+  status: PlaygroundStatus;
+}
+
+/** Lộ trình Playground chuẩn của một khối: GET /exercises/playground. completed/total là con số duy nhất cho "X / N bài". */
+export interface PlaygroundResponse {
+  band: '6-9' | '10-12' | null;
+  topic: string | null;
+  total: number;
+  completed: number;
+  nextSlug: string | null;
+  exercises: PlaygroundExercise[];
+}

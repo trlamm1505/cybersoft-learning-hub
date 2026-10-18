@@ -69,6 +69,7 @@ export class MailService {
       html,
     });
 
-    this.logger.log(`Đã gửi email đặt lại mật khẩu tới ${toEmail}`);
+    // Không ghi địa chỉ email vào log (PRV-06).
+    this.logger.log('Đã gửi một email đặt lại mật khẩu.');
   }
 }

@@ -51,6 +51,10 @@ import {
   DEBUG_FALLBACK_REPLY,
 } from './coach-debug-explainer';
 import type { DebugExplainer } from './coach-debug-explainer';
+import type { JwtPayload } from '../../common/auth/jwt.strategy';
+import { maskPii } from '../../common/utils/pii-mask.util';
+import { studentCanSeeExercise } from '../exercise/exercise-matrix';
+import { buildSafetyRefusalReply, checkContentSafety } from './coach-content-safety';
 
 // Giới hạn token theo lượt gọi (input context + output) — điều kiện nghiệm
 // thu yêu cầu "có logging và giới hạn token". Ngưỡng này chặn context phình
@@ -99,11 +103,27 @@ export class CoachService {
     private readonly prompts?: PromptProvider,
   ) {}
 
-  async chat(dto: CoachChatDto, userId: string) {
-    const { exerciseSlug, message } = dto;
+  async chat(dto: CoachChatDto, userId: string, viewer?: Pick<JwtPayload, 'role' | 'ageGroup'>) {
+    // Object thay cho chuỗi (vd { $ne: null }) → 400 rõ ràng thay vì TypeError 500 ở .trim() (Day 30, DEF-050).
+    if (
+      (dto?.exerciseSlug !== undefined && typeof dto.exerciseSlug !== 'string') ||
+      (dto?.message !== undefined && typeof dto.message !== 'string')
+    ) {
+      throw new BadRequestException('exerciseSlug và message phải là chuỗi ký tự.');
+    }
+    const { exerciseSlug } = dto;
 
-    if (!exerciseSlug || !message?.trim()) {
+    if (!exerciseSlug || !dto.message?.trim()) {
       throw new BadRequestException('Thiếu exerciseSlug hoặc message.');
+    }
+    // Che email/số điện thoại/CCCD ngay từ đầu: bản đã che là bản gửi cho AI và được lưu lịch sử (PRV-07).
+    const message = maskPii(dto.message);
+    // Học viên chỉ hỏi AI về bài thuộc khối của mình (không mượn AI Coach để đọc đề của khối khác).
+    if (viewer?.role === 'STUDENT') {
+      const band = await this.exerciseModel.findOne({ slug: exerciseSlug }).select('targetGroup gradeBand bankBand').lean();
+      if (band && !studentCanSeeExercise(band as never, viewer.ageGroup)) {
+        throw new ForbiddenException('Bài tập này không thuộc khối của bạn.');
+      }
     }
 
     const context = await this.contextBuilder.build(userId, exerciseSlug);
@@ -157,6 +177,37 @@ export class CoachService {
       return {
         exerciseSlug,
         reply: refusal,
+        // Cờ cấp trên cho client/tester (DEF-033); policy.blocked giữ nguyên cho FE hiện tại.
+        policyBlocked: true,
+        policy: {
+          allowFullSolution: context.policy.allowFullSolution,
+          maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
+          blocked: true,
+          reason: policyReason,
+        },
+        usage: {
+          promptTokens: promptTokenEstimate,
+          completionTokens: refusalTokens,
+          maxPromptTokens: MAX_PROMPT_TOKENS,
+          maxCompletionTokens: MAX_COMPLETION_TOKENS,
+        },
+      };
+    }
+
+    // Nội dung không phù hợp với trẻ em (bạo lực, tự hại, chất cấm, 18+, mã độc, cờ bạc): từ chối thân thiện,
+    // không gọi model, đánh dấu policy.blocked (Day 30, DEF-033).
+    const safety = checkContentSafety(message);
+    if (safety.blocked) {
+      const refusal = buildSafetyRefusalReply(safety.category);
+      const refusalTokens = estimateTokens(refusal);
+      const policyReason = `unsafe_content: ${safety.category}`;
+      this.logger.warn(`Coach message bị chặn vì nội dung không phù hợp (${safety.category}).`);
+      await this.logMessage(userId, exerciseSlug, 'assistant', refusal, refusalTokens, true, policyReason);
+      return {
+        exerciseSlug,
+        reply: refusal,
+        // Cờ cấp trên cho client/tester (DEF-033); policy.blocked giữ nguyên cho FE hiện tại.
+        policyBlocked: true,
         policy: {
           allowFullSolution: context.policy.allowFullSolution,
           maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
@@ -189,6 +240,7 @@ export class CoachService {
       return {
         exerciseSlug,
         reply: canned.reply,
+        policyBlocked: false,
         policy: {
           allowFullSolution: context.policy.allowFullSolution,
           maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
@@ -234,6 +286,14 @@ export class CoachService {
       policyBlocked = true;
       policyReason = policyCheck.reason;
     }
+    // Lớp thứ hai: câu trả lời của model cũng không được chứa nội dung không phù hợp với trẻ em.
+    const outputSafety = checkContentSafety(finalContent);
+    if (outputSafety.blocked) {
+      finalContent = buildSafetyRefusalReply(outputSafety.category);
+      completionTokens = estimateTokens(finalContent);
+      policyBlocked = true;
+      policyReason = `unsafe_content: ${outputSafety.category}`;
+    }
 
     await this.logMessage(
       userId,
@@ -248,6 +308,7 @@ export class CoachService {
     return {
       exerciseSlug,
       reply: finalContent,
+      policyBlocked,
       policy: {
         allowFullSolution: context.policy.allowFullSolution,
         maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
@@ -272,6 +333,12 @@ export class CoachService {
    * Chuỗi bị "ngắt" (reset) ngay khi có một lần AC xen giữa.
    */
   async debugLoop(dto: DebugLoopDto, userId: string) {
+    if (
+      (dto?.exerciseSlug !== undefined && typeof dto.exerciseSlug !== 'string') ||
+      (dto?.submissionId !== undefined && typeof dto.submissionId !== 'string')
+    ) {
+      throw new BadRequestException('exerciseSlug và submissionId phải là chuỗi ký tự.');
+    }
     const { exerciseSlug, submissionId } = dto;
 
     if (!exerciseSlug || !submissionId) {

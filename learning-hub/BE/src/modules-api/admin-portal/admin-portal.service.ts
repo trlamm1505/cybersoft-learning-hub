@@ -186,11 +186,12 @@ export class AdminPortalService {
     }
     const valid = (ids: Set<string>) => [...ids].filter(isValidObjectId);
     const [teachers, students] = await Promise.all([
-      this.users.find({ _id: { $in: valid(teacherIds) } }).select('fullName email status').lean<Array<{ _id: unknown; fullName?: string; email?: string; status?: string }>>(),
+      this.users.find({ _id: { $in: valid(teacherIds) } }).select('fullName email status role').lean<Array<{ _id: unknown; fullName?: string; email?: string; status?: string; role?: string }>>(),
       this.users.find({ _id: { $in: valid(studentIds) } }).select('ageGroup').lean<Array<{ _id: unknown; ageGroup?: string }>>(),
     ]);
     const tName = new Map(teachers.map((t) => [String(t._id), t.fullName || t.email || String(t._id)]));
     const tLocked = new Set(teachers.filter((t) => t.status === 'LOCKED').map((t) => String(t._id)));
+    const tNotTeacher = new Set(teachers.filter((t) => t.role !== undefined && t.role !== 'TEACHER').map((t) => String(t._id)));
     const sAge = new Map(students.map((s) => [String(s._id), s.ageGroup]));
     const rows = classes.map((c) => {
       const counts = new Map<string, number>();
@@ -211,6 +212,8 @@ export class AdminPortalService {
         ageGroup: career ? ('CAREER_ADULT' as const) : ((c.ageGroup as typeof band) ?? band),
         // locked: tài khoản giảng viên đang bị khóa; lịch sử phân công vẫn giữ nhưng giao diện cảnh báo bằng badge xám.
         teachers: this.teachersOf(c).map((id) => ({ id, name: tName.get(id) ?? 'Giảng viên không còn tồn tại', locked: tLocked.has(id) })),
+        // Id "ma": tài khoản đã bị xóa hoặc không còn là giảng viên. FE không gửi lại các id này khi phân công và cho gỡ tự do.
+        missingTeacherIds: this.teachersOf(c).filter((id) => !tName.has(id) || tNotTeacher.has(id)),
         studentCount: career ? careerCount : (c.studentIds ?? []).length,
         exerciseCount,
         status: c.archived ? ('ARCHIVED' as const) : ('OPEN' as const),
@@ -301,16 +304,29 @@ export class AdminPortalService {
 
     const cls = await this.classes.findById(classId).lean<{ name: string; teacherId?: string; teacherIds?: string[] }>();
     if (!cls) throw new NotFoundException('Không tìm thấy lớp.');
-    const found = await this.users.find({ _id: { $in: ids } }).select('fullName email role status').lean<Array<{ _id: unknown; fullName?: string; email?: string; role: string; status?: string }>>();
-    const bad = ids.filter((id) => {
-      const u = found.find((f) => String(f._id) === id);
-      return !u || u.role !== 'TEACHER' || u.status === 'LOCKED';
-    });
-    if (bad.length > 0) throw new BadRequestException('Chỉ gán được tài khoản giảng viên đang hoạt động.');
-
     const before = this.teachersOf(cls);
+    const lookup = await this.users.find({ _id: { $in: ids } }).select('fullName email role status').lean<Array<{ _id: unknown; fullName?: string; email?: string; role: string; status?: string }>>();
+    const byId = new Map(lookup.map((f) => [String(f._id), f]));
+    // Id cũ của lớp không còn là tài khoản giảng viên (đã bị xóa, hoặc bị đổi vai trò ngoài luồng): tự gỡ, không chặn cả request.
+    const dropped = ids.filter((id) => before.includes(id) && byId.get(id)?.role !== 'TEACHER');
+    const kept = ids.filter((id) => !dropped.includes(id));
+    // Người MỚI thêm phải là giảng viên đang hoạt động. Người đang phụ trách mà bị khóa vẫn được giữ (lịch sử phân công).
+    const invalidIds = kept.filter((id) => {
+      const u = byId.get(id);
+      return !u || u.role !== 'TEACHER' || (u.status === 'LOCKED' && !before.includes(id));
+    });
+    if (invalidIds.length > 0) {
+      throw new BadRequestException({
+        code: 'E400_INVALID_TEACHERS',
+        message: `Chỉ gán được tài khoản giảng viên đang hoạt động (${invalidIds.length} tài khoản không hợp lệ hoặc đang bị khóa).`,
+        invalidIds,
+      });
+    }
+    if (kept.length === 0) throw new BadRequestException('Lớp cần ít nhất một giảng viên còn tồn tại.');
+    const found = kept.map((id) => byId.get(id)!);
+
     // teacherId giữ giảng viên chính (người đầu danh sách) để tương thích dữ liệu và mã cũ.
-    await this.classes.updateOne({ _id: classId }, { $set: { teacherIds: ids, teacherId: ids[0] } });
+    await this.classes.updateOne({ _id: classId }, { $set: { teacherIds: kept, teacherId: kept[0] } });
     const name = (id: string) => found.find((f) => String(f._id) === id)?.fullName || id;
     // Tên giảng viên cũ (nếu còn tồn tại) để nhật ký hiển thị bằng tên người thay vì mã.
     const oldTeachers = before.length ? await this.users.find({ _id: { $in: before.filter(isValidObjectId) } }).select('fullName email').lean<Array<{ _id: unknown; fullName?: string; email?: string }>>() : [];
@@ -321,9 +337,67 @@ export class AdminPortalService {
       'CLASS',
       classId,
       { className: cls.name, teacherIds: before, teacherNames: before.map(nameOf) },
-      { className: cls.name, teacherIds: ids, teacherNames: ids.map(name) },
+      { className: cls.name, teacherIds: kept, teacherNames: kept.map(name) },
     );
-    return { classId, teacherIds: ids, teachers: ids.map((id) => ({ id, name: name(id) })) };
+    return { classId, teacherIds: kept, teachers: kept.map((id) => ({ id, name: name(id) })), ...(dropped.length ? { droppedIds: dropped } : {}) };
+  }
+
+  /**
+   * Gỡ MỘT giảng viên khỏi lớp. Lớp vẫn phải còn ít nhất một giảng viên, trừ khi người bị gỡ là id "ma" (tài khoản đã
+   * bị xóa/không còn là giảng viên) hoặc đang bị khóa: khi đó lớp được để trống để Admin gán người mới.
+   */
+  async removeTeacher(user: JwtPayload, classId: string, teacherId: string) {
+    this.assertAdmin(user);
+    if (!isValidObjectId(classId)) throw new NotFoundException('Không tìm thấy lớp.');
+    const cls = await this.classes.findById(classId).lean<{ name: string; teacherId?: string; teacherIds?: string[] }>();
+    if (!cls) throw new NotFoundException('Không tìm thấy lớp.');
+    const before = this.teachersOf(cls);
+    if (!before.includes(teacherId)) throw new NotFoundException('Giảng viên này không phụ trách lớp.');
+    const rest = before.filter((id) => id !== teacherId);
+    const lookup = await this.users
+      .find({ _id: { $in: before.filter(isValidObjectId) } })
+      .select('fullName email role status')
+      .lean<Array<{ _id: unknown; fullName?: string; email?: string; role: string; status?: string }>>();
+    const target = lookup.find((u) => String(u._id) === teacherId);
+    const removable = !target || target.role !== 'TEACHER' || target.status === 'LOCKED';
+    if (rest.length === 0 && !removable) throw new BadRequestException('Lớp cần ít nhất một giảng viên: gán người khác trước khi gỡ.');
+    await this.classes.updateOne(
+      { _id: classId },
+      rest.length ? { $set: { teacherIds: rest, teacherId: rest[0] } } : { $set: { teacherIds: [] }, $unset: { teacherId: 1 } },
+    );
+    const nameOf = (id: string) => {
+      const u = lookup.find((x) => String(x._id) === id);
+      return u?.fullName || u?.email || 'Giảng viên không còn tồn tại';
+    };
+    await this.audit.record(
+      user,
+      'CLASS_ASSIGN',
+      'CLASS',
+      classId,
+      { className: cls.name, teacherIds: before, teacherNames: before.map(nameOf) },
+      { className: cls.name, teacherIds: rest, teacherNames: rest.map(nameOf) },
+    );
+    return { classId, teacherIds: rest, teachers: rest.map((id) => ({ id, name: nameOf(id) })) };
+  }
+
+  /** Số lớp có giảng viên phụ trách không còn tồn tại, không còn là giảng viên, hoặc đang bị khóa. */
+  private async classesWithDeadTeachers(): Promise<number> {
+    const rows = await this.classes.aggregate<{ n: number }>([
+      { $project: { tids: { $setUnion: [{ $ifNull: ['$teacherIds', []] }, { $cond: [{ $ifNull: ['$teacherId', false] }, ['$teacherId'], []] }] } } },
+      { $unwind: '$tids' },
+      {
+        $lookup: {
+          from: 'users',
+          let: { tid: '$tids' },
+          pipeline: [{ $match: { $expr: { $eq: [{ $toString: '$_id' }, '$$tid'] } } }, { $project: { role: 1, status: 1 } }],
+          as: 'u',
+        },
+      },
+      { $match: { $or: [{ u: { $size: 0 } }, { 'u.0.role': { $ne: 'TEACHER' } }, { 'u.0.status': 'LOCKED' }] } },
+      { $group: { _id: '$_id' } },
+      { $count: 'n' },
+    ]);
+    return rows[0]?.n ?? 0;
   }
 
   // ------------------------------- Health check -------------------------------
@@ -348,12 +422,14 @@ export class AdminPortalService {
         return { status: ping.reason ? ('DEGRADED' as const) : undefined, detail: ping.reason ? `Gemini: ${ping.reason}` : `Gemini: Valid key, ${ping.latencyMs}ms` };
       }),
       runCheck('submissions_classes', 'Submissions & Classes', async () => {
-        const [subs, classes, orphanTeachers] = await Promise.all([
+        const [subs, classes, orphanTeachers, deadTeachers] = await Promise.all([
           this.submissions.estimatedDocumentCount(),
           this.classes.countDocuments({}),
           this.classes.countDocuments({ $or: [{ teacherId: { $exists: false } }, { teacherId: '' }] }),
+          this.classesWithDeadTeachers(),
         ]);
         if (orphanTeachers > 0) return { status: 'DEGRADED' as const, detail: `${orphanTeachers} lớp chưa có giảng viên phụ trách (submissions: ${subs}, classes: ${classes})` };
+        if (deadTeachers > 0) return { status: 'DEGRADED' as const, detail: `${deadTeachers} lớp có giảng viên không còn tồn tại hoặc đang bị khóa (submissions: ${subs}, classes: ${classes})` };
         return { detail: `Toàn vẹn: ${subs} bài nộp, ${classes} lớp, mọi lớp đều có giảng viên` };
       }),
       runCheck('contests', 'Contests', async () => {

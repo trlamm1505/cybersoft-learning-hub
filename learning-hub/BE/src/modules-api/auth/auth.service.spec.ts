@@ -271,9 +271,19 @@ describe('AuthService', () => {
         process.env.NODE_ENV = OLD_ENV;
       });
 
-      it('không gửi thư; trả success + thông báo Dev mode kèm liên kết đặt lại', async () => {
+      it('Day 29 (H6): dev nhưng KHÔNG bật DEV_MAIL_MOCK → không trả liên kết (không ai tự lấy link reset của admin)', async () => {
         process.env.NODE_ENV = 'development';
+        delete process.env.DEV_MAIL_MOCK;
         const res = await service.forgotPassword({ email: 'a@b.com' });
+        expect(res.success).toBe(true);
+        expect(res).not.toHaveProperty('devResetLink');
+      });
+
+      it('không gửi thư; trả success + thông báo Dev mode kèm liên kết đặt lại (chỉ khi DEV_MAIL_MOCK=true)', async () => {
+        process.env.NODE_ENV = 'development';
+        process.env.DEV_MAIL_MOCK = 'true';
+        const res = await service.forgotPassword({ email: 'a@b.com' });
+        delete process.env.DEV_MAIL_MOCK;
         expect(res.success).toBe(true);
         expect(res.message).toContain('Dev mode');
         expect(res.devResetLink).toContain('http://localhost:5173/reset-password?token=');
@@ -283,7 +293,9 @@ describe('AuthService', () => {
 
       it('production: tuyệt đối không trả liên kết trong response', async () => {
         process.env.NODE_ENV = 'production';
+        process.env.DEV_MAIL_MOCK = 'true';
         const res = await service.forgotPassword({ email: 'a@b.com' });
+        delete process.env.DEV_MAIL_MOCK;
         expect(res).not.toHaveProperty('devResetLink');
       });
 

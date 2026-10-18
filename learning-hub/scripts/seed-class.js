@@ -17,6 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const h = require('./lib/setup-helpers');
+const { repairAllClasses } = require('./lib/class-integrity');
 
 const BE = path.join(__dirname, '..', 'BE');
 const envText = fs.existsSync(path.join(BE, '.env')) ? fs.readFileSync(path.join(BE, '.env'), 'utf8') : '';
@@ -145,7 +146,9 @@ function vnMorning(dayOffset, now) {
         }
       }
       const u = await users.deleteMany({ isSeedClassDemo: true });
-      console.log(`Đã gỡ ${u.deletedCount} tài khoản mẫu, ${s.deletedCount} bài nộp, ${q.deletedCount} lượt thi.`);
+      // Lớp được giữ lại (vì còn học sinh thật) không được trỏ tới giảng viên mẫu vừa xóa.
+      const repaired = await repairAllClasses(db);
+      console.log(`Đã gỡ ${u.deletedCount} tài khoản mẫu, ${s.deletedCount} bài nộp, ${q.deletedCount} lượt thi; sửa tham chiếu ${repaired} lớp.`);
       return;
     }
 
@@ -155,7 +158,7 @@ function vnMorning(dayOffset, now) {
       if (dryRun) return email;
       const res = await users.findOneAndUpdate(
         { email },
-        { $set: { ...fields, status: 'ACTIVE', isSeedClassDemo: true, updatedAt: now }, $setOnInsert: { email, password: pwHash, phone: '', bio: '', createdAt: now } },
+        { $set: { ...fields, status: 'ACTIVE', isSeedClassDemo: true, updatedAt: now }, $setOnInsert: { email, password: pwHash, createdAt: now } },
         { upsert: true, returnDocument: 'after' },
       );
       return String(res._id);
@@ -168,9 +171,12 @@ function vnMorning(dayOffset, now) {
     }
     // Chỉ đặt giảng viên khi lớp chưa có hoặc đang do giảng viên MẪU phụ trách: không đè phân công thật của Admin.
     const seedTeacherSet = new Set(Object.values(teacherIds));
+    // Chỉ GIỮ phân công cũ khi giảng viên chính là một tài khoản giảng viên THẬT còn tồn tại. teacherId trỏ tới tài khoản đã xóa
+    // (findOne trả null) trước đây bị coi là "giữ nguyên" nên id "ma" không bao giờ được thay.
     const teacherFields = async (existing, teacherId) => {
-      const keep = existing && existing.teacherId && !seedTeacherSet.has(String(existing.teacherId)) && !(await users.findOne({ _id: new OID(String(existing.teacherId)), isSeedClassDemo: true }));
-      return keep ? {} : { teacherId, teacherIds: [teacherId] };
+      const cur = existing && existing.teacherId ? String(existing.teacherId) : '';
+      const real = cur && !seedTeacherSet.has(cur) && OID.isValid(cur) ? await users.findOne({ _id: new OID(cur), role: 'TEACHER', isSeedClassDemo: { $ne: true } }) : null;
+      return real ? {} : { teacherId, teacherIds: [teacherId] };
     };
 
     for (const c of CLASSES) {
@@ -315,20 +321,8 @@ function vnMorning(dayOffset, now) {
       console.log('Đã rà khối tuổi các lớp mẫu.');
     }
     if (fixDangling) {
-      const existing = new Set((await users.find({}, { projection: { _id: 1 } }).toArray()).map((u) => String(u._id)));
-      let fixed = 0;
-      for (const c of await classes.find({}).toArray()) {
-        const keep = (c.studentIds || []).filter((id) => existing.has(String(id)));
-        const tIds = (c.teacherIds || []).filter((id) => existing.has(String(id)));
-        const set = {};
-        if (keep.length !== (c.studentIds || []).length) set.studentIds = keep;
-        if (c.teacherIds && tIds.length !== c.teacherIds.length && tIds.length > 0) { set.teacherIds = tIds; if (!existing.has(String(c.teacherId))) set.teacherId = tIds[0]; }
-        if (Object.keys(set).length) {
-          console.log(`  ${dryRun ? '(dry-run) ' : ''}${c.name}: gỡ ${(c.studentIds || []).length - keep.length} học viên và ${(c.teacherIds || []).length - tIds.length} giảng viên không còn tồn tại`);
-          if (!dryRun) await classes.updateOne({ _id: c._id }, { $set: set });
-          fixed++;
-        }
-      }
+      // Dùng chung helper toàn vẹn lớp: xử lý cả lớp chỉ còn id "ma" (bỏ teacherId) và giảng viên chính đã bị xóa.
+      const fixed = await repairAllClasses(db, { dryRun, log: (m) => console.log(`  ${m}`) });
       console.log(`Toàn vẹn khóa ngoại: đã sửa ${fixed} lớp.`);
     }
     if (!adults.length) console.log('  (!) Chưa có tài khoản Người đi làm: chạy node scripts/seed-career-adult.js để tạo nguoidilam1/2@gmail.com.');

@@ -6,7 +6,8 @@ export type ExerciseDocument = Exercise & Document;
 
 @Schema({ _id: false })
 export class ExerciseTestCase {
-  @Prop({ required: true, type: String })
+  // '' là stdin hợp lệ (bài không đọc input, vd in "Xin chào"): required của Mongoose coi '' là thiếu nên trả 500.
+  @Prop({ type: String, default: '' })
   input: string;
 
   // Not `required: true`: Mongoose's default String required-check treats '' as
@@ -209,3 +210,9 @@ export class Exercise {
 }
 
 export const ExerciseSchema = SchemaFactory.createForClass(Exercise);
+
+// Chốt chặn cuối (Day 31): bài có authorId (do Giảng viên/Admin tạo, kể cả AI Tạo Đề) luôn là bài Ngân hàng đề - chỉ để giao theo Ngày / Cuộc thi,
+// KHÔNG bao giờ vào Code Playground hay làm đổi mẫu số Tiến độ học tập. Bài Playground chuẩn do hệ thống nạp, không có authorId.
+ExerciseSchema.pre('validate', function (this: ExerciseDocument) {
+  if (this.authorId && this.bankOnly !== true) this.bankOnly = true;
+});

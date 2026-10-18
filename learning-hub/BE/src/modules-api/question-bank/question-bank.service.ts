@@ -1,3 +1,4 @@
+import { notDemoExercise } from '../exercise/playground-catalog';
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -9,8 +10,9 @@ import type { JwtPayload } from '../../common/auth/jwt.strategy';
 import { canUseAiGenerator } from '../assessment/domain/tester-progress';
 import { escapeRegex, normalizeDifficulty, normalizePage, toPaged } from '../class-assignments/assignment-days';
 import { bandOfExercise, bankLabels, exerciseBandFilter, normalizeBankBand } from '../exercise/exercise-matrix';
+import { assertCanModifyExercise, BANK_IN_USE_MESSAGE, exerciseUsage } from '../exercise/exercise-usage';
 
-export const BANK_IN_USE_MESSAGE = 'Không thể xóa bài tập đang được sử dụng trong Lớp học hoặc Cuộc thi';
+export { BANK_IN_USE_MESSAGE };
 const MAX_TEST_CASES = 50;
 const MAX_FIELD = 20_000;
 
@@ -63,14 +65,29 @@ export class QuestionBankService {
     @InjectModel(Contest.name) private readonly contests: Model<ContestDocument>,
   ) {}
 
-  async assertEligible(user: JwtPayload): Promise<void> {
-    if (user.role === 'ADMIN') return;
+  /** Trả các khối phổ thông giảng viên đang phụ trách (Admin: null = mọi khối); 403 nếu không đủ điều kiện. */
+  async assertEligible(user: JwtPayload): Promise<string[] | null> {
+    if (user.role === 'ADMIN') return null;
     if (user.role !== 'TEACHER') throw this.notEligible();
     const mine = await this.classes
       .find({ archived: { $ne: true }, $or: [{ teacherId: user.sub }, { teacherIds: user.sub }] })
       .select('ageGroup courseKey archived')
       .lean<Array<{ ageGroup?: string; courseKey?: string; archived?: boolean }>>();
     if (!canUseAiGenerator(mine)) throw this.notEligible();
+    return [...new Set(mine.map((c) => c.ageGroup).filter((g): g is string => g === '6-9' || g === '10-12'))];
+  }
+
+  /**
+   * Sửa/xóa: bài Playground cố định → 403; giảng viên chỉ đụng bài do mình tạo (hoặc bài chung không có tác giả) và chỉ
+   * bài thuộc khối mình đang phụ trách. Admin không giới hạn.
+   */
+  private assertCanEdit(doc: Lean, bands: string[] | null, user: JwtPayload) {
+    this.requireEditable(doc);
+    assertCanModifyExercise(doc, user);
+    const own = bandOfExercise(doc);
+    if (bands && own && !bands.includes(own)) {
+      throw new ForbiddenException({ code: 'E403_BAND_NOT_OWNED', message: `Bài thuộc Khối ${own}: bạn không phụ trách lớp khối này.` });
+    }
   }
 
   private notEligible() {
@@ -78,27 +95,12 @@ export class QuestionBankService {
   }
 
   private baseFilter(): Record<string, unknown> {
-    return { type: 'CODE_TEXT', resource_id: { $exists: false } };
+    return { type: 'CODE_TEXT', resource_id: { $exists: false }, slug: notDemoExercise };
   }
 
   /** Số lớp/cuộc thi đang dùng từng slug. */
   async usageOf(slugs: string[]): Promise<Map<string, { classes: number; contests: number }>> {
-    const out = new Map<string, { classes: number; contests: number }>(slugs.map((s) => [s, { classes: 0, contests: 0 }]));
-    if (slugs.length === 0) return out;
-    const [fromClasses, fromContests] = await Promise.all([
-      this.assignments.aggregate<{ _id: string; n: number }>([{ $match: { type: 'CODING', exerciseSlug: { $in: slugs } } }, { $group: { _id: '$exerciseSlug', n: { $sum: 1 } } }]),
-      this.contests.find({ $or: [{ 'problems.exerciseSlug': { $in: slugs } }, { problems: { $elemMatch: { source: 'exercise', slug: { $in: slugs } } } }] }).select('problems').lean<Array<{ problems?: Array<{ exerciseSlug?: string; slug?: string; source?: string }> }>>(),
-    ]);
-    for (const r of fromClasses) if (out.has(r._id)) out.get(r._id)!.classes = r.n;
-    for (const c of fromContests) {
-      const hit = new Set<string>();
-      for (const p of c.problems ?? []) {
-        if (p.exerciseSlug && out.has(p.exerciseSlug)) hit.add(p.exerciseSlug);
-        if (p.source === 'exercise' && p.slug && out.has(p.slug)) hit.add(p.slug);
-      }
-      for (const s of hit) out.get(s)!.contests += 1;
-    }
-    return out;
+    return exerciseUsage({ assignments: this.assignments, classes: this.classes, contests: this.contests }, slugs);
   }
 
   async list(user: JwtPayload, q: BankListQuery) {
@@ -175,9 +177,9 @@ export class QuestionBankService {
   }
 
   async update(user: JwtPayload, slug: string, input: BankUpdateInput) {
-    await this.assertEligible(user);
+    const bands = await this.assertEligible(user);
     const doc = await this.load(slug, true);
-    this.requireEditable(doc);
+    this.assertCanEdit(doc, bands, user);
     const set: Record<string, unknown> = {};
 
     if (input.title !== undefined) {
@@ -231,9 +233,9 @@ export class QuestionBankService {
   }
 
   async remove(user: JwtPayload, slug: string) {
-    await this.assertEligible(user);
+    const bands = await this.assertEligible(user);
     const doc = await this.load(slug);
-    this.requireEditable(doc);
+    this.assertCanEdit(doc, bands, user);
     const use = (await this.usageOf([doc.slug])).get(doc.slug)!;
     if (use.classes + use.contests > 0) {
       throw new ConflictException({ code: 'E409_BANK_EXERCISE_IN_USE', message: BANK_IN_USE_MESSAGE, usage: use });

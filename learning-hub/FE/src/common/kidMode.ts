@@ -14,8 +14,11 @@ export const isKidMode = (user: AuthUser | null | undefined, search = ''): boole
 /** Trang chủ của học sinh Kid Mode: danh sách mini-game Block Puzzle. */
 export const KID_HOME = '/block-puzzle';
 
-/** Trong Kid Mode chỉ các trang này được mở; mọi đường dẫn khác đưa về Góc Học Tập. */
-const KID_ALLOWED_PREFIXES = ['/playground', '/block-puzzle', '/progress', '/kid-leaderboard', '/profile', '/login'];
+/**
+ * Trong Kid Mode chỉ các trang này được mở; mọi đường dẫn khác (kể cả /playground, /quiz) đưa về Góc Học Tập.
+ * Lớp 3-5 học bằng game Blockly, không làm bài code/trắc nghiệm (Day 30, TC_K35_02/03).
+ */
+const KID_ALLOWED_PREFIXES = ['/block-puzzle', '/progress', '/kid-leaderboard', '/profile', '/login'];
 
 export const isKidAllowedPath = (pathname: string): boolean =>
   KID_ALLOWED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

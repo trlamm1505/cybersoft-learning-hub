@@ -147,13 +147,13 @@ describe('RecommendationService.getAiAdvice', () => {
   it('gọi Gemini thật và trả nguồn "gemini"; lần sau cùng lịch sử dùng bộ nhớ đệm', async () => {
     const advisor = { advise: jest.fn().mockResolvedValue(geminiJson) };
     const service = build(advisor);
-    const first = await service.getAiAdvice('u1', '6-9');
+    const first = await service.getAiAdvice('u1', 'CAREER_ADULT');
     expect(first.source).toBe('gemini');
     expect(first.weakness?.topic).toBe('Vòng lặp');
-    await service.getAiAdvice('u1', '6-9');
+    await service.getAiAdvice('u1', 'CAREER_ADULT');
     expect(advisor.advise).toHaveBeenCalledTimes(1);
     // Cache theo từng học viên: người khác không nhận lời khuyên của u1.
-    await service.getAiAdvice('u2', '6-9');
+    await service.getAiAdvice('u2', 'CAREER_ADULT');
     expect(advisor.advise).toHaveBeenCalledTimes(2);
   });
 

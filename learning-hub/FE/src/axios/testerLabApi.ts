@@ -21,7 +21,7 @@ async function saveBlob(path: string, fileName: string): Promise<void> {
 /** Tester Lab API Service Layer (Ngày 21) — wraps NestJS /tester-labs/*. */
 export const testerLabApi = {
   /** Vai trò hiện tại có được đọc/chấm bài của người khác không (luôn 200): hỏi trước để không gọi API bị 403. */
-  getCapabilities: async (): Promise<{ role: string; canReview: boolean; peerReview: boolean }> => {
+  getCapabilities: async (): Promise<{ role: string; canReview: boolean; peerReview: boolean; canReviewTesterQueue: boolean }> => {
     return await axiosClient.get('/tester-labs/capabilities');
   },
 

@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -15,9 +16,9 @@ import { ExerciseService } from './exercise.service';
 import { RunCodeDto } from './dto/run-code.dto';
 import { ExerciseWriteDto } from './dto/exercise-write.dto';
 import { StripExerciseSecretsInterceptor } from './exercise-serializer';
-import { OptionalJwtAuthGuard } from '../../common/auth/optional-jwt-auth.guard';
 import { SubmitCodeDto } from './dto/submit-code.dto';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
+import { NoKidCodeGuard } from '../../common/auth/no-kid-code.guard';
 import { RolesGuard } from '../../common/auth/roles.guard';
 import { Roles } from '../../common/auth/roles.decorator';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
@@ -28,13 +29,25 @@ export class ExerciseController {
   constructor(private readonly exerciseService: ExerciseService) {}
 
   /**
-   * GET /api/exercises
+   * GET /api/exercises — bắt buộc đăng nhập (Day 29 SEC-04); học viên chỉ nhận bài đúng khối.
    */
   @Get()
-  @UseGuards(OptionalJwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(StripExerciseSecretsInterceptor)
-  async findAll(@CurrentUser() user?: JwtPayload) {
+  async findAll(@CurrentUser() user: JwtPayload) {
     return this.exerciseService.findAll(user);
+  }
+
+  /**
+   * GET /api/exercises/playground?band=6-9|10-12 — lộ trình Code Playground chuẩn #1..#N kèm trạng thái (completed / available / locked)
+   * do máy chủ tính từ bài nộp AC. Học viên: khối lấy từ tài khoản. Giảng viên/Admin: chọn khối bằng `band`, không bị khóa.
+   * Phải khai báo TRƯỚC `:slug` để "playground" không bị hiểu là slug của một bài.
+   */
+  @Get('playground')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(StripExerciseSecretsInterceptor)
+  async playground(@CurrentUser() user: JwtPayload, @Query('band') band?: string) {
+    return this.exerciseService.playground(user, typeof band === 'string' ? band : undefined);
   }
 
   /** POST /api/exercises — chỉ giảng viên/quản trị viên; người tạo được ghi vào authorId. */
@@ -86,14 +99,14 @@ export class ExerciseController {
   }
 
   /**
-   * GET /api/exercises/:slug
+   * GET /api/exercises/:slug — bắt buộc đăng nhập (Day 29 SEC-24); học viên khác khối nhận 403.
    */
   @Get(':slug')
-  @UseGuards(OptionalJwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(StripExerciseSecretsInterceptor)
   async findBySlug(
     @Param('slug') slug: string,
-    @CurrentUser() user?: JwtPayload,
+    @CurrentUser() user: JwtPayload,
   ) {
     return this.exerciseService.findBySlug(slug, user);
   }
@@ -102,7 +115,7 @@ export class ExerciseController {
    * POST /api/exercises/:slug/run
    */
   @Post(':slug/run')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, NoKidCodeGuard)
   @Throttle(RATE_LIMITS.codeRun)
   async runCode(
     @Param('slug') slug: string,
@@ -116,7 +129,7 @@ export class ExerciseController {
    * POST /api/exercises/check-syntax — standalone syntax check (CE), no exercise/DB lookup needed.
    */
   @Post('check-syntax')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, NoKidCodeGuard)
   async checkSyntax(@Body() dto: RunCodeDto) {
     return this.exerciseService.checkSyntax(dto.code);
   }
@@ -126,7 +139,7 @@ export class ExerciseController {
    * (không còn nhận từ body, tránh mạo danh học viên khác).
    */
   @Post(':slug/submit')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, NoKidCodeGuard)
   async submitCode(
     @Param('slug') slug: string,
     @CurrentUser() user: JwtPayload,

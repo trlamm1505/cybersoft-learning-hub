@@ -6,6 +6,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { UnauthorizedException } from '@nestjs/common';
 import { User, UserDocument } from '../../modules-system/database/schemas/user.schema';
+import { RevokedToken, RevokedTokenDocument } from '../../modules-system/database/schemas/revoked-token.schema';
+import { Optional } from '@nestjs/common';
 import { jwtSecretFrom } from './jwt-secret';
 import { ACCESS_COOKIE, readCookie } from '../security/cookies';
 import { tokenRevocation } from '../security/token-revocation';
@@ -34,6 +36,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     configService: ConfigService,
     @InjectModel(User.name) private readonly users: Model<UserDocument>,
+    // Danh sách thu hồi lưu bền (Day 29 L3); thiếu (test cũ) thì chỉ dùng bản trong bộ nhớ.
+    @Optional() @InjectModel(RevokedToken.name) private readonly revoked?: Model<RevokedTokenDocument>,
   ) {
     super({
       // Bearer header (script/API) hoặc cookie httpOnly `access_token` (trình duyệt).
@@ -51,7 +55,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * từ chối ngay (không chờ hết hạn 7 ngày), và vai trò lấy từ CSDL nên đổi vai trò có hiệu lực tức thì.
    */
   async validate(payload: JwtPayload): Promise<JwtPayload> {
-    if (tokenRevocation.isRevoked(payload.jti)) {
+    if (tokenRevocation.isRevoked(payload.jti) || (payload.jti && this.revoked && (await this.revoked.exists({ jti: payload.jti })))) {
       throw new UnauthorizedException('Phiên đăng nhập đã kết thúc. Vui lòng đăng nhập lại.');
     }
     if (!isValidObjectId(payload.sub)) {

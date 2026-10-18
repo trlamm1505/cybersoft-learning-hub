@@ -38,8 +38,8 @@ export class TesterLabsController {
 
   /** Vai trò hiện tại được làm gì (đọc/chấm bài của người khác); luôn 200, không bao giờ 403. */
   @Get('capabilities')
-  capabilities(@CurrentUser() user: JwtPayload) {
-    return this.service.capabilities(user);
+  async capabilities(@CurrentUser() user: JwtPayload) {
+    return { ...this.service.capabilities(user), canReviewTesterQueue: await this.service.canSeeReviewQueue(user) };
   }
 
   /** Hàng chờ chấm Tester QA của giảng viên (đặt trước ':labCode' để không bị nuốt route). */

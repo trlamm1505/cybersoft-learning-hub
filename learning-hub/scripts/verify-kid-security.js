@@ -7,7 +7,7 @@
  *
  * Biến môi trường (mặc định đọc từ BE/.env): VERIFY_API_URL, DATABASE_URL, JWT_SECRET (phải trùng backend).
  * Dữ liệu tạm mang tiền tố __TEST_TEMP__ và luôn bị xóa trong finally; không đụng bản ghi nào khác.
- * Ghi kết quả ra console và TEST_KID_SECURITY_REPORT.txt.
+ * Ghi kết quả ra console và reports/kid-security-report.txt (file sinh ra, đã .gitignore).
  */
 const fs = require('fs');
 const path = require('path');
@@ -16,7 +16,7 @@ const h = require('./lib/setup-helpers');
 
 const ROOT = path.join(__dirname, '..');
 const BE = path.join(ROOT, 'BE');
-const REPORT = path.join(ROOT, 'TEST_KID_SECURITY_REPORT.txt');
+const REPORT = path.join(ROOT, 'reports', 'kid-security-report.txt');
 const LOW = '__test_temp__';
 const RUN = crypto.randomBytes(3).toString('hex');
 
@@ -24,7 +24,9 @@ const envText = fs.existsSync(path.join(BE, '.env')) ? fs.readFileSync(path.join
 const cfg = (k, d) => process.env[k] || h.readEnvValue(envText, k) || d;
 const API = (process.env.VERIFY_API_URL || 'http://localhost:3000/api').replace(/\/$/, '');
 const DB_URI = cfg('DATABASE_URL', '');
-const JWT_SECRET = cfg('JWT_SECRET', 'dev-secret-key');
+// Không còn khóa mặc định cố định (Day 29): phải đọc đúng JWT_SECRET mà backend đang dùng.
+const JWT_SECRET = cfg('JWT_SECRET');
+if (!JWT_SECRET) { console.error('Thiếu JWT_SECRET trong BE/.env hoặc biến môi trường.'); process.exit(1); }
 const mask = (u) => u.replace(/(:\/\/[^:/@]+:)[^@]*@/, '$1***@');
 
 const lines = [];

@@ -13,7 +13,7 @@
  * An toàn dữ liệu: mọi bản ghi tạo ra đều mang tiền tố __TEST_TEMP__ (user, bài tập) và bị xóa
  * trong khối finally, kể cả khi test lỗi giữa chừng. Script không đụng bản ghi nào khác. Người dùng
  * tạm được chèn thẳng vào CSDL (không qua /auth/register nên không làm nhảy bộ đếm studentCode).
- * Kết quả ghi ra console và TEST_MATRIX_SECURITY_REPORT.txt.
+ * Kết quả ghi ra console và reports/matrix-security-report.txt (file sinh ra, đã .gitignore).
  */
 const fs = require('fs');
 const path = require('path');
@@ -23,7 +23,7 @@ const { upsertItems } = require('./seed-matrix');
 
 const ROOT = path.join(__dirname, '..');
 const BE = path.join(ROOT, 'BE');
-const REPORT = path.join(ROOT, 'TEST_MATRIX_SECURITY_REPORT.txt');
+const REPORT = path.join(ROOT, 'reports', 'matrix-security-report.txt');
 const PREFIX = '__TEST_TEMP__';
 const LOW = PREFIX.toLowerCase();
 const RUN = crypto.randomBytes(3).toString('hex');
@@ -32,7 +32,9 @@ const envText = fs.existsSync(path.join(BE, '.env')) ? fs.readFileSync(path.join
 const cfg = (k, d) => process.env[k] || h.readEnvValue(envText, k) || d;
 const API = (process.env.VERIFY_API_URL || 'http://localhost:3000/api').replace(/\/$/, '');
 const DB_URI = cfg('DATABASE_URL', '');
-const JWT_SECRET = cfg('JWT_SECRET', 'dev-secret-key');
+// Không còn khóa mặc định cố định (Day 29): phải đọc đúng JWT_SECRET mà backend đang dùng.
+const JWT_SECRET = cfg('JWT_SECRET');
+if (!JWT_SECRET) { console.error('Thiếu JWT_SECRET trong BE/.env hoặc biến môi trường.'); process.exit(1); }
 const mask = (u) => u.replace(/(:\/\/[^:/@]+:)[^@]*@/, '$1***@');
 
 const lines = [];

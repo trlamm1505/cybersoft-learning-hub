@@ -6,11 +6,17 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 import { slugify } from '../../common/utils/slug.util';
-import { allowedGradeBands, matrixError, targetGroupOfStudent } from './exercise-matrix';
+import { allowedGradeBands, bankBandOfTargetGroup, bankLabels, matrixError, studentCanSeeExercise, studentExerciseFilter, TEACHER_AUTHORABLE_GROUPS, targetGroupOfStudent } from './exercise-matrix';
+import { assertCanModifyExercise, assertExerciseNotInUse } from './exercise-usage';
+import { notDemoExercise, isOnPlaygroundTrack, isPlaygroundBand, playgroundBandOf, playgroundFilter, playgroundStatuses, PLAYGROUND_TRACK_TOPIC, PRACTICE_AC_FILTER, type PlaygroundBand } from './playground-catalog';
+import { ClassAssignment, ClassAssignmentDocument } from '../../modules-system/database/schemas/class-assignment.schema';
+import { Classroom, ClassroomDocument } from '../../modules-system/database/schemas/classroom.schema';
+import { Contest, ContestDocument } from '../../modules-system/database/schemas/contest.schema';
 import { ExerciseWriteDto, WRITABLE_FIELDS } from './dto/exercise-write.dto';
 import {
   Exercise,
@@ -31,6 +37,16 @@ import { JudgeStatus } from '../judge/judge-status.enum';
 import { RunCodeDto } from './dto/run-code.dto';
 import { SubmitCodeDto } from './dto/submit-code.dto';
 
+/** Teacher Studio chỉ soạn bài cho khối 6-9 / 10-12 (403 với Lớp 3-5 và khối Người lớn — Day 30). */
+function assertAuthorableGroup(targetGroup: unknown): void {
+  if (!(TEACHER_AUTHORABLE_GROUPS as readonly unknown[]).includes(targetGroup)) {
+    throw new ForbiddenException({
+      code: 'E403_BAND_NOT_AUTHORABLE',
+      message: 'Teacher Studio chỉ soạn bài cho Khối 6–9 và Khối 10–12 (Lớp 3–5 học bằng game Blockly dựng sẵn).',
+    });
+  }
+}
+
 @Injectable()
 export class ExerciseService {
   constructor(
@@ -41,6 +57,13 @@ export class ExerciseService {
     private readonly judgeQueueService: JudgeQueueService,
     private readonly integrityService: IntegrityService,
     private readonly classAssignments: ClassAssignmentsService,
+    // Đếm mức sử dụng trước khi xóa (bài đang ở lớp/cuộc thi thì 409). Thiếu (test cũ) thì bỏ qua bước đếm.
+    @Optional() @InjectModel(ClassAssignment.name)
+    private readonly assignmentModel?: Model<ClassAssignmentDocument>,
+    @Optional() @InjectModel(Classroom.name)
+    private readonly classroomModel?: Model<ClassroomDocument>,
+    @Optional() @InjectModel(Contest.name)
+    private readonly contestModel?: Model<ContestDocument>,
   ) {}
 
   async findAll(user?: JwtPayload) {
@@ -50,7 +73,7 @@ export class ExerciseService {
     // này khỏi kết quả, nên danh sách chỉ truyền về vài chục KB thay vì cả bộ test.
     const exercises = await this.exerciseModel.aggregate([
       // Bài của Ngân hàng đề (bankOnly: chỉ gán vào lớp/cuộc thi) không hiện trong danh mục Code Playground của học viên và khách.
-      { $match: { resource_id: { $exists: false }, ...(user?.role === 'TEACHER' || user?.role === 'ADMIN' ? {} : { bankOnly: { $ne: true } }), ...this.visibleToFilter(user) } },
+      { $match: { resource_id: { $exists: false }, slug: notDemoExercise, ...(user?.role === 'TEACHER' || user?.role === 'ADMIN' ? {} : { bankOnly: { $ne: true } }), ...this.visibleToFilter(user) } },
       {
         $project: {
           title: 1, slug: 1, description: 1, type: 1, difficulty: 1, points: 1, starterCode: 1, timeLimitMs: 1, tags: 1,
@@ -67,6 +90,81 @@ export class ExerciseService {
     // picker của Teacher Authoring) hiển thị badge "Draft/Ready/Validated"
     // mà không cần fetch riêng :slug/full cho từng item trong danh sách.
     return exercises as Array<Record<string, unknown> & { hasSolution: boolean; testCaseCount: number }>;
+  }
+
+  /** Lộ trình chuẩn của một khối theo thứ tự #1..#N (chỉ các trường hiển thị danh sách, không test/đáp án). */
+  private async loadPlaygroundTrack(band: PlaygroundBand) {
+    const docs = await this.exerciseModel.aggregate([
+      { $match: playgroundFilter(band) },
+      { $sort: { orderInTopic: 1, slug: 1 } },
+      {
+        $project: {
+          title: 1, slug: 1, description: 1, type: 1, difficulty: 1, points: 1, starterCode: 1, timeLimitMs: 1, tags: 1,
+          gradeBand: 1, topic: 1, orderInTopic: 1, targetGroup: 1, labType: 1,
+        },
+      },
+    ]);
+    return docs as Array<Record<string, unknown> & { _id: unknown; slug: string }>;
+  }
+
+  /** Slug các bài của lộ trình mà học viên đã hoàn thành (xem PRACTICE_AC_FILTER; nguồn duy nhất: bài nộp đã chấm trong CSDL, không phải localStorage). */
+  private async solvedOnTrack(userId: string, track: Array<{ _id: unknown; slug: string }>): Promise<Set<string>> {
+    if (!userId || track.length === 0) return new Set();
+    const byId = new Map(track.map((t) => [String(t._id), t.slug]));
+    const ids = await this.submissionModel.distinct('exerciseId', { userId, ...PRACTICE_AC_FILTER, exerciseId: { $in: [...byId.keys()] } });
+    return new Set(ids.map((id) => byId.get(String(id))).filter((s): s is string => !!s));
+  }
+
+  /**
+   * GET /exercises/playground (Day 31): lộ trình Code Playground chuẩn của khối kèm trạng thái do MÁY CHỦ tính.
+   *  - Học viên: khối lấy từ tài khoản (không nhận từ client). Bài #1 luôn mở; bài #k chỉ mở khi #1..#(k-1) đã hoàn thành (AC).
+   *  - Giảng viên/Admin: chọn khối qua `band`, xem toàn bộ lộ trình và không bị khóa (không có tiến độ cá nhân).
+   * `completed`/`total` là CON SỐ DUY NHẤT cho "X / N bài" ở Playground, Tiến độ học tập và Hồ sơ.
+   */
+  async playground(user: JwtPayload, bandParam?: string) {
+    const isStudent = user.role === 'STUDENT';
+    const band = isStudent ? playgroundBandOf(user.ageGroup) : bandParam === undefined || bandParam === '' ? '6-9' : bandParam;
+    if (!isStudent && !isPlaygroundBand(band)) {
+      throw new BadRequestException({ code: 'E400_INVALID_BAND', message: 'Khối Playground chỉ nhận 6-9 hoặc 10-12.' });
+    }
+    if (!band || !isPlaygroundBand(band)) {
+      return { band: null, topic: null, total: 0, completed: 0, nextSlug: null, exercises: [] };
+    }
+    const track = await this.loadPlaygroundTrack(band);
+    const solved = isStudent ? await this.solvedOnTrack(user.sub, track) : new Set<string>();
+    const statuses = isStudent ? playgroundStatuses(track.map((t) => t.slug), solved) : track.map(() => 'available' as const);
+    const exercises = track.map((t, i) => ({ ...t, order: i + 1, status: statuses[i] }));
+    return {
+      band,
+      topic: PLAYGROUND_TRACK_TOPIC[band],
+      total: exercises.length,
+      completed: isStudent ? exercises.filter((e) => e.status === 'completed').length : 0,
+      nextSlug: exercises.find((e) => e.status === 'available')?.slug ?? null,
+      exercises,
+    };
+  }
+
+  /**
+   * Chặn nộp nhảy cóc ở Playground: bài thuộc lộ trình chuẩn mà học viên chưa mở khóa → 403 E403_EXERCISE_LOCKED.
+   * Không áp dụng khi nộp cho bài giao của lớp (assignmentId), bài ngoài lộ trình, giảng viên/Admin.
+   */
+  private async assertPlaygroundUnlocked(
+    exercise: { slug: string; bankOnly?: boolean; resource_id?: string | null; type?: string; topic?: string | null; orderInTopic?: number | null; labType?: string | null; tags?: string[] | null },
+    user: JwtPayload,
+  ): Promise<void> {
+    const band = playgroundBandOf(user.ageGroup);
+    if (user.role !== 'STUDENT' || !band || !isOnPlaygroundTrack(exercise, band)) return;
+    const track = await this.loadPlaygroundTrack(band);
+    const idx = track.findIndex((t) => t.slug === exercise.slug);
+    if (idx < 0) return;
+    const solved = await this.solvedOnTrack(user.sub, track);
+    const statuses = playgroundStatuses(track.map((t) => t.slug), solved);
+    if (statuses[idx] !== 'locked') return;
+    const blockedBy = statuses.findIndex((s) => s === 'available');
+    throw new ForbiddenException({
+      code: 'E403_EXERCISE_LOCKED',
+      message: `Bài #${idx + 1} chưa mở khóa. Hãy hoàn thành bài #${blockedBy + 1} trước rồi làm tiếp theo thứ tự.`,
+    });
   }
 
   /**
@@ -86,27 +184,48 @@ export class ExerciseService {
     return exercise;
   }
 
+  /**
+   * Số test và test HIỂN THỊ của một bài, tính TRÊN MÁY CHỦ CSDL ($filter/$size). Bộ test ẩn của bài thuật toán rất nặng (0,6–2 MB mỗi bài Ngày 15,
+   * trong khi phần hiển thị chỉ ~130 byte): kéo cả tài liệu về Node chỉ để bỏ phần ẩn làm mỗi lần mở bài / Run / Submit mất 6–20 giây (Day 31 E2E).
+   */
+  private async testSummary(slug: string): Promise<{ total: number; hiddenInline: number; visible: Array<Record<string, unknown>> }> {
+    const inline = { $ifNull: ['$testCases', []] };
+    const [row] = await this.exerciseModel.aggregate([
+      { $match: { slug } },
+      {
+        $project: {
+          _id: 0,
+          total: { $add: [{ $size: inline }, { $size: { $ifNull: ['$hiddenTestCases', []] } }] },
+          hiddenInline: { $size: { $filter: { input: inline, as: 't', cond: { $eq: ['$$t.isHidden', true] } } } },
+          visible: { $filter: { input: inline, as: 't', cond: { $ne: ['$$t.isHidden', true] } } },
+        },
+      },
+    ]);
+    return { total: row?.total ?? 0, hiddenInline: row?.hiddenInline ?? 0, visible: row?.visible ?? [] };
+  }
+
   async findBySlug(slug: string, user?: JwtPayload) {
-    // Không select hiddenTestCases/officialSolution: học viên không bao giờ nhận chúng.
-    const exercise = await this.exerciseModel
-      .findOne({ slug })
-      .select(
-        'title slug description type difficulty points starterCode timeLimitMs testCases tags prerequisiteSlug gradeBand topic orderInTopic targetGroup labType storyContext illustrationUrl datasetId hints',
-      )
-      .lean();
+    // Không select hiddenTestCases/officialSolution: học viên không bao giờ nhận chúng. testCases cũng không tải về Node:
+    // chỉ phần hiển thị được lọc ngay trên CSDL (xem testSummary).
+    const [exercise, tests] = await Promise.all([
+      this.exerciseModel
+        .findOne({ slug })
+        .select(
+          'title slug description type difficulty points starterCode timeLimitMs tags prerequisiteSlug gradeBand bankBand topic orderInTopic targetGroup labType storyContext illustrationUrl datasetId hints',
+        )
+        .lean(),
+      this.testSummary(slug),
+    ]);
     if (!exercise)
       throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
     this.assertCanAccess(exercise, user);
+    this.assertStudentBand(exercise, user);
 
     // Hide the actual expected output of hidden tests, only expose count/labels.
-    const visibleTestCases = (exercise.testCases ?? []).filter(
-      (t) => !t.isHidden,
-    );
     return {
       ...exercise,
-      testCases: visibleTestCases,
-      hiddenTestCount:
-        (exercise.testCases ?? []).length - visibleTestCases.length,
+      testCases: tests.visible,
+      hiddenTestCount: tests.hiddenInline,
     };
   }
 
@@ -116,8 +235,15 @@ export class ExerciseService {
    * collection (e.g. Teacher Authoring lessons), since Run has no grading side-effects.
    */
   async runCode(slug: string, dto: RunCodeDto, user?: JwtPayload) {
-    const exercise = await this.exerciseModel.findOne({ slug }).lean();
-    if (exercise) this.assertCanAccess(exercise, user);
+    // Chỉ cần quyền truy cập và giới hạn thời gian: không tải bộ test (có bài nặng hàng MB).
+    const exercise = await this.exerciseModel
+      .findOne({ slug })
+      .select('slug timeLimitMs targetGroup gradeBand bankBand')
+      .lean();
+    if (exercise) {
+      this.assertCanAccess(exercise, user);
+      this.assertStudentBand(exercise, user);
+    }
     const timeLimitMs = exercise?.timeLimitMs ?? 2000;
 
     // Chạy thử là request tương tác: hàng đợi đầy thì từ chối ngay, không xếp hàng vô hạn.
@@ -143,18 +269,19 @@ export class ExerciseService {
     userId: string,
     user?: JwtPayload,
   ) {
-    // Luồng chấm nội bộ: chủ động lấy hiddenTestCases (select:false) để đếm đủ số test.
-    const exercise = await this.exerciseModel
-      .findOne({ slug })
-      .select('+hiddenTestCases')
-      .lean();
+    // Không tải bộ test về Node chỉ để đếm: tổng số test (hiển thị + ẩn) tính trên CSDL (testSummary). Máy chấm tự nạp bộ test khi chấm.
+    const [exercise, tests] = await Promise.all([this.exerciseModel.findOne({ slug }).select('-testCases').lean(), this.testSummary(slug)]);
     if (!exercise)
       throw new NotFoundException(`Không tìm thấy bài tập "${slug}"`);
     this.assertCanAccess(exercise, user);
+    this.assertStudentBand(exercise, user);
     // Nộp cho bài của lớp: kiểm tra thành viên, đúng bài, chưa mở/hết hạn (khóa)/đã xong. Nộp tự do thì bỏ qua.
     if (dto.assignmentId) {
       if (!user) throw new UnauthorizedException('Vui lòng đăng nhập để nộp bài của lớp.');
       await this.classAssignments.assertCanSubmitCoding(dto.assignmentId, slug, user);
+    } else if (user) {
+      // Luyện tập tự do ở Playground: phải mở khóa tuần tự (không nộp nhảy cóc bằng cách gọi API trực tiếp).
+      await this.assertPlaygroundUnlocked(exercise, user);
     }
     // Bài DA Lab nộp qua /da-labs/:slug/submit (SQL), không qua judge Python.
     if (exercise.resource_id || exercise.type === 'SQL_LAB' || exercise.type === 'DA_INSIGHT') {
@@ -177,9 +304,7 @@ export class ExerciseService {
       integrity,
       status: JudgeStatus.QUEUED,
       passedCount: 0,
-      totalCount:
-        (exercise.testCases ?? []).length +
-        (exercise.hiddenTestCases ?? []).length,
+      totalCount: tests.total,
       results: [],
     });
 
@@ -213,23 +338,24 @@ export class ExerciseService {
     }
   }
 
+  /** Luật đầy đủ cho học viên (targetGroup + gradeBand + bankBand; lớp 3-5 chỉ bài 3-5; chưa có khối → không bài nào). */
+  private assertStudentBand(
+    exercise: { targetGroup?: string; gradeBand?: string; bankBand?: string },
+    user?: JwtPayload,
+  ): void {
+    if (user?.role === 'STUDENT' && !studentCanSeeExercise(exercise, user.ageGroup)) {
+      throw new ForbiddenException('Bài tập này không thuộc khối của bạn.');
+    }
+  }
+
   /** Bộ lọc danh sách: học viên chỉ thấy bài đúng nhóm (và bài cũ chưa gắn nhóm). */
   private visibleToFilter(user?: JwtPayload): Record<string, unknown> {
     if (user?.role !== 'STUDENT') return {};
-    const bands = allowedGradeBands(user.ageGroup);
-    return {
-      $and: [
-        {
-          $or: [
-            { targetGroup: { $exists: false } },
-            { targetGroup: targetGroupOfStudent(user.ageGroup) },
-          ],
-        },
-        ...(bands
-          ? [{ $or: [{ gradeBand: { $exists: false } }, { gradeBand: { $in: bands } }] }]
-          : []),
-      ],
-    };
+    // Học viên Khối 6-9 / 10-12: danh sách CHỈ là lộ trình Playground chuẩn của khối (Day 31), không lẫn bài SQL, demo, bài cũ hay bài Ngân hàng đề.
+    const band = playgroundBandOf(user.ageGroup);
+    if (band) return playgroundFilter(band);
+    // Cùng một luật cho danh sách và cho mở bài theo slug (studentCanSeeExercise): xét targetGroup + gradeBand + bankBand.
+    return studentExerciseFilter(user.ageGroup);
   }
 
   /**
@@ -266,15 +392,19 @@ export class ExerciseService {
     if (!data.slug) throw new BadRequestException('Không tạo được slug hợp lệ.');
     const err = matrixError(data.targetGroup, data.labType);
     if (err) throw new BadRequestException(err);
+    assertAuthorableGroup(data.targetGroup);
 
     if (await this.exerciseModel.exists({ slug: data.slug })) {
       throw new ConflictException(`Slug "${data.slug}" đã tồn tại.`);
     }
-    // Giảng viên soạn bài cho khối 6-9 / 10-12: bài thuộc Ngân hàng đề (chỉ để gán vào lớp/cuộc thi), không vào Code Playground.
-    const bankBand = user.role === 'TEACHER' ? (data.targetGroup === 'K6_9' ? '6-9' : data.targetGroup === 'K10_12' ? '10-12' : undefined) : undefined;
+    // Mọi bài soạn ở Teacher Studio (giảng viên lẫn Admin) thuộc Ngân hàng đề: chỉ để giao cho lớp/cuộc thi, KHÔNG vào
+    // Code Playground công khai; nhãn khối gắn đồng bộ bankBand/targetGroup/gradeBand (Day 30).
+    const bankBand = bankBandOfTargetGroup(data.targetGroup)!;
     const created = await this.exerciseModel.create({
       ...data,
-      ...(bankBand ? { bankOnly: true, bankBand } : {}),
+      bankOnly: true,
+      bankBand,
+      gradeBand: bankLabels(bankBand).gradeBand,
       authorId: user.sub,
     });
     return this.findBySlugFull(created.slug);
@@ -296,6 +426,12 @@ export class ExerciseService {
         data.labType ?? current.labType,
       );
       if (err) throw new BadRequestException(err);
+    }
+    if ('targetGroup' in data) {
+      assertAuthorableGroup(data.targetGroup);
+      // Đổi khối thì nhãn Ngân hàng đề đổi theo; bài vẫn là bankOnly (không lọt ra Playground).
+      const band = bankBandOfTargetGroup(data.targetGroup)!;
+      Object.assign(data, { bankOnly: true, bankBand: band, gradeBand: bankLabels(band).gradeBand });
     }
     if (data.slug !== undefined) {
       data.slug = data.slug.trim().toLowerCase();
@@ -321,6 +457,8 @@ export class ExerciseService {
   /** DELETE /exercises/:id — giảng viên chỉ xóa bài của chính mình. */
   async remove(id: string, user: JwtPayload) {
     const current = await this.loadOwned(id, user);
+    assertCanModifyExercise(current, user);
+    await assertExerciseNotInUse({ assignments: this.assignmentModel, classes: this.classroomModel, contests: this.contestModel }, current.slug);
     await this.exerciseModel.deleteOne({ _id: current._id });
     return { deleted: true, slug: current.slug };
   }

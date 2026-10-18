@@ -41,7 +41,8 @@ const check = (name, cond, detail = '') => {
     return u;
   };
   const teacherA = await must({ email: 'teacher@gmail.com' }, 'teacher@gmail.com');
-  const teacherB = await must({ email: 'seed-teacher-algo@demo.cybersoft.local' }, 'GV khối 10-12');
+  // Day 30: GV khối 10-12 chuẩn của master seed (phụ trách chính CL-1012A1, thay giảng viên mẫu seed-teacher-algo).
+  const teacherB = await must({ email: 'teacher10-12@gmail.com' }, 'GV khối 10-12 (teacher10-12@gmail.com: chạy npm run seed)');
   const admin = await must({ role: 'ADMIN' }, 'ADMIN');
   const student = await must({ role: 'STUDENT', ageGroup: 'CAREER_ADULT' }, 'học viên Người đi làm');
   // Hai giảng viên tạm (xóa khi xong) để mỗi lần chạy có bộ đếm rate limit mới: tmpA phụ trách lớp Tester QA của teacher@gmail.com,

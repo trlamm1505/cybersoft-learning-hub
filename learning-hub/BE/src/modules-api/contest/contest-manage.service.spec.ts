@@ -221,7 +221,8 @@ describe('ContestManageService', () => {
         ]),
       );
       const res = await service.listExerciseBank({});
-      expect(exerciseModel.find).toHaveBeenCalledWith({ type: 'CODE_TEXT' });
+      // Bài mẫu demo-dash-* không hiện ở danh sách chọn bài của giảng viên.
+      expect(exerciseModel.find).toHaveBeenCalledWith({ type: 'CODE_TEXT', slug: { $not: /^demo-dash-/ } });
       expect(res).toEqual([
         { slug: 'tong', title: 'Tổng', difficulty: 'EASY', points: 10, topic: 'Cơ bản', band: null, fromBank: false, testCaseCount: 2 },
       ]);

@@ -443,6 +443,18 @@ export function removeTeacher(ids: string[], id: string): string[] {
   return ids.length <= 1 ? ids : ids.filter((x) => x !== id);
 }
 
+/** Id giảng viên còn tồn tại của lớp (bỏ id "ma"): danh sách gửi lên khi phân công, để không bao giờ bị kẹt vì id chết. */
+export function liveTeacherIds(cls: { teachers: Array<{ id: string }>; missingTeacherIds?: string[] }): string[] {
+  const missing = new Set(cls.missingTeacherIds ?? []);
+  return cls.teachers.map((t) => t.id).filter((id) => !missing.has(id));
+}
+
+/** Thẻ giảng viên gỡ được khi lớp còn người khác, hoặc khi đó là tài khoản không còn tồn tại / đang bị khóa. */
+export function canRemoveTeacherTag(cls: { teachers: Array<{ id: string; locked?: boolean }>; missingTeacherIds?: string[] }, id: string): boolean {
+  const t = cls.teachers.find((x) => x.id === id);
+  return cls.teachers.length > 1 || !!t?.locked || (cls.missingTeacherIds ?? []).includes(id);
+}
+
 export const initials = (name: string): string => {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';

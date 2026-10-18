@@ -1,7 +1,7 @@
-export const INITIAL_USERS = [
+// Mật khẩu khởi tạo đọc từ DEFAULT_SEED_PASSWORD (xem seed-password.ts), không lưu trong mã nguồn.
+export const INITIAL_USERS: Array<{ email: string; fullName: string; role: string; ageGroup?: '3-5' | '6-9' | '10-12' | 'CAREER_ADULT'; bio?: string; avatar?: string }> = [
   {
     email: 'admin@gmail.com',
-    passwordRaw: '123456',
     fullName: 'Nguyễn Kim Thượng',
     role: 'ADMIN',
     bio: 'System Administrator',
@@ -9,7 +9,6 @@ export const INITIAL_USERS = [
   },
   {
     email: 'teacher@gmail.com',
-    passwordRaw: '123456',
     fullName: 'Thầy Hoàng Nam',
     role: 'TEACHER',
     bio: 'Senior Teacher',
@@ -17,9 +16,10 @@ export const INITIAL_USERS = [
   },
   {
     email: 'student@gmail.com',
-    passwordRaw: '123456',
     fullName: 'Bé Bo (Học sinh)',
     role: 'STUDENT',
+    // Học viên luôn có khối học (M7): thiếu khối thì không thấy bài nào.
+    ageGroup: '10-12',
     avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Student',
   },
 ];

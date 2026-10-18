@@ -3,7 +3,6 @@ import { RATE_LIMITS } from '../../common/security/app-throttler.guard';
 import { Body, Controller, Get, HttpCode, Post, Put, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { SessionCookieInterceptor } from './session-cookie.interceptor';
 import { ACCESS_COOKIE, CSRF_COOKIE, isProduction, serializeCookie } from '../../common/security/cookies';
-import { tokenRevocation } from '../../common/security/token-revocation';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -53,8 +52,8 @@ export class AuthController {
   @Post('logout')
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
-  logout(@CurrentUser() user: JwtPayload, @Res({ passthrough: true }) res: { append: (k: string, v: string) => void }) {
-    if (user.jti) tokenRevocation.revoke(user.jti, user.exp);
+  async logout(@CurrentUser() user: JwtPayload, @Res({ passthrough: true }) res: { append: (k: string, v: string) => void }) {
+    if (user.jti) await this.authService.revokeToken(user.jti, user.exp);
     const secure = isProduction();
     res.append('Set-Cookie', serializeCookie(ACCESS_COOKIE, '', { maxAgeMs: 0, httpOnly: true, secure }));
     res.append('Set-Cookie', serializeCookie(CSRF_COOKIE, '', { maxAgeMs: 0, httpOnly: false, secure }));

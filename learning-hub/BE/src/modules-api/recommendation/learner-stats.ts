@@ -35,7 +35,12 @@ export interface LearnerStats {
 
 const MAX_TOPICS = 8;
 
-export function computeLearnerStats(submissions: StatsSubmission[], exercises: StatsExercise[]): LearnerStats {
+export function computeLearnerStats(
+  submissions: StatsSubmission[],
+  exercises: StatsExercise[],
+  /** Tập bài được coi là "đã giải" (vd hoàn thành ở Playground). Bỏ trống = mọi bài có lượt AC. Không ảnh hưởng số lượt nộp theo kết quả. */
+  solvedOverride?: ReadonlySet<string>,
+): LearnerStats {
   const count = (s: string) => submissions.filter((x) => x.status === s).length;
   const ac = count('AC');
   const wa = count('WA');
@@ -44,7 +49,7 @@ export function computeLearnerStats(submissions: StatsSubmission[], exercises: S
   const ce = count('CE');
   const graded = ac + wa + tle + re + ce;
 
-  const solvedIds = new Set(submissions.filter((s) => s.status === 'AC').map((s) => s.exerciseId));
+  const solvedIds = solvedOverride ?? new Set(submissions.filter((s) => s.status === 'AC').map((s) => s.exerciseId));
   // Mỗi bài thuộc đúng một nhóm chủ đề (gom từ tag, hoặc suy ra từ slug/tiêu đề khi bài chưa có tag).
   const byTopic = new Map<string, { label: string; solved: number; total: number }>();
   for (const ex of exercises) {

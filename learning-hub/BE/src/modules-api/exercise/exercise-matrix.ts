@@ -67,12 +67,65 @@ export const allowedGradeBands = (ageGroup?: string | null): string[] | null => 
   return null;
 };
 
+/*
+ * Nhãn khối 10-12 (M6): gradeBand của BÀI TẬP lưu là '9-12' (nhãn lịch sử của bộ bài Ngày 15, bankLabels vẫn ghi nhãn này);
+ * một số bài cũ ghi '10-12'. Mọi phép so sánh coi hai nhãn là MỘT khối (allowedGradeBands, bandOfExercise, FE bandOfExercise).
+ * Khối của HỌC VIÊN / LỚP / CUỘC THI / bankBand luôn là '10-12'; targetGroup là 'K10_12'.
+ */
+
+/** bankBand được phép theo khối của học viên (Ngân hàng đề chỉ có 6-9 và 10-12). */
+const allowedBankBands = (ageGroup?: string | null): string[] =>
+  ageGroup === '6-9' ? ['6-9'] : ageGroup === '10-12' ? ['10-12'] : [];
+
+/**
+ * Bộ lọc Mongo cho HỌC VIÊN: chỉ bài đúng khối, xét đủ cả targetGroup, gradeBand và bankBand.
+ *  - Lớp 3-5 chỉ thấy bài gắn rõ khối 3-5 (không nhận bài "cũ chưa gắn khối" vì đó là bài code của khối lớn).
+ *  - Học viên chưa có khối học thấy danh sách rỗng cho tới khi chọn khối.
+ */
+export function studentExerciseFilter(ageGroup?: string | null): Record<string, unknown> {
+  const tg = ageGroup ? AGE_GROUP_TO_TARGET[ageGroup] : undefined;
+  if (!tg) return { _id: { $exists: false } };
+  if (tg === 'K3_5') {
+    return { $or: [{ targetGroup: 'K3_5' }, { targetGroup: { $exists: false }, gradeBand: '3-5', bankBand: { $exists: false } }] };
+  }
+  const bank = allowedBankBands(ageGroup);
+  return {
+    $and: [
+      { $or: [{ targetGroup: { $exists: false } }, { targetGroup: tg }] },
+      { $or: [{ gradeBand: { $exists: false } }, { gradeBand: { $in: allowedGradeBands(ageGroup)! } }] },
+      { $or: [{ bankBand: { $exists: false } }, ...(bank.length ? [{ bankBand: { $in: bank } }] : [])] },
+    ],
+  };
+}
+
+/** Cùng luật với studentExerciseFilter, cho một bài đã nạp (dùng khi mở bài theo slug). */
+export function studentCanSeeExercise(
+  ex: { targetGroup?: string | null; gradeBand?: string | null; bankBand?: string | null },
+  ageGroup?: string | null,
+): boolean {
+  const tg = ageGroup ? AGE_GROUP_TO_TARGET[ageGroup] : undefined;
+  if (!tg) return false;
+  if (tg === 'K3_5') return ex.targetGroup === 'K3_5' || (!ex.targetGroup && ex.gradeBand === '3-5' && !ex.bankBand);
+  if (ex.targetGroup && ex.targetGroup !== tg) return false;
+  if (ex.gradeBand && !allowedGradeBands(ageGroup)!.includes(ex.gradeBand)) return false;
+  if (ex.bankBand && !allowedBankBands(ageGroup).includes(ex.bankBand)) return false;
+  return true;
+}
+
 
 // ----------------------------------------------------------------------------------------------------------------------------------
 // Khối của Ngân hàng đề (AI Tạo Đề, chọn bài gán vào Ngày học / Cuộc thi): chỉ hai khối phổ thông có bài code.
 // ----------------------------------------------------------------------------------------------------------------------------------
 export const BANK_BANDS = ['6-9', '10-12'] as const;
 export type BankBand = (typeof BANK_BANDS)[number];
+
+/**
+ * Khối Teacher Studio được soạn đề (Day 30): chỉ 6-9 và 10-12. Lớp 3-5 là game Blockly dựng sẵn, khối Người lớn dùng các
+ * phòng Lab riêng, nên giảng viên/Admin không tạo hay chuyển bài sang hai nhóm này. Hằng số nền (TARGET_GROUPS,
+ * GROUP_LAB_MATRIX) giữ nguyên cho luồng học viên và dữ liệu cũ.
+ */
+export const TEACHER_AUTHORABLE_GROUPS: readonly TargetGroup[] = ['K6_9', 'K10_12'];
+export const bankBandOfTargetGroup = (tg: unknown): BankBand | undefined => (tg === 'K6_9' ? '6-9' : tg === 'K10_12' ? '10-12' : undefined);
 
 export const normalizeBankBand = (v: unknown): BankBand | undefined => (BANK_BANDS as readonly string[]).includes(String(v)) ? (v as BankBand) : undefined;
 

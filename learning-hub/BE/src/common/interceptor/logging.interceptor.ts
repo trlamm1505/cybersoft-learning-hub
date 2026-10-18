@@ -14,7 +14,9 @@ export class LoggingInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-    const { method, url } = request;
+    // Chỉ log đường dẫn, bỏ query string (có thể chứa email tìm kiếm, token đặt lại mật khẩu...) — PRV-06.
+    const { method } = request;
+    const url = String(request.originalUrl ?? request.url ?? '').split('?')[0];
     const startTime = Date.now();
 
     return next.handle().pipe(

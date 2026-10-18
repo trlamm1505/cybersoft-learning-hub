@@ -78,9 +78,10 @@ export class AppController {
         reachable,
         hint: reachable
           ? null
-          : 'Postgres sandbox chưa chạy: bật bằng `npm run sandbox` (hoặc `npm run docker:up`) ở thư mục learning-hub.',
+          : 'Postgres sandbox chưa chạy: chỉ cần khi đặt SQL_ENGINE=postgres (Postgres do bạn tự cài). Mặc định SQL_ENGINE=sqlite chạy sẵn trong backend, không cần Postgres.',
       },
-      pythonSandbox: process.env.PYTHON_SANDBOX === 'local' ? 'local' : 'docker',
+      // Bộ chạy Python luôn chạy local trên máy chủ (đã bỏ Docker).
+      pythonSandbox: 'local',
     };
   }
 }
