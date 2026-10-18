@@ -192,6 +192,16 @@ async function ensureBackend() {
     } else {
       say(C.skip, `CSDL đã có dữ liệu (${Object.entries(counts).map(([k, v]) => `${k}: ${v}`).join(', ')}): giữ nguyên, chỉ bổ sung phần còn thiếu`);
     }
+    // 3 bộ đề công khai của /quiz (Python, HTML5, CSS3; 20 câu mỗi bộ): câu gốc dùng được cho cả Khối 6-9 và 10-12, để mỗi bộ đủ 20 câu ở mọi khối.
+    // Dữ liệu cũ bị gắn theo độ khó (vd Python chỉ còn 6 câu cho Khối 10-12). Câu bankOnly của giảng viên giữ nguyên khối riêng.
+    {
+      const fixed = await db.collection('questions').updateMany(
+        { bankOnly: { $ne: true }, category: { $in: ['Python', 'HTML5', 'CSS3'] }, $or: [{ gradeBands: { $exists: false } }, { gradeBands: { $size: 1 } }] },
+        { $set: { gradeBands: ['6-9', '10-12'] } },
+      );
+      const per = await Promise.all(['Python', 'HTML5', 'CSS3'].map(async (c) => `${c} ${await db.collection('questions').countDocuments({ category: c, bankOnly: { $ne: true } })}`));
+      say(C.ok, `Bộ đề công khai /quiz: ${per.join(' · ')} câu, dùng chung cho Khối 6-9 và 10-12 (chuẩn hóa ${fixed.modifiedCount} câu)`);
+    }
 
     // ---- 2. Tài khoản chuẩn ----------------------------------------------------------------------------------------------------
     step('2/9', 'Tài khoản chuẩn (mật khẩu = DEFAULT_SEED_PASSWORD)');

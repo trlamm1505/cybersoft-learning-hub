@@ -135,32 +135,43 @@ describe('QuizService Unit & Integration Tests', () => {
       );
     });
 
-    it('học viên 6-9 / 10-12 chỉ lấy câu của đúng khối (kèm câu chưa gắn khối); khối khác không lọc', async () => {
+    it('chủ đề ngoài 3 bộ đề công khai: học viên 6-9 / 10-12 chỉ lấy câu của đúng khối (kèm câu chưa gắn khối); khối khác không lọc', async () => {
       mockQuizAttemptModel.findOne.mockResolvedValue(null);
       mockQuizAttemptModel.create.mockResolvedValue({ _id: new Types.ObjectId(), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(), timeLimitSeconds: 1800, maxScore: 0 });
 
-      await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '10-12');
+      await service.startAttempt(validUserId, { testId: validTestId, category: 'Algorithm' }, '10-12');
       expect(mockQuestionModel.find).toHaveBeenCalledWith({
-        category: 'Python',
+        category: 'Algorithm',
         $or: [{ gradeBands: '10-12' }, { gradeBands: { $exists: false } }],
       });
 
       mockQuestionModel.find.mockClear();
-      await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '3-5');
-      expect(mockQuestionModel.find).toHaveBeenCalledWith({ category: 'Python' });
+      await service.startAttempt(validUserId, { testId: validTestId, category: 'Algorithm' }, '3-5');
+      expect(mockQuestionModel.find).toHaveBeenCalledWith({ category: 'Algorithm' });
     });
 
-    it('[Day 30] câu Ngân hàng đề (bankOnly) không vào /quiz tự luyện; khối chỉ có câu bankOnly thì dự phòng sang câu công khai của chủ đề', async () => {
+    it('3 bộ đề công khai (Python / HTML5 / CSS3): KHÔNG lọc theo khối, nên cả 6-9 lẫn 10-12 đều nhận đủ cả bộ (khớp "20 câu hỏi" ngoài thẻ)', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue(null);
+      mockQuizAttemptModel.create.mockResolvedValue({ _id: new Types.ObjectId(), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(), timeLimitSeconds: 1800, maxScore: 0 });
+      for (const category of ['Python', 'HTML5', 'CSS3']) {
+        for (const age of ['6-9', '10-12']) {
+          mockQuestionModel.find.mockClear();
+          await service.startAttempt(validUserId, { testId: validTestId, category }, age);
+          expect(mockQuestionModel.find).toHaveBeenCalledWith({ category });
+          expect(JSON.stringify(mockQuestionModel.find.mock.calls[0][0])).not.toContain('gradeBands');
+        }
+      }
+    });
+
+    it('[Day 30] câu Ngân hàng đề (bankOnly) không vào /quiz tự luyện; bộ đề công khai không nhận câu bankOnly dù cùng chủ đề', async () => {
       mockQuizAttemptModel.findOne.mockResolvedValue(null);
       mockQuizAttemptModel.create.mockImplementation(async (doc: any) => ({ _id: new Types.ObjectId(), status: 'IN_PROGRESS', startedAt: new Date(), ...doc }));
       const bankQ = { ...mockQuestions[0], _id: new Types.ObjectId(), bankOnly: true, gradeBands: ['6-9'] };
-      // Lần 1 (lọc theo khối): chỉ có câu bankOnly → bị bỏ; lần 2 (dự phòng toàn chủ đề): câu công khai.
-      mockQuestionModel.find
-        .mockReturnValueOnce({ exec: jest.fn().mockResolvedValue([bankQ]) })
-        .mockReturnValueOnce({ exec: jest.fn().mockResolvedValue([bankQ, mockQuestions[1]]) });
+      // Bộ đề công khai truy vấn một lần theo chủ đề; câu bankOnly lẫn trong kết quả bị loại.
+      mockQuestionModel.find.mockReturnValueOnce({ exec: jest.fn().mockResolvedValue([bankQ, mockQuestions[1]]) });
 
       await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '6-9');
-      expect(mockQuestionModel.find.mock.calls[1][0]).toEqual({ category: 'Python' });
+      expect(mockQuestionModel.find.mock.calls[0][0]).toEqual({ category: 'Python' });
       const used = mockQuizAttemptModel.create.mock.calls[0][0].shuffledQuestions.map((q: any) => String(q.questionId));
       expect(used).toEqual([validQuestionId2]);
       expect(used).not.toContain(String(bankQ._id));

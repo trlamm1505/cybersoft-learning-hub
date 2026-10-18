@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import { INITIAL_QUIZ_QUESTIONS } from './initial-quiz-questions';
-import { gradeBandsForDifficulty } from '../modules-api/quiz/quiz-grade';
+import { gradeBandsForQuestion } from '../modules-api/quiz/quiz-grade';
 import { QuestionSchema } from '../modules-system/database/schemas/question.schema';
 import { QuizAttemptSchema } from '../modules-system/database/schemas/quiz-attempt.schema';
 
@@ -38,7 +38,7 @@ async function seedQuizEngine() {
 
     // 2. Insert 20 Quiz Questions
     const createdQuestions = await QuestionModel.insertMany(
-      INITIAL_QUIZ_QUESTIONS.map((q: any) => ({ ...q, gradeBands: q.gradeBands ?? gradeBandsForDifficulty(q.difficulty) })),
+      INITIAL_QUIZ_QUESTIONS.map((q: any) => ({ ...q, gradeBands: q.gradeBands ?? gradeBandsForQuestion(q.category, q.difficulty) })),
     );
     console.log(
       `✅ Seeded ${createdQuestions.length} Quiz Questions with detailed explanations!`,

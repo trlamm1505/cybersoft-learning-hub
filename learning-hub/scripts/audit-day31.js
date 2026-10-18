@@ -44,6 +44,7 @@ const BAND_KEY = { '6-9': '6-9', '10-12': '10-12' };
   const users = db.collection('users');
   const exercises = db.collection('exercises');
   const submissions = db.collection('submissions');
+  const questions = db.collection('questions');
   const OID = mongoose.Types.ObjectId;
 
   const sign = (u) => jwt.sign({ sub: String(u._id), email: u.email, role: u.role }, secret, { expiresIn: '10m', jwtid: crypto.randomUUID() });
@@ -302,7 +303,24 @@ const BAND_KEY = { '6-9': '6-9', '10-12': '10-12' };
       const contests = await call(T.s69, 'GET', '/contests');
       const other = (contests.json ?? []).find((c) => c.gradeBand === '10-12');
       const cross = other ? await call(T.s69, 'POST', `/contests/${other._id}/register`, {}) : { status: 0 };
-      check('E-04', 'Cuộc thi: danh sách hiển thị theo nhãn khối nhưng lop6-9 đăng ký cuộc thi Khối 10-12 bị từ chối (403)', contests.status === 200 && (contests.json ?? []).length > 0 && cross.status === 403, `${(contests.json ?? []).length} cuộc thi, đăng ký chéo khối HTTP ${cross.status}`);
+      {
+      // 3 bộ đề công khai: đủ 20 câu cho CẢ Khối 6-9 và 10-12, khớp "20 câu hỏi" ghi ngoài thẻ ở FE; không lẫn câu bankOnly.
+      const cardCounts = [...read('FE/src/pages/QuizTakingPage.tsx').matchAll(/questionCount:\s*(\d+)/g)].map((m) => Number(m[1]));
+      const pub = await Promise.all(['Python', 'HTML5', 'CSS3'].map((c) => questions.countDocuments({ category: c, bankOnly: { $ne: true } })));
+      const bankIds = new Set((await questions.find({ bankOnly: true }, { projection: { _id: 1 } }).toArray()).map((q) => String(q._id)));
+      const got = [];
+      for (const who of ['s69', 's1012']) {
+        for (const cat of ['Python', 'HTML5', 'CSS3']) {
+          const r = await call(T[who], 'POST', '/quiz/start', { testId: '673f22222222222222222222', category: cat });
+          if (r.json?.attemptId) await db.collection('quizattempts').deleteOne({ _id: new OID(r.json.attemptId) });
+          const qs = r.json?.questions ?? [];
+          got.push(`${who === 's69' ? '6-9' : '10-12'}/${cat}=${qs.length}${qs.some((x) => bankIds.has(String(x.questionId))) ? '(lẫn bankOnly)' : ''}`);
+        }
+      }
+      check('E-06', 'Bộ đề /quiz Python, HTML5, CSS3: lop6-9 và lop10-12 đều nhận đúng 20 câu, khớp số ghi ngoài thẻ (FE) và số câu công khai trong DB; không lẫn câu bankOnly',
+        cardCounts.length === 3 && cardCounts.every((n) => n === 20) && pub.every((n) => n === 20) && got.every((g) => /=20$/.test(g)), `thẻ ${cardCounts.join('/')}; DB ${pub.join('/')}; ${got.join(' ')}`);
+    }
+    check('E-04', 'Cuộc thi: danh sách hiển thị theo nhãn khối nhưng lop6-9 đăng ký cuộc thi Khối 10-12 bị từ chối (403)', contests.status === 200 && (contests.json ?? []).length > 0 && cross.status === 403, `${(contests.json ?? []).length} cuộc thi, đăng ký chéo khối HTTP ${cross.status}`);
     }
     check('E-05', 'Học sinh Lớp 3-5: /exercises/playground rỗng và nộp bài bị chặn (403 E403_KID_NO_CODE_QUIZ)', await (async () => {
       const kid = await must('lop3-5@gmail.com');

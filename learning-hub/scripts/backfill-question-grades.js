@@ -15,6 +15,8 @@ const envText = fs.existsSync(path.join(BE, '.env')) ? fs.readFileSync(path.join
 const uri = process.env.DATABASE_URL || h.readEnvValue(envText, 'DATABASE_URL') || '';
 const dryRun = process.argv.includes('--dry-run');
 const BANDS = { EASY: ['6-9'], MEDIUM: ['6-9', '10-12'], HARD: ['10-12'] };
+// 3 bộ đề công khai của /quiz dùng chung cho cả hai khối (xem BE/src/modules-api/quiz/quiz-grade.ts: isPublicDeck).
+const DECK_CATEGORIES = ['Python', 'HTML5', 'CSS3'];
 
 (async () => {
   if (!uri) { console.error('Thiếu DATABASE_URL.'); process.exit(1); }
@@ -24,6 +26,11 @@ const BANDS = { EASY: ['6-9'], MEDIUM: ['6-9', '10-12'], HARD: ['10-12'] };
   try {
     const col = mongoose.connection.db.collection('questions');
     let total = 0;
+    const deck = { category: { $in: DECK_CATEGORIES }, bankOnly: { $ne: true }, $or: [{ gradeBands: { $exists: false } }, { gradeBands: { $size: 1 } }] };
+    const nDeck = await col.countDocuments(deck);
+    if (!dryRun && nDeck) await col.updateMany(deck, { $set: { gradeBands: ['6-9', '10-12'] } });
+    total += nDeck;
+    console.log(`  Bộ đề công khai (${DECK_CATEGORIES.join(', ')}) ${nDeck} câu -> 6-9, 10-12`);
     for (const [difficulty, bands] of Object.entries(BANDS)) {
       const filter = { difficulty, gradeBands: { $exists: false } };
       const n = await col.countDocuments(filter);

@@ -19,7 +19,7 @@ import { SubmitAttemptDto } from './dto/submit-attempt.dto';
 import { DEFAULT_REVIEW_POLICY } from './dto/review-attempt.dto';
 import type { ReviewPolicyType } from './dto/review-attempt.dto';
 import { seededShuffle } from '../../common/helper/prng.helper';
-import { quizBandOfStudent } from './quiz-grade';
+import { isPublicDeck, quizBandOfStudent } from './quiz-grade';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 import { ClassAssignmentsService } from '../class-assignments/class-assignments.service';
 import { optionalString, requireString } from '../../common/utils/input.util';
@@ -138,7 +138,8 @@ export class QuizService {
     // when no category is given (backward compatibility).
     const questionFilter: Record<string, unknown> = !category ? {} : { category };
     // Học viên 6-9 / 10-12 chỉ nhận câu ôn tập của đúng khối (câu chưa gắn khối vẫn hiện cho mọi khối).
-    const band = quizBandOfStudent(ageGroup);
+    // Bộ đề công khai (Python/HTML5/CSS3) cho đủ 20 câu ở mọi khối; chỉ các chủ đề khác mới lọc theo khối.
+    const band = isPublicDeck(category) ? undefined : quizBandOfStudent(ageGroup);
     // Câu do giảng viên soạn trong Ngân hàng đề chỉ dùng cho bài giao của lớp và cuộc thi, KHÔNG xuất hiện ở /quiz tự luyện.
     const notBank = (list: QuestionDocument[] | null | undefined) => (list ?? []).filter((q) => (q as { bankOnly?: boolean }).bankOnly !== true);
     let questions = notBank(

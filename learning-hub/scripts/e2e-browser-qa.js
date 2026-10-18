@@ -309,6 +309,27 @@ const noIssues = (id, name, s) => {
         return { done, total: order.length };
       };
 
+      /** Với mỗi bộ đề công khai: số câu ghi ngoài thẻ ("N câu hỏi") và số câu thực tế bên trong khi bấm bắt đầu ("Đã chọn 0/N"). */
+      const deckTotals = async (sess) => {
+        const out = {};
+        for (const cat of ['Python', 'HTML5', 'CSS3']) {
+          await sess.goto('quiz');
+          const card = await sess.page.evaluate((c) => {
+            const el = [...document.querySelectorAll('[role=button][aria-label^="Chọn bộ đề"]')].find((d) => d.getAttribute('aria-label').includes(c));
+            const n = el ? (el.innerText.match(/(\d+)\s*câu hỏi/) || [])[1] : null;
+            el?.click();
+            return n ?? null;
+          }, cat);
+          await sleep(400);
+          await sess.clickText('Bắt Đầu Làm Bài Trắc Nghiệm');
+          await sess.waitFor(() => /Đã chọn \d+\/\d+/.test(document.body.innerText), null, 30000);
+          const inside = ((await sess.text()).match(/Đã chọn \d+\/(\d+)/) || [])[1] ?? null;
+          out[cat] = { card, inside };
+        }
+        return out;
+      };
+      const deckOk = (d) => Object.values(d).every((x) => x.card === '20' && x.inside === '20');
+
       const cl69 = await openDays(s);
       chk('2.69.class-list', '69: Lớp học của tôi có bài Code và bài Quiz đang mở (liên kết làm bài)', cl69.code.length >= 1 && cl69.quiz.length >= 1, `${cl69.code.length} code, ${cl69.quiz.length} quiz`);
       // Làm thật bài giao còn mở; Playground phải giữ nguyên 3/20 (bài giao lớp không tính vào lộ trình).
@@ -355,6 +376,8 @@ const noIssues = (id, name, s) => {
       chk('2.69.quiz-result', 'Trang kết quả tách riêng 3 trạng thái: Đúng / Sai / Bỏ trống (có bộ đếm "Sai 1 · Bỏ trống N-2", nhãn "Bỏ trống (0 điểm)")',
         qr.done && /Sai 1 · Bỏ trống \d+/.test(rtext) && /Bỏ trống \(0 điểm\)/.test(rtext) && /Đúng/.test(rtext), (rtext.match(/Sai \d+ · Bỏ trống \d+/) || [''])[0]);
       await s.shot('quiz-result-69');
+      const decks69 = await deckTotals(s);
+      chk('2.69.quiz-deck-counts', 'lop6-9: cả 3 bộ đề (Python, HTML5, CSS3): số câu ghi ngoài thẻ = số câu thực tế bên trong = 20', deckOk(decks69), JSON.stringify(decks69));
       noIssues('2.69.quiz.clean', 'Thi trắc nghiệm lop6-9', s);
 
       // ---------- Cuộc thi ----------
@@ -403,6 +426,8 @@ const noIssues = (id, name, s) => {
       chk('2.1012.progress-page', 'Trang Tiến độ học tập lop10-12: "Bài đã giải" = 2/15', /2\/15\s*Bài đã giải/.test(await t.text()), ((await t.text()).match(/\d+\/\d+ Bài đã giải/) || [''])[0]);
       await t.goto('profile');
       chk('2.1012.profile-page', 'Trang Hồ sơ lop10-12: "Bài đã giải: 2/15"', await t.has('Bài đã giải: 2/15'));
+      const decks1012 = await deckTotals(t);
+      chk('2.1012.quiz-deck-counts', 'lop10-12: cả 3 bộ đề (Python, HTML5, CSS3): số câu ghi ngoài thẻ = số câu thực tế bên trong = 20', deckOk(decks1012), JSON.stringify(decks1012));
       noIssues('2.1012.clean', 'lop10-12 Playground + Lớp học + Tiến độ + Hồ sơ', t);
       await t.close();
 
