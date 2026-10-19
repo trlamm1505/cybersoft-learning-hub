@@ -1,7 +1,17 @@
 # CyberSoft Learning & Contest Hub
 
 Hệ thống học lập trình và chấm bài trực tuyến cho học sinh K3-5 / K6-9 / K10-12 (Monorepo: `FE` React + Vite, `BE` NestJS + MongoDB).
-Chạy 100% trên máy: **Node.js + Python + MongoDB**, không cần Docker.
+Chạy 100% trên máy: **Node.js + Python + MongoDB**, không cần Docker. Phiên bản hiện tại: **v1.0** ([Release Notes](docs/RELEASE_NOTES_v1.0.md)).
+
+## Tài liệu
+
+| Tài liệu | Dành cho | Nội dung |
+|---|---|---|
+| [Cẩm nang Admin & Giảng viên](docs/ADMIN_TEACHER_HANDBOOK.md) | Quản trị viên, giảng viên | Hướng dẫn từng bước Admin Portal và Teacher Studio, kèm ảnh màn hình thật |
+| [Operations Runbook](docs/OPERATIONS_RUNBOOK.md) | Người vận hành, dev, QA | Môi trường, kiểm tra sức khỏe, backup/restore, seed, escalation L1/L2/L3, xử lý 7 lỗi thực tế |
+| [Release Notes v1.0](docs/RELEASE_NOTES_v1.0.md) · [CHANGELOG](CHANGELOG.md) | Mọi người | Tính năng bàn giao, chỉ số chất lượng, Known Issues |
+| [Roadmap 60 ngày (Ngày 31–90)](docs/ROADMAP_60D.md) | Quản lý, nhóm phát triển | Kế hoạch v2.0 Enterprise theo từng ngày |
+| [AI Work Log](AI_WORKLOG.md) | Người thẩm định | Prompt chỉ đạo, quyết định chấp nhận/bác bỏ, lỗi AI và cách phát hiện |
 
 ## Cần cài sẵn
 
@@ -62,7 +72,7 @@ npm run test:scripts           # test các script dựng môi trường (node --
 npm run e2e:browser            # E2E bằng Chrome thật: đăng nhập từng vai trò, click, bắt lỗi console/mạng (cần BE+FE đang chạy; xong chạy lại npm run seed:clean)
 ```
 
-Gặp lỗi: chạy `npm run doctor` trước. Hay gặp nhất là MongoDB chưa bật (trong `learning-hub`: `npm run check:mongo`) hoặc không tìm thấy Python (đặt `PYTHON_BIN`).
+Gặp lỗi: chạy `npm run doctor` trước. Hay gặp nhất là MongoDB chưa bật (trong `learning-hub`: `npm run check:mongo`) hoặc không tìm thấy Python (đặt `PYTHON_BIN`). Các lỗi khác và cách xử lý: [Runbook mục 6](docs/OPERATIONS_RUNBOOK.md#6-troubleshooting--7-lỗi-thực-tế).
 
 ---
 
