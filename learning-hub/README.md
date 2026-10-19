@@ -3,15 +3,7 @@
 Hệ thống học lập trình và chấm bài trực tuyến cho học sinh K3-5 / K6-9 / K10-12 (Monorepo: `FE` React + Vite, `BE` NestJS + MongoDB).
 Chạy 100% trên máy: **Node.js + Python + MongoDB**, không cần Docker. Phiên bản hiện tại: **v1.0** ([Release Notes](docs/day30/RELEASE_NOTES_v1.0.md)).
 
-## Tài liệu
-
-| Tài liệu | Dành cho | Nội dung |
-|---|---|---|
-| [Cẩm nang Admin & Giảng viên](docs/day30/ADMIN_TEACHER_HANDBOOK.md) | Quản trị viên, giảng viên | Hướng dẫn từng bước Admin Portal và Teacher Studio, kèm ảnh màn hình thật |
-| [Operations Runbook](docs/day30/OPERATIONS_RUNBOOK.md) | Người vận hành, dev, QA | Môi trường, kiểm tra sức khỏe, backup/restore, seed, escalation L1/L2/L3, xử lý 7 lỗi thực tế |
-| [Release Notes v1.0](docs/day30/RELEASE_NOTES_v1.0.md) · [CHANGELOG](CHANGELOG.md) | Mọi người | Tính năng bàn giao, chỉ số chất lượng, Known Issues |
-| [Roadmap 60 ngày (Ngày 31–90)](docs/day30/ROADMAP_60D.md) | Quản lý, nhóm phát triển | Kế hoạch v2.0 Enterprise theo từng ngày |
-| [AI Work Log](AI_WORKLOG.md) | Người thẩm định | Prompt chỉ đạo, quyết định chấp nhận/bác bỏ, lỗi AI và cách phát hiện |
+Tài liệu đầy đủ: xem [Documentation Index](#documentation-index) ở cuối trang.
 
 ## Cần cài sẵn
 
@@ -80,3 +72,26 @@ Gặp lỗi: chạy `npm run doctor` trước. Hay gặp nhất là MongoDB chư
 
 - **Mê Cung Blockly** (Block Puzzle) chuyển thể từ trò chơi "Maze" của [Blockly Games](https://github.com/blockly-games/blockly-games), Copyright 2012 Google LLC, giấy phép Apache-2.0. Hình nhân vật, mảnh bản đồ và âm thắng/thua là tệp gốc, đặt ở `FE/public/games/blockly-maze/` kèm `NOTICE.txt` và bản giấy phép. Khối lệnh dùng thư viện [Blockly](https://github.com/google/blockly) (npm `blockly`, Apache-2.0).
 - **Rùa Vẽ Hình**, **Chim Tìm Tổ**, **Ghép Hình Con Vật** chuyển thể từ "Turtle", "Bird", "Puzzle" của Blockly Games (cùng giấy phép Apache-2.0). Tệp hình/âm thanh gốc đặt ở `FE/public/games/blockly-{turtle,bird,puzzle}/` kèm `NOTICE.txt`; hình con vật của Puzzle là biểu tượng vẽ SVG, không dùng ảnh gốc.
+
+---
+
+## Documentation Index
+
+| Tài liệu | Nội dung |
+|---|---|
+| [SETUP.md](SETUP.md) | Phiên bản yêu cầu, cấu hình `BE/.env`, master seed, quick start, kiểm tra cài đặt, 5 lỗi setup thực tế |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Sơ đồ kiến trúc, 3 luồng dữ liệu (Mermaid), trust boundaries, schema cốt lõi, failure modes |
+| [API.md](API.md) | Danh mục REST API theo vai trò, mã lỗi |
+| [DATA.md](DATA.md) | Từ điển dữ liệu, toàn vẹn Lớp – Giảng viên – Học viên, lưu trữ và PII |
+| [SECURITY.md](SECURITY.md) | Threat model, xác thực/phân quyền, phân lập theo tuổi, sandbox, AI safety |
+| [TESTING.md](TESTING.md) | Test pyramid, số liệu, fixtures, quality gates |
+| [EVALUATION.md](EVALUATION.md) | Đánh giá AI Tạo Đề, AI Coach (100 case), hiệu năng chấm bài |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Build, healthcheck, migration, phát hành, rollback |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 7 sự cố thực tế: nguyên nhân, bản sửa, phòng ngừa |
+| [CHANGELOG.md](CHANGELOG.md) | Nhật ký thay đổi, bản 1.0.0 |
+| [ADR-001](docs/decisions/ADR-001-local-python-sandbox-over-docker.md) · [ADR-002](docs/decisions/ADR-002-question-bank-isolation-and-sequential-playground.md) · [ADR-003](docs/decisions/ADR-003-httponly-cookie-auth-and-age-band-isolation.md) | Quyết định kiến trúc: Local Sandbox thay Docker · Ngân hàng đề & Playground tuần tự · Cookie httpOnly & phân tách theo tuổi |
+| [Cẩm nang Admin & Giảng viên](docs/day30/ADMIN_TEACHER_HANDBOOK.md) | Hướng dẫn từng bước Admin Portal và Teacher Studio, kèm 33 ảnh màn hình thật |
+| [Operations Runbook](docs/day30/OPERATIONS_RUNBOOK.md) | Vận hành: health, backup/restore, seed, escalation L1/L2/L3 |
+| [Release Notes v1.0](docs/day30/RELEASE_NOTES_v1.0.md) | Tính năng bàn giao, chỉ số chất lượng, Known Issues |
+| [Roadmap 60 ngày (Ngày 31–90)](docs/day30/ROADMAP_60D.md) | Kế hoạch v2.0 Enterprise theo từng ngày |
+| [AI Work Log](AI_WORKLOG.md) | Prompt chỉ đạo, quyết định chấp nhận/bác bỏ, lỗi AI và cách phát hiện |
