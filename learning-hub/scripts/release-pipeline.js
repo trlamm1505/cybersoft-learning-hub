@@ -39,12 +39,9 @@ step('1/4 Kiểm tra Môi trường & Hạ tầng');
 const nodeVer = process.version;
 say(C.ok, `Node.js ${nodeVer}`);
 
-const docker = run('docker', ['info', '--format', '{{.ServerVersion}}']);
-if (docker.ok) {
-  say(C.ok, `Docker ${docker.out}`);
-} else {
-  say(C.warn, 'Docker chưa bật — một số bài test sandbox có thể bỏ qua');
-}
+// Hệ thống chạy thuần Node.js + Python local + MongoDB (không Docker).
+const py = ['python3', 'python', 'py'].map((c) => run(c, c === 'py' ? ['-3', '--version'] : ['--version'])).find((r) => r.ok);
+say(py ? C.ok : C.warn, py ? `${py.out || py.err}` : 'Chưa có Python 3 — các bài test chạy code sẽ lỗi');
 
 step('2/4 Chạy E2E Smoke Tests & Content Integrity Checks');
 const testRun = runNpm(['--prefix', 'BE', 'test', '--', 'qa-harness.service.spec.ts']);

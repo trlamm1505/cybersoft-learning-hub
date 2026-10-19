@@ -55,6 +55,8 @@ export const ROLES = ['STUDENT', 'TEACHER', 'ADMIN'] as const;
  */
 export const ASSIGNABLE_ROLES = ['STUDENT', 'TEACHER'] as const;
 export const STATUSES = ['ACTIVE', 'LOCKED'] as const;
+export const USER_AGE_GROUPS = ['3-5', '6-9', '10-12', 'CAREER_ADULT'] as const;
+export const MAX_BULK_USERS = 100;
 type Role = (typeof ROLES)[number];
 type Status = (typeof STATUSES)[number];
 
@@ -90,6 +92,8 @@ const toRow = (u: UserLean) => ({
   role: u.role,
   status: (u.status ?? 'ACTIVE') as Status,
   avatar: u.avatar ?? null,
+  // Khối học chỉ có nghĩa với học viên: giảng viên/Admin (kể cả dữ liệu cũ còn sót) luôn hiển thị trống.
+  ageGroup: u.role === 'STUDENT' ? (u.ageGroup ?? null) : null,
   createdAt: u.createdAt ? new Date(u.createdAt).toISOString() : null,
 });
 
@@ -130,6 +134,7 @@ export class AdminUsersService {
     q: {
       role?: string;
       status?: string;
+      ageGroup?: string;
       q?: string;
       page?: string;
       pageSize?: string;
@@ -150,6 +155,12 @@ export class AdminUsersService {
       // Tài khoản cũ chưa có trường status vẫn là ACTIVE.
       filter.status = q.status === 'LOCKED' ? 'LOCKED' : { $ne: 'LOCKED' };
     }
+    if (q.ageGroup) {
+      if (!(USER_AGE_GROUPS as readonly string[]).includes(q.ageGroup)) {
+        throw new BadRequestException('Khối học lọc không hợp lệ.');
+      }
+      filter.ageGroup = q.ageGroup;
+    }
     const term = (q.q ?? '').trim().slice(0, 60);
     if (term) {
       const rx = { $regex: this.escape(term), $options: 'i' };
@@ -164,7 +175,7 @@ export class AdminUsersService {
     const [rows, total] = await Promise.all([
       this.users
         .find(filter)
-        .select('fullName email role status studentCode avatar createdAt')
+        .select('fullName email role status studentCode avatar ageGroup createdAt')
         .sort({ createdAt: -1, _id: -1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)
@@ -203,6 +214,7 @@ export class AdminUsersService {
       email?: unknown;
       password?: unknown;
       role?: unknown;
+      ageGroup?: unknown;
     },
   ) {
     this.assertAdmin(user);
@@ -237,6 +249,7 @@ export class AdminUsersService {
         'Vai trò không hợp lệ (chỉ học viên hoặc giảng viên).',
       );
     }
+    const ageGroup = this.parseAgeGroup(body.ageGroup);
     if (await this.users.exists({ email })) {
       throw new ConflictException('Email đã được sử dụng.');
     }
@@ -245,11 +258,120 @@ export class AdminUsersService {
       password: await bcrypt.hash(password, 10),
       fullName,
       role,
+      // Giảng viên không thuộc khối học nào: bỏ qua ageGroup nếu client lỡ gửi.
+      ...(ageGroup && role === 'STUDENT' ? { ageGroup } : {}),
       ...(role === 'STUDENT'
         ? { studentCode: await this.nextStudentCode() }
         : {}),
     });
     return toRow(created.toObject() as unknown as UserLean);
+  }
+
+  private parseAgeGroup(raw: unknown): (typeof USER_AGE_GROUPS)[number] | undefined {
+    if (raw === undefined || raw === null || raw === '') return undefined;
+    if (typeof raw !== 'string' || !(USER_AGE_GROUPS as readonly string[]).includes(raw)) {
+      throw new BadRequestException('Khối học không hợp lệ (3-5, 6-9, 10-12 hoặc CAREER_ADULT).');
+    }
+    return raw as (typeof USER_AGE_GROUPS)[number];
+  }
+
+  /**
+   * Sửa thông tin cơ bản (họ tên, khối học) và/hoặc đặt lại mật khẩu. Không đổi email/vai trò ở đây (vai trò đi qua
+   * setRole để giữ luồng bàn giao lớp). Đặt lại mật khẩu hủy mọi phiên đăng nhập đang có của người đó.
+   */
+  async update(user: JwtPayload, id: string, body: { fullName?: unknown; ageGroup?: unknown; password?: unknown; role?: unknown; status?: unknown }) {
+    this.assertAdmin(user);
+    // Vai trò/trạng thái chỉ đổi qua endpoint riêng (có chặn leo quyền, bàn giao lớp và audit): nhận cả hai ở đây là lỗ hổng tiềm ẩn.
+    if (body.role === 'ADMIN') throw new ForbiddenException('Không được gán quyền quản trị viên cho tài khoản nào.');
+    if (body.role !== undefined || body.status !== undefined) {
+      throw new BadRequestException('Không đổi vai trò hoặc trạng thái ở đây: dùng chức năng đổi vai trò / khóa tài khoản.');
+    }
+    const target = await this.findTarget(id);
+    const set: Record<string, unknown> = {};
+    if (body.fullName !== undefined) {
+      const fullName = typeof body.fullName === 'string' ? body.fullName.trim() : '';
+      if (!fullName || fullName.length > 100) throw new BadRequestException('Họ tên bắt buộc, tối đa 100 ký tự.');
+      set.fullName = fullName;
+    }
+    if (body.ageGroup !== undefined) {
+      const ageGroup = this.parseAgeGroup(body.ageGroup);
+      if (ageGroup && target.role !== 'STUDENT') {
+        throw new BadRequestException('Chỉ học viên mới có khối học.');
+      }
+      if (ageGroup) set.ageGroup = ageGroup;
+    }
+    let passwordReset = false;
+    if (body.password !== undefined && body.password !== '') {
+      const password = typeof body.password === 'string' ? body.password : '';
+      if (password.length < MIN_PASSWORD || Buffer.byteLength(password) > MAX_PASSWORD) {
+        throw new BadRequestException(`Mật khẩu từ ${MIN_PASSWORD} đến ${MAX_PASSWORD} ký tự.`);
+      }
+      set.password = await bcrypt.hash(password, 10);
+      set.sessionsRevokedAt = new Date();
+      passwordReset = true;
+    }
+    if (Object.keys(set).length === 0) throw new BadRequestException('Không có thông tin nào để cập nhật.');
+    const ageGroupChanged = typeof set.ageGroup === 'string' && set.ageGroup !== target.ageGroup;
+    await this.users.updateOne({ _id: target._id }, { $set: set });
+    // Đổi khối (vd 3-5 → Người đi làm): rút khỏi mọi lớp thuộc khối khác. Lớp khóa Người đi làm không lưu studentIds nên không bị ảnh hưởng.
+    if (ageGroupChanged) {
+      await this.classes.updateMany(
+        { studentIds: asId(target._id), ageGroup: { $ne: set.ageGroup as string } },
+        { $pull: { studentIds: asId(target._id) } },
+      );
+    }
+    const { password: _pw, sessionsRevokedAt: _sr, ...visible } = set;
+    return { ...toRow({ ...target, ...visible } as UserLean), passwordReset };
+  }
+
+  /**
+   * Khóa/mở khóa hàng loạt (tối đa 100 người). Bỏ qua (kèm lý do) chính Admin đang thao tác, tài khoản Admin và id sai;
+   * không bao giờ xóa. Trả danh sách đã đổi để ghi nhật ký.
+   */
+  async bulkSetStatus(user: JwtPayload, userIds: unknown, isActive: unknown) {
+    this.assertAdmin(user);
+    if (typeof isActive !== 'boolean') throw new BadRequestException('isActive phải là true hoặc false.');
+    if (!Array.isArray(userIds) || userIds.length === 0 || userIds.length > MAX_BULK_USERS) {
+      throw new BadRequestException(`userIds phải là mảng từ 1 đến ${MAX_BULK_USERS} id.`);
+    }
+    const ids = [...new Set(userIds.map((v) => (typeof v === 'string' ? v : '')))];
+    const status: Status = isActive ? 'ACTIVE' : 'LOCKED';
+    const skipped: Array<{ id: string; reason: string }> = [];
+    const valid = ids.filter((id) => {
+      if (!isValidObjectId(id)) {
+        skipped.push({ id, reason: 'Id không hợp lệ.' });
+        return false;
+      }
+      return true;
+    });
+    const found = await this.users.find({ _id: { $in: valid } }).select('fullName email role status').lean<UserLean[]>();
+    const byId = new Map(found.map((u) => [asId(u._id), u]));
+    const changed: Array<{ id: string; email: string; before: Status; after: Status }> = [];
+    const toUpdate: Types.ObjectId[] = [];
+    // Giảng viên còn đứng lớp không bị khóa hàng loạt (lớp sẽ kẹt một tài khoản không dùng được).
+    const teachingIds = isActive ? [] : found.filter((u) => u.role === 'TEACHER').map((u) => asId(u._id));
+    const ledCount = new Map<string, number>();
+    if (teachingIds.length) {
+      for (const c of await this.activeClassesLedBy(teachingIds)) {
+        for (const t of new Set([c.teacherId, ...(c.teacherIds ?? [])])) {
+          if (t && teachingIds.includes(t)) ledCount.set(t, (ledCount.get(t) ?? 0) + 1);
+        }
+      }
+    }
+    for (const id of valid) {
+      const u = byId.get(id);
+      if (!u) skipped.push({ id, reason: 'Không tìm thấy người dùng.' });
+      else if (u.role === 'ADMIN') skipped.push({ id, reason: 'Không thể khóa/mở khóa tài khoản quản trị viên hàng loạt.' });
+      else if (!isActive && id === user.sub) skipped.push({ id, reason: 'Không thể tự khóa chính mình.' });
+      else if (ledCount.get(id)) skipped.push({ id, reason: `Giảng viên đang phụ trách ${ledCount.get(id)} lớp: chuyển giao lớp trước khi khóa.` });
+      else if ((u.status ?? 'ACTIVE') === status) skipped.push({ id, reason: 'Đã ở trạng thái này.' });
+      else {
+        toUpdate.push(u._id);
+        changed.push({ id, email: u.email, before: (u.status ?? 'ACTIVE') as Status, after: status });
+      }
+    }
+    if (toUpdate.length) await this.users.updateMany({ _id: { $in: toUpdate } }, { $set: { status } });
+    return { updated: changed.length, changed, skipped };
   }
 
   /**
@@ -284,8 +406,11 @@ export class AdminUsersService {
     if (target.role === 'TEACHER') {
       return this.revokeTeacher(user, id, 'STUDENT');
     }
-    await this.users.updateOne({ _id: target._id }, { $set: { role } });
-    return toRow({ ...target, role } as UserLean);
+    // Lên giảng viên: bỏ khối học và rút khỏi danh sách học viên của mọi lớp, để sĩ số/khối lớp không bị tính sai.
+    // studentCode được giữ (không hiển thị cho giảng viên) để nếu hạ lại về học viên thì dùng lại mã cũ.
+    await this.users.updateOne({ _id: target._id }, { $set: { role }, $unset: { ageGroup: 1 } });
+    await this.classes.updateMany({ studentIds: asId(target._id) }, { $pull: { studentIds: asId(target._id) } });
+    return toRow({ ...target, role, ageGroup: undefined } as UserLean);
   }
 
   /**
@@ -309,7 +434,7 @@ export class AdminUsersService {
       );
     }
     const led = await this.classes
-      .find({ teacherId: asId(target._id) })
+      .find({ $or: [{ teacherId: asId(target._id) }, { teacherIds: asId(target._id) }] })
       .select('name')
       .lean<Array<{ _id: unknown; name: string }>>();
     if (led.length > 0) {
@@ -354,6 +479,18 @@ export class AdminUsersService {
         );
       }
       await this.assertNotLastAdmin(target, true);
+      if (target.role === 'TEACHER') {
+        // Khóa giảng viên còn đứng lớp làm lớp kẹt một tài khoản không dùng được: bắt chuyển giao trước (giống thu hồi quyền).
+        const led = await this.activeClassesLedBy([asId(target._id)]);
+        if (led.length > 0) {
+          throw new ConflictException({
+            statusCode: 409,
+            error: 'Conflict',
+            message: `Giảng viên đang phụ trách ${led.length} lớp. Hãy chuyển giao lớp cho giảng viên khác trước khi khóa tài khoản.`,
+            classes: led.slice(0, 20).map((c) => ({ id: asId(c._id), name: c.name })),
+          });
+        }
+      }
     }
     await this.users.updateOne({ _id: target._id }, { $set: { status } });
     return toRow({ ...target, status } as UserLean);
@@ -365,12 +502,12 @@ export class AdminUsersService {
     const target = await this.findTarget(id);
     const uid = asId(target._id);
     const base = {
-      user: { ...toRow(target), ageGroup: target.ageGroup ?? null },
+      user: toRow(target),
     };
 
     if (target.role === 'TEACHER') {
       const led = await this.classes
-        .find({ teacherId: uid })
+        .find({ $or: [{ teacherId: uid }, { teacherIds: uid }] })
         .select('name studentIds exerciseSlugs archived')
         .sort({ name: 1 })
         .lean<
@@ -623,6 +760,14 @@ export class AdminUsersService {
   }
 
   // ---------- nội bộ ----------
+
+  /** Các lớp chưa lưu trữ do một trong các giảng viên này phụ trách. */
+  private activeClassesLedBy(teacherIds: string[]) {
+    return this.classes
+      .find({ archived: { $ne: true }, $or: [{ teacherId: { $in: teacherIds } }, { teacherIds: { $in: teacherIds } }] })
+      .select('name teacherId teacherIds')
+      .lean<Array<{ _id: unknown; name: string; teacherId?: string; teacherIds?: string[] }>>();
+  }
 
   private async findTarget(id: string): Promise<UserLean> {
     if (!isValidObjectId(id))

@@ -6,7 +6,8 @@ export type ExerciseDocument = Exercise & Document;
 
 @Schema({ _id: false })
 export class ExerciseTestCase {
-  @Prop({ required: true, type: String })
+  // '' là stdin hợp lệ (bài không đọc input, vd in "Xin chào"): required của Mongoose coi '' là thiếu nên trả 500.
+  @Prop({ type: String, default: '' })
   input: string;
 
   // Not `required: true`: Mongoose's default String required-check treats '' as
@@ -89,6 +90,55 @@ export class Exercise {
   @Prop({ type: String })
   prerequisiteSlug?: string;
 
+  // Ma trận nhóm đối tượng x loại lab (xem modules-api/exercise/exercise-matrix.ts).
+  // Bài cũ chưa có hai trường này; bài tạo/sửa qua /exercises và seed-matrix bắt buộc có.
+  @Prop({ type: String, enum: ['K3_5', 'K6_9', 'K10_12', 'CAREER_ADULT'], index: true })
+  targetGroup?: string;
+
+  @Prop({
+    type: String,
+    enum: ['PUZZLE_BLOCK', 'PYTHON_CODE', 'ALGO_JUDGE', 'DATA_SQL', 'AI_PROMPT', 'TESTER_QA'],
+  })
+  labType?: string;
+
+  // Bài K3_5 (PUZZLE_BLOCK): câu chuyện dẫn dắt và ảnh minh họa (URL https hoặc data URL ảnh nhỏ).
+  @Prop({ type: String })
+  storyContext?: string;
+
+  @Prop({ type: String })
+  illustrationUrl?: string;
+
+  // Bài CAREER_ADULT DATA_SQL: mã dataset mẫu liên kết (vd sales_v1).
+  @Prop({ type: String })
+  datasetId?: string;
+
+  // userId của người tạo (giảng viên chỉ được sửa/xóa bài của chính mình).
+  @Prop({ type: String, index: true })
+  authorId?: string;
+
+  // Test ẩn và lời giải chính thức: select:false nên MỌI truy vấn mặc định đều
+  // không thấy. Chỉ judge (+hiddenTestCases) và màn quản trị của staff mới
+  // chủ động select thêm. Bài cũ vẫn để test ẩn trong testCases (isHidden).
+  @Prop({ type: [ExerciseTestCaseSchema], default: [], select: false })
+  hiddenTestCases: ExerciseTestCase[];
+
+  @Prop({ type: String, select: false })
+  officialSolution?: string;
+
+  /**
+   * Bài do giảng viên tạo cho NGÂN HÀNG ĐỀ (AI Tạo Đề, soạn thủ công): chỉ để gán vào Ngày học của lớp hoặc đề thi Cuộc thi.
+   * Không hiện trong danh mục Code Playground của học viên (kho bài Playground là cố định).
+   */
+  @Prop({ type: Boolean, default: false })
+  bankOnly?: boolean;
+
+  /**
+   * Khối của Ngân hàng đề ('6-9' | '10-12'). Trường BỔ SUNG, Code Playground không đọc: dùng để phân loại bài cũ mà không đổi
+   * targetGroup/gradeBand (vốn quyết định học viên nào thấy bài trong Playground).
+   */
+  @Prop({ type: String, enum: ['6-9', '10-12'], index: true })
+  bankBand?: '6-9' | '10-12';
+
   // Grade band this exercise targets ('3-5' | '6-9' | '9-12', ...). Lets the UI
   // filter the catalog by class level instead of showing every exercise flat.
   @Prop({ type: String })
@@ -160,3 +210,9 @@ export class Exercise {
 }
 
 export const ExerciseSchema = SchemaFactory.createForClass(Exercise);
+
+// Chốt chặn cuối (Day 31): bài có authorId (do Giảng viên/Admin tạo, kể cả AI Tạo Đề) luôn là bài Ngân hàng đề - chỉ để giao theo Ngày / Cuộc thi,
+// KHÔNG bao giờ vào Code Playground hay làm đổi mẫu số Tiến độ học tập. Bài Playground chuẩn do hệ thống nạp, không có authorId.
+ExerciseSchema.pre('validate', function (this: ExerciseDocument) {
+  if (this.authorId && this.bankOnly !== true) this.bankOnly = true;
+});

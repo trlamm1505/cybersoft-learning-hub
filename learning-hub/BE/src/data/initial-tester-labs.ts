@@ -3,40 +3,10 @@ import type {
   RubricCriterion,
   TesterLabCategory,
 } from '../modules-system/database/schemas/tester-lab.schema';
+import { TESTER_RUBRIC } from '../modules-api/assessment/domain/tester-rubric';
 
-/** Rubric 10 điểm gốc của Day 14 (5 tiêu chí x 2 điểm). */
-const RUBRIC: RubricCriterion[] = [
-  {
-    key: 'scope-design',
-    label: 'Phạm vi và test design phù hợp',
-    maxScore: 2,
-    kind: 'quality',
-  },
-  {
-    key: 'actual-expected',
-    label: 'Actual/Expected dựa trên Swagger, UI hoặc rule đã nêu',
-    maxScore: 2,
-    kind: 'quality',
-  },
-  {
-    key: 'evidence',
-    label: 'Evidence tái hiện được',
-    maxScore: 2,
-    kind: 'quality',
-  },
-  {
-    key: 'severity-result',
-    label: 'Phân loại severity/result hợp lý',
-    maxScore: 2,
-    kind: 'severity',
-  },
-  {
-    key: 'cleanup',
-    label: 'Cleanup/reset và giải thích kết quả',
-    maxScore: 2,
-    kind: 'quality',
-  },
-];
+/** Rubric chuẩn thang 100 cho mọi Tester Lab: Test Coverage 40, Bug Report Clarity 30, Severity Classification 30. */
+const RUBRIC: RubricCriterion[] = TESTER_RUBRIC;
 
 interface LabSeed {
   labCode: string;

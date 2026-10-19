@@ -8,6 +8,8 @@ import { changedFields, formFromUser, validateProfileForm, type ProfileFormValue
 import { UserAvatar } from '../components/UserAvatar';
 import { AvatarEditor } from '../components/profile/AvatarEditor';
 import { ActivityHeatmap } from '../components/profile/ActivityHeatmap';
+import { EnrolledClassesSection } from '../components/profile/EnrolledClassesSection';
+import { ContestHistorySection } from '../components/profile/ContestHistorySection';
 
 interface ProfilePageProps {
   authUser: AuthUser;
@@ -155,6 +157,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ authUser, onAvatarChan
   const [activity, setActivity] = useState<Array<{ date: string; count: number }>>([]);
   const [activityLoading, setActivityLoading] = useState(false);
   const [activityError, setActivityError] = useState<string | null>(null);
+  // Bài đã giải X/N của lộ trình Playground: cùng nguồn (/learner/stats) với trang Tiến độ học tập và header /playground.
+  const [solved, setSolved] = useState<{ solved: number; total: number } | null>(null);
+  const hasPlaygroundTrack = authUser.role === 'STUDENT' && (authUser.ageGroup === '6-9' || authUser.ageGroup === '10-12');
 
   // Chỉ học viên có lượt nộp bài; giảng viên/quản trị viên không có biểu đồ này.
   const showActivity = authUser.role === 'STUDENT';
@@ -173,6 +178,18 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ authUser, onAvatarChan
       cancelled = true;
     };
   }, [showActivity]);
+
+  useEffect(() => {
+    if (!hasPlaygroundTrack) return;
+    let cancelled = false;
+    learnerApi
+      .getStats()
+      .then((s) => !cancelled && setSolved({ solved: s.solvedExercises, total: s.totalExercises }))
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [hasPlaygroundTrack]);
 
   return (
     <div className={`mx-auto ${showActivity ? 'max-w-6xl' : 'max-w-xl'}`}>
@@ -193,6 +210,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ authUser, onAvatarChan
         <div className="min-w-0">
           <h1 className="truncate text-xl font-bold text-[var(--text-main)]">{authUser.fullName || authUser.email}</h1>
           <p className="truncate text-sm text-[var(--text-muted)]">{authUser.email}</p>
+          {solved && (
+            <p data-testid="profile-solved" className="mt-0.5 text-xs font-semibold text-[var(--text-muted)]">
+              Bài đã giải: {solved.solved}/{solved.total}
+            </p>
+          )}
         </div>
       </div>
 
@@ -203,6 +225,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ authUser, onAvatarChan
         {/* Cột phải: biểu đồ hoạt động */}
         {showActivity && <ActivityHeatmap days={activity} loading={activityLoading} error={activityError} />}
       </div>
+
+      {showActivity && <ContestHistorySection />}
+
+      {showActivity && <EnrolledClassesSection />}
 
       {editingAvatar && (
         <AvatarEditor user={authUser} onClose={() => setEditingAvatar(false)} onSaved={(avatar) => onAvatarChange?.(avatar)} />

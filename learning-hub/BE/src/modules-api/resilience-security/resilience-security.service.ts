@@ -1,4 +1,5 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { shouldWriteReportArtifacts } from '../../common/utils/report-artifact.util';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -231,6 +232,8 @@ export class ResilienceSecurityService {
 
   /** Xuất báo cáo Security Report & Load Report ra file artifact. */
   private saveOperationalArtifacts(report: OperationalDashboardReport): void {
+    // Chỉ ghi vào docs khi bật WRITE_REPORT_ARTIFACTS=true (không làm bẩn git status mỗi lần chạy test/API).
+    if (!shouldWriteReportArtifacts()) return;
     try {
       const rootDir = path.resolve(__dirname, '../../../../');
       const docsDay29 = path.join(rootDir, 'docs/day29');

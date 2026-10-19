@@ -1,4 +1,6 @@
+import { notDemoExercise } from '../exercise/playground-catalog';
 import {
+  Optional,
   BadRequestException,
   Injectable,
   NotFoundException,
@@ -27,8 +29,13 @@ import {
 } from '../../modules-system/database/schemas/user.schema';
 import type { IntegrityDecision } from '../../modules-system/database/schemas/submission.schema';
 import { ContestService, ContestViewer } from './contest.service';
+import { AuditLogService } from '../admin-portal/audit-log.service';
+import { bandOfExercise, exerciseBandFilter, normalizeBankBand, questionBandFilter } from '../exercise/exercise-matrix';
 import { INTEGRITY_DECISIONS } from '../integrity/integrity.service';
 import type { IntegrityReviewInput } from '../integrity/integrity.service';
+
+/** Từ lần rời màn hình thứ 3 giảng viên mới được bấm "Không công nhận kết quả". */
+export const DISQUALIFY_MIN_LEAVES = 3;
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -51,6 +58,7 @@ export class ContestManageService {
     private readonly questionModel: Model<QuestionDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    @Optional() private readonly audit?: AuditLogService,
   ) {}
 
   async getResults(id: string, requester: ContestViewer) {
@@ -104,7 +112,14 @@ export class ContestManageService {
             : 'IN_PROGRESS';
       }
       const ig = attempt?.integrity;
+      const leaveCount = attempt?.leaveCount ?? 0;
+      const disqualified = attempt?.disqualified === true;
       return {
+        leaveCount,
+        disqualified,
+        disqualifiedReason: disqualified ? (attempt.disqualifiedReason ?? null) : null,
+        canDisqualify: !!attempt && !disqualified && leaveCount >= DISQUALIFY_MIN_LEAVES,
+        completionMinutes: attempt?.startedAt && attempt?.finishedAt ? Math.max(1, Math.round((new Date(attempt.finishedAt).getTime() - new Date(attempt.startedAt).getTime()) / 60_000)) : null,
         studentId: r.studentId,
         studentName: r.studentName || 'Học viên',
         registeredAt: r.registeredAt,
@@ -128,6 +143,13 @@ export class ContestManageService {
       };
     });
 
+    // Hạng chính thức: theo điểm giảm dần, cùng điểm thì làm nhanh hơn xếp trên; thí sinh bị không công nhận không có hạng.
+    const ranked = rows
+      .filter((r) => r.status !== 'NOT_STARTED' && !r.disqualified)
+      .sort((a, b) => b.totalScore - a.totalScore || (a.completionMinutes ?? Infinity) - (b.completionMinutes ?? Infinity));
+    const rankOf = new Map(ranked.map((r, i) => [r.studentId, i + 1]));
+    const outRows = rows.map((r) => ({ ...r, officialRank: rankOf.get(r.studentId) ?? null }));
+
     return {
       contest: {
         id: contestId,
@@ -144,12 +166,46 @@ export class ContestManageService {
         registered: rows.length,
         started: rows.filter((r) => r.status !== 'NOT_STARTED').length,
         finished: rows.filter((r) => r.status === 'FINISHED').length,
+        disqualified: rows.filter((r) => r.disqualified).length,
         needsReview: rows.filter(
           (r) => r.integrity?.reviewStatus === 'NEEDS_REVIEW',
         ).length,
       },
-      rows,
+      rows: outRows,
     };
+  }
+
+  /** Giảng viên không công nhận kết quả (chỉ khi thí sinh rời màn hình từ 3 lần). Học viên vẫn xem được điểm của mình. */
+  async disqualify(id: string, attemptId: string, reason: string, requester: ContestViewer) {
+    const contest = await this.contestService.getContestForStaff(id, requester);
+    const text = (reason ?? '').trim();
+    if (text.length < 10) throw new BadRequestException('Cần nhập lý do không công nhận (ít nhất 10 ký tự).');
+    const attempt = await this.findAttempt(String(contest._id), attemptId);
+    if (attempt.disqualified === true) throw new BadRequestException('Kết quả này đã bị không công nhận.');
+    if ((attempt.leaveCount ?? 0) < DISQUALIFY_MIN_LEAVES) {
+      throw new BadRequestException({ code: 'E400_NOT_ENOUGH_LEAVES', message: `Chỉ không công nhận khi thí sinh rời màn hình từ ${DISQUALIFY_MIN_LEAVES} lần (hiện ${attempt.leaveCount ?? 0}).` });
+    }
+    const now = new Date();
+    await this.attemptModel.updateOne({ _id: attemptId }, { $set: { disqualified: true, disqualifiedReason: text.slice(0, 500), disqualifiedBy: requester.sub, disqualifiedAt: now } });
+    await this.audit?.record({ sub: requester.sub, email: (requester as { email?: string }).email ?? '' }, 'CONTEST_DISQUALIFY', 'CONTEST_ATTEMPT', attemptId, { disqualified: false }, { disqualified: true, contestId: String(contest._id), studentId: attempt.studentId, leaveCount: attempt.leaveCount }, text);
+    return { id: attemptId, disqualified: true, disqualifiedAt: now };
+  }
+
+  /** Khôi phục kết quả đã bị không công nhận (giảng viên có thể rút lại quyết định). */
+  async reinstate(id: string, attemptId: string, requester: ContestViewer) {
+    const contest = await this.contestService.getContestForStaff(id, requester);
+    const attempt = await this.findAttempt(String(contest._id), attemptId);
+    if (attempt.disqualified !== true) throw new BadRequestException('Kết quả này đang được công nhận.');
+    await this.attemptModel.updateOne({ _id: attemptId }, { $set: { disqualified: false }, $unset: { disqualifiedReason: '', disqualifiedBy: '', disqualifiedAt: '' } });
+    await this.audit?.record({ sub: requester.sub, email: (requester as { email?: string }).email ?? '' }, 'CONTEST_REINSTATE', 'CONTEST_ATTEMPT', attemptId, { disqualified: true }, { disqualified: false, contestId: String(contest._id), studentId: attempt.studentId });
+    return { id: attemptId, disqualified: false };
+  }
+
+  private async findAttempt(contestId: string, attemptId: string) {
+    if (!isValidObjectId(attemptId)) throw new NotFoundException('Không tìm thấy lượt thi.');
+    const attempt: any = await this.attemptModel.findById(attemptId).lean();
+    if (!attempt || attempt.contestId !== contestId) throw new NotFoundException('Không tìm thấy lượt thi.');
+    return attempt;
   }
 
   private async findAttemptOrThrow(contestId: string, attemptId: string) {
@@ -272,8 +328,11 @@ export class ContestManageService {
     category?: string;
     difficulty?: string;
     limit?: string;
+    band?: string;
   }) {
     const filter: Record<string, unknown> = {};
+    const band = normalizeBankBand(query.band);
+    if (band) Object.assign(filter, questionBandFilter(band));
     if (query.category) filter.category = String(query.category);
     if (['EASY', 'MEDIUM', 'HARD'].includes(String(query.difficulty))) {
       filter.difficulty = query.difficulty;
@@ -305,14 +364,16 @@ export class ContestManageService {
   }
 
   /** Bài Code Playground (Python) có thể đưa vào cuộc thi. */
-  async listExerciseBank(query: { q?: string; topic?: string }) {
-    const filter: Record<string, unknown> = { type: 'CODE_TEXT' };
+  async listExerciseBank(query: { q?: string; topic?: string; band?: string }) {
+    const filter: Record<string, unknown> = { type: 'CODE_TEXT', slug: notDemoExercise };
+    const band = normalizeBankBand(query.band);
+    if (band) Object.assign(filter, exerciseBandFilter(band));
     if (query.topic) filter.topic = String(query.topic);
     const q = (query.q ?? '').trim().slice(0, 100);
     if (q) filter.title = { $regex: escapeRegExp(q), $options: 'i' };
     const items: any[] = await this.exerciseModel
       .find(filter)
-      .select('title slug difficulty points topic gradeBand testCases resource_id')
+      .select('title slug difficulty points topic gradeBand targetGroup bankBand bankOnly testCases resource_id')
       .sort({ topic: 1, orderInTopic: 1, title: 1 })
       .limit(300)
       .lean();
@@ -324,6 +385,8 @@ export class ContestManageService {
         difficulty: e.difficulty,
         points: e.points,
         topic: e.topic ?? null,
+        band: bandOfExercise(e),
+        fromBank: e.bankOnly === true,
         testCaseCount: (e.testCases ?? []).length,
       }));
   }

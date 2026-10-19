@@ -179,10 +179,21 @@ describe('TeacherAnalyticsService: phân quyền và cô lập theo lớp', () =
     const { service, models } = build();
     const list = await service.listClasses(T2);
     expect(models.classes.calls[0]).toEqual({
-      teacherId: 't2',
+      $or: [{ teacherId: 't2' }, { teacherIds: 't2' }],
       archived: { $ne: true },
     });
     expect(list.map((c) => c.id)).toEqual([C2]);
+  });
+
+  it('giảng viên được gán thêm qua teacherIds (Admin Portal v2) thấy và mở được lớp ngay', async () => {
+    const { service, models } = build();
+    const extra: JwtPayload = { sub: 't9', email: 't9@x', role: 'TEACHER' };
+    await expect(service.getOverview(extra, C1)).rejects.toBeInstanceOf(ForbiddenException);
+    (models.classes as any).rows.find((c: any) => c._id === C1).teacherIds = ['t1', 't9'];
+    await expect(service.getOverview(extra, C1)).resolves.toBeDefined();
+    expect((await service.listClasses(extra)).map((c) => c.id)).toEqual([C1]);
+    // Giảng viên chính vẫn thấy lớp.
+    expect((await service.listClasses(T1)).map((c) => c.id)).toContain(C1);
   });
 
   it('id lớp sai định dạng hoặc không tồn tại → 404', async () => {

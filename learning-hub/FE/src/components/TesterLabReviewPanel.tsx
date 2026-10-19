@@ -19,6 +19,12 @@ export const TesterLabReviewPanel: React.FC<Props> = ({ lab, isStudent }) => {
   const [denied, setDenied] = useState(false);
 
   const load = useCallback(async () => {
+    // Hỏi quyền trước: học viên khi tắt peer-review không gọi danh sách bài cần chấm (trước đây luôn dính 403 ngoài console).
+    const caps = await testerLabApi.getCapabilities();
+    if (!caps.canReview) {
+      setDenied(true);
+      return;
+    }
     setItems(await testerLabApi.getReviewable(lab.labCode));
   }, [lab.labCode]);
 

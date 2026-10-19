@@ -37,6 +37,7 @@ import { isStaff } from '../../common/auth/roles';
 import { ContestProblemDto, CreateContestDto } from './dto/create-contest.dto';
 import { UpdateContestDto } from './dto/update-contest.dto';
 
+import { assertGradeAccess, normalizeContestGradeBand } from './contest-grade';
 import {
   getInitialContests,
   resolveSeedProblems,
@@ -45,6 +46,8 @@ import {
 export interface ContestViewer {
   sub: string;
   role: string;
+  /** Nhóm tuổi hiện tại của học viên (lấy từ CSDL ở JwtStrategy), dùng kiểm tra khối dự thi. */
+  ageGroup?: string;
 }
 
 export const CONTEST_LIMITS = {
@@ -434,7 +437,9 @@ export class ContestService implements OnModuleInit {
       problems,
       registrations: [],
       status,
-      integrityEnabled: dto.integrityEnabled !== false,
+      // Chính sách giám sát bắt buộc: mọi cuộc thi luôn bật, không cho tắt.
+      integrityEnabled: true,
+      gradeBand: normalizeContestGradeBand(dto.gradeBand),
       authorId,
     });
 
@@ -517,8 +522,9 @@ export class ContestService implements OnModuleInit {
     );
     contest.problems = problems;
     contest.status = status;
-    if (dto.integrityEnabled !== undefined) {
-      contest.integrityEnabled = dto.integrityEnabled !== false;
+    contest.integrityEnabled = true; // giám sát bắt buộc, không cho tắt
+    if (dto.gradeBand !== undefined) {
+      contest.gradeBand = normalizeContestGradeBand(dto.gradeBand);
     }
 
     return contest.save();
@@ -535,10 +541,12 @@ export class ContestService implements OnModuleInit {
       c.startTime,
       c.endTime,
     );
-    const { registrations, problems, ...rest } = c.toObject();
+    const { registrations, problems, authorId, ...rest } = c.toObject();
     const staff = isStaff(viewer?.role);
     return {
       ...rest,
+      // authorId là ObjectId tài khoản giảng viên: chỉ staff thấy (Day 29 C2, không lộ định danh cho khách/học viên).
+      ...(staff ? { authorId } : {}),
       problems: (problems ?? []).map((p: ContestProblem) =>
         staff
           ? p
@@ -609,11 +617,12 @@ export class ContestService implements OnModuleInit {
     return this.toView(contest, viewer, new Date(), statuses.get(String(contest._id)));
   }
 
-  async registerContest(id: string, studentId: string) {
+  async registerContest(id: string, studentId: string, ageGroup?: string) {
     const user = await this.userModel.findById(studentId).select('fullName').lean();
     const studentName = user?.fullName || 'Học viên';
 
     const contest = await this.findVisible(id, { sub: studentId, role: 'STUDENT' });
+    assertGradeAccess(contest, { role: 'STUDENT', ageGroup });
 
     const now = new Date();
     if (now > contest.endTime) {

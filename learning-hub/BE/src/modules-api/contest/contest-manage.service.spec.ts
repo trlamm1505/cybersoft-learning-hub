@@ -130,7 +130,7 @@ describe('ContestManageService', () => {
       ]);
       expect(res.rows[0].integrity).toMatchObject({ flag: 'REVIEW', similarityScore: 0.92, focusCount: 6, awaySeconds: 300 });
       expect(res.rows[2].integrity).toBeNull();
-      expect(res.summary).toEqual({ registered: 3, started: 2, finished: 1, needsReview: 1 });
+      expect(res.summary).toEqual({ registered: 3, started: 2, finished: 1, needsReview: 1, disqualified: 0 });
     });
 
     it('kiểm tra quyền sở hữu qua ContestService (giảng viên khác bị chặn)', async () => {
@@ -221,9 +221,10 @@ describe('ContestManageService', () => {
         ]),
       );
       const res = await service.listExerciseBank({});
-      expect(exerciseModel.find).toHaveBeenCalledWith({ type: 'CODE_TEXT' });
+      // Bài mẫu demo-dash-* không hiện ở danh sách chọn bài của giảng viên.
+      expect(exerciseModel.find).toHaveBeenCalledWith({ type: 'CODE_TEXT', slug: { $not: /^demo-dash-/ } });
       expect(res).toEqual([
-        { slug: 'tong', title: 'Tổng', difficulty: 'EASY', points: 10, topic: 'Cơ bản', testCaseCount: 2 },
+        { slug: 'tong', title: 'Tổng', difficulty: 'EASY', points: 10, topic: 'Cơ bản', band: null, fromBank: false, testCaseCount: 2 },
       ]);
     });
   });

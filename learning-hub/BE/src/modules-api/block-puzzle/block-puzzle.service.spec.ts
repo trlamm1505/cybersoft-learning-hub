@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { BlockPuzzleService } from './block-puzzle.service';
 import { BlockPuzzleProgress } from '../../modules-system/database/schemas/block-puzzle-progress.schema';
+import { User } from '../../modules-system/database/schemas/user.schema';
+import { Lesson } from '../../modules-system/database/schemas/lesson.schema';
 
 describe('BlockPuzzleService', () => {
   let service: BlockPuzzleService;
@@ -10,6 +12,17 @@ describe('BlockPuzzleService', () => {
     find: jest.fn(),
     findOne: jest.fn(),
     create: jest.fn(),
+    aggregate: jest.fn(),
+  };
+  const mockUserModel: any = { find: jest.fn() };
+  const mockLessonModel: any = {
+    find: jest.fn().mockReturnValue({
+      select: () => ({
+        lean: jest.fn().mockResolvedValue([
+          { slug: 'block-robot-ve-nha-1', status: 'published', blockPuzzle: { gameId: 'robot-ve-nha' } },
+        ]),
+      }),
+    }),
   };
 
   beforeEach(async () => {
@@ -19,6 +32,8 @@ describe('BlockPuzzleService', () => {
       providers: [
         BlockPuzzleService,
         { provide: getModelToken(BlockPuzzleProgress.name), useValue: mockProgressModel },
+        { provide: getModelToken(User.name), useValue: mockUserModel },
+        { provide: getModelToken(Lesson.name), useValue: mockLessonModel },
       ],
     }).compile();
 
@@ -54,7 +69,8 @@ describe('BlockPuzzleService', () => {
 
   describe('markCompleted', () => {
     it('tạo bản ghi mới khi lần đầu hoàn thành bài này', async () => {
-      mockProgressModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
+      const none = { lean: jest.fn().mockResolvedValue(null) };
+      mockProgressModel.findOne.mockReturnValue({ ...none, sort: () => none });
       const fakeDate = new Date('2026-01-01T00:00:00Z');
       mockProgressModel.create.mockResolvedValue({ completedAt: fakeDate });
 

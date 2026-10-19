@@ -4,7 +4,7 @@ import type { IntegritySignals } from './submission.schema';
 
 export type ContestAttemptDocument = ContestAttempt & Document;
 
-export type ContestAttemptFinishReason = 'MANUAL' | 'TIMEOUT';
+export type ContestAttemptFinishReason = 'MANUAL' | 'TIMEOUT' | 'CHEAT_LOCK';
 
 /** Tín hiệu liêm chính của cả lượt thi; thêm bài code cho điểm tương đồng cao nhất. */
 export type ContestIntegrity = IntegritySignals & {
@@ -38,8 +38,28 @@ export class ContestAttempt {
   @Prop({ type: Date })
   finishedAt?: Date;
 
-  @Prop({ type: String, enum: ['MANUAL', 'TIMEOUT'] })
+  @Prop({ type: String, enum: ['MANUAL', 'TIMEOUT', 'CHEAT_LOCK'] })
   finishReason?: ContestAttemptFinishReason;
+
+  /** Số lần rời màn hình thi do SERVER đếm (từ lần 3: khóa phòng thi và nộp bài). */
+  @Prop({ type: Number, default: 0 })
+  leaveCount?: number;
+
+  /**
+   * Giảng viên không công nhận kết quả (vd rời màn hình từ 3 lần): học viên vẫn xem được bài và điểm của mình,
+   * nhưng bị loại khỏi bảng xếp hạng chính thức. Có thể khôi phục.
+   */
+  @Prop({ type: Boolean, default: false })
+  disqualified?: boolean;
+
+  @Prop({ type: String })
+  disqualifiedReason?: string;
+
+  @Prop({ type: String })
+  disqualifiedBy?: string;
+
+  @Prop({ type: Date })
+  disqualifiedAt?: Date;
 
   /** Chỉ có khi cuộc thi bật giám sát; không bao giờ ảnh hưởng điểm. */
   @Prop({ type: Object })

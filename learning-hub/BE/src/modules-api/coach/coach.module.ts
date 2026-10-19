@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { SystemConfigService } from '../admin-portal/system-config.service';
+import { PROMPT_PROVIDER } from '../../common/prompt-provider';
+import type { PromptProvider } from '../../common/prompt-provider';
 import { DatabaseModule } from '../../modules-system/database/database.module';
 import { CommonAuthModule } from '../../common/auth/common-auth.module';
 import { CoachController } from './coach.controller';
@@ -21,20 +23,20 @@ import {
     CoachContextBuilder,
     {
       provide: COACH_LLM_CLIENT,
-      inject: [ConfigService],
-      // Có GEMINI_API_KEY thì gọi Gemini thật, không có thì dùng Stub như trước.
-      useFactory: (config: ConfigService) => {
-        const apiKey = config.get<string>('GEMINI_API_KEY');
-        return apiKey ? new GeminiCoachLlmClient(apiKey) : new StubLlmClient();
+      inject: [SystemConfigService],
+      // Có khóa Gemini (do Admin lưu hoặc GEMINI_API_KEY) thì gọi Gemini thật, không có thì dùng Stub như trước.
+      useFactory: async (sys: SystemConfigService) => {
+        await sys.ensureLoaded();
+        return sys.currentGeminiKey() ? new GeminiCoachLlmClient(sys.currentGeminiKey) : new StubLlmClient();
       },
     },
     {
       provide: COACH_DEBUG_EXPLAINER,
-      inject: [ConfigService],
+      inject: [SystemConfigService, PROMPT_PROVIDER],
       // null: CoachService bỏ qua bước Gemini, giữ phân tích rule-based.
-      useFactory: (config: ConfigService) => {
-        const apiKey = config.get<string>('GEMINI_API_KEY');
-        return apiKey ? new GeminiDebugExplainer(apiKey) : null;
+      useFactory: async (sys: SystemConfigService, prompts: PromptProvider) => {
+        await sys.ensureLoaded();
+        return sys.currentGeminiKey() ? new GeminiDebugExplainer(sys.currentGeminiKey, prompts) : null;
       },
     },
   ],

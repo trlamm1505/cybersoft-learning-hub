@@ -2,10 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
-  FileText,
   ClipboardList,
   Code2,
-  Puzzle,
   Trophy,
   Wrench,
   Moon,
@@ -15,51 +13,55 @@ import {
   GraduationCap,
   Sparkles,
   FlaskConical,
-  Database,
-  BrainCircuit,
   ClipboardCheck,
-  ListChecks,
   BarChart3,
-  ShieldAlert,
   ShieldCheck,
   User,
   Users,
   ChevronDown,
   LogOut,
+  Layers,
+  FileText,
+  Briefcase,
 } from 'lucide-react';
 import type { AuthUser } from '../types/auth';
 import { ROLE_LABEL } from '../types/auth';
 import { OverflowNav } from './OverflowNav';
+import { isAuthPath } from '../common/authRoutes';
+import { isCareerAdult } from '../common/userGroups';
 import { UserAvatar } from './UserAvatar';
 import type { NavItem } from './OverflowNav';
 
 /** Mục chỉ dành cho học viên; khớp StudentRoute trong App.tsx. */
 const STUDENT_ONLY_TABS = new Set(['da-labs', 'ai-labs']);
 
-const STUDENT_NAV: NavItem[] = [
+/** Menu học viên thường (6-9, 10-12, người lớn). Kid Mode (Lớp 3-5) dùng KidHeader riêng nên không thấy Quiz. */
+export const STUDENT_NAV: NavItem[] = [
+  { key: 'my-class', label: 'Lớp học của tôi', Icon: GraduationCap, path: '/my-class' },
   { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
   { key: 'detail', label: 'Chi tiết bài học', Icon: FileText, path: '/detail' },
+  { key: 'playground', label: 'Bài tập / Playground', Icon: Code2, path: '/playground' },
   { key: 'quiz', label: 'Thi Trắc Nghiệm', Icon: ClipboardList, path: '/quiz' },
-  { key: 'playground', label: 'Code Playground', Icon: Code2, path: '/playground' },
-  { key: 'block-puzzle', label: 'Block Puzzle', Icon: Puzzle, path: '/block-puzzle' },
-  { key: 'contests', label: 'Cuộc Thi & Lịch Thi', Icon: Trophy, path: '/contests' },
-  { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
-  { key: 'da-labs', label: 'DA Lab', Icon: Database, path: '/da-labs' },
-  { key: 'ai-labs', label: 'AI Lab', Icon: BrainCircuit, path: '/ai-labs' },
+  { key: 'contests', label: 'Cuộc thi', Icon: Trophy, path: '/contests' },
+];
+
+/** Menu Người đi làm / Trái ngành (CAREER_ADULT): đúng 3 mục, không có Playground, Thi trắc nghiệm hay Cuộc thi. */
+export const CAREER_ADULT_NAV: NavItem[] = [
+  { key: 'career-labs', label: 'Phòng thực hành chuyên ngành', Icon: Briefcase, path: '/career-labs' },
+  { key: 'my-class', label: 'Lớp học của tôi', Icon: GraduationCap, path: '/my-class' },
+  { key: 'catalog', label: 'Danh mục khóa học', Icon: BookOpen, path: '/catalog' },
 ];
 
 const TEACHER_NAV: NavItem[] = [
   { key: 'dashboard', label: 'Lớp của tôi', Icon: BarChart3, path: '/teacher/dashboard' },
   { key: 'authoring', label: 'Soạn Thảo Bài Thi', Icon: Wrench, path: '/authoring' },
+  { key: 'teacher-exercises', label: 'Soạn Bài Theo Nhóm Tuổi', Icon: Layers, path: '/teacher/exercises' },
   { key: 'teacher-library', label: 'Xem Các Bài Thi', Icon: ClipboardList, path: '/authoring?view=library' },
   { key: 'teacher-contests', label: 'Quản Lý Cuộc Thi', Icon: Trophy, path: '/authoring?view=contests' },
   { key: 'teacher-qa', label: 'Quality & QA Harness', Icon: ClipboardCheck, path: '/authoring?view=qa' },
   { key: 'teacher-usability', label: 'Usability & Age UI', Icon: Users, path: '/authoring?view=usability' },
   { key: 'teacher-resilience', label: 'Bảo Mật & Tải', Icon: ShieldCheck, path: '/authoring?view=resilience' },
   { key: 'problem-generator', label: 'AI Tạo Đề', Icon: Sparkles, path: '/problem-generator' },
-  { key: 'review-queue', label: 'Chấm Insight', Icon: ClipboardCheck, path: '/teacher/review-queue' },
-  { key: 'lab-submissions', label: 'Bài nộp Lab', Icon: ListChecks, path: '/teacher/lab-submissions' },
-  { key: 'integrity', label: 'Xem xét trung thực', Icon: ShieldAlert, path: '/teacher/integrity' },
   { key: 'tester-labs', label: 'Tester Lab', Icon: FlaskConical, path: '/tester-labs' },
 ];
 
@@ -117,9 +119,12 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
       return 'authoring';
     }
     if (path.startsWith('/problem-generator')) return 'problem-generator';
+    if (path.startsWith('/teacher/exercises')) return 'teacher-exercises';
+    if (path.startsWith('/my-class')) return 'my-class';
     if (path.startsWith('/contests')) return 'contests';
     if (path.startsWith('/playground')) return 'playground';
     if (path.startsWith('/progress')) return 'progress';
+    if (isCareerAdult(authUser) && (path.startsWith('/career-labs') || /^\/(tester|da|ai)-labs/.test(path))) return 'career-labs';
     if (path.startsWith('/tester-labs')) return 'tester-labs';
     if (path.startsWith('/da-labs')) return 'da-labs';
     if (path.startsWith('/ai-labs')) return 'ai-labs';
@@ -137,15 +142,55 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
   // AI Lab, DA Lab là trang làm bài: chỉ tài khoản STUDENT thấy (ADMIN cũng dùng menu học viên).
   const isStudent = authUser?.role === 'STUDENT';
 
+  const careerAdult = isCareerAdult(authUser);
   const navItems = useMemo(
-    () => (userRole === 'student' ? STUDENT_NAV.filter((item) => isStudent || !STUDENT_ONLY_TABS.has(item.key)) : TEACHER_NAV),
-    [userRole, isStudent],
+    () =>
+      userRole === 'student'
+        ? careerAdult
+          ? CAREER_ADULT_NAV
+          : STUDENT_NAV.filter((item) => isStudent || !STUDENT_ONLY_TABS.has(item.key))
+        : TEACHER_NAV,
+    [userRole, isStudent, careerAdult],
   );
 
   const handleNavigate = (path: string) => {
     navigate(path);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Trang xác thực (đăng nhập, đăng ký, quên/đặt lại mật khẩu): header chỉ có Logo và nút Sáng/Tối, không có menu nào.
+  if (isAuthPath(location.pathname)) {
+    return (
+      <header
+        className="sticky top-0 z-50 bg-[var(--bg-card)]/90 backdrop-blur-md border-b border-[var(--border-color)] shadow-xs"
+        role="banner"
+        data-testid="auth-header"
+      >
+        <div className="w-full px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2">
+          <button
+            onClick={() => handleNavigate(authUser ? (userRole === 'teacher' ? '/authoring' : careerAdult ? '/career-labs' : '/playground') : '/login')}
+            className="flex items-center gap-2.5 text-[var(--text-main)] font-extrabold text-lg tracking-tight bg-transparent border-none cursor-pointer text-left"
+            aria-label="Trang chủ CyberSoft Hub"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 shrink-0">
+              <GraduationCap size={18} strokeWidth={2.25} />
+            </div>
+            <span className="whitespace-nowrap">
+              CyberSoft<span className="text-cyan-700 dark:text-cyan-400 ml-1">Hub</span>
+            </span>
+          </button>
+          <button
+            onClick={onToggleTheme}
+            className={iconBtnCls}
+            aria-label={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
+            title={isLightTheme ? 'Chuyển sang Giao diện Tối' : 'Chuyển sang Giao diện Sáng'}
+          >
+            {isLightTheme ? <Moon size={16} strokeWidth={2} /> : <Sun size={16} strokeWidth={2} />}
+          </button>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header
@@ -242,7 +287,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
                     Thông tin cá nhân
                   </button>
 
-                  {userRole === 'student' && (
+                  {userRole === 'student' && !careerAdult && (
                     <button
                       role="menuitem"
                       onClick={() => {
@@ -339,7 +384,7 @@ export const Header: React.FC<HeaderProps> = ({ isLightTheme, onToggleTheme, use
                 >
                   <User size={17} strokeWidth={2} /> Thông tin cá nhân
                 </button>
-                {userRole === 'student' && (
+                {userRole === 'student' && !careerAdult && (
                   <button
                     type="button"
                     onClick={() => handleNavigate('/progress')}

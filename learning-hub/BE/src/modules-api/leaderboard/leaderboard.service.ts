@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
+import { User, UserDocument } from '../../modules-system/database/schemas/user.schema';
+import {
+  ContestAttempt,
+  ContestAttemptDocument,
+} from '../../modules-system/database/schemas/contest-attempt.schema';
 import {
   Contest,
   ContestDocument,
@@ -11,8 +16,17 @@ import {
 } from '../../modules-system/database/schemas/contest-submission.schema';
 
 export const PENALTY_MINUTES_PER_WRONG_ATTEMPT = 20;
-const DEFAULT_FREEZE_MINUTES_CAP = 60;
-const FREEZE_RATIO_OF_DURATION = 0.3;
+/** Đóng băng bảng xếp hạng công khai trong 60 phút cuối của cuộc thi (chuẩn ICPC). */
+export const DEFAULT_FREEZE_MINUTES = 60;
+
+/** Họ tên hiển thị sạch: bỏ đuôi ObjectId/hash bị nối vào tên (vd "An (6ad07c49e753d22e5ad2483d)"). */
+export function cleanDisplayName(raw: unknown): string {
+  if (typeof raw !== 'string') return '';
+  return raw
+    .replace(/\s*[([]?\s*[0-9a-fA-F]{24}\s*[)\]]?/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 export interface LeaderboardConfig {
   penaltyMinutesPerWrong: number;
@@ -37,6 +51,8 @@ export interface LeaderboardResult {
   isFrozen: boolean;
   serverTime: string;
   rows: LeaderboardRow[];
+  /** Số thí sinh bị giảng viên không công nhận (đã loại khỏi `rows`). */
+  disqualifiedCount: number;
 }
 
 @Injectable()
@@ -46,6 +62,9 @@ export class LeaderboardService {
     private readonly contestModel: Model<ContestDocument>,
     @InjectModel(ContestSubmission.name)
     private readonly contestSubmissionModel: Model<ContestSubmissionDocument>,
+    // Tên lấy trực tiếp từ User (đổi tên là bảng xếp hạng đổi theo, không cache) và giờ vào thi riêng của từng thí sinh.
+    @Optional() @InjectModel(User.name) private readonly userModel?: Model<UserDocument>,
+    @Optional() @InjectModel(ContestAttempt.name) private readonly attemptModel?: Model<ContestAttemptDocument>,
   ) {}
 
   private async findContestOrThrow(id: string): Promise<ContestDocument> {
@@ -68,10 +87,7 @@ export class LeaderboardService {
     const freezeMinutes =
       contest.freezeMinutes && contest.freezeMinutes > 0
         ? contest.freezeMinutes
-        : Math.min(
-            DEFAULT_FREEZE_MINUTES_CAP,
-            Math.round(contest.durationMinutes * FREEZE_RATIO_OF_DURATION),
-          );
+        : DEFAULT_FREEZE_MINUTES;
 
     return {
       penaltyMinutesPerWrong: PENALTY_MINUTES_PER_WRONG_ATTEMPT,
@@ -148,7 +164,16 @@ export class LeaderboardService {
     }
     const students = new Map<string, StudentAgg>();
 
-    const startTimeMs = contest.startTime.getTime();
+    // Mốc bắt đầu của từng thí sinh: giờ vào thi của họ; chưa có lượt thi thì tính từ giờ mở cuộc thi.
+    const attemptRows: any[] = this.attemptModel
+      ? await this.attemptModel.find({ contestId: String(contest._id) }).select('studentId startedAt disqualified').lean()
+      : [];
+    const disqualified = new Set<string>(attemptRows.filter((a) => a.disqualified === true).map((a) => String(a.studentId)));
+    const startByStudent = new Map<string, number>();
+    for (const a of attemptRows) {
+      if (a.startedAt) startByStudent.set(String(a.studentId), new Date(a.startedAt).getTime());
+    }
+    const contestStartMs = contest.startTime.getTime();
 
     for (const [key, attempts] of byStudentProblem.entries()) {
       const [studentId, problemSlug] = key.split('::');
@@ -172,8 +197,11 @@ export class LeaderboardService {
       const isFullSolve = maxPoints > 0 && bestScore === maxPoints;
       if (isFullSolve) {
         agg.solvedCount += 1;
-        agg.timeMinutes +=
-          (bestAttempt.submittedAt.getTime() - startTimeMs) / 60_000;
+        const studentStartMs = startByStudent.get(studentId) ?? contestStartMs;
+        agg.timeMinutes += Math.max(
+          0,
+          (bestAttempt.submittedAt.getTime() - studentStartMs) / 60_000,
+        );
         const priorWrongAttempts = attempts.filter(
           (a) => a.submittedAt.getTime() < bestAttempt.submittedAt.getTime(),
         ).length;
@@ -184,7 +212,21 @@ export class LeaderboardService {
       students.set(studentId, agg);
     }
 
+    // Họ tên mới nhất từ User (không dùng bản chụp lúc nộp bài); thiếu thì dùng bản chụp đã làm sạch.
+    const liveNames = new Map<string, string>();
+    if (this.userModel && students.size > 0) {
+      const ids = [...students.keys()].filter((id) => isValidObjectId(id));
+      const users: any[] = ids.length
+        ? await this.userModel.find({ _id: { $in: ids } }).select('fullName').lean()
+        : [];
+      for (const u of users) liveNames.set(String(u._id), cleanDisplayName(u.fullName));
+    }
+    for (const s of students.values()) {
+      s.studentName = liveNames.get(s.studentId) || cleanDisplayName(s.studentName) || 'Học viên';
+    }
+
     const rows = Array.from(students.values())
+      .filter((s) => !disqualified.has(s.studentId))
       .sort((a, b) => {
         if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
         const aTie = a.timeMinutes + a.penaltyMinutes;
@@ -208,6 +250,7 @@ export class LeaderboardService {
       isFrozen,
       serverTime: now.toISOString(),
       rows,
+      disqualifiedCount: disqualified.size,
     };
   }
 }

@@ -35,6 +35,7 @@ const base = (over: Partial<ContestForm> = {}): ContestForm => ({
   endTime: '2026-10-05T10:30',
   durationMinutes: 90,
   integrityEnabled: true,
+  gradeBand: 'ALL',
   problems: [p('a')],
   ...over,
 });
@@ -126,6 +127,8 @@ describe('validateForm', () => {
 
 describe('buildPayload / formFromContest', () => {
   it('payload dùng ISO, cắt khoảng trắng, đánh số đề, mang trạng thái và cờ giám sát', () => {
+    expect(buildPayload(base({ gradeBand: '10-12' }), 'draft').gradeBand).toBe('10-12');
+    expect(formFromContest({ title: 'a', slug: 'a', startTime: '2026-01-01T00:00:00Z', endTime: '2026-01-02T00:00:00Z', problems: [] }).gradeBand).toBe('ALL');
     const payload = buildPayload(base({ title: '  Thi thử  ', integrityEnabled: false }), 'draft');
     expect(payload.title).toBe('Thi thử');
     expect(payload.status).toBe('draft');

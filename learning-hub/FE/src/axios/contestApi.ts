@@ -80,11 +80,20 @@ export const contestApi = {
     return await axiosClient.put(`/contests/${id}/manage/integrity/${attemptId}/review`, { decision, note });
   },
 
-  getQuestionBank: async (params: { q?: string; category?: string; difficulty?: string }): Promise<QuestionBank> => {
+  /** Không công nhận kết quả (rời màn hình từ 3 lần): loại khỏi bảng xếp hạng chính thức, học viên vẫn xem được điểm của mình. */
+  disqualifyAttempt: async (id: string, attemptId: string, reason: string) => {
+    return await axiosClient.put(`/contests/${id}/manage/attempts/${attemptId}/disqualify`, { reason });
+  },
+
+  reinstateAttempt: async (id: string, attemptId: string) => {
+    return await axiosClient.put(`/contests/${id}/manage/attempts/${attemptId}/reinstate`, {});
+  },
+
+  getQuestionBank: async (params: { q?: string; category?: string; difficulty?: string; band?: string }): Promise<QuestionBank> => {
     return await axiosClient.get('/contests/bank/questions', { params });
   },
 
-  getExerciseBank: async (params: { q?: string }): Promise<ExerciseBankItem[]> => {
+  getExerciseBank: async (params: { q?: string; band?: string }): Promise<ExerciseBankItem[]> => {
     return await axiosClient.get('/contests/bank/exercises', { params });
   },
 };

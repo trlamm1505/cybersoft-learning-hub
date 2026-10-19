@@ -6,11 +6,31 @@ const make = (env: Record<string, string | undefined>, existing = false) => {
     exists: jest.fn().mockResolvedValue(existing ? { _id: 'x' } : null),
     create: jest.fn().mockResolvedValue({}),
   };
-  const config: any = { get: (k: string) => env[k] };
+  // Day 29: mật khẩu mẫu đến từ DEFAULT_SEED_PASSWORD (không hard-code); fixture mặc định đặt biến này.
+  const merged: Record<string, string | undefined> = { DEFAULT_SEED_PASSWORD: '123456', ...env };
+  const config: any = { get: (k: string) => merged[k] };
   return { model, service: new DefaultAdminService(model, config) };
 };
 
 describe('DefaultAdminService', () => {
+  it('Day 29 (H6): chưa đặt DEFAULT_SEED_PASSWORD (hoặc quá ngắn) → không tạo tài khoản mẫu nào', async () => {
+    const saved = process.env.DEFAULT_SEED_PASSWORD;
+    delete process.env.DEFAULT_SEED_PASSWORD;
+    for (const pw of [undefined, '', '123']) {
+      const { model, service } = make({ NODE_ENV: 'development', DEFAULT_SEED_PASSWORD: pw });
+      await expect(service.ensureAdmin()).resolves.toBe('disabled');
+      expect(model.create).not.toHaveBeenCalled();
+    }
+    if (saved !== undefined) process.env.DEFAULT_SEED_PASSWORD = saved;
+  });
+
+  it('Day 29 (M7): student@gmail.com mẫu được gán khối học', async () => {
+    const { model, service } = make({ NODE_ENV: 'development' });
+    await service.ensureAdmin();
+    const student = model.create.mock.calls.map((c: any[]) => c[0]).find((d: any) => d.role === 'STUDENT');
+    expect(student.ageGroup).toBe('10-12');
+  });
+
   it('tạo admin@gmail.com (ADMIN, mật khẩu mẫu đã băm bcrypt) khi chưa có', async () => {
     const { model, service } = make({ NODE_ENV: 'development' });
     await expect(service.ensureAdmin()).resolves.toBe('created');

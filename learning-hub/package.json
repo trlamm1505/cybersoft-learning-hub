@@ -3,25 +3,32 @@
   "private": true,
   "scripts": {
     "setup": "node scripts/setup.js",
-    "seed:all": "node scripts/setup.js --seed-only --force",
+    "seed": "node scripts/seed-all.js",
+    "seed:clean": "node scripts/seed-all.js --clean",
+    "classify:exercises": "node scripts/classify-existing-exercises.js",
     "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
     "dev:api": "npm --prefix BE run start:dev",
     "dev:web": "npm --prefix FE run dev",
     "dev:mock": "npm --prefix BE run mock:data-service",
-    "sandbox": "node scripts/ensure-sandbox.js",
     "ingest:sandbox": "node scripts/ingest-sandbox.js",
     "bootstrap:sandbox": "node scripts/bootstrap-sandbox.js",
     "doctor": "node scripts/doctor.js",
+    "check:mongo": "node scripts/check-mongo.js",
+    "seed:matrix": "node scripts/seed-matrix.js",
+    "verify:matrix": "node scripts/verify-matrix-security.js",
+    "verify:kid": "node scripts/verify-kid-security.js",
+    "backfill:legacy": "node scripts/backfill-legacy-exercises.js",
+    "backfill:questions": "node scripts/backfill-question-grades.js",
+    "seed:kids": "node scripts/seed-kid-leaderboard.js",
     "release:check": "node scripts/release-pipeline.js",
-    "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down",
-    "docker:full": "docker compose --profile full up -d --build",
-    "docker:full:down": "docker compose --profile full down",
-    "docker:up:prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile full up -d --build",
+    "audit:career": "node scripts/audit-career-adult.js",
+    "e2e:career": "node scripts/e2e-career-adult.js",
+    "e2e:browser": "node scripts/e2e-browser-qa.js",
     "test:scripts": "node --test scripts/lib/*.test.js"
   },
   "devDependencies": {
-    "concurrently": "^9.2.4"
+    "concurrently": "^9.2.4",
+    "puppeteer-core": "^23.11.1"
   },
   "engines": {
     "node": ">=20.12.0"

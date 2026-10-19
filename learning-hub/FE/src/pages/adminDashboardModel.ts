@@ -35,5 +35,5 @@ export function adminOverview(classes: AdminClassSummary[]): AdminOverview {
 
 /** Admin vào /admin/* hoặc về /admin/dashboard; vai trò khác không có đường vào Admin Portal. */
 export function portalHome(role: string | undefined): string {
-  return role === 'ADMIN' ? '/admin/dashboard' : role === 'TEACHER' ? '/authoring' : '/catalog';
+  return role === 'ADMIN' ? '/admin/dashboard' : role === 'TEACHER' ? '/teacher/dashboard' : '/catalog';
 }

@@ -32,6 +32,8 @@ export function fakeModel(initial: Row[]) {
           : list.includes(String(v));
       }
       if ('$ne' in cond) return String(v) !== String(cond.$ne);
+      if ('$not' in cond) return !matchCond(v, cond.$not);
+      if ('$exists' in cond) return (v !== undefined) === Boolean(cond.$exists);
       if ('$regex' in cond) {
         const rx = new RegExp(cond.$regex, cond.$options ?? '');
         return Array.isArray(v)

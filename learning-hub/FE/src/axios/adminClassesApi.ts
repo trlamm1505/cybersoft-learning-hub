@@ -17,7 +17,7 @@ export const adminClassesApi = {
     return await axiosClient.get('/admin/classes');
   },
 
-  create: async (input: { name: string; description?: string; teacherId: string }): Promise<ClassSummary> => {
+  create: async (input: { name: string; description?: string; teacherId: string; ageGroup?: string }): Promise<ClassSummary> => {
     return await axiosClient.post('/admin/classes', input);
   },
 

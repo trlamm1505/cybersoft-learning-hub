@@ -32,6 +32,10 @@ import {
 import type { InsightGradeResult } from './insight-grader.service';
 
 export const DA_LAB_TOPIC = 'da-lab-pack';
+/** Số lần nộp SQL gần nhất giữ trong lịch sử mỗi học viên × bài (không phình vô hạn). */
+export const DA_SQL_HISTORY_LIMIT = 20;
+/** Số dòng lịch sử trả về tối đa. */
+const HISTORY_RETURN_LIMIT = 30;
 export const MAX_TEACHER_COMMENT_LENGTH = 2000;
 
 export interface TeacherReviewInput {
@@ -139,6 +143,14 @@ export class DaLabsService implements OnModuleInit {
       maxScore: result.maxScore,
       aiExplanation: `${result.status}: ${result.feedback}`,
     };
+    const historyEntry = {
+      content: fields.content,
+      status: result.status,
+      score: result.score,
+      maxScore: result.maxScore,
+      feedback: result.feedback,
+      submittedAt: new Date(),
+    };
     const existing = await this.submissionModel.findOne({
       userId,
       exerciseId,
@@ -146,6 +158,7 @@ export class DaLabsService implements OnModuleInit {
     });
     if (existing) {
       Object.assign(existing, fields);
+      existing.history = [...(existing.history ?? []), historyEntry].slice(-DA_SQL_HISTORY_LIMIT);
       existing.attemptCount = (existing.attemptCount ?? 1) + 1;
       existing.bestScore = Math.max(existing.bestScore ?? 0, result.score);
       await existing.save();
@@ -158,9 +171,35 @@ export class DaLabsService implements OnModuleInit {
         ...fields,
         attemptCount: 1,
         bestScore: result.score,
+        history: [historyEntry],
       });
     }
     return result;
+  }
+
+  /**
+   * Lịch sử làm bài của CHÍNH học viên ở một bài lab (mới nhất trước): câu SQL / câu trả lời đã nộp, kết quả và thời gian.
+   * Chỉ đọc từ CSDL, không gọi AI nên trả về ngay.
+   */
+  async getHistory(slug: string, userId: string) {
+    const lab = await this.getLab(slug);
+    const docs: any[] = await this.submissionModel
+      .find({ userId, exerciseId: String((lab as any)._id) })
+      .select('type content status score maxScore aiExplanation history createdAt updatedAt')
+      .sort({ createdAt: 1 })
+      .lean();
+    const rows: Array<{ type: string; content: string; status: string; score: number; maxScore: number; feedback: string; submittedAt: Date }> = [];
+    for (const d of docs) {
+      if (Array.isArray(d.history) && d.history.length > 0) {
+        for (const h of d.history) rows.push({ type: d.type, ...h });
+      } else {
+        // Bài Insight (mỗi lần chấm một bản ghi) hoặc bài SQL nộp trước khi có lịch sử.
+        rows.push({ type: d.type, content: d.content, status: d.status, score: d.score, maxScore: d.maxScore, feedback: d.aiExplanation ?? '', submittedAt: d.updatedAt ?? d.createdAt });
+      }
+    }
+    return rows
+      .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+      .slice(0, HISTORY_RETURN_LIMIT);
   }
 
   /**

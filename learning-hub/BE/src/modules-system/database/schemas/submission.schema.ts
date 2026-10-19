@@ -82,6 +82,15 @@ export class Submission {
   @Prop({ type: String })
   userId?: string;
 
+  // Bài nộp thuộc bài được giao cho lớp (ClassAssignment): chỉ những bài nộp có assignmentId mới tính điểm lớp.
+  @Prop({ type: String, index: true })
+  assignmentId?: string;
+
+  // Day 31: bài nộp AC luyện tập TỪNG nhảy cóc (làm bài #k khi #1..#(k-1) chưa xong, do lỗi cũ không khóa tuần tự). Giữ nguyên để làm
+  // lịch sử nhưng không tính vào tiến độ lộ trình Playground. Gắn bởi scripts/migrate-day31.js; không còn phát sinh sau khi máy chủ chặn nộp nhảy cóc.
+  @Prop({ type: Boolean })
+  outOfSequence?: boolean;
+
   @Prop({ required: true, type: String })
   code: string;
 
@@ -116,6 +125,10 @@ export class Submission {
   /** Day 24: tín hiệu liêm chính, chỉ giảng viên đọc (không nằm trong select của judge controller). */
   @Prop({ type: Object })
   integrity?: IntegritySignals;
+
+  /** Lần nộp này đã được AI Coach "Phân tích lỗi" (mỗi lần nộp chỉ được phân tích 1 lần). */
+  @Prop({ type: Date })
+  debugAnalyzedAt?: Date;
 }
 
 export const SubmissionSchema = SchemaFactory.createForClass(Submission);

@@ -5,10 +5,12 @@ export type LessonDocument = Lesson & Document;
 
 @Schema({ _id: false })
 export class LessonTestCase {
-  @Prop({ required: true, type: String })
+  // '' là stdin / kết quả hợp lệ (bài không đọc input, bài không in gì): required của Mongoose coi '' là thiếu nên trả 500.
+  // Bắt buộc có trường được kiểm tra ở AuthoringService.validatePublicationEligibility.
+  @Prop({ type: String, default: '' })
   input: string;
 
-  @Prop({ required: true, type: String })
+  @Prop({ type: String, default: '' })
   expectedOutput: string;
 
   @Prop({ type: Boolean, default: false })
@@ -226,6 +228,10 @@ export class Lesson {
   // Version cố định được khóa tại thời điểm assignment (Day 26 - Immutable locked version)
   @Prop({ type: String })
   assignedResourceVersion?: string;
+
+  /** Khối Ngân hàng đề của bài code (Day 30): giữ nhãn khi bài Ngân hàng được sửa qua Soạn Thảo rồi đồng bộ lại exercises. */
+  @Prop({ type: String, enum: ['6-9', '10-12'] })
+  bankBand?: '6-9' | '10-12';
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);

@@ -18,7 +18,7 @@ type Source = 'quiz' | 'code' | 'lessons';
 
 const SOURCES: Array<{ key: Source; label: string; hint: string }> = [
   { key: 'quiz', label: 'Trắc nghiệm', hint: 'Chọn câu hỏi từ ngân hàng, ghép thành một phần thi' },
-  { key: 'code', label: 'Code Playground', hint: 'Bài code Python có sẵn test case' },
+  { key: 'code', label: 'Ngân hàng bài code', hint: 'Bài code Python trong ngân hàng đề (gồm bài AI tạo), có sẵn test case' },
   { key: 'lessons', label: 'Bài tự soạn', hint: 'Bài bạn đã soạn ở mục Soạn Thảo' },
 ];
 
@@ -43,11 +43,22 @@ interface ProblemPickerProps {
   onChange: (next: ContestProblem[]) => void;
   /** Cuộc thi đã bắt đầu: chỉ xem, không đổi đề/điểm. */
   locked: boolean;
+  /** Khối của cuộc thi: tab lọc khối mặc định theo khối này (ALL = Tất cả). */
+  defaultBand?: Band;
 }
 
+type Band = '' | '6-9' | '10-12';
+
+const BAND_TABS: Array<{ value: Band; label: string }> = [
+  { value: '', label: 'Tất cả' },
+  { value: '6-9', label: 'Khối 6–9' },
+  { value: '10-12', label: 'Khối 10–12' },
+];
+
 /** Chọn và sắp xếp đề: phối hợp câu hỏi trắc nghiệm, bài Code Playground và bài tự soạn trong cùng một cuộc thi. */
-export const ProblemPicker: React.FC<ProblemPickerProps> = ({ problems, onChange, locked }) => {
+export const ProblemPicker: React.FC<ProblemPickerProps> = ({ problems, onChange, locked, defaultBand = '' }) => {
   const [source, setSource] = useState<Source>('quiz');
+  const [band, setBand] = useState<Band>(defaultBand);
   const stats = useMemo(() => summarizeProblems(problems), [problems]);
 
   return (
@@ -158,11 +169,20 @@ export const ProblemPicker: React.FC<ProblemPickerProps> = ({ problems, onChange
           ))}
         </div>
         <p className="text-[11px] text-[var(--text-muted)]">{SOURCES.find((s) => s.key === source)?.hint}</p>
+        {source !== 'lessons' && (
+          <div className="flex gap-1.5" role="tablist" aria-label="Lọc theo khối">
+            {BAND_TABS.map((t) => (
+              <button key={t.value || 'all'} type="button" role="tab" aria-selected={band === t.value} onClick={() => setBand(t.value)} className={`cursor-pointer rounded-full px-3 py-1 text-xs ${band === t.value ? 'bg-indigo-600 font-medium text-white' : 'border border-[var(--border-color)] text-[var(--text-main)]'}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {locked ? null : source === 'quiz' ? (
-          <QuestionBankPanel problems={problems} onChange={onChange} />
+          <QuestionBankPanel problems={problems} onChange={onChange} band={band} />
         ) : source === 'code' ? (
-          <ExerciseBankPanel problems={problems} onChange={onChange} />
+          <ExerciseBankPanel problems={problems} onChange={onChange} band={band} />
         ) : (
           <LessonsPanel problems={problems} onChange={onChange} />
         )}
@@ -187,7 +207,7 @@ const ErrorBox: React.FC<{ message: string }> = ({ message }) => (
 );
 
 /** Tick chọn câu hỏi trong ngân hàng, đặt tên rồi thêm thành một phần thi. */
-const QuestionBankPanel: React.FC<PanelProps> = ({ problems, onChange }) => {
+const QuestionBankPanel: React.FC<PanelProps & { band: Band }> = ({ problems, onChange, band }) => {
   const [bank, setBank] = useState<QuestionBank | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState('');
@@ -200,7 +220,7 @@ const QuestionBankPanel: React.FC<PanelProps> = ({ problems, onChange }) => {
     let cancelled = false;
     const timer = setTimeout(() => {
       contestApi
-        .getQuestionBank({ q: q || undefined, category: category || undefined, difficulty: difficulty || undefined })
+        .getQuestionBank({ q: q || undefined, category: category || undefined, difficulty: difficulty || undefined, band: band || undefined })
         .then((b) => !cancelled && (setBank(b), setError(null)))
         .catch(() => !cancelled && setError('Không tải được ngân hàng câu hỏi.'));
     }, 250);
@@ -208,7 +228,7 @@ const QuestionBankPanel: React.FC<PanelProps> = ({ problems, onChange }) => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [q, category, difficulty]);
+  }, [q, category, difficulty, band]);
 
   const pickedIds = Object.keys(picked);
   const pickedPoints = pickedIds.reduce((sum, id) => sum + picked[id].points, 0);
@@ -319,7 +339,7 @@ const QuestionBankPanel: React.FC<PanelProps> = ({ problems, onChange }) => {
 };
 
 /** Bài Code Playground: bấm để thêm; điểm mặc định lấy từ bài. */
-const ExerciseBankPanel: React.FC<PanelProps> = ({ problems, onChange }) => {
+const ExerciseBankPanel: React.FC<PanelProps & { band: Band }> = ({ problems, onChange, band }) => {
   const [items, setItems] = useState<ExerciseBankItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState('');
@@ -328,15 +348,15 @@ const ExerciseBankPanel: React.FC<PanelProps> = ({ problems, onChange }) => {
     let cancelled = false;
     const timer = setTimeout(() => {
       contestApi
-        .getExerciseBank({ q: q || undefined })
+        .getExerciseBank({ q: q || undefined, band: band || undefined })
         .then((list) => !cancelled && (setItems(list), setError(null)))
-        .catch(() => !cancelled && setError('Không tải được danh sách bài Code Playground.'));
+        .catch(() => !cancelled && setError('Không tải được ngân hàng bài code.'));
     }, 250);
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [q]);
+  }, [q, band]);
 
   const chosen = new Set(problems.map((p) => p.slug));
 

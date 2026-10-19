@@ -22,4 +22,6 @@ export class CreateContestDto {
   problems?: ContestProblemDto[];
   status?: 'draft' | 'published';
   integrityEnabled?: boolean;
+  /** 'ALL' (mặc định) | '6-9' | '10-12' */
+  gradeBand?: string;
 }

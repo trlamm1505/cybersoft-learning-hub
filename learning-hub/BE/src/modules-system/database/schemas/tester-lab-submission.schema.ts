@@ -35,8 +35,17 @@ export class TesterLabSubmission {
   @Prop({ required: true, type: Number })
   fileSize: number;
 
+  /** Nhận xét sơ bộ ngay khi nộp (luật/từ khóa); điểm chính thức do giảng viên chấm. */
   @Prop({ type: Array, default: [] })
   autoCheckResults: AutoCheckResult[];
+
+  /** 'FORM': nộp bằng biểu mẫu test case + bug report (không có file); 'FILE': nộp file artifact. */
+  @Prop({ type: String, enum: ['FILE', 'FORM'], default: 'FILE' })
+  kind: 'FILE' | 'FORM';
+
+  /** Nội dung biểu mẫu (chỉ khi kind = FORM): danh sách test case và bug report. */
+  @Prop({ type: Object })
+  formData?: object;
 
   @Prop({ type: Array, default: [] })
   rubricGrades: RubricGrade[];
@@ -53,6 +62,30 @@ export class TesterLabSubmission {
     default: 'SUBMITTED',
   })
   status: SubmissionStatus;
+
+  /** Điểm đã chốt chính thức: giảng viên không sửa được qua API, muốn chấm lại phải qua luồng phúc khảo. */
+  @Prop({ type: Boolean, default: false })
+  isFinalized: boolean;
+
+  @Prop({ type: Date })
+  finalizedAt?: Date;
+
+  @Prop({ type: Object })
+  reopenRequest?: ReopenRequest;
+
+  /** Kết quả đã bị hủy (kèm lý do, có ghi audit log). */
+  @Prop({ type: Boolean, default: false })
+  invalidated: boolean;
+
+  @Prop({ type: String })
+  invalidReason?: string;
+}
+
+/** Yêu cầu mở phúc khảo cho bài đã chốt điểm; chỉ Admin duyệt (mở khóa) được. */
+export interface ReopenRequest {
+  requestedBy: string;
+  reason: string;
+  at: Date;
 }
 
 export const TesterLabSubmissionSchema =

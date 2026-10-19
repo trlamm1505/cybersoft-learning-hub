@@ -9,7 +9,10 @@ import { Roles } from '../../common/auth/roles.decorator';
 export class QaHarnessController {
   constructor(private readonly qaHarnessService: QaHarnessService) {}
 
+  // Báo cáo chất lượng nội bộ: chỉ giảng viên/quản trị viên (trước đây mở công khai cho cả khách).
   @Get('dashboard')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
   async getDashboard() {
     return this.qaHarnessService.getQualityDashboard();
   }

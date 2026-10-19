@@ -14,7 +14,7 @@ export const StudentRoute: React.FC<{ authUser: AuthUser | null; children: React
 }) => {
   if (!authUser) return <Navigate to="/login" replace />;
   if (authUser.role !== 'STUDENT') {
-    return <Navigate to={isStaff(authUser.role) ? '/teacher/review-queue' : '/'} replace />;
+    return <Navigate to={isStaff(authUser.role) ? '/teacher/grading' : '/'} replace />;
   }
   return children;
 };

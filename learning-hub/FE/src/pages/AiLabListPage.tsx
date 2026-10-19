@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { LabHubBack } from '../components/LabBreadcrumb';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, AlertTriangle, BrainCircuit } from 'lucide-react';
 import aiLabApi from '../axios/aiLabApi';
@@ -47,6 +48,8 @@ export const AiLabListPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <LabHubBack group="AI" />
+
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-main)] flex items-center gap-2">
           <BrainCircuit size={24} />

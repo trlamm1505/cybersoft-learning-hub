@@ -16,8 +16,9 @@ export const quizApi = {
    * POST /api/quiz/start — userId không còn gửi trong body, Backend lấy từ
    * Bearer token (đã gắn tự động qua interceptor của axiosClient).
    */
-  startQuiz: async (testId: string, category?: string): Promise<QuizStartResponse> => {
-    return await axiosClient.post('/quiz/start', { testId, category });
+  startQuiz: async (testId: string, category?: string, assignmentId?: string | null): Promise<QuizStartResponse> => {
+    // assignmentId: làm bài trắc nghiệm được giao cho lớp (câu hỏi do giảng viên chọn, một lượt, có hạn chót).
+    return await axiosClient.post('/quiz/start', { testId, category, ...(assignmentId ? { assignmentId } : {}) });
   },
 
   /**

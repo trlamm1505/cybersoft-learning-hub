@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { INITIAL_USERS } from '../../data/initial-data';
+import { seedPassword } from '../../data/seed-password';
 import {
   User,
   UserDocument,
@@ -45,6 +46,12 @@ export class DefaultAdminService implements OnModuleInit {
 
   async ensureAdmin(): Promise<'created' | 'exists' | 'disabled'> {
     if (!this.isEnabled()) return 'disabled';
+    // Mật khẩu khởi tạo lấy từ biến môi trường, không hard-code (Day 29 SEC-15). Chưa đặt thì không tạo tài khoản mẫu nào.
+    const password = seedPassword(this.config.get<string>('DEFAULT_SEED_PASSWORD') ?? process.env.DEFAULT_SEED_PASSWORD);
+    if (!password) {
+      this.logger.warn('Bỏ qua tạo tài khoản mẫu: chưa đặt DEFAULT_SEED_PASSWORD (≥ 6 ký tự) trong BE/.env.');
+      return 'disabled';
+    }
     let createdCount = 0;
 
     for (const userData of INITIAL_USERS) {
@@ -53,9 +60,10 @@ export class DefaultAdminService implements OnModuleInit {
       if (!existing) {
         await this.users.create({
           email,
-          password: await bcrypt.hash(userData.passwordRaw, 10),
+          password: await bcrypt.hash(password, 10),
           fullName: userData.fullName,
           role: userData.role,
+          ...(userData.ageGroup ? { ageGroup: userData.ageGroup } : {}),
           avatar: userData.avatar,
           bio: userData.bio,
         });

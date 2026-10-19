@@ -82,7 +82,7 @@ describe('AppController', () => {
         await new Promise((r) => server.once('close', r));
         const down = await controller.getDependencies();
         expect(down.sandboxDb.reachable).toBe(false);
-        expect(down.sandboxDb.hint).toContain('npm run sandbox');
+        expect(down.sandboxDb.hint).toContain('SQL_ENGINE');
       } finally {
         process.env = old;
         server.close();

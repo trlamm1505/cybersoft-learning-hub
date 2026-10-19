@@ -17,6 +17,7 @@ import { RolesGuard } from '../../common/auth/roles.guard';
 import { Roles } from '../../common/auth/roles.decorator';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
+import { AuditLogService } from '../admin-portal/audit-log.service';
 import { MAX_ROSTER_BYTES } from './roster-import';
 import type { RosterFile } from './roster-import';
 import { TeacherAnalyticsService } from './teacher-analytics.service';
@@ -31,7 +32,10 @@ import type { ClassInput } from './teacher-analytics.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
 export class AdminClassesController {
-  constructor(private readonly service: TeacherAnalyticsService) {}
+  constructor(
+    private readonly service: TeacherAnalyticsService,
+    private readonly audit: AuditLogService,
+  ) {}
 
   @Get()
   list(@CurrentUser() user: JwtPayload) {
@@ -39,8 +43,11 @@ export class AdminClassesController {
   }
 
   @Post()
-  create(@CurrentUser() user: JwtPayload, @Body() body: ClassInput) {
-    return this.service.createClass(user, body ?? {});
+  async create(@CurrentUser() user: JwtPayload, @Body() body: ClassInput) {
+    const created = await this.service.createClass(user, body ?? {});
+    const ctx = await this.service.auditContext(created.id);
+    await this.audit.record(user, 'CLASS_CREATE', 'CLASS', created.id, null, { className: ctx.className, description: ctx.description, teacherNames: ctx.teacherNames });
+    return created;
   }
 
   // Khai báo trước các route có :classId để "catalog" không bị hiểu là id lớp.
@@ -60,26 +67,42 @@ export class AdminClassesController {
   }
 
   @Put(':classId')
-  update(
+  async update(
     @CurrentUser() user: JwtPayload,
     @Param('classId') classId: string,
     @Body() body: ClassInput,
   ) {
-    return this.service.updateClass(user, classId, body ?? {});
+    const before = await this.service.auditContext(classId);
+    const result = await this.service.updateClass(user, classId, body ?? {});
+    const after = await this.service.auditContext(classId);
+    const pick = (c: typeof before) => ({ className: c.className, description: c.description, archived: c.archived, teacherNames: c.teacherNames });
+    if (JSON.stringify(pick(before)) !== JSON.stringify(pick(after))) await this.audit.record(user, 'CLASS_UPDATE', 'CLASS', classId, pick(before), pick(after));
+    return result;
   }
 
   @Delete(':classId')
-  remove(@CurrentUser() user: JwtPayload, @Param('classId') classId: string) {
-    return this.service.deleteClass(user, classId);
+  async remove(@CurrentUser() user: JwtPayload, @Param('classId') classId: string) {
+    const before = await this.service.auditContext(classId);
+    const result = await this.service.deleteClass(user, classId);
+    await this.audit.record(user, 'CLASS_DELETE', 'CLASS', classId, { className: before.className, teacherNames: before.teacherNames }, null);
+    return result;
   }
 
   @Post(':classId/students')
-  addStudents(
+  async addStudents(
     @CurrentUser() user: JwtPayload,
     @Param('classId') classId: string,
     @Body() body: { identifiers?: unknown },
   ) {
-    return this.service.addStudents(user, classId, body?.identifiers);
+    const result = await this.service.addStudents(user, classId, body?.identifiers);
+    await this.recordAdded(user, classId, result.added);
+    return result;
+  }
+
+  private async recordAdded(user: JwtPayload, classId: string, added: Array<{ id: string; name: string }>) {
+    if (added.length === 0) return;
+    const ctx = await this.service.auditContext(classId);
+    await this.audit.record(user, 'STUDENT_ADD', 'CLASS', classId, { className: ctx.className, students: [] }, { className: ctx.className, students: added.map((a) => a.name) });
   }
 
   /** multipart/form-data, trường `file`; multer từ chối file quá 2MB trước khi vào service. */
@@ -89,20 +112,25 @@ export class AdminClassesController {
       limits: { fileSize: MAX_ROSTER_BYTES, files: 1, fields: 0 },
     }),
   )
-  importStudents(
+  async importStudents(
     @CurrentUser() user: JwtPayload,
     @Param('classId') classId: string,
     @UploadedFile() file?: RosterFile,
   ) {
-    return this.service.importStudents(user, classId, file);
+    const result = await this.service.importStudents(user, classId, file);
+    await this.recordAdded(user, classId, result.added);
+    return result;
   }
 
   @Delete(':classId/students/:studentId')
-  removeStudent(
+  async removeStudent(
     @CurrentUser() user: JwtPayload,
     @Param('classId') classId: string,
     @Param('studentId') studentId: string,
   ) {
-    return this.service.removeStudent(user, classId, studentId);
+    const ctx = await this.service.auditContext(classId, [studentId]);
+    const result = await this.service.removeStudent(user, classId, studentId);
+    await this.audit.record(user, 'STUDENT_REMOVE', 'CLASS', classId, { className: ctx.className, students: [ctx.nameOf(studentId)] }, { className: ctx.className, students: [] });
+    return result;
   }
 }

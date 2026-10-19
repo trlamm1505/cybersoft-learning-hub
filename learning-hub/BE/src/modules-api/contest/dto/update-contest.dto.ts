@@ -8,6 +8,8 @@ export class UpdateContestDto {
   endTime?: string | Date;
   durationMinutes?: number;
   problems?: ContestProblemDto[];
+  /** 'ALL' | '6-9' | '10-12' */
+  gradeBand?: string;
   status?: 'draft' | 'published';
   integrityEnabled?: boolean;
 }

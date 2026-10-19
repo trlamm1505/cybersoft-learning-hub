@@ -4,6 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { assertGradeAccess } from './contest-grade';
 import { Model } from 'mongoose';
 import {
   Contest,
@@ -80,12 +81,15 @@ export class ContestAttemptService {
       serverTime: now.toISOString(),
       durationMinutes: contest.durationMinutes,
       integrityEnabled: contest.integrityEnabled !== false,
+      disqualified: attempt.disqualified === true,
+      disqualifiedReason: attempt.disqualified === true ? (attempt.disqualifiedReason ?? null) : null,
     };
   }
 
   /** Bắt đầu (hoặc lấy lại) lượt thi. Gọi nhiều lần vẫn một lượt, giữ nguyên giờ bắt đầu. */
   async start(contestId: string, student: ContestViewer) {
     const contest = await this.contestService.findVisible(contestId, student);
+    assertGradeAccess(contest, student);
     this.assertRegistered(contest, student.sub);
 
     const key = { contestId: String(contest._id), studentId: student.sub };

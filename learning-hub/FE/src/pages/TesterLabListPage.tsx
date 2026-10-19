@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { LabHubBack } from '../components/LabBreadcrumb';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, AlertTriangle, FlaskConical, ExternalLink } from 'lucide-react';
 import testerLabApi from '../axios/testerLabApi';
@@ -47,6 +48,8 @@ export const TesterLabListPage: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <LabHubBack group="TESTER" />
+
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-main)] flex items-center gap-2">
           <FlaskConical size={24} />

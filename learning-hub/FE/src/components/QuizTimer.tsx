@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { secondsLeft } from '../common/quizTimer';
 
 interface QuizTimerProps {
   initialSeconds: number;
@@ -7,19 +8,25 @@ interface QuizTimerProps {
 
 export const QuizTimer: React.FC<QuizTimerProps> = ({ initialSeconds, onTimeExpired }) => {
   const [timeLeft, setTimeLeft] = useState<number>(initialSeconds);
+  // Mốc kết thúc cố định lúc đồng hồ xuất hiện; hàm hết giờ luôn là bản MỚI NHẤT (đã thấy đáp án vừa chọn) và chỉ gọi đúng một lần.
+  const endAtRef = useRef<number>(Date.now() + initialSeconds * 1000);
+  const onExpiredRef = useRef(onTimeExpired);
+  const firedRef = useRef(false);
+  onExpiredRef.current = onTimeExpired;
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      onTimeExpired();
-      return;
-    }
-
-    const timerId = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
+    const tick = () => {
+      const left = secondsLeft(endAtRef.current, Date.now());
+      setTimeLeft(left);
+      if (left <= 0 && !firedRef.current) {
+        firedRef.current = true;
+        onExpiredRef.current();
+      }
+    };
+    tick();
+    const timerId = setInterval(tick, 250);
     return () => clearInterval(timerId);
-  }, [timeLeft, onTimeExpired]);
+  }, []);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(Math.max(0, seconds) / 60);

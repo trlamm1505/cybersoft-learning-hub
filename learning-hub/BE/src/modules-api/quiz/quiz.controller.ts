@@ -10,11 +10,13 @@ import { QuizService } from './quiz.service';
 import { StartAttemptDto } from './dto/start-attempt.dto';
 import { SubmitAttemptDto } from './dto/submit-attempt.dto';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
+import { NoKidCodeGuard } from '../../common/auth/no-kid-code.guard';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
 import type { JwtPayload } from '../../common/auth/jwt.strategy';
 
 @Controller('quiz')
-@UseGuards(JwtAuthGuard)
+// Học sinh Lớp 3-5 không làm bài code/trắc nghiệm, không hỏi AI Coach về bài code (Day 30, RISK-02).
+@UseGuards(JwtAuthGuard, NoKidCodeGuard)
 export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
@@ -29,7 +31,7 @@ export class QuizController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: StartAttemptDto,
   ) {
-    return this.quizService.startAttempt(user.sub, dto);
+    return this.quizService.startAttempt(user.sub, dto, user.ageGroup, user);
   }
 
   /**

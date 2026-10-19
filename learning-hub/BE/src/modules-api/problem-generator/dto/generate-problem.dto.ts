@@ -12,4 +12,6 @@ export class ProblemSpecInputDto {
 // câu cho một đề) — luôn là mảng, kể cả khi chỉ sinh một bài.
 export class GenerateProblemDto {
   specs: ProblemSpecInputDto[];
+  /** Khối đối tượng bắt buộc: '6-9' (cơ bản) hoặc '10-12' (nâng cao/chuyên sâu). */
+  band?: string;
 }

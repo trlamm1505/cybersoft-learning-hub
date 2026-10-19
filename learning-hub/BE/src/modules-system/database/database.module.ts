@@ -8,6 +8,7 @@ import { Submission, SubmissionSchema } from './schemas/submission.schema';
 import { Hint, HintSchema } from './schemas/hint.schema';
 import { HintUsage, HintUsageSchema } from './schemas/hint-usage.schema';
 import { Classroom, ClassroomSchema } from './schemas/classroom.schema';
+import { ClassAssignment, ClassAssignmentSchema } from './schemas/class-assignment.schema';
 import { Lesson, LessonSchema } from './schemas/lesson.schema';
 import { Contest, ContestSchema } from './schemas/contest.schema';
 import {
@@ -24,6 +25,10 @@ import {
   CoachMessageSchema,
 } from './schemas/coach-message.schema';
 import { Counter, CounterSchema } from './schemas/counter.schema';
+import { ProctorAlert, ProctorAlertSchema } from './schemas/proctor-alert.schema';
+import { RevokedToken, RevokedTokenSchema } from './schemas/revoked-token.schema';
+import { CourseCertificate, CourseCertificateSchema } from './schemas/course-certificate.schema';
+import { AuditLog, AuditLogSchema, SystemConfig, SystemConfigSchema } from './schemas/admin-portal.schemas';
 import {
   PasswordReset,
   PasswordResetSchema,
@@ -76,6 +81,10 @@ import {
       { name: User.name, schema: UserSchema },
       { name: CoachMessage.name, schema: CoachMessageSchema },
       { name: Counter.name, schema: CounterSchema },
+      { name: ProctorAlert.name, schema: ProctorAlertSchema },
+      { name: CourseCertificate.name, schema: CourseCertificateSchema },
+      { name: SystemConfig.name, schema: SystemConfigSchema },
+      { name: AuditLog.name, schema: AuditLogSchema },
       { name: PasswordReset.name, schema: PasswordResetSchema },
       { name: BlockPuzzleProgress.name, schema: BlockPuzzleProgressSchema },
       { name: TesterLab.name, schema: TesterLabSchema },
@@ -86,6 +95,8 @@ import {
       { name: DaLabSubmission.name, schema: DaLabSubmissionSchema },
       { name: AiLabSubmission.name, schema: AiLabSubmissionSchema },
       { name: Classroom.name, schema: ClassroomSchema },
+      { name: ClassAssignment.name, schema: ClassAssignmentSchema },
+      { name: RevokedToken.name, schema: RevokedTokenSchema },
     ]),
   ],
   exports: [MongooseModule],

@@ -32,6 +32,8 @@ export interface ContestItem {
   status?: 'draft' | 'published';
   /** Bật tín hiệu liêm chính (thời gian, rời màn hình, tương đồng mã). Mặc định bật. */
   integrityEnabled?: boolean;
+  /** Khối dự thi: 'ALL' (mặc định, mở cho mọi khối) | '6-9' | '10-12'. Ai cũng xem được, chỉ đúng khối mới vào phòng thi. */
+  gradeBand?: 'ALL' | '6-9' | '10-12';
   authorId?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -70,10 +72,13 @@ export interface ContestAttemptView {
   startedAt: string;
   deadlineAt: string;
   finishedAt: string | null;
-  finishReason: 'MANUAL' | 'TIMEOUT' | null;
+  finishReason: 'MANUAL' | 'TIMEOUT' | 'CHEAT_LOCK' | null;
   serverTime: string;
   durationMinutes: number;
   integrityEnabled: boolean;
+  /** Giảng viên không công nhận kết quả: học viên vẫn xem được điểm của mình nhưng không có hạng chính thức. */
+  disqualified?: boolean;
+  disqualifiedReason?: string | null;
 }
 
 export interface ContestMyResultRow {
@@ -110,6 +115,16 @@ export interface ContestParticipantRow {
   startedAt: string | null;
   finishedAt: string | null;
   totalScore: number;
+  /** Số lần rời màn hình thi (máy chủ đếm). */
+  leaveCount: number;
+  /** Thời gian hoàn thành bài (phút), null nếu chưa nộp. */
+  completionMinutes: number | null;
+  /** Hạng chính thức (null: chưa vào thi hoặc bị không công nhận). */
+  officialRank: number | null;
+  disqualified: boolean;
+  disqualifiedReason: string | null;
+  /** Rời màn hình từ 3 lần và chưa bị loại: được hiện nút "Không công nhận kết quả". */
+  canDisqualify: boolean;
   perProblem: Array<{ slug: string; score: number | null; verdict: string | null }>;
   integrity: {
     flag: 'NONE' | 'REVIEW';
@@ -134,7 +149,7 @@ export interface ContestManageResults {
     problems: Array<{ slug: string; title: string; type: 'coding' | 'quiz'; maxPoints: number }>;
     maxScore: number;
   };
-  summary: { registered: number; started: number; finished: number; needsReview: number };
+  summary: { registered: number; started: number; finished: number; disqualified: number; needsReview: number };
   rows: ContestParticipantRow[];
 }
 
@@ -158,5 +173,7 @@ export interface ExerciseBankItem {
   difficulty: 'EASY' | 'MEDIUM' | 'HARD';
   points: number;
   topic: string | null;
+  band?: '6-9' | '10-12' | null;
+  fromBank?: boolean;
   testCaseCount: number;
 }

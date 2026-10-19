@@ -8,6 +8,7 @@ import {
   formatTzOffset,
   localDateKey,
   MAX_ACTIVITY_DAYS,
+  computeStreaks,
   tzOffsetMinutes,
 } from './activity-window';
 import { Submission } from '../../modules-system/database/schemas/submission.schema';
@@ -86,7 +87,7 @@ describe('LearnerActivityService', () => {
 
   it('chưa có lượt nộp nào: trả cửa sổ đủ 371 ngày với danh sách rỗng', async () => {
     const r = await service.getActivity(USER, {}, NOW);
-    expect(r).toEqual({ from: '2025-09-30', to: '2026-10-05', total: 0, activeDays: 0, days: [] });
+    expect(r).toEqual({ from: '2025-09-30', to: '2026-10-05', total: 0, activeDays: 0, currentStreak: 0, bestStreak: 0, days: [] });
   });
 
   it('cộng dồn lượt nộp từ mọi nguồn theo ngày, sắp xếp tăng dần', async () => {
@@ -104,6 +105,9 @@ describe('LearnerActivityService', () => {
     ]);
     expect(r.total).toBe(8);
     expect(r.activeDays).toBe(3);
+    // 03 và 04 liên tiếp (best = 2); hôm nay 05/10 chưa luyện nhưng hôm qua 04 có luyện nên chuỗi hiện tại = 2 (03 -> 04).
+    expect(r.bestStreak).toBe(2);
+    expect(r.currentStreak).toBe(2);
   });
 
   it('userId luôn là của người gọi: mỗi nguồn lọc đúng trường định danh của nó', async () => {
@@ -141,5 +145,26 @@ describe('LearnerActivityController — phân quyền', () => {
   it('chỉ học viên đã đăng nhập mới xem được (RolesGuard, STUDENT)', () => {
     expect(Reflect.getMetadata(GUARDS_METADATA, LearnerActivityController)).toEqual([JwtAuthGuard, RolesGuard]);
     expect(Reflect.getMetadata(ROLES_KEY, LearnerActivityController)).toEqual(['STUDENT']);
+  });
+});
+
+describe('computeStreaks', () => {
+  it('chuỗi hiện tại tính tới hôm nay, hoặc hôm qua nếu hôm nay chưa luyện', () => {
+    expect(computeStreaks(['2026-10-03', '2026-10-04', '2026-10-05'], '2026-10-05')).toEqual({ current: 3, best: 3 });
+    expect(computeStreaks(['2026-10-03', '2026-10-04'], '2026-10-05')).toEqual({ current: 2, best: 2 });
+  });
+
+  it('đứt chuỗi khi bỏ qua một ngày; best là chuỗi dài nhất trước đó', () => {
+    expect(computeStreaks(['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-05'], '2026-10-05')).toEqual({ current: 1, best: 3 });
+    expect(computeStreaks(['2026-10-01', '2026-10-02'], '2026-10-05')).toEqual({ current: 0, best: 2 });
+  });
+
+  it('không có ngày nào, hoặc ngày trùng lặp', () => {
+    expect(computeStreaks([], '2026-10-05')).toEqual({ current: 0, best: 0 });
+    expect(computeStreaks(['2026-10-05', '2026-10-05'], '2026-10-05')).toEqual({ current: 1, best: 1 });
+  });
+
+  it('đi qua ranh giới tháng và năm', () => {
+    expect(computeStreaks(['2025-12-31', '2026-01-01'], '2026-01-01')).toEqual({ current: 2, best: 2 });
   });
 });

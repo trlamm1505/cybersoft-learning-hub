@@ -1,11 +1,19 @@
 import {
+  BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
+  Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { groundTestCases } from './test-case-grounding';
+import { bankLabels, normalizeBankBand } from '../exercise/exercise-matrix';
+import { Classroom, ClassroomDocument } from '../../modules-system/database/schemas/classroom.schema';
+import { canUseAiGenerator } from '../assessment/domain/tester-progress';
+import type { JwtPayload } from '../../common/auth/jwt.strategy';
 import { randomUUID } from 'crypto';
 import {
   Exercise,
@@ -29,6 +37,7 @@ export interface GenerateProblemResult {
 }
 
 export interface GenerateProblemInput {
+  band: '6-9' | '10-12';
   learningOutcome: string;
   level: 'EASY' | 'MEDIUM' | 'HARD';
   constraints: string[];
@@ -81,7 +90,25 @@ export class ProblemGeneratorService {
     private readonly configService: ConfigService,
     @InjectModel(Exercise.name)
     private readonly exerciseModel: Model<ExerciseDocument>,
+    // Tùy chọn để các test dựng service không cần model lớp.
+    @Optional() @InjectModel(Classroom.name)
+    private readonly classModel?: Model<ClassroomDocument>,
   ) {}
+
+  /**
+   * AI Tạo Đề (sinh bài tập code) chỉ dành cho giảng viên đang phụ trách lớp khối 6-9 hoặc 10-12 còn hoạt động; Admin được dùng.
+   * Giảng viên chỉ có lớp K3-5 hoặc lớp Career bị 403.
+   */
+  async assertCanUse(user: JwtPayload): Promise<void> {
+    if (user.role === 'ADMIN' || !this.classModel) return;
+    const mine = await this.classModel
+      .find({ archived: { $ne: true }, $or: [{ teacherId: user.sub }, { teacherIds: user.sub }] })
+      .select('ageGroup courseKey archived')
+      .lean<Array<{ ageGroup?: string; courseKey?: string; archived?: boolean }>>();
+    if (!canUseAiGenerator(mine)) {
+      throw new ForbiddenException({ code: 'E403_AI_GENERATOR_NOT_ELIGIBLE', message: 'AI Tạo Đề chỉ dành cho giảng viên phụ trách lớp khối 6-9 hoặc 10-12.' });
+    }
+  }
 
   /**
    * Query toàn bộ exercise ĐANG CÓ THẬT trong collection `exercises` (không
@@ -145,6 +172,7 @@ export class ProblemGeneratorService {
       const input = inputs[i];
       const spec: ProblemSpec = {
         id: `manual-${randomUUID().slice(0, 8)}`,
+        band: input.band,
         learningOutcome: input.learningOutcome,
         level: input.level,
         constraints: input.constraints,
@@ -154,7 +182,10 @@ export class ProblemGeneratorService {
       try {
         this.logger.debug(`Generating problem for spec ${spec.id} using ${label}`);
 
-        const draft = await client.generate(spec);
+        const raw: ProblemDraft = { ...(await client.generate(spec)), status: 'DRAFT', band: input.band };
+        // Chống ảo giác: expectedOutput luôn là stdout thật của lời giải mẫu, không dùng số do mô hình tự nhẩm.
+        const grounded = await groundTestCases(raw);
+        const draft: ProblemDraft = { ...grounded.draft, grounding: grounded.report };
         const validation = await validateProblemDraft(draft, existingExercises);
 
         results.push({
@@ -241,11 +272,25 @@ export class ProblemGeneratorService {
       );
     }
 
+    // Đề phải gắn khối (6-9 hoặc 10-12) để Ngân hàng đề lọc đúng và không gán nhầm đề chênh lệch trình độ.
+    const band = normalizeBankBand(draft.band);
+    if (!band) {
+      throw new BadRequestException({ code: 'E400_INVALID_BAND', message: 'Đề chưa có khối đối tượng (6-9 hoặc 10-12).' });
+    }
+    const labels = bankLabels(band);
+
     await this.exerciseModel.create({
       title: draft.title,
       slug: draft.slug,
       description: draft.description,
       type: 'CODE_TEXT',
+      // Chỉ dùng để gán vào Ngày học của lớp hoặc đề thi Cuộc thi; không hiện trong danh mục Code Playground.
+      bankOnly: true,
+      bankBand: band,
+      targetGroup: labels.targetGroup,
+      labType: labels.labType,
+      gradeBand: labels.gradeBand,
+      authorId: options.approvedBy,
       difficulty: draft.difficulty,
       starterCode: draft.starterCode,
       solutionCode: draft.solutionCode,

@@ -1,8 +1,10 @@
 import {
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -21,6 +23,8 @@ import { AiLabGraderService } from './ai-lab-grader.service';
 import type { AiLabRunInput } from './ai-lab-grader.service';
 import { CONFIG_LIMITS, EMBEDDING_MODELS, LLM_MODELS } from './ai-lab.catalog';
 import type { AiLabSpec } from './ai-lab.catalog';
+import { AI_LAB_LIVE_LLM, runLiveCheck } from './ai-lab-live-run';
+import type { AiLabLiveLlm, LiveRunResult } from './ai-lab-live-run';
 
 export const AI_LAB_TOPIC = 'ai-lab-pack';
 /** Số lần chạy gần nhất giữ trong lịch sử thí nghiệm của mỗi học viên × bài. */
@@ -45,6 +49,10 @@ export class AiLabsService implements OnModuleInit {
     private readonly grader: AiLabGraderService,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    // Có GEMINI_API_KEY thì prompt của học viên được chạy thật trên Gemini để chấm thêm (JSON hợp lệ, từ khóa, từ chối đúng).
+    @Optional()
+    @Inject(AI_LAB_LIVE_LLM)
+    private readonly liveLlm?: (AiLabLiveLlm & { model?: string }) | null,
   ) {}
 
   /**
@@ -142,9 +150,27 @@ export class AiLabsService implements OnModuleInit {
       input,
     );
 
+    // Chạy thật trên Gemini (tối đa vài câu, maxOutputTokens 250) và tự chấm theo tiêu chí của bài. Không ném lỗi.
+    let liveRun: LiveRunResult;
+    if (input?.liveCheck !== true) {
+      liveRun = { source: 'skipped', reason: 'Chưa bật "Chạy thử thật trên Gemini" cho lần nộp này.', items: [], passRate: 0 };
+    } else try {
+      const evalSet = await this.datasets.fetchEvaluationSet(lab.resource_id!);
+      liveRun = await runLiveCheck(this.liveLlm, {
+        prompt: result.normalized.prompt,
+        description: lab.description,
+        rag: !!(lab.aiLabSpec as unknown as AiLabSpec)?.rag,
+        items: evalSet.items,
+        model: this.liveLlm?.model,
+      });
+    } catch {
+      liveRun = { source: 'unavailable', reason: 'Không tải được bộ câu hỏi để chạy thật.', items: [], passRate: 0 };
+    }
+
     const exerciseId = String((lab as any)._id);
     const now = new Date();
     const latest = {
+      liveRun,
       prompt: result.normalized.prompt,
       model: result.normalized.model,
       config: result.normalized.config,
@@ -264,6 +290,7 @@ export class AiLabsService implements OnModuleInit {
     const { normalized: _n, ...publicResult } = result;
     return {
       ...publicResult,
+      liveRun,
       submissionId,
       submittedAt: now,
       totalAttempts,

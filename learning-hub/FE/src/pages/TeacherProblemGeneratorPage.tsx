@@ -16,6 +16,7 @@ import {
 import problemGeneratorApi from '../axios/problemGeneratorApi';
 import type {
   GenerateProblemErrorItem,
+  GeneratorBand,
   GenerateProblemResultItem,
   ProblemLevel,
   ProblemSpecInput,
@@ -93,8 +94,16 @@ interface ResultItemState {
   revalidateError: string | null;
 }
 
+const BAND_CHOICES: Array<{ value: GeneratorBand; label: string; hint: string }> = [
+  { value: '6-9', label: '📘 Khối 6–9 (Cơ bản)', hint: 'Logic cơ bản, rẽ nhánh, vòng lặp đơn, Python tường minh' },
+  { value: '10-12', label: '🚀 Khối 10–12 (Nâng cao/Chuyên sâu)', hint: 'Tối ưu thuật toán O(N log N), mảng 2 chiều, CTDL, đệ quy/QHĐ' },
+];
+
 export const TeacherProblemGeneratorPage: React.FC = () => {
   const [specs, setSpecs] = useState<SpecForm[]>([emptySpecForm()]);
+  // Khối đối tượng: bắt buộc chọn trước khi sinh (6-9 cơ bản / 10-12 nâng cao).
+  const [band, setBand] = useState<GeneratorBand | null>(null);
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [results, setResults] = useState<ResultItemState[] | null>(null);
@@ -134,7 +143,7 @@ export const TeacherProblemGeneratorPage: React.FC = () => {
   // bộ mảng) của handleGenerate, trong khi handleRetryOne lại append vào
   // đúng lúc response của nó về, gây race giữa 2 request cùng sửa `results`.
   const canGenerate =
-    specs.some((s) => s.learningOutcome.trim()) && !isGenerating && retryingIndex === null;
+    band !== null && specs.some((s) => s.learningOutcome.trim()) && !isGenerating && retryingIndex === null;
 
   // Đếm giây trôi qua trong lúc isGenerating=true — dọn interval khi xong
   // hoặc khi component unmount giữa chừng.
@@ -146,7 +155,7 @@ export const TeacherProblemGeneratorPage: React.FC = () => {
   }, [isGenerating]);
 
   const handleGenerate = async () => {
-    if (!canGenerate) return;
+    if (!canGenerate || !band) return;
 
     const validSpecs = specs
       .filter((s) => s.learningOutcome.trim())
@@ -159,7 +168,7 @@ export const TeacherProblemGeneratorPage: React.FC = () => {
     setTotalGenerating(validSpecs.length);
 
     try {
-      const res = await problemGeneratorApi.generate({ specs: validSpecs });
+      const res = await problemGeneratorApi.generate({ band, specs: validSpecs });
       setResults(
         (res.results || []).map((item) => ({
           item,
@@ -194,11 +203,11 @@ export const TeacherProblemGeneratorPage: React.FC = () => {
   // nếu thành công hoặc cập nhật lại lý do lỗi nếu vẫn thất bại.
   const handleRetryOne = async (errorIndex: number) => {
     const target = genErrors[errorIndex];
-    if (!target || retryingIndex !== null) return;
+    if (!target || retryingIndex !== null || !band) return;
 
     setRetryingIndex(errorIndex);
     try {
-      const res = await problemGeneratorApi.generate({ specs: [target.spec] });
+      const res = await problemGeneratorApi.generate({ band, specs: [target.spec] });
 
       const retryResults = res.results || [];
       const retryErrors = res.errors || [];
@@ -425,6 +434,26 @@ export const TeacherProblemGeneratorPage: React.FC = () => {
         </p>
       </div>
 
+      <div role="radiogroup" aria-label="Khối đối tượng" className="space-y-2">
+        <div className="text-xs font-bold text-[var(--text-muted)]">Chọn khối đối tượng (bắt buộc)</div>
+        <div className="flex flex-wrap gap-2">
+          {BAND_CHOICES.map((b) => (
+            <button
+              key={b.value}
+              type="button"
+              role="radio"
+              aria-checked={band === b.value}
+              onClick={() => setBand(b.value)}
+              className={`cursor-pointer rounded-lg border px-4 py-2 text-left text-sm transition-colors ${band === b.value ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-neutral-300 text-[var(--text-main)] hover:border-indigo-400 dark:border-neutral-700'}`}
+            >
+              <span className="font-semibold">{b.label}</span>
+              <span className={`block text-xs ${band === b.value ? 'text-indigo-100' : 'text-[var(--text-muted)]'}`}>{b.hint}</span>
+            </button>
+          ))}
+        </div>
+        {band === null && <p className="text-xs text-amber-600">Hãy chọn khối trước khi sinh bài.</p>}
+      </div>
+
       {/* Form: danh sách spec */}
       <div className="space-y-3">
         {specs.map((spec, index) => (
@@ -592,6 +621,10 @@ export const TeacherProblemGeneratorPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      <p className="rounded-lg border border-[var(--border-color)] p-3 text-xs text-[var(--text-muted)]">
+        Đề đã duyệt được <strong>lưu vào Ngân hàng đề</strong>. Để giao cho học viên, vào <em>Lớp học của tôi → Bài tập &amp; Giao bài</em> và thêm bài vào một Ngày học.
+      </p>
 
       {/* Results */}
       {results && (
@@ -777,6 +810,13 @@ function ResultCard({
           Test case ({validation.testResults.filter((t) => t.passed).length}/
           {validation.testResults.length} pass)
         </div>
+        {draft.grounding && (
+          <p className="mb-1.5 text-xs text-emerald-700 dark:text-emerald-300" data-testid="grounding-note">
+            ✔ Đáp án test được tính lại bằng cách chạy lời giải mẫu thật ({draft.grounding.checked} test
+            {draft.grounding.corrected > 0 ? `, đã sửa ${draft.grounding.corrected} đáp án AI nhẩm sai` : ', đáp án AI đều khớp'}
+            {draft.grounding.dropped > 0 ? `, bỏ ${draft.grounding.dropped} test lời giải không chạy được` : ''}).
+          </p>
+        )}
         {validation.syntaxError && (
           <div className="rounded-lg bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 p-2.5 text-xs mb-2 font-mono whitespace-pre-wrap">
             Lỗi cú pháp: {validation.syntaxError}

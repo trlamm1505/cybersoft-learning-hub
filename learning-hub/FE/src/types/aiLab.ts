@@ -127,6 +127,22 @@ export interface RunManifest {
   totals: { inputTokens: number; outputTokens: number };
 }
 
+/** Kết quả chạy thật prompt trên Gemini (JSON hợp lệ, từ chối đúng, từ khóa tham khảo). */
+export interface AiLabLiveRun {
+  source: 'gemini' | 'skipped' | 'unavailable';
+  model?: string;
+  reason?: string;
+  passRate: number;
+  items: Array<{
+    questionId: string;
+    category: string;
+    question: string;
+    output: string;
+    passed: boolean;
+    checks: { jsonValid?: boolean; keywordCoverage?: number; keywordsInformational?: boolean; missingKeywords?: string[]; refused?: boolean };
+  }>;
+}
+
 /** Một lần chạy trong lịch sử thí nghiệm (BE giữ tối đa 5 lần gần nhất). */
 export interface AiLabHistoryEntry {
   promptHash: string;
@@ -144,6 +160,8 @@ export interface AiLabHistoryEntry {
 
 /** Kết quả một lần "Chạy & Đánh giá" (response submit hoặc bản đã lưu). */
 export interface AiLabRun {
+  /** Chạy thật trên Gemini ở lần nộp này (không có ở bản lịch sử cũ). */
+  liveRun?: AiLabLiveRun;
   submissionId: string;
   submittedAt: string;
   status: 'PASSED' | 'FAILED';

@@ -1,8 +1,11 @@
 import { Logger } from '@nestjs/common';
-import { GoogleGenAI } from '@google/genai';
+import { GeminiClientCache } from '../../common/gemini-client-cache';
+import type { GeminiKeySource } from '../../common/gemini-client-cache';
 import { CoachContext } from './coach-context.types';
+import { maskPii } from '../../common/utils/pii-mask.util';
 import { estimateTokens, StubLlmClient } from './coach-llm.client';
 import type { LlmChatResult, LlmClient } from './coach-llm.client';
+import { COACH_MAX_OUTPUT_TOKENS } from './coach.constants';
 
 /**
  * Quy tắc chống prompt injection gắn thêm vào systemInstruction của Gemini.
@@ -25,12 +28,15 @@ export function buildGeminiUserContent(
   context: CoachContext,
   userMessage: string,
 ): string {
+  // Không gửi định danh học viên (userId) sang Gemini; tin nhắn và lịch sử chat được che email/số điện thoại/CCCD.
+  const { userId: _omit, ...rest } = context;
+  const safe = { ...rest, recentHistory: (rest.recentHistory ?? []).map((t) => ({ ...t, content: maskPii(t.content) })) };
   return [
     'Context bài tập (JSON):',
-    `<context>${JSON.stringify(context)}</context>`,
+    `<context>${JSON.stringify(safe)}</context>`,
     '',
     'Tin nhắn của học viên:',
-    `<hoc_vien>${userMessage}</hoc_vien>`,
+    `<hoc_vien>${maskPii(userMessage)}</hoc_vien>`,
   ].join('\n');
 }
 
@@ -41,15 +47,15 @@ export function buildGeminiUserContent(
  */
 export class GeminiCoachLlmClient implements LlmClient {
   private readonly logger = new Logger(GeminiCoachLlmClient.name);
-  private readonly client: GoogleGenAI;
+  private readonly gemini: GeminiClientCache;
   // Cùng model nhẹ đang dùng ở Problem Generator (Day 19).
   private readonly model = 'gemini-flash-lite-latest';
 
   constructor(
-    apiKey: string,
+    apiKey: GeminiKeySource,
     private readonly fallback: LlmClient = new StubLlmClient(),
   ) {
-    this.client = new GoogleGenAI({ apiKey });
+    this.gemini = new GeminiClientCache(apiKey);
   }
 
   async chat(
@@ -59,14 +65,14 @@ export class GeminiCoachLlmClient implements LlmClient {
   ): Promise<LlmChatResult> {
     const contents = buildGeminiUserContent(context, userMessage);
     try {
-      const result = await this.client.models.generateContent({
+      const result = await this.gemini.get().models.generateContent({
         model: this.model,
         contents,
         config: {
           systemInstruction: buildGeminiSystemInstruction(systemPrompt),
           temperature: 0.4,
           // Khớp MAX_COMPLETION_TOKENS của CoachService.
-          maxOutputTokens: 800,
+          maxOutputTokens: COACH_MAX_OUTPUT_TOKENS,
         },
       });
       const content = (result.text ?? '').trim();

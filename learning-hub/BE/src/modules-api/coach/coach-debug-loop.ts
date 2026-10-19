@@ -1,3 +1,4 @@
+import { scrubServerPaths } from '../../common/utils/server-path.util';
 import {
   DebugErrorCategory,
   DebugLoopResult,
@@ -106,6 +107,26 @@ function truncate(text: string | undefined, maxLen = 300): string | undefined {
   return text.length > maxLen ? `${text.slice(0, maxLen)}…` : text;
 }
 
+/** Giá trị để in vào câu feedback: không bao giờ ra chữ "undefined"/"null" (Day 30, DEF-058). */
+function shown(text: string | undefined | null, maxLen: number, empty = '(trống)'): string {
+  if (text === undefined || text === null || text === '') return empty;
+  return truncate(text, maxLen) as string;
+}
+
+/**
+ * Tóm tắt lỗi cho học viên (Day 30, DEF-035): che đường dẫn máy chủ rồi chỉ giữ DÒNG LỖI CUỐI của traceback (tên lỗi +
+ * thông điệp) kèm số dòng trong bài làm — không lặp lại cả traceback hay đường dẫn thư mục tạm.
+ */
+export function summarizeError(text: string | undefined): string | undefined {
+  if (!text) return undefined;
+  const clean = scrubServerPaths(text);
+  const lines = clean.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0) return undefined;
+  const last = lines[lines.length - 1];
+  const lineNo = [...clean.matchAll(/line (\d+)/g)].pop()?.[1];
+  return truncate(lineNo && !/^Dòng \d+/.test(last) ? `Dòng ${lineNo}: ${last}` : last, 300);
+}
+
 function buildFeedbackAndNextStep(
   category: DebugErrorCategory,
   input: DebugLoopTestInput,
@@ -122,7 +143,7 @@ function buildFeedbackAndNextStep(
 
   if (category === 'COMPILE_SYNTAX' || category === 'RUNTIME_EXCEPTION') {
     const pattern = findKnownPattern(test?.stderr ?? input.errorMessage);
-    const stderrExcerpt = truncate(test?.stderr ?? input.errorMessage);
+    const stderrExcerpt = summarizeError(test?.stderr ?? input.errorMessage);
     if (pattern) {
       return {
         feedback: `Chương trình dừng vì ${pattern.kind}. Trích lỗi thật: "${stderrExcerpt}". ${pattern.explain}`,
@@ -139,19 +160,28 @@ function buildFeedbackAndNextStep(
 
   if (category === 'TIMEOUT') {
     return {
-      feedback: `Bài chạy quá thời gian cho phép ở test ${test?.index ?? '?'} (input: "${truncate(test?.input, 120)}").`,
+      feedback: test
+        ? `Bài chạy quá thời gian cho phép ở test ${test.index ?? '?'} (input: "${shown(test.input, 120)}").`
+        : 'Bài chạy quá thời gian cho phép.',
       nextStep:
         'Kiểm tra có vòng lặp không thoát được (điều kiện dừng sai) hoặc thuật toán có độ phức tạp quá cao so với kích thước input.',
     };
   }
 
   // WRONG_OUTPUT
+  if (!test) {
+    // Bài chưa có test case (hoặc không xác định được test sai): nói rõ thay vì in "undefined" (DEF-058).
+    return {
+      feedback: 'Bài tập này chưa có test case hiển thị để so sánh kết quả, nên mình chưa chỉ ra được test nào sai.',
+      nextStep: 'Tự chạy thử với vài input ví dụ trong đề bài (nút Run) và so với kết quả mong đợi; nếu bài thiếu test, hãy báo giảng viên.',
+    };
+  }
   return {
     feedback:
       `Sai ở test ${test?.index ?? '?'}${test?.isHidden ? ' (ẩn — chỉ biết là sai, không biết input/expected cụ thể)' : ''}. ` +
       (test?.isHidden
         ? 'Không thể tiết lộ chi tiết test ẩn.'
-        : `Input: "${truncate(test?.input, 200)}" — Kỳ vọng: "${truncate(test?.expectedOutput, 200)}" — Thực tế: "${truncate(test?.actualOutput, 200)}".`),
+        : `Input: "${shown(test.input, 200)}" — Kỳ vọng: "${shown(test.expectedOutput, 200)}" — Thực tế: "${shown(test.actualOutput, 200)}".`),
     nextStep: test?.isHidden
       ? 'Rà lại các trường hợp biên (rỗng, âm, trùng lặp, giới hạn lớn) mà các test công khai chưa cover.'
       : 'So sánh từng bước giữa output thực tế và kỳ vọng để xác định logic sai ở đâu (ví dụ: sai điều kiện, lệch chỉ số, thiếu xử lý trường hợp biên).',
@@ -186,7 +216,7 @@ export function analyzeDebugLoop(
           input: test?.isHidden ? undefined : test?.input,
           expectedOutput: test?.isHidden ? undefined : test?.expectedOutput,
           actualOutput: test?.isHidden ? undefined : test?.actualOutput,
-          stderrExcerpt: truncate(test?.stderr ?? input.errorMessage),
+          stderrExcerpt: summarizeError(test?.stderr ?? input.errorMessage),
         };
 
   const finalNextStep = loopLimitReached

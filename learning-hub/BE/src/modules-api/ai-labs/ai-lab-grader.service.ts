@@ -53,6 +53,8 @@ export interface AiLabRunInput {
   prompt?: unknown;
   model?: unknown;
   config?: unknown;
+  /** true: chạy thêm prompt thật trên Gemini để kiểm tra (mặc định tắt: nộp nhanh, không tốn quota). */
+  liveCheck?: unknown;
 }
 
 export interface BudgetPenalty {

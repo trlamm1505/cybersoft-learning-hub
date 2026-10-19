@@ -11,6 +11,7 @@ import {
   Hint,
   HintDocument,
   validateTier1NoCode,
+  validateTier3NoFullCode,
 } from '../../modules-system/database/schemas/hint.schema';
 import {
   HintUsage,
@@ -230,6 +231,12 @@ export class HintService implements OnModuleInit {
       if (item.level === 1 && !validateTier1NoCode(item.content, 1)) {
         throw new BadRequestException(
           `Gợi ý Tầng 1 cho bài "${item.exerciseSlug}" chứa cú pháp code không hợp lệ!`,
+        );
+      }
+
+      if (!validateTier3NoFullCode(item.content, item.level)) {
+        throw new BadRequestException(
+          `Gợi ý Tầng 3 cho bài "${item.exerciseSlug}" chứa code hoàn chỉnh; chỉ được dùng giả mã!`,
         );
       }
 

@@ -1,13 +1,9 @@
 import * as path from 'path';
 
 /**
- * Cấu hình Postgres Sandbox dùng chung, MỘT nguồn: biến môi trường (đặt trong
- * learning-hub/.env, xem .env.example). Docker Compose (tạo role lab_reader) và
- * mock data-service (cấp sandbox_db_url cho backend) đều đọc cùng
- * LAB_READER_PASSWORD / SANDBOX_DB_PORT, nên đổi một chỗ không làm lệch kết nối.
- *
- * Giá trị mặc định CHỈ dùng cho máy local/test; production bắt buộc đặt biến
- * (docker-compose.prod.yml dừng nếu thiếu).
+ * Cấu hình Postgres Sandbox (chỉ dùng khi SQL_ENGINE=postgres), MỘT nguồn: biến môi trường trong BE/.env
+ * (xem BE/.env.example). Backend và mock data-service đều đọc cùng LAB_READER_PASSWORD / SANDBOX_DB_PORT, nên đổi
+ * một chỗ không làm lệch kết nối. Giá trị mặc định CHỈ dùng cho máy local/test.
  */
 export const SANDBOX_DEFAULTS = {
   labReaderPassword: 'lab_reader_pw',
@@ -30,14 +26,11 @@ export function buildSandboxDbUrl(env: Env = process.env): string {
 }
 
 /**
- * Nạp learning-hub/.env (nguồn chung) rồi BE/.env cho tiến trình không dùng
- * ConfigModule (mock data-service). Biến đã có trong môi trường không bị ghi đè.
+ * Nạp BE/.env — file cấu hình DUY NHẤT của dự án (Day 30 bỏ learning-hub/.env) — cho cả backend lẫn tiến trình không
+ * dùng ConfigModule (mock data-service). Biến đã có trong môi trường không bị ghi đè.
  */
 export function loadSharedEnvFiles(beRoot: string): void {
-  for (const file of [
-    path.resolve(beRoot, '..', '.env'),
-    path.resolve(beRoot, '.env'),
-  ]) {
+  for (const file of [path.resolve(beRoot, '.env')]) {
     try {
       process.loadEnvFile(file);
     } catch {

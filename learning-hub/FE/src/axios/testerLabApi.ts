@@ -1,6 +1,8 @@
 import axiosClient from '../common/configAxios';
 import type {
+  AutoCheckResult,
   ReviewableSubmission,
+  ReviewQueueItem,
   RubricGrade,
   TesterLab,
   TesterLabSubmission,
@@ -18,6 +20,11 @@ async function saveBlob(path: string, fileName: string): Promise<void> {
 
 /** Tester Lab API Service Layer (Ngày 21) — wraps NestJS /tester-labs/*. */
 export const testerLabApi = {
+  /** Vai trò hiện tại có được đọc/chấm bài của người khác không (luôn 200): hỏi trước để không gọi API bị 403. */
+  getCapabilities: async (): Promise<{ role: string; canReview: boolean; peerReview: boolean; canReviewTesterQueue: boolean }> => {
+    return await axiosClient.get('/tester-labs/capabilities');
+  },
+
   getLabs: async (): Promise<TesterLab[]> => {
     return await axiosClient.get('/tester-labs');
   },
@@ -38,9 +45,22 @@ export const testerLabApi = {
     });
   },
 
+  /** Nộp bằng biểu mẫu (test case + bug report): lưu chờ giảng viên chấm, trả nhận xét sơ bộ ngay. */
+  submitForm: async (
+    labCode: string,
+    payload: { testCases: object[]; bugReports: object[] },
+  ): Promise<{ id: string; status: string; statusLabel: string; autoCheckResults: AutoCheckResult[] }> => {
+    return await axiosClient.post(`/tester-labs/${labCode}/form-submissions`, payload);
+  },
+
   /** Bài của người khác cần chấm (giảng viên hoặc peer). */
   getReviewable: async (labCode: string): Promise<ReviewableSubmission[]> => {
     return await axiosClient.get(`/tester-labs/${labCode}/submissions`);
+  },
+
+  /** Hàng chờ chấm Tester QA: bài nộp Chờ chấm của mọi lab (chỉ giảng viên phụ trách lớp Tester QA / Admin). */
+  getReviewQueue: async (): Promise<ReviewQueueItem[]> => {
+    return await axiosClient.get('/tester-labs/review-queue');
   },
 
   review: async (

@@ -94,7 +94,7 @@ export class ContestController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER', 'ADMIN')
   async questionBank(
-    @Query() query: { q?: string; category?: string; difficulty?: string; limit?: string },
+    @Query() query: { q?: string; category?: string; difficulty?: string; limit?: string; band?: string },
   ) {
     return this.manageService.listQuestionBank(query);
   }
@@ -102,7 +102,7 @@ export class ContestController {
   @Get('bank/exercises')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER', 'ADMIN')
-  async exerciseBank(@Query() query: { q?: string; topic?: string }) {
+  async exerciseBank(@Query() query: { q?: string; topic?: string; band?: string }) {
     return this.manageService.listExerciseBank(query);
   }
 
@@ -127,7 +127,7 @@ export class ContestController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, StudentOnlyGuard)
   async registerContest(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    return this.contestService.registerContest(id, user.sub);
+    return this.contestService.registerContest(id, user.sub, user.ageGroup);
   }
 
   /** Bắt buộc đăng nhập; học viên phải đăng ký cuộc thi (kiểm tra ở service). */
@@ -151,7 +151,7 @@ export class ContestController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: SubmitContestProblemDto,
   ) {
-    return this.contestSubmissionService.submit(id, dto, user.sub);
+    return this.contestSubmissionService.submit(id, dto, user.sub, user.ageGroup);
   }
 
   /** Bắt đầu lượt thi: đồng hồ cá nhân do máy chủ giữ (gọi lại vẫn trả lượt cũ). */
@@ -187,6 +187,26 @@ export class ContestController {
   @Roles('TEACHER', 'ADMIN')
   async manageResults(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     return this.manageService.getResults(id, user);
+  }
+
+  /** Không công nhận kết quả (rời màn hình từ 3 lần): loại khỏi bảng xếp hạng chính thức, học viên vẫn xem được điểm của mình. */
+  @Put(':id/manage/attempts/:attemptId/disqualify')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  async disqualify(
+    @Param('id') id: string,
+    @Param('attemptId') attemptId: string,
+    @Body() body: { reason?: string },
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.manageService.disqualify(id, attemptId, body?.reason ?? '', user);
+  }
+
+  @Put(':id/manage/attempts/:attemptId/reinstate')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  async reinstate(@Param('id') id: string, @Param('attemptId') attemptId: string, @CurrentUser() user: JwtPayload) {
+    return this.manageService.reinstate(id, attemptId, user);
   }
 
   @Get(':id/manage/integrity/:attemptId')

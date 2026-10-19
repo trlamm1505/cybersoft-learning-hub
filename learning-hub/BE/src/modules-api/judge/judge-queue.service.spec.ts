@@ -51,9 +51,14 @@ function makeFakeSubmissionModel(initialDocs: Record<string, any>) {
 
 function makeFakeExerciseModel(exercise: any) {
   return {
-    findById: jest.fn(() => ({
-      lean: jest.fn().mockResolvedValue(exercise),
-    })),
+    // Judge chủ động .select('+hiddenTestCases') nên mock chấp nhận cả select lẫn lean.
+    findById: jest.fn(() => {
+      const chain: any = {
+        select: jest.fn(() => chain),
+        lean: jest.fn().mockResolvedValue(exercise),
+      };
+      return chain;
+    }),
   };
 }
 
@@ -89,6 +94,43 @@ describe('JudgeQueueService', () => {
 
     return module.get<JudgeQueueService>(JudgeQueueService);
   }
+
+  it('bộ nhớ đệm bộ test: lần chấm sau không tải lại test ẩn (chỉ hỏi updatedAt); bài đổi updatedAt thì tải lại', async () => {
+    let updatedAt = new Date('2026-10-18T00:00:00Z');
+    let fullLoads = 0;
+    const exerciseModel: any = {
+      findById: jest.fn(() => {
+        let wantsFull = false;
+        const chain: any = {
+          select: jest.fn((f: string) => {
+            wantsFull = /hiddenTestCases/.test(f);
+            return chain;
+          }),
+          lean: jest.fn(async () => {
+            if (wantsFull) {
+              fullLoads++;
+              return { ...sumExercise, updatedAt };
+            }
+            return { updatedAt };
+          }),
+        };
+        return chain;
+      }),
+    };
+    const service: any = await buildService({}, exerciseModel);
+    const a = await service.loadExerciseForJudge('ex1');
+    const b = await service.loadExerciseForJudge('ex1');
+    expect(b).toBe(a);
+    expect(fullLoads).toBe(1);
+    updatedAt = new Date('2026-10-18T01:00:00Z'); // giảng viên sửa bài
+    await service.loadExerciseForJudge('ex1');
+    expect(fullLoads).toBe(2);
+    // Không có updatedAt (dữ liệu cũ) thì không dùng đệm: luôn nạp mới, không bao giờ chấm bằng bản cũ.
+    updatedAt = undefined as any;
+    await service.loadExerciseForJudge('ex1');
+    await service.loadExerciseForJudge('ex1');
+    expect(fullLoads).toBe(4);
+  });
 
   it('classifies AC when all test cases pass', async () => {
     const submissionId = new Types.ObjectId().toString();

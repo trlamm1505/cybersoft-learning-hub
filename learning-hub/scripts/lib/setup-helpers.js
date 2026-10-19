@@ -1,5 +1,5 @@
 /**
- * Hàm thuần dùng cho scripts/setup.js và scripts/ensure-sandbox.js (không chạm
+ * Hàm thuần dùng cho scripts/setup.js và các script seed (không chạm
  * hệ thống tệp hay mạng, trừ tcpOpenSync) để kiểm thử bằng `node --test`.
  */
 const crypto = require('crypto');

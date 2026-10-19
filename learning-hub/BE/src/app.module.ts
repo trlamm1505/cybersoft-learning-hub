@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { AssessmentModule } from './modules-api/assessment/assessment.module';
+import { CsrfGuard } from './common/security/csrf.guard';
+import { RejectOperatorKeysPipe } from './common/security/reject-operator-keys.pipe';
+import { TraceErrorFilter } from './common/security/trace-error.filter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import {
   AppThrottlerGuard,
@@ -20,11 +24,14 @@ import { LeaderboardModule } from './modules-api/leaderboard/leaderboard.module'
 import { CoachModule } from './modules-api/coach/coach.module';
 import { BlockPuzzleModule } from './modules-api/block-puzzle/block-puzzle.module';
 import { ProblemGeneratorModule } from './modules-api/problem-generator/problem-generator.module';
+import { QuestionBankModule } from './modules-api/question-bank/question-bank.module';
 import { RecommendationModule } from './modules-api/recommendation/recommendation.module';
 import { TesterLabsModule } from './modules-api/tester-labs/tester-labs.module';
 import { DaLabsModule } from './modules-api/da-labs/da-labs.module';
 import { AiLabsModule } from './modules-api/ai-labs/ai-labs.module';
 import { IntegrityModule } from './modules-api/integrity/integrity.module';
+import { CareerCoursesModule } from './modules-api/career-courses/career-courses.module';
+import { AdminPortalModule } from './modules-api/admin-portal/admin-portal.module';
 import { LearnerActivityModule } from './modules-api/learner-activity/learner-activity.module';
 import { TeacherAnalyticsModule } from './modules-api/teacher-analytics/teacher-analytics.module';
 import { AdminUsersModule } from './modules-api/admin-users/admin-users.module';
@@ -49,13 +56,17 @@ import { ResilienceSecurityModule } from './modules-api/resilience-security/resi
     CoachModule,
     BlockPuzzleModule,
     ProblemGeneratorModule,
+    QuestionBankModule,
     RecommendationModule,
     TesterLabsModule,
     DaLabsModule,
     AiLabsModule,
     IntegrityModule,
+    CareerCoursesModule,
+    AdminPortalModule,
     LearnerActivityModule,
     TeacherAnalyticsModule,
+    AssessmentModule,
     AdminUsersModule,
     DatasetIntegrationModule,
     QaHarnessModule,
@@ -66,6 +77,10 @@ import { ResilienceSecurityModule } from './modules-api/resilience-security/resi
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: AppThrottlerGuard },
+    { provide: APP_GUARD, useClass: CsrfGuard },
+    // Chặn 400 mọi payload chứa toán tử MongoDB ($ne, $gt...) trước khi tới service (Day 30, DEF-050).
+    { provide: APP_PIPE, useClass: RejectOperatorKeysPipe },
+    { provide: APP_FILTER, useClass: TraceErrorFilter },
     { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
   ],
 })

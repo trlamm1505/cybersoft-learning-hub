@@ -10,18 +10,37 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private readonly transporter: nodemailer.Transporter;
+  private readonly transporter: nodemailer.Transporter | null;
   private readonly fromAddress: string;
 
   constructor(private readonly configService: ConfigService) {
-    const user = this.configService.get<string>('GMAIL_USER');
-    const pass = this.configService.get<string>('GMAIL_APP_PASSWORD');
-    this.fromAddress = user || 'no-reply@cybersoft-hub.local';
+    const get = (k: string) => this.configService.get<string>(k)?.trim() || undefined;
+    const smtpHost = get('SMTP_HOST');
+    // Gmail App Password (GMAIL_USER/GMAIL_APP_PASSWORD) hoặc cặp MAIL_USER/MAIL_PASS; SMTP_HOST để dùng máy chủ SMTP riêng.
+    const user = get('SMTP_USER') || get('MAIL_USER') || get('GMAIL_USER');
+    const pass = get('SMTP_PASS') || get('MAIL_PASS') || get('GMAIL_APP_PASSWORD');
+    this.fromAddress = get('MAIL_FROM') || user || 'no-reply@cybersoft-hub.local';
 
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user, pass },
-    });
+    // Có SMTP_HOST hoặc đủ cặp tài khoản/mật khẩu mới coi là đã cấu hình; ngược lại chạy Development Mock Mode (không gửi thư).
+    const timeouts = { connectionTimeout: 5000, greetingTimeout: 5000, socketTimeout: 8000 };
+    if (smtpHost) {
+      this.transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: Number(get('SMTP_PORT')) || 587,
+        secure: get('SMTP_SECURE') === 'true',
+        auth: user && pass ? { user, pass } : undefined,
+        ...timeouts,
+      });
+    } else if (user && pass) {
+      this.transporter = nodemailer.createTransport({ service: 'gmail', auth: { user, pass }, ...timeouts });
+    } else {
+      this.transporter = null;
+    }
+  }
+
+  /** Đã cấu hình gửi thư thật chưa; false = Development Mock Mode. */
+  isConfigured(): boolean {
+    return this.transporter !== null;
   }
 
   async sendPasswordResetEmail(
@@ -42,6 +61,7 @@ export class MailService {
       </div>
     `;
 
+    if (!this.transporter) throw new Error('Chưa cấu hình gửi thư (SMTP_HOST hoặc MAIL_USER/MAIL_PASS).');
     await this.transporter.sendMail({
       from: `"CyberSoft Hub" <${this.fromAddress}>`,
       to: toEmail,
@@ -49,6 +69,7 @@ export class MailService {
       html,
     });
 
-    this.logger.log(`Đã gửi email đặt lại mật khẩu tới ${toEmail}`);
+    // Không ghi địa chỉ email vào log (PRV-06).
+    this.logger.log('Đã gửi một email đặt lại mật khẩu.');
   }
 }

@@ -29,6 +29,8 @@ export class SandboxQueryError extends Error {}
 export class SandboxUnavailableError extends Error {}
 
 export interface SandboxSqlExecutor {
+  /** false: engine tự chứa dữ liệu (SQLite in-memory), không cần hỏi máy chủ dữ liệu để lấy địa chỉ sandbox. */
+  readonly usesDatasetUrl?: boolean;
   run(dbUrl: string, sql: string, options: SqlRunOptions): Promise<ResultSet>;
 }
 

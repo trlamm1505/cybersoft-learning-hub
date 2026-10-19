@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { LabBreadcrumb } from '../components/LabBreadcrumb';
+import { SubmissionHistory } from '../components/SubmissionHistory';
+import type { HistoryItem } from '../components/SubmissionHistory';
+import { useParams } from 'react-router-dom';
 import CodeMirror from '@uiw/react-codemirror';
 import { sql as sqlLang, PostgreSQL } from '@codemirror/lang-sql';
 import { lightEditorTheme } from '../components/editorTheme';
 import {
   AlertTriangle,
-  ArrowLeft,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -250,7 +252,6 @@ const MySubmissionPanel: React.FC<{ submission: MyDaSubmission }> = ({ submissio
 
 export const DaLabWorkspacePage: React.FC<{ isDark: boolean }> = ({ isDark }) => {
   const { slug = '' } = useParams();
-  const navigate = useNavigate();
   const [lab, setLab] = useState<DaLab | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [dataset, setDataset] = useState<DatasetInfo | null>(null);
@@ -262,6 +263,31 @@ export const DaLabWorkspacePage: React.FC<{ isDark: boolean }> = ({ isDark }) =>
   const [gradeResult, setGradeResult] = useState<SqlGradeResult | null>(null);
   const [mySubmission, setMySubmission] = useState<MyDaSubmission | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  const loadHistory = () =>
+    daLabApi
+      .getHistory(slug)
+      .then((rows) =>
+        setHistory(
+          rows.map((r, i) => ({
+            id: `${r.submittedAt}-${i}`,
+            submittedAt: r.submittedAt,
+            resultLabel:
+              r.status === 'ACCEPTED' ? 'Đạt (AC)' : r.status === 'WRONG_ANSWER' ? 'Sai kết quả' : r.status === 'SQL_ERROR' ? 'Lỗi SQL' : r.status === 'PENDING_REVIEW' ? 'Chờ giảng viên chấm' : 'Đã chấm',
+            passed: r.status === 'ACCEPTED' ? true : r.status === 'WRONG_ANSWER' || r.status === 'SQL_ERROR' ? false : undefined,
+            scoreText: `${r.score}/${r.maxScore}`,
+            content: r.content,
+            feedback: r.feedback,
+          })),
+        ),
+      )
+      .catch(() => setHistory([]));
+
+  useEffect(() => {
+    loadHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   useEffect(() => {
     setLab(null);
@@ -320,6 +346,7 @@ export const DaLabWorkspacePage: React.FC<{ isDark: boolean }> = ({ isDark }) =>
       } else {
         setGradeResult(await daLabApi.submitSql(slug, code));
       }
+      void loadHistory();
     } catch (err) {
       setRequestError(errorMessage(err, 'Nộp bài thất bại. Vui lòng thử lại.'));
     } finally {
@@ -343,12 +370,7 @@ export const DaLabWorkspacePage: React.FC<{ isDark: boolean }> = ({ isDark }) =>
 
   return (
     <div className="space-y-4">
-      <button
-        onClick={() => navigate('/da-labs')}
-        className="flex items-center gap-1 text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] bg-transparent border-none cursor-pointer"
-      >
-        <ArrowLeft size={16} /> Danh sách bài lab
-      </button>
+      <LabBreadcrumb group="DATA" title={lab.title} />
 
       <div>
         <h1 className="text-xl font-bold text-[var(--text-main)]">{lab.title}</h1>
@@ -446,6 +468,12 @@ export const DaLabWorkspacePage: React.FC<{ isDark: boolean }> = ({ isDark }) =>
 
         {shownResult && <DataTable result={shownResult} />}
       </section>
+
+      <SubmissionHistory
+        items={history}
+        onReuse={(content) => (isInsight ? setAnswer(content) : setCode(content))}
+        reuseLabel={isInsight ? 'Nạp lại vào ô trả lời' : 'Nạp lại vào ô soạn SQL'}
+      />
     </div>
   );
 };

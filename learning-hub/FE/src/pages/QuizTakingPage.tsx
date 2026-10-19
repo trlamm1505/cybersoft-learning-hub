@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileEdit, CheckCircle2, HelpCircle, Clock, Download } from 'lucide-react';
 import quizApi from '../axios/quizApi';
@@ -10,7 +10,14 @@ import QuestionNavigator from '../components/QuestionNavigator';
 import QuestionCard from '../components/QuestionCard';
 import QuizResultView from '../components/QuizResultView';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import classAssignmentsApi from '../axios/classAssignmentsApi';
+import type { MyAssignment } from '../types/classAssignments';
+import { formatVnDateTime, scoreText } from '../common/classFormat';
 import { useToast } from '../components/Toast';
+import { useLeaveReporter } from '../hooks/useLeaveReporter';
+import { playAlertBeep } from '../common/alertSound';
+import { LeaveWarningBanner } from '../components/ProctorOverlays';
+import { BackToClassButton, ClassResultModal } from '../components/ClassResultModal';
 
 interface QuizTakingPageProps {
   teacherLessons?: LessonAuthoring[];
@@ -57,6 +64,11 @@ const SYSTEM_QUIZZES: QuizTopic[] = [
     source: 'SYSTEM',
   },
 ];
+
+const classPoints = (score: number, maxScore: number, maxPoints: number): string => {
+  const v = maxScore > 0 ? Math.round((score / maxScore) * maxPoints * 10) / 10 : 0;
+  return Number.isInteger(v) ? String(v) : v.toFixed(1);
+};
 
 export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons = [], authUser }) => {
   const navigate = useNavigate();
@@ -125,6 +137,57 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const confirmModalRef = useFocusTrap(showConfirmModal, () => setShowConfirmModal(false));
+
+  // Bài trắc nghiệm của lớp: mở từ "Lớp học của tôi" qua ?assignment=<id>. Chỉ lượt thi này tính điểm lớp (một lượt, có hạn chót).
+  const classAssignmentId = useMemo(() => new URLSearchParams(window.location.search).get('assignment'), []);
+  // Giám sát bài lớp: rời màn hình quá 2 lần thì giảng viên được thông báo (máy chủ đếm).
+  const [leaveInfo, setLeaveInfo] = useState<{ count: number; notified: boolean } | null>(null);
+  useLeaveReporter({
+    active: stage === 'TAKING' && !!classAssignmentId && authUser?.role === 'STUDENT',
+    scope: 'CLASS_ASSIGNMENT',
+    refId: classAssignmentId,
+    onReport: (report, localCount) => {
+      playAlertBeep();
+      setLeaveInfo({ count: report?.count ?? localCount, notified: !!report?.teacherNotified });
+    },
+  });
+  const [classAssignment, setClassAssignment] = useState<MyAssignment | null>(null);
+  useEffect(() => {
+    if (!classAssignmentId || authUser?.role !== 'STUDENT') return;
+    classAssignmentsApi
+      .getAssignment(classAssignmentId)
+      .then(setClassAssignment)
+      .catch(() => setClassAssignment(null));
+  }, [classAssignmentId, authUser?.role]);
+
+  // Bấm "Làm bài" từ Lớp học của tôi: vào thẳng đề, không qua màn hình đệm "Bắt đầu".
+  const autoStartedRef = useRef(false);
+  const [showClassResult, setShowClassResult] = useState(true);
+
+  const handleStartClassQuiz = async () => {
+    if (!classAssignmentId) return;
+    setStage('LOADING');
+    setErrorMsg(null);
+    try {
+      const response = await quizApi.startQuiz(testId, undefined, classAssignmentId);
+      setQuizData(response);
+      setCurrentIndex(0);
+      setAnswersMap({});
+      setStage('TAKING');
+    } catch (err: any) {
+      // Hết hạn - đã khóa, chưa mở, đã làm xong...: hiện đúng lý do từ máy chủ.
+      setErrorMsg(err.response?.data?.message || 'Không thể bắt đầu bài trắc nghiệm của lớp.');
+      setStage('IDLE');
+    }
+  };
+
+  useEffect(() => {
+    if (!classAssignment || autoStartedRef.current || stage !== 'IDLE') return;
+    if (classAssignment.state !== 'NOT_STARTED' && classAssignment.state !== 'IN_PROGRESS') return;
+    autoStartedRef.current = true;
+    void handleStartClassQuiz();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classAssignment, stage]);
 
   // 1. Handle Start Quiz API
   const handleStartQuiz = async () => {
@@ -269,10 +332,12 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
   };
 
   // Handle Time Expired Auto Submit
+  // Hết giờ: tự nộp các đáp án đã chọn đến lúc đó (câu chưa chọn là "Bỏ trống") rồi vào thẳng màn hình kết quả.
+  // Không dùng alert() chặn luồng: thông báo nhẹ, còn việc nộp và hiện kết quả chạy ngay.
   const handleTimeExpired = () => {
     if (stage === 'TAKING') {
-      alert('⏰ Đã hết thời gian nộp bài! Hệ thống đang tự động gửi nộp bài thi của bạn.');
-      handleSubmitQuiz();
+      showToast('⏰ Đã hết giờ! Hệ thống đang tự nộp các câu bạn đã chọn.', 'info');
+      void handleSubmitQuiz();
     }
   };
 
@@ -305,15 +370,56 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
               </p>
             </div>
 
+            {classAssignment && (
+              <section
+                aria-label="Bài trắc nghiệm của lớp"
+                data-testid="class-quiz-banner"
+                className={`mx-auto max-w-3xl rounded-2xl border p-5 ${classAssignment.state === 'EXPIRED' ? 'border-rose-300 bg-rose-50 dark:bg-rose-950/30' : classAssignment.done ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30' : 'border-indigo-300 bg-indigo-50 dark:bg-indigo-950/30'}`}
+              >
+                <h2 className="text-base font-extrabold text-slate-800 dark:text-slate-100">
+                  Bài trắc nghiệm của lớp {classAssignment.className}: {classAssignment.title}
+                </h2>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                  Hạn chót: <strong>{formatVnDateTime(classAssignment.dueAt)}</strong> · Tối đa {classAssignment.maxPoints} điểm · Chỉ được làm <strong>một lượt</strong>.
+                </p>
+                {classAssignment.done ? (
+                  <p className="mt-2 font-bold text-emerald-700 dark:text-emerald-400">✅ Đã hoàn thành: {scoreText(classAssignment)}</p>
+                ) : classAssignment.state === 'EXPIRED' ? (
+                  <p className="mt-2 font-bold text-rose-700 dark:text-rose-400">Đã hết hạn - Đã khóa: không thể làm bài nữa.</p>
+                ) : classAssignment.state === 'NOT_OPEN' ? (
+                  <p className="mt-2 font-bold text-slate-600">Chưa đến giờ mở bài.</p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleStartClassQuiz}
+                    className="mt-3 cursor-pointer rounded-xl border-none bg-indigo-600 px-5 py-2 text-sm font-bold text-white hover:bg-indigo-700"
+                  >
+                    {classAssignment.state === 'IN_PROGRESS' ? 'Làm tiếp bài của lớp' : 'Bắt đầu làm bài của lớp'}
+                  </button>
+                )}
+              </section>
+            )}
+
             {/* Quiz Topic Selector Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {availableQuizzes.map((quiz) => {
                 const isSelected = quiz.id === selectedQuizId;
                 return (
+                  // Chọn được bằng bàn phím: Tab tới thẻ, Enter/Space để chọn (Day 30, DEF-004 / TC_UI_01).
                   <div
                     key={quiz.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isSelected}
+                    aria-label={`Chọn bộ đề ${quiz.title}`}
                     onClick={() => setSelectedQuizId(quiz.id)}
-                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedQuizId(quiz.id);
+                      }
+                    }}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${
                       isSelected
                         ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-600 dark:border-indigo-500 shadow-md scale-[1.02]'
                         : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-300'
@@ -398,6 +504,9 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
         {/* STAGE 2: QUIZ TAKING SCREEN */}
         {stage === 'TAKING' && quizData && (
           <div className="space-y-6">
+            {classAssignmentId && leaveInfo && (
+              <LeaveWarningBanner count={leaveInfo.count} notifyAfter={2} teacherNotified={leaveInfo.notified} />
+            )}
             {/* Top Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
               <div>
@@ -440,6 +549,20 @@ export const QuizTakingPage: React.FC<QuizTakingPageProps> = ({ teacherLessons =
         )}
 
         {/* STAGE 3: RESULT REVIEW SCREEN */}
+        {stage === 'RESULT' && reviewData && classAssignment && (
+          <div className="mb-4 text-center">
+            <BackToClassButton onClick={() => navigate('/my-class')} />
+          </div>
+        )}
+        {stage === 'RESULT' && reviewData && classAssignment && showClassResult && (
+          <ClassResultModal
+            title={classAssignment.title}
+            scoreText={`Điểm: ${classPoints(reviewData.score, reviewData.maxScore, classAssignment.maxPoints)}/${classAssignment.maxPoints}`}
+            note={`Đúng ${reviewData.score}/${reviewData.maxScore} điểm của đề`}
+            onBack={() => navigate('/my-class')}
+            onClose={() => setShowClassResult(false)}
+          />
+        )}
         {stage === 'RESULT' && reviewData && (
           <QuizResultView
             reviewData={reviewData}

@@ -9,6 +9,10 @@
 
 export const MAX_SQL_LENGTH = 5_000;
 
+/** Thông báo trả về (HTTP 400) khi câu lệnh có ý định ghi/sửa dữ liệu hoặc can thiệp hệ thống. */
+export const DATA_LAB_BLOCKED_MESSAGE =
+  'Hệ thống Data Lab chỉ hỗ trợ câu lệnh truy vấn dữ liệu (SELECT). Mọi thao tác chỉnh sửa hoặc can thiệp hệ thống đều bị chặn!';
+
 const FORBIDDEN_KEYWORDS = [
   'INSERT',
   'UPDATE',
@@ -47,7 +51,22 @@ const FORBIDDEN_KEYWORDS = [
   'SAVEPOINT',
   // `SELECT ... INTO new_table` tạo bảng mới.
   'INTO',
+  // SQLite / hệ thống tập tin: Data Lab chạy trên SQLite in-memory nên chặn thêm các lệnh đặc thù của SQLite.
+  'RENAME',
+  'PRAGMA',
+  'ATTACH',
+  'DETACH',
+  'REINDEX',
+  'LOAD_EXTENSION',
+  'SQLITE_MASTER',
+  'SQLITE_SCHEMA',
+  'SQLITE_TEMP_MASTER',
+  'SQLITE_TEMP_SCHEMA',
+  'SQLITE_SEQUENCE',
 ];
+
+/** `REPLACE INTO`/`REPLACE` dạng lệnh ghi bị chặn; hàm chuỗi `REPLACE(x, a, b)` (có dấu `(` ngay sau) là câu đọc hợp lệ. */
+const REPLACE_STATEMENT = /\bREPLACE\b(?!\s*\()/;
 
 // Hàm hệ thống có thể đọc file, gọi ra ngoài, đổi cấu hình phiên hoặc làm treo kết nối.
 const FORBIDDEN_FUNCTIONS = [
@@ -75,7 +94,13 @@ const FORBIDDEN_FUNCTIONS = [
 const FORBIDDEN_RELATIONS = ['pg_stat_activity'];
 
 export type SqlGuardResult =
-  { ok: true; sql: string } | { ok: false; reason: string };
+  | { ok: true; sql: string }
+  | {
+      ok: false;
+      reason: string;
+      /** true: câu lệnh có ý định ghi/sửa dữ liệu hoặc can thiệp hệ thống (trả 400 với DATA_LAB_BLOCKED_MESSAGE). */
+      blocked?: boolean;
+    };
 
 export interface ScannedSql {
   /** Câu SQL đã thay literal, định danh trong ngoặc kép và comment bằng khoảng trống: để quét từ khóa. */
@@ -86,6 +111,8 @@ export interface ScannedSql {
   end: number;
   /** Có chuỗi/định danh dạng Unicode escape `U&...`. */
   hasUnicodeEscape: boolean;
+  /** Nội dung các comment (`--` và block comment) để phát hiện lệnh bị giấu trong comment. */
+  comments: string[];
 }
 
 const isIdentChar = (ch: string | undefined) =>
@@ -103,6 +130,7 @@ export function scanSql(sql: string): ScannedSql {
   let codeWithIdentifiers = '';
   let end = 0;
   let hasUnicodeEscape = false;
+  const comments: string[] = [];
   const n = sql.length;
   let i = 0;
 
@@ -117,12 +145,15 @@ export function scanSql(sql: string): ScannedSql {
     const next = sql[i + 1];
 
     if (ch === '-' && next === '-') {
+      const from = i;
       while (i < n && sql[i] !== '\n') i++;
+      comments.push(sql.slice(from, i));
       emit(' ', ' ', false);
       continue;
     }
 
     if (ch === '/' && next === '*') {
+      const from = i;
       let depth = 1;
       i += 2;
       while (i < n && depth > 0) {
@@ -136,6 +167,7 @@ export function scanSql(sql: string): ScannedSql {
           i++;
         }
       }
+      comments.push(sql.slice(from, i));
       emit(' ', ' ', false);
       continue;
     }
@@ -197,7 +229,7 @@ export function scanSql(sql: string): ScannedSql {
     emit(ch, ch, ch !== ';' && !/\s/.test(ch));
   }
 
-  return { code, codeWithIdentifiers, end, hasUnicodeEscape };
+  return { code, codeWithIdentifiers, end, hasUnicodeEscape, comments };
 }
 
 /** Giữ để tương thích: câu SQL đã bỏ literal, định danh trong ngoặc kép và comment. */
@@ -223,27 +255,27 @@ export function checkStudentSql(input: string): SqlGuardResult {
     };
   }
 
+  // Comment được bỏ đi trước khi kiểm tra, nhưng comment chứa từ khóa ghi/can thiệp (vd "-- DROP TABLE") bị coi là cố giấu lệnh: chặn 400.
+  const commentHit = scanned.comments.some(
+    (c) => FORBIDDEN_KEYWORDS.some((kw) => new RegExp(`\\b${kw}\\b`, 'i').test(c)) || /\bREPLACE\b(?!\s*\()/i.test(c),
+  );
+  if (commentHit) return { ok: false, reason: DATA_LAB_BLOCKED_MESSAGE, blocked: true };
+
   // Chỉ cho phép đúng một câu lệnh; dấu `;` ở cuối được bỏ qua.
   const body = scanned.code.trim().replace(/;\s*$/, '');
+  const upper = body.toUpperCase();
+  // Từ khóa ghi/sửa/can thiệp hệ thống ở BẤT KỲ vị trí nào (kể cả câu thứ hai sau dấu `;`) -> bị chặn (400).
+  const hit = FORBIDDEN_KEYWORDS.find((kw) => new RegExp(`\\b${kw}\\b`).test(upper)) ?? (REPLACE_STATEMENT.test(upper) ? 'REPLACE' : undefined);
   if (body.includes(';')) {
-    return { ok: false, reason: 'Chỉ được chạy một câu lệnh SQL mỗi lần.' };
+    return hit
+      ? { ok: false, reason: DATA_LAB_BLOCKED_MESSAGE, blocked: true }
+      : { ok: false, reason: 'Chỉ được chạy một câu lệnh SQL mỗi lần.' };
   }
   if (!/^(SELECT|WITH)\b/i.test(body) && !/^\(\s*SELECT\b/i.test(body)) {
-    return {
-      ok: false,
-      reason:
-        'Lab chỉ cho phép câu truy vấn đọc dữ liệu (SELECT hoặc WITH ... SELECT).',
-    };
+    return { ok: false, reason: DATA_LAB_BLOCKED_MESSAGE, blocked: true };
   }
-
-  const upper = body.toUpperCase();
-  for (const kw of FORBIDDEN_KEYWORDS) {
-    if (new RegExp(`\\b${kw}\\b`).test(upper)) {
-      return {
-        ok: false,
-        reason: `Câu lệnh chứa từ khóa không được phép trong sandbox: ${kw}.`,
-      };
-    }
+  if (hit) {
+    return { ok: false, reason: DATA_LAB_BLOCKED_MESSAGE, blocked: true };
   }
   if (/\bFOR\s+(UPDATE|SHARE|NO\s+KEY\s+UPDATE|KEY\s+SHARE)\b/.test(upper)) {
     return { ok: false, reason: 'Không được khóa dòng (FOR UPDATE/SHARE).' };

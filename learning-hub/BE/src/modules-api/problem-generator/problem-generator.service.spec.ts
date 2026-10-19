@@ -9,6 +9,7 @@ import { ProblemDraft } from './problem-generator.types';
 function makeDraft(overrides: Partial<ProblemDraft> = {}): ProblemDraft {
   return {
     specId: 'spec-test',
+    band: '6-9',
     title: 'Bai kiem thu save draft',
     slug: 'bai-kiem-thu-save-draft',
     description: 'Mo ta bai kiem thu cho saveDraft.',

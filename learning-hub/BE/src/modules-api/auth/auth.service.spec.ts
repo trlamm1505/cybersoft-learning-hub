@@ -44,6 +44,7 @@ describe('AuthService', () => {
   const mockConfigService = { get: jest.fn() };
   const mockMailService = {
     sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+    isConfigured: jest.fn().mockReturnValue(true),
   };
 
   beforeEach(async () => {
@@ -79,7 +80,7 @@ describe('AuthService', () => {
 
       const result = await service.register({
         email: 'a@b.com',
-        password: '123456',
+        password: 'Abcdef1!',
         fullName: 'A',
       });
 
@@ -103,7 +104,7 @@ describe('AuthService', () => {
       mockCounterModel.findOneAndUpdate.mockResolvedValueOnce({ seq: 1 });
       const r1 = await service.register({
         email: 'a@b.com',
-        password: '123456',
+        password: 'Abcdef1!',
         fullName: 'A',
       });
       expect(r1.user.studentCode).toBe('C0001');
@@ -111,7 +112,7 @@ describe('AuthService', () => {
       mockCounterModel.findOneAndUpdate.mockResolvedValueOnce({ seq: 23 });
       const r2 = await service.register({
         email: 'b@b.com',
-        password: '123456',
+        password: 'Abcdef1!',
         fullName: 'B',
       });
       expect(r2.user.studentCode).toBe('C0023');
@@ -119,10 +120,23 @@ describe('AuthService', () => {
       mockCounterModel.findOneAndUpdate.mockResolvedValueOnce({ seq: 10000 });
       const r3 = await service.register({
         email: 'c@b.com',
-        password: '123456',
+        password: 'Abcdef1!',
         fullName: 'C',
       });
       expect(r3.user.studentCode).toBe('C10000');
+    });
+
+    it('đăng ký có chọn nhóm Người đi làm / Trái ngành: lưu ageGroup=CAREER_ADULT', async () => {
+      mockUserModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
+      mockCounterModel.findOneAndUpdate.mockResolvedValue({ seq: 2 });
+      mockUserModel.create.mockImplementation((data: any) => Promise.resolve({ _id: 'u', ...data }));
+      const result = await service.register({ email: 'a@b.com', password: 'Abcdef1!', fullName: 'A', ageGroup: 'CAREER_ADULT' });
+      expect(mockUserModel.create).toHaveBeenCalledWith(expect.objectContaining({ role: 'STUDENT', ageGroup: 'CAREER_ADULT' }));
+      expect(result.user.ageGroup).toBe('CAREER_ADULT');
+    });
+
+    it('nhóm đối tượng lạ khi đăng ký bị từ chối 400 (không im lặng bỏ qua)', async () => {
+      await expect(service.register({ email: 'a@b.com', password: 'Abcdef1!', fullName: 'A', ageGroup: 'ADMIN' })).rejects.toThrow(BadRequestException);
     });
 
     it('từ chối nếu email đã tồn tại', async () => {
@@ -133,10 +147,24 @@ describe('AuthService', () => {
       await expect(
         service.register({
           email: 'a@b.com',
-          password: '123456',
+          password: 'Abcdef1!',
           fullName: 'A',
         }),
       ).rejects.toThrow(ConflictException);
+    });
+
+    it('từ chối mật khẩu yếu (thiếu chữ hoa/số/ký tự đặc biệt hoặc ngoài 8-32 ký tự) và email sai định dạng', async () => {
+      for (const [email, password, re] of [
+        ['a@b.com', 'abcdefg1!', /chữ hoa/],
+        ['a@b.com', 'Abcdefgh!', /chữ số/],
+        ['a@b.com', 'Abcdefg12', /ký tự đặc biệt/],
+        ['a@b.com', 'Ab1!', /8 đến 32/],
+        ['a@b.com', 'Aa1!' + 'x'.repeat(29), /8 đến 32/],
+        ['khong-phai-email', 'Abcdef1!', /Email/],
+        ['a b@b.com', 'Abcdef1!', /Email/],
+      ] as Array<[string, string, RegExp]>) {
+        await expect(service.register({ email, password, fullName: 'A' })).rejects.toThrow(re);
+      }
     });
 
     it('từ chối mật khẩu ngắn hơn 6 ký tự', async () => {
@@ -151,6 +179,13 @@ describe('AuthService', () => {
   });
 
   describe('setAgeGroup — chỉ set được cho STUDENT, giá trị hợp lệ', () => {
+    it('chấp nhận CAREER_ADULT ở modal chọn nhóm', async () => {
+      const user: any = { role: 'STUDENT', save: jest.fn().mockResolvedValue(undefined) };
+      mockUserModel.findById.mockResolvedValue(user);
+      await expect(service.setAgeGroup('u1', 'CAREER_ADULT')).resolves.toEqual({ ageGroup: 'CAREER_ADULT' });
+    });
+
+
     it('từ chối ageGroup không hợp lệ', async () => {
       await expect(service.setAgeGroup('user1', 'invalid')).rejects.toThrow(
         BadRequestException,
@@ -206,6 +241,72 @@ describe('AuthService', () => {
       expect(mockMailService.sendPasswordResetEmail).not.toHaveBeenCalled();
     });
 
+    it('email sai định dạng hoặc rỗng -> 400, không tra CSDL', async () => {
+      for (const bad of ['', '   ', 'khong-phai-email', 'a@b', 'a b@c.com']) {
+        await expect(service.forgotPassword({ email: bad })).rejects.toThrow(BadRequestException);
+      }
+      await expect(service.forgotPassword({} as never)).rejects.toThrow(BadRequestException);
+      expect(mockUserModel.findOne).not.toHaveBeenCalled();
+    });
+
+    it('phản hồi ngay dù SMTP chậm hoặc lỗi: gửi thư chạy nền, không chặn và không ném lỗi', async () => {
+      mockUserModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ _id: 'user1', email: 'a@b.com' }) });
+      mockConfigService.get.mockReturnValue('http://localhost:5173');
+      mockMailService.sendPasswordResetEmail.mockReturnValueOnce(new Promise(() => undefined)); // không bao giờ xong
+      const res = await service.forgotPassword({ email: 'a@b.com' });
+      expect(res.success).toBe(true);
+      mockMailService.sendPasswordResetEmail.mockRejectedValueOnce(new Error('SMTP down'));
+      await expect(service.forgotPassword({ email: 'a@b.com' })).resolves.toMatchObject({ success: true });
+    });
+
+    describe('chưa cấu hình SMTP (Development Mock Mode)', () => {
+      const OLD_ENV = process.env.NODE_ENV;
+      beforeEach(() => {
+        mockMailService.isConfigured.mockReturnValue(false);
+        mockUserModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ _id: 'user1', email: 'a@b.com' }) });
+        mockConfigService.get.mockReturnValue('http://localhost:5173');
+      });
+      afterEach(() => {
+        mockMailService.isConfigured.mockReturnValue(true);
+        process.env.NODE_ENV = OLD_ENV;
+      });
+
+      it('Day 29 (H6): dev nhưng KHÔNG bật DEV_MAIL_MOCK → không trả liên kết (không ai tự lấy link reset của admin)', async () => {
+        process.env.NODE_ENV = 'development';
+        delete process.env.DEV_MAIL_MOCK;
+        const res = await service.forgotPassword({ email: 'a@b.com' });
+        expect(res.success).toBe(true);
+        expect(res).not.toHaveProperty('devResetLink');
+      });
+
+      it('không gửi thư; trả success + thông báo Dev mode kèm liên kết đặt lại (chỉ khi DEV_MAIL_MOCK=true)', async () => {
+        process.env.NODE_ENV = 'development';
+        process.env.DEV_MAIL_MOCK = 'true';
+        const res = await service.forgotPassword({ email: 'a@b.com' });
+        delete process.env.DEV_MAIL_MOCK;
+        expect(res.success).toBe(true);
+        expect(res.message).toContain('Dev mode');
+        expect(res.devResetLink).toContain('http://localhost:5173/reset-password?token=');
+        expect(mockMailService.sendPasswordResetEmail).not.toHaveBeenCalled();
+        expect(mockPasswordResetModel.create).toHaveBeenCalled();
+      });
+
+      it('production: tuyệt đối không trả liên kết trong response', async () => {
+        process.env.NODE_ENV = 'production';
+        process.env.DEV_MAIL_MOCK = 'true';
+        const res = await service.forgotPassword({ email: 'a@b.com' });
+        delete process.env.DEV_MAIL_MOCK;
+        expect(res).not.toHaveProperty('devResetLink');
+      });
+
+      it('email không tồn tại: không lộ liên kết', async () => {
+        process.env.NODE_ENV = 'development';
+        mockUserModel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
+        const res = await service.forgotPassword({ email: 'khong@co.com' });
+        expect(res).not.toHaveProperty('devResetLink');
+      });
+    });
+
     it('sinh token, xoá token cũ chưa dùng, và gửi email khi email tồn tại', async () => {
       mockUserModel.findOne.mockReturnValue({
         lean: jest.fn().mockResolvedValue({ _id: 'user1', email: 'a@b.com' }),
@@ -252,7 +353,7 @@ describe('AuthService', () => {
       await expect(
         service.resetPassword({
           token: 'khong-hop-le',
-          newPassword: 'newpass123',
+          newPassword: 'Newpass123!',
         }),
       ).rejects.toThrow(BadRequestException);
     });
@@ -267,7 +368,7 @@ describe('AuthService', () => {
       await expect(
         service.resetPassword({
           token: 'valid-but-expired',
-          newPassword: 'newpass123',
+          newPassword: 'Newpass123!',
         }),
       ).rejects.toThrow(BadRequestException);
     });
@@ -289,7 +390,7 @@ describe('AuthService', () => {
 
       const result = await service.resetPassword({
         token: 'valid-token',
-        newPassword: 'newpass123',
+        newPassword: 'Newpass123!',
       });
 
       expect(mockUser.password).not.toBe('old-hash');

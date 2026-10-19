@@ -36,3 +36,7 @@ export class CoachMessage {
 export const CoachMessageSchema = SchemaFactory.createForClass(CoachMessage);
 
 CoachMessageSchema.index({ userId: 1, exerciseSlug: 1, createdAt: 1 });
+
+/** Thời gian lưu lịch sử AI Coach (PRV-07): MongoDB tự xóa tin nhắn cũ hơn 90 ngày. */
+export const COACH_MESSAGE_RETENTION_SECONDS = 90 * 24 * 60 * 60;
+CoachMessageSchema.index({ createdAt: 1 }, { expireAfterSeconds: COACH_MESSAGE_RETENTION_SECONDS });

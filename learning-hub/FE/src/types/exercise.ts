@@ -13,6 +13,14 @@ export interface ExerciseListItem {
   gradeBand?: string;
   topic?: string;
   orderInTopic?: number;
+  // Ma trận nhóm đối tượng x loại lab (bài cũ chưa có). Xem common/exerciseMatrix.ts.
+  targetGroup?: 'K3_5' | 'K6_9' | 'K10_12' | 'CAREER_ADULT';
+  labType?: 'PUZZLE_BLOCK' | 'PYTHON_CODE' | 'ALGO_JUDGE' | 'DATA_SQL' | 'AI_PROMPT' | 'TESTER_QA';
+  /** Bài K3_5: câu chuyện dẫn dắt + ảnh minh họa. */
+  storyContext?: string;
+  illustrationUrl?: string;
+  /** Bài DATA_SQL: dataset mẫu liên kết (vd sales_v1). */
+  datasetId?: string;
   // Cờ trạng thái tính sẵn ở BE (ExerciseService.findAll) để hiển thị badge
   // Draft/Ready/Validated trên bank picker — không phải nội dung thật của
   // testCases/solutionCode (route này không trả field đó để không lộ đáp án).
@@ -42,7 +50,13 @@ export interface ExerciseDetail extends ExerciseListItem {
 // Bản đầy đủ CHỈ giáo viên xem được (GET /exercises/:slug/full) — có
 // solutionCode thật và testCases KHÔNG bị lọc hidden, khác ExerciseDetail
 // (bản học viên xem, luôn ẩn đáp án/test ẩn).
-export interface ExerciseFullDetail {
+export interface ExerciseFullDetail extends Pick<ExerciseListItem, 'targetGroup' | 'labType' | 'storyContext' | 'illustrationUrl' | 'datasetId'> {
+  /** Chỉ staff nhận được hai trường dưới đây; không bao giờ render ở giao diện học viên. */
+  hiddenTestCases?: ExerciseTestCase[];
+  officialSolution?: string;
+  timeLimitMs?: number;
+  memoryLimitMb?: number;
+  authorId?: string;
   _id: string;
   title: string;
   slug: string;
@@ -120,4 +134,23 @@ export interface SubmitCodeResponse {
   results: SubmissionTestResult[];
   errorMessage?: string;
   memoryUsedMb?: number;
+}
+
+/** Trạng thái một bài trong lộ trình Playground, do MÁY CHỦ tính từ bài nộp AC (Day 31). */
+export type PlaygroundStatus = 'completed' | 'available' | 'locked';
+
+export interface PlaygroundExercise extends ExerciseListItem {
+  /** Số thứ tự cố định #1..#N trong lộ trình của khối. */
+  order: number;
+  status: PlaygroundStatus;
+}
+
+/** Lộ trình Playground chuẩn của một khối: GET /exercises/playground. completed/total là con số duy nhất cho "X / N bài". */
+export interface PlaygroundResponse {
+  band: '6-9' | '10-12' | null;
+  topic: string | null;
+  total: number;
+  completed: number;
+  nextSlug: string | null;
+  exercises: PlaygroundExercise[];
 }

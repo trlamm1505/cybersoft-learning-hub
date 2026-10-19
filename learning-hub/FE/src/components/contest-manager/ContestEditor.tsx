@@ -264,7 +264,7 @@ export const ContestEditor: React.FC<ContestEditorProps> = ({ contest, onClose, 
         )}
 
         {step === 1 && (
-          <ProblemPicker problems={form.problems} onChange={(problems) => patch({ problems })} locked={locked} />
+          <ProblemPicker problems={form.problems} onChange={(problems) => patch({ problems })} locked={locked} defaultBand={form.gradeBand === '6-9' || form.gradeBand === '10-12' ? form.gradeBand : ''} />
         )}
 
         {step === 2 && (
@@ -292,6 +292,21 @@ export const ContestEditor: React.FC<ContestEditorProps> = ({ contest, onClose, 
                 Hệ thống <strong>không tự trừ điểm, không hủy bài, không tự kết luận gian lận</strong>. Bài có dấu hiệu bất thường chỉ
                 được đưa vào hàng chờ "Cần xem xét" để bạn đối chiếu và quyết định ở mục Kết quả.
               </p>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="text-sm font-extrabold text-[var(--text-main)]">Khối được dự thi</h3>
+              <select
+                aria-label="Khối được dự thi"
+                value={form.gradeBand}
+                onChange={(e) => patch({ gradeBand: e.target.value as typeof form.gradeBand })}
+                className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] px-3 py-2 text-sm text-[var(--text-main)]"
+              >
+                <option value="ALL">Mở cho mọi khối</option>
+                <option value="6-9">Chỉ Khối 6–9</option>
+                <option value="10-12">Chỉ Khối 10–12</option>
+              </select>
+              <p className="text-xs text-[var(--text-muted)]">Mọi học sinh đều thấy cuộc thi trong danh sách, nhưng chỉ học sinh đúng khối mới vào được phòng thi (khác khối nhận lỗi 403).</p>
             </section>
 
             <section className="space-y-2 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-main)] p-4 text-xs text-[var(--text-main)]">

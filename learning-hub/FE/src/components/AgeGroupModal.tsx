@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Baby, Gamepad2, Rocket, Loader2 } from 'lucide-react';
+import { Baby, Briefcase, Gamepad2, Rocket, Loader2 } from 'lucide-react';
 import authApi from '../axios/authApi';
 import type { AgeGroup } from '../types/auth';
 
@@ -11,6 +11,7 @@ const OPTIONS: { value: AgeGroup; label: string; desc: string; Icon: typeof Baby
   { value: '3-5', label: 'Lớp 3-5', desc: 'Làm quen tư duy lập trình qua trò chơi hình khối', Icon: Baby, gradient: 'from-orange-400 to-pink-500' },
   { value: '6-9', label: 'Lớp 6-9', desc: 'Python căn bản, giải thuật đơn giản', Icon: Gamepad2, gradient: 'from-indigo-600 to-cyan-500' },
   { value: '10-12', label: 'Lớp 10-12', desc: 'Thuật toán nâng cao, luyện thi', Icon: Rocket, gradient: 'from-slate-700 to-slate-900' },
+  { value: 'CAREER_ADULT', label: 'Người đi làm / Trái ngành', desc: 'Phòng thực hành SQL, AI Prompting, Tester', Icon: Briefcase, gradient: 'from-emerald-600 to-teal-500' },
 ];
 
 /**
@@ -51,7 +52,7 @@ export const AgeGroupModal: React.FC<AgeGroupModalProps> = ({ onSelected }) => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {OPTIONS.map(({ value, label, desc, Icon, gradient }) => (
             <button
               key={value}

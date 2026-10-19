@@ -3,11 +3,12 @@ import { DatabaseModule } from '../../modules-system/database/database.module';
 import { CommonAuthModule } from '../../common/auth/common-auth.module';
 import { LeaderboardController } from './leaderboard.controller';
 import { LeaderboardService } from './leaderboard.service';
+import { ContestHistoryService, StudentContestHistoryController } from './contest-history.service';
 
 @Module({
   imports: [DatabaseModule, CommonAuthModule],
-  controllers: [LeaderboardController],
-  providers: [LeaderboardService],
+  controllers: [LeaderboardController, StudentContestHistoryController],
+  providers: [LeaderboardService, ContestHistoryService],
   exports: [LeaderboardService],
 })
 export class LeaderboardModule {}
