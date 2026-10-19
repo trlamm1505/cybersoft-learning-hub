@@ -3,15 +3,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabBtns = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
+  function switchTab(tabId) {
+    tabBtns.forEach(b => b.classList.remove("active"));
+    tabContents.forEach(c => c.classList.remove("active"));
+    const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    const target = document.getElementById(tabId);
+    if (btn && target) {
+      btn.classList.add("active");
+      target.classList.add("active");
+      if (history.replaceState) {
+        history.replaceState(null, null, "#" + tabId);
+      } else {
+        window.location.hash = tabId;
+      }
+    }
+  }
+
   tabBtns.forEach(btn => {
     btn.addEventListener("click", () => {
-      tabBtns.forEach(b => b.classList.remove("active"));
-      tabContents.forEach(c => c.classList.remove("active"));
-      btn.classList.add("active");
-      const target = document.getElementById(btn.dataset.tab);
-      if (target) target.classList.add("active");
+      switchTab(btn.dataset.tab);
     });
   });
+
+  // Tự động chuyển tab theo URL hash khi mở trang
+  if (window.location.hash) {
+    const hashId = window.location.hash.substring(1);
+    if (document.getElementById(hashId)) {
+      switchTab(hashId);
+    }
+  }
 
   // TAB 1: Kho 3NF (Task 01-10), Cổng Portal Tải/Chấm Sao (Task 21-22), Khóa Snapshot (Task 26) & Bản vá (Task 28)
   let catalogItems = [];
