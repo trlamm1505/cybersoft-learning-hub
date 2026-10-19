@@ -1,14 +1,14 @@
 # Changelog — CyberSoft Learning & Contest Hub
 
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/), phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
-Chi tiết bản phát hành: [docs/RELEASE_NOTES_v1.0.md](docs/RELEASE_NOTES_v1.0.md).
+Chi tiết bản phát hành: [docs/day30/RELEASE_NOTES_v1.0.md](docs/day30/RELEASE_NOTES_v1.0.md).
 
 ## [1.0.0] — 2026-10-19
 
 Bản phát hành chính thức đầu tiên (Ngày 30 — Tuần 6: Tích hợp và phát hành). Nhánh `feature/learning-hub-day30`, tách từ `feat/admin-portal-v2` @ `ac18440`.
 
 ### Added
-- Tài liệu bàn giao: `docs/ADMIN_TEACHER_HANDBOOK.md` (33 ảnh chụp từ Chrome thật trên dữ liệu `seed:clean`), `docs/OPERATIONS_RUNBOOK.md`, `docs/RELEASE_NOTES_v1.0.md`, `docs/ROADMAP_60D.md`; `AI_WORKLOG.md` theo mẫu Ngày 25 (Day 30, tóm tắt Day 27–31).
+- Tài liệu bàn giao: `docs/day30/ADMIN_TEACHER_HANDBOOK.md` (33 ảnh chụp từ Chrome thật trên dữ liệu `seed:clean`), `docs/day30/OPERATIONS_RUNBOOK.md`, `docs/day30/RELEASE_NOTES_v1.0.md`, `docs/day30/ROADMAP_60D.md`; `AI_WORKLOG.md` theo mẫu Ngày 25 (Day 30, tóm tắt Day 27–31).
 - Admin Portal v2: phân công nhiều giảng viên "tick là lưu ngay", đồng bộ vai trò ↔ khối học, chặn khóa giảng viên còn đứng lớp (409), Health Check toàn vẹn lớp – giảng viên, Nhật ký không sửa được (`c044190`).
 - Ngân hàng đề Khối 6–9 / 10–12: Bài tập Code + Câu hỏi Trắc nghiệm, CRUD `/teacher/question-bank/questions`, chặn xóa/đổi khối bài đang dùng (409), `bankOnly` khóa cứng (`8902fcb`, `c044190`).
 - Giao bài theo Ngày 1..N cho lớp, có hạn nộp do máy chủ kiểm tra.

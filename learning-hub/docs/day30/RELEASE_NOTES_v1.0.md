@@ -6,7 +6,7 @@
 | **Ngày phát hành** | 19/10/2026 (Ngày 30 — Tuần 6: Tích hợp và phát hành) |
 | **Nhánh / commit gốc** | `feature/learning-hub-day30`, tách từ `feat/admin-portal-v2` @ `ac18440` |
 | **Môi trường** | Node.js 20.12+ · Python 3.10+ (Local Sandbox) · MongoDB 6+ · không Docker |
-| **Tài liệu kèm theo** | [Cẩm nang Admin & Giảng viên](ADMIN_TEACHER_HANDBOOK.md) · [Runbook](OPERATIONS_RUNBOOK.md) · [Roadmap 60 ngày](ROADMAP_60D.md) · [AI Work Log](../AI_WORKLOG.md) |
+| **Tài liệu kèm theo** | [Cẩm nang Admin & Giảng viên](ADMIN_TEACHER_HANDBOOK.md) · [Runbook](OPERATIONS_RUNBOOK.md) · [Roadmap 60 ngày](ROADMAP_60D.md) · [AI Work Log](../../AI_WORKLOG.md) |
 
 CyberSoft Learning & Contest Hub v1.0 là bản phát hành chính thức đầu tiên của nền tảng học — luyện tập — chấm bài — thi đấu — AI Coach cho học sinh lớp 3–12 và người đi làm. Bản này khép lại vòng lặp học tập có bằng chứng: **học viên làm bài → máy chấm thật → AI gợi ý có kiểm soát → học viên thử lại → giảng viên thấy tiến bộ → Admin vận hành an toàn**, và giảng viên tạo bài/giao bài/tổ chức cuộc thi **không cần sửa mã nguồn**.
 
@@ -89,7 +89,7 @@ Jest, Vitest, node --test và 5 bộ audit được chạy lại ngày 19/10/202
 
 ## 3. Known Issues & Giới hạn kỹ thuật có chủ đích
 
-Các mục dưới đây là rủi ro **đã biết và chấp nhận** cho v1.0 (nội bộ). Chi tiết bổ sung: [docs/day29/KNOWN_ISSUES.md](day29/KNOWN_ISSUES.md).
+Các mục dưới đây là rủi ro **đã biết và chấp nhận** cho v1.0 (nội bộ). Chi tiết bổ sung: [docs/day29/KNOWN_ISSUES.md](../day29/KNOWN_ISSUES.md).
 
 ### 3.1 Bảo mật & thực thi code
 

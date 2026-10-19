@@ -95,10 +95,10 @@ Commit `ac18440`.
 
 | File | Ghi chú |
 |---|---|
-| `docs/ADMIN_TEACHER_HANDBOOK.md` + `docs/images/handbook/` (33 ảnh) | Giữ. AI quét FE/BE và chụp ảnh thật bằng Chrome trên dữ liệu `seed:clean` thay vì để khung trống |
-| `docs/OPERATIONS_RUNBOOK.md` | Giữ: môi trường, `/api/health`, backup/restore, seed, escalation L1/L2/L3, 7 lỗi thực tế |
-| `docs/RELEASE_NOTES_v1.0.md`, `CHANGELOG.md` | Giữ: tính năng, chỉ số chất lượng, 17 Known Issues |
-| `docs/ROADMAP_60D.md` | Giữ: theo đúng cấu trúc file mẫu CyberSoft, Ngày 31 → 90 |
+| `docs/day30/ADMIN_TEACHER_HANDBOOK.md` + `docs/images/handbook/` (33 ảnh) | Giữ. AI quét FE/BE và chụp ảnh thật bằng Chrome trên dữ liệu `seed:clean` thay vì để khung trống |
+| `docs/day30/OPERATIONS_RUNBOOK.md` | Giữ: môi trường, `/api/health`, backup/restore, seed, escalation L1/L2/L3, 7 lỗi thực tế |
+| `docs/day30/RELEASE_NOTES_v1.0.md`, `CHANGELOG.md` | Giữ: tính năng, chỉ số chất lượng, 17 Known Issues |
+| `docs/day30/ROADMAP_60D.md` | Giữ: theo đúng cấu trúc file mẫu CyberSoft, Ngày 31 → 90 |
 | `docs/DEMO_SCRIPT.md` | **Bác bỏ, đã xóa**: tôi tự quay video và tự demo |
 | Tên nhánh `learning-hubday30` | **Sửa** thành `feature/learning-hub-day30` theo quy ước dự án |
 

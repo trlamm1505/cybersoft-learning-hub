@@ -46,7 +46,7 @@
 
 Đăng nhập bằng `admin@gmail.com`. Hệ thống tự đưa Admin vào Admin Portal; mọi đường dẫn khác (kể cả trang học tập) đều quay về `/admin/dashboard`.
 
-![Hình A.0 - Tổng quan Admin Portal](images/handbook/a01-admin-dashboard.png)
+![Hình A.0 - Tổng quan Admin Portal](../images/handbook/a01-admin-dashboard.png)
 *Hình A.0 — Trang Tổng quan. Quan sát thanh điều hướng bên trái gồm 6 mục: Tổng quan, Người dùng, Lớp học, Cấu hình, Trạng thái API, Nhật ký.*
 
 ## A1. Quản lý người dùng `/admin/users`
@@ -55,7 +55,7 @@
 
 **Bước 1.** Bấm **Người dùng** ở thanh bên trái.
 
-![Hình A.1 - Danh sách người dùng](images/handbook/a02-admin-users-list.png)
+![Hình A.1 - Danh sách người dùng](../images/handbook/a02-admin-users-list.png)
 *Hình A.1 — Bảng người dùng 20 dòng/trang. Quan sát cột **Vai trò** (nhãn màu), cột **Khối học** (giảng viên/Admin luôn là "—"), cột **Trạng thái** (chấm xanh = Hoạt động, chấm đỏ = Đã khóa). Học viên có mã `Cxxxx` hiện dưới họ tên.*
 
 **Bước 2.** Gõ tên hoặc email vào ô **Tìm theo tên hoặc email...** Bảng tự lọc sau khi bạn ngừng gõ khoảng 0,25 giây (không cần bấm Enter).
@@ -68,7 +68,7 @@
 | Khối học | Tất cả khối học · Khối 3-5 tuổi · Khối 6-9 tuổi · Khối 10-12 tuổi · Người đi làm |
 | Trạng thái | Mọi trạng thái · Hoạt động · Đã khóa |
 
-![Hình A.2 - Lọc theo vai trò Giảng viên](images/handbook/a03-admin-users-filter-teacher.png)
+![Hình A.2 - Lọc theo vai trò Giảng viên](../images/handbook/a03-admin-users-filter-teacher.png)
 *Hình A.2 — Lọc "Giảng viên". Quan sát cột Khối học của mọi giảng viên đều là "—".*
 
 **Bước 4.** Bấm vào **họ tên** một người để mở ngăn trượt hồ sơ: thông tin, các lớp đang học/phụ trách, tiến độ, bài nộp gần nhất.
@@ -83,10 +83,10 @@
 
 **Bước 3.** Chọn **Vai trò**: chỉ có *Học viên* hoặc *Giảng viên*.
 
-![Hình A.3 - Tạo học viên: bắt buộc chọn khối](images/handbook/a04-admin-create-user-student.png)
+![Hình A.3 - Tạo học viên: bắt buộc chọn khối](../images/handbook/a04-admin-create-user-student.png)
 *Hình A.3 — Vai trò Học viên: ô **Khối học** là danh sách chọn và bắt buộc ("Chọn khối học cho học viên.").*
 
-![Hình A.4 - Tạo giảng viên: ô Khối học bị khóa](images/handbook/a05-admin-create-user-teacher.png)
+![Hình A.4 - Tạo giảng viên: ô Khối học bị khóa](../images/handbook/a05-admin-create-user-teacher.png)
 *Hình A.4 — Vai trò Giảng viên: ô Khối học chuyển thành chữ xám **"Chỉ áp dụng cho học viên"** và không bấm được.*
 
 **Vì sao ô Khối học bị ẩn với Giảng viên?** Khối học (`ageGroup`) quyết định học viên thấy bài nào, vào lớp nào và được tính vào sĩ số khối nào. Giảng viên không thuộc khối nào, nên nếu lưu khối cho giảng viên thì số liệu "Học viên theo khối" và sĩ số lớp sẽ sai. Backend chặn lần thứ hai: nếu client cố gửi `ageGroup` kèm vai trò giảng viên thì trường này bị bỏ qua.
@@ -99,7 +99,7 @@
 
 **Bước 1.** Bấm **Sửa** ở cuối dòng người dùng.
 
-![Hình A.5 - Sửa người dùng (học viên)](images/handbook/a06-admin-edit-user.png)
+![Hình A.5 - Sửa người dùng (học viên)](../images/handbook/a06-admin-edit-user.png)
 *Hình A.5 — Hộp Sửa người dùng. Email là định danh đăng nhập nên bị khóa. Với học viên, ô Vai trò là danh sách chọn; với giảng viên, ô này là nút **Thu hồi quyền giảng viên...**.*
 
 **Bước 2.** Sửa **Họ tên**, **Khối học** (chỉ với học viên) hoặc nhập **Đặt lại mật khẩu** (để trống nếu không đổi). Đặt lại mật khẩu sẽ **đăng xuất người đó khỏi mọi thiết bị**.
@@ -118,14 +118,14 @@
 
 **Bước 1.** Bấm **Khóa** (chữ đỏ, biểu tượng ổ khóa) ở cuối dòng.
 
-![Hình A.6 - Xác nhận khóa tài khoản](images/handbook/a07-admin-lock-teacher-confirm.png)
+![Hình A.6 - Xác nhận khóa tài khoản](../images/handbook/a07-admin-lock-teacher-confirm.png)
 *Hình A.6 — Hộp xác nhận nói rõ hậu quả: người dùng bị đăng xuất ngay ở yêu cầu kế tiếp và không đăng nhập được cho tới khi được mở khóa.*
 
 **Bước 2.** Bấm **Khóa tài khoản**.
 
 > **⚠ Cảnh báo 409 — Giảng viên đang đứng lớp.** Nếu tài khoản là giảng viên còn phụ trách ít nhất một lớp **đang hoạt động**, hệ thống từ chối khóa:
 
-![Hình A.7 - Lỗi 409 khi khóa giảng viên đang phụ trách lớp](images/handbook/a08-admin-lock-teacher-409.png)
+![Hình A.7 - Lỗi 409 khi khóa giảng viên đang phụ trách lớp](../images/handbook/a08-admin-lock-teacher-409.png)
 *Hình A.7 — Thông báo đỏ: "Giảng viên đang phụ trách 1 lớp. Hãy chuyển giao lớp cho giảng viên khác trước khi khóa tài khoản." Trạng thái tài khoản vẫn là Hoạt động.*
 
 **Cách xử lý:**
@@ -144,7 +144,7 @@ Mở khóa: bấm **Mở khóa** ở dòng có trạng thái Đã khóa → **M�
 
 **Bước 1.** Bấm **Lớp học** ở thanh bên trái.
 
-![Hình A.8 - Danh sách lớp học](images/handbook/a09-admin-classes-overview.png)
+![Hình A.8 - Danh sách lớp học](../images/handbook/a09-admin-classes-overview.png)
 *Hình A.8 — Mỗi dòng gồm Tên lớp & Mã lớp (kèm số học viên, số bài), Khối tuổi, Giảng viên (nhãn tím = giảng viên chính), Trạng thái, Thao tác. Các tab ở trên kèm số lớp từng khối.*
 
 | Tab | Ý nghĩa |
@@ -154,7 +154,7 @@ Mở khóa: bấm **Mở khóa** ở dòng có trạng thái Đã khóa → **M�
 | **Lớp 6–9** / **Lớp 10–12** | Lớp phổ thông: bài Code Python + Trắc nghiệm, giao theo Ngày, chấm máy |
 | **Người đi làm** | 3 khóa chuyên ngành: Tester QA (`CL-CAREER-TESTER`), Data Lab (`CL-CAREER-DATA`), AI Lab (`CL-CAREER-AI`) |
 
-![Hình A.9 - Tab Người đi làm](images/handbook/a10-admin-classes-career-tab.png)
+![Hình A.9 - Tab Người đi làm](../images/handbook/a10-admin-classes-career-tab.png)
 *Hình A.9 — 3 khóa Người đi làm.*
 
 **Cơ chế đặc thù của 3 khóa Người đi làm:** mọi tài khoản khối *Người đi làm* đang hoạt động **tự động học đủ cả 3 khóa**, nên ở chi tiết lớp không có nút Thêm/Gỡ học viên (giao diện ghi: "Mọi tài khoản Người đi làm đang hoạt động đều học đủ 3 khóa, nên không thêm/gỡ thủ công."). Sĩ số được tính từ số tài khoản Người đi làm, không lưu danh sách riêng. Bài trong các khóa này là Lab cố định; Data Lab / AI Lab tự chấm trên sandbox, Tester QA do giảng viên chấm theo rubric (mục B6).
@@ -165,7 +165,7 @@ Thanh tìm kiếm tìm theo **tên lớp, mã lớp hoặc tên giảng viên**;
 
 **Bước 1.** Bấm **+ Tạo lớp mới**.
 
-![Hình A.10 - Tạo lớp mới](images/handbook/a11-admin-create-class.png)
+![Hình A.10 - Tạo lớp mới](../images/handbook/a11-admin-create-class.png)
 *Hình A.10 — Form Tạo lớp mới.*
 
 **Bước 2.** Nhập **Tên lớp** (bắt buộc) và **Mô tả** (tùy chọn).
@@ -180,7 +180,7 @@ Thanh tìm kiếm tìm theo **tên lớp, mã lớp hoặc tên giảng viên**;
 
 **Bước 1.** Bấm **Phân công** ở cuối dòng lớp (hoặc bấm vào dòng để xổ chi tiết rồi bấm **Phân công GV**).
 
-![Hình A.11 - Chi tiết lớp và bảng phân công giảng viên](images/handbook/a13-admin-class-assign-teacher.png)
+![Hình A.11 - Chi tiết lớp và bảng phân công giảng viên](../images/handbook/a13-admin-class-assign-teacher.png)
 *Hình A.11 — Khung "Giảng viên phụ trách": nhãn đầu tiên có chữ **· chính**. Bên dưới là danh sách giảng viên chưa phân công kèm ô tìm. Dòng chú thích **"✓ Tick là lưu ngay"**. Bên phải là danh sách bài đã giao của lớp và cửa sổ hạn (Đã hết hạn / Đang mở).*
 
 **Bước 2.** Tick ô trước tên giảng viên. **Không có nút Lưu**: mỗi lần tick là một lần lưu (giao diện hiện "Đang lưu..." rồi trở lại "Tick là lưu ngay"). Quyền mới có hiệu lực ngay ở request kế tiếp của giảng viên. Một lớp có tối đa 10 giảng viên; người đầu danh sách là giảng viên chính.
@@ -201,15 +201,15 @@ Backend tự dọn: khi Admin tick thêm người mới, các ID cũ không còn
 
 **Bước 1.** Bấm vào dòng lớp để xổ chi tiết, nhìn mục **Sĩ số: N học viên**.
 
-![Hình A.12 - Chi tiết lớp](images/handbook/a12-admin-class-expanded.png)
+![Hình A.12 - Chi tiết lớp](../images/handbook/a12-admin-class-expanded.png)
 *Hình A.12 — Chi tiết lớp: giảng viên phụ trách, sĩ số (mỗi học viên một nhãn có nút ×), bài tập đã giao.*
 
 **Bước 2.** Bấm **+ Thêm học viên**. Có hai cách:
 
-![Hình A.13 - Thêm học viên: chọn từ danh sách](images/handbook/a14-admin-class-add-students.png)
+![Hình A.13 - Thêm học viên: chọn từ danh sách](../images/handbook/a14-admin-class-add-students.png)
 *Hình A.13 — Tab **Chọn từ danh sách**: tìm theo tên, email hoặc mã học viên; học viên chưa thuộc lớp nào có nhãn xanh "Chưa vào lớp".*
 
-![Hình A.14 - Thêm học viên: nhập danh sách nhanh](images/handbook/a15-admin-class-add-students-bulk.png)
+![Hình A.14 - Thêm học viên: nhập danh sách nhanh](../images/handbook/a15-admin-class-add-students-bulk.png)
 *Hình A.14 — Tab **Nhập danh sách nhanh**: dán nhiều email hoặc mã học viên (vd `an@gmail.com, C0012, binh@gmail.com`), cách nhau bằng dấu phẩy hoặc xuống dòng. Bộ đếm "N mục hợp lệ" hiện ngay khi dán.*
 
 **Bước 3.** Bấm chọn (hoặc **Thêm**). Kết quả tách rõ: đã thêm, đã có trong lớp, không tìm thấy. Nếu có mục không hợp lệ thì **chưa thêm ai** (giao diện ghi "Chưa thêm ai.") để tránh thêm nửa chừng.
@@ -228,7 +228,7 @@ Bấm **Lưu trữ** ở cuối dòng → xác nhận. Lớp lưu trữ không c
 
 **Bước 2.** Bấm **Kiểm tra toàn bộ hệ thống ngay**. Hệ thống kiểm tra song song 5 cụm, mỗi cụm tối đa 2 giây.
 
-![Hình A.15 - Kiểm tra sức khỏe hệ thống](images/handbook/a16-admin-health-check.png)
+![Hình A.15 - Kiểm tra sức khỏe hệ thống](../images/handbook/a16-admin-health-check.png)
 *Hình A.15 — 5 thẻ: Auth & Database, In-Memory SQLite, AI Gateway, Submissions & Classes, Contests. Mỗi thẻ có trạng thái, độ trễ (latency) và mô tả. Dải đỏ "Bạn vừa kiểm tra xong. Vui lòng đợi khoảng 10 giây" xuất hiện vì trang tự kiểm tra khi mở và giới hạn 1 lần / 10 giây.*
 
 **Data Health Check nằm ở thẻ "Submissions & Classes":**
@@ -249,7 +249,7 @@ Kiểm tra tương tự từ dòng lệnh (không cần đăng nhập): `GET htt
 - **Cấu hình** (`/admin/settings`): nhập **Gemini API Key** (mã hóa AES-256-GCM khi lưu, không bao giờ hiển thị lại dạng đầy đủ, có hiệu lực ngay không cần khởi động lại) và sửa **System prompt** của AI. Cần biến `CONFIG_ENCRYPTION_KEY` trong `BE/.env`.
 - **Nhật ký** (`/admin/audit`): mọi thao tác quản trị (phân công, lưu trữ, khóa, đổi cấu hình) kèm giá trị *Trước đây* / *Hiện tại*; lọc theo hành động, tìm theo email admin.
 
-![Hình A.16 - Nhật ký hoạt động](images/handbook/a17-admin-audit-log.png)
+![Hình A.16 - Nhật ký hoạt động](../images/handbook/a17-admin-audit-log.png)
 *Hình A.16 — Nhật ký hoạt động: không thể sửa hay xóa.*
 
 ---
@@ -258,7 +258,7 @@ Kiểm tra tương tự từ dòng lệnh (không cần đăng nhập): `GET htt
 
 Đăng nhập bằng tài khoản giảng viên (ví dụ `teacher6-9@gmail.com`). Thanh bên trái gồm: **Tổng quan · Lớp học của tôi · Chấm bài · Soạn đề · Cuộc thi**. Mục *Soạn đề → AI Tạo Đề / Ngân hàng đề* và *Cuộc thi* chỉ hiện với giảng viên đang phụ trách ít nhất một lớp **Khối 6–9 hoặc 10–12 còn hoạt động**; giảng viên chỉ dạy Khối 3–5 hoặc Người đi làm không thấy các mục này.
 
-![Hình B.0 - Tổng quan Teacher Studio](images/handbook/t01-teacher-overview.png)
+![Hình B.0 - Tổng quan Teacher Studio](../images/handbook/t01-teacher-overview.png)
 *Hình B.0 — Tổng quan: các thẻ số liệu (Lớp phụ trách, Học viên, Bài chờ chấm) và bảng lớp đang phụ trách kèm lối tắt.*
 
 ## B1. Lớp học của tôi `/teacher/classes`
@@ -269,14 +269,14 @@ Kiểm tra tương tự từ dòng lệnh (không cần đăng nhập): `GET htt
 
 **Bước 2.** Tab **Theo dõi học viên** liệt kê học viên, trạng thái nộp bài (Passed / Wrong Answer kèm điểm / Chưa nộp) và cảnh báo out-tab của **bài tập trong chính lớp đó** (cảnh báo của cuộc thi toàn trường không hiện ở đây).
 
-![Hình B.1 - Theo dõi học viên lớp 6-9](images/handbook/t02-teacher-classes-roster.png)
+![Hình B.1 - Theo dõi học viên lớp 6-9](../images/handbook/t02-teacher-classes-roster.png)
 *Hình B.1 — Lớp `CL-69PY01`: dòng mô tả cho biết khối, sĩ số, giảng viên chính và người cùng phụ trách.*
 
 ### B1.2 Bảng điểm và vì sao Khối 6–9 / 10–12 có điểm Chính thức ngay
 
 Khi lớp có bài đánh giá, bảng hiện thêm các cột điểm:
 
-![Hình B.2 - Bảng điểm lớp 10-12](images/handbook/t02b-teacher-classes-grades-1012.png)
+![Hình B.2 - Bảng điểm lớp 10-12](../images/handbook/t02b-teacher-classes-grades-1012.png)
 *Hình B.2 — Lớp `CL-1012A1`: Bài tập tuần (30%), Cuộc thi (40%), Thi kết thúc (30%), Tổng kết / Xếp loại. Quan sát: mọi dòng đều là **Hạng A–D** hoặc **Khóa kết quả - Điểm F**, không có dòng "Tạm thời (N bài chờ chấm)".*
 
 | Quy tắc | Chi tiết |
@@ -294,17 +294,17 @@ Khi lớp có bài đánh giá, bảng hiện thêm các cột điểm:
 
 **Bước 1.** Trong lớp Khối 6–9 hoặc 10–12, chọn tab **Bài tập & Giao bài**. Bài được tổ chức theo **Ngày 1, Ngày 2, ...** giống hệt màn hình học viên.
 
-![Hình B.3 - Bài học theo ngày](images/handbook/t03-teacher-classes-days.png)
+![Hình B.3 - Bài học theo ngày](../images/handbook/t03-teacher-classes-days.png)
 *Hình B.3 — Mỗi Ngày xổ ra danh sách bài: nhãn 💻 Code / 📝 Trắc nghiệm, **Hạn nộp**, số học viên đã xong (vd 1/10), cửa sổ thời gian (Sắp mở / Đang mở / Hết hạn) và nút thùng rác.*
 
 **Bước 2.** Bấm **+ Thêm ngày mới** để tạo Ngày n+1 (ngày mới chỉ được lưu thật khi có bài đầu tiên).
 
 **Bước 3.** Trong một Ngày, bấm **+ Thêm bài vào ngày**.
 
-![Hình B.4 - Thêm bài Code vào ngày](images/handbook/t04-teacher-add-to-day-code.png)
+![Hình B.4 - Thêm bài Code vào ngày](../images/handbook/t04-teacher-add-to-day-code.png)
 *Hình B.4 — Loại **Bài tập Code**: lọc khối (mặc định theo khối lớp), tìm theo tên, lọc độ khó, phân trang. Chọn **một** bài (nút tròn). Nhãn K6-9/K10-12 và Dễ/Trung bình/Khó hiện bên phải.*
 
-![Hình B.5 - Thêm câu trắc nghiệm vào ngày](images/handbook/t05-teacher-add-to-day-quiz.png)
+![Hình B.5 - Thêm câu trắc nghiệm vào ngày](../images/handbook/t05-teacher-add-to-day-quiz.png)
 *Hình B.5 — Loại **Bài trắc nghiệm**: tick **nhiều** câu để ghép thành một bài; lựa chọn được giữ khi chuyển trang.*
 
 **Bước 4.** Kiểm tra **Tiêu đề bài** (tự điền theo bài đã chọn, sửa được), đặt **Hạn nộp (giờ Việt Nam)** và **Tổng điểm**.
@@ -325,7 +325,7 @@ Trang **Soạn đề** có 3 tab con: **Soạn bài thủ công · AI Tạo Đ�
 
 **Bước 1.** Ở công tắc đầu trang, chọn **Bài tập Code**.
 
-![Hình B.6 - Form soạn bài tập Code](images/handbook/t06-teacher-authoring-code.png)
+![Hình B.6 - Form soạn bài tập Code](../images/handbook/t06-teacher-authoring-code.png)
 *Hình B.6 — Form Bài tập Code. Dòng mô tả ở đầu nhắc: "Đề lưu ở đây dùng để giao bài theo Ngày cho lớp và đưa vào Cuộc thi, không hiện ở Code Playground."*
 
 **Bước 2.** Điền thông tin:
@@ -352,7 +352,7 @@ Trang **Soạn đề** có 3 tab con: **Soạn bài thủ công · AI Tạo Đ�
 
 **Bước 1.** Chọn **Câu hỏi Trắc nghiệm** ở công tắc đầu trang.
 
-![Hình B.7 - Form soạn câu trắc nghiệm](images/handbook/t07-teacher-authoring-quiz.png)
+![Hình B.7 - Form soạn câu trắc nghiệm](../images/handbook/t07-teacher-authoring-quiz.png)
 *Hình B.7 — Form câu trắc nghiệm.*
 
 **Bước 2.** Chọn **Khối**, **Độ khó**, **Điểm**.
@@ -377,7 +377,7 @@ Lớp bảo vệ: (1) service luôn ghi `bankOnly: true`; (2) truy vấn Playgro
 
 ## B3. AI Tạo Đề `/teacher/authoring/ai`
 
-![Hình B.8 - AI Tạo Đề](images/handbook/t08-teacher-ai-generator.png)
+![Hình B.8 - AI Tạo Đề](../images/handbook/t08-teacher-ai-generator.png)
 *Hình B.8 — "AI hỗ trợ tạo đề có kiểm soát". Nút **Sinh bài tập** bị mờ cho tới khi chọn khối.*
 
 **Bước 1.** **Chọn khối đối tượng (bắt buộc)**: *Khối 6–9 (Cơ bản)* — logic cơ bản, rẽ nhánh, vòng lặp đơn; hoặc *Khối 10–12 (Nâng cao/Chuyên sâu)* — tối ưu O(N log N), mảng 2 chiều, CTDL, đệ quy/QHĐ.
@@ -401,10 +401,10 @@ Lớp bảo vệ: (1) service luôn ghi `bankOnly: true`; (2) truy vấn Playgro
 
 ### B4.1 Hai tab, bộ lọc và tìm kiếm
 
-![Hình B.9 - Ngân hàng đề: Bài Code](images/handbook/t09-teacher-bank-code.png)
+![Hình B.9 - Ngân hàng đề: Bài Code](../images/handbook/t09-teacher-bank-code.png)
 *Hình B.9 — Tab **Bài Code**: 10 bài/trang. Cột **Nguồn**: *Ngân hàng* (bài giảng viên/AI tạo, sửa/xóa được) hoặc *Playground (cố định)* (chỉ có nút **Xem**). Cột **Sử dụng** cho biết bài đang được gán ở lớp/cuộc thi.*
 
-![Hình B.10 - Ngân hàng đề: Câu Trắc nghiệm](images/handbook/t10-teacher-bank-quiz.png)
+![Hình B.10 - Ngân hàng đề: Câu Trắc nghiệm](../images/handbook/t10-teacher-bank-quiz.png)
 *Hình B.10 — Tab **Câu Trắc nghiệm**. Câu đang được dùng có nhãn "Đang dùng".*
 
 Bộ lọc: **Tất cả / Khối 6–9 / Khối 10–12**, ô **Tìm theo tên hoặc tag...**, danh sách **Mọi độ khó / EASY / MEDIUM / HARD**.
@@ -413,7 +413,7 @@ Bộ lọc: **Tất cả / Khối 6–9 / Khối 10–12**, ô **Tìm theo tên 
 
 **Bước 1.** Bấm **Sửa** ở dòng bài.
 
-![Hình B.11 - Sửa bài tập](images/handbook/t11-teacher-bank-edit.png)
+![Hình B.11 - Sửa bài tập](../images/handbook/t11-teacher-bank-edit.png)
 *Hình B.11 — Form sửa: tiêu đề, mô tả, khối, độ khó, test case.*
 
 **Bước 2.** Sửa và bấm **Lưu thay đổi** → "Đã lưu bài tập." Slug và liên kết dữ liệu (lớp đã giao, cuộc thi) **giữ nguyên**, nên học viên đang làm vẫn thấy đúng bài. Bài đang được dùng **vẫn sửa được nội dung nhưng không đổi được khối** (409 `E409_BANK_EXERCISE_IN_USE`).
@@ -424,7 +424,7 @@ Bài *Playground (cố định)* chỉ xem: mọi thao tác sửa/xóa qua API t
 
 **Bước 1.** Bấm **Xóa** ở dòng bài.
 
-![Hình B.12 - Xác nhận xóa bài](images/handbook/t12-teacher-bank-delete-confirm.png)
+![Hình B.12 - Xác nhận xóa bài](../images/handbook/t12-teacher-bank-delete-confirm.png)
 *Hình B.12 — Hộp xác nhận: "Bài bị xóa khỏi Ngân hàng đề và không khôi phục được. Bài đang được gán vào Ngày học hoặc nằm trong đề cuộc thi sẽ không xóa được."*
 
 **Bước 2.** Bấm **Xác nhận xóa**.
@@ -436,14 +436,14 @@ Quyền: giảng viên chỉ sửa/xóa được bài do chính mình tạo ho�
 
 ## B5. Tổ chức Cuộc thi `/teacher/contests`
 
-![Hình B.13 - Danh sách cuộc thi](images/handbook/t13-teacher-contests.png)
+![Hình B.13 - Danh sách cuộc thi](../images/handbook/t13-teacher-contests.png)
 *Hình B.13 — Các bộ lọc trạng thái (Đang diễn ra / Sắp diễn ra / Đã kết thúc / Bản nháp), mỗi cuộc thi có nhãn "Có giám sát" nếu bật liêm chính và các nút **Kết quả**, **Sửa**, **Xóa**.*
 
 ### B5.1 Tạo cuộc thi mới (3 bước)
 
 **Bước 1.** Bấm **+ Tạo cuộc thi**. Trình tạo có 3 bước: **Thông tin → Đề thi → Giám sát & xuất bản**.
 
-![Hình B.14 - Tạo cuộc thi: bước Thông tin](images/handbook/t14-teacher-contest-editor-info.png)
+![Hình B.14 - Tạo cuộc thi: bước Thông tin](../images/handbook/t14-teacher-contest-editor-info.png)
 *Hình B.14 — Bước Thông tin.*
 
 **Bước 2 — Thông tin.** Nhập **Tên cuộc thi \***, **Mô tả / thể lệ**, giờ **bắt đầu** và **kết thúc** (thí sinh được vào thi trong khoảng này), **Thời gian làm bài của mỗi thí sinh \*** (phút) và **Khối được dự thi** (*Mở cho mọi khối* / *Chỉ Khối 6–9* / *Chỉ Khối 10–12*). Mọi học sinh đều thấy cuộc thi, nhưng chỉ học sinh đúng khối vào được phòng thi (khác khối nhận 403).
@@ -470,7 +470,7 @@ Hệ thống **không tự trừ điểm, không tự hủy bài và không tự
 
 ## B6. Chấm bài & Phản hồi `/teacher/grading`
 
-![Hình B.15 - Chấm bài & Duyệt Lab](images/handbook/t15-teacher-grading.png)
+![Hình B.15 - Chấm bài & Duyệt Lab](../images/handbook/t15-teacher-grading.png)
 *Hình B.15 — Trang của `teacher@gmail.com`: khu 1 "Hàng chờ chấm Tester QA" (nhãn 🟡 Chờ chấm, nút **Chấm bài**), khu 2 "Giám sát liêm chính chung (Out-tab)" với nhãn nguồn *Bài tập lớp* / *Cuộc thi*, số lần out-tab và các nút **Bỏ qua** / **Hủy kết quả**.*
 
 ### B6.1 Chấm bài Lab cần chấm tay
