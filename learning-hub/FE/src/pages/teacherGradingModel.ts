@@ -1,10 +1,5 @@
 import type { RubricCriterion, RubricGrade } from '../types/testerLab';
 
-export { outTabSeverity } from './teacherClassesModel';
-
-/** Lý do hủy kết quả/phúc khảo phải từ 10 ký tự (khớp BE). */
-export const MIN_REASON_LENGTH = 10;
-
 /** Nhận xét chấm Tester QA bắt buộc từ 20 ký tự (khớp BE). */
 export const MIN_FEEDBACK_LENGTH = 20;
 

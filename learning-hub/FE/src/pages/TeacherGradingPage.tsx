@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, CheckCircle2, Inbox, Loader2, ShieldAlert } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { CheckCircle2, Inbox, Loader2 } from 'lucide-react';
 import testerLabApi from '../axios/testerLabApi';
-import integrityApi from '../axios/integrityApi';
 import { control, hairline } from '../components/adminStyles';
 import { useToast } from '../components/Toast';
-import type { ProctorAlertRow } from '../types/integrity';
 import type { ReviewQueueItem } from '../types/testerLab';
-import { MIN_FEEDBACK_LENGTH, MIN_REASON_LENGTH, outTabSeverity, rubricHint, rubricTitle, rubricTotal, validateGrades } from './teacherGradingModel';
+import { MIN_FEEDBACK_LENGTH, rubricHint, rubricTitle, rubricTotal, validateGrades } from './teacherGradingModel';
 
 const th = 'px-3 py-2 text-left text-xs font-medium text-[var(--text-muted)] whitespace-nowrap';
 const td = 'px-3 py-2 text-sm text-[var(--text-main)] align-top';
@@ -255,164 +253,11 @@ const TesterQueue: React.FC = () => {
   );
 };
 
-/* ---------- Khu vực 2: hàng chờ cảnh báo liêm chính (out-tab) ---------- */
-
-const IntegrityQueue: React.FC = () => {
-  const { showToast } = useToast();
-  const [alerts, setAlerts] = useState<ProctorAlertRow[] | null>(null);
-  const [invalidating, setInvalidating] = useState<string | null>(null);
-  const [reason, setReason] = useState('');
-  const [busy, setBusy] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
-
-  const load = useCallback(() => {
-    integrityApi
-      .getAlerts()
-      .then(setAlerts)
-      .catch(() => setAlerts([]));
-  }, []);
-  useEffect(load, [load]);
-
-  const sorted = useMemo(() => [...(alerts ?? [])].sort((a, b) => b.leaveCount - a.leaveCount), [alerts]);
-  const remove = (id: string) => setAlerts((cur) => (cur ?? []).filter((a) => a.id !== id));
-
-  const ignore = async (a: ProctorAlertRow) => {
-    setBusy(a.id);
-    try {
-      await integrityApi.ackAlert(a.id);
-      remove(a.id);
-      showToast('Đã bỏ qua cảnh báo.', 'info');
-    } catch (err) {
-      showToast(errorMessage(err, 'Không bỏ qua được cảnh báo.'), 'error');
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  const invalidate = async (a: ProctorAlertRow) => {
-    if (reason.trim().length < MIN_REASON_LENGTH) return setFormError(`Vui lòng nhập lý do hủy (tối thiểu ${MIN_REASON_LENGTH} ký tự).`);
-    setBusy(a.id);
-    setFormError(null);
-    try {
-      await integrityApi.invalidateAlert(a.id, reason.trim());
-      remove(a.id);
-      setInvalidating(null);
-      setReason('');
-      showToast(`Đã hủy kết quả của ${a.student.fullName}.`, 'success');
-    } catch (err) {
-      setFormError(errorMessage(err, 'Không hủy được kết quả.'));
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  return (
-    <section aria-label="Cảnh báo liêm chính" className="space-y-3">
-      <h2 className="flex items-center gap-2 text-base font-semibold text-[var(--text-main)]">
-        <ShieldAlert size={16} aria-hidden /> Giám sát liêm chính chung (Out-tab)
-      </h2>
-      {alerts === null ? (
-        <div className="flex items-center py-4 text-sm text-[var(--text-muted)]">
-          <Loader2 size={14} className="mr-2 animate-spin" /> Đang tải...
-        </div>
-      ) : sorted.length === 0 ? (
-        <div className={`flex items-center gap-2 rounded-lg border p-4 text-sm text-[var(--text-muted)] ${hairline}`}>
-          <Inbox size={16} /> Không có ca vi phạm nào cần xem xét.
-        </div>
-      ) : (
-        <div className={`overflow-x-auto rounded-lg border ${hairline}`}>
-          <table className="min-w-full">
-            <thead>
-              <tr>
-                {['Học viên', 'Bài thi', 'Số lần out-tab', 'Thời gian', ''].map((h) => (
-                  <th key={h} className={th}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((a) => {
-                const red = outTabSeverity(a.leaveCount) === 'RED';
-                return (
-                  <React.Fragment key={a.id}>
-                    <tr className={`border-t ${hairline} ${red ? 'bg-red-50/70 dark:bg-red-950/20' : ''}`}>
-                      <td className={td}>
-                        {a.student.fullName}
-                        {a.className && <div className="text-xs text-[var(--text-muted)]">{a.className}</div>}
-                      </td>
-                      <td className={td}>
-                        <span className={`mr-2 rounded px-1.5 py-0.5 text-[10px] font-medium ${a.kind === 'CONTEST' ? 'bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-200' : 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200'}`}>
-                          {a.kind === 'CONTEST' ? '🏆 Cuộc thi' : '📚 Bài tập lớp'}
-                        </span>
-                        {a.refTitle}
-                      </td>
-                      <td className={td}>
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${red ? 'bg-red-600 text-white' : 'bg-amber-100 text-amber-800'}`}>
-                          <AlertTriangle size={12} aria-hidden /> {a.leaveCount} lần
-                        </span>
-                      </td>
-                      <td className={`${td} tabular-nums`}>
-                        {typeof a.awaySeconds === 'number' ? `${a.awaySeconds} giây · ` : ''}
-                        {fmt(a.lastLeaveAt)}
-                      </td>
-                      <td className={`${td} whitespace-nowrap text-right`}>
-                        <button onClick={() => void ignore(a)} disabled={busy === a.id} className="mr-3 cursor-pointer text-xs text-[var(--text-muted)] underline disabled:opacity-50">
-                          Bỏ qua
-                        </button>
-                        <button
-                          onClick={() => {
-                            setInvalidating(invalidating === a.id ? null : a.id);
-                            setReason('');
-                            setFormError(null);
-                          }}
-                          className="cursor-pointer rounded-md border border-rose-300 px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-300 dark:hover:bg-rose-950"
-                        >
-                          Hủy kết quả
-                        </button>
-                      </td>
-                    </tr>
-                    {invalidating === a.id && (
-                      <tr className={`border-t ${hairline}`}>
-                        <td colSpan={5} className="px-3 py-3">
-                          <div className="flex flex-wrap items-start gap-2">
-                            <input
-                              value={reason}
-                              onChange={(e) => setReason(e.target.value)}
-                              placeholder="Lý do hủy kết quả (bắt buộc, tối thiểu 10 ký tự)"
-                              aria-label="Lý do hủy kết quả"
-                              maxLength={500}
-                              className={`${control} min-w-[18rem] flex-1`}
-                            />
-                            <button
-                              onClick={() => void invalidate(a)}
-                              disabled={busy === a.id}
-                              className="cursor-pointer rounded-md bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-60"
-                            >
-                              Xác nhận hủy
-                            </button>
-                          </div>
-                          {formError && <p className="mt-1 text-xs text-rose-500">{formError}</p>}
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
-  );
-};
-
-/** Tab "Chấm bài": hàng chờ Tester QA và hàng chờ cảnh báo liêm chính, hai khu vực trên cùng một trang. */
+/** Tab "Chấm bài": hàng chờ chấm bài Lab cần chấm tay (Tester QA). Cảnh báo out-tab xem ở Lớp học (bài tập lớp) và Kết quả cuộc thi. */
 export const TeacherGradingPage: React.FC = () => (
   <div className="space-y-8">
     <h1 className="text-xl font-semibold text-[var(--text-main)]">Chấm bài &amp; Duyệt Lab</h1>
     <TesterQueue />
-    <IntegrityQueue />
   </div>
 );
 
