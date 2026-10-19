@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { CheckCircle2, Inbox, Loader2 } from 'lucide-react';
+import { CheckCircle2, Download, Inbox, Loader2, Paperclip } from 'lucide-react';
 import testerLabApi from '../axios/testerLabApi';
 import { control, hairline } from '../components/adminStyles';
 import { useToast } from '../components/Toast';
 import type { ReviewQueueItem } from '../types/testerLab';
-import { MIN_FEEDBACK_LENGTH, rubricHint, rubricTitle, rubricTotal, validateGrades } from './teacherGradingModel';
+import { formatFileSize, isFileSubmission, MIN_FEEDBACK_LENGTH, rubricHint, rubricTitle, rubricTotal, submissionSummary, validateGrades } from './teacherGradingModel';
 
 const th = 'px-3 py-2 text-left text-xs font-medium text-[var(--text-muted)] whitespace-nowrap';
 const td = 'px-3 py-2 text-sm text-[var(--text-main)] align-top';
@@ -12,7 +12,59 @@ const fmt = (iso: string | null | undefined) => (iso ? new Date(iso).toLocaleStr
 const errorMessage = (err: unknown, fallback: string) =>
   (err as { response?: { data?: { message?: string } } })?.response?.data?.message || fallback;
 
-/* ---------- Khu vực 1: hàng chờ chấm Tester QA ---------- */
+/* ---------- Hàng chờ chấm Tester QA ---------- */
+
+/** Bài nộp dạng file (artifact): tải file về để chấm và xem kết quả kiểm tra tự động lúc nộp. */
+const FileSubmission: React.FC<{ item: ReviewQueueItem }> = ({ item }) => {
+  const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileType = item.file?.fileType || 'bin';
+
+  const download = async () => {
+    setDownloading(true);
+    setError(null);
+    try {
+      await testerLabApi.downloadArtifact(item.id, fileType);
+    } catch (err) {
+      setError(errorMessage(err, 'Không tải được file bài nộp.'));
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className={`flex flex-wrap items-center justify-between gap-3 rounded-md border p-3 ${hairline}`}>
+        <div className="flex items-center gap-2 text-sm text-[var(--text-main)]">
+          <Paperclip size={16} aria-hidden />
+          <span>
+            Bài nộp dạng file <span className="font-mono">.{fileType}</span> · {formatFileSize(item.file?.fileSize ?? 0)}
+          </span>
+        </div>
+        <button
+          onClick={() => void download()}
+          disabled={downloading}
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-indigo-300 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-50 disabled:opacity-60 dark:border-indigo-700 dark:text-indigo-300 dark:hover:bg-indigo-950"
+        >
+          {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} Tải file bài nộp
+        </button>
+      </div>
+      {error && <p className="text-sm text-rose-500">{error}</p>}
+      {item.autoCheckResults.length > 0 && (
+        <div>
+          <h4 className="mb-1 text-xs font-medium text-[var(--text-muted)]">Kiểm tra tự động lúc nộp (tham khảo, không phải điểm)</h4>
+          <ul className="space-y-1">
+            {item.autoCheckResults.map((r, i) => (
+              <li key={i} className={`text-xs ${r.passed ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'}`}>
+                {r.passed ? '✓' : '!'} {r.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const ReviewPanel: React.FC<{ item: ReviewQueueItem; onClose: () => void; onDone: (id: string) => void }> = ({ item, onClose, onDone }) => {
   const { showToast } = useToast();
@@ -59,50 +111,56 @@ export const ReviewPanel: React.FC<{ item: ReviewQueueItem; onClose: () => void;
         </button>
       </div>
 
-      <div>
-        <h4 className="mb-1 text-xs font-medium text-[var(--text-muted)]">Test case ({item.formData?.testCases.length ?? 0})</h4>
-        <div className={`overflow-x-auto rounded-md border ${hairline}`}>
-          <table className="min-w-full">
-            <thead>
-              <tr>
-                {['Mã', 'Mô tả', 'Input', 'Kết quả mong đợi'].map((h) => (
-                  <th key={h} className={th}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(item.formData?.testCases ?? []).map((t) => (
-                <tr key={t.code} className={`border-t ${hairline}`}>
-                  <td className={`${td} font-mono`}>{t.code}</td>
-                  <td className={td}>{t.description}</td>
-                  <td className={td}>{t.input}</td>
-                  <td className={td}>{t.expected}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {isFileSubmission(item) ? (
+        <FileSubmission item={item} />
+      ) : (
+        <>
+          <div>
+            <h4 className="mb-1 text-xs font-medium text-[var(--text-muted)]">Test case ({item.formData?.testCases.length ?? 0})</h4>
+            <div className={`overflow-x-auto rounded-md border ${hairline}`}>
+              <table className="min-w-full">
+                <thead>
+                  <tr>
+                    {['Mã', 'Mô tả', 'Input', 'Kết quả mong đợi'].map((h) => (
+                      <th key={h} className={th}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(item.formData?.testCases ?? []).map((t) => (
+                    <tr key={t.code} className={`border-t ${hairline}`}>
+                      <td className={`${td} font-mono`}>{t.code}</td>
+                      <td className={td}>{t.description}</td>
+                      <td className={td}>{t.input}</td>
+                      <td className={td}>{t.expected}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      <div>
-        <h4 className="mb-1 text-xs font-medium text-[var(--text-muted)]">Bug report ({item.formData?.bugReports.length ?? 0})</h4>
-        <ul className="space-y-2">
-          {(item.formData?.bugReports ?? []).map((b, i) => (
-            <li key={i} className={`rounded-md border p-3 text-sm ${hairline}`}>
-              <div className="flex items-center gap-2 font-medium text-[var(--text-main)]">
-                {b.title}
-                <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] uppercase text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">{b.severity}</span>
-              </div>
-              <p className="mt-1 whitespace-pre-line text-xs text-[var(--text-muted)]">Các bước:{'\n'}{b.steps}</p>
-              <p className="mt-1 text-xs text-[var(--text-main)]">
-                Mong đợi: {b.expected} · Thực tế: {b.actual}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </div>
+          <div>
+            <h4 className="mb-1 text-xs font-medium text-[var(--text-muted)]">Bug report ({item.formData?.bugReports.length ?? 0})</h4>
+            <ul className="space-y-2">
+              {(item.formData?.bugReports ?? []).map((b, i) => (
+                <li key={i} className={`rounded-md border p-3 text-sm ${hairline}`}>
+                  <div className="flex items-center gap-2 font-medium text-[var(--text-main)]">
+                    {b.title}
+                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] uppercase text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">{b.severity}</span>
+                  </div>
+                  <p className="mt-1 whitespace-pre-line text-xs text-[var(--text-muted)]">Các bước:{'\n'}{b.steps}</p>
+                  <p className="mt-1 text-xs text-[var(--text-main)]">
+                    Mong đợi: {b.expected} · Thực tế: {b.actual}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
 
       <div>
         <h4 className="mb-2 text-xs font-medium text-[var(--text-muted)]">
@@ -204,7 +262,7 @@ const TesterQueue: React.FC = () => {
           <table className="min-w-full">
             <thead>
               <tr>
-                {['Học viên', 'Bài lab', 'Nộp lúc', 'Test case', 'Bug', 'Trạng thái', ''].map((h) => (
+                {['Học viên', 'Bài lab', 'Nộp lúc', 'Bài nộp', 'Trạng thái', ''].map((h) => (
                   <th key={h} className={th}>
                     {h}
                   </th>
@@ -222,8 +280,7 @@ const TesterQueue: React.FC = () => {
                     {i.lab.labCode} · {i.lab.title}
                   </td>
                   <td className={`${td} tabular-nums`}>{fmt(i.submittedAt)}</td>
-                  <td className={`${td} tabular-nums`}>{i.formData?.testCases.length ?? 0}</td>
-                  <td className={`${td} tabular-nums`}>{i.formData?.bugReports.length ?? 0}</td>
+                  <td className={`${td} whitespace-nowrap tabular-nums`}>{submissionSummary(i)}</td>
                   <td className={td}>
                     <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">🟡 Chờ chấm</span>
                   </td>

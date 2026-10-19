@@ -1,4 +1,4 @@
-import type { RubricCriterion, RubricGrade } from '../types/testerLab';
+import type { ReviewQueueItem, RubricCriterion, RubricGrade } from '../types/testerLab';
 
 /** Nhận xét chấm Tester QA bắt buộc từ 20 ký tự (khớp BE). */
 export const MIN_FEEDBACK_LENGTH = 20;
@@ -33,4 +33,26 @@ export function validateGrades(
     grades.push({ key: c.key, score: n });
   }
   return { ok: true, grades };
+}
+
+/** Dung lượng file dễ đọc: B / KB / MB (1 chữ số thập phân khi cần). */
+export function formatFileSize(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb < 10 ? kb.toFixed(1) : Math.round(kb)} KB`;
+  const mb = kb / 1024;
+  return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
+}
+
+/** Bài trong hàng chờ là nộp file (artifact) hay biểu mẫu; bài thiếu `kind` là file (default của BE). */
+export const isFileSubmission = (item: Pick<ReviewQueueItem, 'kind' | 'formData'>): boolean => item.kind !== 'FORM';
+
+/** Mô tả ngắn nội dung bài nộp cho cột "Bài nộp" của hàng chờ. */
+export function submissionSummary(item: Pick<ReviewQueueItem, 'kind' | 'formData' | 'file'>): string {
+  if (isFileSubmission(item)) {
+    const type = item.file?.fileType ? `.${item.file.fileType}` : 'file';
+    return `📎 File ${type} · ${formatFileSize(item.file?.fileSize ?? 0)}`;
+  }
+  return `${item.formData?.testCases.length ?? 0} test case · ${item.formData?.bugReports.length ?? 0} bug`;
 }
