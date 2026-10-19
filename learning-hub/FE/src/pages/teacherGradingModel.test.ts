@@ -32,3 +32,28 @@ describe('nhãn rubric chuẩn', () => {
     expect(rubricHint('Không có gợi ý')).toBe('');
   });
 });
+
+import { formatFileSize, isFileSubmission, submissionSummary } from './teacherGradingModel';
+
+describe('bài nộp file trong hàng chờ chấm', () => {
+  it('bài nộp file hiển thị loại và dung lượng thay vì 0 test case / 0 bug', () => {
+    const item = { kind: 'FILE' as const, formData: null, file: { fileType: 'xlsx', fileSize: 18603 } };
+    expect(isFileSubmission(item)).toBe(true);
+    expect(submissionSummary(item)).toBe('📎 File .xlsx · 18 KB');
+  });
+  it('bài biểu mẫu đếm test case và bug', () => {
+    const item = {
+      kind: 'FORM' as const,
+      file: null,
+      formData: { testCases: [{ code: 'TC01', description: '', input: '', expected: '' }], bugReports: [] },
+    };
+    expect(isFileSubmission(item)).toBe(false);
+    expect(submissionSummary(item)).toBe('1 test case · 0 bug');
+  });
+  it('định dạng dung lượng', () => {
+    expect(formatFileSize(0)).toBe('0 B');
+    expect(formatFileSize(512)).toBe('512 B');
+    expect(formatFileSize(1536)).toBe('1.5 KB');
+    expect(formatFileSize(5 * 1024 * 1024)).toBe('5.0 MB');
+  });
+});

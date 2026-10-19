@@ -177,3 +177,65 @@ describe('TesterLabsService.canSeeReviewQueue (cờ để FE khỏi gọi hàng 
     await expect(withClasses(true).svc.canSeeReviewQueue({ sub: 's', role: 'STUDENT' })).resolves.toBe(false);
   });
 });
+
+describe('TesterLabsService: bài nộp file xuất hiện trong hàng chờ chấm của giảng viên', () => {
+  /** Model giả lưu trong bộ nhớ: create() ghi bản ghi, find() lọc theo status/invalidated như truy vấn hàng chờ thật. */
+  const memoryModel = () => {
+    const rows: any[] = [];
+    return {
+      rows,
+      create: jest.fn(async (doc: any) => {
+        const row = { _id: `sub${rows.length + 1}`, createdAt: new Date('2026-10-19T08:23:00Z'), ...doc };
+        rows.push(row);
+        return row;
+      }),
+      find: jest.fn((filter: any) => {
+        const out = rows.filter((r) => (!filter.status || r.status === filter.status) && r.invalidated !== true);
+        const q: any = { sort: () => q, limit: () => q, select: () => q, lean: async () => out };
+        return q;
+      }),
+    };
+  };
+
+  const build = () => {
+    const lab = { _id: 'lab1', labCode: 'LAB-01', title: 'Bug hunt Đăng ký / Đăng nhập', allowedFileTypes: ['xlsx', 'csv', 'pdf'], requiredColumns: [], minRows: 0 };
+    const labModel = {
+      findOne: () => ({ lean: async () => lab }),
+      find: () => ({ select: () => ({ lean: async () => [lab] }) }),
+    };
+    const submissionModel = memoryModel();
+    const uploadService = { store: jest.fn(async () => ({ artifactUrl: '2b636da2.xlsx', fileType: 'xlsx', fileSize: 18603 })) };
+    const userModel = { find: () => ({ select: () => ({ lean: async () => [{ _id: '507f1f77bcf86cd799439011', fullName: 'Người đi làm', email: 'n1@gmail.com' }] }) }) };
+    const classModel = { exists: jest.fn().mockResolvedValue(true) };
+    const service = new TesterLabsService(labModel as any, submissionModel as any, uploadService as any, classModel as any, undefined, userModel as any);
+    return { service, submissionModel };
+  };
+
+  it('nộp file → bản ghi kind FILE, status SUBMITTED → giảng viên phụ trách lớp Tester QA thấy trong hàng chờ kèm loại và dung lượng file', async () => {
+    const { service, submissionModel } = build();
+    await service.submit('LAB-01', '507f1f77bcf86cd799439011', { originalname: 'bao-cao.xlsx', mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', size: 18603, buffer: Buffer.from('x') } as any);
+
+    expect(submissionModel.rows[0]).toMatchObject({ kind: 'FILE', status: 'SUBMITTED' });
+
+    const queue = await service.reviewQueue(teacher);
+    expect(queue).toHaveLength(1);
+    expect(queue[0]).toMatchObject({
+      kind: 'FILE',
+      file: { fileType: 'xlsx', fileSize: 18603 },
+      formData: null,
+      student: { email: 'n1@gmail.com' },
+      lab: { labCode: 'LAB-01' },
+    });
+    // Không lộ tên file lưu trên máy chủ.
+    expect(JSON.stringify(queue[0])).not.toContain('2b636da2');
+  });
+
+  it('bài cũ thiếu trường kind vẫn được coi là bài nộp file', async () => {
+    const { service, submissionModel } = build();
+    submissionModel.rows.push({ _id: 'old1', labId: 'lab1', userId: '507f1f77bcf86cd799439011', status: 'SUBMITTED', fileType: 'csv', fileSize: 120, createdAt: new Date() });
+
+    const [item] = await service.reviewQueue(teacher);
+    expect(item.kind).toBe('FILE');
+    expect(item.file).toEqual({ fileType: 'csv', fileSize: 120 });
+  });
+});

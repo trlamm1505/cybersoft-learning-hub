@@ -66,5 +66,7 @@ export interface ReviewQueueItem {
     testCases: Array<{ code: string; description: string; input: string; expected: string }>;
     bugReports: Array<{ title: string; steps: string; expected: string; actual: string; severity: string }>;
   } | null;
+  /** Chỉ khi kind = FILE: loại và dung lượng file (tải qua GET /tester-labs/submissions/:id/artifact). */
+  file: { fileType: string; fileSize: number } | null;
   autoCheckResults: AutoCheckResult[];
 }

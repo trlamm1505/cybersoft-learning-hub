@@ -121,9 +121,12 @@ export class TesterLabsService implements OnModuleInit {
   async submit(labCode: string, userId: string, file?: UploadedArtifact) {
     const lab = await this.getLab(labCode);
     const stored = await this.uploadService.store(file);
+    // Ghi rõ kind/status (không dựa vào default của schema): hàng chờ chấm lọc theo status SUBMITTED.
     return this.submissionModel.create({
       labId: lab._id,
       userId,
+      kind: 'FILE',
+      status: 'SUBMITTED',
       ...stored,
       autoCheckResults: runAutoChecks(
         lab,
@@ -240,11 +243,15 @@ export class TesterLabsService implements OnModuleInit {
     return subs.map((s: any) => {
       const lab: any = labById.get(String(s.labId));
       const u: any = byId.get(s.userId);
+      // Bài cũ thiếu trường kind là bài nộp file (default của schema).
+      const kind = s.kind === 'FORM' ? 'FORM' : 'FILE';
       return {
         id: String(s._id),
         status: s.status,
         submittedAt: s.createdAt,
-        kind: s.kind,
+        kind,
+        // Bài nộp file: chỉ trả loại và dung lượng để giảng viên tải về qua GET /tester-labs/submissions/:id/artifact; không lộ tên file trên máy chủ.
+        file: kind === 'FILE' ? { fileType: s.fileType ?? '', fileSize: s.fileSize ?? 0 } : null,
         lab: { labCode: lab?.labCode ?? '', title: lab?.title ?? '', rubricCriteria: TESTER_RUBRIC },
         student: { id: s.userId, fullName: u?.fullName ?? '', email: u?.email ?? '' },
         formData: s.formData ?? null,
