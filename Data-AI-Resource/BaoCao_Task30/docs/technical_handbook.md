@@ -95,10 +95,12 @@ cd d:\Cybersoft\Kien\cybersoft-learning-hub
 # Tạo môi trường ảo Python cô lập
 python -m venv .venv
 
-# Kích hoạt môi trường ảo
-# Trên Windows PowerShell:
+# Kích hoạt môi trường ảo:
+# Nếu dùng Windows PowerShell:
 .\.venv\Scripts\Activate.ps1
-# Trên Linux/macOS:
+# Nếu dùng Windows CMD (Command Prompt):
+.\.venv\Scripts\activate.bat
+# Nếu dùng Linux / macOS:
 # source .venv/bin/activate
 ```
 
@@ -107,7 +109,7 @@ Tạo file `.env` tại thư mục làm việc dựa trên mẫu cấu hình chu
 ```env
 # Cấu hình máy chủ dịch vụ
 ENVIRONMENT=production
-PORT=8000
+PORT=8029
 HOST=0.0.0.0
 LOG_LEVEL=INFO
 
@@ -132,25 +134,29 @@ pip install --upgrade pip
 pip install fastapi uvicorn pydantic requests
 ```
 
-#### Bước 4: Khởi động máy chủ dịch vụ
+#### Bước 4: Khởi động máy chủ dịch vụ (Mở trên Cửa sổ Terminal 1)
 ```powershell
-# Chạy máy chủ FastAPI Uvicorn
-uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 2
+# Chạy máy chủ dịch vụ hợp nhất Data & AI Lab (Lắng nghe tại Port 8029)
+python Data-AI-Resource/BaoCao_Task29/scripts/run_server.py
 ```
+*Lưu ý: Lệnh này sẽ giữ terminal để phục vụ lắng nghe các yêu cầu mạng. Không đóng cửa sổ này.*
 
-#### Bước 5: Xác minh khởi chạy thành công
-Mở một cửa sổ dòng lệnh khác và gửi yêu cầu kiểm tra sức khỏe:
+#### Bước 5: Xác minh khởi chạy thành công (Mở trên Cửa sổ Terminal 2)
+Mở một cửa sổ dòng lệnh (Terminal) thứ hai để gửi yêu cầu kiểm tra sức khỏe:
 ```powershell
-curl http://localhost:8000/api/health
+curl http://localhost:8029/api/v1/health
 ```
 Kết quả mong đợi:
 ```json
 {
-  "status": "healthy",
-  "version": "v1.0.0",
+  "status": "UP",
+  "container_status": "HEALTHY",
+  "service": "CyberSoft Data & AI Lab — Unified Production Service (Tasks 01-29)",
+  "version": "1.0.0",
   "timestamp": "2026-10-15T10:00:00Z",
-  "uptime_seconds": 15.4,
-  "cache_status": "ready"
+  "memory_rss_mb": 78.4,
+  "cache_status": "READY",
+  "model_status": "LOADED"
 }
 ```
 

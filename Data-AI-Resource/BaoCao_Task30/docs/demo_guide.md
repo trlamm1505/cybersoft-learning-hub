@@ -39,18 +39,22 @@ Dưới đây là các câu lệnh trực tiếp gửi payload dữ liệu mới
 ### Bước 1: Khởi động và kiểm tra sức khỏe hệ thống (00:00 - 02:30)
 Gửi yêu cầu kiểm tra sức khỏe của dịch vụ:
 ```powershell
-curl -s http://localhost:8000/api/health
+curl -s http://localhost:8029/api/v1/health
 ```
 **Minh chứng trả về từ hệ thống:**
 ```json
 {
-  "status": "healthy",
-  "version": "v1.0.0",
-  "two_tier_cache": "active",
-  "timestamp": "2026-10-15T10:00:00Z"
+  "status": "UP",
+  "container_status": "HEALTHY",
+  "service": "CyberSoft Data & AI Lab — Unified Production Service (Tasks 01-29)",
+  "version": "1.0.0",
+  "timestamp": "2026-10-15T10:00:00Z",
+  "memory_rss_mb": 78.4,
+  "cache_status": "READY",
+  "model_status": "LOADED"
 }
 ```
-*Thuyết minh:* "Thưa Hội đồng, hệ thống đang vận hành ổn định trên cổng tiêu chuẩn, bộ nhớ đệm hai tầng và các cổng kiểm tra sức khỏe tự động đều đạt trạng thái sẵn sàng."
+*Thuyết minh:* "Thưa Hội đồng, hệ thống đang vận hành ổn định trên cổng 8029, bộ nhớ đệm hai tầng và các cổng kiểm tra sức khỏe tự động đều đạt trạng thái sẵn sàng."
 
 ---
 
