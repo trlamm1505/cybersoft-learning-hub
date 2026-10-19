@@ -24,4 +24,13 @@ if __name__ == "__main__":
     print(f"  -> Link trực tiếp mở trình duyệt: http://localhost:{PORT}/portal/")
     print(f"  -> Link dự phòng IP cục bộ: http://127.0.0.1:{PORT}/portal/")
     print(f"API Docs available at http://{display_host}:{PORT}/docs")
-    uvicorn.run("src.main:app", host=HOST, port=PORT, reload=False)
+    print(
+        "\n[MẸO] Nếu server đang chạy ở cửa sổ khác, nhấn Ctrl + C để dừng rồi chạy lại lệnh này."
+    )
+    uvicorn.run(
+        "src.main:app",
+        host=HOST,
+        port=PORT,
+        reload=True,
+        reload_dirs=[str(TASK29_ROOT)],
+    )

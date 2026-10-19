@@ -28,47 +28,6 @@ app.add_middleware(
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(performance_router)
 
-# Mount dedicated task web portals
-task22_portal = BASE_DIR.parent / "BaoCao_Task22" / "portal"
-if task22_portal.exists():
-    app.mount(
-        "/datasets",
-        StaticFiles(directory=str(task22_portal), html=True),
-        name="portal_datasets",
-    )
-
-task23_portal = BASE_DIR.parent / "BaoCao_Task23" / "portal"
-if task23_portal.exists():
-    app.mount(
-        "/generator",
-        StaticFiles(directory=str(task23_portal), html=True),
-        name="portal_generator",
-    )
-
-task24_portal = BASE_DIR.parent / "BaoCao_Task24" / "portal"
-if task24_portal.exists():
-    app.mount(
-        "/lineage",
-        StaticFiles(directory=str(task24_portal), html=True),
-        name="portal_lineage",
-    )
-
-task25_portal = BASE_DIR.parent / "BaoCao_Task25" / "portal"
-if task25_portal.exists():
-    app.mount(
-        "/security",
-        StaticFiles(directory=str(task25_portal), html=True),
-        name="portal_security",
-    )
-
-task19_ui = BASE_DIR.parent / "BaoCao_Task19" / "ui"
-if task19_ui.exists():
-    app.mount(
-        "/search",
-        StaticFiles(directory=str(task19_ui), html=True),
-        name="portal_search",
-    )
-
 # Mount unified portal web static files
 portal_dir = BASE_DIR / "portal"
 if portal_dir.exists():
@@ -79,5 +38,47 @@ if portal_dir.exists():
 
 @app.get("/", include_in_schema=False)
 def root_redirect():
-    """Redirect root path to interactive Performance & Docker Monitoring Portal."""
+    """Redirect root path to interactive Unified Portal."""
     return RedirectResponse(url="/portal/")
+
+
+@app.get("/datasets", include_in_schema=False)
+@app.get("/datasets/", include_in_schema=False)
+def redirect_datasets():
+    """Redirect legacy datasets route to Tab 1 (Kho 3NF)."""
+    return RedirectResponse(url="/portal/#tab-catalog")
+
+
+@app.get("/search", include_in_schema=False)
+@app.get("/search/", include_in_schema=False)
+def redirect_search():
+    """Redirect legacy search route to Tab 2 (Hybrid RAG)."""
+    return RedirectResponse(url="/portal/#tab-caching")
+
+
+@app.get("/generator", include_in_schema=False)
+@app.get("/generator/", include_in_schema=False)
+def redirect_generator():
+    """Redirect legacy generator route to Tab 3 (Bloom Exercise)."""
+    return RedirectResponse(url="/portal/#tab-bloom-worm")
+
+
+@app.get("/lineage", include_in_schema=False)
+@app.get("/lineage/", include_in_schema=False)
+def redirect_lineage():
+    """Redirect legacy lineage route to Tab 3 (Lineage WORM)."""
+    return RedirectResponse(url="/portal/#tab-bloom-worm")
+
+
+@app.get("/security", include_in_schema=False)
+@app.get("/security/", include_in_schema=False)
+def redirect_security():
+    """Redirect legacy security route to Tab 4 (Security QA)."""
+    return RedirectResponse(url="/portal/#tab-security-qa")
+
+
+@app.get("/ops", include_in_schema=False)
+@app.get("/ops/", include_in_schema=False)
+def redirect_ops():
+    """Redirect ops route to Tab 5 (Docker Ops)."""
+    return RedirectResponse(url="/portal/#tab-docker")
