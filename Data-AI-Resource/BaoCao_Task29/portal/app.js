@@ -65,10 +65,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <span style="color:#10B981">${item.schema_3nf}</span>
         </p>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
-          <button class="btn btn-secondary btn-preview" data-idx="${idx}" style="padding:5px 10px;font-size:11px;">Xem 3NF &amp; 10 Dòng CSV (Task 10, 28)</button>
-          <button class="btn btn-primary btn-download" data-id="${item.id}" style="padding:5px 10px;font-size:11px;">Tải File CSV (Task 22)</button>
-          <button class="btn btn-secondary btn-rate" data-id="${item.id}" style="padding:5px 10px;font-size:11px;">Chấm 5 Sao ⭐ (Task 22)</button>
-          <button class="btn btn-secondary btn-lock" data-id="${item.id}" style="padding:5px 10px;font-size:11px;">Khóa Snapshot (Task 26)</button>
+          <button class="btn btn-secondary btn-preview" data-idx="${idx}" style="padding:5px 10px;font-size:11px;">Xem Lược Đồ 3NF &amp; 10 Dòng Mẫu</button>
+          <button class="btn btn-primary btn-download" data-id="${item.id}" style="padding:5px 10px;font-size:11px;">Tải File CSV</button>
+          <button class="btn btn-secondary btn-rate" data-id="${item.id}" style="padding:5px 10px;font-size:11px;">Đánh Giá 5 Sao ⭐</button>
+          <button class="btn btn-secondary btn-lock" data-id="${item.id}" style="padding:5px 10px;font-size:11px;">Khóa Snapshot Bài Tập</button>
         </div>
       </div>
     `).join("");
