@@ -5,6 +5,96 @@ Chạy 100% trên máy: **Node.js + Python + MongoDB**, không cần Docker. Phi
 
 Tài liệu đầy đủ: xem [Documentation Index](#documentation-index) ở cuối trang.
 
+## Cấu trúc thư mục
+
+Cây dưới đây quét từ các file Git đang theo dõi trong `learning-hub/` (không gồm `node_modules/`, `dist/`, `BE/.env`). Kiến trúc chi tiết: [ARCHITECTURE.md](ARCHITECTURE.md).
+
+```text
+learning-hub/
+├── BE/                                  # Backend NestJS 11 + Mongoose (API http://localhost:3000/api)
+│   ├── src/
+│   │   ├── main.ts                      # Khởi động app: prefix /api, CORS allowlist, header bảo mật
+│   │   ├── app.module.ts                # Gắn module, guard toàn cục (JWT, Roles, CSRF, Throttler)
+│   │   ├── app.controller.ts            # GET /api/health, /api/health/dependencies
+│   │   ├── common/                      # Dùng chung cho mọi module
+│   │   │   ├── auth/                    # JwtStrategy, guard JWT/Roles/NoKidCode (chặn K3-5 gọi code/quiz)
+│   │   │   ├── security/                # Cookie httpOnly + CSRF, thu hồi token, rate limit, CORS, che PII, chặn NoSQL `$`
+│   │   │   ├── helper/                  # code-runner (Local Python Sandbox), python-guard (AST Guard), giới hạn đồng thời
+│   │   │   ├── interceptor/             # LoggingInterceptor (log method + path, bỏ query string)
+│   │   │   ├── utils/                   # server-path (che đường dẫn máy chủ), pii-mask
+│   │   │   └── config/ · constant/      # Cấu hình, hằng số
+│   │   ├── modules-api/                 # 27 module nghiệp vụ, mỗi module: controller + service + *.spec.ts
+│   │   │   ├── auth/                    # Đăng ký, đăng nhập, phiên, hồ sơ
+│   │   │   ├── exercise/ · judge/       # Bài tập, Playground tuần tự, hàng chờ chấm bài
+│   │   │   ├── quiz/                    # /quiz: bắt đầu, nộp (hết giờ tự nộp), xem lại
+│   │   │   ├── contest/ · integrity/    # Cuộc thi, giám sát rời màn hình, liêm chính
+│   │   │   ├── question-bank/           # Ngân hàng đề Code + Trắc nghiệm (bankOnly)
+│   │   │   ├── class-assignments/       # Giao bài theo Ngày, lớp của học viên
+│   │   │   ├── teacher-analytics/       # Lớp của giảng viên, quản lý lớp của Admin
+│   │   │   ├── assessment/              # Điểm lớp: vòng đời bài nộp, tổng kết 30/40/30
+│   │   │   ├── admin-portal/ · admin-users/  # Admin Portal: người dùng, phân công, health check, nhật ký, cấu hình
+│   │   │   ├── coach/ · problem-generator/   # AI Coach (eval 100 case), AI Tạo Đề
+│   │   │   ├── block-puzzle/ · leaderboard/  # Kid Mode Blockly, Bảng Vinh Danh, bảng xếp hạng
+│   │   │   ├── tester-labs/ · da-labs/ · ai-labs/ · career-courses/  # 3 khóa Người đi làm
+│   │   │   └── ...                      # authoring, hint, recommendation, learner-activity, qa-harness,
+│   │   │                                #   resilience-security, usability-testing
+│   │   ├── modules-system/
+│   │   │   ├── database/schemas/        # 26 file schema Mongoose (users, classrooms, exercises, questions, submissions...)
+│   │   │   └── prisma/                  # Còn lại từ thiết kế ban đầu, không module nào sử dụng
+│   │   ├── data/                        # Dữ liệu nền: bài tập, câu quiz, cuộc thi, Lab; seed gốc
+│   │   └── integration/                 # Tích hợp Dataset Registry của nhóm Data & AI (hợp đồng + fixture)
+│   ├── assets/tester-labs/              # Fixture và template CSV của 12 Lab Tester QA
+│   ├── mock-data-service/               # Máy chủ dữ liệu giả lập cho DA Lab / AI Lab (npm run dev:mock)
+│   ├── prisma/ · test/                  # Schema Prisma cũ; cấu hình test e2e mặc định của NestJS
+│   ├── .env.example                     # Mẫu cấu hình duy nhất của dự án (npm run setup tạo BE/.env)
+│   ├── nest-cli.json · tsconfig*.json   # tsconfig.build.json có watchOptions chống tự restart
+│   └── package.json                     # start:dev, start:prod, build, test (Jest), eval:coach
+├── FE/                                  # Frontend React 19 + Vite (http://localhost:5173)
+│   ├── src/
+│   │   ├── App.tsx · main.tsx           # Định tuyến theo vai trò (Admin / Giảng viên / Học viên / Kid Mode)
+│   │   ├── pages/                       # Trang + model thuần có test (*Model.ts, *.test.ts)
+│   │   ├── components/                  # Component dùng chung, admin/, teacher/, contest-manager/
+│   │   ├── games/                       # 4 game Blockly: Maze, Turtle, Bird, Puzzle
+│   │   ├── axios/                       # Client API theo module
+│   │   ├── common/ · hooks/             # configAxios (withCredentials + CSRF), authRoutes, kidMode, useLeaveReporter
+│   │   └── types/ · data/ · styles/ · assets/
+│   ├── public/games/                    # Hình/âm thanh gốc Blockly Games kèm NOTICE.txt (Apache-2.0)
+│   ├── vite.config.ts · tsconfig*.json · .oxlintrc.json
+│   └── package.json                     # dev, build (tsc -b + vite build), test (Vitest)
+├── scripts/                             # Công cụ vận hành và kiểm thử (Node.js)
+│   ├── setup.js · doctor.js · check-mongo.js       # Cài đặt, chẩn đoán môi trường
+│   ├── seed-all.js                      # Master seed: npm run seed / seed:clean (bước 0 + 9 bước)
+│   ├── seed-*.js                        # Seed con: lớp, cuộc thi, Bảng Vinh Danh, giảng viên, Người đi làm
+│   ├── migrate-day29.js · migrate-day31.js         # Migration idempotent có --dry-run
+│   ├── audit-*.js                       # Audit API sống: day29, day30, day31, cross-role, teacher-security...
+│   ├── e2e-browser-qa.js                # E2E Chrome thật 5 luồng (npm run e2e:browser)
+│   ├── verify-*.js · release-pipeline.js           # Kiểm tra bảo mật Kid/ma trận, release check
+│   └── lib/                             # Helper dùng chung + test node --test (class-integrity, e2e-browser...)
+├── docs/
+│   ├── day11/ … day29/                  # Tài liệu, báo cáo từng ngày
+│   ├── day30/                           # Bàn giao v1.0: Handbook, Runbook, Release Notes, Roadmap 60 ngày
+│   ├── decisions/                       # ADR-001 … ADR-003
+│   └── images/handbook/                 # 33 ảnh chụp màn hình thật cho Handbook
+├── reports/                             # Báo cáo/ảnh do script kiểm thử sinh ra (trong .gitignore, không commit)
+├── .github/workflows/ci.yml             # Định nghĩa CI (chưa được GitHub chạy vì nằm trong thư mục con)
+├── README.md                            # Tổng quan, cài đặt, tài khoản mẫu, Documentation Index
+├── SETUP.md                             # Cài đặt chi tiết + 5 lỗi setup thực tế
+├── ARCHITECTURE.md                      # Kiến trúc, luồng dữ liệu (Mermaid), trust boundaries
+├── API.md                               # Danh mục REST API, mã lỗi
+├── DATA.md                              # Từ điển dữ liệu, toàn vẹn, lưu trữ PII
+├── SECURITY.md                          # Threat model, auth, sandbox, AI safety
+├── TESTING.md                           # Test pyramid, số liệu, quality gates
+├── EVALUATION.md                        # Đánh giá AI Tạo Đề, AI Coach, hiệu năng
+├── DEPLOYMENT.md                        # Build, healthcheck, migration, rollback
+├── TROUBLESHOOTING.md                   # 7 sự cố thực tế
+├── CHANGELOG.md                         # Nhật ký thay đổi (Keep a Changelog)
+├── AI_WORKLOG.md                        # Nhật ký sử dụng AI (mẫu Ngày 25)
+├── CLAUDE.md                            # Quy tắc làm việc cho trợ lý AI trong repo
+├── package.json                         # Lệnh gốc: setup, seed, dev, doctor, e2e:browser, test:scripts...
+├── .nvmrc                               # Phiên bản Node khuyến nghị (22)
+└── .gitignore · .gitattributes
+```
+
 ## Cần cài sẵn
 
 | Phần mềm | Phiên bản | Ghi chú |
