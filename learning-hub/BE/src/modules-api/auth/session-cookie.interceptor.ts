@@ -17,7 +17,7 @@ export class SessionCookieInterceptor implements NestInterceptor {
       map((body: { accessToken?: string } & Record<string, unknown>) => {
         if (!body?.accessToken) return body;
         const csrfToken = randomBytes(32).toString('hex');
-        const secure = isProduction();
+        const secure = isProduction() || process.env.COOKIE_SECURE === 'true' || process.env.COOKIE_SAMESITE === 'None';
         res.append('Set-Cookie', serializeCookie(ACCESS_COOKIE, body.accessToken, { maxAgeMs: SESSION_MS, httpOnly: true, secure }));
         res.append('Set-Cookie', serializeCookie(CSRF_COOKIE, csrfToken, { maxAgeMs: SESSION_MS, httpOnly: false, secure }));
         return { ...body, csrfToken };
