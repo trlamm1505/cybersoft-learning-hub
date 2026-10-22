@@ -24,13 +24,16 @@ export interface CookieOptionsInput {
   maxAgeMs: number;
   httpOnly: boolean;
   secure: boolean;
+  sameSite?: 'Strict' | 'Lax' | 'None';
 }
 
-/** Cookie phiên luôn SameSite=Strict; Secure bật ở production. */
+/** Cookie phiên: mặc định SameSite=Strict; cho phép cấu hình qua COOKIE_SAMESITE (None khi FE và BE khác domain). */
 export function serializeCookie(name: string, value: string, o: CookieOptionsInput): string {
-  const parts = [`${name}=${encodeURIComponent(value)}`, 'Path=/', `Max-Age=${Math.floor(o.maxAgeMs / 1000)}`, 'SameSite=Strict'];
+  const sameSite = o.sameSite ?? (process.env.COOKIE_SAMESITE as 'Strict' | 'Lax' | 'None') ?? 'Strict';
+  const secure = o.secure || sameSite === 'None';
+  const parts = [`${name}=${encodeURIComponent(value)}`, 'Path=/', `Max-Age=${Math.floor(o.maxAgeMs / 1000)}`, `SameSite=${sameSite}`];
   if (o.httpOnly) parts.push('HttpOnly');
-  if (o.secure) parts.push('Secure');
+  if (secure) parts.push('Secure');
   return parts.join('; ');
 }
 
