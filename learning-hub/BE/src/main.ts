@@ -1,3 +1,4 @@
+import type { Request, Response, NextFunction } from 'express';
 import { NestFactory } from '@nestjs/core';
 import * as path from 'path';
 import { AppModule } from './app.module';
@@ -12,6 +13,19 @@ loadSharedEnvFiles(path.resolve(__dirname, '..'));
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const isProduction = process.env.NODE_ENV === 'production';
+
+  // Request logger middleware: in log từng request gọi tới kèm status và thời gian phản hồi
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const { method, originalUrl } = req;
+    const start = Date.now();
+    res.on('finish', () => {
+      const { statusCode } = res;
+      const duration = Date.now() - start;
+      const icon = statusCode >= 400 ? '❌' : '✅';
+      console.log(`${icon} [API] ${method} ${originalUrl} | Status: ${statusCode} | ${duration}ms`);
+    });
+    next();
+  });
 
   // Header bảo mật trên mọi phản hồi (tương đương helmet): nosniff, chống nhúng khung, CSP, không lộ X-Powered-By.
   app.getHttpAdapter().getInstance().disable?.('x-powered-by');
