@@ -26,7 +26,11 @@ export function corsOriginChecker(allowlist: string[]) {
   const allowed = new Set(allowlist.map(normalize));
   return (origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => {
     if (!origin) return cb(null, false);
-    cb(null, allowed.has(normalize(origin)));
+    const isAllowed = allowed.has(normalize(origin));
+    if (!isAllowed) {
+      console.warn(`🚫 [CORS Chặn] Origin "${origin}" không có trong danh sách cho phép: [${[...allowed].join(', ')}]`);
+    }
+    cb(null, isAllowed);
   };
 }
 
