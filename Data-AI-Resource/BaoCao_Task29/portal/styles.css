@@ -713,6 +713,118 @@ body {
   min-height: 60px;
 }
 
+/* =========================================================================
+   OPS SPLIT LAYOUT & WEEK 5/6 WORKSPACE
+   ========================================================================= */
+.ops-split-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .ops-split-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ops-controls-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.control-subcard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.ops-display-pane {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ops-result-display {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state-card {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  margin: auto;
+}
+
+.code-split-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .code-split-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.code-box-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Security & QA Toolbar */
+.security-toolbar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+
+.sec-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.sec-actions-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
 /* Footer */
 .app-footer {
   text-align: center;

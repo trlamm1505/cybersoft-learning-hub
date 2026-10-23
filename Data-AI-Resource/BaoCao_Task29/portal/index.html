@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CyberSoft Data &amp; AI Lab v1.0 — Trung Tâm Điều Hành Hợp Nhất</title>
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=11">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -153,7 +153,7 @@
       </div>
     </div>
 
-    <!-- TAB 3: AI Sinh bài tập Bloom & Lineage WORM -->
+    <!-- TAB 3: AI Sinh bài tập Bloom & Lineage WORM (Tuần 5) -->
     <div id="tab-bloom-worm" class="tab-content">
       <div class="section-card">
         <div class="card-header">
@@ -161,47 +161,69 @@
           <span class="note">Tự động sinh đề bài kèm rubric và kiểm tra chống trùng lặp, tích hợp kho lưu trữ bất biến WORM chặn sửa đổi trái phép (HTTP 409)</span>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:16px;margin-bottom:20px;">
-          <div style="background:var(--bg-card);padding:18px;border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
-            <h4 style="color:#38BDF8;font-size:15px;margin-bottom:8px;">AI Exercise Generator (Thang Đo Bloom)</h4>
-            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">Sinh đề bài thực hành theo schema bộ dữ liệu kèm Starter Code và Rubric:</p>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-              <select id="bloom-dataset" class="form-select" style="flex:1;min-width:160px;">
-                <option value="ds-retail-ecommerce-sales-v1">Retail Sales 3NF</option>
-                <option value="ds-customer-churn-classification-v1">Customer Churn</option>
-                <option value="ds-hr-operations-attendance-v1">HR Attendance</option>
-                <option value="ds-ai-rag-knowledge-chunks-v1">AI Knowledge Chunks</option>
-              </select>
-              <select id="bloom-level" class="form-select" style="min-width:130px;">
-                <option value="Apply">Cấp độ 3: Apply</option>
-                <option value="Analyze">Cấp độ 4: Analyze</option>
-                <option value="Evaluate">Cấp độ 5: Evaluate</option>
-              </select>
+        <div class="ops-split-layout">
+          <!-- Cột Trái: Bảng Điều Khiển -->
+          <div class="ops-controls-sidebar">
+            <div class="control-subcard">
+              <h4 style="color:#38BDF8;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                <span>✨</span> AI Exercise Generator (Task 23)
+              </h4>
+              <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">Sinh đề bài theo Thang đo Bloom &amp; Schema 3NF:</p>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+                <div>
+                  <label class="field-label">Bộ dữ liệu mục tiêu:</label>
+                  <select id="bloom-dataset" class="form-select" style="width:100%;">
+                    <option value="ds-retail-ecommerce-sales-v1">Retail Sales 3NF (Bán lẻ)</option>
+                    <option value="ds-customer-churn-classification-v1">Customer Churn (Ngân hàng)</option>
+                    <option value="ds-hr-operations-attendance-v1">HR Attendance (Nhân sự)</option>
+                    <option value="ds-ai-rag-knowledge-chunks-v1">AI Knowledge Chunks (RAG)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label">Cấp độ Thang Bloom:</label>
+                  <select id="bloom-level" class="form-select" style="width:100%;">
+                    <option value="Apply">Cấp độ 3: Apply (Vận dụng)</option>
+                    <option value="Analyze">Cấp độ 4: Analyze (Phân tích)</option>
+                    <option value="Evaluate">Cấp độ 5: Evaluate (Đánh giá)</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-primary" id="btn-gen-exercise" style="width:100%;padding:9px 14px;">
+                ✨ Sinh Đề Bài Tập Tự Động
+              </button>
             </div>
-            <button class="btn btn-primary" id="btn-gen-exercise" style="width:100%;">
-              ✨ Sinh Đề Bài Tập Tự Động
-            </button>
+
+            <div class="control-subcard" style="margin-top:14px;">
+              <h4 style="color:#34D399;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                <span>🔗</span> Lineage DAG &amp; Kho WORM (Task 24)
+              </h4>
+              <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">Truy vết nguồn gốc và kiểm chứng bất biến:</p>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-secondary" id="btn-view-lineage" style="width:100%;text-align:left;justify-content:flex-start;">
+                  🔗 Xem Lưu Đồ Lineage DAG (5 chặng)
+                </button>
+                <button class="btn btn-secondary" id="btn-worm-overwrite" style="width:100%;text-align:left;justify-content:flex-start;">
+                  🛡️ Thử Ghi Đè WORM (Chặn HTTP 409)
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div style="background:var(--bg-card);padding:18px;border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
-            <h4 style="color:#34D399;font-size:15px;margin-bottom:8px;">Data Lineage DAG &amp; WORM Immutable Store</h4>
-            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">Truy vết 5 chặng biến đổi dữ liệu và kiểm chứng kho bất biến Write-Once-Read-Many:</p>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-secondary" id="btn-view-lineage" style="flex:1;">
-                🔗 Xem Lưu Đồ Lineage DAG
-              </button>
-              <button class="btn btn-secondary" id="btn-worm-overwrite" style="flex:1;">
-                🛡️ Thử Ghi Đè WORM (Chặn 409)
-              </button>
+          <!-- Cột Phải: Khung Kết Quả Tương Tác -->
+          <div class="ops-display-pane">
+            <div id="bloom-worm-result" class="ops-result-display">
+              <div class="empty-state-card">
+                <div style="font-size:32px;margin-bottom:8px;">🤖</div>
+                <h4 style="color:var(--text-primary);font-size:14px;margin-bottom:4px;">Chưa kích hoạt kiểm thử Tuần 5</h4>
+                <p style="font-size:12px;color:var(--text-secondary);max-width:460px;margin:0 auto;">Chọn thông số ở cột bên trái và bấm <strong>"Sinh Đề Bài Tập"</strong> hoặc <strong>"Xem Lưu Đồ Lineage"</strong> để xem kết quả phân tích trực quan ngay tại đây.</p>
+              </div>
             </div>
           </div>
         </div>
-
-        <div id="bloom-worm-result" class="result-box">Bấm nút trên để sinh bài tập theo thang Bloom hoặc kiểm tra lưu đồ Lineage &amp; kho bất biến WORM...</div>
       </div>
     </div>
 
-    <!-- TAB 4: Tường lửa PII, QA Gate & Việt hóa lỗi -->
+    <!-- TAB 4: Tường lửa PII, QA Gate & Việt hóa lỗi (Tuần 5 & 6) -->
     <div id="tab-security-qa" class="tab-content">
       <div class="section-card">
         <div class="card-header">
@@ -209,20 +231,29 @@
           <span class="note">Tự động phát hiện và che giấu PII, ngăn chặn tấn công Prompt Injection, 4 chốt chặn kiểm duyệt đề thi và bộ chuyển đổi thông báo tiếng Việt</span>
         </div>
 
-        <div class="filter-bar" style="margin-bottom:16px;">
-          <input id="sec-input" type="text" class="search-input" value="Liên hệ học viên SĐT 0901234567, CCCD 079203001234, email kien@cybersoft.edu.vn" style="flex:1;min-width:260px;">
-          <button class="btn btn-primary" id="btn-scan-pii">Quét &amp; Khử PII (HMAC)</button>
-          <button class="btn btn-danger" id="btn-test-injection">Kiểm Tra Chống Injection</button>
+        <div class="security-toolbar">
+          <div class="sec-input-row">
+            <input id="sec-input" type="text" class="search-input" value="Liên hệ học viên SĐT 0901234567, CCCD 079203001234, email kien@cybersoft.edu.vn" placeholder="Nhập câu thử nghiệm chứa PII hoặc câu lệnh injection...">
+            <button class="btn btn-primary" id="btn-scan-pii">🛡️ Quét &amp; Khử PII (HMAC)</button>
+            <button class="btn btn-danger" id="btn-test-injection">⚠️ Kiểm Tra Injection</button>
+          </div>
+
+          <div class="sec-actions-row">
+            <span class="chip-label">Chốt Chặn QA &amp; UX:</span>
+            <button class="btn btn-secondary btn-sm" id="btn-qa-clean">✓ QA Đạt Chuẩn (PASS)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-qa-defective">🛑 Phát Hiện Lỗi (BLOCKED)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-qa-bypass">🛡️ Chống Vượt Rào (Zero-Bypass)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-ux-localize">🌐 Việt Hóa Lỗi &amp; Điểm SUS</button>
+          </div>
         </div>
 
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-          <button class="btn btn-secondary" id="btn-qa-clean">✓ QA Gate Đạt Chuẩn (PASS)</button>
-          <button class="btn btn-secondary" id="btn-qa-defective">🛑 Phát Hiện Rò Rỉ (BLOCKED)</button>
-          <button class="btn btn-secondary" id="btn-qa-bypass">🛡️ Chống Vượt Rào Ngầm (Zero Bypass)</button>
-          <button class="btn btn-secondary" id="btn-ux-localize" style="margin-left:auto;">🌐 Việt Hóa Lỗi Schema &amp; Điểm SUS</button>
+        <div id="security-qa-result" class="ops-result-display" style="min-height:160px;margin-top:16px;">
+          <div class="empty-state-card">
+            <div style="font-size:32px;margin-bottom:8px;">🛡️</div>
+            <h4 style="color:var(--text-primary);font-size:14px;margin-bottom:4px;">Tường lửa bảo mật &amp; Chốt chặn QA sẵn sàng</h4>
+            <p style="font-size:12px;color:var(--text-secondary);max-width:480px;margin:0 auto;">Nhập thông tin kiểm tra PII bên trên hoặc bấm các nút kiểm tra 4 Chốt chặn Quality Gate để xem phân tích trực quan.</p>
+          </div>
         </div>
-
-        <div id="security-qa-result" class="result-box">Bấm các nút trên để kiểm tra Tường lửa PII/Injection, 4 Chốt chặn QA Gate và Bộ chuyển đổi lỗi tiếng Việt...</div>
       </div>
     </div>
 
@@ -306,6 +337,6 @@
       <p>CyberSoft Data &amp; AI Lab v1.0 — Hệ Thống Hợp Nhất Toàn Khóa</p>
     </footer>
   </div>
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
