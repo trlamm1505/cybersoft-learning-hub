@@ -25,15 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Nút điều hướng nhanh ở thanh trên cùng
-  document.querySelectorAll(".quick-tab-link").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (btn.dataset.target) {
-        switchTab(btn.dataset.target);
-      }
-    });
-  });
-
   // Tự động chuyển tab theo URL hash khi mở trang
   if (window.location.hash) {
     const hashId = window.location.hash.substring(1);
