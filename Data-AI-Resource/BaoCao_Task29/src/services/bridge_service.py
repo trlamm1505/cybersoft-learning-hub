@@ -365,20 +365,62 @@ class TaskBridgeManager:
             except Exception as e:
                 logger.warning(f"Lỗi gọi Task 19 AI Tutor: {e}")
 
-        return {
-            "tutor_status": "GROUNDED_ANSWER",
-            "tutor_answer": f"Trợ giảng AI ({mode.upper()}): Dựa trên học liệu chuẩn hóa [CS-TEC-003#sec02], toàn bộ thông tin cá nhân PII bắt buộc phải được mã hóa một chiều qua HMAC-SHA256 và dữ liệu bảng tuân thủ chuẩn 3NF.",
-            "results": [
-                {
-                    "chunk_id": "CS-TEC-003_hdr_002",
-                    "doc_id": "CS-TEC-003",
-                    "section": "sec02",
-                    "title": "Chính sách Bảo mật PII & Khử định danh",
-                    "content": "Toàn bộ thông tin cá nhân (SĐT, Email, CCCD) bắt buộc phải qua tầng khử định danh HMAC-SHA256 trước khi lập chỉ mục Vector RAG.",
-                    "citation": "[CS-TEC-003#sec02]",
-                    "score": 0.95,
+        # Tự chủ tìm kiếm lai trên kho tri thức chuẩn hóa (Internal Knowledge Retrieval)
+        fallback_file = TASK29_ROOT / "data" / "unified_hub_data.json"
+        chunks = []
+        if fallback_file.exists():
+            try:
+                with open(fallback_file, "r", encoding="utf-8") as f:
+                    chunks = json.load(f).get("rag_knowledge_chunks", [])
+            except Exception as e:
+                logger.warning(f"Lỗi đọc tri thức RAG: {e}")
+
+        if chunks:
+            q_tokens = set(re.findall(r"\w+", q_lower))
+            scored = []
+            for c in chunks:
+                text_to_search = f"{c.get('title', '')} {c.get('content', '')} {c.get('section', '')}".lower()
+                c_tokens = set(re.findall(r"\w+", text_to_search))
+                common = q_tokens & c_tokens
+                score = len(common) / (len(q_tokens) or 1)
+                title_tokens = set(re.findall(r"\w+", c.get("title", "").lower()))
+                score += 0.5 * (len(q_tokens & title_tokens) / (len(q_tokens) or 1))
+                if score > 0:
+                    scored.append((score, c))
+
+            if scored:
+                scored.sort(key=lambda x: x[0], reverse=True)
+                top_matches = scored[:2]
+                best_chunk = top_matches[0][1]
+
+                results = []
+                for idx, (sc, c) in enumerate(top_matches):
+                    doc_id = c.get("doc_id", "CS-DOC")
+                    section = c.get("section", "sec01")
+                    results.append(
+                        {
+                            "chunk_id": c.get("chunk_id", f"CHK-{idx+1}"),
+                            "doc_id": doc_id,
+                            "section": section,
+                            "title": c.get("title", "Tài liệu học tập"),
+                            "content": c.get("content", ""),
+                            "citation": f"[{doc_id}#{section}]",
+                            "score": round(min(0.98, 0.70 + sc * 0.2), 2),
+                        }
+                    )
+
+                doc_ref = f"[{best_chunk.get('doc_id')}#{best_chunk.get('section')}]"
+                return {
+                    "tutor_status": "GROUNDED_ANSWER",
+                    "tutor_answer": f"Trợ giảng AI ({mode.upper()}): Căn cứ theo tài liệu {doc_ref} về {best_chunk.get('title')}: {best_chunk.get('content')}",
+                    "results": results,
                 }
-            ],
+
+        # Nếu không tìm thấy thông tin nào phù hợp -> Từ chối an toàn
+        return {
+            "tutor_status": "REFUSED_OUT_OF_SCOPE",
+            "tutor_answer": "⚠️ [TỪ CHỐI AN TOÀN — BẢO VỆ TRI THỨC]: Câu hỏi nằm ngoài phạm vi học liệu CyberSoft Data & AI Lab. Trợ giảng AI tuyệt đối không suy đoán hoặc bịa đặt thông tin không có nguồn trích dẫn.",
+            "results": [],
         }
 
     # ==========================================
