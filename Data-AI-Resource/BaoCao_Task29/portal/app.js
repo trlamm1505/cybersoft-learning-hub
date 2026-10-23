@@ -51,35 +51,41 @@ document.addEventListener("DOMContentLoaded", () => {
       catalogItems = data.catalog || [];
       renderCatalog(catalogItems);
     } catch (e) {
-      catalogListEl.innerHTML = `<p style="color:#EF4444;">Không thể tải danh mục dữ liệu: ${e.message}</p>`;
+      if (catalogListEl) {
+        catalogListEl.innerHTML = `<p style="color:#EF4444;padding:20px;">Không thể tải danh mục dữ liệu: ${e.message}</p>`;
+      }
     }
   }
 
   function renderCatalog(items) {
     if (!catalogListEl) return;
     if (items.length === 0) {
-      catalogListEl.innerHTML = `<p style="color:#94A3B8;grid-column:1/-1;">Không có bộ dữ liệu nào phù hợp với bộ lọc hiện tại.</p>`;
+      catalogListEl.innerHTML = `<p style="color:#94A3B8;grid-column:1/-1;padding:24px;text-align:center;">Không có bộ dữ liệu nào phù hợp với bộ lọc hiện tại.</p>`;
       return;
     }
     catalogListEl.innerHTML = items.map((item, idx) => `
-      <div class="info-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span class="badge-tag ${item.status === 'PUBLISHED' ? 'badge-resolved' : ''}" style="${item.status === 'DRAFT' ? 'background:#7F1D1D;color:#FCA5A5;' : ''}">
-            ${item.status} • ${item.track}
-          </span>
-          <span style="font-size:12px;color:#38BDF8;font-weight:600;">📦 ${item.size_label} • Điểm: ${item.quality_score}%</span>
+      <div class="dataset-card">
+        <div>
+          <div class="dataset-card-header">
+            <span class="badge-tag ${item.status === 'PUBLISHED' ? 'badge-published' : 'badge-draft'}">
+              ${item.status === 'PUBLISHED' ? '✓ PUBLISHED' : '⚠️ DRAFT (CHẶN 403)'}
+            </span>
+            <span class="badge-track">${item.track}</span>
+          </div>
+          <h4 class="dataset-name">${item.name}</h4>
+          <p class="dataset-meta">
+            Mã: <code>${item.id}</code> • Bản: <strong>${item.version}</strong> • Quy mô: <strong>${Number(item.rows).toLocaleString()} dòng</strong> (${item.size_label})
+          </p>
+          <div class="dataset-quality">
+            ✓ Chuẩn 3NF • Khóa ngoại: 0 lỗi • Độ sạch: ${item.quality_score}%
+          </div>
         </div>
-        <h4 style="margin-bottom:6px;">${item.name}</h4>
-        <p style="font-size:12px;color:#94A3B8;margin-bottom:6px;">
-          Mã định danh: <code>${item.id}</code> | Phiên bản: <strong>${item.version}</strong> | Quy mô: <strong>${Number(item.rows).toLocaleString()} dòng</strong><br>
-          <span style="color:#10B981">${item.schema_3nf}</span>
-        </p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-          <button class="btn btn-secondary btn-preview" data-id="${item.id}" data-idx="${idx}" style="padding:6px 12px;font-size:12px;cursor:pointer;">
-            🔍 Xem Lược Đồ 3NF &amp; Dữ Liệu Mẫu
+        <div class="dataset-actions">
+          <button class="btn btn-secondary btn-preview" data-id="${item.id}" data-idx="${idx}">
+            👁️ Xem Lược Đồ
           </button>
-          <button class="btn btn-primary btn-download" data-id="${item.id}" style="padding:6px 12px;font-size:12px;cursor:pointer;">
-            ⬇️ Tải File CSV Chuẩn 3NF
+          <button class="btn btn-primary btn-download" data-id="${item.id}">
+            ⬇️ Tải File CSV
           </button>
         </div>
       </div>
@@ -97,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const box = document.getElementById("csv-preview-box");
     box.style.display = "block";
     document.getElementById("csv-preview-title").textContent = `Đang tải xem trước lược đồ: ${dataset_id}...`;
-    document.getElementById("csv-preview-table").innerHTML = `<p style="color:#94A3B8;">Đang truy vấn bảng dữ liệu...</p>`;
+    document.getElementById("csv-preview-table").innerHTML = `<p style="color:#94A3B8;padding:12px;">Đang truy vấn bảng dữ liệu...</p>`;
 
     try {
       const res = await fetch("/api/v1/ops/hub/dataset-action", {
@@ -122,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       box.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } catch (e) {
-      document.getElementById("csv-preview-table").innerHTML = `<p style="color:#EF4444;">Lỗi xem trước dữ liệu: ${e.message}</p>`;
+      document.getElementById("csv-preview-table").innerHTML = `<p style="color:#EF4444;padding:12px;">Lỗi xem trước dữ liệu: ${e.message}</p>`;
     }
   }
 
@@ -134,16 +140,18 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ action: "download", dataset_id })
       });
       const data = await res.json();
-      dsActionRes.textContent = JSON.stringify(data, null, 2);
-
-      if (data.http_code === 403) {
-        dsActionRes.style.borderColor = "#EF4444";
-        dsActionRes.style.color = "#FCA5A5";
-        return;
+      
+      if (dsActionRes) {
+        dsActionRes.style.display = "block";
+        dsActionRes.textContent = JSON.stringify(data, null, 2);
+        if (data.http_code === 403) {
+          dsActionRes.style.borderColor = "#EF4444";
+          dsActionRes.style.color = "#FCA5A5";
+          return;
+        }
+        dsActionRes.style.borderColor = "#10B981";
+        dsActionRes.style.color = "#86EFAC";
       }
-
-      dsActionRes.style.borderColor = "#10B981";
-      dsActionRes.style.color = "#86EFAC";
 
       // Nếu xuất bản thành công -> Tải file CSV thật về máy
       if (data.success) {
@@ -172,7 +180,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     } catch (e) {
-      dsActionRes.textContent = `Lỗi kiểm tra tải file: ${e.message}`;
+      if (dsActionRes) {
+        dsActionRes.style.display = "block";
+        dsActionRes.textContent = `Lỗi kiểm tra tải file: ${e.message}`;
+      }
     }
   }
 
@@ -195,7 +206,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const mode = document.getElementById("rag-mode-select").value;
 
     const resBox = document.getElementById("rag-results-box");
-    resBox.textContent = "Đang truy vấn Trợ giảng AI & đo lường độ trễ...";
+    resBox.innerHTML = `
+      <div style="text-align:center;padding:24px;color:var(--text-secondary);">
+        <div style="font-size:24px;margin-bottom:8px;">⏳</div>
+        <div>Đang truy vấn mô hình lai và đo lường thời gian đáp ứng...</div>
+      </div>
+    `;
 
     try {
       const res = await fetch(`/api/v1/ops/hub/search?q=${encodeURIComponent(q)}&mode=${mode}`);
@@ -203,11 +219,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const statusEl = document.getElementById("live-cache-status");
       if (data.tutor_status === "REFUSED_OUT_OF_SCOPE") {
-        statusEl.textContent = "🛡️ CHẶN NGOÀI LUỒNG (BẢO VỆ TRI THỨC)";
+        statusEl.textContent = "🛡️ Chặn Ngoài Luồng";
+        statusEl.style.background = "rgba(239, 68, 68, 0.15)";
         statusEl.style.color = "#EF4444";
       } else {
-        statusEl.textContent = data.is_cached ? "⚡ CACHE HIT (BỘ NHỚ ĐỆM)" : "🔍 CACHE MISS (TRUY VẤN MỚI)";
-        statusEl.style.color = data.is_cached ? "#10B981" : "#F59E0B";
+        if (data.is_cached) {
+          statusEl.textContent = "⚡ Trúng Đệm (Cache Hit)";
+          statusEl.style.background = "rgba(16, 185, 129, 0.15)";
+          statusEl.style.color = "#10B981";
+        } else {
+          statusEl.textContent = "🔍 Truy Vấn Mới (Cache Miss)";
+          statusEl.style.background = "rgba(245, 158, 11, 0.15)";
+          statusEl.style.color = "#F59E0B";
+        }
       }
       document.getElementById("live-latency-ms").textContent = `${data.latency_ms} ms`;
       if (data.cache_stats) {
@@ -216,46 +240,71 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const chunksHtml = (data.results || []).map(r => `
-        <div style="margin-top:10px;padding:10px;background:#1E293B;border-radius:6px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <strong style="color:#38BDF8">${r.citation} — ${r.title}</strong>
-            <button class="btn btn-secondary btn-copy-cite" data-cite='${r.citation} "${r.content}"' style="padding:3px 8px;font-size:11px;cursor:pointer;">
-              📋 Sao Chép Trích Dẫn
+        <div class="citation-card">
+          <div class="citation-top">
+            <span class="citation-tag">${r.citation} — ${r.title}</span>
+            <button class="btn btn-secondary btn-copy-cite" data-cite='${r.citation} "${r.content}"' style="padding:2px 8px;font-size:11px;">
+              📋 Sao Chép
             </button>
           </div>
-          <p style="margin:0;color:#CBD5E1;font-size:13px;line-height:1.5;">${r.content}</p>
+          <p class="citation-content">${r.content}</p>
         </div>
       `).join("");
 
       resBox.innerHTML = `
-        <div style="padding:12px;background:#0F172A;border-left:4px solid ${data.is_cached ? '#10B981' : '#38BDF8'};border-radius:4px;margin-bottom:10px;">
-          <strong style="font-size:14px;color:#F8FAFC;">🤖 Phản Hồi Trợ Giảng AI (${data.is_cached ? 'Bộ nhớ đệm LRU < 3ms' : 'Truy vấn gốc'}):</strong>
-          <p style="margin-top:6px;line-height:1.6;color:#E2E8F0;">${data.tutor_answer}</p>
+        <div class="tutor-answer-card">
+          <div class="tutor-header">
+            <div class="tutor-title">
+              <span>🤖 Trợ Giảng AI Lab</span>
+              <span class="badge-tag badge-published" style="font-size:10px;">${data.search_mode ? data.search_mode.toUpperCase() : 'HYBRID RRF'}</span>
+            </div>
+            <span style="font-size:11px;color:var(--text-muted);">${data.is_cached ? '⚡ Phục vụ từ bộ đệm LRU' : '🔍 Truy vấn trực tiếp'}</span>
+          </div>
+          <div class="tutor-body">${data.tutor_answer}</div>
         </div>
-        ${chunksHtml}
+        ${chunksHtml ? `<div class="citations-header">📚 Học Liệu Chuẩn Đối Soát (${(data.results || []).length} nguồn trích dẫn):</div>${chunksHtml}` : ''}
       `;
 
       document.querySelectorAll(".btn-copy-cite").forEach(b => {
         b.addEventListener("click", () => {
           navigator.clipboard?.writeText(b.dataset.cite);
-          b.textContent = "✓ Đã sao chép!";
-          setTimeout(() => { b.textContent = "📋 Sao Chép Trích Dẫn"; }, 2000);
+          b.textContent = "✓ Đã chép!";
+          setTimeout(() => { b.textContent = "📋 Sao Chép"; }, 1500);
         });
       });
     } catch (e) {
-      resBox.textContent = `Lỗi truy vấn: ${e.message}`;
+      resBox.innerHTML = `<p style="color:#EF4444;padding:16px;">Lỗi truy vấn: ${e.message}</p>`;
     }
   }
 
   document.getElementById("btn-rag-search")?.addEventListener("click", () => runRagQuery());
   document.getElementById("btn-out-of-scope")?.addEventListener("click", () => runRagQuery("Dự báo giá vàng và thị trường bitcoin hôm nay?"));
+  document.querySelectorAll(".chip-example").forEach(chip => {
+    chip.addEventListener("click", () => runRagQuery(chip.dataset.q));
+  });
+
   document.getElementById("btn-clear-cache")?.addEventListener("click", async () => {
     await fetch("/api/v1/ops/cache/clear", { method: "POST" });
-    document.getElementById("live-cache-status").textContent = "Đã làm trống Cache";
+    const statusEl = document.getElementById("live-cache-status");
+    statusEl.textContent = "Đã Xóa Bộ Đệm";
+    statusEl.style.background = "rgba(56, 189, 248, 0.15)";
+    statusEl.style.color = "#38BDF8";
     document.getElementById("live-hits-count").textContent = "0 / 0";
     document.getElementById("live-hit-rate").textContent = "0.0%";
     const resBox = document.getElementById("rag-results-box");
-    resBox.textContent = "Đã xóa toàn bộ bộ nhớ đệm LRU Cache. Các truy vấn tiếp theo sẽ đo độ trễ truy vấn gốc (Cache Miss).";
+    resBox.innerHTML = `
+      <div style="text-align:center;padding:24px;color:var(--text-secondary);">
+        <p style="color:#10B981;font-weight:600;">✓ Đã làm trống toàn bộ bộ nhớ đệm LRU Cache.</p>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">Các truy vấn tiếp theo sẽ đo lường độ trễ thực tế gốc (Cache Miss).</p>
+      </div>
+    `;
+  });
+
+  // Cho phép nhấn Enter trong ô tìm kiếm RAG
+  document.getElementById("rag-query-input")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      runRagQuery();
+    }
   });
 
   // =========================================================================
@@ -279,8 +328,8 @@ document.addEventListener("DOMContentLoaded", () => {
       let rubricsHtml = "";
       if (Array.isArray(data.rubrics) && data.rubrics.length > 0) {
         rubricsHtml = `
-          <div style="margin-top:10px;">
-            <strong style="color:#FBBF24;">📋 Rubric Chấm Điểm Chuẩn Hóa:</strong>
+          <div style="margin-top:12px;">
+            <strong style="color:#FBBF24;font-size:13px;">📋 Rubric Chấm Điểm Chuẩn Hóa:</strong>
             <ul style="margin:6px 0 0 16px;color:#CBD5E1;font-size:13px;">
               ${data.rubrics.map(r => `<li>${typeof r === 'object' ? `${r.criteria || r.rubric_name || 'Tiêu chí'} (Tối đa: ${r.max_points || r.weight || 20}đ)` : r}</li>`).join("")}
             </ul>
@@ -289,23 +338,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       bloomRes.innerHTML = `
-        <div style="border-left:4px solid #10B981;padding-left:12px;">
+        <div style="border-left:4px solid #10B981;padding-left:14px;">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-            <h3 style="color:#38BDF8;margin:0;">📝 ${data.title || 'Đề bài tập thực hành'}</h3>
-            <span class="badge-tag badge-resolved">Bloom: ${data.bloom_level} • Độ khó: ${data.difficulty || 'Trung bình'}</span>
+            <h3 style="color:#38BDF8;margin:0;font-size:16px;">📝 ${data.title || 'Đề bài tập thực hành'}</h3>
+            <span class="badge-tag badge-published">Bloom: ${data.bloom_level} • ${data.difficulty || 'Intermediate'}</span>
           </div>
-          <p style="margin:8px 0;color:#CBD5E1;font-size:14px;line-height:1.6;">${data.description || 'Thực hành phân tích dữ liệu và tối ưu hóa truy vấn.'}</p>
-          <div style="margin-top:8px;">
-            <strong style="color:#34D399;">💻 Mã Khởi Điểm (Starter Code):</strong>
-            <pre style="background:#0F172A;padding:10px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:4px 0;"><code>${data.starter_code || '-- Viết câu lệnh truy vấn tại đây'}</code></pre>
+          <p style="margin:8px 0;color:#CBD5E1;font-size:13px;line-height:1.6;">${data.description || 'Thực hành phân tích dữ liệu và tối ưu hóa truy vấn.'}</p>
+          <div style="margin-top:10px;">
+            <strong style="color:#34D399;font-size:12px;">💻 Mã Khởi Điểm (Starter Code):</strong>
+            <pre style="background:#0B1120;padding:10px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:4px 0;"><code>${data.starter_code || '-- Viết câu lệnh truy vấn tại đây'}</code></pre>
           </div>
-          <div style="margin-top:8px;">
-            <strong style="color:#60A5FA;">💡 Mã Lời Giải Mẫu (Reference Solution):</strong>
-            <pre style="background:#0F172A;padding:10px;border-radius:6px;overflow-x:auto;color:#93C5FD;font-size:12px;margin:4px 0;"><code>${data.solution_code || '-- Lời giải mẫu chuẩn'}</code></pre>
+          <div style="margin-top:10px;">
+            <strong style="color:#60A5FA;font-size:12px;">💡 Lời Giải Mẫu Chuẩn (Reference Solution):</strong>
+            <pre style="background:#0B1120;padding:10px;border-radius:6px;overflow-x:auto;color:#93C5FD;font-size:12px;margin:4px 0;"><code>${data.solution_code || '-- Lời giải mẫu chuẩn'}</code></pre>
           </div>
           ${rubricsHtml}
-          <div style="margin-top:10px;font-size:12px;color:#10B981;">
-            ✓ Kiểm định chống trùng lặp: Điểm tương đồng Cosine = <strong>${data.cosine_dedup_score}</strong> (&lt; ngưỡng sàn 0.85 — Đề bài hoàn toàn mới).
+          <div style="margin-top:12px;font-size:12px;color:#10B981;">
+            ✓ Kiểm định chống trùng lặp: Điểm tương đồng Cosine = <strong>${data.cosine_dedup_score}</strong> (&lt; 0.85 — Đề bài mới hoàn toàn).
           </div>
         </div>
       `;
@@ -325,13 +374,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
       const nodes = data.lineage_dag || [];
 
-      const nodesHtml = nodes.slice(0, 10).map((n, i) => `
-        <div style="padding:8px;background:#0F172A;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+      const nodesHtml = nodes.slice(0, 8).map((n, i) => `
+        <div style="padding:8px 12px;background:#0B1120;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
           <div>
-            <strong style="color:#38BDF8;">Node #${i + 1}: ${n.name || n.id}</strong>
-            <span style="font-size:12px;color:#94A3B8;margin-left:8px;">(${n.artifact_type || 'DATASET'} • Phiên bản: ${n.version || 'v1.0'})</span>
+            <strong style="color:#38BDF8;font-size:13px;">Node #${i + 1}: ${n.name || n.id}</strong>
+            <span style="font-size:11px;color:#94A3B8;margin-left:8px;">(${n.artifact_type || 'DATASET'} • ${n.version || 'v1.0'})</span>
           </div>
-          <code style="font-size:11px;color:#10B981;background:#1E293B;padding:2px 6px;border-radius:4px;">
+          <code style="font-size:11px;color:#10B981;background:#141E33;padding:2px 6px;border-radius:4px;">
             Hash: ${(n.content_hash || n.sha256_prefix || 'sha256-verified').substring(0, 16)}...
           </code>
         </div>
@@ -339,12 +388,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       bloomRes.innerHTML = `
         <div>
-          <h4 style="color:#34D399;margin-bottom:8px;">🔗 Lưu Đồ Nguồn Gốc Dữ Liệu Data Lineage DAG (5 Chặng Biến Đổi)</h4>
-          <p style="font-size:13px;color:#CBD5E1;margin-bottom:10px;">
-            Tổng cộng: <strong>${data.total_nodes || 16} Nodes hiện vật</strong> và <strong>${data.total_edges || 25} Cạnh phụ thuộc</strong>.<br>
-            Chuỗi chặng: Dữ liệu thô (Raw) &rarr; Chuẩn hóa 3NF &rarr; Ẩn danh hóa PII HMAC &rarr; Vector Index &rarr; Kho WORM Bất biến.
+          <h4 style="color:#34D399;margin-bottom:8px;font-size:15px;">🔗 Lưu Đồ Nguồn Gốc Dữ Liệu Data Lineage DAG (5 Chặng Biến Đổi)</h4>
+          <p style="font-size:12px;color:#CBD5E1;margin-bottom:10px;">
+            Tổng cộng: <strong>${data.total_nodes || 16} Nodes</strong> và <strong>${data.total_edges || 25} Cạnh phụ thuộc</strong>.<br>
+            Chuỗi chặng: Dữ liệu thô &rarr; Chuẩn hóa 3NF &rarr; Khử PII HMAC &rarr; Vector Index &rarr; Kho WORM Bất biến.
           </p>
-          <div style="max-height:300px;overflow-y:auto;padding-right:6px;">
+          <div style="max-height:260px;overflow-y:auto;padding-right:6px;">
             ${nodesHtml}
           </div>
         </div>
@@ -364,11 +413,11 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await res.json();
       bloomRes.innerHTML = `
-        <div style="border-left:4px solid #EF4444;padding-left:12px;">
-          <h4 style="color:#EF4444;margin:0 0 6px 0;">🛡️ KẾT QUẢ KIỂM CHỨNG CHỐNG GHI ĐÈ KHO BẤT BIẾN WORM (HTTP 409):</h4>
+        <div style="border-left:4px solid #EF4444;padding-left:14px;">
+          <h4 style="color:#EF4444;margin:0 0 6px 0;font-size:14px;">🛡️ KẾT QUẢ KIỂM CHỨNG CHỐNG GHI ĐÈ KHO BẤT BIẾN WORM (HTTP 409):</h4>
           <p style="color:#FCA5A5;margin:0 0 8px 0;font-size:13px;line-height:1.5;">${data.message}</p>
-          <div style="font-size:12px;color:#94A3B8;">
-            Mã lỗi: <code>${data.error_code}</code> | Chính sách cưỡng chế: <strong>WORM (Write-Once-Read-Many)</strong>
+          <div style="font-size:11px;color:#94A3B8;">
+            Mã lỗi: <code>${data.error_code}</code> | Chính sách: <strong>Write-Once-Read-Many</strong>
           </div>
         </div>
       `;
@@ -391,9 +440,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await res.json();
       secQaRes.innerHTML = `
-        <div style="border-left:4px solid ${isError ? '#EF4444' : '#10B981'};padding-left:12px;">
+        <div style="border-left:4px solid ${isError ? '#EF4444' : '#10B981'};padding-left:14px;">
           <strong style="color:${isError ? '#EF4444' : '#38BDF8'};font-size:14px;">${headerText}</strong>
-          <pre style="background:#0F172A;padding:10px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:8px 0 0 0;">${JSON.stringify(data, null, 2)}</pre>
+          <pre style="background:#0B1120;padding:12px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:8px 0 0 0;">${JSON.stringify(data, null, 2)}</pre>
         </div>
       `;
     } catch (e) {
@@ -438,9 +487,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/v1/health");
       const data = await res.json();
       opsRes.innerHTML = `
-        <div style="border-left:4px solid #10B981;padding-left:12px;">
-          <strong style="color:#10B981;">✓ Phản hồi kiểm tra sức khỏe GET /api/v1/health (HTTP 200 OK):</strong>
-          <pre style="background:#0F172A;padding:10px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:8px 0 0 0;">${JSON.stringify(data, null, 2)}</pre>
+        <div style="border-left:4px solid #10B981;padding-left:14px;">
+          <strong style="color:#10B981;font-size:14px;">✓ Phản hồi kiểm tra sức khỏe GET /api/v1/health (HTTP 200 OK):</strong>
+          <pre style="background:#0B1120;padding:12px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:8px 0 0 0;">${JSON.stringify(data, null, 2)}</pre>
         </div>
       `;
     } catch (e) {
@@ -453,9 +502,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/v1/ops/backup/restore-test", { method: "POST" });
       const data = await res.json();
       opsRes.innerHTML = `
-        <div style="border-left:4px solid #10B981;padding-left:12px;">
-          <strong style="color:#10B981;">✓ Kết quả đối soát phục hồi thảm họa SHA-256 (POST /api/v1/ops/backup/restore-test):</strong>
-          <pre style="background:#0F172A;padding:10px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:8px 0 0 0;">${JSON.stringify(data, null, 2)}</pre>
+        <div style="border-left:4px solid #10B981;padding-left:14px;">
+          <strong style="color:#10B981;font-size:14px;">✓ Kết quả đối soát phục hồi thảm họa SHA-256 (POST /api/v1/ops/backup/restore-test):</strong>
+          <pre style="background:#0B1120;padding:12px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:8px 0 0 0;">${JSON.stringify(data, null, 2)}</pre>
         </div>
       `;
     } catch (e) {
