@@ -487,7 +487,13 @@ class TaskBridgeManager:
             "difficulty": "Medium" if bloom_level == "Apply" else "Hard",
             "description": "Viết truy vấn SQL tính tổng doanh thu và xếp hạng khách hàng theo giá trị đơn hàng, tuân thủ chuẩn 3NF.",
             "starter_code": "-- Viết câu lệnh truy vấn phân tích\nSELECT * FROM orders LIMIT 10;",
-            "solution_code": "SELECT customer_id, SUM(order_total) AS revenue, DENSE_RANK() OVER (ORDER BY SUM(order_total) DESC) AS rank FROM orders GROUP BY customer_id;",
+            "solution_code": (
+                "SELECT customer_id,\n"
+                "       SUM(order_total) AS revenue,\n"
+                "       DENSE_RANK() OVER (ORDER BY SUM(order_total) DESC) AS rank\n"
+                "FROM orders\n"
+                "GROUP BY customer_id;"
+            ),
             "rubrics": [
                 {"criteria": "Toàn vẹn khóa ngoại 3NF", "max_points": 40},
                 {"criteria": "Độ chính xác phép tính tổng hợp", "max_points": 40},

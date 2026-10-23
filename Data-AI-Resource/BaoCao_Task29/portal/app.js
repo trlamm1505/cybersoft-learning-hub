@@ -353,11 +353,11 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="code-split-row">
             <div>
               <div class="code-box-header" style="color:#34D399;">💻 Mã Khởi Điểm (Starter Code)</div>
-              <pre style="background:#0B1120;padding:10px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:0;min-height:75px;"><code>${data.starter_code || '-- Viết câu lệnh truy vấn tại đây'}</code></pre>
+              <pre style="background:#0B1120;padding:10px;border-radius:6px;overflow-x:auto;color:#E2E8F0;font-size:12px;margin:0;min-height:75px;white-space:pre-wrap;word-break:break-word;"><code>${data.starter_code || '-- Viết câu lệnh truy vấn tại đây'}</code></pre>
             </div>
             <div>
               <div class="code-box-header" style="color:#60A5FA;">💡 Lời Giải Mẫu Chuẩn (Solution)</div>
-              <pre style="background:#0B1120;padding:10px;border-radius:6px;overflow-x:auto;color:#93C5FD;font-size:12px;margin:0;min-height:75px;"><code>${data.solution_code || '-- Lời giải mẫu chuẩn'}</code></pre>
+              <pre style="background:#0B1120;padding:10px;border-radius:6px;overflow-x:auto;color:#93C5FD;font-size:12px;margin:0;min-height:75px;white-space:pre-wrap;word-break:break-word;"><code>${data.solution_code || '-- Lời giải mẫu chuẩn'}</code></pre>
             </div>
           </div>
 
