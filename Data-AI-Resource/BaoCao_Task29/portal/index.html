@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CyberSoft Data &amp; AI Lab v1.0 — Trung Tâm Điều Hành Hợp Nhất</title>
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=15">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -241,27 +241,84 @@
           <span class="note">Tự động phát hiện và che giấu PII, ngăn chặn tấn công Prompt Injection, 4 chốt chặn kiểm duyệt đề thi và bộ chuyển đổi thông báo tiếng Việt</span>
         </div>
 
-        <div class="security-toolbar">
-          <div class="sec-input-row">
-            <input id="sec-input" type="text" class="search-input" value="Liên hệ học viên SĐT 0901234567, CCCD 079203001234, email kien@cybersoft.edu.vn" placeholder="Nhập câu thử nghiệm chứa PII hoặc câu lệnh injection...">
-            <button class="btn btn-primary" id="btn-scan-pii">🛡️ Quét &amp; Khử PII (HMAC)</button>
-            <button class="btn btn-danger" id="btn-test-injection">⚠️ Kiểm Tra Injection</button>
+        <!-- KHỐI 1: TƯỜNG LỬA BẢO MẬT & CHỐNG TẤN CÔNG AI (TASK 25) -->
+        <div class="sec-firewall-panel">
+          <div class="panel-subhead">
+            <span class="subhead-title">🛡️ 1. Tường Lửa Bảo Mật Dữ Liệu &amp; Chống Bẻ Khóa Prompt (Task 25)</span>
+            <span class="subhead-badge">Zero-Leakage &amp; WAF Layer</span>
           </div>
-
-          <div class="sec-actions-row">
-            <span class="chip-label">Chốt Chặn QA &amp; UX:</span>
-            <button class="btn btn-secondary btn-sm" id="btn-qa-clean">✓ QA Đạt Chuẩn (PASS)</button>
-            <button class="btn btn-secondary btn-sm" id="btn-qa-defective">🛑 Phát Hiện Lỗi (BLOCKED)</button>
-            <button class="btn btn-secondary btn-sm" id="btn-qa-bypass">🛡️ Chống Vượt Rào (Zero-Bypass)</button>
-            <button class="btn btn-secondary btn-sm" id="btn-ux-localize">🌐 Việt Hóa Lỗi &amp; Điểm SUS</button>
+          <div class="firewall-controls">
+            <button class="btn btn-primary btn-sm" id="btn-scan-pii">🛡️ Kiểm Tra Khử PII (SĐT, CCCD, Email)</button>
+            <button class="btn btn-danger btn-sm" id="btn-test-injection">⚠️ Kiểm Tra Chặn Bẻ Khóa (Prompt Injection)</button>
+          </div>
+          <div id="firewall-live-result" class="firewall-result-box">
+            <span style="color:var(--text-muted);font-size:12px;">Bấm một trong hai nút phía trên để kiểm tra cơ chế khử PII HMAC hoặc tường lửa chặn bẻ khóa...</span>
           </div>
         </div>
 
-        <div id="security-qa-result" class="ops-result-display" style="min-height:160px;margin-top:16px;">
-          <div class="empty-state-card">
-            <div style="font-size:32px;margin-bottom:8px;">🛡️</div>
-            <h4 style="color:var(--text-primary);font-size:14px;margin-bottom:4px;">Tường lửa bảo mật &amp; Chốt chặn QA sẵn sàng</h4>
-            <p style="font-size:12px;color:var(--text-secondary);max-width:480px;margin:0 auto;">Nhập thông tin kiểm tra PII bên trên hoặc bấm các nút kiểm tra 4 Chốt chặn Quality Gate để xem phân tích trực quan.</p>
+        <!-- KHỐI 2: QUY TRÌNH 4 CHỐT CHẶN MASTER RELEASE GATE (TASK 27 & 28) -->
+        <div class="pipeline-card" style="margin-top:16px;">
+          <div class="panel-subhead">
+            <span class="subhead-title">🚀 2. Quy Trình 4 Chốt Chặn Kiểm Duyệt Phát Hành — Master Release Gate (Task 27 &amp; 28)</span>
+            <span class="subhead-badge">CI/CD Automated Pipeline</span>
+          </div>
+
+          <!-- Thanh sơ đồ Pipeline 4 trạm trực quan -->
+          <div class="pipeline-stepper" id="pipeline-visual">
+            <div class="pipeline-step" id="pipe-step-1">
+              <div class="step-num">1</div>
+              <div class="step-info">
+                <div class="step-title">3NF Relational Gate</div>
+                <div class="step-metric">0% khóa ngoại mồ côi</div>
+              </div>
+              <div class="step-badge badge-idle" id="pipe-badge-1">SẴN SÀNG</div>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+
+            <div class="pipeline-step" id="pipe-step-2">
+              <div class="step-num">2</div>
+              <div class="step-info">
+                <div class="step-title">RAG Groundedness</div>
+                <div class="step-metric">Faithfulness &ge; 0.85</div>
+              </div>
+              <div class="step-badge badge-idle" id="pipe-badge-2">SẴN SÀNG</div>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+
+            <div class="pipeline-step" id="pipe-step-3">
+              <div class="step-num">3</div>
+              <div class="step-info">
+                <div class="step-title">Security Zero-Leak</div>
+                <div class="step-metric">0 PII &bull; 0 Injection</div>
+              </div>
+              <div class="step-badge badge-idle" id="pipe-badge-3">SẴN SÀNG</div>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+
+            <div class="pipeline-step" id="pipe-step-4">
+              <div class="step-num">4</div>
+              <div class="step-info">
+                <div class="step-title">Lineage &amp; WORM</div>
+                <div class="step-metric">SHA-256 Audit Pass</div>
+              </div>
+              <div class="step-badge badge-idle" id="pipe-badge-4">SẴN SÀNG</div>
+            </div>
+          </div>
+
+          <!-- Bộ nút kích hoạt thẩm định pipeline -->
+          <div class="pipeline-actions" style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <span class="chip-label">Thẩm Định Gói:</span>
+            <button class="btn btn-secondary btn-sm" id="btn-qa-clean">✓ Thẩm Định Gói Chuẩn (PASS)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-qa-defective">🛑 Thẩm Định Gói Lỗi (BLOCKED)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-qa-bypass">🛡️ Thử Vượt Rào (Zero-Bypass)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-ux-localize">🌐 Việt Hóa Lỗi &amp; Điểm SUS</button>
+          </div>
+
+          <div id="security-qa-result" class="ops-result-display" style="min-height:120px;margin-top:14px;">
+            <div class="empty-state-card" style="padding:16px;">
+              <span style="font-size:24px;">🚀</span>
+              <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 0 0;">Chọn một gói phát hành phía trên để kích hoạt quy trình thẩm định 4 chốt chặn theo thời gian thực.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -347,6 +404,6 @@
       <p>CyberSoft Data &amp; AI Lab v1.0 — Hệ Thống Hợp Nhất Toàn Khóa</p>
     </footer>
   </div>
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>
