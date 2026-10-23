@@ -1,0 +1,222 @@
+[
+  {
+    "id": "F01",
+    "description": "SyntaxError: dấu ngoặc chưa đóng",
+    "input": {
+      "status": "CE",
+      "passedCount": 0,
+      "totalCount": 3,
+      "firstFailingTest": { "index": 0, "stderr": "SyntaxError: '(' was never closed" }
+    },
+    "state": { "attemptsSoFar": 0 }
+  },
+  {
+    "id": "F02",
+    "description": "SyntaxError chung do thiếu dấu hai chấm sau if",
+    "input": {
+      "status": "CE",
+      "passedCount": 0,
+      "totalCount": 3,
+      "firstFailingTest": { "index": 0, "stderr": "File \"main.py\", line 4\n    if a > b\n            ^\nSyntaxError: expected ':'" }
+    },
+    "state": { "attemptsSoFar": 1 }
+  },
+  {
+    "id": "F03",
+    "description": "IndentationError do lẫn tab và space",
+    "input": {
+      "status": "CE",
+      "passedCount": 0,
+      "totalCount": 2,
+      "firstFailingTest": { "index": 0, "stderr": "IndentationError: unexpected indent" }
+    },
+    "state": { "attemptsSoFar": 0 }
+  },
+  {
+    "id": "F04",
+    "description": "NameError dùng biến chưa gán",
+    "input": {
+      "status": "RE",
+      "passedCount": 0,
+      "totalCount": 3,
+      "firstFailingTest": { "index": 1, "stderr": "NameError: name 'ket_qua' is not defined" }
+    },
+    "state": { "attemptsSoFar": 0 }
+  },
+  {
+    "id": "F05",
+    "description": "TypeError cộng chuỗi với số do quên int()",
+    "input": {
+      "status": "RE",
+      "passedCount": 0,
+      "totalCount": 3,
+      "firstFailingTest": { "index": 0, "stderr": "TypeError: unsupported operand type(s) for +: 'int' and 'str'" }
+    },
+    "state": { "attemptsSoFar": 1 }
+  },
+  {
+    "id": "F06",
+    "description": "IndexError truy cập vượt độ dài mảng",
+    "input": {
+      "status": "RE",
+      "passedCount": 1,
+      "totalCount": 3,
+      "firstFailingTest": { "index": 2, "stderr": "IndexError: list index out of range" }
+    },
+    "state": { "attemptsSoFar": 2 }
+  },
+  {
+    "id": "F07",
+    "description": "ZeroDivisionError chia cho 0",
+    "input": {
+      "status": "RE",
+      "passedCount": 1,
+      "totalCount": 4,
+      "firstFailingTest": { "index": 1, "stderr": "ZeroDivisionError: division by zero" }
+    },
+    "state": { "attemptsSoFar": 0 }
+  },
+  {
+    "id": "F08",
+    "description": "KeyError truy cập key không tồn tại trong dict",
+    "input": {
+      "status": "RE",
+      "passedCount": 0,
+      "totalCount": 2,
+      "firstFailingTest": { "index": 0, "stderr": "KeyError: 'age'" }
+    },
+    "state": { "attemptsSoFar": 0 }
+  },
+  {
+    "id": "F09",
+    "description": "AttributeError gọi method sai kiểu",
+    "input": {
+      "status": "RE",
+      "passedCount": 0,
+      "totalCount": 3,
+      "firstFailingTest": { "index": 0, "stderr": "AttributeError: 'int' object has no attribute 'append'" }
+    },
+    "state": { "attemptsSoFar": 3 }
+  },
+  {
+    "id": "F10",
+    "description": "ValueError convert chuỗi không hợp lệ sang int",
+    "input": {
+      "status": "RE",
+      "passedCount": 0,
+      "totalCount": 2,
+      "firstFailingTest": { "index": 0, "stderr": "ValueError: invalid literal for int() with base 10: 'abc'" }
+    },
+    "state": { "attemptsSoFar": 0 }
+  },
+  {
+    "id": "F11",
+    "description": "Timeout do vòng lặp while không có điều kiện dừng",
+    "input": {
+      "status": "TLE",
+      "passedCount": 2,
+      "totalCount": 5,
+      "firstFailingTest": { "index": 3, "input": "n=100000" }
+    },
+    "state": { "attemptsSoFar": 1 }
+  },
+  {
+    "id": "F12",
+    "description": "Timeout do thuật toán O(n^2) với input lớn",
+    "input": {
+      "status": "TLE",
+      "passedCount": 3,
+      "totalCount": 6,
+      "firstFailingTest": { "index": 4, "input": "n=1000000" }
+    },
+    "state": { "attemptsSoFar": 2 }
+  },
+  {
+    "id": "F13",
+    "description": "Sai output ở test công khai — tính tổng nhầm thành nối chuỗi",
+    "input": {
+      "status": "WA",
+      "passedCount": 1,
+      "totalCount": 3,
+      "firstFailingTest": { "index": 1, "isHidden": false, "input": "3 4", "expectedOutput": "7", "actualOutput": "34" }
+    },
+    "state": { "attemptsSoFar": 0 }
+  },
+  {
+    "id": "F14",
+    "description": "Sai output ở test công khai — thiếu xử lý số âm",
+    "input": {
+      "status": "WA",
+      "passedCount": 2,
+      "totalCount": 4,
+      "firstFailingTest": { "index": 2, "isHidden": false, "input": "-5", "expectedOutput": "5", "actualOutput": "-5" }
+    },
+    "state": { "attemptsSoFar": 1 }
+  },
+  {
+    "id": "F15",
+    "description": "Sai output ở test công khai — lệch chỉ số off-by-one",
+    "input": {
+      "status": "WA",
+      "passedCount": 3,
+      "totalCount": 5,
+      "firstFailingTest": { "index": 0, "isHidden": false, "input": "[1,2,3,4,5]", "expectedOutput": "5", "actualOutput": "4" }
+    },
+    "state": { "attemptsSoFar": 2 }
+  },
+  {
+    "id": "F16",
+    "description": "Sai output ở test ẨN — không được lộ chi tiết",
+    "input": {
+      "status": "WA",
+      "passedCount": 3,
+      "totalCount": 3,
+      "firstFailingTest": { "index": 3, "isHidden": true, "input": "0", "expectedOutput": "0", "actualOutput": "None" }
+    },
+    "state": { "attemptsSoFar": 0 }
+  },
+  {
+    "id": "F17",
+    "description": "Sai output ở test ẨN sau nhiều lần thử",
+    "input": {
+      "status": "WA",
+      "passedCount": 4,
+      "totalCount": 5,
+      "firstFailingTest": { "index": 4, "isHidden": true, "input": "999999999", "expectedOutput": "large", "actualOutput": "overflow" }
+    },
+    "state": { "attemptsSoFar": 3 }
+  },
+  {
+    "id": "F18",
+    "description": "Chạm giới hạn vòng lặp — vẫn sai sau MAX_DEBUG_LOOPS lần",
+    "input": {
+      "status": "WA",
+      "passedCount": 1,
+      "totalCount": 3,
+      "firstFailingTest": { "index": 1, "isHidden": false, "input": "10", "expectedOutput": "100", "actualOutput": "10" }
+    },
+    "state": { "attemptsSoFar": 4 }
+  },
+  {
+    "id": "F19",
+    "description": "FAILED chung chung không rõ status cụ thể (hệ thống chấm lỗi)",
+    "input": {
+      "status": "FAILED",
+      "passedCount": 0,
+      "totalCount": 3,
+      "errorMessage": "Runner crashed unexpectedly",
+      "firstFailingTest": { "index": 0 }
+    },
+    "state": { "attemptsSoFar": 0 }
+  },
+  {
+    "id": "F20",
+    "description": "AC — đã pass hết, không còn lỗi",
+    "input": {
+      "status": "AC",
+      "passedCount": 5,
+      "totalCount": 5
+    },
+    "state": { "attemptsSoFar": 4 }
+  }
+]

@@ -1,0 +1,101 @@
+question_id,category,type,query
+Q001,Academic Policy,Answerable - Single Hop,Điều kiện về thời lượng hoàn thành để học viên được quyền nộp đơn xin bảo lưu khóa học tại CyberSoft là gì?
+Q002,Academic Policy,Answerable - Single Hop,Thời gian bảo lưu tối đa cho một khóa học và số lần bảo lưu tối đa được phép là bao nhiêu?
+Q003,Academic Policy,Answerable - Single Hop,Học viên cần gửi Phiếu yêu cầu bảo lưu trước ngày dự kiến bắt đầu nghỉ học tối thiểu bao nhiêu ngày làm việc?
+Q004,Academic Policy,Answerable - Single Hop,Học viên bảo lưu trên 3 tháng khi làm thủ tục học lại sẽ phải đóng mức phí cập nhật học liệu như thế nào?
+Q005,Academic Policy,Answerable - Single Hop,Biện pháp xử lý của CyberSoft đối với học viên để quá thời hạn bảo lưu tối đa 06 tháng mà không quay lại học là gì?
+Q006,Academic Policy,Answerable - Single Hop,Quy định hoàn tiền học phí khi học viên rút hồ sơ trước ngày khai giảng từ 05 ngày làm việc trở lên là gì?
+Q007,Academic Policy,Answerable - Single Hop,Mức hoàn trả học phí tối đa khi học viên nộp đơn dừng học trong 03 buổi học đầu tiên là bao nhiêu?
+Q008,Academic Policy,Answerable - Single Hop,Khoản học phí được phê duyệt hoàn trả sẽ được chi trả bằng hình thức nào và trong thời gian bao lâu?
+Q009,Academic Policy,Answerable - Single Hop,Những khóa học hoặc trường hợp nào hoàn toàn không được áp dụng chính sách hoàn trả học phí?
+Q010,Academic Policy,Answerable - Single Hop,Học viên cần tham gia tối thiểu bao nhiêu phần trăm tổng số buổi học để đủ điều kiện xét tốt nghiệp?
+Q011,Academic Policy,Answerable - Single Hop,Quy định trừ điểm đánh giá đối với bài tập nộp trễ hạn trên GitHub Classroom trong vòng 24 giờ là gì?
+Q012,Academic Policy,Answerable - Single Hop,Điểm đánh giá đồ án tốt nghiệp Capstone tối thiểu để học viên vượt qua môn học là bao nhiêu điểm trên thang 10?
+Q013,Academic Policy,Answerable - Single Hop,Mức lệ phí đăng ký bảo vệ lại đồ án tốt nghiệp Capstone đợt bổ sung cho bài tập cá nhân là bao nhiêu?
+Q014,Academic Policy,Answerable - Single Hop,Nêu đầy đủ 03 điều kiện bắt buộc để học viên được công nhận tốt nghiệp chính thức tại CyberSoft?
+Q015,Academic Policy,Answerable - Single Hop,Tiêu chuẩn về điểm Capstone và điểm GPA bài tập để được cấp Chứng chỉ hạng Xuất sắc (Certificate of Excellence) là gì?
+Q016,Academic Policy,Answerable - Single Hop,Bản chứng chỉ số Digital Certificate của CyberSoft được định danh và xác thực bằng công nghệ gì trên cổng thông tin?
+Q017,Academic Policy,Answerable - Single Hop,Học viên bị thất lạc bản in chứng chỉ muốn cấp lại bản cứng phải nộp mức lệ phí là bao nhiêu và thời gian xử lý bao lâu?
+Q018,Academic Policy,Answerable - Single Hop,Mức giảm học phí của suất Học bổng Á khoa (Top 2 và Top 3 kỳ thi đầu vào) tại CyberSoft là bao nhiêu phần trăm?
+Q019,Academic Policy,Answerable - Single Hop,CyberSoft cam kết giới thiệu việc làm cho nhóm đối tượng học viên nào và trong thời hạn bao lâu sau khi tốt nghiệp?
+Q020,Academic Policy,Answerable - Single Hop,"Trong chính sách cam kết việc làm, mức đãi ngộ Offer Letter từ doanh nghiệp tối thiểu là bao nhiêu mà học viên không được tự ý từ chối?"
+Q021,Technical Guide,Answerable - Single Hop,Hệ thống máy tính khuyến nghị cho học viên ngành Data & AI cần có dung lượng RAM tối thiểu và khuyến nghị là bao nhiêu?
+Q022,Technical Guide,Answerable - Single Hop,Phiên bản Python runtime chuẩn được chỉ định cài đặt trong môi trường Conda cybersoft-ai là bản nào?
+Q023,Technical Guide,Answerable - Single Hop,"Trong các Extension VS Code bắt buộc cho học viên Data & AI, extension nào phụ trách việc tự động định dạng mã nguồn theo chuẩn PEP8?"
+Q024,Technical Guide,Answerable - Single Hop,Lệnh phím tắt nào trong VS Code được hướng dẫn để chọn lại đúng Python Interpreter khi phát sinh lỗi ModuleNotFoundError?
+Q025,Technical Guide,Answerable - Single Hop,Cú pháp quy định đặt tên nhánh tính năng mới trên Git tại CyberSoft được quy chuẩn như thế nào?
+Q026,Technical Guide,Answerable - Single Hop,Tiền tố nào trong chuẩn Conventional Commits được sử dụng khi thực hiện cập nhật tài liệu hướng dẫn Markdown?
+Q027,Technical Guide,Answerable - Single Hop,"Trong quy trình nộp bài Pull Request trên GitHub Classroom, phần mô tả PR bắt buộc phải bao gồm những nội dung gì?"
+Q028,Technical Guide,Answerable - Single Hop,Dung lượng RAM tối thiểu cần phân bổ trong file .wslconfig khi cài đặt Docker Desktop trên Windows để tránh treo máy là bao nhiêu?
+Q029,Technical Guide,Answerable - Single Hop,File docker-compose.yml tiêu chuẩn học tập định nghĩa cụm PostgreSQL và pgAdmin sử dụng các cổng kết nối (ports) nào?
+Q030,Technical Guide,Answerable - Single Hop,Lệnh Docker CLI dùng để sao lưu toàn bộ cơ sở dữ liệu cybersoft_db ra tệp tin backup.sql là gì?
+Q031,Technical Guide,Answerable - Single Hop,Thời gian chạy liên tục tối đa và thời gian ngắt kết nối tự động khi không tương tác trên Google Colab miễn phí là bao lâu?
+Q032,Technical Guide,Answerable - Single Hop,Cách thức bảo mật Hugging Face Access Token trong sổ tay Google Colab mà không để lộ chuỗi bí mật trong code là gì?
+Q033,Technical Guide,Answerable - Single Hop,Kỹ thuật nào và tham số nạp mô hình nào trong thư viện bitsandbytes được sử dụng để tối ưu hóa bộ nhớ GPU tránh lỗi CUDA OOM?
+Q034,Technical Guide,Answerable - Single Hop,Quy tắc đặt tên hàm và tên biến theo chuẩn PEP8 của CyberSoft bắt buộc sử dụng phong cách viết chữ nào?
+Q035,Technical Guide,Answerable - Single Hop,Độ dài dòng tối đa được cấu hình cho công cụ Flake8 và Black trong các dự án của CyberSoft là bao nhiêu?
+Q036,Curriculum,Answerable - Single Hop,Thời lượng đào tạo của khóa học chuyên sâu Fullstack Web Developer NodeJS & React là bao nhiêu tháng và bao nhiêu giờ học?
+Q037,Curriculum,Answerable - Single Hop,Module 3 trong lộ trình đào tạo Data & AI Resource Engineer bao gồm những nội dung chuyên môn trọng tâm nào?
+Q038,Curriculum,Answerable - Single Hop,Khóa học DevOps & Cloud Computing AWS kéo dài bao nhiêu tháng và hướng tới chứng chỉ quốc tế nào?
+Q039,Curriculum,Answerable - Single Hop,Bài thi tốt nghiệp của khóa học An ninh mạng & Giám sát vận hành SOC Analyst được tổ chức theo hình thức nào?
+Q040,Curriculum,Answerable - Single Hop,Học viên tham gia khóa học Mobile App React Native có cần phải cấu hình giả lập Android Studio hay Xcode nặng nề không?
+Q041,Academic Policy,Answerable - Multi Hop,Học viên bảo lưu khóa học đến lần thứ hai rồi sau đó để quá thời hạn 06 tháng mà không quay lại học thì phải chịu những chi phí và chế tài gì?
+Q042,Academic Policy,Answerable - Multi Hop,Học viên dừng học sau 2 buổi học đầu tiên có được nhận tiền mặt tại quầy lễ tân không và mức hoàn tiền tối đa là bao nhiêu phần trăm?
+Q043,Academic Policy,Answerable - Multi Hop,"Để được cấp Chứng chỉ Xuất sắc (Certificate of Excellence), học viên cần thỏa mãn những tiêu chuẩn gì về chuyên cần, bài tập tuần và điểm đồ án Capstone?"
+Q044,Academic Policy,Answerable - Multi Hop,Học viên nhận học bổng Thủ khoa giảm 50% học phí nếu xin dừng học ngay sau buổi học thứ hai thì có được hoàn lại 70% học phí không?
+Q045,Academic Policy,Answerable - Multi Hop,Một học viên tốt nghiệp hạng Giỏi muốn duy trì quyền lợi cam kết hỗ trợ việc làm thì cần thực hiện những nghĩa vụ cụ thể nào khi nhận cơ hội phỏng vấn?
+Q046,Technical Guide,Answerable - Multi Hop,"Khi làm bài tập nộp mã nguồn Git cho môn Data & AI, học viên cần đặt tên nhánh và viết commit message chuẩn như thế nào cho bài tập Ngày 8?"
+Q047,Technical Guide,Answerable - Multi Hop,Học viên nộp bài tập tuần qua GitHub Classroom cần lưu ý hạn chót nộp bài là khi nào và nội dung phần mô tả Pull Request bắt buộc có những gì?
+Q048,Technical Guide,Answerable - Multi Hop,"Khi cấu hình Docker Compose chạy cơ sở dữ liệu PostgreSQL, tên named volume và các thông số cổng, tên database mặc định là gì?"
+Q049,Technical Guide,Answerable - Multi Hop,"Khi huấn luyện mô hình ngôn ngữ trên Google Colab với T4 GPU, học viên cần làm gì để lưu trữ bền vững checkpoint và tránh lỗi bộ nhớ CUDA OOM?"
+Q050,Technical Guide,Answerable - Multi Hop,"Một hàm Python xử lý dữ liệu chuẩn PEP8 tại CyberSoft cần tuân thủ những nguyên tắc gì về cách đặt tên, type hints, docstring và độ dài tối đa?"
+Q051,Curriculum,Answerable - Multi Hop,So sánh thời lượng đào tạo và công nghệ cơ sở dữ liệu/backend được giảng dạy giữa khóa Fullstack Web Developer và khóa Data & AI Resource Engineer?
+Q052,Curriculum,Answerable - Multi Hop,Đồ án tốt nghiệp Capstone của khóa Data & AI có yêu cầu gì về điểm F1-score kiểm thử và khác biệt thế nào so với Capstone Fullstack Web?
+Q053,Curriculum,Answerable - Multi Hop,"Học viên khóa học DevOps AWS được học những công cụ hạ tầng và container nào, đồng thời nhận được tài trợ hạn mức đám mây bao nhiêu?"
+Q054,Curriculum,Answerable - Multi Hop,Học phần thực hành phòng thủ mạng của khóa SOC Analyst sử dụng nền tảng SIEM nào và bài thi tốt nghiệp kéo dài trong bao lâu?
+Q055,Curriculum,Answerable - Multi Hop,Khóa học Mobile App React Native có thời lượng bao lâu và ứng dụng Capstone cuối khóa cần tích hợp những tính năng thiết bị nào?
+Q056,Academic FAQ,Answerable - Multi Hop,Nếu một nhóm 03 người đăng ký và thanh toán học phí 100% trước khai giảng 10 ngày thì mỗi học viên được hưởng những khoản giảm trừ tài chính nào?
+Q057,Academic FAQ,Answerable - Multi Hop,Học viên muốn chuyển từ lớp học Offline sang lớp Online cần gửi thông báo trước bao nhiêu ngày và được thực hiện tối đa mấy lần?
+Q058,Academic FAQ,Answerable - Multi Hop,Đội ngũ Mentor hỗ trợ học viên giải đáp câu hỏi trên Discord trong khung giờ nào và quy định đăng ký phiên hỗ trợ cá nhân 1-on-1 như thế nào?
+Q059,Academic FAQ,Answerable - Multi Hop,"Trong tháng cuối khóa học, học viên Capstone được chuẩn bị phỏng vấn tuyển dụng thông qua những hoạt động hỗ trợ cụ thể nào?"
+Q060,Academic FAQ,Answerable - Multi Hop,So sánh thời hạn duy trì quyền truy cập trên CyberSoft Portal giữa video bản ghi buổi học và hệ thống bài tập thực hành sau khi bế giảng?
+Q061,Academic Policy,Unanswerable,Học viên đi du học nước ngoài có được xin bảo lưu khóa học tại CyberSoft trong thời hạn 5 năm hay không?
+Q062,Academic FAQ,Unanswerable,CyberSoft có hỗ trợ chương trình trả góp học phí kỳ hạn 36 tháng không lãi suất qua công ty tài chính FECredit không?
+Q063,Academic FAQ,Unanswerable,Trung tâm CyberSoft hiện có mở cơ sở phòng Lab đào tạo học Offline trực tiếp tại thành phố Đà Nẵng hay Cần Thơ không?
+Q064,Academic Policy,Unanswerable,Học viên hoàn thành xuất sắc đồ án Capstone AI có được cấp bằng Thạc sĩ Khoa học Dữ liệu (Master of Science) liên kết quốc tế không?
+Q065,Curriculum,Unanswerable,Mức học phí niêm yết cụ thể của khóa học Lập trình Điện toán lượng tử (Quantum Computing) tại CyberSoft là bao nhiêu?
+Q066,Academic Policy,Unanswerable,Học viên tốt nghiệp loại Giỏi có được CyberSoft cam kết mức lương khởi điểm tối thiểu 50 triệu đồng mỗi tháng không?
+Q067,Academic Policy,Unanswerable,Học viên thôi học sau 2 tháng vì lý do chuyển chỗ ở định cư nước ngoài có được hoàn lại 50% học phí không?
+Q068,Curriculum,Unanswerable,Khóa học Fullstack Web Developer tại CyberSoft có đào tạo chuyên sâu về ngôn ngữ Rust và lập trình Smart Contract trên Solana không?
+Q069,Academic Policy,Unanswerable,CyberSoft có chính sách đóng bảo hiểm xã hội bắt buộc và bảo hiểm y tế cho học viên trong suốt quá trình theo học không?
+Q070,Academic FAQ,Unanswerable,Học viên có được phép cho thuê hoặc chuyển nhượng tài khoản CyberSoft Portal cá nhân cho người khác sử dụng không?
+Q071,Academic FAQ,Unanswerable,Đội ngũ Mentor của CyberSoft có nhận hỗ trợ giải bài tập thi kết thúc học phần tại trường đại học riêng của học viên không?
+Q072,Academic Policy,Unanswerable,CyberSoft có dịch vụ hỗ trợ làm hồ sơ xin Visa định cư diện tay nghề công nghệ tại Đức hoặc Canada cho học viên tốt nghiệp không?
+Q073,Academic FAQ,Unanswerable,Học viên có được CyberSoft phát thẻ xe buýt công cộng miễn phí hoặc hỗ trợ chi phí gửi xe ô tô tại các cơ sở học tập không?
+Q074,Technical Guide,Unanswerable,"Trong khóa học Data & AI, CyberSoft có cung cấp cụm máy chủ vật lý trang bị 8 card NVIDIA H100 đặt trực tiếp tại lớp học không?"
+Q075,Curriculum,Unanswerable,Khóa học DevOps AWS có chính sách cam kết hoàn trả 100% lệ phí thi chứng chỉ quốc tế AWS Solutions Architect Professional không?
+Q076,Academic Policy,Unanswerable,Học viên có được quyền yêu cầu đổi Giảng viên đứng lớp chính nếu cảm thấy không hài lòng ngay sau buổi học đầu tiên không?
+Q077,Academic Policy,Unanswerable,CyberSoft có chính sách hoàn lại 100% học phí nếu học viên không tìm được việc làm trong vòng 30 ngày kể từ khi tốt nghiệp không?
+Q078,Academic FAQ,Unanswerable,Lớp học Online qua Zoom của CyberSoft có tính năng tự động làm bài tập thay cho học viên bằng trí tuệ nhân tạo không?
+Q079,Curriculum,Unanswerable,Học viên tốt nghiệp lớp An ninh mạng SOC Analyst có được cấp chứng chỉ hành nghề thám tử tư hoặc điều tra an ninh quốc gia không?
+Q080,Academic FAQ,Unanswerable,CyberSoft có dịch vụ xe đưa rước học viên tận nhà miễn phí đối với các lớp học ca tối hay không?
+Q081,Academic Policy,Adversarial / Distractor,Có đúng là học viên phải đóng 500.000 VNĐ lệ phí hành chính ngay trong lần nộp đơn bảo lưu khóa học đầu tiên tại CyberSoft không?
+Q082,Academic Policy,Adversarial / Distractor,Học viên nộp đơn xin bảo lưu khóa học khi mới hoàn thành 10% tổng thời lượng chương trình thì có được chấp thuận không?
+Q083,Academic Policy,Adversarial / Distractor,Nếu nộp bài tập tuần trễ 12 tiếng so với thời hạn 23h59 Chủ nhật trên GitHub Classroom thì học viên có bị tính điểm 0 ngay không?
+Q084,Academic Policy,Adversarial / Distractor,"Một học viên có điểm bài tập định kỳ GPA 8.5 và chuyên cần 90%, nhưng điểm bảo vệ đồ án Capstone đạt 6.8 thì có đủ điều kiện công nhận tốt nghiệp không?"
+Q085,Academic Policy,Adversarial / Distractor,"Để nhận Chứng chỉ hạng Xuất sắc (Certificate of Excellence), học viên chỉ cần đạt điểm đồ án Capstone từ 8.0 trở lên đúng không?"
+Q086,Academic Policy,Adversarial / Distractor,Học viên nộp đơn dừng học trong 03 buổi học đầu tiên thì sẽ được hoàn trả 90% hay 100% học phí thực đóng?
+Q087,Technical Guide,Adversarial / Distractor,Khóa học Data & AI Resource Engineer có bắt buộc học viên phải mua tài khoản Google Colab Pro có trả phí để có GPU A100 không?
+Q088,Technical Guide,Adversarial / Distractor,"Trong quy chuẩn mã nguồn Git của CyberSoft, học viên có được quyền commit và push trực tiếp các sửa đổi lên nhánh main không?"
+Q089,Academic Policy,Adversarial / Distractor,Có phải tất cả học viên cứ tốt nghiệp bất kỳ khóa học nào tại CyberSoft là đều được tự động cam kết hỗ trợ việc làm không?
+Q090,Academic FAQ,Adversarial / Distractor,Lớp học Online của CyberSoft chỉ là hình thức học viên tự xem video quay sẵn bài giảng và không có Giảng viên tương tác đúng không?
+Q091,Academic FAQ,Adversarial / Distractor,Học viên có thể tự do nộp đơn xin đổi qua lại giữa hình thức học Online và Offline không giới hạn số lần trong khóa học đúng không?
+Q092,Technical Guide,Adversarial / Distractor,"Theo quy chuẩn Clean Code PEP8, cả tên Class và tên biến trong dự án Python đều được viết hoa theo kiểu PascalCase đúng không?"
+Q093,Technical Guide,Adversarial / Distractor,Độ dài tối đa của một hàm Python theo khuyến nghị của CyberSoft là 100 dòng lệnh có đúng không?
+Q094,Academic Policy,Adversarial / Distractor,Học bổng Nữ sinh theo đuổi Công nghệ (Women in Tech) tại CyberSoft hỗ trợ giảm bao nhiêu phần trăm học phí: 50% hay 30%?
+Q095,Academic Policy,Adversarial / Distractor,Học viên có thể nộp đơn xin bảo lưu khóa học sát giờ trước ngày nghỉ 03 ngày làm việc đúng không?
+Q096,Curriculum,Adversarial / Distractor,Học viên theo học khóa Fullstack Web Developer có được đào tạo React Native để xuất bản ứng dụng lên App Store và Google Play không?
+Q097,Technical Guide,Adversarial / Distractor,Khi khởi chạy container PostgreSQL bằng Docker Compose mà không cấu hình named volume thì dữ liệu có được lưu bền vững khi container bị recreate không?
+Q098,Academic Policy,Adversarial / Distractor,Lệ phí thi lại đồ án tốt nghiệp Capstone đợt bảo vệ bổ sung cho bài tập nhóm là 500.000 VNĐ cho mỗi thành viên đúng không?
+Q099,Academic Policy,Adversarial / Distractor,Học viên có thể đến trực tiếp quầy lễ tân của CyberSoft để nhận tiền mặt hoàn lại sau khi hồ sơ rút học phí được duyệt không?
+Q100,Academic FAQ,Adversarial / Distractor,Thời hạn học viên được phép truy cập vào môi trường làm bài tập thực hành trên Portal có kéo dài trọn đời (Lifetime) hay không?

@@ -34,7 +34,6 @@ export interface StudentAnswerItem {
 }
 
 export interface QuizSubmitPayload {
-  userId: string;
   answers: StudentAnswerItem[];
 }
 

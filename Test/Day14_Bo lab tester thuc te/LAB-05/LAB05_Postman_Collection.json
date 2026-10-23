@@ -1,0 +1,529 @@
+{
+ "info": {
+  "name": "LAB05_Jira_Project_Task_CRUD",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+  "description": "Chạy theo thứ tự. Điền biến: TokenCybersoft (mentor cấp), userEmail, userPassword (tài khoản demo3 của bạn). Chỉ thao tác trên dữ liệu QA-LAB05 do chính mình tạo."
+ },
+ "variable": [
+  {
+   "key": "baseUrl",
+   "value": "https://jiranew.cybersoft.edu.vn"
+  },
+  {
+   "key": "TokenCybersoft",
+   "value": ""
+  },
+  {
+   "key": "userEmail",
+   "value": ""
+  },
+  {
+   "key": "userPassword",
+   "value": ""
+  },
+  {
+   "key": "accessToken",
+   "value": ""
+  },
+  {
+   "key": "projectId",
+   "value": ""
+  },
+  {
+   "key": "taskId",
+   "value": ""
+  }
+ ],
+ "item": [
+  {
+   "name": "01 signin (tài khoản của mình)",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('200',()=>pm.response.to.have.status(200));",
+       "const t=pm.response.json().content&&pm.response.json().content.accessToken;pm.test('có accessToken',()=>pm.expect(t).to.be.a('string'));pm.collectionVariables.set('accessToken',t);"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "POST",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Content-Type",
+      "value": "application/json"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Users/signin",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Users",
+      "signin"
+     ]
+    },
+    "body": {
+     "mode": "raw",
+     "raw": "{\"email\": \"{{userEmail}}\", \"passWord\": \"{{userPassword}}\"}"
+    }
+   }
+  },
+  {
+   "name": "02 signin sai mật khẩu → mong 4xx (không phải 500)",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('status 4xx, không 5xx',()=>pm.expect(pm.response.code).to.be.within(400,499));"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "POST",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Content-Type",
+      "value": "application/json"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Users/signin",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Users",
+      "signin"
+     ]
+    },
+    "body": {
+     "mode": "raw",
+     "raw": "{\"email\": \"{{userEmail}}\", \"passWord\": \"sai-mat-khau-xyz\"}"
+    }
+   }
+  },
+  {
+   "name": "03 createProjectAuthorize (QA-LAB05)",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('200',()=>pm.response.to.have.status(200));",
+       "const c=pm.response.json().content||{};pm.collectionVariables.set('projectId',c.id);pm.test('có id',()=>pm.expect(c.id).to.be.a('number'));"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "POST",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Authorization",
+      "value": "Bearer {{accessToken}}"
+     },
+     {
+      "key": "Content-Type",
+      "value": "application/json"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Project/createProjectAuthorize",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Project",
+      "createProjectAuthorize"
+     ]
+    },
+    "body": {
+     "mode": "raw",
+     "raw": "{\"projectName\": \"QA-LAB05-{{$timestamp}}\", \"description\": \"lab05\", \"categoryId\": 2, \"alias\": \"qa-lab05\"}"
+    }
+   }
+  },
+  {
+   "name": "04 createTask",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('200',()=>pm.response.to.have.status(200));",
+       "const c=pm.response.json().content||{};pm.collectionVariables.set('taskId',c.taskId);pm.test('có taskId',()=>pm.expect(c.taskId).to.exist);"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "POST",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Authorization",
+      "value": "Bearer {{accessToken}}"
+     },
+     {
+      "key": "Content-Type",
+      "value": "application/json"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Project/createTask",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Project",
+      "createTask"
+     ]
+    },
+    "body": {
+     "mode": "raw",
+     "raw": "{\"listUserAsign\": [], \"taskName\": \"QA-LAB05-task\", \"description\": \"lab05\", \"statusId\": \"1\", \"originalEstimate\": 2, \"timeTrackingSpent\": 1, \"timeTrackingRemaining\": 1, \"projectId\": \"{{projectId}}\", \"typeId\": 1, \"priorityId\": 1}"
+    }
+   }
+  },
+  {
+   "name": "05 updateStatus → 2",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('200',()=>pm.response.to.have.status(200));"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "PUT",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Authorization",
+      "value": "Bearer {{accessToken}}"
+     },
+     {
+      "key": "Content-Type",
+      "value": "application/json"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Project/updateStatus",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Project",
+      "updateStatus"
+     ]
+    },
+    "body": {
+     "mode": "raw",
+     "raw": "{\"taskId\": \"{{taskId}}\", \"statusId\": \"2\"}"
+    }
+   }
+  },
+  {
+   "name": "06 getProjectDetail đối chiếu (đọc lại sau khi ghi)",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('200',()=>pm.response.to.have.status(200));",
+       "const c=pm.response.json().content;pm.test('đúng project',()=>pm.expect(c.id).to.eql(Number(pm.collectionVariables.get('projectId'))));",
+       "const names=JSON.stringify(c.lstTask||[]);pm.test('thấy task vừa tạo',()=>pm.expect(names).to.include('QA-LAB05-task'));",
+       "pm.test('task đã sang status 2',()=>pm.expect(names).to.include('\"statusId\":\"2\"'));"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "GET",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Authorization",
+      "value": "Bearer {{accessToken}}"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Project/getProjectDetail?id={{projectId}}",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Project",
+      "getProjectDetail"
+     ],
+     "query": [
+      {
+       "key": "id",
+       "value": "{{projectId}}"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "07 NEG: createTask không Bearer → mong 401",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('401',()=>pm.expect(pm.response.code).to.eql(401));"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "POST",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Content-Type",
+      "value": "application/json"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Project/createTask",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Project",
+      "createTask"
+     ]
+    },
+    "body": {
+     "mode": "raw",
+     "raw": "{\"taskName\": \"x\", \"projectId\": \"{{projectId}}\", \"statusId\": \"1\", \"typeId\": 1, \"priorityId\": 1, \"listUserAsign\": []}"
+    }
+   }
+  },
+  {
+   "name": "08 NEG: getProjectDetail id không tồn tại 999999999",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('4xx, không 500',()=>pm.expect(pm.response.code).to.be.within(400,499));"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "GET",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Authorization",
+      "value": "Bearer {{accessToken}}"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Project/getProjectDetail?id=999999999",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Project",
+      "getProjectDetail"
+     ],
+     "query": [
+      {
+       "key": "id",
+       "value": "999999999"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "09 dọn: removeTask (của mình)",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('200',()=>pm.response.to.have.status(200));"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "DELETE",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Authorization",
+      "value": "Bearer {{accessToken}}"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Project/removeTask?taskId={{taskId}}",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Project",
+      "removeTask"
+     ],
+     "query": [
+      {
+       "key": "taskId",
+       "value": "{{taskId}}"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "10 dọn: deleteProject (của mình)",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('200',()=>pm.response.to.have.status(200));"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "DELETE",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Authorization",
+      "value": "Bearer {{accessToken}}"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Project/deleteProject?projectId={{projectId}}",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Project",
+      "deleteProject"
+     ],
+     "query": [
+      {
+       "key": "projectId",
+       "value": "{{projectId}}"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "11 đọc lại sau xóa → mong 4xx",
+   "event": [
+    {
+     "listen": "test",
+     "script": {
+      "type": "text/javascript",
+      "exec": [
+       "pm.test('project đã xóa (4xx)',()=>pm.expect(pm.response.code).to.be.within(400,499));"
+      ]
+     }
+    }
+   ],
+   "request": {
+    "method": "GET",
+    "header": [
+     {
+      "key": "TokenCybersoft",
+      "value": "{{TokenCybersoft}}"
+     },
+     {
+      "key": "Authorization",
+      "value": "Bearer {{accessToken}}"
+     }
+    ],
+    "url": {
+     "raw": "{{baseUrl}}/api/Project/getProjectDetail?id={{projectId}}",
+     "host": [
+      "{{baseUrl}}"
+     ],
+     "path": [
+      "api",
+      "Project",
+      "getProjectDetail"
+     ],
+     "query": [
+      {
+       "key": "id",
+       "value": "{{projectId}}"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

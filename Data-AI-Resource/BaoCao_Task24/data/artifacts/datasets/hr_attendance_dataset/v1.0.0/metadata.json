@@ -1,0 +1,24 @@
+{
+  "id": "dataset_hr_attendance_dataset_v1.0.0",
+  "name": "HR Attendance Dataset",
+  "artifact_type": "dataset",
+  "version": "v1.0.0",
+  "state": "active",
+  "description": "Bộ dữ liệu chấm công và quản lý nhân sự 3NF (Employees, Shifts, Leaves, Attendance).",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.254974+00:00",
+  "file_path": "data/artifacts/datasets/hr_attendance_dataset/v1.0.0/hr_attendance.csv",
+  "file_size_bytes": 129,
+  "content_hash": "abf5e7b20c73f68630d6a7e61b818f6b687d0b9f99984c31543771e78c0bfa6f",
+  "upstream_ids": [],
+  "tags": [
+    "hr",
+    "operations",
+    "3nf",
+    "attendance"
+  ],
+  "deprecation_reason": null,
+  "superseded_by": null,
+  "sunset_date": null,
+  "extra_metadata": {}
+}

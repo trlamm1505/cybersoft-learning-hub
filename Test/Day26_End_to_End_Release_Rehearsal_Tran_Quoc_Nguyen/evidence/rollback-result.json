@@ -1,0 +1,20 @@
+{
+  "executed_at": "2026-10-10T07:30:00+07:00",
+  "endpoint": "POST http://127.0.0.1:8000/api/v1/releases/rollback-plan",
+  "http_status": 200,
+  "health": "healthy",
+  "plan_id": "plan_rollback_v1.0.0",
+  "from_release_id": "rel_v1.1.0",
+  "to_release_id": "rel_v1.0.0",
+  "risk_level": "LOW",
+  "preflight_checks": 4,
+  "execution_steps": 5,
+  "post_rollback_tests": 3,
+  "automated_test_evidence": {
+    "suite": "Data-AI-Resource/BaoCao_Task24/tests",
+    "passed": 24,
+    "failed": 0,
+    "warnings": 1
+  },
+  "note": "Rollback plan was generated and validated without overwriting immutable artifacts. Docker container rollback remains blocked by the local WSL engine error."
+}

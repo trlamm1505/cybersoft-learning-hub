@@ -1,0 +1,27 @@
+{
+  "id": "index_faiss_retail_sales_index_v1.0.0",
+  "name": "FAISS Retail Sales Index",
+  "artifact_type": "index",
+  "version": "v1.0.0",
+  "state": "active",
+  "description": "Chỉ mục vector FAISS IndexFlatIP xây dựng trên bảng giao dịch bán lẻ.",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.271635+00:00",
+  "file_path": "data/artifacts/indexs/faiss_retail_sales_index/v1.0.0/faiss_meta.json",
+  "file_size_bytes": 123,
+  "content_hash": "a4aba96de08e402f3a29795298017538d1085dca9f176df1fdfb5a96c4c4be42",
+  "upstream_ids": [
+    "dataset_retail_sales_dataset_v1.0.0",
+    "model_bge_small_english_embedder_v1.0.0"
+  ],
+  "tags": [
+    "index",
+    "faiss",
+    "vector",
+    "retail"
+  ],
+  "deprecation_reason": null,
+  "superseded_by": null,
+  "sunset_date": null,
+  "extra_metadata": {}
+}

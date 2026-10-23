@@ -1,0 +1,57 @@
+{
+  "variantId": "tim-so-lon-nhat-V05",
+  "sourceId": "tim-so-lon-nhat",
+  "sourceVersion": "1.0",
+  "variantVersion": "1.0",
+  "sourceType": "CODING",
+  "parameters": {
+    "lists": [
+      [
+        8,
+        8,
+        9,
+        -9
+      ],
+      [
+        -5,
+        -5,
+        -5,
+        -6
+      ]
+    ]
+  },
+  "generationMethod": "ai-selected-parameters + program-recomputed-answer (python3/node, khong tin truc tiep AI)",
+  "content": {
+    "slug": "tim-so-lon-nhat-v05",
+    "title": "Tìm số lớn nhất trong danh sách (Biến thể 5)",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Dòng đầu là số lượng phần tử N. Dòng tiếp theo gồm N số nguyên cách nhau bởi dấu cách. In ra giá trị lớn nhất.",
+    "starterCode": "n = int(input())\nnums = list(map(int, input().split()))\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "4\n8 8 9 -9",
+        "expectedOutput": "9",
+        "isHidden": false
+      },
+      {
+        "input": "4\n-5 -5 -5 -6",
+        "expectedOutput": "-5",
+        "isHidden": true
+      }
+    ]
+  },
+  "__testCaseNotes": [
+    "list=[8,8,9,-9]",
+    "list=[-5,-5,-5,-6]"
+  ],
+  "validationStatus": "PENDING",
+  "humanReview": {
+    "equivalenceAccepted": null,
+    "reviewer": "",
+    "notes": "",
+    "reviewedAt": ""
+  }
+}

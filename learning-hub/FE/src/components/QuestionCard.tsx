@@ -1,5 +1,6 @@
 import React from 'react';
 import type { QuestionItem } from '../types/quiz';
+import { optionLabel } from '../common/quizOptions';
 
 interface QuestionCardProps {
   question: QuestionItem;
@@ -72,12 +73,17 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
       {/* Options List */}
       <div className="space-y-3 mb-8">
-        {question.options.map((opt) => {
+        {question.options.map((opt, index) => {
           const isSelected = selectedOptionKey === opt.key;
+          // Nhãn theo vị trí (A, B, C, D) dù thứ tự đáp án đã xáo; giá trị gửi lên vẫn là key gốc (TC_UI_02).
+          const label = optionLabel(index);
 
           return (
             <button
               key={opt.key}
+              type="button"
+              aria-pressed={isSelected}
+              aria-label={`Đáp án ${label}: ${opt.text}`}
               onClick={() => onSelectOption(opt.key)}
               className={`w-full text-left p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex items-center gap-4 ${
                 isSelected
@@ -92,7 +98,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                     : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600'
                 }`}
               >
-                {opt.key}
+                {label}
               </div>
               <span
                 className={`text-sm sm:text-base font-medium flex-1 ${

@@ -4,6 +4,5 @@ export class StudentAnswerItem {
 }
 
 export class SubmitAttemptDto {
-  userId: string;
   answers: StudentAnswerItem[];
 }

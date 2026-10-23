@@ -1,239 +1,187 @@
-# 🚀 CyberSoft Learning & Contest Hub
+# CyberSoft Learning & Contest Hub
 
-Dự án **CyberSoft Learning & Contest Hub** là hệ thống quản lý học tập và chấm bài lập trình trực tuyến cho nhiều lứa tuổi (K3-12, Sinh viên & Người đi làm), được xây dựng dưới dạng Monorepo gồm 2 ứng dụng chính:
+Hệ thống học lập trình và chấm bài trực tuyến cho học sinh K3-5 / K6-9 / K10-12 (Monorepo: `FE` React + Vite, `BE` NestJS + MongoDB).
+Chạy 100% trên máy: **Node.js + Python + MongoDB**, không cần Docker. Phiên bản hiện tại: **v1.0** ([Release Notes](docs/day30/RELEASE_NOTES_v1.0.md)).
 
-* **🎨 Frontend (`FE`)**: React 19 + Vite + TypeScript + Tailwind CSS v4 + Light/Dark Theme System + Axios API Layer.
-* **⚙️ Backend (`BE`)**: NestJS Framework + MongoDB (Mongoose) + Quiz Engine + CORS Support + Jest Unit/Integration Tests.
+Tài liệu đầy đủ: xem [Documentation Index](#documentation-index) ở cuối trang.
 
----
+## Cấu trúc thư mục
 
-## 🌟 Chức Năng Hiện Tại (Features Status)
-
-### 🎨 Frontend UI (`FE/` - Version 0.1 Học Viên)
-- 📝 **Trang Thi Trắc Nghiệm (`QuizTakingPage.tsx`)**:
-  - Giao diện làm bài thi trắc nghiệm trực tuyến đồng bộ trực tiếp với Backend qua tầng `FE/src/axios/quizApi.ts`.
-  - **Đồng hồ đếm ngược thời gian thực (`QuizTimer.tsx`)**: Đếm ngược 30:00 phút với cảnh báo đổi màu đỏ nhấp nháy khi dưới 5 phút và tự động nộp bài khi hết giờ.
-  - **Thanh điều hướng câu hỏi (`QuestionNavigator.tsx`)**: Lưới chọn nhanh 20 câu hỏi hiển thị trạng thái Đã chọn / Chưa chọn rõ ràng.
-  - **Thẻ nội dung câu hỏi (`QuestionCard.tsx`)**: Hiển thị nội dung, mức độ, chủ đề, khung mã code mẫu (Code Snippet Box) và 4 phương án A/B/C/D với hiệu ứng hover/focus mượt mà.
-  - **Màn hình tổng kết điểm & Giải thích (`QuizResultView.tsx`)**: Hiển thị bảng điểm, tỷ lệ % đạt và danh sách xem lại câu đúng/câu sai kèm **lời giải thích chi tiết từ Giảng viên**.
-- 🎨 **Thiết kế Tailwind CSS v4 & Chế độ Sáng/Tối (Light/Dark Mode)**:
-  - Mặc định giao diện ở **Chế độ Sáng (Light Mode)** tươi mới, hỗ trợ chuyển đổi mượt mà sang Dark Mode qua Theme Toggle.
-- 📚 **Trang Course Catalog (Danh mục khóa học)**:
-  - Hiển thị danh sách thẻ bài học chuẩn UI/UX, tìm kiếm trực tiếp (*Live Search*) và bộ lọc phân loại độ khó.
-- 📖 **Trang Lesson Detail (Chi tiết bài học)**:
-  - Khung phát video tỷ lệ `16:9` sử dụng nhúng YouTube công khai tương thích 100%, tự động chuyển video mượt mà khi đổi bài.
-
----
-
-### ⚙️ Backend System (`BE/` - Quiz Engine Module v0.1 & Database)
-- 🌐 **CORS & Global Prefix (`BE/src/main.ts`)**:
-  - Bật CORS cho phép kết nối liên cổng từ Frontend (`http://localhost:5173`) sang Backend với tiền tố toàn cục `/api`.
-- 🗄️ **Kiến trúc CSDL Mongoose Schemas (`BE/src/modules-system/database/schemas/`)**:
-  - `Question`: Nội dung câu hỏi (`content`), mảng phương án (`options` dạng subdocument `key`, `text`, `isCorrect`), giải thích sư phạm chi tiết (`explanation`), mức độ (`difficulty`), chủ đề (`category`), điểm số (`points`) và nhãn (`tags`).
-  - `QuizAttempt`: Quản lý lượt thi (`userId`, `testId`, chuỗi `seed` ngẫu nhiên xáo trộn, mảng câu hỏi `shuffledQuestions`, vị trí phương án xáo trộn, lựa chọn học viên `selectedOptionKey`, cờ `isCorrect`, thời gian bắt đầu `startedAt`, thời hạn `timeLimitSeconds`, trạng thái `status` và điểm tổng `score/maxScore`).
-- ⚡ **3 Luồng Nghiệp Vụ Trắc Nghiệm Cốt Lõi (`BE/src/modules-api/quiz/`)**:
-  1. **API Bắt đầu làm bài (`POST /api/quiz/start`)**: Sinh `seed` ngẫu nhiên, tự động xáo trộn phương án ngầm ngẫu nhiên nhất quán bằng thuật toán PRNG Fisher-Yates, lọc bỏ (strip) thuộc tính `isCorrect` và `explanation` ra khỏi JSON trả về để chống gian lận khi làm bài.
-  2. **API Nộp bài & Tự động chấm điểm (`POST /api/quiz/:attemptId/submit`)**: Kiểm tra thời hạn làm bài (`startedAt` + `timeLimitSeconds`), tự động hủy bài quá hạn (`EXPIRED`), tự động chấm điểm bài nộp theo đáp án gốc và cập nhật trạng thái `GRADED`.
-  3. **API Xem kết quả & Giải thích (`GET /api/quiz/:attemptId/review`)**: Kiểm tra chính sách xem bài của giảng viên (*Review Policy*: `IMMEDIATE`, `AFTER_SUBMISSION`, `AFTER_DEADLINE`, `NEVER`) để quyết định trả về đáp án đúng và phần giải thích sư phạm chi tiết.
-- 🌾 **Kịch bản Seed Data 20 Câu Hỏi Trắc Nghiệm**:
-  - Tích hợp bộ 20 câu hỏi trắc nghiệm Lập trình Web thực tế (*HTML5, CSS Flexbox/Grid, JS ES6+ Async/Await, React Hooks, NestJS Architecture, MongoDB/Prisma*) kèm giải thích từng câu. Chạy lệnh: `npm run seed:quiz`.
-- 🧪 **Bộ Kiểm Thử Jest Unit & Integration Test Suite**:
-  - 10/10 bài test tự động vượt qua 100% (`npm run test`).
-
----
-
-## 💻 Yêu Cầu Hệ Thống (Prerequisites)
-
-* **Node.js**: Phiên bản `18.x` trở lên (Khuyên dùng Node.js 20+ LTS).
-* **MongoDB**: MongoDB Server Local (Cổng `27017`) hoặc **MongoDB Atlas**.
-* **Git**: Trình quản lý mã nguồn Git.
-
----
-
-## 🛠️ Hướng Dẫn Khởi Chạy Chi Tiết (Getting Started)
-
-### 📥 1. Clone Dự Án Về Máy
-```bash
-git clone https://github.com/trlamm1505/cybersoft-learning-hub.git
-cd cybersoft-learning-hub/learning-hub
-```
-
----
-
-### ⚙️ 2. Hướng Dẫn Chạy Backend Service (`BE`)
-
-Mở Terminal tại thư mục `learning-hub`:
-
-1. **Di chuyển vào thư mục Backend:**
-   ```bash
-   cd BE
-   ```
-
-2. **Cài đặt thư viện dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Cấu hình biến môi trường (`.env`):**
-   Tạo tệp `.env` tại thư mục `BE/` (hoặc sao chép từ `.env.example`):
-   ```env
-   # Database Connection (MongoDB Local hoặc Atlas)
-   DATABASE_URL="mongodb://localhost:27017/<your_database_name>"
-
-   # App Port
-   PORT=3000
-
-   # JWT Secret Key
-   JWT_SECRET="<your_jwt_secret_key>"
-   ```
-
-4. **Nạp dữ liệu Quiz Engine 20 câu hỏi trắc nghiệm:**
-   ```bash
-   npm run seed:quiz
-   ```
-
-5. **Khởi động Backend Server:**
-   ```bash
-   npm run start:dev
-   ```
-   👉 **Backend REST API Server chạy tại:** `http://localhost:3000/api`
-
-6. **Chạy bộ kiểm thử Jest Test Suite:**
-   ```bash
-   npm run test
-   ```
-
----
-
-### 🎨 3. Hướng Dẫn Chạy Frontend Service (`FE`)
-
-Mở thêm **1 tab Terminal mới** tại thư mục `learning-hub`:
-
-1. **Di chuyển vào thư mục Frontend:**
-   ```bash
-   cd FE
-   ```
-
-2. **Cài đặt thư viện dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Cấu hình biến môi trường (`.env`):**
-   Tạo tệp `.env` tại thư mục `FE/` (hoặc sao chép từ `.env.example`):
-   ```env
-   VITE_API_URL=http://localhost:3000/api
-   ```
-
-4. **Khởi động Frontend Dev Server:**
-   ```bash
-   npm run dev
-   ```
-   👉 **Frontend Web App chạy tại:** `http://localhost:5173`
-
----
-
-## 🧪 Hướng Dẫn Test API Quiz Engine Trên Postman / Thunder Client
-
-Đặt biến môi trường trong Postman: **`Su = http://localhost:3000/api`**
-
-### 1. API Bắt đầu làm bài (Start Attempt)
-- **Method**: `POST` | **URL**: `{{Su}}/quiz/start`
-- **Body (raw JSON)**:
-  ```json
-  {
-    "userId": "673f11111111111111111111",
-    "testId": "673f22222222222222222222"
-  }
-  ```
-- **Script tự động làm bài (dán vào tab `Post-response`)**:
-  ```javascript
-  const response = pm.response.json();
-  pm.environment.set("attemptId", response.attemptId);
-
-  if (response.questions && response.questions.length > 0) {
-      const autoAnswers = response.questions.map(q => ({
-          questionId: q.questionId,
-          selectedOptionKey: q.options[Math.floor(Math.random() * q.options.length)].key
-      }));
-      pm.environment.set("answers", JSON.stringify(autoAnswers));
-  }
-  ```
-
-### 2. API Nộp bài & Tự động chấm điểm (Submit Attempt)
-- **Method**: `POST` | **URL**: `{{Su}}/quiz/{{attemptId}}/submit`
-- **Body (raw JSON)**:
-  ```json
-  {
-    "userId": "673f11111111111111111111",
-    "answers": {{answers}}
-  }
-  ```
-
-### 3. API Xem kết quả & Giải thích (Review Policy)
-- **Method**: `GET` | **URL**: `{{Su}}/quiz/{{attemptId}}/review?userId=673f11111111111111111111&policy=AFTER_SUBMISSION`
-
----
-
-## 🔑 Tài Khoản Mẫu Kiểm Thử (Backend Seed Data)
-
-| Vai Trò | Email Đăng Nhập | Mật Khẩu | Quyền Hạn Hế Thống |
-| :--- | :--- | :--- | :--- |
-| **Quản trị viên (Admin)** | `admin@gmail.com` | `123456` | Toàn quyền quản trị hệ thống |
-| **Giảng viên (Teacher)** | `teacher@gmail.com` | `123456` | Quản lý khóa học, bài học & đề thi trắc nghiệm |
-| **Học sinh (Student)** | `student@gmail.com` | `123456` | Làm bài trắc nghiệm, nộp bài & xem giải thích |
-
----
-
-## ⚡ Các Lệnh Thường Dùng (Commands Summary)
-
-### Backend (`BE/`)
-| Lệnh | Công Dụng |
-| :--- | :--- |
-| `npm run start:dev` | Chạy Backend NestJS ở chế độ Watch mode (`http://localhost:3000/api`) |
-| `npm run seed:quiz` | Khởi chạy script seed nạp 20 câu hỏi trắc nghiệm & bài thi mẫu |
-| `npm run test` | Khởi chạy Jest Test Runner thực thi toàn bộ 10 bài unit & integration test |
-| `npm run build` | Biên dịch TypeScript backend sang `dist/` |
-
-### Frontend (`FE/`)
-| Lệnh | Công Dụng |
-| :--- | :--- |
-| `npm run dev` | Khởi chạy Vite React Frontend Dev Server tại `http://localhost:5173` |
-| `npm run build` | Đóng gói sản phẩm production bundle vào `dist/` |
-| `npm run lint` | Kiểm tra linter mã nguồn với `oxlint` (0 warning, 0 error) |
-
----
-
-## 📂 Cấu Trúc Thư Mục Dự Án (Project Structure)
+Cây dưới đây quét từ các file Git đang theo dõi trong `learning-hub/` (không gồm `node_modules/`, `dist/`, `BE/.env`). Kiến trúc chi tiết: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ```text
 learning-hub/
-├── FE/                        # Frontend React Application
+├── BE/                                  # Backend NestJS 11 + Mongoose (API http://localhost:3000/api)
 │   ├── src/
-│   │   ├── axios/             # Tầng Service Calls (quizApi.ts)
-│   │   ├── common/            # Shared utilities & Axios Client (configAxios.ts)
-│   │   ├── components/        # UI Components nằm phẳng (QuestionCard, QuestionNavigator, QuizResultView, QuizTimer...)
-│   │   ├── data/              # 5 bài học mẫu chuẩn (mockLessons.ts)
-│   │   ├── pages/             # Trang Danh mục, Chi tiết bài học & Trang Thi Trắc Nghiệm (QuizTakingPage.tsx)
-│   │   ├── styles/            # Tailwind CSS v4 & Theme Variable Styles (main.css)
-│   │   ├── types/             # TypeScript Interfaces (course.ts, quiz.ts)
-│   │   └── App.tsx            # Navigation Router & Theme State
-│   ├── .env
-│   ├── .env.example
-│   └── vite.config.ts
-├── BE/                        # Backend NestJS Application
+│   │   ├── main.ts                      # Khởi động app: prefix /api, CORS allowlist, header bảo mật
+│   │   ├── app.module.ts                # Gắn module, guard toàn cục (JWT, Roles, CSRF, Throttler)
+│   │   ├── app.controller.ts            # GET /api/health, /api/health/dependencies
+│   │   ├── common/                      # Dùng chung cho mọi module
+│   │   │   ├── auth/                    # JwtStrategy, guard JWT/Roles/NoKidCode (chặn K3-5 gọi code/quiz)
+│   │   │   ├── security/                # Cookie httpOnly + CSRF, thu hồi token, rate limit, CORS, che PII, chặn NoSQL `$`
+│   │   │   ├── helper/                  # code-runner (Local Python Sandbox), python-guard (AST Guard), giới hạn đồng thời
+│   │   │   ├── interceptor/             # LoggingInterceptor (log method + path, bỏ query string)
+│   │   │   ├── utils/                   # server-path (che đường dẫn máy chủ), pii-mask
+│   │   │   └── config/ · constant/      # Cấu hình, hằng số
+│   │   ├── modules-api/                 # 27 module nghiệp vụ, mỗi module: controller + service + *.spec.ts
+│   │   │   ├── auth/                    # Đăng ký, đăng nhập, phiên, hồ sơ
+│   │   │   ├── exercise/ · judge/       # Bài tập, Playground tuần tự, hàng chờ chấm bài
+│   │   │   ├── quiz/                    # /quiz: bắt đầu, nộp (hết giờ tự nộp), xem lại
+│   │   │   ├── contest/ · integrity/    # Cuộc thi, giám sát rời màn hình, liêm chính
+│   │   │   ├── question-bank/           # Ngân hàng đề Code + Trắc nghiệm (bankOnly)
+│   │   │   ├── class-assignments/       # Giao bài theo Ngày, lớp của học viên
+│   │   │   ├── teacher-analytics/       # Lớp của giảng viên, quản lý lớp của Admin
+│   │   │   ├── assessment/              # Điểm lớp: vòng đời bài nộp, tổng kết 30/40/30
+│   │   │   ├── admin-portal/ · admin-users/  # Admin Portal: người dùng, phân công, health check, nhật ký, cấu hình
+│   │   │   ├── coach/ · problem-generator/   # AI Coach (eval 100 case), AI Tạo Đề
+│   │   │   ├── block-puzzle/ · leaderboard/  # Kid Mode Blockly, Bảng Vinh Danh, bảng xếp hạng
+│   │   │   ├── tester-labs/ · da-labs/ · ai-labs/ · career-courses/  # 3 khóa Người đi làm
+│   │   │   └── ...                      # authoring, hint, recommendation, learner-activity, qa-harness,
+│   │   │                                #   resilience-security, usability-testing
+│   │   ├── modules-system/
+│   │   │   ├── database/schemas/        # 26 file schema Mongoose (users, classrooms, exercises, questions, submissions...)
+│   │   │   └── prisma/                  # Còn lại từ thiết kế ban đầu, không module nào sử dụng
+│   │   ├── data/                        # Dữ liệu nền: bài tập, câu quiz, cuộc thi, Lab; seed gốc
+│   │   └── integration/                 # Tích hợp Dataset Registry của nhóm Data & AI (hợp đồng + fixture)
+│   ├── assets/tester-labs/              # Fixture và template CSV của 12 Lab Tester QA
+│   ├── mock-data-service/               # Máy chủ dữ liệu giả lập cho DA Lab / AI Lab (npm run dev:mock)
+│   ├── prisma/ · test/                  # Schema Prisma cũ; cấu hình test e2e mặc định của NestJS
+│   ├── .env.example                     # Mẫu cấu hình duy nhất của dự án (npm run setup tạo BE/.env)
+│   ├── nest-cli.json · tsconfig*.json   # tsconfig.build.json có watchOptions chống tự restart
+│   └── package.json                     # start:dev, start:prod, build, test (Jest), eval:coach
+├── FE/                                  # Frontend React 19 + Vite (http://localhost:5173)
 │   ├── src/
-│   │   ├── common/
-│   │   │   └── helper/        # PRNG Seed Shuffle Helper & Unit Tests (prng.helper.ts, prng.helper.spec.ts)
-│   │   ├── data/              # 20 câu hỏi trắc nghiệm & Script Seed (initial-quiz-questions.ts, seed-quiz.ts)
-│   │   ├── modules-api/
-│   │   │   └── quiz/          # Module Quiz Engine (dto, quiz.service.ts, quiz.controller.ts, quiz.service.spec.ts)
-│   │   └── modules-system/
-│   │       └── database/      # NestJS Mongoose Schemas (question.schema.ts, quiz-attempt.schema.ts)
-│   ├── .env
-│   ├── .env.example
-│   ├── package.json
-│   └── main.ts                # Entry point với app.enableCors() & app.setGlobalPrefix('api')
-├── AI_WORKLOG.md              # Nhật ký làm việc chi tiết Ngày 06
-└── README.md                  # Hướng dẫn khởi chạy & test dự án
+│   │   ├── App.tsx · main.tsx           # Định tuyến theo vai trò (Admin / Giảng viên / Học viên / Kid Mode)
+│   │   ├── pages/                       # Trang + model thuần có test (*Model.ts, *.test.ts)
+│   │   ├── components/                  # Component dùng chung, admin/, teacher/, contest-manager/
+│   │   ├── games/                       # 4 game Blockly: Maze, Turtle, Bird, Puzzle
+│   │   ├── axios/                       # Client API theo module
+│   │   ├── common/ · hooks/             # configAxios (withCredentials + CSRF), authRoutes, kidMode, useLeaveReporter
+│   │   └── types/ · data/ · styles/ · assets/
+│   ├── public/games/                    # Hình/âm thanh gốc Blockly Games kèm NOTICE.txt (Apache-2.0)
+│   ├── vite.config.ts · tsconfig*.json · .oxlintrc.json
+│   └── package.json                     # dev, build (tsc -b + vite build), test (Vitest)
+├── scripts/                             # Công cụ vận hành và kiểm thử (Node.js)
+│   ├── setup.js · doctor.js · check-mongo.js       # Cài đặt, chẩn đoán môi trường
+│   ├── seed-all.js                      # Master seed: npm run seed / seed:clean (bước 0 + 9 bước)
+│   ├── seed-*.js                        # Seed con: lớp, cuộc thi, Bảng Vinh Danh, giảng viên, Người đi làm
+│   ├── migrate-day29.js · migrate-day31.js         # Migration idempotent có --dry-run
+│   ├── audit-*.js                       # Audit API sống: day29, day30, day31, cross-role, teacher-security...
+│   ├── e2e-browser-qa.js                # E2E Chrome thật 5 luồng (npm run e2e:browser)
+│   ├── verify-*.js · release-pipeline.js           # Kiểm tra bảo mật Kid/ma trận, release check
+│   └── lib/                             # Helper dùng chung + test node --test (class-integrity, e2e-browser...)
+├── docs/
+│   ├── day11/ … day29/                  # Tài liệu, báo cáo từng ngày
+│   ├── day30/                           # Bàn giao v1.0: Handbook, Runbook, Release Notes, Roadmap 60 ngày
+│   ├── decisions/                       # ADR-001 … ADR-003
+│   └── images/handbook/                 # 33 ảnh chụp màn hình thật cho Handbook
+├── reports/                             # Báo cáo/ảnh do script kiểm thử sinh ra (trong .gitignore, không commit)
+├── .github/workflows/ci.yml             # Định nghĩa CI (chưa được GitHub chạy vì nằm trong thư mục con)
+├── README.md                            # Tổng quan, cài đặt, tài khoản mẫu, Documentation Index
+├── SETUP.md                             # Cài đặt chi tiết + 5 lỗi setup thực tế
+├── ARCHITECTURE.md                      # Kiến trúc, luồng dữ liệu (Mermaid), trust boundaries
+├── API.md                               # Danh mục REST API, mã lỗi
+├── DATA.md                              # Từ điển dữ liệu, toàn vẹn, lưu trữ PII
+├── SECURITY.md                          # Threat model, auth, sandbox, AI safety
+├── TESTING.md                           # Test pyramid, số liệu, quality gates
+├── EVALUATION.md                        # Đánh giá AI Tạo Đề, AI Coach, hiệu năng
+├── DEPLOYMENT.md                        # Build, healthcheck, migration, rollback
+├── TROUBLESHOOTING.md                   # 7 sự cố thực tế
+├── CHANGELOG.md                         # Nhật ký thay đổi (Keep a Changelog)
+├── AI_WORKLOG.md                        # Nhật ký sử dụng AI (mẫu Ngày 25)
+├── CLAUDE.md                            # Quy tắc làm việc cho trợ lý AI trong repo
+├── package.json                         # Lệnh gốc: setup, seed, dev, doctor, e2e:browser, test:scripts...
+├── .nvmrc                               # Phiên bản Node khuyến nghị (22)
+└── .gitignore · .gitattributes
 ```
+
+## Cần cài sẵn
+
+| Phần mềm | Phiên bản | Ghi chú |
+|---|---|---|
+| [Node.js](https://nodejs.org) | 20.12+ (khuyên dùng 22) | |
+| [Python](https://www.python.org/downloads/) | 3.10+ | chạy bài code của học viên; máy có nhiều bản thì đặt `PYTHON_BIN` trong `BE/.env` |
+| [MongoDB Community](https://www.mongodb.com/try/download/community) | 6+ | hoặc dùng MongoDB Atlas: dán chuỗi kết nối vào `DATABASE_URL` trong `BE/.env` |
+
+## Chạy dự án (3 bước, từ thư mục gốc của repo)
+
+```bash
+npm install && npm run setup   # 1. cài thư viện root/BE/FE, tạo BE/.env (tự sinh JWT_SECRET), kiểm tra Python và MongoDB
+npm run seed                   # 2. nạp dữ liệu mẫu chuẩn (chạy lại bao nhiêu lần cũng không nhân bản)
+npm run dev                    # 3. chạy backend http://localhost:3000/api + web http://localhost:5173
+```
+
+Mở **http://localhost:5173** và đăng nhập bằng một tài khoản bên dưới.
+
+## Tài khoản mẫu
+
+Mật khẩu mọi tài khoản = `DEFAULT_SEED_PASSWORD` trong `BE/.env` (mặc định `123456`, **chỉ dùng cho máy dev/test**).
+
+| Email | Vai trò | Lớp |
+|---|---|---|
+| `admin@gmail.com` | Quản trị viên | |
+| `teacher@gmail.com` | Giảng viên | đồng phụ trách các lớp mẫu |
+| `teacher3-5@gmail.com` | Giảng viên Khối 3-5 | `CL-35KID01` |
+| `teacher6-9@gmail.com` | Giảng viên Khối 6-9 | `CL-69PY01` |
+| `teacher10-12@gmail.com` | Giảng viên Khối 10-12 | `CL-1012A1` |
+| `lop3-5@gmail.com` | Học viên K3-5 | `CL-35KID01` |
+| `lop6-9@gmail.com` | Học viên K6-9 | `CL-69PY01` |
+| `lop10-12@gmail.com` | Học viên K10-12 | `CL-1012A1` |
+| `duongchiviet2004@gmail.com` | Học viên K3-5 (14 sao Block Puzzle) | `CL-35KID01` |
+| `student@gmail.com` | Học viên K10-12 | |
+
+Code Playground (Khối 6-9: 20 bài, Khối 10-12: 15 bài) là lộ trình cố định #1..#N, mở khóa tuần tự: `lop6-9` đã xong #1-#2 (bài #3 đang mở), `lop10-12` đã xong #1.
+Bài do Giảng viên/Admin tạo luôn nằm trong Ngân hàng đề, không bao giờ vào Playground.
+
+Dữ liệu mẫu còn có: bài Playground có test case, Ngân hàng đề (bài code + câu trắc nghiệm) Khối 6-9 / 10-12, bài giao theo Ngày 1..5,
+cuộc thi mẫu có học viên rời tab (out-tab). `npm run seed:clean` dọn sạch dữ liệu mẫu rồi nạp lại (không đụng dữ liệu thật).
+
+## Cấu hình (`BE/.env`)
+
+Một file duy nhất, tạo từ [BE/.env.example](BE/.env.example) (có chú thích từng nhóm: Server & CORS → Database → Auth/JWT → Gemini → Code Runner).
+Không commit `BE/.env`. Để trống `GEMINI_API_KEY` thì AI Coach dùng chế độ dự phòng; lấy key miễn phí tại https://aistudio.google.com/app/apikey.
+
+## Lệnh hay dùng
+
+```bash
+npm run doctor                 # (thư mục gốc) kiểm tra Node, Python, MongoDB, backend, web và chỉ cách sửa
+npm run seed:clean             # (thư mục gốc) dọn dữ liệu mẫu và nạp lại
+
+cd learning-hub
+npm --prefix BE test           # test backend (Jest)
+npm --prefix FE test           # test frontend (Vitest)
+npm run test:scripts           # test các script dựng môi trường (node --test)
+npm run e2e:browser            # E2E bằng Chrome thật: đăng nhập từng vai trò, click, bắt lỗi console/mạng (cần BE+FE đang chạy; xong chạy lại npm run seed:clean)
+```
+
+Gặp lỗi: chạy `npm run doctor` trước. Hay gặp nhất là MongoDB chưa bật (trong `learning-hub`: `npm run check:mongo`) hoặc không tìm thấy Python (đặt `PYTHON_BIN`). Các lỗi khác và cách xử lý: [Runbook mục 6](docs/day30/OPERATIONS_RUNBOOK.md#6-troubleshooting--7-lỗi-thực-tế).
+
+---
+
+## Ghi công mã nguồn mở
+
+- **Mê Cung Blockly** (Block Puzzle) chuyển thể từ trò chơi "Maze" của [Blockly Games](https://github.com/blockly-games/blockly-games), Copyright 2012 Google LLC, giấy phép Apache-2.0. Hình nhân vật, mảnh bản đồ và âm thắng/thua là tệp gốc, đặt ở `FE/public/games/blockly-maze/` kèm `NOTICE.txt` và bản giấy phép. Khối lệnh dùng thư viện [Blockly](https://github.com/google/blockly) (npm `blockly`, Apache-2.0).
+- **Rùa Vẽ Hình**, **Chim Tìm Tổ**, **Ghép Hình Con Vật** chuyển thể từ "Turtle", "Bird", "Puzzle" của Blockly Games (cùng giấy phép Apache-2.0). Tệp hình/âm thanh gốc đặt ở `FE/public/games/blockly-{turtle,bird,puzzle}/` kèm `NOTICE.txt`; hình con vật của Puzzle là biểu tượng vẽ SVG, không dùng ảnh gốc.
+
+---
+
+## Documentation Index
+
+| Tài liệu | Nội dung |
+|---|---|
+| [SETUP.md](SETUP.md) | Phiên bản yêu cầu, cấu hình `BE/.env`, master seed, quick start, kiểm tra cài đặt, 5 lỗi setup thực tế |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Sơ đồ kiến trúc, 3 luồng dữ liệu (Mermaid), trust boundaries, schema cốt lõi, failure modes |
+| [API.md](API.md) | Danh mục REST API theo vai trò, mã lỗi |
+| [DATA.md](DATA.md) | Từ điển dữ liệu, toàn vẹn Lớp – Giảng viên – Học viên, lưu trữ và PII |
+| [SECURITY.md](SECURITY.md) | Threat model, xác thực/phân quyền, phân lập theo tuổi, sandbox, AI safety |
+| [TESTING.md](TESTING.md) | Test pyramid, số liệu, fixtures, quality gates |
+| [EVALUATION.md](EVALUATION.md) | Đánh giá AI Tạo Đề, AI Coach (100 case), hiệu năng chấm bài |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Build, healthcheck, migration, phát hành, rollback |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 7 sự cố thực tế: nguyên nhân, bản sửa, phòng ngừa |
+| [CHANGELOG.md](CHANGELOG.md) | Nhật ký thay đổi, bản 1.0.0 |
+| [ADR-001](docs/decisions/ADR-001-local-python-sandbox-over-docker.md) · [ADR-002](docs/decisions/ADR-002-question-bank-isolation-and-sequential-playground.md) · [ADR-003](docs/decisions/ADR-003-httponly-cookie-auth-and-age-band-isolation.md) | Quyết định kiến trúc: Local Sandbox thay Docker · Ngân hàng đề & Playground tuần tự · Cookie httpOnly & phân tách theo tuổi |
+| [Cẩm nang Admin & Giảng viên](docs/day30/ADMIN_TEACHER_HANDBOOK.md) | Hướng dẫn từng bước Admin Portal và Teacher Studio, kèm 33 ảnh màn hình thật |
+| [Operations Runbook](docs/day30/OPERATIONS_RUNBOOK.md) | Vận hành: health, backup/restore, seed, escalation L1/L2/L3 |
+| [Release Notes v1.0](docs/day30/RELEASE_NOTES_v1.0.md) | Tính năng bàn giao, chỉ số chất lượng, Known Issues |
+| [Roadmap 60 ngày (Ngày 31–90)](docs/day30/ROADMAP_60D.md) | Kế hoạch v2.0 Enterprise theo từng ngày |
+| [AI Work Log](AI_WORKLOG.md) | Prompt chỉ đạo, quyết định chấp nhận/bác bỏ, lỗi AI và cách phát hiện |

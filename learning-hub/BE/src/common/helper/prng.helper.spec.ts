@@ -15,7 +15,9 @@ describe('PrngHelper & seededShuffle Unit Tests', () => {
     const shuffled2 = seededShuffle(sampleOptions, seed);
 
     expect(shuffled1).toEqual(shuffled2);
-    expect(shuffled1.map((item) => item.key)).toEqual(shuffled2.map((item) => item.key));
+    expect(shuffled1.map((item) => item.key)).toEqual(
+      shuffled2.map((item) => item.key),
+    );
   });
 
   it('1.2 Should produce different shuffle orders when using different seeds', () => {

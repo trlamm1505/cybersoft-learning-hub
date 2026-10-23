@@ -1,0 +1,61 @@
+{
+  "generated_at_utc": "2026-10-05T06:40:49+00:00",
+  "commit": "",
+  "overall_status": "FAIL",
+  "exit_code": 1,
+  "plan_only": false,
+  "strict_unmapped": false,
+  "changed_files": [
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/demo-tmp/leak.env"
+  ],
+  "change_impact": [
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/demo-tmp/leak.env",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    }
+  ],
+  "unmapped_files": [],
+  "advisories": [],
+  "security_gate": {
+    "status": "FAIL",
+    "findings": [
+      {
+        "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/demo-tmp/leak.env",
+        "rule": "openai_key",
+        "line": 1,
+        "message": "Phát hiện chuỗi có dạng secret thật."
+      },
+      {
+        "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/demo-tmp/leak.env",
+        "rule": "assigned_secret",
+        "line": 1,
+        "message": "Phát hiện chuỗi có dạng secret thật."
+      }
+    ],
+    "allowlisted": []
+  },
+  "gates": [
+    {
+      "id": "pr_quality_self_test",
+      "name": "PR Quality Bot self-test",
+      "blocking": true,
+      "status": "FAIL",
+      "exit_code": 1,
+      "remediation": "Sửa mapping/script hoặc test Ngày 22; chạy `python -m unittest discover -s Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests` đến khi exit code 0 rồi mới push.",
+      "steps": [
+        {
+          "command": "python -m unittest discover -s Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests",
+          "exit_code": 1,
+          "duration_seconds": 0.55,
+          "output": "...........................F........\n======================================================================\nFAIL: test_bot_source_and_tests_pass_their_own_secret_scan (test_pr_quality.SecurityTests)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/sessions/rcw-01hwe9akuqttxidx9jbnraod/mnt/thuctap/cybersoft-learning-hub/Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests/test_pr_quality.py\", line 164, in test_bot_source_and_tests_pass_their_own_secret_scan\n    self.assertEqual([], pr_quality.scan_security(files, REPO))\nAssertionError: Lists differ: [] != [{'file': 'Test/Day22_PR_Quality_Bot_Tran_[274 chars]t.'}]\n\nSecond list contains 2 additional elements.\nFirst extra element 0:\n{'file': 'Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/demo-tmp/leak.env', 'rule': 'openai_key', 'line': 1, 'message': 'Phát hiện chuỗi có dạng secret thật.'}\n\n- []\n+ [{'file': 'Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/demo-tmp/leak.env',\n+   'line': 1,\n+   'message': 'Phát hiện chuỗi có dạng secret thật.',\n+   'rule': 'openai_key'},\n+  {'file': 'Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/demo-tmp/leak.env',\n+   'line': 1,\n+   'message': 'Phát hiện chuỗi có dạng secret thật.',\n+   'rule': 'assigned_secret'}]\n\n----------------------------------------------------------------------\nRan 36 tests in 0.461s\n\nFAILED (failures=1)\n",
+          "phase": "commands"
+        }
+      ]
+    }
+  ],
+  "actions_run_url": "",
+  "auto_approve": false
+}

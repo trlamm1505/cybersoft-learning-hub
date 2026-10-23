@@ -1,0 +1,12 @@
+{
+  "labId": "LAB-05",
+  "mode": "clean",
+  "faultId": "F-D14-005",
+  "rule": "Sửa/xóa phải kiểm quyền sở hữu tài nguyên.",
+  "data": {
+    "resourceOwner": "user-B",
+    "requestUser": "user-A",
+    "updateAllowed": false,
+    "status": 403
+  }
+}

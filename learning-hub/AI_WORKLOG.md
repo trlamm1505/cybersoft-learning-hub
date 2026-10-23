@@ -1,255 +1,135 @@
-# AI Work Log — 2026-09-08 (Ngày 10 - Teacher Authoring Tool v0)
+# AI Work Log Ngày 30: Tài liệu, demo release và bàn giao
 
-*File nhật ký theo dõi các prompt của người dùng và các thay đổi file tương ứng cho Ngày 10.*
+## Thông tin chung
 
----
+| Mục | Nội dung |
+|---|---|
+| Người thực hiện | Dương Chí Việt |
+| Ngày | 19 tháng 10 năm 2026 (tóm tắt thêm đợt Day 27 – Day 31, từ 08/10 đến 18/10/2026) |
+| Nhánh | `feature/learning-hub-day30`, tách từ `feat/admin-portal-v2` @ `ac18440` (không merge, không rebase với `main`) |
+| Công cụ, model | Day 30 (bàn giao): Claude Code chạy Claude Opus 5.5. Đợt Day 29 → Day 31 (17–18/10): Claude Code chạy Claude Sonnet 5.5. Day 27 – Day 28 (08/10): Google Antigravity (Gemini 3.6 Flash High). Không dùng subagent |
+| Phạm vi quyền | Đọc và ghi trong `learning-hub/`; chạy test, seed, backend/frontend local và Chrome tự động. `Data-AI-Resource/` của Thực tập sinh số 1 chỉ đọc. Chỉ đẩy nhánh làm việc, không đụng `main` |
+| Context đã cung cấp | Báo cáo QA của Tester Trần Quốc Nguyên: `Day29_Security_Privacy_Test_Form`, `Day30_Defect_Risk_Tracker`, `Day30_Test_Cases_V2`; ảnh chụp lỗi; log console FE; file mẫu `02_Ke_hoach_30_ngay_Thuc_tap_sinh_Learning_Contest_AI_Native.docx` |
+| Dữ liệu nhạy cảm | `BE/.env` không bị in ra. Mật khẩu `123456` là mật khẩu mẫu công khai đọc từ `DEFAULT_SEED_PASSWORD`. Ảnh chụp Handbook dùng dữ liệu seed, không có dữ liệu học viên thật |
 
-## Nhật ký công việc
+## Mục lục các việc
 
-### Prompt 1
-> "Bạn là một Senior Backend Developer phụ trách module "Teacher Authoring Tool" (Ngày 10) trong dự án NestJS & MongoDB ("Learning & Contest Hub"). Hãy viết mã nguồn chi tiết cho các yêu cầu sau:
-> 1. Thiết kế Schema & API Quản lý Bài học (Courses/Lessons/Exercises):
-> - Tạo Mongoose Schema hỗ trợ cả bài trắc nghiệm (quiz) và bài lập trình (coding). Thêm trường trạng thái `status` phân định rõ ràng giữa `draft` (Bản nháp) và `published` (Đã xuất bản).
-> - Xây dựng API `POST /lessons/create` hoặc `PUT /lessons/:id` cho phép giảng viên tạo/cập nhật nội dung bài học.
-> 2. Business Logic & Điều kiện nghiệm thu:
-> - Viết middleware hoặc logic validate schema: Chặn yêu cầu đổi trạng thái từ `draft` sang `published` nếu bài học/bài tập thiếu chuẩn đầu ra (`learningOutcome`) hoặc thiếu bài kiểm tra (`test`).
-> - Xây dựng API Import/Export gói dữ liệu bài học dưới dạng định dạng JSON (`GET /lessons/export/:id` và `POST /lessons/import`).
-> Hãy cung cấp mã nguồn NestJS (Controller, Service, Schema) hoàn chỉnh, chuẩn bảo mật và xử lý ngoại lệ tốt."
-
-**Thời gian:** 2026-09-08 08:39:21
-
-**Các file đã tạo / cập nhật / xóa:**
-
-#### File Tạo Mới [NEW]
-1. [lesson.schema.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/lesson.schema.ts)
-   - Định nghĩa Mongoose Schema `Lesson` (`LessonDocument`) hỗ trợ loại hình `coding` và `quiz`.
-   - Lưu trữ các trường: `title`, `slug`, `type`, `status` (`draft` | `published`), `learningOutcome`, `content`, `starterCode`, `solutionCode`, `difficulty`, `points`, `authorId`, `testCases`, `quizQuestions`.
-2. [create-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/create-lesson.dto.ts)
-   - Class DTO định nghĩa cấu trúc dữ liệu tạo mới bài học.
-3. [update-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/update-lesson.dto.ts)
-   - Class DTO định nghĩa cấu trúc dữ liệu cập nhật thông tin bài học.
-4. [import-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/import-lesson.dto.ts)
-   - Class DTO định nghĩa cấu trúc payload import gói JSON bài học.
-5. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-   - Chứa Business Logic:
-     - `validatePublicationEligibility`: Kiểm tra điều kiện xuất bản bài học. Bắt buộc bài học xuất bản phải có `learningOutcome` không rỗng và chứa ít nhất 1 bài kiểm tra hợp lệ (`testCases` với bài coding, `quizQuestions` có đáp án đúng với bài quiz). Ngược lại ném `BadRequestException`.
-     - `createLesson` & `updateLesson`: Quản lý bài học bản nháp và chuyển đổi trạng thái sang đã xuất bản.
-     - `exportLessonJson`: Xuất dữ liệu bài học thành gói JSON định dạng version 1.0.
-     - `importLessonJson`: Đọc gói JSON và khởi tạo bài học mới.
-6. [authoring.controller.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.controller.ts)
-   - REST Controller định nghĩa 6 API endpoints dưới prefix `/api/authoring/lessons`:
-     - `POST /api/authoring/lessons/create`: Tạo bài học mới.
-     - `PUT /api/authoring/lessons/:id`: Cập nhật nội dung bài học.
-     - `GET /api/authoring/lessons`: Lấy danh sách tất cả bài học.
-     - `GET /api/authoring/lessons/:id`: Lấy chi tiết 1 bài học theo ID.
-     - `GET /api/authoring/lessons/export/:id`: Xuất bài học ra gói JSON.
-     - `POST /api/authoring/lessons/import`: Import bài học từ gói JSON.
-7. [authoring.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.module.ts)
-   - Đăng ký NestJS Module cho Teacher Authoring Tool.
-8. [authoring.service.spec.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.spec.ts)
-   - 8 unit tests kiểm tra toàn bộ logic validate điều kiện xuất bản bài học, tạo bản nháp, xuất gói JSON và xử lý ngoại lệ.
-
-#### File Chỉnh Sửa [MODIFY]
-1. [database.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/database.module.ts)
-   - Đăng ký `Lesson` Mongoose Schema vào `MongooseModule.forFeature`.
-2. [app.module.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/app.module.ts)
-   - Đăng ký `AuthoringModule` vào danh sách `imports` của root module `AppModule`.
+| Số thứ tự | Tên việc | Trạng thái |
+|---|---|---|
+| 1 | Deep Audit Day 29 chỉ đọc, phân loại Critical → Low (17/10) | Đạt, không sửa file |
+| 2 | Bỏ Docker, chạy Local Sandbox 100% (17/10) | Đạt |
+| 3 | Khóa tuần tự Code Playground 20 bài K6-9 / 15 bài K10-12 (18/10) | Đạt |
+| 4 | Đóng vai QA, kiểm thử E2E bằng Chrome thật (18/10) | Đạt, 102/102 rồi 107/107 |
+| 5 | Quiz hết giờ tự nộp, dọn "chờ chấm" lớp K10-12 (18/10) | Đạt |
+| 6 | Bàn giao Ngày 30: Handbook, Runbook, Release Notes, Roadmap 60 ngày, README (19/10) | Đạt |
 
 ---
 
-### Prompt 2
-> "Bạn là một Frontend Developer phụ trách giao diện quản trị của Ngày 10 trong dự án React & Tailwind CSS:
-> 1. Nút chuyển đổi giao diện nhanh (Role Switcher):
-> - Tạo một thanh toggle hoặc nút bấm trên header để chuyển đổi mượt mà qua lại giữa 2 góc nhìn: "Giao diện Học viên (Student View)" và "Giao diện Quản trị Giảng viên (Teacher Authoring)".
-> 2. Xây dựng giao diện Teacher Authoring Tool v0:
-> - Thiết kế một Form quản trị trực quan để giảng viên tạo/chỉnh sửa nội dung bài học (hỗ trợ nhập liệu cho cả trắc nghiệm và bài lập trình coding).
-> - Thêm cơ chế Schema validation trên giao diện: Cảnh báo hoặc khóa nút "Publish" nếu giảng viên chưa điền đủ chuẩn đầu ra (`learning outcome`) hoặc bài test.
-> - Tích hợp chế độ "Preview Learner View" giúp giảng viên xem trước giao diện hiển thị thực tế đối với học viên.
-> - Thêm nút tính năng Import/Export file JSON cấu hình bài học.
-> Hãy cung cấp mã nguồn component React chi tiết, state quản lý rõ ràng để tôi tích hợp trực tiếp vào dự án."
+## Việc 1: Deep Audit Day 29 chỉ đọc
 
-**Thời gian:** 2026-09-08 08:51:12
+> "CHẾ ĐỘ LÀM VIỆC: CHỈ KIỂM TRA, ĐÀO SÂU VÀ LẬP BÁO CÁO (READ-ONLY AUDIT) — TUYỆT ĐỐI CHƯA SỬA CODE HAY DB LÚC NÀY! Tester vừa gửi phản hồi kèm báo cáo kiểm thử Day29_Security_Privacy_Test_Form và phát hiện lỗi nghiêm trọng trên giao diện Admin. Hãy thực hiện một cuộc Đại kiểm tra (Deep Audit) toàn bộ mã nguồn FE, BE, Database/Seed và lịch sử Git để tìm ra nguyên nhân gốc rễ (root cause) của tất cả các lỗi dưới đây, đồng thời đào sâu tìm thêm các lỗi tiềm ẩn tương tự. YÊU CẦU ĐẦU RA: Liệt kê toàn bộ vấn đề phát hiện được, sắp xếp theo mức độ từ CRITICAL → HIGH → MEDIUM → LOW. Với mỗi vấn đề, hãy chỉ rõ: Tên lỗi, File & dòng code gây lỗi, Nguyên nhân gốc rễ (Root Cause), và Hướng khắc phục đề xuất. […] PHẦN 1: ĐIỀU TRA LỖI ADMIN KHÔNG PHÂN CÔNG ĐƯỢC GIẢNG VIÊN CHO LỚP HỌC […] PHẦN 2: RÀ SOÁT TOÀN BỘ 10 LỖI FAIL & 3 MỤC NOT RUN […] PHẦN 3: ĐÀO SÂU TÌM THÊM CÁC LỖI LOGIC, PHÂN QUYỀN & EDGE CASES KHÁC"
 
-**Các file đã tạo / cập nhật / xóa:**
+### Điều tôi hiểu trước khi gọi AI
 
-#### File Tạo Mới [NEW]
-1. [authoring.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/types/authoring.ts)
-   - Định nghĩa TypeScript interfaces `LessonAuthoring`, `TestCase`, `QuizQuestion`, `QuizOption`, `ImportLessonPayload`.
-2. [authoringApi.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/axios/authoringApi.ts)
-   - Axios API client thực hiện gọi 6 REST API endpoints từ NestJS backend.
-3. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Component trang quản trị dành cho giảng viên:
-     - Form thiết kế bài học linh hoạt cho cả bài Lập trình (`coding`) và Trắc nghiệm (`quiz`).
-     - Tự động sinh `slug` từ tiêu đề bài học.
-     - **Schema Validation Real-time Guard**: Banner kiểm tra trực tiếp và hiển thị cảnh báo đỏ/xanh. Tự động khóa / disable nút `Publish` nếu thiếu `learningOutcome` hoặc chưa có ít nhất 1 bài test hợp lệ.
-     - **Chế độ Preview Learner View**: Modal xem trước 100% giao diện thực tế đối với học viên trước khi xuất bản.
-     - **Tính năng Import / Export JSON**: Cho phép tải xuống file cấu hình `.json` bài học hoặc đọc file `.json` để nạp dữ liệu vào form.
+Admin không phân công được giảng viên, trong 4 tài khoản giống nhau chỉ 1 cái gán được. Chưa rõ lỗi ở FE hay BE, nên bắt AI chỉ đọc để tìm nguyên nhân gốc thay vì vá triệu chứng.
 
-#### File Chỉnh Sửa [MODIFY]
-1. [Header.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/Header.tsx)
-   - Tích hợp **Role Switcher Pill Toggle** (`🎓 Student` vs `👨‍🏫 Teacher`) trên thanh điều hướng Header.
-   - Thêm nút menu `🛠️ Authoring Tool` trong chế độ Teacher dành cho cả giao diện máy tính và mobile.
-2. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
-   - Đăng ký route điều hướng `/authoring` trỏ đến `TeacherAuthoringPage`.
-   - Lưu trữ và đồng bộ trạng thái `userRole` vào `localStorage`.
+### Kết quả và quyết định
+
+AI trả báo cáo 2 Critical, 6 High, 9 Medium, 7 Low có file và dòng. **C1:** lớp còn `teacherId` của tài khoản đã xóa ("ID ma"); FE gửi cả ID ma lẫn ID mới, BE kiểm tra mọi ID nên từ chối cả request. Lỗi nằm ở lớp, không ở tài khoản. AI cũng ghi rõ giới hạn: DB lúc audit không có 4 tài khoản của Tester, nên kết luận dựa trên đọc code và seed. Tôi dùng báo cáo làm khung sửa 4 Phase (commit `c044190`: BE tự gỡ ID không còn là giảng viên, chặn khóa giảng viên đứng lớp bằng 409, `migrate-day29.js`, `audit-day29-security-privacy.js` 33/33).
 
 ---
 
-### Prompt 3
-> "sao chỗ thi trắc nghiệm này ko cho chọn bài để thi vậy và sao teacher đã thêm bài mới mà ko thấy hiển thị ra"
+## Việc 2: Bỏ Docker, chạy Local Sandbox 100%
 
-**Thời gian:** 2026-09-08 08:56:56
+> "2. Về Docker (Mục F.2): XÓA HẲN hoàn toàn Docker! – Trong `code-runner.helper.ts`: Bỏ hẳn nhánh `docker run`, chạy 100% `local` sandbox. Xóa `code-runner.docker.spec.ts`. – Xóa luôn các file `docker-compose.yml`, `docker-compose.prod.yml`, `Dockerfile` (trong BE/FE nếu không cần thiết), các script `ensure-sandbox.js` / lệnh `docker:*` trong `package.json`. Hệ thống giờ chạy thuần 100% Node.js + Python local + MongoDB. […] NGUYÊN TẮC BẤT DI BẤT DỊCH: Tuyệt đối KHÔNG đụng chạm bất kỳ file nào trong thư mục `Data-AI-Resource/`."
 
-**Các file đã tạo / cập nhật / xóa:**
+### Điều tôi hiểu trước khi gọi AI
 
-#### File Chỉnh Sửa [MODIFY]
-1. [QuizTakingPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/QuizTakingPage.tsx)
-   - Bổ sung **Giao diện Chọn Bài thi Trắc nghiệm (Quiz Topic Selector Grid)** cho phép học viên lựa chọn đề thi trắc nghiệm trước khi bấm bắt đầu.
-   - Hỗ trợ hiển thị các đề thi trắc nghiệm do Giảng viên vừa thiết kế (`👨‍🏫 Giảng viên tạo`) bên cạnh các đề thi mẫu của hệ thống (`⚡ Đề Hệ thống`).
-   - Tự động nạp động danh sách câu hỏi `quizQuestions` và xử lý tính điểm, giải thích cho các bài trắc nghiệm của Giảng viên.
-2. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
-   - Tự động gọi API `authoringApi.getLessons()` khi ứng dụng khởi chạy để tải danh sách các bài học do Giảng viên đã tạo/xuất bản từ Backend (kèm bộ nhớ đệm `localStorage`).
-   - Đồng bộ động danh sách bài học của Giảng viên vào toàn bộ hệ thống: **Danh mục khóa học (`CourseCatalogPage`)**, **Chi tiết bài học (`LessonDetailPage`)**, **Code Playground**, và **Thi Trắc Nghiệm (`QuizTakingPage`)**.
-3. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Tích hợp callback `onLessonSaved` giúp tự động làm mới và cập nhật bài học mới thêm vào state chung của ứng dụng ngay sau khi Giảng viên lưu nháp hoặc xuất bản bài học.
+Khi Docker Desktop tắt, máy chấm trả RE hàng loạt (Tester ghi nhận). Bỏ Docker để setup đơn giản, nhưng phải ghi rõ đánh đổi bảo mật.
+
+### Quyết định của tôi
+
+- AI đề xuất *"giữ dưới dạng tùy chọn tắt mặc định"* và *"`docker-compose`/`Dockerfile` để triển khai thì đề xuất giữ"*. → **Bác bỏ việc giữ Docker**: xóa hẳn, vì một nhánh chạy code không ai kiểm thử là rủi ro.
+- AI cảnh báo chế độ local không phải cô lập cấp hệ điều hành. → Chấp nhận, ghi vào Known Issues K-01 và Roadmap Ngày 36–39 (gVisor/MicroVM).
 
 ---
 
-### Prompt 4
-> "nếu giáo viên thêm bài lâpj trình thì sẽ lưu vào database và hiển thị ra bài tập ở đây cho sinh viên xem còn nếu bài trắc nghiệm thì sẽ hiển thị bên phần thi trắc nghiệm và chỗ teacher nhập form thêm bài lập trình phải có tất cả các trường cần thiết và thêm cả 3 phần gợi ý này nữa"
+## Việc 3: Khóa tuần tự Code Playground
 
-**Thời gian:** 2026-09-08 09:01:42
+> "B. Khóa cứng danh sách bài trên `/playground` (Giảng viên & Admin KHÔNG có quyền thêm bài vào `/playground`) […] C. Sửa chuẩn lại cơ chế 'Mở khóa tuần tự' (Sequential Unlock) & Dữ liệu Seed: Các bài tập trong `/playground` của mỗi khối (6-9 và 10-12) được sắp xếp cố định từ `#1` đến `#N`. **Bài #1 luôn luôn mở khóa** […] **Bài `#k` (với `k >= 2`) chỉ được mở khóa khi và chỉ khi học sinh đã hoàn thành (PASSED) tất cả các bài từ `#1` đến `#(k-1)`** […] Các bài phía sau nữa mới hiện ổ khóa 🔒 và bị khóa click (cả trên UI lẫn chặn ở BE nếu gọi nộp bài nhảy cóc)."
 
-**Các file đã tạo / cập nhật / xóa:**
+### Kết quả
 
-#### File Chỉnh Sửa [MODIFY]
-1. [lesson.schema.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-system/database/schemas/lesson.schema.ts)
-   - Bổ sung Mongoose Sub-Schema `LessonHints` (`hint1`, `hint2`, `hint3`) hỗ trợ lưu trữ 3 tầng gợi ý vào MongoDB database.
-2. [create-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/create-lesson.dto.ts) & [update-lesson.dto.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/dto/update-lesson.dto.ts)
-   - Thêm DTO class `LessonHintsDto` cho phép truyền payload 3 tầng gợi ý lên backend API.
-3. [authoring.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/types/authoring.ts)
-   - Thêm interface `LessonHints` trong TypeScript Frontend.
-4. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Bổ sung **Phần 4: Thiết lập 3 Tầng Gợi Ý (Hint Engine)** trong Form bài lập trình coding với đầy đủ 3 ô nhập liệu (Tầng 1: Khái niệm & Tư duy, Tầng 2: Chiến lược thuật toán, Tầng 3: Code mẫu Python kèm nút nạp nhanh từ Solution Code).
-5. [HintPanel.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/components/HintPanel.tsx)
-   - Hỗ trợ nhận prop `customHints` truyền trực tiếp 3 tầng gợi ý do Giảng viên thiết lập khi học viên thực hành.
-6. [CodePlaygroundPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/CodePlaygroundPage.tsx)
-   - Hiển thị danh sách các bài tập lập trình do Giảng viên tạo (`👨‍🏫 Bài tập Giảng viên`) ngay trong bộ chọn bài tập Code Playground. Tự động nạp đề bài, starter code, test cases và 3 tầng gợi ý tương ứng.
+Lộ trình cố định 20 bài (6-9) / 15 bài (10-12), bỏ bài SQL và dropdown chủ đề; máy chủ tính trạng thái khóa, nộp nhảy cóc trả `403 E403_EXERCISE_LOCKED`; bài giáo viên giao trong lớp không bị khóa; tiến độ cũ nhảy cóc được gắn cờ `outOfSequence` (không xóa bài nộp). `audit-day31.js` 36/36.
 
 ---
 
-### Prompt 5
-> "teacher có thể chọn lại bài để chỉnh sửa thông tin trắc nghiệm hoặc lập trình hoặc có thể xóa các bài đi"
+## Việc 4: Kiểm thử E2E bằng Chrome thật
 
-**Thời gian:** 2026-09-08 09:06:55
+> "CHẾ ĐỘ LÀM VIỆC: ĐÓNG VAI QA TESTER KHÓ TÍNH — TỰ ĐỘNG MỞ TRÌNH DUYỆT THẬT KIỂM THỬ E2E TOÀN DIỆN & BẮT LỖI […] Phải mở trình duyệt điều khiển UI thật trên `http://localhost:5173` (nối với BE `http://localhost:3000`), kiểm tra xem có lỗi Console Error (đỏ), Unhandled Promise Rejection, 404/500 Network, vỡ layout hay nút bấm bị đơ không. […] 5 luồng thực tế […] Nếu phát hiện bất kỳ lỗi nào […] Liệt kê trung thực toàn bộ các lỗi tìm thấy. Tự động sửa triệt để ngay lập tức. Chạy lại trình duyệt xác nhận đã hết lỗi và chạy lại `npm run seed:clean`."
 
-**Các file đã tạo / cập nhật / xóa:**
+### Kết quả
 
-#### File Chỉnh Sửa [MODIFY]
-1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-   - Bổ sung phương thức `deleteLesson(id)` xóa bài học khỏi cơ sở dữ liệu MongoDB.
-2. [authoring.controller.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.controller.ts)
-   - Thêm REST API endpoint `@Delete('/api/authoring/lessons/:id')`.
-3. [authoringApi.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/axios/authoringApi.ts)
-   - Thêm phương thức `authoringApi.deleteLesson(id)`.
-4. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-   - Bổ sung thanh **Quản lý & Chọn bài học để Chỉnh sửa / Xóa**:
-     - Menu thả xuống cho phép Giảng viên chọn lại bất kỳ bài học nào đã tạo (Coding hoặc Quiz) để nạp dữ liệu lên Form và cập nhật.
-     - Nút `➕ Bài tập mới` để reset Form nhập bài tập mới.
-     - Nút `🗑️ Xóa bài này` để xóa bài tập khỏi cơ sở dữ liệu.
-5. [App.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/App.tsx)
-   - Tích hợp callback `handleLessonDeleted` tự động xóa bài học khỏi state hệ thống khi Giảng viên bấm xóa.
+`npm run e2e:browser` (puppeteer-core + Chrome, đăng nhập bằng form thật): **102/102** bước sau khi sửa các lỗi tìm được, rồi **107/107** khi thêm kịch bản quiz hết giờ ở Việc 5.
 
 ---
 
-### Prompt 6: Tùy ý chọn, chỉnh sửa và xóa tất cả các bài tập trong hệ thống (Coding exercises & Quiz topics)
-- **User Prompt**: "sao có rất nhiều bài mà teacher lại chỉ có thể chọn 4 vậy teacher sẽ có thể tùy ý chỉnh sửa tất cả các bài"
-- **Files Modified**:
-  1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-     - Khởi tạo `OnModuleInit` tự động nạp (seed) toàn bộ 10 bài tập lập trình Python hệ thống (`INITIAL_EXERCISES` + `INITIAL_HINTS`) cùng các bộ đề trắc nghiệm hệ thống (`SYSTEM_QUIZZES`) vào MongoDB collection `lessons` nếu chưa tồn tại.
-     - Cho phép Giảng viên quản lý, xem, tùy ý chọn, chỉnh sửa nội dung/3-tier hints và xóa tất cả các bài tập hệ thống hoặc do Giảng viên tạo.
-  2. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Cập nhật menu chọn bài học hiển thị đầy đủ tất cả các bài học/bài tập trong cơ sở dữ liệu (`existingLessons.length` bài).
-     - Thêm tùy chọn `➕ Tạo bài học mới` và hỗ trợ nạp dữ liệu bài tập bất kỳ lên form để chỉnh sửa/xóa.
+## Việc 5: Quiz hết giờ tự nộp, dọn "chờ chấm" lớp K10-12
+
+> "1. SỬA LUỒNG HẾT GIỜ (TIMEOUT AUTO-SUBMIT) Ở TRANG THI TRẮC NGHIỆM (`/quiz`) […] khi đồng hồ đếm ngược về `00:00`, Frontend tự động gọi API submit với các đáp án học sinh đã chọn tính đến lúc đó (các câu chưa chọn tính là 'Bỏ trống'). Ở Backend (`quiz.service.ts` - `submitAttempt`): Không từ chối hay hủy bài khi nộp trễ do hết giờ […] 3. XỬ LÝ DỨT ĐIỂM VỤ '1 BÀI CHỜ CHẤM' Ở LỚP K6-9 & K10-12: Khối 6-9 và 10-12 chỉ làm bài Code và Trắc nghiệm (100% máy chấm tự động có điểm ngay), tuyệt đối KHÔNG có khái niệm 'chờ chấm tay' hay 'chờ công bố điểm'."
+
+### Quyết định của tôi
+
+- AI tra DB và hỏi: *"Có đổi nhãn thành 'chờ công bố điểm' không?"*. → **Bác bỏ việc chỉ đổi nhãn**: xóa nguồn sinh bản ghi `SUBMITTED` treo của seed (chuyển sang điểm công bố), bảng điểm lớp luôn là điểm Chính thức.
+- Mã cũ đánh EXPIRED/400 khi nộp trễ. → **Bác bỏ việc hủy bài thi trắc nghiệm khi hết giờ** ở `/quiz`: luôn chấm GRADED và vào thẳng màn hình Kết quả; chỉ bài giao của lớp vẫn khóa theo hạn chót.
+
+Commit `ac18440`.
 
 ---
 
-### Prompt 8: Loại bỏ icon/emoji tiền tố và khử trùng lặp bài tập
-- **User Prompt**: "bỏ mấy icon này đi cho nó đồng bộ"
-- **Files Modified**:
-  1. [CodePlaygroundPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/CodePlaygroundPage.tsx)
-     - Loại bỏ các icon/emoji tiền tố như `👨‍🏫`, `🧑‍💻`, `📝` khỏi tiêu đề bài tập.
-     - Áp dụng `useMemo` và `Map<string, ExerciseListItem>` để khử trùng lặp bài tập theo `slug`, đảm bảo mỗi bài tập chỉ xuất hiện duy nhất 1 lần trong menu chọn của Code Playground.
-  2. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Chuẩn hóa định dạng danh sách dropdown chọn bài học: sử dụng nhãn text đồng nhất `[Coding]` / `[Quiz]` thay cho icon emoji.
+## Việc 6: Bàn giao Ngày 30
+
+> "CHẾ ĐỘ LÀM VIỆC: THỰC THI TOÀN BỘ BÀN GIAO NGÀY 30 […] NGUYÊN TẮC BẮT BUỘC: Dựa trên 100% sự thật của codebase hiện tại […] Dữ liệu demo và seed có tính tái lập (reproducible) bằng `npm run seed:clean`, mật khẩu chuẩn `123456`, không dùng bất kỳ thao tác bí mật/backdoor nào. Tuyệt đối KHÔNG đụng vào thư mục `Data-AI-Resource/`."
+
+### File do AI tạo, phần giữ lại, chỉnh sửa, loại bỏ và lý do
+
+| File | Ghi chú |
+|---|---|
+| `docs/day30/ADMIN_TEACHER_HANDBOOK.md` + `docs/images/handbook/` (33 ảnh) | Giữ. AI quét FE/BE và chụp ảnh thật bằng Chrome trên dữ liệu `seed:clean` thay vì để khung trống |
+| `docs/day30/OPERATIONS_RUNBOOK.md` | Giữ: môi trường, `/api/health`, backup/restore, seed, escalation L1/L2/L3, 7 lỗi thực tế |
+| `docs/day30/RELEASE_NOTES_v1.0.md`, `CHANGELOG.md` | Giữ: tính năng, chỉ số chất lượng, 17 Known Issues |
+| `docs/day30/ROADMAP_60D.md` | Giữ: theo đúng cấu trúc file mẫu CyberSoft, Ngày 31 → 90 |
+| `docs/DEMO_SCRIPT.md` | **Bác bỏ, đã xóa**: tôi tự quay video và tự demo |
+| Tên nhánh `learning-hubday30` | **Sửa** thành `feature/learning-hub-day30` theo quy ước dự án |
+
+AI đối chiếu và sửa lại một số chi tiết trong yêu cầu của tôi cho khớp mã nguồn (tôi chấp nhận): Node **20.12+** (không phải 18+); `seed:clean` gồm bước 0 + **9 bước** (không phải 8); phòng thi bị khóa ở lần rời màn hình **thứ 3** (chỉ tính khi vắng từ 5 giây); mã lớp do hệ thống **tự sinh**; điểm lớp gồm Bài tập tuần 30% / Cuộc thi 40% / Thi kết thúc 30%.
 
 ---
 
-### Prompt 9: Loại bỏ nhãn "Giảng viên tạo" trên các thẻ bài thi trắc nghiệm
-- **User Prompt**: "bỏ chữ giảng viên tạo đi"
-- **Files Modified**:
-  1. [QuizTakingPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/QuizTakingPage.tsx)
-     - Loại bỏ nhãn badge `👨‍🏫 Giảng viên tạo` và `⚡ Đề Hệ thống` trên tất cả các thẻ bài thi trắc nghiệm.
-     - Thay thế bằng nhãn danh mục chuyên đề (`FULLSTACK WEB`, `PYTHON`, `TRẮC NGHIỆM`) với kiểu dáng đồng nhất và chuyên nghiệp.
+## Lỗi AI mắc phải và cách tôi phát hiện
 
----
+| Lỗi | Hậu quả | Cách phát hiện | Cách sửa |
+|---|---|---|---|
+| **Ghi đè bộ lọc `slug`**: khi ẩn bài `demo-dash-*`, AI thêm khóa `slug` vào `baseFilter()`, nhưng `load()` vẫn viết `findOne({ slug: String(slug), ...this.baseFilter() })`, nên khóa sau ghi đè slug được chọn | Sửa/xóa trong Ngân hàng đề tra về **bài đầu tiên bất kỳ trong DB** (403 sai, có thể tác động nhầm bài) | E2E Chrome thật, luồng Giảng viên | `findOne({ $and: [{ slug }, this.baseFilter()] })` + test hồi quy (`ac18440`) |
+| **`print(__file__)` lộ đường dẫn qua stdout**: bản che đường dẫn đầu tiên chỉ áp cho stderr/thông báo lỗi | Học viên thấy đường dẫn thư mục tạm `C:\Users\...\Temp\...` của máy chủ | Kịch bản DEF-060 trong `audit-day30.js` | stdout cũng đi qua `scrubServerPaths`, test `day30-step1.spec.ts` |
+| **Timeout 15 giây do tải 2 MB test ẩn**: backend tải cả bộ test ẩn 0,6–2 MB của bài Day 15 mỗi lần mở/nộp (6–20 giây), FE chỉ chờ kết quả 15 giây | Học viên K10-12 không nộp được bài thuật toán | E2E Chrome thật trên dữ liệu Atlas | Lọc/đếm test trên CSDL, bộ nhớ đệm bộ test của máy chấm, FE chờ tới 120 giây; mở bài còn ~0,3 giây |
 
-### Prompt 10: Tách biệt tuyệt đối dữ liệu JSON Xuất/Nhập và Lưu trữ giữa Trắc nghiệm (Quiz) và Lập trình (Coding)
-- **User Prompt**: "bài trắc nghiệm và tự luận là riêng biệt khi xuất json hoặc thêm bằng json thì chỉ có riêng trắc nghiệm hoặc lập trình thôi ko gọp chugn"
-- **Files Modified**:
-  1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-     - Bổ sung hàm `sanitizePayloadByType`: Nếu là bài `coding` thì dọn dẹp `quizQuestions = []`, nếu là bài `quiz` thì dọn dẹp `starterCode`, `solutionCode`, `content`, `testCases`, `hints`.
-     - Cập nhật `exportLessonJson`: File JSON xuất ra của bài `coding` chỉ chứa các trường mã nguồn, test cases & hints. File JSON của bài `quiz` chỉ chứa danh sách câu hỏi `quizQuestions`.
-     - Cập nhật `importLessonJson`: Tự động phân loại và chỉ nạp đúng các trường thuộc loại bài tương ứng.
-  2. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Cập nhật `handleExportJson` và `handleImportJson` trên giao diện Frontend để tạo/đọc file JSON tách biệt 100% theo loại bài (`lesson-coding-*.json` vs `lesson-quiz-*.json`).
-     - Tự động làm sạch Form và các trường không liên quan khi Giảng viên chuyển đổi qua lại giữa nút `Bài Lập trình (Coding)` và `Bài Trắc nghiệm (Quiz)`.
+## Số liệu kiểm chứng độc lập
 
----
+| Bộ kiểm thử | Kết quả | Ghi chú |
+|---|---|---|
+| Jest backend | **1635 passed** (12 skipped) | Chạy lại 19/10 |
+| Vitest frontend | **431 passed** | Chạy lại 19/10 |
+| node --test (script) | 31 passed | Chạy lại 19/10 |
+| 5 bộ Audit | day29 **33/33**, day30 **45/45**, day31 **36/36**, cross-role **52/52**, teacher-security **40/40** | Chạy lại 19/10 |
+| E2E Chrome thật | **107/107** | Commit `ac18440` (18/10) |
+| Typecheck | BE `tsc --noEmit` sạch, FE `tsc -b` sạch | Chạy lại 19/10 |
 
-### Prompt 11: Cho phép Giảng viên chọn Lập trình hay Trắc nghiệm trước để lọc danh sách bài học tương ứng
-- **User Prompt**: "chỗ teacher này sẽ cho người dùng chọn trước là bài lập trình hay quiz trước và sẽ lấy danh sách theo đó luôn"
-- **Files Modified**:
-  1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Bổ sung thanh lọc 2 bước (**Bước 1: Chọn loại bài học trước** `🧑‍💻 Bài Lập trình` / `📝 Bài Trắc nghiệm` / `Tất cả`).
-     - Tự động lọc và cập nhật danh sách bài học tại **Bước 2 (Dropdown selector)** chỉ hiển thị đúng các bài học thuộc loại đã chọn, giúp Giảng viên quản lý nhanh chóng và trực quan.
+## Điều học được, điều chưa chắc, thay đổi đưa vào lần sau
 
----
-
-### Prompt 12: Tự động đồng bộ hai chiều (2-way binding) giữa Bộ lọc loại bài học ở Bước 1 và Form nhập liệu phía dưới
-- **User Prompt**: "ở trên đã chọn loại bài lập trình hoặc quiz thì ở dưới sẽ ra form theo trên ko cần chọn lại nữa"
-- **Files Modified**:
-  1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Đồng bộ 2 chiều tức thì: Khi Giảng viên chọn `🧑‍💻 Bài Lập trình` hoặc `📝 Bài Trắc nghiệm` ở **Bước 1**, Form nhập liệu phía dưới tự động cập nhật đúng loại bài học (`formData.type`) và chuyển đổi giao diện Form tương ứng mà không cần Giảng viên phải thao tác chọn lại.
-     - Ngược lại, khi Giảng viên bấm thay đổi loại bài trong Form hoặc nạp bài từ Dropdown, bộ lọc ở **Bước 1** cũng tự động nhảy theo loại tương ứng.
-
----
-
-### Prompt 13: Loại bỏ bộ nút chọn lại "Loại bài học" trùng lặp tại Phần 1 của Form
-- **User Prompt**: "chỗ này ko cần chọn lại nữa"
-- **Files Modified**:
-  1. [TeacherAuthoringPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/TeacherAuthoringPage.tsx)
-     - Loại bỏ nút chuyển đổi Loại bài học dư thừa trong **Phần 1: Thông tin cơ bản bài học**.
-     - Thay thế bằng nhãn Badge tĩnh thông minh hiển thị tự động Loại bài học hiện tại (ví dụ: `🧑‍💻 Bài Lập trình (Coding)` hoặc `📝 Bài Trắc nghiệm (Quiz)`) được thừa hưởng từ lựa chọn ở **Bước 1**, giúp giao diện form tối gọn, tinh tế và không gây nhầm lẫn.
-
----
-
-### Prompt 14: Đồng bộ 100% số lượng bài giữa Teacher Authoring và các trang Thi trắc nghiệm / Thi tự luận
-- **User Prompt**: "sao bên teacher có 1 bài mà ở thi trắc nghiệm hiển thị tới 2 vậy và kiểm tra luôn thi tự luận"
-- **Files Modified**:
-  1. [authoring.service.ts](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/BE/src/modules-api/authoring/authoring.service.ts)
-     - Cập nhật hàm `seedSystemLessons()` trong NestJS Backend để khi khởi tạo database MongoDB, bài `python-basic` nếu đã tồn tại nhưng chưa có `type: 'quiz'` hoặc thiếu danh sách câu hỏi trắc nghiệm `quizQuestions` sẽ được tự động cập nhật lên MongoDB thành `type: 'quiz'` cùng toàn bộ bộ câu hỏi trắc nghiệm tương ứng.
-     - Đảm bảo trong MongoDB có đầy đủ các bài thi trắc nghiệm mặc định để bên Teacher Authoring hiển thị đúng `Bài Trắc nghiệm (2)`.
-  2. [QuizTakingPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/QuizTakingPage.tsx)
-     - Cập nhật `availableQuizzes` và `teacherQuizzes`: Khi dữ liệu `teacherLessons` từ Backend API được nạp vào, `availableQuizzes` sẽ ưu tiên sử dụng danh sách bài trắc nghiệm thực tế từ Teacher Authoring/MongoDB làm nguồn dữ liệu chính.
-     - Khi Giảng viên thêm/sửa/xóa bài trắc nghiệm ở Teacher Authoring, trang Thi Trắc Nghiệm của Học viên sẽ lập tức phản ánh chính xác 100% (khớp số lượng bài 1-1 realtime).
-  3. [CodePlaygroundPage.tsx](file:///c:/Users/Admin/Desktop/cybersoft-learning-hub/learning-hub/FE/src/pages/CodePlaygroundPage.tsx)
-     - Cập nhật `combinedExercises`: Ưu tiên sử dụng trực tiếp các bài tập lập trình `teacherCodingItems` từ Teacher Authoring/MongoDB khi có dữ liệu.
-     - Đảm bảo khi Giảng viên thêm, chỉnh sửa hoặc xóa bất kỳ bài thi tự luận/lập trình nào ở phía Teacher Authoring thì danh sách bài tập ở trang Thi Tự luận / Code Playground cũng sẽ đồng bộ 100% ngay lập tức.
-
-
-
-
-
-
-
+- Việc rủi ro cao thì chạy chế độ **chỉ đọc trước, sửa sau**, để AI tìm ra nguyên nhân gốc và tôi giữ quyền quyết định nghiệp vụ.
+- Không để AI tự xác nhận bản vá bảo mật: phải có kịch bản tấn công cụ thể trong audit gọi API thật (như DEF-060).
+- E2E trên dữ liệu thật bắt được cả ba lỗi ở bảng trên, những lỗi mà hơn 1600 unit test bỏ sót.
+- Dữ liệu sai thì sửa ở nguồn, không đổi nhãn hiển thị.
+- Chưa chắc: Local Sandbox chưa cô lập cấp hệ điều hành (K-01). Nguyên nhân Windows/IDE chạm file làm backend tự restart chưa xác định hẳn, mới chặn được bằng polling.
+- Quy tắc cố định cho lần sau: không sửa `Data-AI-Resource/`; chỉ đẩy nhánh `feature/learning-hub-dayNN`, không đụng `main`; không ghi tên AI vào commit; chạy `seed:clean` trước và sau E2E.

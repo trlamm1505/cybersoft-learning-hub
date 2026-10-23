@@ -1,0 +1,15 @@
+{
+  "name": "cybersoft-learning-hub-monorepo",
+  "private": true,
+  "description": "Cổng vào cho người mới clone: các lệnh dưới đây chuyển tiếp sang thư mục learning-hub.",
+  "scripts": {
+    "setup": "npm --prefix learning-hub run setup",
+    "seed": "npm --prefix learning-hub run seed",
+    "seed:clean": "npm --prefix learning-hub run seed:clean",
+    "dev": "npm --prefix learning-hub run dev",
+    "doctor": "npm --prefix learning-hub run doctor"
+  },
+  "engines": {
+    "node": ">=20.12.0"
+  }
+}

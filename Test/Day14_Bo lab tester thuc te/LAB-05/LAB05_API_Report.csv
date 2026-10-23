@@ -1,0 +1,12 @@
+﻿Buoc,Request,Expected,Actual_status,Ket_qua,Evidence,Ghi_chu
+01,signin,200 + accessToken,,,,
+02,signin sai mat khau,4xx,,,,
+03,createProjectAuthorize,200 + id,,,,
+04,createTask,200 + taskId,,,,
+05,updateStatus,200,,,,
+06,getProjectDetail doi chieu,thay task + status moi,,,,
+07,createTask khong Bearer,401,,,,
+08,getProjectDetail id khong ton tai,4xx khong 500,,,,
+09,removeTask,200,,,,
+10,deleteProject,200,,,,
+11,doc lai sau xoa,4xx,,,,

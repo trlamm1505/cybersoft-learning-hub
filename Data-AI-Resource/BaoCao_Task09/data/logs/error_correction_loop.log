@@ -1,0 +1,113 @@
+2026-09-11 09:22:47,701 [INFO] ================================================================================
+2026-09-11 09:22:47,701 [INFO] STARTING SYNTHESIS PIPELINE: 100 records | Seed=42 | Prompt=v2_few_shot_constrained
+2026-09-11 09:22:47,701 [INFO] ================================================================================
+2026-09-11 09:22:47,703 [INFO] [REC-CYB-0001] PASSED on initial attempt 0.
+2026-09-11 09:22:47,705 [INFO] [REC-CYB-0002] PASSED on initial attempt 0.
+2026-09-11 09:22:47,707 [INFO] [REC-CYB-0003] PASSED on initial attempt 0.
+2026-09-11 09:22:47,709 [INFO] [REC-CYB-0004] PASSED on initial attempt 0.
+2026-09-11 09:22:47,711 [INFO] [REC-CYB-0005] PASSED on initial attempt 0.
+2026-09-11 09:22:47,713 [INFO] [REC-CYB-0006] PASSED on initial attempt 0.
+2026-09-11 09:22:47,715 [INFO] [REC-CYB-0007] PASSED on initial attempt 0.
+2026-09-11 09:22:47,717 [WARNING] [REC-CYB-0008] Attempt 0 FAILED (1 errors): Align score with status 'FAILED_TESTS' to be within [(30, 69)].
+2026-09-11 09:22:47,720 [INFO] [REC-CYB-0008] SELF-CORRECTED successfully on attempt 1.
+2026-09-11 09:22:47,723 [INFO] [REC-CYB-0009] PASSED on initial attempt 0.
+2026-09-11 09:22:47,725 [INFO] [REC-CYB-0010] PASSED on initial attempt 0.
+2026-09-11 09:22:47,727 [INFO] [REC-CYB-0011] PASSED on initial attempt 0.
+2026-09-11 09:22:47,729 [INFO] [REC-CYB-0012] PASSED on initial attempt 0.
+2026-09-11 09:22:47,731 [INFO] [REC-CYB-0013] PASSED on initial attempt 0.
+2026-09-11 09:22:47,733 [INFO] [REC-CYB-0014] PASSED on initial attempt 0.
+2026-09-11 09:22:47,735 [INFO] [REC-CYB-0015] PASSED on initial attempt 0.
+2026-09-11 09:22:47,737 [INFO] [REC-CYB-0016] PASSED on initial attempt 0.
+2026-09-11 09:22:47,739 [INFO] [REC-CYB-0017] PASSED on initial attempt 0.
+2026-09-11 09:22:47,741 [INFO] [REC-CYB-0018] PASSED on initial attempt 0.
+2026-09-11 09:22:47,744 [WARNING] [REC-CYB-0019] Attempt 0 FAILED (1 errors): Rebalance rubric criteria so that weight_percent values sum exactly to 100.
+2026-09-11 09:22:47,745 [INFO] [REC-CYB-0019] SELF-CORRECTED successfully on attempt 1.
+2026-09-11 09:22:47,747 [INFO] [REC-CYB-0020] PASSED on initial attempt 0.
+2026-09-11 09:22:47,749 [INFO] [REC-CYB-0021] PASSED on initial attempt 0.
+2026-09-11 09:22:47,752 [INFO] [REC-CYB-0022] PASSED on initial attempt 0.
+2026-09-11 09:22:47,754 [INFO] [REC-CYB-0023] PASSED on initial attempt 0.
+2026-09-11 09:22:47,756 [INFO] [REC-CYB-0024] PASSED on initial attempt 0.
+2026-09-11 09:22:47,758 [INFO] [REC-CYB-0025] PASSED on initial attempt 0.
+2026-09-11 09:22:47,760 [INFO] [REC-CYB-0026] PASSED on initial attempt 0.
+2026-09-11 09:22:47,762 [INFO] [REC-CYB-0027] PASSED on initial attempt 0.
+2026-09-11 09:22:47,764 [INFO] [REC-CYB-0028] PASSED on initial attempt 0.
+2026-09-11 09:22:47,766 [INFO] [REC-CYB-0029] PASSED on initial attempt 0.
+2026-09-11 09:22:47,768 [INFO] [REC-CYB-0030] PASSED on initial attempt 0.
+2026-09-11 09:22:47,770 [INFO] [REC-CYB-0031] PASSED on initial attempt 0.
+2026-09-11 09:22:47,772 [INFO] [REC-CYB-0032] PASSED on initial attempt 0.
+2026-09-11 09:22:47,775 [INFO] [REC-CYB-0033] PASSED on initial attempt 0.
+2026-09-11 09:22:47,777 [INFO] [REC-CYB-0034] PASSED on initial attempt 0.
+2026-09-11 09:22:47,779 [INFO] [REC-CYB-0035] PASSED on initial attempt 0.
+2026-09-11 09:22:47,781 [WARNING] [REC-CYB-0036] Attempt 0 FAILED (1 errors): Remove all placeholders and replace with real domain code/text.
+2026-09-11 09:22:47,783 [INFO] [REC-CYB-0036] SELF-CORRECTED successfully on attempt 1.
+2026-09-11 09:22:47,785 [INFO] [REC-CYB-0037] PASSED on initial attempt 0.
+2026-09-11 09:22:47,787 [INFO] [REC-CYB-0038] PASSED on initial attempt 0.
+2026-09-11 09:22:47,789 [INFO] [REC-CYB-0039] PASSED on initial attempt 0.
+2026-09-11 09:22:47,791 [INFO] [REC-CYB-0040] PASSED on initial attempt 0.
+2026-09-11 09:22:47,793 [INFO] [REC-CYB-0041] PASSED on initial attempt 0.
+2026-09-11 09:22:47,795 [INFO] [REC-CYB-0042] PASSED on initial attempt 0.
+2026-09-11 09:22:47,797 [INFO] [REC-CYB-0043] PASSED on initial attempt 0.
+2026-09-11 09:22:47,800 [INFO] [REC-CYB-0044] PASSED on initial attempt 0.
+2026-09-11 09:22:47,802 [INFO] [REC-CYB-0045] PASSED on initial attempt 0.
+2026-09-11 09:22:47,804 [INFO] [REC-CYB-0046] PASSED on initial attempt 0.
+2026-09-11 09:22:47,806 [INFO] [REC-CYB-0047] PASSED on initial attempt 0.
+2026-09-11 09:22:47,808 [INFO] [REC-CYB-0048] PASSED on initial attempt 0.
+2026-09-11 09:22:47,810 [INFO] [REC-CYB-0049] PASSED on initial attempt 0.
+2026-09-11 09:22:47,812 [INFO] [REC-CYB-0050] PASSED on initial attempt 0.
+2026-09-11 09:22:47,814 [INFO] [REC-CYB-0051] PASSED on initial attempt 0.
+2026-09-11 09:22:47,816 [INFO] [REC-CYB-0052] PASSED on initial attempt 0.
+2026-09-11 09:22:47,819 [WARNING] [REC-CYB-0053] Attempt 0 FAILED (1 errors): Align score with status 'FAILED_TESTS' to be within [(30, 69)].
+2026-09-11 09:22:47,820 [INFO] [REC-CYB-0053] SELF-CORRECTED successfully on attempt 1.
+2026-09-11 09:22:47,822 [INFO] [REC-CYB-0054] PASSED on initial attempt 0.
+2026-09-11 09:22:47,824 [INFO] [REC-CYB-0055] PASSED on initial attempt 0.
+2026-09-11 09:22:47,827 [INFO] [REC-CYB-0056] PASSED on initial attempt 0.
+2026-09-11 09:22:47,829 [INFO] [REC-CYB-0057] PASSED on initial attempt 0.
+2026-09-11 09:22:47,831 [INFO] [REC-CYB-0058] PASSED on initial attempt 0.
+2026-09-11 09:22:47,834 [INFO] [REC-CYB-0059] PASSED on initial attempt 0.
+2026-09-11 09:22:47,836 [INFO] [REC-CYB-0060] PASSED on initial attempt 0.
+2026-09-11 09:22:47,838 [INFO] [REC-CYB-0061] PASSED on initial attempt 0.
+2026-09-11 09:22:47,840 [INFO] [REC-CYB-0062] PASSED on initial attempt 0.
+2026-09-11 09:22:47,842 [INFO] [REC-CYB-0063] PASSED on initial attempt 0.
+2026-09-11 09:22:47,844 [INFO] [REC-CYB-0064] PASSED on initial attempt 0.
+2026-09-11 09:22:47,846 [INFO] [REC-CYB-0065] PASSED on initial attempt 0.
+2026-09-11 09:22:47,848 [INFO] [REC-CYB-0066] PASSED on initial attempt 0.
+2026-09-11 09:22:47,850 [INFO] [REC-CYB-0067] PASSED on initial attempt 0.
+2026-09-11 09:22:47,852 [INFO] [REC-CYB-0068] PASSED on initial attempt 0.
+2026-09-11 09:22:47,854 [WARNING] [REC-CYB-0069] Attempt 0 FAILED (1 errors): Remove all placeholders and replace with real domain code/text.
+2026-09-11 09:22:47,856 [INFO] [REC-CYB-0069] SELF-CORRECTED successfully on attempt 1.
+2026-09-11 09:22:47,858 [INFO] [REC-CYB-0070] PASSED on initial attempt 0.
+2026-09-11 09:22:47,860 [INFO] [REC-CYB-0071] PASSED on initial attempt 0.
+2026-09-11 09:22:47,862 [INFO] [REC-CYB-0072] PASSED on initial attempt 0.
+2026-09-11 09:22:47,865 [INFO] [REC-CYB-0073] PASSED on initial attempt 0.
+2026-09-11 09:22:47,867 [INFO] [REC-CYB-0074] PASSED on initial attempt 0.
+2026-09-11 09:22:47,869 [INFO] [REC-CYB-0075] PASSED on initial attempt 0.
+2026-09-11 09:22:47,871 [INFO] [REC-CYB-0076] PASSED on initial attempt 0.
+2026-09-11 09:22:47,872 [INFO] [REC-CYB-0077] PASSED on initial attempt 0.
+2026-09-11 09:22:47,874 [INFO] [REC-CYB-0078] PASSED on initial attempt 0.
+2026-09-11 09:22:47,876 [INFO] [REC-CYB-0079] PASSED on initial attempt 0.
+2026-09-11 09:22:47,879 [INFO] [REC-CYB-0080] PASSED on initial attempt 0.
+2026-09-11 09:22:47,882 [INFO] [REC-CYB-0081] PASSED on initial attempt 0.
+2026-09-11 09:22:47,883 [INFO] [REC-CYB-0082] PASSED on initial attempt 0.
+2026-09-11 09:22:47,885 [INFO] [REC-CYB-0083] PASSED on initial attempt 0.
+2026-09-11 09:22:47,887 [WARNING] [REC-CYB-0084] Attempt 0 FAILED (1 errors): Remove all placeholders and replace with real domain code/text.
+2026-09-11 09:22:47,889 [INFO] [REC-CYB-0084] SELF-CORRECTED successfully on attempt 1.
+2026-09-11 09:22:47,891 [INFO] [REC-CYB-0085] PASSED on initial attempt 0.
+2026-09-11 09:22:47,894 [INFO] [REC-CYB-0086] PASSED on initial attempt 0.
+2026-09-11 09:22:47,896 [INFO] [REC-CYB-0087] PASSED on initial attempt 0.
+2026-09-11 09:22:47,898 [INFO] [REC-CYB-0088] PASSED on initial attempt 0.
+2026-09-11 09:22:47,900 [INFO] [REC-CYB-0089] PASSED on initial attempt 0.
+2026-09-11 09:22:47,902 [INFO] [REC-CYB-0090] PASSED on initial attempt 0.
+2026-09-11 09:22:47,904 [INFO] [REC-CYB-0091] PASSED on initial attempt 0.
+2026-09-11 09:22:47,906 [INFO] [REC-CYB-0092] PASSED on initial attempt 0.
+2026-09-11 09:22:47,908 [INFO] [REC-CYB-0093] PASSED on initial attempt 0.
+2026-09-11 09:22:47,912 [INFO] [REC-CYB-0094] PASSED on initial attempt 0.
+2026-09-11 09:22:47,914 [INFO] [REC-CYB-0095] PASSED on initial attempt 0.
+2026-09-11 09:22:47,917 [INFO] [REC-CYB-0096] PASSED on initial attempt 0.
+2026-09-11 09:22:47,919 [INFO] [REC-CYB-0097] PASSED on initial attempt 0.
+2026-09-11 09:22:47,921 [INFO] [REC-CYB-0098] PASSED on initial attempt 0.
+2026-09-11 09:22:47,923 [INFO] [REC-CYB-0099] PASSED on initial attempt 0.
+2026-09-11 09:22:47,926 [INFO] [REC-CYB-0100] PASSED on initial attempt 0.
+2026-09-11 09:22:47,939 [INFO] ================================================================================
+2026-09-11 09:22:47,939 [INFO] SYNTHESIS COMPLETED: 100 records saved to JSON & CSV.
+2026-09-11 09:22:47,939 [INFO] Summary: {'total_requested': 100, 'passed_immediate_iter0': 94, 'corrected_in_loop': 6, 'fallback_applied': 0, 'total_retries_executed': 6, 'correction_events': [{'record_id': 'REC-CYB-0008', 'resolved_at_attempt': 1, 'status': 'CORRECTED'}, {'record_id': 'REC-CYB-0019', 'resolved_at_attempt': 1, 'status': 'CORRECTED'}, {'record_id': 'REC-CYB-0036', 'resolved_at_attempt': 1, 'status': 'CORRECTED'}, {'record_id': 'REC-CYB-0053', 'resolved_at_attempt': 1, 'status': 'CORRECTED'}, {'record_id': 'REC-CYB-0069', 'resolved_at_attempt': 1, 'status': 'CORRECTED'}, {'record_id': 'REC-CYB-0084', 'resolved_at_attempt': 1, 'status': 'CORRECTED'}]}
+2026-09-11 09:22:47,940 [INFO] ================================================================================

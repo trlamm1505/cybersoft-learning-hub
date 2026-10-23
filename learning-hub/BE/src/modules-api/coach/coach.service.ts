@@ -1,0 +1,521 @@
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  Logger,
+  Optional,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import {
+  CoachMessage,
+  CoachMessageDocument,
+} from '../../modules-system/database/schemas/coach-message.schema';
+import {
+  Exercise,
+  ExerciseDocument,
+} from '../../modules-system/database/schemas/exercise.schema';
+import {
+  Submission,
+  SubmissionDocument,
+} from '../../modules-system/database/schemas/submission.schema';
+import { CoachContextBuilder } from './coach-context.builder';
+import {
+  assertContextHasNoForbiddenData,
+  checkCoachResponsePolicy,
+} from './coach-policy';
+import {
+  buildInjectionRefusalReply,
+  detectPromptInjection,
+} from './coach-injection-guard';
+import { AiCoachPreprocessor } from './ai-coach-preprocessor';
+import { estimateTokens } from './coach-llm.client';
+import type { LlmClient } from './coach-llm.client';
+import { COACH_LLM_CLIENT, COACH_MAX_OUTPUT_TOKENS } from './coach.constants';
+import { CoachChatDto } from './dto/coach-chat.dto';
+import { analyzeDebugLoop } from './coach-debug-loop';
+import { PROMPT_PROVIDER } from '../../common/prompt-provider';
+import type { PromptProvider } from '../../common/prompt-provider';
+import {
+  DEBUG_ANALYSES_EXHAUSTED_MESSAGE,
+  MAX_DEBUG_ANALYSES_PER_EXERCISE,
+} from './coach.constants';
+import { DebugLoopTestInput } from './coach-debug-loop.types';
+import { DebugLoopDto } from './dto/debug-loop.dto';
+import {
+  buildDebugPrompt,
+  COACH_DEBUG_EXPLAINER,
+  DEBUG_FALLBACK_REPLY,
+} from './coach-debug-explainer';
+import type { DebugExplainer } from './coach-debug-explainer';
+import type { JwtPayload } from '../../common/auth/jwt.strategy';
+import { maskPii } from '../../common/utils/pii-mask.util';
+import { studentCanSeeExercise } from '../exercise/exercise-matrix';
+import { buildSafetyRefusalReply, checkContentSafety } from './coach-content-safety';
+
+// Giới hạn token theo lượt gọi (input context + output) — điều kiện nghiệm
+// thu yêu cầu "có logging và giới hạn token". Ngưỡng này chặn context phình
+// to (ví dụ lịch sử hội thoại dài hoặc mô tả đề quá dài) trước khi gọi model,
+// và chặn completion quá dài trước khi lưu/trả về học viên.
+const MAX_PROMPT_TOKENS = 4000;
+const MAX_COMPLETION_TOKENS = COACH_MAX_OUTPUT_TOKENS;
+
+// Export để coach-eval-runner.ts import lại đúng nguyên văn thay vì copy
+// riêng một bản khác — tránh trường hợp sửa prompt ở đây mà quên sửa bên
+// harness, khiến eval chạy với prompt cũ mà không ai biết (eval/README.md
+// mục "đồng bộ SYSTEM_PROMPT" giải thích thêm).
+export const SYSTEM_PROMPT = [
+  'Bạn là AI Coach hỗ trợ học viên lập trình.',
+  'Chỉ trả lời bám sát bài tập được cung cấp trong context, không lạc đề.',
+  'Không được tiết lộ test case ẩn (hidden test) dưới bất kỳ hình thức nào.',
+  'Không đưa lời giải đầy đủ (full solution) trừ khi context.policy.allowFullSolution = true.',
+  'Ưu tiên gợi mở theo hướng Socratic: đặt câu hỏi dẫn dắt, chỉ ra hướng đi, không viết hộ toàn bộ code.',
+  'Tuyệt đối không bao giờ cung cấp mã code hoàn chỉnh, lời giải trực tiếp hay output của hidden test.',
+  'Chỉ chỉ ra nguyên nhân lỗi logic, giải thích khái niệm và đưa ra gợi ý từng bước (hints).',
+  'Trả lời CỰC KỲ NGẮN: tối đa 2-3 câu, không chào hỏi, không mở bài, không lặp lại câu hỏi; vào thẳng gợi ý.',
+  'Nếu cần minh họa cú pháp chỉ dùng đoạn code tối đa 1-2 dòng, không phải lời giải.',
+].join(' ');
+
+@Injectable()
+export class CoachService {
+  private readonly logger = new Logger(CoachService.name);
+  private readonly preprocessor = new AiCoachPreprocessor();
+
+  constructor(
+    private readonly contextBuilder: CoachContextBuilder,
+    @Inject(COACH_LLM_CLIENT) private readonly llmClient: LlmClient,
+    @InjectModel(CoachMessage.name)
+    private readonly coachMessageModel: Model<CoachMessageDocument>,
+    @InjectModel(Exercise.name)
+    private readonly exerciseModel: Model<ExerciseDocument>,
+    @InjectModel(Submission.name)
+    private readonly submissionModel: Model<SubmissionDocument>,
+    // Không cấu hình GEMINI_API_KEY thì Debug Loop chỉ dùng phân tích rule-based như Day 17.
+    @Optional()
+    @Inject(COACH_DEBUG_EXPLAINER)
+    private readonly debugExplainer?: DebugExplainer,
+    // System prompt do Admin chỉnh (cache trong bộ nhớ); không có thì dùng SYSTEM_PROMPT mặc định.
+    @Optional()
+    @Inject(PROMPT_PROVIDER)
+    private readonly prompts?: PromptProvider,
+  ) {}
+
+  async chat(dto: CoachChatDto, userId: string, viewer?: Pick<JwtPayload, 'role' | 'ageGroup'>) {
+    // Object thay cho chuỗi (vd { $ne: null }) → 400 rõ ràng thay vì TypeError 500 ở .trim() (Day 30, DEF-050).
+    if (
+      (dto?.exerciseSlug !== undefined && typeof dto.exerciseSlug !== 'string') ||
+      (dto?.message !== undefined && typeof dto.message !== 'string')
+    ) {
+      throw new BadRequestException('exerciseSlug và message phải là chuỗi ký tự.');
+    }
+    const { exerciseSlug } = dto;
+
+    if (!exerciseSlug || !dto.message?.trim()) {
+      throw new BadRequestException('Thiếu exerciseSlug hoặc message.');
+    }
+    // Che email/số điện thoại/CCCD ngay từ đầu: bản đã che là bản gửi cho AI và được lưu lịch sử (PRV-07).
+    const message = maskPii(dto.message);
+    // Học viên chỉ hỏi AI về bài thuộc khối của mình (không mượn AI Coach để đọc đề của khối khác).
+    if (viewer?.role === 'STUDENT') {
+      const band = await this.exerciseModel.findOne({ slug: exerciseSlug }).select('targetGroup gradeBand bankBand').lean();
+      if (band && !studentCanSeeExercise(band as never, viewer.ageGroup)) {
+        throw new ForbiddenException('Bài tập này không thuộc khối của bạn.');
+      }
+    }
+
+    const context = await this.contextBuilder.build(userId, exerciseSlug);
+
+    // Lớp phòng thủ thứ hai: đảm bảo context không vô tình chứa solutionCode
+    // trước khi nó rời khỏi backend để tới model.
+    assertContextHasNoForbiddenData(context);
+
+    const promptTokenEstimate =
+      estimateTokens(SYSTEM_PROMPT) +
+      estimateTokens(JSON.stringify(context)) +
+      estimateTokens(message);
+
+    if (promptTokenEstimate > MAX_PROMPT_TOKENS) {
+      throw new BadRequestException(
+        `Ngữ cảnh cuộc trò chuyện quá dài (~${promptTokenEstimate} tokens, giới hạn ${MAX_PROMPT_TOKENS}). Hãy bắt đầu một câu hỏi ngắn gọn hơn.`,
+      );
+    }
+
+    await this.logMessage(
+      userId,
+      exerciseSlug,
+      'user',
+      message,
+      estimateTokens(message),
+    );
+
+    // Chặn ở tầng input trước khi user message được đưa vào prompt gửi model:
+    // không phụ thuộc hoàn toàn vào việc model tự chống injection (xem
+    // coach-injection-guard.ts). Nếu nghi ngờ, không gọi llmClient nữa —
+    // trả thẳng câu từ chối và vẫn log lại để có dấu vết.
+    const injectionCheck = detectPromptInjection(message);
+    if (injectionCheck.suspicious) {
+      this.logger.warn(
+        `Coach message bị chặn do nghi ngờ prompt injection: ${injectionCheck.reason}`,
+      );
+      const refusal = buildInjectionRefusalReply();
+      const refusalTokens = estimateTokens(refusal);
+      const policyReason = `prompt_injection: ${injectionCheck.reason}`;
+
+      await this.logMessage(
+        userId,
+        exerciseSlug,
+        'assistant',
+        refusal,
+        refusalTokens,
+        true,
+        policyReason,
+      );
+
+      return {
+        exerciseSlug,
+        reply: refusal,
+        // Cờ cấp trên cho client/tester (DEF-033); policy.blocked giữ nguyên cho FE hiện tại.
+        policyBlocked: true,
+        policy: {
+          allowFullSolution: context.policy.allowFullSolution,
+          maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
+          blocked: true,
+          reason: policyReason,
+        },
+        usage: {
+          promptTokens: promptTokenEstimate,
+          completionTokens: refusalTokens,
+          maxPromptTokens: MAX_PROMPT_TOKENS,
+          maxCompletionTokens: MAX_COMPLETION_TOKENS,
+        },
+      };
+    }
+
+    // Nội dung không phù hợp với trẻ em (bạo lực, tự hại, chất cấm, 18+, mã độc, cờ bạc): từ chối thân thiện,
+    // không gọi model, đánh dấu policy.blocked (Day 30, DEF-033).
+    const safety = checkContentSafety(message);
+    if (safety.blocked) {
+      const refusal = buildSafetyRefusalReply(safety.category);
+      const refusalTokens = estimateTokens(refusal);
+      const policyReason = `unsafe_content: ${safety.category}`;
+      this.logger.warn(`Coach message bị chặn vì nội dung không phù hợp (${safety.category}).`);
+      await this.logMessage(userId, exerciseSlug, 'assistant', refusal, refusalTokens, true, policyReason);
+      return {
+        exerciseSlug,
+        reply: refusal,
+        // Cờ cấp trên cho client/tester (DEF-033); policy.blocked giữ nguyên cho FE hiện tại.
+        policyBlocked: true,
+        policy: {
+          allowFullSolution: context.policy.allowFullSolution,
+          maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
+          blocked: true,
+          reason: policyReason,
+        },
+        usage: {
+          promptTokens: promptTokenEstimate,
+          completionTokens: refusalTokens,
+          maxPromptTokens: MAX_PROMPT_TOKENS,
+          maxCompletionTokens: MAX_COMPLETION_TOKENS,
+        },
+      };
+    }
+
+    // Chào hỏi, tạm biệt, cảm ơn và lỗi tĩnh cơ bản: trả lời mẫu, KHÔNG gọi
+    // llmClient.chat(), để không tốn quota Gemini. Chạy SAU bộ chặn injection.
+    const canned = this.preprocessor.tryHandle(message, context.exercise.title);
+    if (canned) {
+      const cannedTokens = estimateTokens(canned.reply);
+
+      await this.logMessage(
+        userId,
+        exerciseSlug,
+        'assistant',
+        canned.reply,
+        cannedTokens,
+      );
+
+      return {
+        exerciseSlug,
+        reply: canned.reply,
+        policyBlocked: false,
+        policy: {
+          allowFullSolution: context.policy.allowFullSolution,
+          maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
+          blocked: false,
+          reason: undefined,
+        },
+        usage: {
+          promptTokens: promptTokenEstimate,
+          completionTokens: cannedTokens,
+          maxPromptTokens: MAX_PROMPT_TOKENS,
+          maxCompletionTokens: MAX_COMPLETION_TOKENS,
+        },
+      };
+    }
+
+    const systemPrompt = this.prompts ? await this.prompts.get('coach', SYSTEM_PROMPT) : SYSTEM_PROMPT;
+    const llmResult = await this.llmClient.chat(
+      systemPrompt,
+      context,
+      message,
+    );
+
+    let finalContent = llmResult.content;
+    let completionTokens = llmResult.completionTokens;
+    let policyBlocked = false;
+    let policyReason: string | undefined;
+
+    if (completionTokens > MAX_COMPLETION_TOKENS) {
+      this.logger.warn(
+        `Coach response vượt giới hạn token (${completionTokens} > ${MAX_COMPLETION_TOKENS}), sẽ bị cắt.`,
+      );
+      finalContent = finalContent.slice(0, MAX_COMPLETION_TOKENS * 4);
+      completionTokens = estimateTokens(finalContent);
+    }
+
+    const policyCheck = checkCoachResponsePolicy(finalContent, context);
+    if (!policyCheck.allowed) {
+      this.logger.warn(
+        `Coach response bị chặn bởi policy: ${policyCheck.reason}`,
+      );
+      finalContent = policyCheck.sanitizedContent ?? finalContent;
+      completionTokens = estimateTokens(finalContent);
+      policyBlocked = true;
+      policyReason = policyCheck.reason;
+    }
+    // Lớp thứ hai: câu trả lời của model cũng không được chứa nội dung không phù hợp với trẻ em.
+    const outputSafety = checkContentSafety(finalContent);
+    if (outputSafety.blocked) {
+      finalContent = buildSafetyRefusalReply(outputSafety.category);
+      completionTokens = estimateTokens(finalContent);
+      policyBlocked = true;
+      policyReason = `unsafe_content: ${outputSafety.category}`;
+    }
+
+    await this.logMessage(
+      userId,
+      exerciseSlug,
+      'assistant',
+      finalContent,
+      completionTokens,
+      policyBlocked,
+      policyReason,
+    );
+
+    return {
+      exerciseSlug,
+      reply: finalContent,
+      policyBlocked,
+      policy: {
+        allowFullSolution: context.policy.allowFullSolution,
+        maxHintLevelUnlocked: context.policy.maxHintLevelUnlocked,
+        blocked: policyBlocked,
+        reason: policyReason,
+      },
+      usage: {
+        promptTokens: llmResult.promptTokens,
+        completionTokens,
+        maxPromptTokens: MAX_PROMPT_TOKENS,
+        maxCompletionTokens: MAX_COMPLETION_TOKENS,
+      },
+    };
+  }
+
+  /**
+   * Debug Loop v0.1 — phân tích kết quả test THẬT của một submission đã lưu
+   * (không nhận mô tả lỗi tự do từ client) để tránh AI bịa nguyên nhân.
+   *
+   * "Vòng lặp" ở đây là chuỗi các submission liên tiếp CHƯA đạt AC cho cùng
+   * một bài — mỗi lần học viên sửa và nộp lại mà vẫn sai, loop count tăng.
+   * Chuỗi bị "ngắt" (reset) ngay khi có một lần AC xen giữa.
+   */
+  async debugLoop(dto: DebugLoopDto, userId: string) {
+    if (
+      (dto?.exerciseSlug !== undefined && typeof dto.exerciseSlug !== 'string') ||
+      (dto?.submissionId !== undefined && typeof dto.submissionId !== 'string')
+    ) {
+      throw new BadRequestException('exerciseSlug và submissionId phải là chuỗi ký tự.');
+    }
+    const { exerciseSlug, submissionId } = dto;
+
+    if (!exerciseSlug || !submissionId) {
+      throw new BadRequestException('Thiếu exerciseSlug hoặc submissionId.');
+    }
+
+    const exercise = await this.exerciseModel
+      .findOne({ slug: exerciseSlug })
+      .select('_id title description')
+      .lean();
+    if (!exercise) {
+      throw new NotFoundException(`Không tìm thấy bài tập "${exerciseSlug}"`);
+    }
+
+    const submission = await this.submissionModel
+      .findOne({
+        _id: submissionId,
+        userId,
+        exerciseId: String((exercise as any)._id),
+      })
+      .lean();
+    if (!submission) {
+      throw new NotFoundException(
+        'Không tìm thấy submission thuộc đúng học viên/bài tập.',
+      );
+    }
+
+    // Đếm số submission liên tiếp NGAY TRƯỚC submission hiện tại (theo thời
+    // gian) mà vẫn chưa AC, để suy ra học viên đã "loop" bao nhiêu lần rồi.
+    const priorSubmissions = await this.submissionModel
+      .find({
+        userId,
+        exerciseId: String((exercise as any)._id),
+        createdAt: { $lt: (submission as any).createdAt },
+      })
+      .sort({ createdAt: -1 })
+      .select('status')
+      .lean();
+
+    let attemptsSoFar = 0;
+    for (const prior of priorSubmissions) {
+      if (prior.status === 'AC') break;
+      attemptsSoFar += 1;
+    }
+
+    // Chặn CỨNG ở backend (tính từ dữ liệu thật, không phải state client nên F5/gọi lại API
+    // cũng không vượt được): mỗi lần nộp chỉ phân tích 1 lần, và tối đa 5 lượt cho mỗi bài.
+    if ((submission as any).debugAnalyzedAt) {
+      throw new ConflictException(
+        'Lần nộp này đã được phân tích rồi. Hãy sửa code và nộp lại để phân tích tiếp.',
+      );
+    }
+    const analysesUsed = await this.submissionModel.countDocuments({
+      userId,
+      exerciseId: String((exercise as any)._id),
+      debugAnalyzedAt: { $ne: null },
+    });
+    if (analysesUsed >= MAX_DEBUG_ANALYSES_PER_EXERCISE) {
+      throw new ForbiddenException(DEBUG_ANALYSES_EXHAUSTED_MESSAGE);
+    }
+
+    const firstFailingResult = (submission.results ?? []).find(
+      (r) => !r.passed,
+    );
+
+    const debugInput: DebugLoopTestInput = {
+      status: submission.status,
+      passedCount: submission.passedCount,
+      totalCount: submission.totalCount,
+      errorMessage: submission.errorMessage,
+      firstFailingTest: firstFailingResult
+        ? {
+            index: firstFailingResult.index,
+            input: firstFailingResult.input,
+            expectedOutput: firstFailingResult.expectedOutput,
+            actualOutput: firstFailingResult.actualOutput,
+            stderr: firstFailingResult.stderr,
+            isHidden: firstFailingResult.isHidden,
+          }
+        : undefined,
+    };
+
+    const result = analyzeDebugLoop(debugInput, { attemptsSoFar });
+    const aiExplanation = await this.explainWithGemini(
+      userId,
+      exerciseSlug,
+      (exercise as any).description ?? '',
+      submission.code ?? '',
+      debugInput,
+      result.errorCategory,
+    );
+
+    await this.submissionModel.updateOne(
+      { _id: submissionId },
+      { $set: { debugAnalyzedAt: new Date() } },
+    );
+
+    const summaryForLog =
+      `[debug-loop] category=${result.errorCategory} loop=${result.loopCount}/${result.maxLoops} ` +
+      `feedback=${result.feedback}`;
+    await this.logMessage(
+      userId,
+      exerciseSlug,
+      'assistant',
+      summaryForLog,
+      estimateTokens(summaryForLog),
+    );
+
+    return {
+      exerciseSlug,
+      submissionId,
+      ...result,
+      analysesUsed: analysesUsed + 1,
+      maxAnalyses: MAX_DEBUG_ANALYSES_PER_EXERCISE,
+      ...(aiExplanation ? { aiExplanation } : {}),
+    };
+  }
+
+  /**
+   * Gợi ý ngắn từ Gemini, bổ sung cho phân tích rule-based. Bỏ qua bài đã AC
+   * và lỗi cú pháp (rule-based đã đủ) để tiết kiệm quota. Đầu ra vẫn đi qua
+   * checkCoachResponsePolicy để chặn lời giải đầy đủ hoặc lộ test ẩn.
+   */
+  private async explainWithGemini(
+    userId: string,
+    exerciseSlug: string,
+    description: string,
+    code: string,
+    debugInput: DebugLoopTestInput,
+    errorCategory: string,
+  ): Promise<string | undefined> {
+    if (!this.debugExplainer) return undefined;
+    if (errorCategory === 'PASSED' || errorCategory === 'COMPILE_SYNTAX') {
+      return undefined;
+    }
+
+    const reply = await this.debugExplainer.explain(
+      buildDebugPrompt(description, code, debugInput),
+    );
+    if (reply === DEBUG_FALLBACK_REPLY) return reply;
+
+    const context = await this.contextBuilder.build(userId, exerciseSlug);
+    const policyCheck = checkCoachResponsePolicy(reply, context);
+    if (!policyCheck.allowed) {
+      this.logger.warn(`Gợi ý Debug Loop bị chặn bởi policy: ${policyCheck.reason}`);
+      return policyCheck.sanitizedContent ?? DEBUG_FALLBACK_REPLY;
+    }
+    return reply;
+  }
+
+  async getHistory(userId: string, exerciseSlug: string) {
+    const history = await this.coachMessageModel
+      .find({ userId, exerciseSlug })
+      .sort({ createdAt: 1 })
+      .select('role content tokenCount policyBlocked policyReason createdAt')
+      .lean();
+
+    return { userId, exerciseSlug, totalMessages: history.length, history };
+  }
+
+  private async logMessage(
+    userId: string,
+    exerciseSlug: string,
+    role: 'user' | 'assistant',
+    content: string,
+    tokenCount: number,
+    policyBlocked = false,
+    policyReason?: string,
+  ) {
+    await this.coachMessageModel.create({
+      userId,
+      exerciseSlug,
+      role,
+      content,
+      tokenCount,
+      policyBlocked,
+      policyReason,
+    });
+  }
+}

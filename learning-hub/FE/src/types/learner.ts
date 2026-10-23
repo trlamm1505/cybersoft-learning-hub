@@ -1,0 +1,66 @@
+export interface TagMastery {
+  tag: string;
+  attemptCount: number;
+  acCount: number;
+  masteryPercent: number;
+  lastAttemptStatus: string;
+  lastAttemptAt: string;
+}
+
+export interface LearnerProgress {
+  tagMastery: TagMastery[];
+  totalAttempts: number;
+}
+
+export type RecommendationReasonKind = 'REMEDIATION' | 'PROGRESSION' | 'EXPLORATION';
+
+export interface RecommendedExerciseSummary {
+  id: string;
+  slug: string;
+  title: string;
+  difficulty: string;
+  tags: string[];
+  prerequisiteSlug?: string;
+}
+
+export interface RecommendedExercise {
+  exercise: RecommendedExerciseSummary;
+  kind: RecommendationReasonKind;
+  reason: string;
+  tag: string;
+}
+
+/** Lời khuyên của Gemini dựa trên lịch sử làm bài: chủ đề hay sai nhất + 1-2 bài nên làm tiếp. */
+export interface LearnerAiAdvice {
+  weakness: { topic: string; advice: string } | null;
+  next: Array<{ slug: string; title: string; reason: string }>;
+  /** 'gemini': do Gemini đề xuất; 'rules': dự phòng theo luật khi Gemini không khả dụng. */
+  source: 'gemini' | 'rules';
+  generatedAt: string;
+  totalAttempts: number;
+}
+
+export interface LearnerRecommendations {
+  recommendations: RecommendedExercise[];
+}
+
+/** Lượt nộp bài theo ngày (chỉ các ngày có hoạt động), dùng vẽ biểu đồ hoạt động ở trang cá nhân. */
+export interface LearnerActivity {
+  from: string;
+  to: string;
+  total: number;
+  activeDays: number;
+  /** Chuỗi ngày luyện tập liên tiếp (tính tới hôm nay hoặc hôm qua) và chuỗi dài nhất trong cửa sổ. */
+  currentStreak?: number;
+  bestStreak?: number;
+  days: Array<{ date: string; count: number }>;
+}
+
+/** Thống kê trang Tiến độ: lượt nộp theo kết quả và tỷ lệ hoàn thành theo chủ đề. */
+export interface LearnerStats {
+  submissions: { total: number; ac: number; wa: number; tle: number; re: number; ce: number };
+  acRate: number;
+  solvedExercises: number;
+  totalExercises: number;
+  topics: Array<{ tag: string; label?: string; solved: number; total: number; percent: number }>;
+}

@@ -1,0 +1,56 @@
+{
+  "variantId": "initial-quiz-questions.ts#Q5-V02",
+  "sourceId": "initial-quiz-questions.ts#Q5",
+  "sourceVersion": "1.0",
+  "variantVersion": "1.0",
+  "sourceType": "QUIZ",
+  "parameters": {
+    "literal": "true",
+    "literalLabel": "boolean true",
+    "innerType": "boolean"
+  },
+  "generationMethod": "ai-selected-parameters + program-recomputed-answer (python3/node, khong tin truc tiep AI)",
+  "content": {
+    "content": "Đoạn mã JavaScript sau đây sẽ in ra kết quả gì màn hình console?",
+    "codeSnippet": "console.log(typeof typeof true);",
+    "category": "JavaScript",
+    "difficulty": "MEDIUM",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "\"string\"",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "\"undefined\"",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "TypeError",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "\"number\"",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "`typeof true` trả về chuỗi `\"boolean\"`. Tiếp tục thực hiện `typeof \"boolean\"` sẽ trả về chuỗi `\"string\"` (vì tham số của `typeof` lúc này đã là 1 chuỗi).",
+    "tags": [
+      "JavaScript",
+      "ES6",
+      "Core"
+    ]
+  },
+  "recomputedTypeofTypeof": "string",
+  "validationStatus": "PENDING",
+  "humanReview": {
+    "equivalenceAccepted": null,
+    "reviewer": "",
+    "notes": "",
+    "reviewedAt": ""
+  }
+}

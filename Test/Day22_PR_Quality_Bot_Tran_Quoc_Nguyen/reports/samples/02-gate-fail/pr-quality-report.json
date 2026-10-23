@@ -1,0 +1,48 @@
+{
+  "generated_at_utc": "2026-10-05T06:40:48+00:00",
+  "commit": "",
+  "overall_status": "FAIL",
+  "exit_code": 1,
+  "plan_only": false,
+  "strict_unmapped": false,
+  "changed_files": [
+    "demo/broken_feature.py"
+  ],
+  "change_impact": [
+    {
+      "file": "demo/broken_feature.py",
+      "kind": "mapped",
+      "gates": [
+        "demo_failing_gate"
+      ]
+    }
+  ],
+  "unmapped_files": [],
+  "advisories": [],
+  "security_gate": {
+    "status": "PASS",
+    "findings": [],
+    "allowlisted": []
+  },
+  "gates": [
+    {
+      "id": "demo_failing_gate",
+      "name": "Demo gate cố ý fail (exit 3)",
+      "blocking": true,
+      "status": "FAIL",
+      "exit_code": 3,
+      "remediation": "Đọc dòng AssertionError trong log, sửa code để API trả 200, chạy lại lệnh ở trên tới khi exit code 0 rồi push commit mới.",
+      "steps": [
+        {
+          "command": "python -c \"import sys; print('AssertionError: expected 200, got 500'); sys.exit(3)\"",
+          "exit_code": 3,
+          "duration_seconds": 0.01,
+          "output": "AssertionError: expected 200, got 500\n",
+          "phase": "commands"
+        }
+      ]
+    }
+  ],
+  "actions_run_url": "",
+  "auto_approve": false
+}

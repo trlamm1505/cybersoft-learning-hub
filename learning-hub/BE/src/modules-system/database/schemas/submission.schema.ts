@@ -33,7 +33,46 @@ export class SubmissionTestResult {
   memoryUsedMb?: number;
 }
 
-export const SubmissionTestResultSchema = SchemaFactory.createForClass(SubmissionTestResult);
+export const SubmissionTestResultSchema =
+  SchemaFactory.createForClass(SubmissionTestResult);
+
+export type IntegrityFlag = 'NONE' | 'REVIEW';
+export type IntegrityReviewStatus = 'NORMAL' | 'NEEDS_REVIEW' | 'REVIEWED';
+export type IntegrityDecision = 'CLEARED' | 'CONCERN' | 'FOLLOW_UP';
+
+/**
+ * Tín hiệu liêm chính (Day 24). CHỈ là dữ liệu hỗ trợ giảng viên xem xét:
+ * không có trường nào ảnh hưởng điểm, trạng thái chấm hay quyền nộp lại.
+ * Thu thập tối thiểu: mốc thời gian, lần rời tab (không ghi trang nào, không
+ * ghi phím bấm) và điểm tương đồng. `decision` do giảng viên đặt, không do máy.
+ */
+export interface IntegritySignals {
+  timeline: {
+    startedAt: Date;
+    submittedAt: Date;
+    /** Mốc chỉnh sửa thô (tối đa 50): thời điểm + số ký tự, không lưu nội dung. */
+    editMarks: Array<{ at: Date; charCount: number }>;
+    totalSeconds: number;
+    /** Thời lượng thao tác thực tế = tổng thời gian trừ thời gian rời màn hình. */
+    activeSeconds: number;
+  };
+  focusEvents: Array<{ leftAt: Date; returnedAt: Date; awaySeconds: number }>;
+  focusSummary: { count: number; totalAwaySeconds: number };
+  similarity: {
+    score: number;
+    matchedSubmissionId?: string;
+    matchedUserId?: string;
+    flagged: boolean;
+  };
+  flag: IntegrityFlag;
+  /** Lý do gắn cờ, viết cho người đọc; rỗng khi flag = NONE. */
+  reasons: string[];
+  reviewStatus: IntegrityReviewStatus;
+  decision?: IntegrityDecision;
+  reviewNote?: string;
+  reviewedBy?: string;
+  reviewedAt?: Date;
+}
 
 @Schema({ timestamps: true, collection: 'submissions' })
 export class Submission {
@@ -42,6 +81,15 @@ export class Submission {
 
   @Prop({ type: String })
   userId?: string;
+
+  // Bài nộp thuộc bài được giao cho lớp (ClassAssignment): chỉ những bài nộp có assignmentId mới tính điểm lớp.
+  @Prop({ type: String, index: true })
+  assignmentId?: string;
+
+  // Day 31: bài nộp AC luyện tập TỪNG nhảy cóc (làm bài #k khi #1..#(k-1) chưa xong, do lỗi cũ không khóa tuần tự). Giữ nguyên để làm
+  // lịch sử nhưng không tính vào tiến độ lộ trình Playground. Gắn bởi scripts/migrate-day31.js; không còn phát sinh sau khi máy chủ chặn nộp nhảy cóc.
+  @Prop({ type: Boolean })
+  outOfSequence?: boolean;
 
   @Prop({ required: true, type: String })
   code: string;
@@ -73,6 +121,19 @@ export class Submission {
 
   @Prop({ type: Number, default: 0 })
   attempts: number;
+
+  /** Day 24: tín hiệu liêm chính, chỉ giảng viên đọc (không nằm trong select của judge controller). */
+  @Prop({ type: Object })
+  integrity?: IntegritySignals;
+
+  /** Lần nộp này đã được AI Coach "Phân tích lỗi" (mỗi lần nộp chỉ được phân tích 1 lần). */
+  @Prop({ type: Date })
+  debugAnalyzedAt?: Date;
 }
 
 export const SubmissionSchema = SchemaFactory.createForClass(Submission);
+
+// Hàng chờ giảng viên: lọc theo cờ/trạng thái duyệt, mới nhất trước.
+SubmissionSchema.index({ 'integrity.reviewStatus': 1, createdAt: -1 });
+// So khớp tương đồng: các bài nộp khác của cùng một bài tập.
+SubmissionSchema.index({ exerciseId: 1, createdAt: -1 });

@@ -1,41 +1,53 @@
-import axios from 'axios';
+import axiosClient from '../common/configAxios';
 import type { LessonAuthoring, ImportLessonPayload } from '../types/authoring';
 
-const API_BASE_URL = 'http://localhost:3000/api/authoring/lessons';
+export interface CatalogResourceItem {
+  resource_id: string;
+  name: string;
+  type: 'DATASET' | 'EVALUATION_SET';
+  current_version: string;
+  available_versions: string[];
+  description?: string;
+  domain?: string;
+}
 
+/**
+ * Dùng axiosClient (không phải axios trần) để mọi request tự động gắn Bearer
+ * token qua interceptor (configAxios.ts) — cần thiết vì create/update/delete/
+ * import và GET :id giờ yêu cầu đăng nhập (TEACHER) ở phía Backend.
+ */
 export const authoringApi = {
+  getCatalogResources: async (): Promise<CatalogResourceItem[]> => {
+    return await axiosClient.get('/authoring/lessons/catalog/resources');
+  },
+
   createLesson: async (lessonData: Partial<LessonAuthoring>): Promise<LessonAuthoring> => {
-    const res = await axios.post(`${API_BASE_URL}/create`, lessonData);
-    return res.data;
+    return await axiosClient.post('/authoring/lessons/create', lessonData);
   },
 
   updateLesson: async (id: string, lessonData: Partial<LessonAuthoring>): Promise<LessonAuthoring> => {
-    const res = await axios.put(`${API_BASE_URL}/${id}`, lessonData);
-    return res.data;
+    return await axiosClient.put(`/authoring/lessons/${id}`, lessonData);
   },
 
   getLessons: async (): Promise<LessonAuthoring[]> => {
-    const res = await axios.get(API_BASE_URL);
-    return res.data;
+    return await axiosClient.get('/authoring/lessons');
   },
 
   getLessonById: async (id: string): Promise<LessonAuthoring> => {
-    const res = await axios.get(`${API_BASE_URL}/${id}`);
-    return res.data;
+    return await axiosClient.get(`/authoring/lessons/${id}`);
   },
 
   exportLessonJson: async (id: string): Promise<ImportLessonPayload> => {
-    const res = await axios.get(`${API_BASE_URL}/export/${id}`);
-    return res.data;
+    return await axiosClient.get(`/authoring/lessons/export/${id}`);
   },
 
   importLessonJson: async (payload: ImportLessonPayload): Promise<LessonAuthoring> => {
-    const res = await axios.post(`${API_BASE_URL}/import`, payload);
-    return res.data;
+    return await axiosClient.post('/authoring/lessons/import', payload);
   },
 
   deleteLesson: async (id: string): Promise<{ message: string }> => {
-    const res = await axios.delete(`${API_BASE_URL}/${id}`);
-    return res.data;
+    return await axiosClient.delete(`/authoring/lessons/${id}`);
   },
 };
+
+export default authoringApi;

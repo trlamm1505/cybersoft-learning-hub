@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { QuizService } from './quiz.service';
+import { ClassAssignmentsService } from '../class-assignments/class-assignments.service';
 import { Question } from '../../modules-system/database/schemas/question.schema';
 import { QuizAttempt } from '../../modules-system/database/schemas/quiz-attempt.schema';
 
@@ -34,7 +35,8 @@ describe('QuizService Unit & Integration Tests', () => {
         { key: 'C', text: '<aside>', isCorrect: false },
         { key: 'D', text: '<header>', isCorrect: false },
       ],
-      explanation: 'Thẻ <nav> được thiết kế dành riêng cho menu liên kết điều hướng.',
+      explanation:
+        'Thẻ <nav> được thiết kế dành riêng cho menu liên kết điều hướng.',
     },
     {
       _id: new Types.ObjectId(validQuestionId2),
@@ -48,7 +50,8 @@ describe('QuizService Unit & Integration Tests', () => {
         { key: 'C', text: 'useContext', isCorrect: false },
         { key: 'D', text: 'useRef', isCorrect: false },
       ],
-      explanation: 'useEffect cho phép thực thi side effects sau khi render component.',
+      explanation:
+        'useEffect cho phép thực thi side effects sau khi render component.',
     },
   ];
 
@@ -67,6 +70,7 @@ describe('QuizService Unit & Integration Tests', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         QuizService,
+        { provide: ClassAssignmentsService, useValue: { assertCanStartQuiz: jest.fn() } },
         {
           provide: getModelToken(Question.name),
           useValue: mockQuestionModel,
@@ -91,8 +95,14 @@ describe('QuizService Unit & Integration Tests', () => {
         testId: new Types.ObjectId(validTestId),
         seed: 'sample-seed-123',
         shuffledQuestions: [
-          { questionId: new Types.ObjectId(validQuestionId1), optionKeysOrder: ['B', 'A', 'C', 'D'] },
-          { questionId: new Types.ObjectId(validQuestionId2), optionKeysOrder: ['A', 'B', 'C', 'D'] },
+          {
+            questionId: new Types.ObjectId(validQuestionId1),
+            optionKeysOrder: ['B', 'A', 'C', 'D'],
+          },
+          {
+            questionId: new Types.ObjectId(validQuestionId2),
+            optionKeysOrder: ['A', 'B', 'C', 'D'],
+          },
         ],
         startedAt: new Date(),
         timeLimitSeconds: 1800,
@@ -103,8 +113,7 @@ describe('QuizService Unit & Integration Tests', () => {
 
       mockQuizAttemptModel.create.mockResolvedValue(createdAttemptObj);
 
-      const result = await service.startAttempt({
-        userId: validUserId,
+      const result = await service.startAttempt(validUserId, {
         testId: validTestId,
       });
 
@@ -120,6 +129,73 @@ describe('QuizService Unit & Integration Tests', () => {
           expect(opt).not.toHaveProperty('isCorrect');
         });
       });
+      // [C1] Policy chốt phía server lúc bắt đầu, không phụ thuộc client.
+      expect(mockQuizAttemptModel.create).toHaveBeenCalledWith(
+        expect.objectContaining({ reviewPolicy: 'AFTER_SUBMISSION' }),
+      );
+    });
+
+    it('chủ đề ngoài 3 bộ đề công khai: học viên 6-9 / 10-12 chỉ lấy câu của đúng khối (kèm câu chưa gắn khối); khối khác không lọc', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue(null);
+      mockQuizAttemptModel.create.mockResolvedValue({ _id: new Types.ObjectId(), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(), timeLimitSeconds: 1800, maxScore: 0 });
+
+      await service.startAttempt(validUserId, { testId: validTestId, category: 'Algorithm' }, '10-12');
+      expect(mockQuestionModel.find).toHaveBeenCalledWith({
+        category: 'Algorithm',
+        $or: [{ gradeBands: '10-12' }, { gradeBands: { $exists: false } }],
+      });
+
+      mockQuestionModel.find.mockClear();
+      await service.startAttempt(validUserId, { testId: validTestId, category: 'Algorithm' }, '3-5');
+      expect(mockQuestionModel.find).toHaveBeenCalledWith({ category: 'Algorithm' });
+    });
+
+    it('3 bộ đề công khai (Python / HTML5 / CSS3): KHÔNG lọc theo khối, nên cả 6-9 lẫn 10-12 đều nhận đủ cả bộ (khớp "20 câu hỏi" ngoài thẻ)', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue(null);
+      mockQuizAttemptModel.create.mockResolvedValue({ _id: new Types.ObjectId(), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(), timeLimitSeconds: 1800, maxScore: 0 });
+      for (const category of ['Python', 'HTML5', 'CSS3']) {
+        for (const age of ['6-9', '10-12']) {
+          mockQuestionModel.find.mockClear();
+          await service.startAttempt(validUserId, { testId: validTestId, category }, age);
+          expect(mockQuestionModel.find).toHaveBeenCalledWith({ category });
+          expect(JSON.stringify(mockQuestionModel.find.mock.calls[0][0])).not.toContain('gradeBands');
+        }
+      }
+    });
+
+    it('lượt luyện tập đang làm dở còn thời gian: tiếp tục lượt đó, đồng hồ = thời gian CÒN LẠI thật', async () => {
+      const resumable = { _id: new Types.ObjectId(validAttemptId), testId: new Types.ObjectId(validTestId), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(Date.now() - 600 * 1000), timeLimitSeconds: 1800, save: jest.fn() };
+      mockQuizAttemptModel.findOne.mockResolvedValue(resumable);
+      const r = await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '6-9');
+      expect(r.attemptId.toString()).toBe(validAttemptId);
+      expect(r.timeLimitSeconds).toBeGreaterThan(1190);
+      expect(r.timeLimitSeconds).toBeLessThanOrEqual(1200);
+      expect(resumable.save).not.toHaveBeenCalled();
+    });
+
+    it('lượt luyện tập bỏ dở quá giờ: đóng lại (EXPIRED) và mở lượt mới, không trả đồng hồ 0 để tự nộp bài trống', async () => {
+      const stale = { _id: new Types.ObjectId(), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(Date.now() - 3 * 3600 * 1000), timeLimitSeconds: 1800, save: jest.fn().mockResolvedValue(true) };
+      mockQuizAttemptModel.findOne.mockResolvedValue(stale);
+      mockQuizAttemptModel.create.mockResolvedValue({ _id: new Types.ObjectId(), shuffledQuestions: [], status: 'IN_PROGRESS', startedAt: new Date(), timeLimitSeconds: 1800, maxScore: 0 });
+      const r = await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '6-9');
+      expect(stale.status).toBe('EXPIRED');
+      expect(stale.save).toHaveBeenCalled();
+      expect(mockQuizAttemptModel.create).toHaveBeenCalled();
+      expect(r.timeLimitSeconds).toBe(1800);
+    });
+
+    it('[Day 30] câu Ngân hàng đề (bankOnly) không vào /quiz tự luyện; bộ đề công khai không nhận câu bankOnly dù cùng chủ đề', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue(null);
+      mockQuizAttemptModel.create.mockImplementation(async (doc: any) => ({ _id: new Types.ObjectId(), status: 'IN_PROGRESS', startedAt: new Date(), ...doc }));
+      const bankQ = { ...mockQuestions[0], _id: new Types.ObjectId(), bankOnly: true, gradeBands: ['6-9'] };
+      // Bộ đề công khai truy vấn một lần theo chủ đề; câu bankOnly lẫn trong kết quả bị loại.
+      mockQuestionModel.find.mockReturnValueOnce({ exec: jest.fn().mockResolvedValue([bankQ, mockQuestions[1]]) });
+
+      await service.startAttempt(validUserId, { testId: validTestId, category: 'Python' }, '6-9');
+      expect(mockQuestionModel.find.mock.calls[0][0]).toEqual({ category: 'Python' });
+      const used = mockQuizAttemptModel.create.mock.calls[0][0].shuffledQuestions.map((q: any) => String(q.questionId));
+      expect(used).toEqual([validQuestionId2]);
+      expect(used).not.toContain(String(bankQ._id));
     });
   });
 
@@ -134,15 +210,17 @@ describe('QuizService Unit & Integration Tests', () => {
         score: 0,
         maxScore: 20,
         shuffledQuestions: [
-          { questionId: new Types.ObjectId(validQuestionId1), optionKeysOrder: ['B', 'A', 'C', 'D'] },
+          {
+            questionId: new Types.ObjectId(validQuestionId1),
+            optionKeysOrder: ['B', 'A', 'C', 'D'],
+          },
         ],
         save: jest.fn().mockResolvedValue(true),
       };
 
       mockQuizAttemptModel.findOne.mockResolvedValue(mockAttemptDoc);
 
-      const result = await service.submitAttempt(validAttemptId, {
-        userId: validUserId,
+      const result = await service.submitAttempt(validAttemptId, validUserId, {
         answers: [{ questionId: validQuestionId1, selectedOptionKey: 'B' }],
       });
 
@@ -151,32 +229,52 @@ describe('QuizService Unit & Integration Tests', () => {
       expect(mockAttemptDoc.save).toHaveBeenCalled();
     });
 
-    it('2.2 Should block overdue submission, update status to EXPIRED and throw BadRequestException', async () => {
-      const overdueStartedAt = new Date(Date.now() - 2000000); // 2000s ago (> 1800s limit)
+    const overdueDoc = (extra: Record<string, unknown> = {}) => ({
+      _id: new Types.ObjectId(validAttemptId),
+      userId: new Types.ObjectId(validUserId),
+      startedAt: new Date(Date.now() - 2000000), // 2000s trước (> 1800s)
+      timeLimitSeconds: 1800,
+      status: 'IN_PROGRESS',
+      score: 0,
+      maxScore: 20,
+      shuffledQuestions: [
+        { questionId: new Types.ObjectId(validQuestionId1), optionKeysOrder: ['B', 'A', 'C', 'D'] },
+        { questionId: new Types.ObjectId(validQuestionId2), optionKeysOrder: ['A', 'B', 'C', 'D'] },
+      ],
+      save: jest.fn().mockResolvedValue(true),
+      ...extra,
+    });
 
-      const mockOverdueAttemptDoc = {
-        _id: new Types.ObjectId(validAttemptId),
-        userId: new Types.ObjectId(validUserId),
-        startedAt: overdueStartedAt,
-        timeLimitSeconds: 1800,
-        status: 'IN_PROGRESS',
-        score: 0,
-        maxScore: 20,
-        shuffledQuestions: [],
-        save: jest.fn().mockResolvedValue(true),
-      };
+    it('2.2 [/quiz luyện tập] nộp trễ do hết giờ vẫn được chấm GRADED, câu chưa chọn là bỏ trống', async () => {
+      const doc = overdueDoc();
+      mockQuizAttemptModel.findOne.mockResolvedValue(doc);
 
-      mockQuizAttemptModel.findOne.mockResolvedValue(mockOverdueAttemptDoc);
+      const result = await service.submitAttempt(validAttemptId, validUserId, {
+        answers: [{ questionId: validQuestionId1, selectedOptionKey: 'B' }],
+      });
 
-      await expect(
-        service.submitAttempt(validAttemptId, {
-          userId: validUserId,
-          answers: [],
-        }),
-      ).rejects.toThrow(BadRequestException);
+      expect(result.status).toBe('GRADED');
+      expect(result.score).toBe(10);
+      expect(doc.status).toBe('GRADED');
+      expect(doc.shuffledQuestions[1]).toMatchObject({ isCorrect: false, scoreEarned: 0 });
+      expect(doc.save).toHaveBeenCalled();
+    });
 
-      expect(mockOverdueAttemptDoc.status).toBe('EXPIRED');
-      expect(mockOverdueAttemptDoc.save).toHaveBeenCalled();
+    it('2.2b [/quiz luyện tập] nộp trễ rất lâu (máy ngủ đông) với danh sách trống vẫn GRADED điểm 0, không EXPIRED', async () => {
+      const doc = overdueDoc({ startedAt: new Date(Date.now() - 6 * 3600 * 1000) });
+      mockQuizAttemptModel.findOne.mockResolvedValue(doc);
+      const result = await service.submitAttempt(validAttemptId, validUserId, { answers: [] });
+      expect(result).toMatchObject({ status: 'GRADED', score: 0 });
+    });
+
+    it('2.3 bài giao của lớp (có assignmentId) nộp quá hạn vẫn bị khóa: EXPIRED + BadRequestException', async () => {
+      const doc = overdueDoc({ assignmentId: 'asg-1' });
+      mockQuizAttemptModel.findOne.mockResolvedValue(doc);
+
+      await expect(service.submitAttempt(validAttemptId, validUserId, { answers: [] })).rejects.toThrow(BadRequestException);
+
+      expect(doc.status).toBe('EXPIRED');
+      expect(doc.save).toHaveBeenCalled();
     });
   });
 
@@ -186,12 +284,13 @@ describe('QuizService Unit & Integration Tests', () => {
         _id: new Types.ObjectId(validAttemptId),
         userId: new Types.ObjectId(validUserId),
         status: 'GRADED',
+        reviewPolicy: 'NEVER',
       };
 
       mockQuizAttemptModel.findOne.mockResolvedValue(mockAttemptDoc);
 
       await expect(
-        service.reviewAttempt(validAttemptId, validUserId, 'NEVER'),
+        service.reviewAttempt(validAttemptId, validUserId),
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -200,12 +299,42 @@ describe('QuizService Unit & Integration Tests', () => {
         _id: new Types.ObjectId(validAttemptId),
         userId: new Types.ObjectId(validUserId),
         status: 'IN_PROGRESS',
+        reviewPolicy: 'AFTER_SUBMISSION',
       };
 
       mockQuizAttemptModel.findOne.mockResolvedValue(mockAttemptDoc);
 
       await expect(
-        service.reviewAttempt(validAttemptId, validUserId, 'AFTER_SUBMISSION'),
+        service.reviewAttempt(validAttemptId, validUserId),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('3.2b [C1] Bài đang IN_PROGRESS không bao giờ lộ đáp án, kể cả policy đã lưu là IMMEDIATE', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue({
+        _id: new Types.ObjectId(validAttemptId),
+        userId: new Types.ObjectId(validUserId),
+        status: 'IN_PROGRESS',
+        reviewPolicy: 'IMMEDIATE',
+      });
+
+      await expect(
+        service.reviewAttempt(validAttemptId, validUserId),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockQuestionModel.find).not.toHaveBeenCalled();
+    });
+
+    it('3.2c [C1] AFTER_DEADLINE: đã nộp nhưng chưa hết giờ làm bài thì chưa xem được đáp án', async () => {
+      mockQuizAttemptModel.findOne.mockResolvedValue({
+        _id: new Types.ObjectId(validAttemptId),
+        userId: new Types.ObjectId(validUserId),
+        status: 'GRADED',
+        reviewPolicy: 'AFTER_DEADLINE',
+        startedAt: new Date(),
+        timeLimitSeconds: 1800,
+      });
+
+      await expect(
+        service.reviewAttempt(validAttemptId, validUserId),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -230,7 +359,7 @@ describe('QuizService Unit & Integration Tests', () => {
 
       mockQuizAttemptModel.findOne.mockResolvedValue(mockAttemptDoc);
 
-      const review = await service.reviewAttempt(validAttemptId, validUserId, 'AFTER_SUBMISSION');
+      const review = await service.reviewAttempt(validAttemptId, validUserId);
 
       expect(review).toBeDefined();
       expect(review.status).toBe('GRADED');
@@ -239,7 +368,9 @@ describe('QuizService Unit & Integration Tests', () => {
       const q1 = review.questions[0];
       expect(q1?.correctOptionKey).toBe('B');
       expect(q1?.selectedOptionKey).toBe('B');
-      expect(q1?.explanation).toBe('Thẻ <nav> được thiết kế dành riêng cho menu liên kết điều hướng.');
+      expect(q1?.explanation).toBe(
+        'Thẻ <nav> được thiết kế dành riêng cho menu liên kết điều hướng.',
+      );
     });
   });
 });

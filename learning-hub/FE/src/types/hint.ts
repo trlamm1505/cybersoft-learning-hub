@@ -18,7 +18,6 @@ export interface GetHintsResponse {
 export interface UnlockHintPayload {
   exerciseSlug: string;
   level: number;
-  userId: string;
 }
 
 export interface UnlockHintResponse {

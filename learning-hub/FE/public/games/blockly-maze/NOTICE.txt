@@ -1,0 +1,11 @@
+Blockly Maze trong Block Puzzle dựa trên trò chơi "Maze" của Blockly Games
+(https://github.com/blockly-games/blockly-games), Copyright 2012 Google LLC,
+phát hành theo Apache License 2.0 (xem LICENSE-blockly-games.txt).
+
+Các tệp trong thư mục này được sao chép nguyên bản từ appengine/maze của kho đó:
+  pegman.png, tiles_pegman.png, marker.png, win.mp3, fail_pegman.mp3
+
+Bản đồ 10 màn chơi và luật chơi được chuyển sang TypeScript/React (xem
+FE/src/games/blocklyMaze). Thay đổi so với bản gốc: bỏ Closure Library và JS-Interpreter,
+dùng thư viện Blockly (npm "blockly", Apache-2.0), thông báo tiếng Việt, tiến độ lưu theo
+tài khoản Learning Hub. Không dùng hai skin astro và panda vì có ảnh nền của bên thứ ba.

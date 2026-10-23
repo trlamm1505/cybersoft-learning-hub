@@ -1,0 +1,667 @@
+[
+  {
+    "content": "Câu hỏi này thiếu hẳn field options.",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "explanation": "Câu hỏi minh hoạ cho rule QV001 - thiếu field options.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này chỉ có đúng 1 lựa chọn, không hợp lệ.",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Lựa chọn duy nhất",
+        "isCorrect": true
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV002 - quá ít lựa chọn.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này có quá nhiều lựa chọn (7 option).",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Một",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Hai",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Ba",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "Bốn",
+        "isCorrect": false
+      },
+      {
+        "key": "E",
+        "text": "Năm",
+        "isCorrect": false
+      },
+      {
+        "key": "F",
+        "text": "Sáu",
+        "isCorrect": false
+      },
+      {
+        "key": "G",
+        "text": "Bảy",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV003 - quá nhiều lựa chọn.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Thủ đô của nước Pháp là gì?",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Paris",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "paris",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "London",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV004 - 2 option trùng text (không phân biệt hoa/thường).",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này có 2 option cùng key \"A\".",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Phương án 1",
+        "isCorrect": true
+      },
+      {
+        "key": "A",
+        "text": "Phương án 2",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Phương án 3",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV005 - trùng key option.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "HTTP status code nào biểu thị \"Not Found\"?",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "200",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "404",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "500",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "404 Not Found là mã HTTP chuẩn cho tài nguyên không tồn tại.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "HTTP status code nào biểu thị \"Not Found\"?",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "301",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "404",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "503",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "404 Not Found là mã HTTP chuẩn cho tài nguyên không tồn tại.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này có 1 option bị bỏ trống text.",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Hợp lệ",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV007 - option rỗng.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "X",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Y",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV008 - content rỗng.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này không có giải thích.",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "X",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Y",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này không có option nào được đánh dấu đúng.",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "X",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Y",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV010 - thiếu answer key.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này có 2 option isCorrect: true nhưng không khai báo allowMultiple.",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "X",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Y",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "Z",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV011 - nhiều đáp án đúng nhưng single-choice.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này có 1 option thiếu key.",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "",
+        "text": "Không có key",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Có key",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV012 - option thiếu key.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Thẻ nào dùng để tạo đường link trong HTML?",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "<link>",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "<a>",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "<href>",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Đáp án đúng là `C` vì thẻ đó tạo liên kết.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Cú pháp nào dưới đây đúng để chọn phần tử theo class trong CSS?",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": ".class-name",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": ".  class name",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "#class-name",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV014 - 2 option gần như trùng nhau sau khi bỏ dấu câu/khoảng trắng.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Ngôn ngữ nào dưới đây là ngôn ngữ lập trình?",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Python",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "JavaScript",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Java",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "Tất cả các đáp án trên",
+        "isCorrect": true
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV015 - dùng mẫu câu \"tất cả đáp án trên\", không an toàn khi hệ thống xáo trộn option.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Thuộc tính ARIA nào biểu thị trạng thái mở/đóng?",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "aria-expanded",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "aria-expanded-state",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "aria-hidden",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV016 - text option B chứa trọn text option A (chồng lấn nghĩa).",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này có nhiều lỗi cấu trúc (difficulty sai, points sai kiểu, thiếu category).",
+    "difficulty": "SUPER_HARD",
+    "points": "10",
+    "options": [
+      {
+        "key": "A",
+        "text": "X",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Y",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV019 - lỗi cấu trúc field.",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi này có giải thích quá ngắn.",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "X",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Y",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "todo",
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "content": "Câu hỏi minh hoạ pattern lệch đáp án số 1/6 (QV017/QV018).",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ cho câu hỏi minh hoạ pattern lệch đáp án số 1.",
+    "tags": [
+      "demo",
+      "skew"
+    ]
+  },
+  {
+    "content": "Câu hỏi minh hoạ pattern lệch đáp án số 2/6 (QV017/QV018).",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ cho câu hỏi minh hoạ pattern lệch đáp án số 2.",
+    "tags": [
+      "demo",
+      "skew"
+    ]
+  },
+  {
+    "content": "Câu hỏi minh hoạ pattern lệch đáp án số 3/6 (QV017/QV018).",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ cho câu hỏi minh hoạ pattern lệch đáp án số 3.",
+    "tags": [
+      "demo",
+      "skew"
+    ]
+  },
+  {
+    "content": "Câu hỏi minh hoạ pattern lệch đáp án số 4/6 (QV017/QV018).",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ cho câu hỏi minh hoạ pattern lệch đáp án số 4.",
+    "tags": [
+      "demo",
+      "skew"
+    ]
+  },
+  {
+    "content": "Câu hỏi minh hoạ pattern lệch đáp án số 5/6 (QV017/QV018).",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ cho câu hỏi minh hoạ pattern lệch đáp án số 5.",
+    "tags": [
+      "demo",
+      "skew"
+    ]
+  },
+  {
+    "content": "Câu hỏi minh hoạ pattern lệch đáp án số 6/6 (QV017/QV018).",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ cho câu hỏi minh hoạ pattern lệch đáp án số 6.",
+    "tags": [
+      "demo",
+      "skew"
+    ]
+  },
+  {
+    "content": "HTML5?",
+    "category": "Demo",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Sai",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Câu hỏi minh hoạ cho rule QV021 - content quá ngắn/mơ hồ (dưới 5 từ).",
+    "tags": [
+      "demo"
+    ]
+  }
+]

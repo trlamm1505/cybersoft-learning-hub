@@ -1,0 +1,182 @@
+{
+  "generated_at_utc": "2026-10-05T07:38:30+00:00",
+  "commit": "",
+  "overall_status": "PASS",
+  "exit_code": 0,
+  "plan_only": false,
+  "strict_unmapped": false,
+  "changed_files": [
+    ".github/workflows/pr-quality.yml",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/AI_WORKLOG.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/Bao_Cao_Ngay_22_PR_Quality_Bot_Tran_Quoc_Nguyen.docx",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/CHANGE_IMPACT_MAPPING.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/DAY22_REPORT.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/PR_RULES.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/README.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/SAMPLE_PR_DEMO.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/config/change-impact-map.json",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/config/demo-failing-gate.json",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/pr-quality-report.json",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/pr-quality-report.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/01-plan/pr-quality-report.json",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/01-plan/pr-quality-report.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/02-gate-fail/pr-quality-report.json",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/02-gate-fail/pr-quality-report.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/03-secret-fail/pr-quality-report.json",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/03-secret-fail/pr-quality-report.md",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/scripts/pr_quality.py",
+    "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests/test_pr_quality.py"
+  ],
+  "change_impact": [
+    {
+      "file": ".github/workflows/pr-quality.yml",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/AI_WORKLOG.md",
+      "kind": "docs-only",
+      "gates": []
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/Bao_Cao_Ngay_22_PR_Quality_Bot_Tran_Quoc_Nguyen.docx",
+      "kind": "docs-only",
+      "gates": []
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/CHANGE_IMPACT_MAPPING.md",
+      "kind": "docs-only",
+      "gates": []
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/DAY22_REPORT.md",
+      "kind": "docs-only",
+      "gates": []
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/PR_RULES.md",
+      "kind": "docs-only",
+      "gates": []
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/README.md",
+      "kind": "docs-only",
+      "gates": []
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/SAMPLE_PR_DEMO.md",
+      "kind": "docs-only",
+      "gates": []
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/config/change-impact-map.json",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/config/demo-failing-gate.json",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/pr-quality-report.json",
+      "kind": "docs-only",
+      "gates": []
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/pr-quality-report.md",
+      "kind": "docs-only",
+      "gates": []
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/01-plan/pr-quality-report.json",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/01-plan/pr-quality-report.md",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/02-gate-fail/pr-quality-report.json",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/02-gate-fail/pr-quality-report.md",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/03-secret-fail/pr-quality-report.json",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/samples/03-secret-fail/pr-quality-report.md",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/scripts/pr_quality.py",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests/test_pr_quality.py",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    }
+  ],
+  "unmapped_files": [],
+  "advisories": [],
+  "security_gate": {
+    "status": "PASS",
+    "findings": [],
+    "allowlisted": []
+  },
+  "gates": [
+    {
+      "id": "pr_quality_self_test",
+      "name": "PR Quality Bot self-test",
+      "blocking": true,
+      "status": "PASS",
+      "exit_code": 0,
+      "remediation": "Sửa mapping/script hoặc test Ngày 22; chạy `python -m unittest discover -s Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests` đến khi exit code 0 rồi mới push.",
+      "steps": [
+        {
+          "command": "python -m unittest discover -s Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests",
+          "exit_code": 0,
+          "duration_seconds": 0.74,
+          "output": "....................................\n----------------------------------------------------------------------\nRan 36 tests in 0.562s\n\nOK\n",
+          "phase": "commands"
+        }
+      ]
+    }
+  ],
+  "actions_run_url": "",
+  "auto_approve": false
+}

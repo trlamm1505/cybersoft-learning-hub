@@ -1,0 +1,6 @@
+"Check","Actual","Expected","Result","Evidence"
+"danhGia in 0..10","1 out-of-range / 33 (maPhim 11665 = -8)","0 out-of-range","FAIL","reports/2026-10-11-live-recheck.md"
+"Normalized movie name unique","4 duplicate groups (11605/11607, 11608/11609, 11666/11670, 11684/11685)","0 duplicate groups","FAIL","reports/2026-10-11-live-recheck.md"
+"moTa not blank","2 blank (11605, 11607)","0 blank","FAIL","reports/2026-10-11-live-recheck.md"
+"trailer not blank","6 blank (11214, 11587, 11601, 11605, 11607, 11610)","0 blank","FAIL","reports/2026-10-11-live-recheck.md"
+"GET LayThongTinPhim?MaPhim=999999","HTTP 500","HTTP 404","FAIL","reports/2026-10-11-live-recheck.md"

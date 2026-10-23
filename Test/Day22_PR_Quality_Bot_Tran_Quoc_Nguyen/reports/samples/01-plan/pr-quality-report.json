@@ -1,0 +1,88 @@
+{
+  "generated_at_utc": "2026-10-05T06:40:48+00:00",
+  "commit": "",
+  "overall_status": "PLANNED",
+  "exit_code": 0,
+  "plan_only": true,
+  "strict_unmapped": false,
+  "changed_files": [
+    "learning-hub/FE/src/App.tsx",
+    ".github/workflows/pr-quality.yml",
+    "learning-hub/BE/src/modules-api/exercise/exercise.controller.ts",
+    "Data-AI-Resource/README.md"
+  ],
+  "change_impact": [
+    {
+      "file": "learning-hub/FE/src/App.tsx",
+      "kind": "mapped",
+      "gates": [
+        "frontend_quality"
+      ]
+    },
+    {
+      "file": ".github/workflows/pr-quality.yml",
+      "kind": "mapped",
+      "gates": [
+        "pr_quality_self_test"
+      ]
+    },
+    {
+      "file": "learning-hub/BE/src/modules-api/exercise/exercise.controller.ts",
+      "kind": "mapped",
+      "gates": [
+        "backend_quality"
+      ]
+    },
+    {
+      "file": "Data-AI-Resource/README.md",
+      "kind": "docs-only",
+      "gates": []
+    }
+  ],
+  "unmapped_files": [],
+  "advisories": [
+    {
+      "id": "api-contract-mock",
+      "message": "Controller/DTO của BE thay đổi. Bộ contract test Ngày 6 chạy trên API mô phỏng (FastAPI `app.py`), KHÔNG gọi BE NestJS thật nên không tự phát hiện được thay đổi này. Người review cần đối chiếu response mới với `Test/Day06_API_Contract_Tests/contracts/` và cập nhật contract nếu đổi có chủ ý.",
+      "files": [
+        "learning-hub/BE/src/modules-api/exercise/exercise.controller.ts"
+      ]
+    }
+  ],
+  "security_gate": {
+    "status": "PASS",
+    "findings": [],
+    "allowlisted": []
+  },
+  "gates": [
+    {
+      "id": "frontend_quality",
+      "name": "Frontend unit test và build",
+      "blocking": true,
+      "status": "PLANNED",
+      "exit_code": null,
+      "remediation": "Chạy `npm test` và `npm run build` trong learning-hub/FE ở máy local, sửa test hoặc lỗi TypeScript rồi push commit mới.",
+      "steps": []
+    },
+    {
+      "id": "backend_quality",
+      "name": "Backend unit test và build",
+      "blocking": true,
+      "status": "PLANNED",
+      "exit_code": null,
+      "remediation": "Chạy `npm test` và `npm run build` trong learning-hub/BE ở máy local, đọc log test thất bại và sửa trước khi yêu cầu review.",
+      "steps": []
+    },
+    {
+      "id": "pr_quality_self_test",
+      "name": "PR Quality Bot self-test",
+      "blocking": true,
+      "status": "PLANNED",
+      "exit_code": null,
+      "remediation": "Sửa mapping/script hoặc test Ngày 22; chạy `python -m unittest discover -s Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/tests` đến khi exit code 0 rồi mới push.",
+      "steps": []
+    }
+  ],
+  "actions_run_url": "",
+  "auto_approve": false
+}

@@ -24,6 +24,9 @@ export class LessonHintsDto {
   hint3?: string;
 }
 
+// authorId KHÔNG có trong DTO — luôn lấy từ JWT (@CurrentUser) ở controller,
+// không bao giờ tin client tự khai (IDOR: client có thể mạo danh chủ sở hữu
+// khác nếu field này nhận thẳng từ request body).
 export class CreateLessonDto {
   title: string;
   slug: string;
@@ -36,8 +39,10 @@ export class CreateLessonDto {
   solutionCode?: string;
   difficulty?: string;
   points?: number;
-  authorId?: string;
   testCases?: TestCaseDto[];
   quizQuestions?: QuizQuestionDto[];
   hints?: LessonHintsDto;
+  resource_id?: string;
+  resource_version?: string;
 }
+
