@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CyberSoft Data & AI Lab v1.0 — Trung Tâm Điều Hành Hợp Nhất</title>
+  <title>CyberSoft Data &amp; AI Lab v1.0 — Trung Tâm Điều Hành Hợp Nhất</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -56,7 +56,7 @@
       <div class="kpi-card">
         <div class="kpi-header">
           <span class="kpi-title">BẢO MẬT &amp; CHỐT CHẶN QA</span>
-          <span class="kpi-badge primary">SUS 92.5 (A)</span>
+          <span class="kpi-badge primary">SUS 92.5 (A+)</span>
         </div>
         <div class="kpi-value">100<span class="unit">% PASS</span></div>
         <div class="kpi-desc">Chặn Prompt Injection | 4 Chốt chặn QA | Trải nghiệm người dùng Xuất sắc</div>
@@ -81,12 +81,12 @@
       <button class="tab-btn" data-tab="tab-docker">Tuần 6: Đo Lường Hiệu Năng &amp; Cứu Hộ Thảm Họa</button>
     </div>
 
-    <!-- TAB 1: Kho dữ liệu 3NF, Tải File & Khóa Snapshot -->
+    <!-- TAB 1: Kho dữ liệu 3NF, Tải File & Xem trước -->
     <div id="tab-catalog" class="tab-content active">
       <div class="section-card">
         <div class="card-header">
           <h2>Kho Dữ Liệu Chuẩn Doanh Nghiệp (3NF) &amp; Cổng Tải Học Liệu Thực Hành</h2>
-          <span class="note">Đã làm sạch dữ liệu, khử thông tin cá nhân PII qua HMAC-SHA256, kiểm soát tải bản nháp (HTTP 403) và khóa an toàn Snapshot bài thi</span>
+          <span class="note">Dữ liệu đã qua làm sạch, khử thông tin cá nhân PII qua HMAC-SHA256, kiểm soát tải bản nháp (HTTP 403) và xem trước bảng mẫu</span>
         </div>
 
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
@@ -106,7 +106,7 @@
         <div id="catalog-list" class="docker-info-grid"></div>
 
         <div id="dataset-action-result" class="result-box" style="margin-top:16px;">
-          Bấm các nút trên thẻ Dataset để thao tác: [Xem Lược đồ 3NF &amp; 10 dòng CSV], [Tải Dataset / Kiểm tra chặn Draft], [Đánh Giá 5 Sao] hoặc [Khóa Snapshot Bài tập SHA-256]...
+          Bấm các nút trên thẻ Dataset để thao tác: [Xem Lược Đồ 3NF &amp; Dữ Liệu Mẫu] hoặc [Tải File CSV Chuẩn 3NF (Kiểm tra chặn Draft)]...
         </div>
 
         <div id="csv-preview-box" style="margin-top:16px;padding:16px;background:var(--bg-card);border-radius:8px;display:none;">
@@ -157,7 +157,7 @@
           </div>
         </div>
 
-        <div id="rag-results-box" class="result-box">Bấm "Hỏi Trợ Giảng AI &amp; Đo Độ Trễ Cache" lần 1 (Cache Miss) rồi bấm lại lần 2 (Cache Hit &lt; 1ms), hoặc bấm "Kiểm Tra Chống Ảo Giác" để thử nghiệm cơ chế bảo vệ tri thức...</div>
+        <div id="rag-results-box" class="result-box">Bấm "Hỏi Trợ Giảng AI &amp; Đo Độ Trễ Cache" lần 1 (Cache Miss) rồi bấm lại lần 2 (Cache Hit &lt; 3ms), hoặc bấm "Kiểm Tra Chống Ảo Giác" để thử nghiệm cơ chế bảo vệ tri thức...</div>
       </div>
     </div>
 
@@ -176,8 +176,9 @@
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
               <select id="bloom-dataset" class="btn btn-secondary" style="padding:6px 10px;">
                 <option value="ds-retail-ecommerce-sales-v1">Retail Sales 3NF (SQL / Power BI)</option>
-                <option value="ds-banking-customer-churn-v1">Customer Churn (Python / Machine Learning)</option>
-                <option value="ds-ai-knowledge-corpus-v1">AI Knowledge Chunks (RAG Architecture)</option>
+                <option value="ds-customer-churn-classification-v1">Customer Churn (Python / Machine Learning)</option>
+                <option value="ds-hr-operations-attendance-v1">HR Attendance (SQL Aggregation)</option>
+                <option value="ds-ai-rag-knowledge-chunks-v1">AI Knowledge Chunks (RAG Architecture)</option>
               </select>
               <select id="bloom-level" class="btn btn-secondary" style="padding:6px 10px;">
                 <option value="Apply">Cấp độ 3: Apply (Vận dụng SQL/Code)</option>
@@ -309,6 +310,6 @@
       <p class="footer-sub">Hệ sinh thái đào tạo chuẩn hóa: Kho 3NF, Hybrid RAG, AI Tutor, Sinh bài tập Bloom, Lineage WORM, Tường lửa PII, QA Gate, Hai tầng Cache LRU &amp; Cứu hộ thảm họa SHA-256.</p>
     </footer>
   </div>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
