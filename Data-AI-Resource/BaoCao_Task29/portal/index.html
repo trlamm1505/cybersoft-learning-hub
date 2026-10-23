@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CyberSoft Data &amp; AI Lab v1.0 — Trung Tâm Điều Hành Hợp Nhất</title>
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=13">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -165,10 +165,14 @@
           <!-- Cột Trái: Bảng Điều Khiển -->
           <div class="ops-controls-sidebar">
             <div class="control-subcard">
-              <h4 style="color:#38BDF8;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-                <span>✨</span> AI Exercise Generator (Task 23)
-              </h4>
-              <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">Sinh đề bài theo Thang đo Bloom &amp; Schema 3NF:</p>
+              <div class="control-header">
+                <span class="control-icon" style="color:#38BDF8;">✨</span>
+                <div>
+                  <h4 style="color:#38BDF8;font-size:13.5px;margin:0;font-weight:700;">AI Exercise Generator</h4>
+                  <span style="font-size:11px;color:var(--text-muted);">Sinh đề theo Thang Bloom (Task 23)</span>
+                </div>
+              </div>
+              <p style="font-size:12px;color:var(--text-secondary);margin:8px 0 10px 0;">Sinh đề bài theo Thang đo Bloom &amp; Schema 3NF:</p>
               <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
                 <div>
                   <label class="field-label">Bộ dữ liệu mục tiêu:</label>
@@ -194,16 +198,22 @@
             </div>
 
             <div class="control-subcard" style="margin-top:14px;">
-              <h4 style="color:#34D399;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-                <span>🔗</span> Lineage DAG &amp; Kho WORM (Task 24)
-              </h4>
-              <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">Truy vết nguồn gốc và kiểm chứng bất biến:</p>
+              <div class="control-header">
+                <span class="control-icon" style="color:#34D399;">🔗</span>
+                <div>
+                  <h4 style="color:#34D399;font-size:13.5px;margin:0;font-weight:700;">Lineage DAG &amp; Kho WORM</h4>
+                  <span style="font-size:11px;color:var(--text-muted);">Truy vết nguồn gốc &amp; Bất biến (Task 24)</span>
+                </div>
+              </div>
+              <p style="font-size:12px;color:var(--text-secondary);margin:8px 0 10px 0;">Truy vết 5 chặng và kiểm chứng kho bất biến:</p>
               <div style="display:flex;flex-direction:column;gap:8px;">
-                <button class="btn btn-secondary" id="btn-view-lineage" style="width:100%;text-align:left;justify-content:flex-start;">
-                  🔗 Xem Lưu Đồ Lineage DAG (5 chặng)
+                <button class="btn btn-secondary" id="btn-view-lineage" style="width:100%;text-align:left;justify-content:flex-start;font-size:12.5px;padding:9px 12px;">
+                  <span>🔗</span>
+                  <span>Xem Lưu Đồ Lineage DAG</span>
                 </button>
-                <button class="btn btn-secondary" id="btn-worm-overwrite" style="width:100%;text-align:left;justify-content:flex-start;">
-                  🛡️ Thử Ghi Đè WORM (Chặn HTTP 409)
+                <button class="btn btn-secondary" id="btn-worm-overwrite" style="width:100%;text-align:left;justify-content:flex-start;font-size:12.5px;padding:9px 12px;">
+                  <span>🛡️</span>
+                  <span>Thử Ghi Đè WORM (HTTP 409)</span>
                 </button>
               </div>
             </div>
@@ -337,6 +347,6 @@
       <p>CyberSoft Data &amp; AI Lab v1.0 — Hệ Thống Hợp Nhất Toàn Khóa</p>
     </footer>
   </div>
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

@@ -721,7 +721,7 @@ body {
    ========================================================================= */
 .ops-split-layout {
   display: grid;
-  grid-template-columns: 290px minmax(0, 1fr);
+  grid-template-columns: 330px minmax(0, 1fr);
   gap: 16px;
   align-items: start;
   width: 100%;
@@ -742,12 +742,34 @@ body {
   min-width: 0;
 }
 
+.ops-controls-sidebar .btn {
+  white-space: normal;
+  text-align: left;
+  line-height: 1.35;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
 .control-subcard {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 16px;
   box-sizing: border-box;
+  min-width: 0;
+}
+
+.control-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.control-icon {
+  font-size: 18px;
+  line-height: 1.2;
+  flex-shrink: 0;
 }
 
 .field-label {
