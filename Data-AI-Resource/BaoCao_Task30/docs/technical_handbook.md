@@ -182,7 +182,7 @@ docker ps --filter "name=cybersoft-learning-hub"
 | `GET` | `/api/manifest` | Tra cứu danh mục hồ sơ phát hành Release v1.0.0 | Quản trị viên / Giảng viên |
 | `GET` | `/api/datasets` | Liệt kê 4 bộ dữ liệu chuẩn 3NF kèm siêu dữ liệu | Learning Hub / Học viên |
 | `GET` | `/api/capstones` | Lấy đề bài và barem chấm 2 đồ án tốt nghiệp | Giảng viên chấm thi |
-| `GET` | `/api/sla` | Tra cứu toàn bộ bảng đo lường SLA thực tế | Ban Giám đốc / Hội đồng |
+| `GET` | `/api/sla` | Tra cứu toàn bộ bảng đo lường SLA thực tế | Ban Quản lý / Kỹ sư Nghiệm thu |
 | `GET` | `/api/known-issues` | Tra cứu danh sách 3 hạn chế đã biết kèm cách xử lý | Kỹ sư trực ca / DevOps |
 | `GET` | `/api/roadmap` | Xem lộ trình nâng cấp 60 ngày tiếp theo | Quản lý sản phẩm (PO) |
 | `POST` | `/api/search` | Tìm kiếm học liệu bằng động cơ tìm kiếm lai RRF | Học viên tra cứu |

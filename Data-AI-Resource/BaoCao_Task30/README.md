@@ -1,5 +1,5 @@
 # CYBERSOFT DATA & AI LAB — HỒ SƠ BÀN GIAO SẢN PHẨM NGÀY 30
-## TỔNG KẾT TOÀN DIỆN, HỒ SƠ BÀN GIAO SẢN PHẨM (RELEASE v1.0) & BẢO VỆ ĐỒ ÁN TỐT NGHIỆP
+## TỔNG KẾT TOÀN DIỆN, HỒ SƠ BÀN GIAO SẢN PHẨM (RELEASE v1.0) & NGHIỆM THU KỸ THUẬT
 
 **Dự án:** CyberSoft Data & AI Lab  
 **Đầu việc:** NGÀY 30 — Tài liệu, demo và bàn giao cuối kỳ (`cybersoft-final-handover`)  
@@ -24,8 +24,8 @@ BaoCao_Task30/
     ├── instructor_guide.md           # Sổ tay hướng dẫn nhanh 3 phút dành cho Giảng viên & Trợ giảng
     ├── release_v1.0.md               # Hồ sơ phát hành Release v1.0.0, bảng kiểm kê tài sản & SLA
     ├── retro_and_roadmap.md          # Đánh giá Start/Stop/Continue, số liệu Before/After & lộ trình 60 ngày
-    ├── demo_guide.md                 # Hướng dẫn quy trình thuyết trình 15 phút bằng dữ liệu động sinh mới
-    └── GIAI_THICH.md                 # Sơ đồ tư duy, thứ tự đọc file theo vai trò & 5 câu hỏi bảo vệ
+    ├── demo_guide.md                 # Hướng dẫn quy trình thuyết minh và demo sản phẩm bằng dữ liệu động sinh mới
+    └── GIAI_THICH.md                 # Sơ đồ tư duy, thứ tự đọc file theo vai trò & 5 câu hỏi kỹ thuật trọng tâm
 ```
 
 ---
@@ -36,7 +36,7 @@ BaoCao_Task30/
 | :--- | :--- | :--- |
 | **Kỹ sư Tiếp quản / DevOps** | [`docs/technical_handbook.md`](docs/technical_handbook.md)<br>[`docs/release_v1.0.md`](docs/release_v1.0.md) | Nắm kiến trúc 4 tầng, cài đặt môi trường, giám sát sức khỏe, ranh giới tài nguyên và quy trình xử lý sự cố. |
 | **Giảng viên & Trợ giảng** | [`docs/instructor_guide.md`](docs/instructor_guide.md)<br>[`docs/demo_guide.md`](docs/demo_guide.md) | Tra cứu nhanh 4 datasets (sạch/bẩn), barem 5 tiêu chí chấm Capstone và kiểm tra Trợ giảng AI trong 3 phút. |
-| **Hội đồng Giám khảo & Ban Giám đốc** | [`30_final_handover_and_demo.md`](30_final_handover_and_demo.md)<br>[`docs/retro_and_roadmap.md`](docs/retro_and_roadmap.md)<br>[`docs/GIAI_THICH.md`](docs/GIAI_THICH.md) | Đánh giá toàn diện kết quả 30 ngày, đối soát 8 chỉ số định lượng đo thật, xem xét 3 hạn chế đã biết và lộ trình 60 ngày. |
+| **Ban Quản lý & Kỹ sư Nghiệm thu** | [`30_final_handover_and_demo.md`](30_final_handover_and_demo.md)<br>[`docs/retro_and_roadmap.md`](docs/retro_and_roadmap.md)<br>[`docs/GIAI_THICH.md`](docs/GIAI_THICH.md) | Đánh giá toàn diện kết quả 30 ngày, đối soát 8 chỉ số định lượng đo thật, xem xét 3 hạn chế đã biết và lộ trình 60 ngày. |
 
 ---
 
@@ -48,7 +48,7 @@ BaoCao_Task30/
 | **2** | **Tài liệu khớp phiên bản release** | Tài liệu đồng bộ 100% với phiên bản Release v1.0.0, các chỉ số SLA và cấu trúc dữ liệu. | Hồ sơ [`release_v1.0.md`](docs/release_v1.0.md) niêm yết đầy đủ mã băm SHA-256, 4 datasets, 2 capstones và số liệu đo thật. | **PASSED** |
 | **3** | **Không che giấu known issues** | Tuyệt đối không giấu lỗi, công khai danh mục hạn chế đã biết kèm biện pháp khắc phục tạm thời. | Tài liệu [`retro_and_roadmap.md`](docs/retro_and_roadmap.md) công khai 3 lỗi mức Low (`KNOWN-001` đến `003`) kèm giải pháp khắc phục. | **PASSED** |
 | **4** | **Tất cả quality gate pass hoặc có waiver** | Đạt chuẩn toàn bộ các cổng chất lượng kỹ thuật, không có lỗi tiềm ẩn. | Bảng Quality Gates trong [`release_v1.0.md`](docs/release_v1.0.md) xác nhận **6/6 Cổng chất lượng đạt chuẩn Approved** (No Waivers Needed). | **PASSED** |
-| **5** | **Demo không phụ thuộc dữ liệu hard-code** | Quy trình thuyết trình demo sử dụng dữ liệu sinh mới hoàn toàn, tương tác qua API trực tiếp. | Tài liệu [`demo_guide.md`](docs/demo_guide.md) cung cấp các payload JSON sinh mới động và quy trình phân bổ 15 phút chuẩn xác. | **PASSED** |
+| **5** | **Demo không phụ thuộc dữ liệu hard-code** | Quy trình thuyết minh demo sử dụng dữ liệu sinh mới hoàn toàn, tương tác qua API trực tiếp. | Tài liệu [`demo_guide.md`](docs/demo_guide.md) cung cấp các payload JSON sinh mới động và quy trình phân bổ các chặng demo chi tiết. | **PASSED** |
 | **6** | **Backlog tiếp theo có ưu tiên** | Kế hoạch cải tiến có phân loại thứ tự ưu tiên (P0, P1, P2) rõ ràng và khả thi. | Tài liệu [`retro_and_roadmap.md`](docs/retro_and_roadmap.md) phân chia Backlog 60 ngày thành Phase 1 (Days 31-60) và Phase 2 (Days 61-90). | **PASSED** |
 | **7** | **Không chứa từ ngữ cấm** | Tuyệt đối không chứa các từ ngữ cấm trong toàn bộ tài nguyên bàn giao. | Quét tự động toàn diện xác nhận **0 vi phạm từ cấm** trong toàn bộ thư mục Task 30. | **PASSED** |
 

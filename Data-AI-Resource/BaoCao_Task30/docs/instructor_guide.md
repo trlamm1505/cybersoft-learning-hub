@@ -79,7 +79,7 @@ Tất cả 4 bộ dữ liệu đều được thiết kế dựa trên các bài
 
 ## 3. HƯỚNG DẪN 2 ĐỒ ÁN TỐT NGHIỆP CAPSTONE & RUBRIC CHẤM ĐIỂM
 
-Hệ thống đã chuẩn hóa trọn bộ hồ sơ 2 đề tài tốt nghiệp, giúp giảng viên chấm thi nhanh chóng, minh bạch và thống nhất giữa các hội đồng:
+Hệ thống đã chuẩn hóa trọn bộ hồ sơ 2 đề tài tốt nghiệp, giúp giảng viên chấm thi nhanh chóng, minh bạch và thống nhất:
 
 ### 3.1. Capstone 1 (CAP-001): Phân Tích Doanh Thu & Hành Vi Người Tiêu Dùng (Dành cho Data Analyst)
 - **Mục tiêu học viên:** Xây dựng một báo cáo phân tích kinh doanh hoàn chỉnh từ dữ liệu thô, tìm ra nguyên nhân sụt giảm doanh số ở một số nhóm ngành hàng và đề xuất giải pháp cho Ban Giám đốc qua Dashboard tương tác.
@@ -91,7 +91,7 @@ Hệ thống đã chuẩn hóa trọn bộ hồ sơ 2 đề tài tốt nghiệp,
 | **2. Kỹ năng làm sạch (Data Cleaning)** | **20%** | Xử lý triệt để missing values, duplicates, outliers và chuẩn hóa định dạng thời gian có giải trình lý do. | Xử lý được missing và duplicate, nhưng chưa giải trình cách xử lý ngoại lai. | Bỏ qua nhiều dòng dữ liệu lỗi, làm mất mát thông tin quan trọng. |
 | **3. Phân tích kinh doanh (Business Insights)** | **25%** | Đưa ra ít nhất 3 đề xuất hành động thực tế có số liệu chứng minh (Data-backed Actions) giúp tối ưu doanh thu. | Nhận định đúng xu hướng nhưng đề xuất còn chung chung, thiếu tính khả thi. | Chỉ mô tả lại số liệu trên biểu đồ, không có góc nhìn phân tích kinh doanh. |
 | **4. Thẩm mỹ Dashboard (Visualization)** | **15%** | Bố cục trực quan, màu sắc đồng bộ, áp dụng chuẩn mực UX (người dùng xem hiểu ngay trong 5 giây), filter mượt mà. | Dashboard đầy đủ biểu đồ nhưng màu sắc lộn xộn, bố cục hơi rối. | Biểu đồ chọn sai loại dữ liệu (ví dụ: dùng Pie chart cho 20 nhóm). |
-| **5. Thuyết trình & Phản biện (Presentation)** | **15%** | Trình bày mạch lạc, đúng thời lượng 15 phút, trả lời tự tin 100% câu hỏi phản biện của Hội đồng. | Thuyết trình lưu loát nhưng trả lời phản biện còn lúng túng ở một vài chi tiết. | Nói quá thời gian quy định, không nắm vững nguồn gốc số liệu. |
+| **5. Báo cáo & Thuyết minh Kỹ thuật (Presentation)** | **15%** | Trình bày mạch lạc, giải đáp tự tin 100% các câu hỏi chuyên môn của người đánh giá. | Thuyết minh lưu loát nhưng giải đáp còn lúng túng ở một vài chi tiết. | Báo cáo sơ sài, không nắm vững nguồn gốc số liệu. |
 
 ---
 
@@ -130,6 +130,6 @@ Giảng viên có thể hướng dẫn học viên tự thực hành hỏi đáp
 Trong quá trình giảng dạy, nếu giảng viên hoặc trợ giảng gặp bất kỳ vướng mắc nào:
 - **Kênh tiếp nhận chính:** Bộ phận Kỹ thuật Data & AI Resource Engineering.
 - **Thời gian cam kết phản hồi (SLA):**
-  - Trong giờ học thực hành của học viên: **Dưới 15 phút**.
+  - Trong giờ học thực hành của học viên: **Ngay lập tức (dưới 10 phút)**.
   - Ngoài giờ học thực hành: **Dưới 2 giờ làm việc**.
 - **Quy trình báo lỗi chuẩn:** Cung cấp (1) Tên khóa học & lớp, (2) Mã dataset / đồ án gặp sự cố, (3) Ảnh chụp màn hình thông báo lỗi (nếu có).

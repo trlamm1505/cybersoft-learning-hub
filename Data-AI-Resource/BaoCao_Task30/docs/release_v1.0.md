@@ -102,7 +102,7 @@ Tất cả các chỉ số trong bảng dưới đây được ghi nhận qua đ
 | **QG-01: Tính độc lập vận hành** | Người khác làm theo tài liệu tự chạy được hệ thống mà không cần tác giả can thiệp. | Hướng dẫn `technical_handbook.md` và `instructor_guide.md` chi tiết từng bước. | **APPROVED** |
 | **QG-02: Tính khớp nối phiên bản** | Toàn bộ tài liệu, siêu dữ liệu và mã nguồn khớp 100% phiên bản Release v1.0.0. | Thông số kỹ thuật và manifest đồng bộ 100% không sai lệch. | **APPROVED** |
 | **QG-03: Minh bạch hạn chế** | Không che giấu lỗi, công khai danh mục hạn chế đã biết kèm biện pháp khắc phục. | Công khai 3 lỗi mức Low (`KNOWN-001` đến `003`) kèm giải pháp thay thế. | **APPROVED** |
-| **QG-04: Dữ liệu động không hard-code** | Các kịch mục demo và quy trình kiểm tra không phụ thuộc dữ liệu tĩnh hard-code. | Hướng dẫn `demo_guide.md` sử dụng payload JSON động và API thời gian thực. | **APPROVED** |
+| **QG-04: Dữ liệu động không hard-code** | Các quy trình demo và thao tác kiểm tra không phụ thuộc dữ liệu tĩnh hard-code. | Hướng dẫn `demo_guide.md` sử dụng payload JSON động và API thời gian thực. | **APPROVED** |
 | **QG-05: Lộ trình và Backlog ưu tiên** | Kế hoạch phát triển 60 ngày tiếp theo có phân chia giai đoạn và thứ tự ưu tiên (P0, P1, P2). | Tài liệu `retro_and_roadmap.md` phân bổ rõ 2 giai đoạn 30 ngày và 60 ngày. | **APPROVED** |
 | **QG-06: Chuẩn mực tài liệu và thuật ngữ** | Tài liệu viết theo văn phong kỹ thuật chuẩn mực, tuyệt đối không dùng từ ngữ cấm. | Quét toàn bộ hệ thống xác nhận 0 vi phạm từ cấm, cấu trúc Markdown chuẩn hóa. | **APPROVED** |
 

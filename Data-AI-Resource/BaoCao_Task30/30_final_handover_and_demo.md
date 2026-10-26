@@ -1,5 +1,5 @@
 # BÁO CÁO KỸ THUẬT CHUYÊN SÂU — NGÀY 30
-## TỔNG KẾT TOÀN DIỆN, HỒ SƠ BÀN GIAO SẢN PHẨM (RELEASE v1.0) & BẢO VỆ ĐỒ ÁN TỐT NGHIỆP
+## TỔNG KẾT TOÀN DIỆN, HỒ SƠ BÀN GIAO SẢN PHẨM (RELEASE v1.0) & NGHIỆM THU KỸ THUẬT
 
 **Dự án**: CyberSoft Data & AI Lab  
 **Đầu việc**: **NGÀY 30 — Tài liệu, demo và bàn giao cuối kỳ (Documentation, Demo & Final Handover)** (`cybersoft-final-handover`)  
@@ -19,7 +19,7 @@ Trải qua 29 ngày làm việc liên tục theo nguyên tắc *"Mỗi ngày m�
 - **Chặng 4: Tích hợp Hệ thống & Quản trị Dữ liệu Bất biến (Ngày 21 - Ngày 25)**: Thiết lập API v1.0 chuẩn hóa, giao diện Resource Portal, cơ chế truy vết nguồn gốc dữ liệu WORM đối soát mã băm SHA-256.
 - **Chặng 5: Thẩm định Trải nghiệm & Đóng gói Vận hành (Ngày 26 - Ngày 29)**: Thử nghiệm đo lường với 5 người dùng (SUS 92.5/100, giảm 62.4% thời gian tìm kiếm), khắc phục Top 5 vấn đề ưu tiên, tối ưu bộ nhớ đệm hai tầng (Cache Hit 88.5%), đóng gói Docker Multi-Stage an toàn (< 200MB, non-root user 1001).
 
-Bước sang **Ngày 30 — Ngày đích cuối cùng**, trọng tâm chuyển sang: **Hợp nhất toàn bộ hồ sơ kỹ thuật, xây dựng sổ tay vận hành độc lập (để người khác có thể vận hành mà không cần tác giả), chuẩn bị quy trình thuyết trình 15 phút, đúc kết Retrospective và công bố Lộ trình phát triển 60 ngày tiếp theo**.
+Bước sang **Ngày 30 — Ngày đích cuối cùng**, trọng tâm chuyển sang: **Hợp nhất toàn bộ hồ sơ kỹ thuật, xây dựng sổ tay vận hành độc lập (để người khác có thể vận hành mà không cần tác giả), chuẩn bị quy trình thuyết minh demo sản phẩm, đúc kết Retrospective và công bố Lộ trình phát triển 60 ngày tiếp theo**.
 
 ---
 
@@ -48,8 +48,8 @@ Toàn bộ gói bàn giao được tổ chức chuẩn hóa trong thư mục `Ba
    - `docs/instructor_guide.md`: Hướng dẫn nhanh 3 phút dành cho Giảng viên & Trợ giảng (datasets sạch/bẩn, rubric 5 tiêu chí Capstone).
    - `docs/release_v1.0.md`: Hồ sơ phát hành Release v1.0.0, bảng kiểm kê tài sản (manifest), SLA và Quality Gates.
    - `docs/retro_and_roadmap.md`: Báo cáo Retrospective Start/Stop/Continue, số liệu Before/After, 3 hạn chế đã biết và lộ trình 60 ngày.
-   - `docs/demo_guide.md`: Hướng dẫn quy trình thuyết trình 15 phút bằng dữ liệu động sinh mới không hard-code.
-   - `docs/GIAI_THICH.md`: Sơ đồ tư duy, thứ tự đọc file theo vai trò và bộ 5 câu hỏi bảo vệ đồ án tốt nghiệp.
+   - `docs/demo_guide.md`: Hướng dẫn quy trình thuyết minh và demo sản phẩm bằng dữ liệu động sinh mới không hard-code.
+   - `docs/GIAI_THICH.md`: Sơ đồ tư duy, thứ tự đọc file theo vai trò và bộ 5 câu hỏi kỹ thuật trọng tâm khi bàn giao.
 2. **Tài liệu tổng quan & Nhật ký điều hành**:
    - `README.md`: Cổng điều hướng tổng thể hồ sơ bàn giao và ma trận đối chiếu 6 tiêu chí nghiệm thu DoD.
    - `AI_WORKLOG.md`: Nhật ký phối hợp và thẩm định AI 3 cột chuẩn CyberSoft, ghi nhận toàn bộ quyết định tinh gọn hệ thống.
@@ -89,19 +89,19 @@ Hành trình 30 ngày khép lại không đơn thuần là việc hoàn thành c
 - **Năng lực đạt được:** Nhận thức rõ ràng rằng code chỉ chiếm 20% vòng đời sản phẩm, 80% còn lại là vận hành. Làm chủ trọn vẹn ranh giới tài nguyên Docker (CPU 2.0 Cores, RAM 1024MB), kiểm tra sức khỏe tự động 30s một lần, cơ chế cứu hộ dữ liệu thảm họa < 1s qua mã băm SHA-256, và quy trình xử lý 5 tình huống phát sinh lỗi thực tế.
 
 ### 5.4. Product Storytelling (Nghệ thuật truyền tải giá trị sản phẩm)
-- **Tư duy cũ:** Thuyết trình bằng cách chiếu mã nguồn và giải thích từng hàm toán học phức tạp, khiến người nghe và hội đồng mệt mỏi.
-- **Năng lực đạt được:** Biết cách kể câu chuyện sản phẩm trong 15 phút: bắt đầu từ nỗi đau thực tế của học viên và giảng viên (mất 45.9s tìm tài liệu, dữ liệu thực hành không chuẩn, AI trả lời ảo giác), sau đó chứng minh giải pháp kỹ thuật đã giải quyết triệt để nỗi đau đó ra sao qua dữ liệu thực nghiệm sống động.
+- **Tư duy cũ:** Thuyết minh bằng cách chiếu mã nguồn và giải thích từng hàm toán học phức tạp, khiến người nghe mệt mỏi.
+- **Năng lực đạt được:** Biết cách thuyết minh giá trị sản phẩm rõ ràng: bắt đầu từ nỗi đau thực tế của học viên và giảng viên (mất 45.9s tìm tài liệu, dữ liệu thực hành không chuẩn, AI trả lời ảo giác), sau đó chứng minh giải pháp kỹ thuật đã giải quyết triệt để nỗi đau đó ra sao qua dữ liệu thực nghiệm sống động.
 
 ### 5.5. Evidence-based Delivery (Bàn giao dựa trên bằng chứng định lượng)
 - **Tư duy cũ:** Khẳng định hệ thống "chạy rất nhanh, rất ổn định, giao diện rất đẹp" bằng cảm tính chủ quan.
 - **Năng lực đạt được:** Mọi tuyên bố chất lượng đều có số liệu thực nghiệm bảo chứng: P95 đạt 18.75ms (đo qua 1000 truy vấn), Throughput đạt 340.5 RPS (kiểm thử 20 workers đồng thời), điểm Usability đạt SUS 92.5/100 (khảo sát thực tế 5 người dùng), và 100% tệp tin sao lưu đối soát trùng khớp mã băm SHA-256.
 
 ### 5.6. Continuous Improvement (Tư duy cải tiến liên tục)
-- **Tư duy cũ:** Che giấu các điểm chưa hoàn hảo để bảo vệ sản phẩm trước hội đồng nghiệm thu.
+- **Tư duy cũ:** Che giấu các điểm chưa hoàn hảo khi nghiệm thu sản phẩm.
 - **Năng lực đạt được:** Thấu hiểu rằng tính trung thực kỹ thuật là giá trị cao nhất. Dũng cảm chỉ rõ 3 hạn chế đã biết (`KNOWN-001` đến `003`), cung cấp giải pháp khắc phục tạm thời ngay lập tức cho người trực ca, đồng thời vạch ra Lộ trình 60 ngày tiếp theo với các mốc hành động có thứ tự ưu tiên (P0, P1) cụ thể.
 
 ---
 
 ## 6. KẾT LUẬN & CAM KẾT BÀN GIAO CHÍNH THỨC
 
-Toàn bộ hệ thống **CyberSoft Data & AI Lab v1.0** cùng gói tài nguyên bàn giao Ngày 30 đã hoàn thiện 100% tiêu chí nghiệm thu (DoD), sẵn sàng phục vụ công tác giảng dạy, thi cử và bảo vệ đồ án tốt nghiệp trước Hội đồng Giám khảo CyberSoft Academy.
+Toàn bộ hệ thống **CyberSoft Data & AI Lab v1.0** cùng gói tài nguyên bàn giao Ngày 30 đã hoàn thiện 100% tiêu chí nghiệm thu (DoD), sẵn sàng đưa vào vận hành chính thức, phục vụ đào tạo và nghiệm thu kỹ thuật toàn diện tại CyberSoft Academy.

@@ -10,7 +10,7 @@
 
 ## 1. BỐI CẢNH & MỤC TIÊU SỬ DỤNG AI
 
-Bước sang **Ngày 30**, nhiệm vụ trọng tâm không còn là viết thêm code tính năng mà là **hợp nhất, bàn giao toàn diện sản phẩm (Release v1.0)**, xây dựng bộ tài liệu vận hành độc lập (để người khác có thể vận hành mà không cần tác giả), chuẩn bị quy trình thuyết trình 15 phút và đúc kết Retrospective.
+Bước sang **Ngày 30**, nhiệm vụ trọng tâm không còn là viết thêm code tính năng mà là **hợp nhất, bàn giao toàn diện sản phẩm (Release v1.0)**, xây dựng bộ tài liệu vận hành độc lập (để người khác có thể vận hành mà không cần tác giả), chuẩn bị quy trình thuyết minh demo sản phẩm và đúc kết Retrospective.
 
 Trí tuệ nhân tạo (AI) được sử dụng như một **Trợ lý kỹ thuật cấp cao (Technical Documentation Assistant)** để hỗ trợ:
 1. Dự thảo cấu trúc siêu dữ liệu chuẩn hóa cho hồ sơ bàn giao `docs/release_v1.0.md`.
