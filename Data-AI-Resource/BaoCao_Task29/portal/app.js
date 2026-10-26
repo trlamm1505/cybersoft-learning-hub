@@ -112,14 +112,33 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ action: "preview", dataset_id, limit: 10 })
       });
       const data = await res.json();
-      const cols = data.columns || [];
+      const rawCols = data.columns || [];
       const rows = data.sample_rows || [];
 
-      document.getElementById("csv-preview-title").textContent = `Xem trước bảng dữ liệu 3NF: ${dataset_id} (${data.total_rows_previewed} dòng mẫu)`;
-      document.getElementById("csv-schema-info").textContent = `Lược đồ gồm ${cols.length} trường dữ liệu chuẩn hóa, quan hệ toàn vẹn 0% mồ côi.`;
+      // Extract column names & header display labels
+      const colNames = rawCols.map(c => (typeof c === "object" && c !== null ? c.name : String(c)));
+      const colLabels = rawCols.map(c => {
+        if (typeof c === "object" && c !== null) {
+          const typeLabel = c.type ? ` <span style="font-size:10px;color:#94A3B8;font-weight:normal;">(${c.type})</span>` : "";
+          return `${c.name}${typeLabel}`;
+        }
+        return String(c);
+      });
 
-      const headersHtml = cols.map(c => `<th>${c}</th>`).join("");
-      const rowsHtml = rows.map(r => `<tr>${r.map(v => `<td>${v !== null ? v : ""}</td>`).join("")}</tr>`).join("");
+      document.getElementById("csv-preview-title").textContent = `Xem trước bảng dữ liệu 3NF: ${dataset_id} (${data.total_rows_previewed || rows.length} dòng mẫu)`;
+      document.getElementById("csv-schema-info").textContent = `Lược đồ gồm ${colNames.length} trường dữ liệu chuẩn hóa, quan hệ toàn vẹn 0% mồ côi.`;
+
+      const headersHtml = colLabels.map(c => `<th>${c}</th>`).join("");
+      const rowsHtml = rows.map(r => {
+        let cells = "";
+        if (Array.isArray(r)) {
+          cells = r.map(v => `<td>${v !== null && v !== undefined ? v : ""}</td>`).join("");
+        } else if (typeof r === "object" && r !== null) {
+          cells = colNames.map(c => `<td>${r[c] !== null && r[c] !== undefined ? r[c] : ""}</td>`).join("");
+        }
+        return `<tr>${cells}</tr>`;
+      }).join("");
+
       document.getElementById("csv-preview-table").innerHTML = `
         <table class="data-table">
           <thead><tr>${headersHtml}</tr></thead>
@@ -162,11 +181,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const pData = await pRes.json();
         if (pData.columns && pData.sample_rows) {
-          const header = pData.columns.join(",");
-          const rows = pData.sample_rows.map(r => r.map(val => {
-            const str = String(val);
-            return str.includes(",") ? `"${str}"` : str;
-          }).join(","));
+          const colNames = (pData.columns || []).map(c => (typeof c === "object" && c !== null ? c.name : String(c)));
+          const header = colNames.join(",");
+          const rows = (pData.sample_rows || []).map(r => {
+            let rowVals = [];
+            if (Array.isArray(r)) {
+              rowVals = r;
+            } else if (typeof r === "object" && r !== null) {
+              rowVals = colNames.map(c => (r[c] !== null && r[c] !== undefined ? r[c] : ""));
+            }
+            return rowVals.map(val => {
+              const str = String(val);
+              return str.includes(",") ? `"${str}"` : str;
+            }).join(",");
+          });
           const csvContent = [header, ...rows].join("\r\n");
           const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
           const downloadUrl = URL.createObjectURL(blob);
