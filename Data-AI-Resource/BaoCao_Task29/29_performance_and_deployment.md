@@ -52,9 +52,6 @@ Hệ thống tối ưu hiệu năng và đóng gói vận hành được thiết
 └─────────────────────┴───────────────────────┴──────────────────────────┴───────────────────────────────┘
 ```
 
-Sơ đồ Kiến trúc Vận hành Triển khai Container:
-![Sơ đồ Kiến trúc Vận hành Task 29](./Picture_29_Detail.png)
-
 ---
 
 ## 3. KẾT QUẢ ĐO LƯỜNG HIỆU NĂNG TẢI TRỌNG (BENCHMARKING)
