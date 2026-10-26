@@ -117,7 +117,7 @@ Mở trình duyệt web truy cập:
 
 ### Bước 2: Hướng dẫn trải nghiệm trực tiếp 5 Tab chức năng (Task 01 – Task 29) trên Web Hợp Nhất (`/portal/`)
 
-Giao diện Web Hợp Nhất gồm 4 thẻ KPI tổng quan và **5 Tab chức năng chuyên sâu** tích hợp toàn bộ sản phẩm từ Tuần 1 đến Tuần 6:
+Giao diện Web Hợp Nhất được thiết kế theo chuẩn Cyber-Dark hiện đại gồm **5 Tab chức năng chuyên sâu** tích hợp toàn bộ sản phẩm từ Tuần 1 đến Tuần 6:
 
 #### 1. Tab 1 — Kho 3NF, Tải File & Khóa Snapshot (`Task 01–10`, `Task 21–22`, `Task 26`, `Task 28`)
 - Xem báo cáo Pipeline Làm Sạch & Chuẩn Hóa 3NF (loại bỏ 842 bản ghi trùng, xử lý 517 dòng khuyết, 0% Orphan FK, 100% khử PII bằng HMAC-SHA256 từ **Task 01–10**).
@@ -133,13 +133,13 @@ Giao diện Web Hợp Nhất gồm 4 thẻ KPI tổng quan và **5 Tab chức n�
 - Bấm **"Thử Câu Hỏi Ngoài Luồng (Task 20 Guardrail)"**: Trợ giảng AI tự động kích hoạt cơ chế chống ảo giác (`REFUSED_OUT_OF_SCOPE`), từ chối trả lời câu hỏi ngoài phạm vi học tập.
 
 #### 3. Tab 3 — AI Sinh Bài Tập Theo Thang Bloom & Truy Vết Lineage WORM (`Task 23` & `Task 24`)
-- **Task 23 (AI Exercise Generator):** Chọn Dataset + Cấp độ tư duy **Bloom Taxonomy** (`Apply`, `Analyze`, `Evaluate`) -> Bấm **"Sinh Bài Tập AI (Task 23)"** để nhận đề bài, code mẫu SQL/Python, Rubric chấm điểm, điểm kiểm tra trùng lặp Cosine (`< 0.85`) và trạng thái duyệt `APPROVED_BY_HUMAN_GATEKEEPER`.
-- **Task 24 (Data Lineage DAG & WORM Store):** Bấm **"Xem Lưu Đồ Lineage 5 Chặng"** để truy vết nguồn gốc dữ liệu từ Raw đến WORM; bấm **"Thử Ghi Đè Trái Phép Kho WORM"** để kiểm chứng cơ chế chặn ghi đè `IMMUTABLE_ARTIFACT_OVERWRITE_BLOCKED (HTTP 409)`.
+- **Task 23 (AI Exercise Generator):** Chọn Dataset + Cấp độ tư duy **Bloom Taxonomy** (`Apply`, `Analyze`, `Evaluate`) -> Bấm **"Sinh Đề Bài Tập Tự Động"** để nhận đề bài chuẩn mực, Rubric chấm điểm chi tiết, điểm tương đồng ngữ nghĩa Cosine (`< 0.85`) và trạng thái duyệt `APPROVED_BY_HUMAN_GATEKEEPER`. Giao diện hiển thị theo bố cục 2 cột gọn gàng: Khung Starter Code (Học viên) song song với Lời giải Tham khảo (Chuyên gia), kèm thanh cuộn chống tràn layout.
+- **Task 24 (Data Lineage DAG & WORM Store):** Bấm **"Xem Lưu Đồ Lineage DAG"** để truy vết 5 chặng chuyển hóa từ Raw đến WORM; bấm **"Thử Ghi Đè WORM (HTTP 409)"** để kiểm chứng cơ chế chặn ghi đè kho bất biến `IMMUTABLE_ARTIFACT_OVERWRITE_BLOCKED`.
 
 #### 4. Tab 4 — Tường Lửa Bảo Mật PII / Injection, Chốt Chặn QA Gate & Việt Hóa Lỗi (`Task 25`, `Task 27`, `Task 28`)
-- **Task 25 (Security & Privacy Guard):** Bấm **"Quét & Ẩn Danh Hóa PII"** để tự động che dấu SĐT (`[REDACTED_PHONE]`), CCCD (`[REDACTED_CCCD]`), Email (`[REDACTED_EMAIL]`); bấm **"Thử Tấn Công Prompt Injection"** để kiểm chứng tường lửa chặn đứng lệnh độc hại (`BLOCKED_ATTACK`).
-- **Task 27 (Master Release Quality Gate):** Kiểm định gói chuẩn (`PASSED` 4/4 cổng), gói lỗi (`BLOCKED` kèm `actionable_fix`) và chặn Bypass âm thầm (`Zero Silent Bypass`).
-- **Task 28 (`FIX-004`):** Bấm **"Việt Hóa Lỗi Schema Pydantic"** để chuyển đổi lỗi xác thực thô sang hướng dẫn tiếng Việt rõ ràng.
+- **Khối 1 — Tường Lửa Bảo Mật & Chống Tấn Công AI (Task 25):** Bấm **"Kiểm Tra Khử PII (SĐT, CCCD, Email)"** để tự động ẩn danh hóa dữ liệu qua HMAC-SHA256 (`[REDACTED_PHONE]`, `[REDACTED_CCCD]`, `[REDACTED_EMAIL]`); bấm **"Kiểm Tra Chặn Bẻ Khóa (Prompt Injection)"** để kiểm chứng tường lửa AI chặn đứng các câu lệnh bẻ khóa độc hại (`BLOCKED_ATTACK`).
+- **Khối 2 — Sơ Đồ Pipeline CI/CD 4 Chốt Chặn Master Release Gate (Task 27 & 28):** Trực quan hóa quy trình CI/CD qua sơ đồ 4 trạm đổi màu động (`1. 3NF Relational Gate` -> `2. RAG Groundedness` -> `3. Security Zero-Leak` -> `4. Lineage & WORM`). Hỗ trợ thẩm định gói chuẩn (`PASS`), gói lỗi (`BLOCKED` kèm hướng dẫn khắc phục `actionable_fix`), và ngăn chặn vượt rào âm thầm (`ZERO_SILENT_BYPASS_VIOLATION`).
+- **Khối 3 — Việt Hóa Lỗi & Khảo Sát Người Dùng (Task 28):** Bấm **"🌐 Việt Hóa Lỗi & Điểm SUS"** để chuyển đổi thông báo xác thực thô sang tiếng Việt sư phạm dễ hiểu, đạt điểm chuẩn khả năng sử dụng SUS 92.5 Hạng A+.
 
 #### 5. Tab 5 — Đo Tải Phân Vị P50–P99 (340.5 RPS), Đóng Gói Docker & Khôi Phục SHA-256 (`Task 29 Vấn đề 2 & 3`)
 - Xem bảng ma trận phân vị độ trễ P50, P75, P90, P95, P99 của 4 phân hệ hợp nhất.

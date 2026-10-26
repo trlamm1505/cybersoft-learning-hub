@@ -66,7 +66,7 @@ Bước vào giai đoạn sẵn sàng phát hành sản phẩm CyberSoft Data & 
 - **Tầng 1 — Trợ lý cú pháp (Syntax Assistant)**: Dùng AI gợi ý cú pháp Dockerfile Multi-stage, Docker Compose YAML và thư viện `hashlib` tính toán SHA-256.
 - **Tầng 2 — Tăng tốc sinh mã khung (Scaffolding Acceleration)**: Dùng AI sinh khung sườn giao diện Web Ops Dashboard SPA và bộ script đo lường tải trọng giả lập.
 - **Tầng 3 — Thẩm định & Phản biện kỹ thuật (Critical Architecture Review)**: Bác bỏ việc dùng Redis cồng kềnh, chuyển sang In-memory LRU Cache tự chứa, ngăn chặn lỗ hổng root container và chuẩn hóa đo lường phân vị P95/P99.
-- **Tầng 4 — Điều phối hệ sinh thái & Làm chủ giải pháp (Ecosystem Orchestration)**: Tích hợp trọn vẹn giải pháp đóng gói Docker, cơ chế tự phục hồi Healthcheck, đối soát toàn vẹn SHA-256 và đạt 30/30 tests PASS cùng 6/6 chặng DoD thành công 100%.
+- **Tầng 4 — Điều phối hệ sinh thái & Làm chủ giải pháp (Ecosystem Orchestration)**: Tích hợp trọn vẹn giải pháp đóng gói Docker, cơ chế tự phục hồi Healthcheck, đối soát toàn vẹn SHA-256 và đạt 34/34 tests PASS cùng 6/6 chặng DoD thành công 100%.
 
 ---
 
@@ -92,6 +92,16 @@ Bước vào giai đoạn sẵn sàng phát hành sản phẩm CyberSoft Data & 
 - **Nguyên nhân gốc rễ**: Sử dụng từ ngữ thói quen khi mô tả tiến trình triển khai.
 - **Giải pháp xử lý**: Rà soát và thay thế toàn bộ bằng `tiến trình triển khai`, kiểm tra lại với ripgrep đạt 0 vi phạm.
 
+### Sự cố 5: Lỗi TypeError: r.map is not a function khi xem trước bảng dữ liệu 3NF
+- **Hiện tượng**: Khi nhấn nút "👁️ Xem Lược Đồ" ở Tab 1 (Kho Dữ Liệu 3NF), giao diện hiển thị thông báo lỗi màu đỏ `Lỗi xem trước dữ liệu: r.map is not a function`.
+- **Nguyên nhân gốc rễ**: Hàm API `/api/v1/ops/hub/dataset-action` trả về `sample_rows` dưới dạng mảng các đối tượng bản ghi (`{survey_id: "...", ...}`), trong khi mã client trong `portal/app.js` xử lý nhầm thành mảng lồng nhau (`Array of Arrays`) nên gọi hàm `r.map(...)`.
+- **Giải pháp xử lý**: Chuẩn hóa logic duyệt bảng bằng cách trích xuất danh sách cột `colNames` từ đối tượng đầu tiên và đọc dữ liệu qua `r[c]` cho từng ô; đồng thời cập nhật hàm xuất CSV tương ứng và tăng phiên bản cache buster lên `v=16`.
+
+### Sự cố 6: Tối ưu UX Tab 4 từ ô nhập tự do sang Sơ đồ Pipeline CI/CD 4 trạm đổi màu động
+- **Hiện tượng**: Tab 4 ban đầu dùng ô nhập văn bản tự do chưa trực quan, khó bao quát quy trình kiểm thử an toàn PII, Prompt Injection và QA Gate.
+- **Nguyên nhân gốc rễ**: Giao diện chưa thể hiện được cấu trúc chặng kiểm định tự động theo tiêu chuẩn DevSecOps.
+- **Giải pháp xử lý**: Tái thiết kế Tab 4 thành Sơ đồ Pipeline CI/CD 4 trạm tương tác thời gian thực (`PII Firewall` -> `Prompt Injection Guard` -> `SQL/Python QA Gate` -> `Vietnamese UX Localizer`) với cơ chế đổi màu động (`✓ PASS`, `🛑 BLOCKED`, `ZERO_SILENT_BYPASS_VIOLATION`, điểm chuẩn SUS 92.5 Hạng A+).
+
 ---
 
 ## 7. KẾT QUẢ KIỂM THỬ XÁC MINH ĐỘC LẬP
@@ -103,7 +113,7 @@ python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task29/scripts/run_benchma
 
 # Chạy toàn bộ bài test tự động:
 pytest cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task29/tests/ -v
-# => 30 passed in 0.97s (100% SUCCESS)
+# => 34 passed in 1.86s (100% SUCCESS)
 
 # Chạy tiến trình kiểm chứng sao lưu & khôi phục SHA-256:
 python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task29/scripts/restore.py
