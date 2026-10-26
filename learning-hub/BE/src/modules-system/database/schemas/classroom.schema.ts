@@ -1,0 +1,56 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+
+export type ClassroomDocument = Classroom & Document;
+
+/**
+ * Lớp học của một giảng viên: tập học viên và tập bài tập được giao. Mọi số liệu
+ * Teacher Dashboard chỉ tính trong phạm vi hai tập này nên dữ liệu các lớp không lẫn nhau.
+ */
+@Schema({ timestamps: true, collection: 'classrooms' })
+export class Classroom {
+  @Prop({ required: true, type: String, trim: true })
+  name: string;
+
+  @Prop({ type: String, default: '', trim: true })
+  description: string;
+
+  /** Mã lớp hiển thị cho học viên (vd CL-6A9F2K); duy nhất. Lớp cũ chưa có mã. */
+  @Prop({ type: String, unique: true, sparse: true, trim: true })
+  code?: string;
+
+  /** Lớp lưu trữ: ẩn khỏi Dashboard mặc định nhưng giữ nguyên dữ liệu. */
+  @Prop({ type: Boolean, default: false })
+  archived: boolean;
+
+  /** Giảng viên sở hữu lớp (userId dạng chuỗi, cùng quy ước với Submission.userId). */
+  @Prop({ required: true, type: String, index: true })
+  teacherId: string;
+
+  /** Mọi giảng viên được gán phụ trách lớp (Admin Portal v2). teacherId là giảng viên chính (người đầu danh sách). */
+  @Prop({ type: [String], default: undefined, index: true })
+  teacherIds?: string[];
+
+  /**
+   * Khóa chuyên ngành của Người đi làm (tester-qa | data-sql | ai-prompt) mà lớp này đại diện. Có giá trị thì đây là "lớp khóa học":
+   * học viên ghi danh là mọi tài khoản CAREER_ADULT (không lưu trong studentIds), giảng viên phụ trách do Admin phân công.
+   */
+  @Prop({ type: String, enum: ['tester-qa', 'data-sql', 'ai-prompt'], index: true, sparse: true })
+  courseKey?: string;
+
+  /**
+   * Khối tuổi của lớp phổ thông (3-5 | 6-9 | 10-12). Có giá trị thì chỉ học viên đúng khối được thêm vào lớp; lớp cũ chưa có thì
+   * khối được suy ra từ nhóm đông nhất trong các học viên hiện có.
+   */
+  @Prop({ type: String, enum: ['3-5', '6-9', '10-12'] })
+  ageGroup?: string;
+
+  @Prop({ type: [String], default: [] })
+  studentIds: string[];
+
+  /** Slug các bài tập được giao cho lớp. */
+  @Prop({ type: [String], default: [] })
+  exerciseSlugs: string[];
+}
+
+export const ClassroomSchema = SchemaFactory.createForClass(Classroom);

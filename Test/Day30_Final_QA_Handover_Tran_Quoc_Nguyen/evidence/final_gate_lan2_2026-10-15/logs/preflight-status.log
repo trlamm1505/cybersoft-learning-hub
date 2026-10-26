@@ -1,0 +1,27 @@
+ M Data-AI-Resource/BaoCao_Task24/data/artifacts/datasets/customer_churn_dataset/v1.0.0/metadata.json
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/gate-timing.csv
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/ai-eval.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/be-test.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/content-lint.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/data-ai-pytest.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/docker-compose-ps.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/docker-info.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/fe-build.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/fe-test.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/preflight-commit.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/preflight-status.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/smoke-be.log
+ M Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/evidence/logs/smoke-fe.log
+ M Test/Day27_Cross_Product_Integration_Tran_Quoc_Nguyen/AI_WORKLOG.md
+ M learning-hub/BE/src/modules-api/coach/eval/reports/baseline-report.json
+ M learning-hub/BE/src/modules-api/coach/eval/reports/baseline-report.md
+ M learning-hub/BE/src/modules-api/coach/eval/reports/history/dd3d9493b07e_StubLlmClient.json
+ M learning-hub/docs/day27/test-report.json
+ M learning-hub/docs/day28/before-after-evidence.md
+ M learning-hub/docs/day28/usability-report.json
+ M learning-hub/docs/day29/load-report.json
+ M learning-hub/docs/day29/security-report.json
+?? Test/Day28_UAT_Tran_Quoc_Nguyen/
+?? Test/Day29_Security_Privacy_Final_Pass_Tran_Quoc_Nguyen/
+?? Test/Day30_Final_QA_Handover_Tran_Quoc_Nguyen/
+?? Test/claude-testing-kit/

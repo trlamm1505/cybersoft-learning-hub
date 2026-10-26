@@ -1,0 +1,44 @@
+[
+  {
+    "slug": "fx-prime",
+    "title": "Kiểm tra số nguyên tố",
+    "type": "CODE_TEXT",
+    "difficulty": "MEDIUM",
+    "description": "Cho một số nguyên dương N (1 ≤ N ≤ 10^9). In ra \"YES\" nếu N là số nguyên tố, ngược lại in ra \"NO\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"YES\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "7",
+        "expectedOutput": "YES",
+        "isHidden": false
+      },
+      {
+        "input": "10",
+        "expectedOutput": "NO",
+        "isHidden": false
+      },
+      {
+        "input": "1",
+        "expectedOutput": "NO",
+        "isHidden": true
+      },
+      {
+        "input": "97",
+        "expectedOutput": "YES",
+        "isHidden": true
+      },
+      {
+        "input": "2",
+        "expectedOutput": "YES",
+        "isHidden": true
+      },
+      {
+        "input": "9",
+        "expectedOutput": "NO",
+        "isHidden": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "labId": "LAB-03",
+  "mode": "buggy",
+  "faultId": "F-D14-003",
+  "rule": "Ngày trả phải sau ngày nhận và số khách phải lớn hơn 0.",
+  "data": {
+    "checkIn": "2026-09-30",
+    "checkOut": "2026-09-23",
+    "guests": 0,
+    "accepted": true
+  }
+}

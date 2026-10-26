@@ -1,0 +1,534 @@
+{
+  "hub_version": "1.0.0",
+  "system_name": "CyberSoft Data & AI Lab — Hệ Thống Hợp Nhất Toàn Khóa",
+  "data_quality_summary": {
+    "total_raw_records": 19450,
+    "total_cleaned_3nf_records": 18091,
+    "duplicates_removed": 842,
+    "nulls_imputed_or_dropped": 517,
+    "orphan_foreign_keys_pct": 0.0,
+    "pii_anonymized_hmac_pct": 100.0,
+    "pipeline_stages": [
+      "Khảo sát Nguồn & Thiết kế Lược đồ Chuẩn 3NF",
+      "Quy trình Làm sạch Null, Duplicate & Outlier",
+      "Khử định danh PII bằng HMAC-SHA256 (0% Rò rỉ)",
+      "Đóng gói 4 Datasets, EDA & Xuất bản Data Dictionary"
+    ]
+  },
+  "modules_integrated": [
+    {
+      "week": "Tuần 1-2",
+      "name": "Quản trị Dữ liệu, Pipeline Làm sạch, Khử PII HMAC-SHA256 & 4 Datasets Chuẩn 3NF",
+      "status": "ACTIVE"
+    },
+    {
+      "week": "Tuần 3-4",
+      "name": "Semantic Chunking, Tìm Kiếm Lai (BM25 + Vector RRF) & Trợ Giảng AI Có Trích Dẫn",
+      "status": "ACTIVE"
+    },
+    {
+      "week": "Tuần 5",
+      "name": "Cổng Dữ Liệu REST API, AI Sinh Bài Tập Bloom, Lineage WORM & Tường Lửa Bảo Mật",
+      "status": "ACTIVE"
+    },
+    {
+      "week": "Tuần 6",
+      "name": "Khóa Snapshot, 4 Chốt Chặn QA, Bản Vá Trải Nghiệm, Bộ Đệm LRU & Vận Hành Docker",
+      "status": "ACTIVE"
+    }
+  ],
+  "catalog": [
+    {
+      "id": "ds-retail-ecommerce-sales-v1",
+      "name": "Retail E-Commerce Sales (Chuẩn 3NF)",
+      "track": "DATA_ANALYST",
+      "domain": "Retail",
+      "type": "dataset",
+      "status": "PUBLISHED",
+      "version": "v1.1.0",
+      "rows": 5000,
+      "rating": 4.9,
+      "size_label": "1.42 MB",
+      "sha256_prefix": "9c8bfc310fb67bc1",
+      "schema_3nf": "PK: order_id | FK: customer_id -> customers(id), product_id -> products(id) | 0% Khóa ngoại mồ côi",
+      "columns": [
+        "order_id",
+        "customer_id",
+        "product_id",
+        "category",
+        "quantity",
+        "unit_price",
+        "order_date",
+        "region"
+      ],
+      "preview_rows": [
+        [
+          "ORD-1001",
+          "CUST-042",
+          "PRD-01",
+          "Laptop & AI Workstation",
+          2,
+          24500000,
+          "2026-09-01",
+          "HCM"
+        ],
+        [
+          "ORD-1002",
+          "CUST-108",
+          "PRD-05",
+          "Màn hình đồ họa 4K",
+          1,
+          8900000,
+          "2026-09-01",
+          "HaNoi"
+        ],
+        [
+          "ORD-1003",
+          "CUST-019",
+          "PRD-03",
+          "Bàn phím cơ Custom",
+          3,
+          2150000,
+          "2026-09-02",
+          "DaNang"
+        ],
+        [
+          "ORD-1004",
+          "CUST-215",
+          "PRD-08",
+          "Ổ cứng SSD NVMe 2TB",
+          2,
+          4200000,
+          "2026-09-02",
+          "HCM"
+        ],
+        [
+          "ORD-1005",
+          "CUST-077",
+          "PRD-02",
+          "Chuột công thái học",
+          4,
+          1650000,
+          "2026-09-03",
+          "CanTho"
+        ]
+      ]
+    },
+    {
+      "id": "ds-hr-attendance-ops-v1",
+      "name": "HR Attendance & Operations (Chuẩn 3NF)",
+      "track": "DATA_ANALYST",
+      "domain": "HR",
+      "type": "dataset",
+      "status": "PUBLISHED",
+      "version": "v1.0.0",
+      "rows": 5200,
+      "rating": 4.85,
+      "size_label": "1.18 MB",
+      "sha256_prefix": "4f2a9d817bc34e10",
+      "schema_3nf": "PK: record_id | FK: emp_code -> employees(emp_code) | SĐT/CCCD đã băm HMAC-SHA256",
+      "columns": [
+        "record_id",
+        "emp_code",
+        "department",
+        "work_date",
+        "hours_worked",
+        "overtime_hours",
+        "performance_tier"
+      ],
+      "preview_rows": [
+        [
+          "ATT-5001",
+          "EMP-101",
+          "Data Engineering",
+          "2026-09-01",
+          8.0,
+          1.5,
+          "EXCELLENT"
+        ],
+        [
+          "ATT-5002",
+          "EMP-104",
+          "AI Research",
+          "2026-09-01",
+          8.0,
+          0.0,
+          "GOOD"
+        ],
+        [
+          "ATT-5003",
+          "EMP-112",
+          "Academic Ops",
+          "2026-09-01",
+          7.5,
+          0.0,
+          "GOOD"
+        ],
+        [
+          "ATT-5004",
+          "EMP-118",
+          "QA & Testing",
+          "2026-09-02",
+          8.0,
+          2.0,
+          "EXCELLENT"
+        ],
+        [
+          "ATT-5005",
+          "EMP-125",
+          "Platform Dev",
+          "2026-09-02",
+          8.0,
+          1.0,
+          "EXCELLENT"
+        ]
+      ]
+    },
+    {
+      "id": "ds-banking-customer-churn-v1",
+      "name": "Banking Customer Churn (Machine Learning)",
+      "track": "AI_ENGINEER",
+      "domain": "Finance",
+      "type": "dataset",
+      "status": "PUBLISHED",
+      "version": "v1.0.0",
+      "rows": 7800,
+      "rating": 4.92,
+      "size_label": "2.05 MB",
+      "sha256_prefix": "7e1b4a902cd88f12",
+      "schema_3nf": "PK: customer_code | Đã chuẩn hóa Z-Score & kiểm định phân phối Đặc trưng ML",
+      "columns": [
+        "customer_code",
+        "credit_score",
+        "tenure_months",
+        "balance_vnd",
+        "products_count",
+        "active_member",
+        "churn_label"
+      ],
+      "preview_rows": [
+        [
+          "BNK-001",
+          745,
+          36,
+          125000000,
+          3,
+          1,
+          0
+        ],
+        [
+          "BNK-002",
+          580,
+          6,
+          4500000,
+          1,
+          0,
+          1
+        ],
+        [
+          "BNK-003",
+          810,
+          60,
+          480000000,
+          4,
+          1,
+          0
+        ],
+        [
+          "BNK-004",
+          620,
+          12,
+          18000000,
+          1,
+          0,
+          1
+        ],
+        [
+          "BNK-005",
+          715,
+          24,
+          92000000,
+          2,
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "ds-ai-knowledge-corpus-v1",
+      "name": "CyberSoft AI Knowledge Chunks (Tri thức RAG)",
+      "track": "AI_ENGINEER",
+      "domain": "AI/RAG",
+      "type": "evaluation_set",
+      "status": "PUBLISHED",
+      "version": "v1.0.0",
+      "rows": 91,
+      "rating": 4.95,
+      "size_label": "0.45 MB",
+      "sha256_prefix": "3a9f1c772de45b09",
+      "schema_3nf": "PK: chunk_id | FK: doc_id -> documents(doc_id) | Phân đoạn theo tiêu đề Markdown ngữ nghĩa",
+      "columns": [
+        "chunk_id",
+        "doc_id",
+        "section",
+        "token_count",
+        "content_preview"
+      ],
+      "preview_rows": [
+        [
+          "CHK-001",
+          "CS-POL-001",
+          "dieu_khoan_bao_luu",
+          142,
+          "Học viên được quyền bảo lưu khóa học tối đa 6 tháng khi có đơn xác nhận..."
+        ],
+        [
+          "CHK-002",
+          "CS-POL-003",
+          "quy_dinh_bao_mat_pii",
+          168,
+          "Tuyệt đối ẩn danh hóa 100% thông tin cá nhân (CCCD, SĐT, Email) bằng HMAC-SHA256..."
+        ],
+        [
+          "CHK-003",
+          "CS-SOP-002",
+          "pipeline_lam_sach_3nf",
+          155,
+          "Quy trình làm sạch dữ liệu chuẩn 3NF loại bỏ 100% khóa ngoại mồ côi (Orphan FK)..."
+        ],
+        [
+          "CHK-004",
+          "CS-AI-005",
+          "hybrid_search_rrf",
+          184,
+          "Tìm kiếm lai kết hợp BM25 từ khóa và Dense Vector qua công thức Reciprocal Rank Fusion..."
+        ],
+        [
+          "CHK-005",
+          "CS-OPS-009",
+          "docker_lru_cache",
+          172,
+          "Tối ưu độ trễ P95 dưới 25ms nhờ bộ nhớ đệm 2 tầng LRU Cache và đóng gói Docker non-root..."
+        ]
+      ]
+    },
+    {
+      "id": "ds-fintech-credit-draft-v0",
+      "name": "Fintech Fraud Raw Logs (Bản Nháp - Chặn Tải 403)",
+      "track": "DATA_ANALYST",
+      "domain": "Finance",
+      "type": "dataset",
+      "status": "DRAFT",
+      "version": "v0.1.0-draft",
+      "rows": 1200,
+      "rating": 4.2,
+      "size_label": "0.64 MB",
+      "sha256_prefix": "0000draftpending",
+      "schema_3nf": "Đang trong quá trình khử PII (Chưa xuất bản — Chặn tải HTTP 403 bảo vệ quyền riêng tư)",
+      "columns": [
+        "tx_id",
+        "account_id",
+        "amount",
+        "status"
+      ],
+      "preview_rows": [
+        [
+          "TX-901",
+          "ACC-01",
+          15000000,
+          "PENDING_PII_SCRUB"
+        ],
+        [
+          "TX-902",
+          "ACC-02",
+          3200000,
+          "PENDING_PII_SCRUB"
+        ]
+      ]
+    },
+    {
+      "id": "tpl-capstone-ecommerce-bi-v1",
+      "name": "Capstone DA: Phân Tích Doanh Thu & Cohort Retention",
+      "track": "DATA_ANALYST",
+      "domain": "Retail",
+      "type": "capstone_template",
+      "status": "PUBLISHED",
+      "version": "v1.0.0",
+      "rows": 15,
+      "rating": 4.88,
+      "size_label": "0.32 MB",
+      "sha256_prefix": "b5e210a98fc12d34",
+      "schema_3nf": "Rubric chấm điểm chuẩn hóa (SQL 30% + BI Dashboard 40% + Business Insight 30%)",
+      "columns": [
+        "rubric_id",
+        "criteria",
+        "weight_pct",
+        "target_deliverable"
+      ],
+      "preview_rows": [
+        [
+          "RUB-DA-01",
+          "Truy vấn SQL nâng cao (CTE, Window Functions)",
+          30,
+          "sql_analysis_queries.sql"
+        ],
+        [
+          "RUB-DA-02",
+          "Thiết kế Dashboard KPI & Cohort Retention",
+          40,
+          "executive_dashboard_report.md"
+        ],
+        [
+          "RUB-DA-03",
+          "Đề xuất hành động kinh doanh dựa trên dữ liệu",
+          30,
+          "business_recommendations.md"
+        ]
+      ]
+    }
+  ],
+  "rag_knowledge_chunks": [
+    {
+      "chunk_id": "CHK-001",
+      "doc_id": "CS-POL-001",
+      "section": "dieu_khoan_bao_luu",
+      "title": "Chính sách bảo lưu và khóa an toàn Snapshot bài tập",
+      "content": "Học viên CyberSoft được quyền bảo lưu khóa học tối đa 06 tháng kể từ ngày đăng ký khi có lý do chính đáng. Mọi kết quả bài tập đã khóa snapshot SHA-256 trên hệ thống Learning Platform được giữ nguyên 100% không bị trôi phiên bản."
+    },
+    {
+      "chunk_id": "CHK-002",
+      "doc_id": "CS-POL-003",
+      "section": "quy_dinh_bao_mat_pii",
+      "title": "Quy định bảo mật dữ liệu riêng tư Zero Real PII",
+      "content": "Toàn bộ bộ dữ liệu phát hành trong CyberSoft Data & AI Lab bắt buộc trải qua bước khử định danh (De-identification). Các trường nhạy cảm như CCCD, số điện thoại, email thật phải được băm một chiều HMAC-SHA256 hoặc che dấu (Masking) đạt tỷ lệ rò rỉ 0.0%."
+    },
+    {
+      "chunk_id": "CHK-003",
+      "doc_id": "CS-SOP-002",
+      "section": "pipeline_lam_sach_3nf",
+      "title": "Quy trình làm sạch dữ liệu và chuẩn hóa lược đồ 3NF",
+      "content": "Pipeline làm sạch tự động thực hiện 4 bước: loại bỏ bản ghi trùng lặp, chuẩn hóa định dạng ngày giờ ISO-8601, xử lý giá trị khuyết thiếu theo ngưỡng thống kê và kiểm tra khóa ngoại liên bảng đảm bảo 0% khóa ngoại mồ côi (Orphan Foreign Keys)."
+    },
+    {
+      "chunk_id": "CHK-004",
+      "doc_id": "CS-AI-005",
+      "section": "hybrid_search_rrf",
+      "title": "Kiến trúc Tìm kiếm Lai Hybrid Search BM25 + Vector RRF",
+      "content": "Hệ thống kết hợp tìm kiếm từ khóa chính xác BM25 (tối ưu cho mã lỗi, mã môn học, tên hàm SQL) với tìm kiếm ngữ nghĩa Dense Vector, hợp nhất bảng xếp hạng bằng thuật toán Reciprocal Rank Fusion (RRF, k=60) giúp đạt Recall@5 trên 91%."
+    },
+    {
+      "chunk_id": "CHK-005",
+      "doc_id": "CS-AI-008",
+      "section": "chong_ao_giac_ai_tutor",
+      "title": "Cơ chế chống ảo giác (Anti-Hallucination) và trích dẫn bắt buộc",
+      "content": "Trợ giảng AI chỉ trả lời dựa trên ngữ cảnh trích xuất được (Grounded Generation). Mỗi câu trả lời bắt buộc đính kèm mã trích dẫn chuẩn [doc_id#section]. Nếu điểm tương đồng dưới ngưỡng 0.55 hoặc câu hỏi nằm ngoài phạm vi học tập, hệ thống chủ động từ chối an toàn."
+    },
+    {
+      "chunk_id": "CHK-006",
+      "doc_id": "CS-OPS-009",
+      "section": "lru_cache_docker_ops",
+      "title": "Tối ưu độ trễ bằng LRU Cache 2 tầng và Đóng gói Docker Production",
+      "content": "Hệ thống triển khai bộ nhớ đệm 2 tầng (Static Catalog Cache + In-Memory LRU Query Cache 2048 slots, TTL 300s) giúp giảm 82.4% độ trễ truy vấn lặp lại (P95 đạt 18.75ms, Cache Hit đạt 3.30ms), đóng gói trong Docker Multi-stage chạy dưới quyền appuser 1001."
+    },
+    {
+      "chunk_id": "CHK-007",
+      "doc_id": "CS-TEC-001",
+      "section": "cai_dat_wsl2_ubuntu",
+      "title": "Hướng dẫn cài đặt môi trường lập trình WSL2 và Ubuntu 22.04 LTS",
+      "content": "Học viên cài đặt hệ thống Linux ảo trên Windows thông qua lệnh 'wsl --install -d Ubuntu-22.04', thiết lập Python 3.10 virtual environment (.venv) và cấu hình Docker Desktop WSL2 backend để đảm bảo đồng bộ môi trường lập trình Data & AI."
+    },
+    {
+      "chunk_id": "CHK-008",
+      "doc_id": "CS-TEC-002",
+      "section": "quy_chuan_git_commit",
+      "title": "Quy chuẩn quản lý mã nguồn Git và Conventional Commits",
+      "content": "Toàn bộ bài nộp và báo cáo bắt buộc tuân theo quy chuẩn Conventional Commits (feat, fix, docs, refactor, test). Nhánh làm việc quy ước 'feature/data-ai-dayXX', mọi Pull Request phải vượt qua pre-commit hook trước khi merge."
+    },
+    {
+      "chunk_id": "CHK-009",
+      "doc_id": "CS-TEC-005",
+      "section": "quy_chuan_pep8_clean_code",
+      "title": "Quy chuẩn Clean Code và kiểm tra chất lượng PEP8 trong Python",
+      "content": "Mã nguồn Python trong phòng Lab bắt buộc tuân thủ tiêu chuẩn PEP8: độ dài dòng tối đa 88-100 ký tự, đầy đủ Type Hints, Google-style docstrings cho hàm và lớp, kiểm định tự động bằng Ruff/Flake8 với 0 cảnh báo nghiêm trọng."
+    },
+    {
+      "chunk_id": "CHK-010",
+      "doc_id": "CS-PDF-001",
+      "section": "tieu_chuan_do_an_capstone",
+      "title": "Tiêu chuẩn đánh giá đồ án tốt nghiệp Capstone Data & AI",
+      "content": "Đồ án Capstone được đánh giá theo 4 tiêu chí chuẩn hóa: Thiết kế lược đồ và làm sạch dữ liệu 3NF (30%), Xây dựng Pipeline xử lý hoặc mô hình AI (35%), Tối ưu hiệu năng và đóng gói triển khai Docker (20%), Báo cáo và bảo vệ đồ án (15%)."
+    },
+    {
+      "chunk_id": "CHK-011",
+      "doc_id": "CS-CRS-002",
+      "section": "lo_trinh_data_ai_resource",
+      "title": "Lộ trình đào tạo Kỹ sư Dữ liệu & Tài nguyên AI (Data & AI Resource)",
+      "content": "Lộ trình gồm 6 tuần chuyên sâu: Tuần 1-2 (Quản trị Dữ liệu & Chuẩn 3NF), Tuần 3-4 (Semantic Chunking & Tìm kiếm lai RAG), Tuần 5 (REST API, AI Sinh bài tập Bloom & Lineage WORM), Tuần 6 (Tối ưu hiệu năng, 4 Chốt chặn QA & Docker Deployment)."
+    },
+    {
+      "chunk_id": "CHK-012",
+      "doc_id": "CS-POL-002",
+      "section": "chinh_sach_hoan_phi",
+      "title": "Chính sách hoàn phí và bảo lưu tài chính tại CyberSoft",
+      "content": "Học viên được hỗ trợ chuyển đổi khóa học hoặc bảo lưu tài chính trong vòng 14 ngày kể từ ngày khai giảng nếu chưa học quá 2 buổi. Thủ tục được tiếp nhận qua email phòng đào tạo và xử lý trong 03 ngày làm việc."
+    }
+  ],
+  "exercise_templates": {
+    "Apply": {
+      "bloom_level": "Apply (Vận dụng — Cấp độ 3 Bloom)",
+      "title": "Truy vấn tổng hợp doanh thu theo danh mục và khu vực bằng SQL Window Functions",
+      "starter_code": "SELECT category, region, SUM(quantity * unit_price) AS revenue,\n       RANK() OVER (PARTITION BY region ORDER BY SUM(quantity * unit_price) DESC) AS rnk\nFROM retail_sales_v1\nGROUP BY category, region;",
+      "rubric": "Đúng cú pháp PARTITION BY (40%), Kết quả khớp khóa ngoại 3NF (40%), Tối ưu hiệu năng truy vấn (20%)",
+      "cosine_dedup_score": 0.34,
+      "approval_status": "APPROVED_BY_HUMAN_GATEKEEPER"
+    },
+    "Analyze": {
+      "bloom_level": "Analyze (Phân tích — Cấp độ 4 Bloom)",
+      "title": "Phân tích tỷ lệ rời bỏ khách hàng (Customer Churn) theo nhóm điểm tín dụng và số dư",
+      "starter_code": "import pandas as pd\ndf = pd.read_csv('customer_churn_v1.csv')\nprint(df.groupby(pd.cut(df['credit_score'], [300, 600, 750, 900]))['churn_label'].mean())",
+      "rubric": "Phân tích đúng phân phối nhóm rủi ro (40%), Giải thích nguyên nhân gốc rễ (30%), Đề xuất giữ chân khách hàng (30%)",
+      "cosine_dedup_score": 0.29,
+      "approval_status": "APPROVED_BY_HUMAN_GATEKEEPER"
+    },
+    "Evaluate": {
+      "bloom_level": "Evaluate (Đánh giá — Cấp độ 5 Bloom)",
+      "title": "Đánh giá độ trung thực (Faithfulness) và Recall@5 của mô hình Hybrid RAG",
+      "starter_code": "from src.services.performance_service import CachedSearchEngine\n# Đối soát kết quả trích xuất BM25 + Vector RRF với bộ Golden QA",
+      "rubric": "Đo lường chính xác Recall@5 >= 0.85 (40%), Kiểm chứng 100% câu trả lời có trích dẫn [doc#sec] (40%), Chặn câu hỏi ngoài luồng (20%)",
+      "cosine_dedup_score": 0.41,
+      "approval_status": "APPROVED_BY_HUMAN_GATEKEEPER"
+    }
+  },
+  "lineage_dag": [
+    {
+      "step": 1,
+      "stage": "RAW_INGESTION (Thu thập ban đầu)",
+      "desc": "Thu thập 19.450 bản ghi thô từ hệ thống POS, HRM và LMS",
+      "hash": "sha256:1a8f...90b2"
+    },
+    {
+      "step": 2,
+      "stage": "CLEAN_DEDUP_3NF (Làm sạch & Chuẩn 3NF)",
+      "desc": "Loại bỏ 842 bản ghi trùng, xử lý 517 dòng khuyết, chuẩn hóa lược đồ 3NF (0% Khóa ngoại mồ côi)",
+      "hash": "sha256:4c2d...81e7"
+    },
+    {
+      "step": 3,
+      "stage": "PII_HMAC_ANONYMIZATION (Khử định danh PII)",
+      "desc": "Băm một chiều HMAC-SHA256 toàn bộ CCCD, SĐT, Email (0% Rò rỉ thông tin cá nhân)",
+      "hash": "sha256:7f9a...33c4"
+    },
+    {
+      "step": 4,
+      "stage": "SEMANTIC_CHUNKING_INDEX (Phân đoạn & Chỉ mục)",
+      "desc": "Cắt 91 đoạn học liệu theo Markdown Header và lập chỉ mục BM25 + Dense Vector",
+      "hash": "sha256:8e1b...55d9"
+    },
+    {
+      "step": 5,
+      "stage": "WORM_IMMUTABLE_RELEASE (Khóa bất biến WORM)",
+      "desc": "Đóng băng hiện vật trong kho WORM bất biến, cấp mã băm Snapshot cho bài tập",
+      "hash": "sha256:9c8b...7bc1"
+    }
+  ]
+}

@@ -1,18 +1,40 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Exercise, ExerciseDocument } from '../../modules-system/database/schemas/exercise.schema';
+import {
+  Exercise,
+  ExerciseDocument,
+} from '../../modules-system/database/schemas/exercise.schema';
 import {
   Submission,
   SubmissionDocument,
   SubmissionTestResult,
 } from '../../modules-system/database/schemas/submission.schema';
-import { checkPythonSyntax, runPythonCode } from '../../common/helper/code-runner.helper';
+import {
+  checkPythonSyntax,
+  outputsMatch,
+  runPythonCode,
+} from '../../common/helper/code-runner.helper';
 import { JudgeStatus } from './judge-status.enum';
 
 const STALE_RUNNING_THRESHOLD_MS = 30_000;
 const SWEEP_INTERVAL_MS = 30_000;
 const MAX_ATTEMPTS = 3;
+/** Số bài giữ trong bộ nhớ đệm bộ test của máy chấm (bộ test ẩn Ngày 15 nặng 0,6–2 MB mỗi bài). */
+const EXERCISE_CACHE_MAX = 12;
+type JudgeExercise = Exercise & { _id: unknown };
+
+/** Thông báo tổng quát cho lỗi xảy ra ở test ẩn (không chứa input/expected/stderr). */
+const GENERIC_ERROR: Partial<Record<JudgeStatus, string>> = {
+  [JudgeStatus.WA]: 'Wrong Answer',
+  [JudgeStatus.RE]: 'Runtime Error',
+  [JudgeStatus.TLE]: 'Time Limit Exceeded',
+};
 
 /**
  * In-process job queue + worker for grading submissions. No Redis/BullMQ (consistent with
@@ -27,22 +49,47 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(JudgeQueueService.name);
   private queue: string[] = [];
   private processing = false;
+  /** Bộ test (kể cả test ẩn) theo bài, đối chiếu bằng updatedAt: bài được sửa thì lần chấm sau tự nạp lại. */
+  private readonly exerciseCache = new Map<string, { stamp: number; doc: JudgeExercise }>();
   private sweepTimer?: NodeJS.Timeout;
 
   constructor(
-    @InjectModel(Submission.name) private readonly submissionModel: Model<SubmissionDocument>,
-    @InjectModel(Exercise.name) private readonly exerciseModel: Model<ExerciseDocument>,
+    @InjectModel(Submission.name)
+    private readonly submissionModel: Model<SubmissionDocument>,
+    @InjectModel(Exercise.name)
+    private readonly exerciseModel: Model<ExerciseDocument>,
   ) {}
 
   onModuleInit() {
     // Pick up anything left QUEUED/RUNNING from a previous process crash immediately,
     // then keep sweeping periodically for jobs that go stale mid-flight.
     void this.retryStale();
-    this.sweepTimer = setInterval(() => void this.retryStale(), SWEEP_INTERVAL_MS);
+    this.sweepTimer = setInterval(
+      () => void this.retryStale(),
+      SWEEP_INTERVAL_MS,
+    );
   }
 
   onModuleDestroy() {
     if (this.sweepTimer) clearInterval(this.sweepTimer);
+  }
+
+  /**
+   * Nạp bài kèm test ẩn để chấm. Tải 0,6–2 MB mỗi bài Ngày 15 từ CSDL từ xa mất 6–20 giây mỗi lần nộp (làm FE báo hết giờ chờ), nên giữ trong
+   * bộ nhớ đệm; mỗi lần chấm chỉ hỏi CSDL `updatedAt` (vài chục byte) để biết bản đệm còn mới không.
+   */
+  private async loadExerciseForJudge(exerciseId: string): Promise<JudgeExercise | null> {
+    const head = await this.exerciseModel.findById(exerciseId).select('updatedAt').lean<{ updatedAt?: Date } | null>();
+    const stamp = head?.updatedAt ? new Date(head.updatedAt).getTime() : 0;
+    const hit = this.exerciseCache.get(exerciseId);
+    if (stamp && hit && hit.stamp === stamp) return hit.doc;
+    const doc = await this.exerciseModel.findById(exerciseId).select('+hiddenTestCases').lean<JudgeExercise | null>();
+    if (doc && stamp) {
+      this.exerciseCache.delete(exerciseId);
+      this.exerciseCache.set(exerciseId, { stamp, doc });
+      while (this.exerciseCache.size > EXERCISE_CACHE_MAX) this.exerciseCache.delete(this.exerciseCache.keys().next().value as string);
+    }
+    return doc;
   }
 
   enqueue(submissionId: string): void {
@@ -80,11 +127,50 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
     if (!claimed) return;
 
     try {
-      const exercise = await this.exerciseModel.findById(claimed.exerciseId).lean();
+      // Luồng chấm nội bộ: cần cả hiddenTestCases (select:false) để chấm đủ test ẩn (có bộ nhớ đệm, xem loadExerciseForJudge).
+      const exercise = await this.loadExerciseForJudge(claimed.exerciseId);
       if (!exercise) {
         await this.finish(submissionId, {
           status: JudgeStatus.FAILED,
           errorMessage: 'Không tìm thấy bài tập tương ứng với bài nộp này',
+        });
+        return;
+      }
+
+      // Lớp bảo vệ thứ hai sau ExerciseService.submitCode (bắt cả bài nộp
+      // đã vào hàng đợi trước khi có guard): judge này chỉ chấm Python.
+      // Không ném BadRequestException vì đây là luồng nền, không còn HTTP
+      // request; ghi FAILED để không bao giờ ra AC.
+      if (
+        exercise.resource_id ||
+        exercise.type === 'SQL_LAB' ||
+        exercise.type === 'DA_INSIGHT'
+      ) {
+        await this.finish(submissionId, {
+          status: JudgeStatus.FAILED,
+          errorMessage: 'Invalid submission type',
+          passedCount: 0,
+          totalCount: 0,
+          results: [],
+        });
+        return;
+      }
+
+      // Bài không có test case thì không có căn cứ chấm: trước đây gán AC,
+      // làm học viên "giải" được bài mà không cần code đúng.
+      // Test hiển thị (testCases, có thể kèm isHidden của bài cũ) + test ẩn tách riêng (hiddenTestCases).
+      const testCases = [
+        ...(exercise.testCases ?? []),
+        ...(exercise.hiddenTestCases ?? []).map((t) => ({ ...t, isHidden: true })),
+      ];
+
+      if (!testCases.length) {
+        await this.finish(submissionId, {
+          status: JudgeStatus.FAILED,
+          errorMessage: 'Bài tập thiếu Test Cases, không thể chấm điểm',
+          passedCount: 0,
+          totalCount: 0,
+          results: [],
         });
         return;
       }
@@ -95,13 +181,12 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
           status: JudgeStatus.CE,
           errorMessage: syntaxCheck.errorMessage,
           passedCount: 0,
-          totalCount: (exercise.testCases ?? []).length,
+          totalCount: testCases.length,
           results: [],
         });
         return;
       }
 
-      const testCases = exercise.testCases ?? [];
       const results: SubmissionTestResult[] = [];
       let status: JudgeStatus = JudgeStatus.AC;
       let errorMessage: string | undefined;
@@ -109,21 +194,39 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
 
       for (let i = 0; i < testCases.length; i++) {
         const tc = testCases[i];
-        const run = await runPythonCode(claimed.code, tc.input, exercise.timeLimitMs);
+        const run = await runPythonCode(
+          claimed.code,
+          tc.input,
+          exercise.timeLimitMs,
+          tc.memoryLimitMb ?? exercise.memoryLimitMb,
+        );
 
         if (run.blocked) {
           status = JudgeStatus.RE;
           errorMessage = run.blockedReason;
-          results.push({ index: i, passed: false, isHidden: tc.isHidden, stderr: run.blockedReason } as SubmissionTestResult);
+          results.push({
+            index: i,
+            passed: false,
+            isHidden: tc.isHidden,
+            stderr: run.blockedReason,
+          });
           break;
         }
 
-        const actualOutput = run.stdout.trim();
-        const expectedOutput = tc.expectedOutput.trim();
-        const passed = !run.timedOut && run.exitCode === 0 && actualOutput === expectedOutput;
+        // Normalize CRLF -> LF before comparing: on Windows, Python's stdout uses \r\n
+        // per line, which would otherwise fail multi-line test cases authored with \n.
+        const actualOutput = run.stdout.replace(/\r\n/g, '\n').trim();
+        const expectedOutput = tc.expectedOutput.replace(/\r\n/g, '\n').trim();
+        const passed =
+          !run.timedOut &&
+          run.exitCode === 0 &&
+          outputsMatch(actualOutput, expectedOutput);
 
         if (run.peakMemoryMb !== undefined) {
-          maxMemoryMb = maxMemoryMb === undefined ? run.peakMemoryMb : Math.max(maxMemoryMb, run.peakMemoryMb);
+          maxMemoryMb =
+            maxMemoryMb === undefined
+              ? run.peakMemoryMb
+              : Math.max(maxMemoryMb, run.peakMemoryMb);
         }
 
         results.push({
@@ -133,21 +236,26 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
           input: tc.isHidden ? undefined : tc.input,
           expectedOutput: tc.isHidden ? undefined : expectedOutput,
           actualOutput: tc.isHidden ? undefined : actualOutput,
-          stderr: run.stderr || undefined,
+          // stderr của test ẩn có thể phản chiếu input/expected (vd ValueError nêu giá trị): không lưu.
+          stderr: tc.isHidden ? undefined : run.stderr || undefined,
           executionTimeMs: run.executionTimeMs,
           memoryUsedMb: run.peakMemoryMb,
-        } as SubmissionTestResult);
+        });
 
         if (!passed) {
           if (run.timedOut) status = JudgeStatus.TLE;
           else if (run.exitCode !== 0) status = JudgeStatus.RE;
           else status = JudgeStatus.WA;
-          if (run.stderr) errorMessage = run.stderr;
+          // Test ẩn chỉ trả thông báo tổng quát theo loại lỗi, không dump stderr.
+          if (tc.isHidden) {
+            errorMessage = GENERIC_ERROR[status] ?? 'Wrong Answer';
+          } else if (run.stderr) {
+            errorMessage = run.stderr;
+          }
         }
       }
 
       const passedCount = results.filter((r) => r.passed).length;
-      if (testCases.length === 0) status = JudgeStatus.AC;
 
       await this.finish(submissionId, {
         status,
@@ -158,10 +266,14 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
         memoryUsedMb: maxMemoryMb,
       });
     } catch (err) {
-      this.logger.error(`Grading submission ${submissionId} failed`, err as Error);
+      this.logger.error(
+        `Grading submission ${submissionId} failed`,
+        err as Error,
+      );
       await this.finish(submissionId, {
         status: JudgeStatus.FAILED,
-        errorMessage: err instanceof Error ? err.message : String(err),
+        // Chi tiết lỗi chỉ ghi log phía server, không trả cho học viên.
+        errorMessage: 'Lỗi hệ thống khi chấm bài, vui lòng thử lại sau',
       });
     }
   }
@@ -199,31 +311,54 @@ export class JudgeQueueService implements OnModuleInit, OnModuleDestroy {
     const staleBefore = new Date(Date.now() - STALE_RUNNING_THRESHOLD_MS);
 
     const failed = await this.submissionModel.updateMany(
-      { status: JudgeStatus.RUNNING, updatedAt: { $lt: staleBefore }, attempts: { $gte: MAX_ATTEMPTS } },
-      { $set: { status: JudgeStatus.FAILED, errorMessage: 'Quá số lần thử chấm bài cho phép' } },
+      {
+        status: JudgeStatus.RUNNING,
+        updatedAt: { $lt: staleBefore },
+        attempts: { $gte: MAX_ATTEMPTS },
+      },
+      {
+        $set: {
+          status: JudgeStatus.FAILED,
+          errorMessage: 'Quá số lần thử chấm bài cho phép',
+        },
+      },
     );
     if (failed.modifiedCount > 0) {
-      this.logger.warn(`Marked ${failed.modifiedCount} stale submission(s) as FAILED after exceeding retry cap`);
+      this.logger.warn(
+        `Marked ${failed.modifiedCount} stale submission(s) as FAILED after exceeding retry cap`,
+      );
     }
 
     const staleDocs = await this.submissionModel
-      .find({ status: JudgeStatus.RUNNING, updatedAt: { $lt: staleBefore }, attempts: { $lt: MAX_ATTEMPTS } })
+      .find({
+        status: JudgeStatus.RUNNING,
+        updatedAt: { $lt: staleBefore },
+        attempts: { $lt: MAX_ATTEMPTS },
+      })
       .select('_id')
       .lean();
 
     // Also pick up anything left in QUEUED from a previous process crash before it was ever claimed.
-    const queuedDocs = await this.submissionModel.find({ status: JudgeStatus.QUEUED }).select('_id').lean();
+    const queuedDocs = await this.submissionModel
+      .find({ status: JudgeStatus.QUEUED })
+      .select('_id')
+      .lean();
 
     for (const doc of staleDocs) {
       const reclaimed = await this.submissionModel.findOneAndUpdate(
-        { _id: doc._id, status: JudgeStatus.RUNNING, attempts: { $lt: MAX_ATTEMPTS } },
+        {
+          _id: doc._id,
+          status: JudgeStatus.RUNNING,
+          attempts: { $lt: MAX_ATTEMPTS },
+        },
         { $set: { status: JudgeStatus.QUEUED } },
       );
       if (reclaimed) this.queue.push(String(doc._id));
     }
 
     for (const doc of queuedDocs) {
-      if (!this.queue.includes(String(doc._id))) this.queue.push(String(doc._id));
+      if (!this.queue.includes(String(doc._id)))
+        this.queue.push(String(doc._id));
     }
 
     if (staleDocs.length > 0 || queuedDocs.length > 0) await this.drain();

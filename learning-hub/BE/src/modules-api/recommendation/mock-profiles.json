@@ -1,0 +1,100 @@
+{
+  "description": "10 learner profile giả lập cho Day 20 — mỗi profile là danh sách attempt thô (exerciseSlug, tags, status, ngày nộp) dùng để feed vào computeTagMastery()/buildRecommendations() khi demo/test thủ công, không phải dữ liệu thật trong DB.",
+  "profiles": [
+    {
+      "id": "profile-01-newbie",
+      "label": "Newbie - chưa có attempt nào",
+      "attempts": []
+    },
+    {
+      "id": "profile-02-weak-loop",
+      "label": "Yếu mảng loop - đa số WA ở tag loop, ổn ở tag array",
+      "attempts": [
+        { "exerciseSlug": "loop-1", "tags": ["loop"], "status": "WA", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "loop-1", "tags": ["loop"], "status": "WA", "createdAt": "2026-09-02" },
+        { "exerciseSlug": "loop-1", "tags": ["loop"], "status": "AC", "createdAt": "2026-09-03" },
+        { "exerciseSlug": "array-1", "tags": ["array"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "array-2", "tags": ["array"], "status": "AC", "createdAt": "2026-09-02" }
+      ]
+    },
+    {
+      "id": "profile-03-master-array",
+      "label": "Master mảng array - 100% AC, chưa đụng tag khác",
+      "attempts": [
+        { "exerciseSlug": "array-1", "tags": ["array"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "array-2", "tags": ["array"], "status": "AC", "createdAt": "2026-09-02" },
+        { "exerciseSlug": "array-3", "tags": ["array"], "status": "AC", "createdAt": "2026-09-03" },
+        { "exerciseSlug": "array-4", "tags": ["array"], "status": "AC", "createdAt": "2026-09-04" }
+      ]
+    },
+    {
+      "id": "profile-04-hoc-lech",
+      "label": "Học lệch - giỏi string, chưa từng thử recursion/sql",
+      "attempts": [
+        { "exerciseSlug": "string-1", "tags": ["string"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "string-2", "tags": ["string"], "status": "AC", "createdAt": "2026-09-02" },
+        { "exerciseSlug": "string-3", "tags": ["string"], "status": "AC", "createdAt": "2026-09-03" }
+      ]
+    },
+    {
+      "id": "profile-05-vua-hoc-vua-rot",
+      "label": "Vừa học vừa rớt đều - mastery 50% nhiều tag",
+      "attempts": [
+        { "exerciseSlug": "loop-1", "tags": ["loop"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "loop-2", "tags": ["loop"], "status": "WA", "createdAt": "2026-09-02" },
+        { "exerciseSlug": "condition-1", "tags": ["condition"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "condition-2", "tags": ["condition"], "status": "WA", "createdAt": "2026-09-02" }
+      ]
+    },
+    {
+      "id": "profile-06-recovery",
+      "label": "Đang hồi phục - từng rớt liên tục nhưng 2 lần gần nhất AC",
+      "attempts": [
+        { "exerciseSlug": "recursion-1", "tags": ["recursion"], "status": "WA", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "recursion-1", "tags": ["recursion"], "status": "WA", "createdAt": "2026-09-02" },
+        { "exerciseSlug": "recursion-1", "tags": ["recursion"], "status": "WA", "createdAt": "2026-09-03" },
+        { "exerciseSlug": "recursion-1", "tags": ["recursion"], "status": "AC", "createdAt": "2026-09-04" },
+        { "exerciseSlug": "recursion-2", "tags": ["recursion"], "status": "AC", "createdAt": "2026-09-05" }
+      ]
+    },
+    {
+      "id": "profile-07-multi-tag",
+      "label": "Bài đa tag - một exercise vừa loop vừa array, ảnh hưởng cả hai mastery",
+      "attempts": [
+        { "exerciseSlug": "loop-array-1", "tags": ["loop", "array"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "loop-array-2", "tags": ["loop", "array"], "status": "WA", "createdAt": "2026-09-02" },
+        { "exerciseSlug": "array-1", "tags": ["array"], "status": "AC", "createdAt": "2026-09-03" }
+      ]
+    },
+    {
+      "id": "profile-08-dang-cham",
+      "label": "Còn attempt đang chấm (QUEUED/RUNNING) - phải bị loại khỏi mastery",
+      "attempts": [
+        { "exerciseSlug": "loop-1", "tags": ["loop"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "loop-2", "tags": ["loop"], "status": "QUEUED", "createdAt": "2026-09-02" },
+        { "exerciseSlug": "loop-3", "tags": ["loop"], "status": "RUNNING", "createdAt": "2026-09-03" }
+      ]
+    },
+    {
+      "id": "profile-09-all-tags-master",
+      "label": "Đã master hết mọi tag hiện có - kiểm tra exploration khi hết tag mới",
+      "attempts": [
+        { "exerciseSlug": "loop-1", "tags": ["loop"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "array-1", "tags": ["array"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "string-1", "tags": ["string"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "condition-1", "tags": ["condition"], "status": "AC", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "recursion-1", "tags": ["recursion"], "status": "AC", "createdAt": "2026-09-01" }
+      ]
+    },
+    {
+      "id": "profile-10-loi-nhieu-dang",
+      "label": "Nhiều loại lỗi khác nhau (TLE, RE, CE) không chỉ WA",
+      "attempts": [
+        { "exerciseSlug": "sql-1", "tags": ["sql"], "status": "TLE", "createdAt": "2026-09-01" },
+        { "exerciseSlug": "sql-1", "tags": ["sql"], "status": "RE", "createdAt": "2026-09-02" },
+        { "exerciseSlug": "sql-2", "tags": ["sql"], "status": "CE", "createdAt": "2026-09-03" },
+        { "exerciseSlug": "sql-3", "tags": ["sql"], "status": "AC", "createdAt": "2026-09-04" }
+      ]
+    }
+  ]
+}

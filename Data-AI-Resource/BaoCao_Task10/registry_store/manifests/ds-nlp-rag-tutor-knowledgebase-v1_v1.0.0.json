@@ -1,0 +1,269 @@
+{
+  "id": "ds-nlp-rag-tutor-knowledgebase-v1",
+  "title": "CyberSoft RAG Tutor Knowledge Base & Evaluation Benchmark",
+  "description": "Educational knowledge base corpus and gold-standard QA evaluation dataset for training and benchmarking CyberSoft RAG Tutor. Contains curriculum textbook markdown documents, semantic chunking metadata with 1536-dim vector embeddings, and expert ground-truth question-answer-citation triplets.",
+  "version": "1.0.0",
+  "domain": "nlp_genai",
+  "level": "advanced",
+  "difficulty": "hard",
+  "license": "CyberSoft-Internal-Educational-v1",
+  "pii": {
+    "level": "none",
+    "has_pii": false,
+    "anonymization_applied": [
+      "content_curation",
+      "no_user_data_included"
+    ],
+    "compliance_tags": [
+      "INTERNAL_CYBERSOFT"
+    ],
+    "handling_instructions": "Internal curriculum knowledge base. Content is proprietary to CyberSoft Academy; authorized for student model training and evaluation harnesses only."
+  },
+  "lineage": {
+    "source_system": "CyberSoft Curriculum Management System",
+    "upstream_sources": [
+      "CyberSoft Data Analyst Syllabus Markdown Docs",
+      "CyberSoft AI Engineer Lecture Slides & Tutorials"
+    ],
+    "ingestion_method": "manual_curation",
+    "generation_tool": "LangChain RecursiveCharacterTextSplitter + OpenAI text-embedding-3-small",
+    "transformation_pipeline": [
+      "Extract structured markdown sections from official curriculum repositories",
+      "Chunk text with chunk_size=500 tokens, overlap=50 tokens",
+      "Generate 1536-dimensional float vector embeddings",
+      "Senior instructors author 200 gold-standard ground-truth QA evaluation triplets with exact citations"
+    ],
+    "raw_data_hash": "3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c"
+  },
+  "learning_outcomes": {
+    "target_roles": [
+      "ai_engineer"
+    ],
+    "core_competencies": [
+      "Document Ingestion & Chunking Strategy Optimization",
+      "Dense Vector Embeddings & Similarity Search (Cosine, Inner Product)",
+      "Vector Database Indexing (Qdrant, ChromaDB, FAISS)",
+      "RAG Triad Evaluation: Context Precision, Faithfulness, Answer Relevance",
+      "Handling Out-of-Scope Queries (Refusal Guardrails)"
+    ],
+    "sample_business_questions": [
+      "How does hybrid retrieval (BM25 keyword + dense embeddings) improve retrieval recall on technical terminology?",
+      "What is the system faithfulness score when answering questions regarding Python decorators?",
+      "Does the RAG system correctly refuse to answer questions outside the CyberSoft syllabus?"
+    ],
+    "recommended_exercises": [
+      "Lab 07: Implement chunking and populate a local Qdrant vector database.",
+      "Lab 08: Implement custom prompt templates with citation constraints.",
+      "Capstone: Build automated regression evaluation harness using Ragas framework."
+    ]
+  },
+  "tables": [
+    {
+      "table_name": "kb_documents",
+      "description": "Master index of curriculum reference documents and lessons.",
+      "file_path": "data/processed/kb_documents.jsonl",
+      "format": "jsonl",
+      "row_count": 80,
+      "column_count": 5,
+      "primary_key": [
+        "doc_id"
+      ],
+      "foreign_keys": [],
+      "columns": [
+        {
+          "name": "doc_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Unique lesson document identifier",
+          "is_pii": false,
+          "example": "DOC-MOD01-LESSON04"
+        },
+        {
+          "name": "module_name",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Curriculum module name (e.g., Python Core, SQL Mastery, RAG Systems)",
+          "is_pii": false,
+          "example": "RAG Systems Architecture"
+        },
+        {
+          "name": "doc_title",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Chapter or lesson heading title",
+          "is_pii": false,
+          "example": "Vector Embeddings & Semantic Search"
+        },
+        {
+          "name": "content_markdown",
+          "data_type": "text",
+          "nullable": false,
+          "description": "Raw verified markdown body text of lesson",
+          "is_pii": false,
+          "example": "# Vector Embeddings\nEmbeddings map words to dense vectors..."
+        },
+        {
+          "name": "token_count",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Total token length counted via tiktoken cl100k_base",
+          "is_pii": false,
+          "example": 2450
+        }
+      ]
+    },
+    {
+      "table_name": "kb_chunks_embeddings",
+      "description": "Chunked text segments with dense semantic vector representations.",
+      "file_path": "data/processed/kb_chunks_embeddings.parquet",
+      "format": "parquet",
+      "row_count": 520,
+      "column_count": 6,
+      "primary_key": [
+        "chunk_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "doc_id",
+          "ref_table": "kb_documents",
+          "ref_column": "doc_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "chunk_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Globally unique chunk identifier",
+          "is_pii": false,
+          "example": "CHK-DOC01-003"
+        },
+        {
+          "name": "doc_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Parent lesson document ID",
+          "is_pii": false,
+          "example": "DOC-MOD01-LESSON04"
+        },
+        {
+          "name": "chunk_index",
+          "data_type": "integer",
+          "nullable": false,
+          "description": "Ordinal position of chunk within document",
+          "is_pii": false,
+          "example": 3
+        },
+        {
+          "name": "chunk_text",
+          "data_type": "text",
+          "nullable": false,
+          "description": "Extracted text segment (500 tokens)",
+          "is_pii": false,
+          "example": "Cosine similarity measures the angle between two embedding vectors..."
+        },
+        {
+          "name": "embedding_vector",
+          "data_type": "vector[1536]",
+          "nullable": false,
+          "description": "1536-dimensional dense float32 vector embedding",
+          "is_pii": false,
+          "example": "[0.0213, -0.0154, 0.0489, ...]"
+        },
+        {
+          "name": "created_at",
+          "data_type": "datetime",
+          "nullable": false,
+          "description": "Timestamp when chunk and embedding were computed",
+          "is_pii": false,
+          "example": "2026-09-03T11:00:00Z"
+        }
+      ]
+    },
+    {
+      "table_name": "ground_truth_eval_qa",
+      "description": "Benchmark evaluation dataset containing vetted student queries, ideal answers, and citations.",
+      "file_path": "data/processed/ground_truth_eval_qa.jsonl",
+      "format": "jsonl",
+      "row_count": 200,
+      "column_count": 6,
+      "primary_key": [
+        "eval_id"
+      ],
+      "foreign_keys": [
+        {
+          "column": "expected_chunk_id",
+          "ref_table": "kb_chunks_embeddings",
+          "ref_column": "chunk_id"
+        }
+      ],
+      "columns": [
+        {
+          "name": "eval_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Unique evaluation test case identifier",
+          "is_pii": false,
+          "example": "EVAL-Q-0042"
+        },
+        {
+          "name": "user_query",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Natural language technical question asked by student",
+          "is_pii": false,
+          "example": "Tại sao dùng cosine similarity thay vì khoảng cách euclidean cho text embedding?"
+        },
+        {
+          "name": "expected_answer",
+          "data_type": "text",
+          "nullable": false,
+          "description": "Gold-standard vetted model answer crafted by lead instructor",
+          "is_pii": false,
+          "example": "Cosine similarity đo lường hướng của vector mà không bị ảnh hưởng bởi độ dài câu..."
+        },
+        {
+          "name": "expected_chunk_id",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Target ground-truth chunk ID that MUST be retrieved",
+          "is_pii": false,
+          "example": "CHK-DOC01-003"
+        },
+        {
+          "name": "expected_citation",
+          "data_type": "string",
+          "nullable": false,
+          "description": "Exact citation link or section header",
+          "is_pii": false,
+          "example": "Lesson 04: Vector Embeddings § Cosine Similarity"
+        },
+        {
+          "name": "is_out_of_scope",
+          "data_type": "boolean",
+          "nullable": false,
+          "description": "Flag indicating whether tutor should refuse to answer (Guardrail test)",
+          "is_pii": false,
+          "example": false
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "algorithm": "SHA-256",
+    "checksum": "9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b",
+    "file_size_bytes": 18874368
+  },
+  "tags": [
+    "genai",
+    "rag",
+    "vector-database",
+    "qdrant",
+    "embeddings",
+    "evaluation-harness"
+  ],
+  "author": "CyberSoft AI Engineering & Tutor Research Group",
+  "maintainer": "Dao Trung Kien (Data & AI Resource Engineer)",
+  "created_at": "2026-09-03T08:30:00Z",
+  "updated_at": "2026-09-04T12:00:00Z"
+}

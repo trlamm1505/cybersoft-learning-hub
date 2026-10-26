@@ -1,0 +1,14 @@
+{
+  "labId": "LAB-12",
+  "mode": "clean",
+  "faultId": "F-D14-012",
+  "rule": "Regression case ID phải duy nhất và ca ghi dữ liệu phải có cleanup.",
+  "data": {
+    "caseIds": [
+      "REG-01",
+      "REG-02",
+      "REG-03"
+    ],
+    "cleanupRequired": true
+  }
+}

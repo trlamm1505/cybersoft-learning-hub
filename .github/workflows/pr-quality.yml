@@ -1,0 +1,71 @@
+name: PR Quality Gates
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Bot chỉ có quyền đọc: không thể approve, merge hay comment vào PR.
+permissions:
+  contents: read
+  pull-requests: read
+
+# Chống spam: push liên tiếp lên cùng PR thì hủy run cũ, chỉ giữ kết quả của commit mới nhất.
+concurrency:
+  group: pr-quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  change-impact-tests:
+    name: Changed-file quality gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Resolve changed files
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git -c core.quotepath=false diff --name-only "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" > changed-files.txt
+          else
+            git -c core.quotepath=false diff --name-only "$(git rev-parse HEAD^)...HEAD" > changed-files.txt
+          fi
+          echo "Changed files:"
+          cat changed-files.txt
+
+      - name: Run mapped gates and preserve exit code
+        id: quality
+        shell: bash
+        run: |
+          set +e
+          python Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/scripts/pr_quality.py --changed-file changed-files.txt
+          quality_exit=$?
+          set -e
+          cat Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/pr-quality-report.md >> "$GITHUB_STEP_SUMMARY"
+          exit "$quality_exit"
+
+      - name: Upload auditable report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-quality-report-${{ github.run_id }}
+          path: |
+            Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/pr-quality-report.md
+            Test/Day22_PR_Quality_Bot_Tran_Quoc_Nguyen/reports/pr-quality-report.json
+          if-no-files-found: error
+          retention-days: 14

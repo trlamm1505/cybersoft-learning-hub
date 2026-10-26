@@ -1,0 +1,61 @@
+{
+  "variantId": "kiem-tra-so-chan-le-V04",
+  "sourceId": "kiem-tra-so-chan-le",
+  "sourceVersion": "1.0",
+  "variantVersion": "1.0",
+  "sourceType": "CODING",
+  "parameters": {
+    "n": [
+      0,
+      -2,
+      55555,
+      -55555
+    ]
+  },
+  "generationMethod": "ai-selected-parameters + program-recomputed-answer (python3/node, khong tin truc tiep AI)",
+  "content": {
+    "slug": "kiem-tra-so-chan-le-v04",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 4)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "0",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "-2",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "55555",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      },
+      {
+        "input": "-55555",
+        "expectedOutput": "Lẻ",
+        "isHidden": true
+      }
+    ]
+  },
+  "__testCaseNotes": [
+    "n=0",
+    "n=-2",
+    "n=55555",
+    "n=-55555"
+  ],
+  "validationStatus": "PENDING",
+  "humanReview": {
+    "equivalenceAccepted": null,
+    "reviewer": "",
+    "notes": "",
+    "reviewedAt": ""
+  }
+}

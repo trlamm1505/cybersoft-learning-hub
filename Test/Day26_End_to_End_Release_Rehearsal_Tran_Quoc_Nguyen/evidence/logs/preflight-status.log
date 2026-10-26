@@ -1,0 +1,34 @@
+ M Data-AI-Resource/BaoCao_Task17/indexes/embedding_model.pkl
+ M Data-AI-Resource/BaoCao_Task17/indexes/index_manifest.json
+ M Data-AI-Resource/BaoCao_Task17/indexes/vector_index.npz
+ M Data-AI-Resource/BaoCao_Task17/reports/retrieval_baseline_metrics.json
+ M Data-AI-Resource/BaoCao_Task17/reports/retrieval_baseline_report.md
+ M Data-AI-Resource/BaoCao_Task18/reports/experiment_metrics.json
+ M Data-AI-Resource/BaoCao_Task18/reports/experiment_report.md
+ M Data-AI-Resource/BaoCao_Task18/reports/failure_analysis.json
+ M Data-AI-Resource/BaoCao_Task18/reports/failure_analysis.md
+ M Data-AI-Resource/BaoCao_Task24/data/artifacts/datasets/customer_churn_dataset/v1.0.0/metadata.json
+ M Test/Day11_Content_Lint_Tran_Quoc_Nguyen/Bao_Cao_Ngay_11Tran_Quoc_Nguyen_Bo_Sung.xlsx
+ M learning-hub/BE/src/modules-api/coach/eval/reports/baseline-report.json
+ M learning-hub/BE/src/modules-api/coach/eval/reports/baseline-report.md
+ M learning-hub/BE/src/modules-api/coach/eval/reports/history/dd3d9493b07e_StubLlmClient.json
+?? .tmp-jest/
+?? Test/Bao_cao_cuoi_ngay_16_RAG_Evaluation_Tran_Quoc_Nguyen.docx
+?? Test/Day13_Coding_Problem_Validator_Tran_Quoc_Nguyen/AI_WORKLOG-1.md
+?? "Test/Day13_Coding_Problem_Validator_Tran_Quoc_Nguyen/Day07_Authentication_Tests_Tran Quoc Nguyen/"
+?? Test/Day16_RAG_Evaluation_Tran_Quoc_Nguyen.xlsx
+?? Test/Day17_RAG_Retriever_Tran_Quoc_Nguyen/
+?? Test/Day18_Hybrid_Search_Tran_Quoc_Nguyen/
+?? Test/Day19_Red_Team_Tran_Quoc_Nguyen/
+?? Test/Day20_LLM_Judge_Tran_Quoc_Nguyen/
+?? Test/Day23_Defect_Analytics_Tran_Quoc_Nguyen/
+?? Test/Day23_Test_Cases_FAIL_Tran_Quoc_Nguyen.xlsx
+?? Test/Day24_Exploratory_Testing_Tran_Quoc_Nguyen/
+?? Test/Day25_Test_Flakiness_Tran_Quoc_Nguyen/
+?? Test/Day26_End_to_End_Release_Rehearsal_Tran_Quoc_Nguyen/
+?? Test/day21/
+?? Test/ngay16/
+?? learning-hub/FE/src/components/TeacherContestAuthoring.tsx.backup
+?? learning-hub/FE/src/components/TeacherContestAuthoring.tsx.conflict-backup
+?? weights/
+?? yolov8n.pt

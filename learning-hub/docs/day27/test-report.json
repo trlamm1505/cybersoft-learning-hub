@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-10-08T06:25:16.621Z",
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 0,
+    "bypassed": 1,
+    "qualityGateStatus": "READY_TO_RELEASE"
+  },
+  "fixturesCount": 7,
+  "testResults": [
+    {
+      "testId": "non-critical-perf-check",
+      "name": "Performance Check",
+      "category": "SMOKE",
+      "isCritical": false,
+      "status": "BYPASSED",
+      "bypassReason": "Tạm hoãn do đang nâng cấp môi trường staging"
+    }
+  ],
+  "releaseChecklist": [
+    {
+      "item": "Tích hợp E2E smoke tests & content checks",
+      "done": true
+    },
+    {
+      "item": "Chạy AI Coach regression evaluation",
+      "done": true
+    },
+    {
+      "item": "Tạo release checklist & Quality Gate Bypass Guard",
+      "done": true
+    },
+    {
+      "item": "Không cho bypass nếu không ghi rõ lý do (bypassReason)",
+      "done": true
+    },
+    {
+      "item": "Xuất Artifact Test Report (docs/day27/test-report.json)",
+      "done": true
+    }
+  ]
+}

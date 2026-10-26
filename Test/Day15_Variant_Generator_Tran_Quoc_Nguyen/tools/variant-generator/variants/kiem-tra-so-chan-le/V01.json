@@ -1,0 +1,61 @@
+{
+  "variantId": "kiem-tra-so-chan-le-V01",
+  "sourceId": "kiem-tra-so-chan-le",
+  "sourceVersion": "1.0",
+  "variantVersion": "1.0",
+  "sourceType": "CODING",
+  "parameters": {
+    "n": [
+      8,
+      13,
+      0,
+      -4
+    ]
+  },
+  "generationMethod": "ai-selected-parameters + program-recomputed-answer (python3/node, khong tin truc tiep AI)",
+  "content": {
+    "slug": "kiem-tra-so-chan-le-v01",
+    "title": "Kiểm tra số chẵn lẻ (Biến thể 1)",
+    "type": "CODE_TEXT",
+    "difficulty": "EASY",
+    "description": "Cho một số nguyên N. In ra \"Chẵn\" nếu N là số chẵn, ngược lại in ra \"Lẻ\".",
+    "starterCode": "n = int(input())\n# Viết code của bạn ở đây\n",
+    "solutionCode": "n = int(input())\nprint(\"Chẵn\" if n % 2 == 0 else \"Lẻ\")",
+    "timeLimitMs": 2000,
+    "testCases": [
+      {
+        "input": "8",
+        "expectedOutput": "Chẵn",
+        "isHidden": false
+      },
+      {
+        "input": "13",
+        "expectedOutput": "Lẻ",
+        "isHidden": false
+      },
+      {
+        "input": "0",
+        "expectedOutput": "Chẵn",
+        "isHidden": true
+      },
+      {
+        "input": "-4",
+        "expectedOutput": "Chẵn",
+        "isHidden": true
+      }
+    ]
+  },
+  "__testCaseNotes": [
+    "n=8",
+    "n=13",
+    "n=0",
+    "n=-4"
+  ],
+  "validationStatus": "PENDING",
+  "humanReview": {
+    "equivalenceAccepted": null,
+    "reviewer": "",
+    "notes": "",
+    "reviewedAt": ""
+  }
+}

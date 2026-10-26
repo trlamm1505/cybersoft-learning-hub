@@ -1,0 +1,6 @@
+DA Lab SQL smoke - 10/10/2026 08:22 (BE 127.0.0.1:3000, Postgres sandbox da-sandbox-sales-v1 healthy, port 55432)
+POST /api/da-labs/da-sql-01/run    {sql:"... status ..."}            -> 201 SQL_ERROR "column \"status\" does not exist" (162 ms; lỗi do câu SQL sai, runner phản hồi đúng)
+POST /api/da-labs/da-sql-01/run    {sql:"SELECT * FROM orders LIMIT 2"} -> 201 OK, 8 cột, 2 dòng (51 ms)
+POST /api/da-labs/da-sql-01/submit {SQL đúng, order_status='Completed' AND total_amount > 20000000 ORDER BY total_amount DESC}
+                                  -> 201 ACCEPTED 10/10 "Kết quả khớp dữ liệu và thứ tự sắp xếp." (75 ms)
+Kết luận: PASS (Postgres sandbox chạy SQL và chấm được).

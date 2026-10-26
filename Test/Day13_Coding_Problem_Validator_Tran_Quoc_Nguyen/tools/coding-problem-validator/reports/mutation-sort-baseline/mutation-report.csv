@@ -1,0 +1,13 @@
+problem,suite,mutantId,type,description,expected,sampleResult,hiddenResult,hiddenPassed,failedHiddenTests,status,killedBy,judgeStatus,expectedMatch,gapHint,humanVerification
+sap-xep-tang-dan,baseline,SRT-01,Wrong condition,Sắp xếp giảm dần (`reverse=True`),KILLED,FAIL,FAIL,1/2,#02,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-02,Missing logic,"Bỏ lệnh sắp xếp, in nguyên danh sách",KILLED,FAIL,FAIL,1/2,#02,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-03,Duplicate handling error,Dùng `sorted(set(nums))` - làm mất phần tử trùng,KILLED,PASS,FAIL,1/2,#02,KILLED,HIDDEN,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-04,Off-by-one,Bỏ mất phần tử cuối khi in (`nums[:-1]`),KILLED,FAIL,FAIL,0/2,#01 #02,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-05,Wrong comparison,Sắp theo thứ tự chuỗi (`key=str`) thay vì theo giá trị số,KILLED,FAIL,PASS,2/2,,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-06,Wrong comparison,Sắp theo giá trị tuyệt đối (`key=abs`),KILLED,FAIL,FAIL,1/2,#02,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-07,Hard-code sample,"Chỉ in đúng kết quả cho 2 sample (n=5 và n=3), còn lại in nguyên input",KILLED,PASS,FAIL,1/2,#02,KILLED,HIDDEN,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-08,Wrong output format,Nối bằng dấu phẩy thay vì dấu cách,KILLED,FAIL,FAIL,1/2,#02,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-09,Wrong output format,Mỗi số một dòng (`sep='\n'`),KILLED,FAIL,FAIL,1/2,#02,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-10,Slow algorithm,Bubble sort O(n^2) thay vì sort() O(n log n),TIMEOUT,PASS,PASS,2/2,,SURVIVED,,AC,NO,Không có test N rất lớn nên thuật toán O(n^2) vẫn AC; đề chưa có constraints cho N.,
+sap-xep-tang-dan,baseline,SRT-11,Off-by-one,Chỉ sắp xếp nửa đầu của danh sách,KILLED,FAIL,FAIL,1/2,#02,KILLED,SAMPLE,WA,yes,,
+sap-xep-tang-dan,baseline,SRT-12,Wrong output format,Thừa khoảng trắng và dòng trống Ở CUỐI output,EQUIVALENT,PASS,PASS,2/2,,EQUIVALENT,,AC,yes,,

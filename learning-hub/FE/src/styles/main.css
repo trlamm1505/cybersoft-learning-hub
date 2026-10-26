@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/*
+ * Biến thể `dark:` của Tailwind mặc định theo cài đặt của HỆ ĐIỀU HÀNH
+ * (prefers-color-scheme), không theo nút đổi giao diện của app. Khi hai thứ
+ * lệch nhau (app Sáng + máy Tối hoặc ngược lại) nhiều thành phần bị sai màu.
+ * Ép `dark:` chỉ áp dụng khi app đang ở giao diện Tối (class .theme-dark).
+ */
+@custom-variant dark (&:where(.theme-dark, .theme-dark *));
+
 @layer base {
   :root {
     /* Default Light Theme Variables */
@@ -9,7 +17,8 @@
     --bg-input: #ffffff;
     --border-color: #e2e8f0;
     --text-main: #0f172a;
-    --text-muted: #64748b;
+    --text-muted: #556277;
+    color-scheme: light;
   }
 
   .theme-dark {
@@ -21,6 +30,41 @@
     --border-color: #243049;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
+    color-scheme: dark;
+  }
+
+  /* Kid Mode (Lớp 3-5): giao diện sáng pastel, chữ to tròn, bo góc lớn. Bật bằng class trên <html> (App.tsx). */
+  html.kid-mode {
+    --bg-main: #f0f9ff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #fffbeb;
+    --bg-input: #ffffff;
+    --border-color: #fde68a;
+    --text-main: #1e293b;
+    --text-muted: #475569;
+    color-scheme: light;
+    font-size: 112.5%;
+    /* Nunito có đủ dấu tiếng Việt; Comic Sans MS thiếu nhiều dấu nên bị lẫn font, bỏ khỏi danh sách. */
+    font-family: 'Nunito Variable', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  }
+  @keyframes kid-fall {
+    0% { transform: translateY(-40px) rotate(0deg); opacity: 0; }
+    15% { opacity: 1; }
+    100% { transform: translateY(520px) rotate(360deg); opacity: 0; }
+  }
+  @keyframes kid-sparkle {
+    0%, 100% { box-shadow: 0 0 14px rgba(250, 204, 21, 0.55); transform: scale(1); }
+    50% { box-shadow: 0 0 34px rgba(250, 204, 21, 0.95); transform: scale(1.02); }
+  }
+  .kid-sparkle { animation: kid-sparkle 1.8s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .kid-sparkle { animation: none; } }
+  .kid-confetti { top: 0; animation-name: kid-fall; animation-iteration-count: infinite; animation-timing-function: linear; }
+  @media (prefers-reduced-motion: reduce) { .kid-confetti { animation: none; opacity: 0.6; top: 10%; } }
+
+  html.kid-mode body {
+    font-family: inherit;
+    background-image: radial-gradient(circle at 12% 8%, #fef9c3 0, transparent 38%), radial-gradient(circle at 88% 0, #dbeafe 0, transparent 40%);
+    background-attachment: fixed;
   }
 
   body {
@@ -36,6 +80,40 @@
     outline: 3px solid #06b6d4;
     outline-offset: 3px;
     border-radius: 4px;
+  }
+
+  /* Thin, theme-aware scrollbar everywhere instead of the OS's default bulky
+     one (visible arrows/thumb) — Firefox via scrollbar-width/-color, Chrome/
+     Edge/Safari via the ::-webkit-scrollbar pseudo-elements below. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-muted);
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
   }
 }
 
@@ -54,4 +132,51 @@
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+/* Block Puzzle: robot crash feedback (đâm tường/gốc cây) */
+@keyframes block-puzzle-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px) rotate(-3deg); }
+  40% { transform: translateX(4px) rotate(3deg); }
+  60% { transform: translateX(-3px) rotate(-2deg); }
+  80% { transform: translateX(3px) rotate(2deg); }
+}
+
+.animate-shake {
+  animation: block-puzzle-shake 0.4s ease-in-out;
+}
+
+/* Toast dùng chung: rơi/trượt xuống từ mép trên màn hình */
+@keyframes toast-drop-in {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.toast-drop-in {
+  animation: toast-drop-in 0.25s ease-out;
+}
+
+/*
+ * Ô nhập số của Blockly (vd ô chọn góc/độ của game Chim Tìm Tổ). Tailwind preflight đặt cho mọi <input>
+ * `background-color: transparent; color: inherit`, nên:
+ *  - nền trong suốt làm chữ gốc của khối ("45°") lộ xuyên qua ô đang gõ, chồng lên số mới (nhìn như bị loạn);
+ *  - ở giao diện tối, chữ kế thừa màu sáng của trang nên gần như không thấy.
+ * Ép nền trắng + chữ tối, và giữ bảng chọn góc ở giao diện sáng kể cả khi trình duyệt/OS ép chế độ tối.
+ */
+.blocklyWidgetDiv input.blocklyHtmlInput,
+.blocklyWidgetDiv textarea.blocklyHtmlInput {
+  background-color: #fff;
+  color: #0f172a;
+  caret-color: #0f172a;
+}
+.blocklyWidgetDiv,
+.blocklyDropDownDiv {
+  color-scheme: light;
 }

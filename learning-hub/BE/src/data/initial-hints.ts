@@ -30,8 +30,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'tinh-tong-hai-so-nguyen',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 'a = int(input())\nb = int(input())\nprint(a + b)',
+    title: 'Hướng giải bằng giả mã (không phải code)',
+    content:
+      'Bước 1: Đọc số thứ nhất từ dòng nhập, đổi sang số nguyên.\nBước 2: Đọc số thứ hai tương tự.\nBước 3: Cộng hai số lại thành một kết quả.\nBước 4: In kết quả ra màn hình.',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -58,8 +59,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'kiem-tra-so-chan-le',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 'n = int(input())\nprint("Chẵn" if n % 2 == 0 else "Lẻ")',
+    title: 'Hướng giải bằng giả mã (không phải code)',
+    content:
+      'Bước 1: Đọc số n và đổi sang số nguyên.\nBước 2: Lấy phần dư khi chia n cho 2.\nBước 3: Nếu phần dư bằng 0 thì in "Chẵn", ngược lại in "Lẻ".',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -86,8 +88,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'tim-so-lon-nhat',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 'n = int(input())\nnums = list(map(int, input().split()))\nprint(max(nums))',
+    title: 'Hướng giải bằng giả mã (không phải code)',
+    content:
+      'Bước 1: Đọc n, rồi đọc dãy số trên dòng kế tiếp và tách thành danh sách số nguyên.\nBước 2: Giữ một biến "lớn nhất" bắt đầu từ phần tử đầu tiên.\nBước 3: Duyệt các phần tử còn lại, gặp số lớn hơn thì cập nhật biến đó.\nBước 4: In giá trị lớn nhất tìm được.',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -114,8 +117,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'dao-nguoc-chuoi',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 's = input()\nprint(s[::-1])',
+    title: 'Hướng giải bằng giả mã (không phải code)',
+    content:
+      'Bước 1: Đọc chuỗi đầu vào.\nBước 2: Duyệt từng ký tự từ cuối về đầu để ghép thành chuỗi mới (hoặc dùng phép cắt chuỗi với bước lùi).\nBước 3: In chuỗi đã đảo.',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -142,9 +146,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'kiem-tra-so-nguyen-to',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
+    title: 'Hướng giải bằng giả mã (không phải code)',
     content:
-      'n = int(input())\n\ndef is_prime(x):\n    if x < 2:\n        return False\n    for i in range(2, int(x ** 0.5) + 1):\n        if x % i == 0:\n            return False\n    return True\n\nprint("YES" if is_prime(n) else "NO")',
+      'Bước 1: Đọc n. Nếu n nhỏ hơn 2 thì kết luận "NO" ngay.\nBước 2: Thử chia n cho các số i từ 2 đến căn bậc hai của n.\nBước 3: Nếu có i nào chia hết n thì không phải số nguyên tố: in "NO".\nBước 4: Nếu không có số nào chia hết thì in "YES".',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -171,8 +175,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'fibonacci',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 'n = int(input())\na, b = 1, 1\nfor _ in range(n - 1):\n    a, b = b, a + b\nprint(a)',
+    title: 'Hướng giải bằng giả mã (không phải code)',
+    content:
+      'Bước 1: Đọc n. Hai số đầu của dãy đều bằng 1.\nBước 2: Lặp n - 1 lần: mỗi lượt, số mới bằng tổng hai số liền trước; dời hai biến lên một vị trí.\nBước 3: Sau vòng lặp, in số hiện tại là số Fibonacci thứ n.',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -199,8 +204,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'uoc-chung-lon-nhat',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 'a = int(input())\nb = int(input())\nwhile b:\n    a, b = b, a % b\nprint(a)',
+    title: 'Hướng giải bằng giả mã (không phải code)',
+    content:
+      'Bước 1: Đọc hai số a và b.\nBước 2: Áp dụng thuật toán Euclid: khi b chưa bằng 0, thay (a, b) bằng (b, phần dư của a chia b).\nBước 3: Khi b bằng 0, a chính là ước chung lớn nhất; in a.',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -227,8 +233,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'kiem-tra-palindrome',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
-    content: 's = input()\nprint("YES" if s == s[::-1] else "NO")',
+    title: 'Hướng giải bằng giả mã (không phải code)',
+    content:
+      'Bước 1: Đọc chuỗi đầu vào.\nBước 2: Tạo bản đảo ngược của chuỗi (hoặc so sánh ký tự đầu với ký tự cuối, tiến dần vào giữa).\nBước 3: Nếu hai bản giống hệt nhau thì in "YES", ngược lại in "NO".',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -255,9 +262,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'sap-xep-tang-dan',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
+    title: 'Hướng giải bằng giả mã (không phải code)',
     content:
-      "n = int(input())\nnums = list(map(int, input().split()))\nnums.sort()\nprint(' '.join(map(str, nums)))",
+      'Bước 1: Đọc n và dãy số, tách thành danh sách số nguyên.\nBước 2: Sắp xếp danh sách theo thứ tự tăng dần (có thể dùng hàm sắp xếp có sẵn của ngôn ngữ).\nBước 3: In các phần tử cách nhau bởi một dấu cách.',
     costPoints: 15,
     cooldownSeconds: 30,
   },
@@ -284,9 +291,9 @@ export const INITIAL_HINTS: InitialHintData[] = [
   {
     exerciseSlug: 'tong-duong-cheo-ma-tran',
     level: 3,
-    title: 'Code mẫu hoàn chỉnh (Python)',
+    title: 'Hướng giải bằng giả mã (không phải code)',
     content:
-      'n = int(input())\nmatrix = [list(map(int, input().split())) for _ in range(n)]\nprint(sum(matrix[i][i] for i in range(n)))',
+      'Bước 1: Đọc n, sau đó đọc n dòng, mỗi dòng gồm n số, để thành ma trận.\nBước 2: Đường chéo chính gồm các ô có chỉ số dòng bằng chỉ số cột.\nBước 3: Cộng các ô ở vị trí (0,0), (1,1), ..., (n-1,n-1) và in tổng.',
     costPoints: 15,
     cooldownSeconds: 30,
   },

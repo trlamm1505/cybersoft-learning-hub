@@ -1,0 +1,10 @@
+S-AI-04/05 | 08/10/2026 20:41-20:43 | bài tinh-tong-hai-so-nguyen-a-b (0 test case)
+RUN code đúng (stdin 2,3)            -> stdout "5", exit 0
+RUN code sai (a-b)                   -> "-1" (Run không chấm, đúng thiết kế)
+RUN code rỗng / chỉ input()          -> exit 0, không thông báo gì
+RUN print(1 (SyntaxError)            -> stderr chứa "/sandbox/<uuid>.py" (lộ tên file tạm; đã ghi ở bug cũ)
+RUN 1/0 (ZeroDivisionError)          -> stderr traceback có "/sandbox/<uuid>.py"
+RUN in 70000 ký tự                   -> phản hồi dài 65629 ký tự (bị cắt ~64KB, không báo; liên quan DEF-016)
+SUBMIT code đúng/sai/lỗi cú pháp/hard-code -> 201 QUEUED, rồi GET /exercises/submissions/<id> => status FAILED, passed 0/0, errorMessage "Bài tập thiếu Test Cases, không thể chấm điểm" (đúng: không còn Accepted oan)
+SUBMIT code = "" (rỗng)             -> 500 Internal server error  => BUG MỚI
+UI Submit trên bài 0 test: hiện "Lỗi hệ thống khi chấm bài (0/0 test)" + "Bài tập thiếu Test Cases, không thể chấm điểm" (xem ảnh)

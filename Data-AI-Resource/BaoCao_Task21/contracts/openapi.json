@@ -1,0 +1,3360 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CyberSoft Data & AI Lab Integration Service",
+    "description": "Cổng dịch vụ RESTful API v1.0 chuẩn hóa theo OpenAPI 3.1 cho phân hệ CyberSoft Data & AI Lab. Cung cấp hợp đồng tích hợp chính thức giữa phân hệ Data & AI Resource (TTS 01) với CyberSoft Learning & Contest Hub (TTS 02) và QA/Eval Platform (TTS 03).",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "Health & Metadata"
+        ],
+        "summary": "Kiểm tra trạng thái sức khỏe dịch vụ",
+        "description": "Trả về trạng thái hoạt động của hệ thống, thời gian uptime và sức khỏe của từng module nội bộ.",
+        "operationId": "get_health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_HealthResponse_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/info": {
+      "get": {
+        "tags": [
+          "Health & Metadata"
+        ],
+        "summary": "Thông tin kỹ thuật, OpenAPI contract & SLA cam kết",
+        "description": "Cung cấp metadata hợp đồng API, đường dẫn tài liệu Swagger/ReDoc và các chỉ số cam kết SLA với các phân hệ khác.",
+        "operationId": "get_info_api_v1_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_APIInfoResponse_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/datasets": {
+      "get": {
+        "tags": [
+          "Dataset Registry & Projects"
+        ],
+        "summary": "Tra cứu danh sách datasets trong Registry",
+        "description": "Hỗ trợ lọc theo domain, độ khó, định dạng tệp, tag và hỗ trợ phân trang.",
+        "operationId": "list_datasets_api_v1_registry_datasets_get",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo lĩnh vực (Retail, HR/Operations, NLP/RAG, Education)",
+              "title": "Domain"
+            },
+            "description": "Lọc theo lĩnh vực (Retail, HR/Operations, NLP/RAG, Education)"
+          },
+          {
+            "name": "difficulty_level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo độ khó (beginner, intermediate, advanced)",
+              "title": "Difficulty Level"
+            },
+            "description": "Lọc theo độ khó (beginner, intermediate, advanced)"
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo định dạng tệp (csv, json, jsonl)",
+              "title": "Format"
+            },
+            "description": "Lọc theo định dạng tệp (csv, json, jsonl)"
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo thẻ phân loại",
+              "title": "Tag"
+            },
+            "description": "Lọc theo thẻ phân loại"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Số lượng bản ghi tối đa trả về",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "Số lượng bản ghi tối đa trả về"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Vị trí bắt đầu",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Vị trí bắt đầu"
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DatasetListResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/datasets/{dataset_id}": {
+      "get": {
+        "tags": [
+          "Dataset Registry & Projects"
+        ],
+        "summary": "Xem chi tiết metadata và lược đồ của một dataset",
+        "description": "Trả về thông tin chi tiết, schema cột, mã băm SHA-256 và mẫu preview 3 dòng đầu.",
+        "operationId": "get_dataset_detail_api_v1_registry_datasets__dataset_id__get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DatasetDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/projects": {
+      "get": {
+        "tags": [
+          "Dataset Registry & Projects"
+        ],
+        "summary": "Tra cứu danh mục đề án Capstone học viên",
+        "description": "Trả về danh sách các đề tài thực hành lớn (Data Analyst, AI Engineer) và tiêu chí chấm điểm.",
+        "operationId": "list_projects_api_v1_registry_projects_get",
+        "parameters": [
+          {
+            "name": "track",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo chuyên ngành (Data Analyst, AI Engineer)",
+              "title": "Track"
+            },
+            "description": "Lọc theo chuyên ngành (Data Analyst, AI Engineer)"
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Lọc theo độ khó",
+              "title": "Difficulty"
+            },
+            "description": "Lọc theo độ khó"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_ProjectListResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/projects/{project_id}": {
+      "get": {
+        "tags": [
+          "Dataset Registry & Projects"
+        ],
+        "summary": "Xem chi tiết yêu cầu và rubric chấm điểm của đề án Capstone",
+        "description": "Cung cấp mục tiêu đầu ra, danh sách deliverables và tỷ trọng rubric chấm bài.",
+        "operationId": "get_project_detail_api_v1_registry_projects__project_id__get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_ProjectDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/evaluation-sets": {
+      "get": {
+        "tags": [
+          "Dataset Registry & Projects"
+        ],
+        "summary": "Danh sách các bộ kiểm định chuẩn (Evaluation Sets)",
+        "description": "Trả về danh mục các bộ dữ liệu benchmark dùng để chấm điểm tự động các bài thực hành RAG và SQL trong AI Lab.",
+        "operationId": "list_evaluation_sets_api_v1_registry_evaluation_sets_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_EvaluationSetListResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/evaluation-sets/{eval_set_id}": {
+      "get": {
+        "tags": [
+          "Dataset Registry & Projects"
+        ],
+        "summary": "Lấy chi tiết bộ câu hỏi kiểm định kèm ground-truth (AI Lab)",
+        "description": "Trả về danh sách câu hỏi kiểm thử gồm question_id, query, ground_truth_answer, expected_behavior phục vụ chấm điểm tự động AI Lab.",
+        "operationId": "get_evaluation_set_detail_api_v1_registry_evaluation_sets__eval_set_id__get",
+        "parameters": [
+          {
+            "name": "eval_set_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Eval Set Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_EvaluationSetDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/datasets/{dataset_id}/tables": {
+      "get": {
+        "tags": [
+          "Dataset Registry & Projects"
+        ],
+        "summary": "Danh sách các bảng trong dataset",
+        "description": "Trả về danh mục các bảng dữ liệu có thể trích xuất hoặc nạp vào Postgres Sandbox.",
+        "operationId": "list_dataset_tables_api_v1_registry_datasets__dataset_id__tables_get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TableListResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/datasets/{dataset_id}/tables/{table_name}": {
+      "get": {
+        "tags": [
+          "Dataset Registry & Projects"
+        ],
+        "summary": "Lấy dữ liệu từng bảng của dataset (phân trang hoặc tải tệp CSV)",
+        "description": "Hỗ trợ phân trang hoặc tải dạng file CSV, trả kèm current_version, checksum_sha256 và thông báo rõ ràng bản được cấp là 'clean' (chuẩn sạch nạp DB) hay 'dirty' (kiểm thử).",
+        "operationId": "get_dataset_table_data_api_v1_registry_datasets__dataset_id__tables__table_name__get",
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "table_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Table Name"
+            }
+          },
+          {
+            "name": "variant",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Bản dữ liệu: 'clean' (chuẩn sạch nạp Postgres Sandbox) hoặc 'dirty' (bản kiểm thử)",
+              "default": "clean",
+              "title": "Variant"
+            },
+            "description": "Bản dữ liệu: 'clean' (chuẩn sạch nạp Postgres Sandbox) hoặc 'dirty' (bản kiểm thử)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Số trang (bắt đầu từ 1)",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Số trang (bắt đầu từ 1)"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Số lượng bản ghi mỗi trang",
+              "default": 50,
+              "title": "Page Size"
+            },
+            "description": "Số lượng bản ghi mỗi trang"
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Tải trực tiếp dưới dạng tệp CSV đính kèm header checksum và version",
+              "default": false,
+              "title": "Download"
+            },
+            "description": "Tải trực tiếp dưới dạng tệp CSV đính kèm header checksum và version"
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Định dạng kết quả trả về ('json' hoặc 'csv')",
+              "default": "json",
+              "title": "Format"
+            },
+            "description": "Định dạng kết quả trả về ('json' hoặc 'csv')"
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TableDataResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/search/semantic": {
+      "post": {
+        "tags": [
+          "Semantic Search & Retrieval"
+        ],
+        "summary": "Tìm kiếm lai kết hợp ngữ nghĩa và từ khóa trên học liệu",
+        "description": "Thực thi thuật toán kết hợp BM25 và Vector Dense RRF để tìm các đoạn trích giáo trình phù hợp nhất.",
+        "operationId": "search_semantic_api_v1_search_semantic_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SemanticSearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_SemanticSearchResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/search/chunks/{chunk_id}": {
+      "get": {
+        "tags": [
+          "Semantic Search & Retrieval"
+        ],
+        "summary": "Tra cứu chi tiết một đoạn trích giáo trình theo mã chunk_id",
+        "description": "Trả về toàn văn nội dung, tiêu đề tài liệu, mục và thẻ phân loại của chunk.",
+        "operationId": "get_chunk_api_v1_search_chunks__chunk_id__get",
+        "parameters": [
+          {
+            "name": "chunk_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chunk Id"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_SearchChunkItem_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tutor/chat": {
+      "post": {
+        "tags": [
+          "AI Tutor & RAG Engine"
+        ],
+        "summary": "Hỏi đáp thông minh với Trợ giảng AI Tutor có trích nguồn",
+        "description": "Truy xuất kiến thức từ học liệu CyberSoft, sinh câu trả lời có trích dẫn minh chứng, tự động kích hoạt Guardrails và cơ chế từ chối khi câu hỏi ngoài phạm vi đào tạo.",
+        "operationId": "chat_with_tutor_api_v1_tutor_chat_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TutorChatRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_TutorChatResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/quality/validate-dataset": {
+      "post": {
+        "tags": [
+          "Data Quality & QA Metrics"
+        ],
+        "summary": "Kiểm định tính toàn vẹn và chất lượng của một dataset",
+        "description": "Thực thi các luật kiểm tra schema, missing values, duplicates và bounds; trả về kết luận PASSED hoặc FAILED cho Cổng chất lượng.",
+        "operationId": "validate_dataset_api_v1_quality_validate_dataset_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetValidationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_DatasetValidationResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/quality/metrics": {
+      "get": {
+        "tags": [
+          "Data Quality & QA Metrics"
+        ],
+        "summary": "Truy xuất trọn bộ chỉ số Data Quality và RAG Benchmarks",
+        "description": "Cung cấp số liệu tổng hợp cho Quality Dashboard hợp nhất của TTS 03 (QA) bao gồm Recall@5, MRR, Citation Precision, Groundedness và Latency p95.",
+        "operationId": "get_quality_metrics_api_v1_quality_metrics_get",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelope_QualityMetricsResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "APIInfoResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Tên dịch vụ tích hợp"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Phiên bản hiện tại"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Mô tả chức năng hệ thống"
+          },
+          "openapi_spec_url": {
+            "type": "string",
+            "title": "Openapi Spec Url",
+            "description": "Đường dẫn tải hợp đồng OpenAPI JSON",
+            "default": "/api/v1/openapi.json"
+          },
+          "swagger_docs_url": {
+            "type": "string",
+            "title": "Swagger Docs Url",
+            "description": "Giao diện tra cứu Swagger UI",
+            "default": "/docs"
+          },
+          "redoc_url": {
+            "type": "string",
+            "title": "Redoc Url",
+            "description": "Giao diện tra cứu ReDoc",
+            "default": "/redoc"
+          },
+          "sla_target": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Sla Target",
+            "description": "Cam kết chất lượng dịch vụ SLA (Độ trễ p95, Uptime)"
+          },
+          "maintainer": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Maintainer",
+            "description": "Thông tin đội ngũ kỹ sư phụ trách"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "description",
+          "sla_target",
+          "maintainer"
+        ],
+        "title": "APIInfoResponse",
+        "description": "API metadata, contract specification and SLA commitments."
+      },
+      "ChatMessage": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "Vai trò phát ngôn: user | assistant | system"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "Nội dung thông điệp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ChatMessage",
+        "description": "A single turn in conversational history."
+      },
+      "CitationItem": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "title": "Source Id",
+            "description": "Mã định danh của tài liệu trích dẫn"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Tên giáo trình hoặc quy chế đào tạo"
+          },
+          "section": {
+            "type": "string",
+            "title": "Section",
+            "description": "Tên mục hoặc chương cụ thể"
+          },
+          "excerpt": {
+            "type": "string",
+            "title": "Excerpt",
+            "description": "Đoạn văn bản trích dẫn làm chứng cứ xác thực"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "title",
+          "section",
+          "excerpt"
+        ],
+        "title": "CitationItem",
+        "description": "Structured citation reference for verifiable factual answer."
+      },
+      "ColumnDictionaryItem": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Tên cột"
+          },
+          "data_type": {
+            "type": "string",
+            "title": "Data Type",
+            "description": "Kiểu dữ liệu SQL (VARCHAR, INT, DATE...)"
+          },
+          "nullable": {
+            "type": "boolean",
+            "title": "Nullable",
+            "description": "Cho phép giá trị NULL hay không",
+            "default": false
+          },
+          "is_primary_key": {
+            "type": "boolean",
+            "title": "Is Primary Key",
+            "description": "Khóa chính (PK) của bảng",
+            "default": false
+          },
+          "is_foreign_key": {
+            "type": "boolean",
+            "title": "Is Foreign Key",
+            "description": "Khóa ngoại (FK) liên kết",
+            "default": false
+          },
+          "foreign_key_target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Foreign Key Target",
+            "description": "Bảng và cột đích tham chiếu nếu là khóa ngoại (bảng.cột)"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Mô tả ý nghĩa nghiệp vụ của cột",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "data_type"
+        ],
+        "title": "ColumnDictionaryItem",
+        "description": "Definition of a table column in the data dictionary."
+      },
+      "DatasetColumnSchema": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Tên trường dữ liệu"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "Kiểu dữ liệu (string, integer, float, datetime, boolean)"
+          },
+          "nullable": {
+            "type": "boolean",
+            "title": "Nullable",
+            "description": "Trường có thể rỗng hay không",
+            "default": false
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Mô tả ý nghĩa nghiệp vụ của trường",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ],
+        "title": "DatasetColumnSchema",
+        "description": "Schema definition for a dataset column."
+      },
+      "DatasetDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Mã định danh duy nhất của dataset"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Tên dataset"
+          },
+          "domain": {
+            "type": "string",
+            "title": "Domain",
+            "description": "Lĩnh vực (Retail, HR/Operations, NLP/RAG, Education)"
+          },
+          "difficulty_level": {
+            "type": "string",
+            "title": "Difficulty Level",
+            "description": "Độ khó (beginner, intermediate, advanced)"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Định dạng tệp (csv, json, jsonl, parquet)"
+          },
+          "records_count": {
+            "type": "integer",
+            "title": "Records Count",
+            "description": "Tổng số bản ghi dữ liệu"
+          },
+          "current_version": {
+            "type": "string",
+            "title": "Current Version",
+            "description": "Phiên bản phát hành hiện tại",
+            "default": "v1.0"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags",
+            "description": "Danh mục thẻ tìm kiếm nhanh"
+          },
+          "is_public": {
+            "type": "boolean",
+            "title": "Is Public",
+            "description": "Học viên có quyền truy cập trực tiếp hay không",
+            "default": true
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Mô tả chi tiết bài toán và ngữ cảnh ứng dụng"
+          },
+          "schema_definition": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetColumnSchema"
+            },
+            "type": "array",
+            "title": "Schema Definition",
+            "description": "Cấu trúc lược đồ dữ liệu chi tiết"
+          },
+          "data_dictionary": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TableDictionaryItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Dictionary",
+            "description": "Từ điển dữ liệu (Data Dictionary) gồm danh sách các bảng và chi tiết các cột (tên, kiểu dữ liệu, nullable, PK, FK, mô tả)"
+          },
+          "checksum_sha256": {
+            "type": "string",
+            "title": "Checksum Sha256",
+            "description": "Mã băm toàn vẹn SHA-256"
+          },
+          "file_size_bytes": {
+            "type": "integer",
+            "title": "File Size Bytes",
+            "description": "Kích thước tệp tính bằng bytes",
+            "default": 0
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "Thời điểm khởi tạo ISO 8601"
+          },
+          "license": {
+            "type": "string",
+            "title": "License",
+            "description": "Bản quyền sử dụng",
+            "default": "CyberSoft Academy Internal Use"
+          },
+          "sample_preview": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Sample Preview",
+            "description": "Mẫu 3 bản ghi đầu tiên xem trước"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "domain",
+          "difficulty_level",
+          "format",
+          "records_count",
+          "description",
+          "checksum_sha256",
+          "created_at"
+        ],
+        "title": "DatasetDetail",
+        "description": "Detailed metadata and contracts for a registered dataset."
+      },
+      "DatasetItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Mã định danh duy nhất của dataset"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Tên dataset"
+          },
+          "domain": {
+            "type": "string",
+            "title": "Domain",
+            "description": "Lĩnh vực (Retail, HR/Operations, NLP/RAG, Education)"
+          },
+          "difficulty_level": {
+            "type": "string",
+            "title": "Difficulty Level",
+            "description": "Độ khó (beginner, intermediate, advanced)"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Định dạng tệp (csv, json, jsonl, parquet)"
+          },
+          "records_count": {
+            "type": "integer",
+            "title": "Records Count",
+            "description": "Tổng số bản ghi dữ liệu"
+          },
+          "current_version": {
+            "type": "string",
+            "title": "Current Version",
+            "description": "Phiên bản phát hành hiện tại",
+            "default": "v1.0"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags",
+            "description": "Danh mục thẻ tìm kiếm nhanh"
+          },
+          "is_public": {
+            "type": "boolean",
+            "title": "Is Public",
+            "description": "Học viên có quyền truy cập trực tiếp hay không",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "domain",
+          "difficulty_level",
+          "format",
+          "records_count"
+        ],
+        "title": "DatasetItem",
+        "description": "Summary item of a registered dataset."
+      },
+      "DatasetListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetItem"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Danh sách các dataset thỏa điều kiện"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationMeta",
+            "description": "Thông tin phân trang"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "pagination"
+        ],
+        "title": "DatasetListResponse",
+        "description": "Response payload for datasets list."
+      },
+      "DatasetValidationRequest": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id",
+            "description": "Mã định danh của dataset cần kiểm định"
+          },
+          "check_rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Check Rules",
+            "description": "Danh sách các bộ quy tắc kiểm định cần áp dụng",
+            "default": [
+              "schema_conformance",
+              "missing_values",
+              "duplicate_rows",
+              "range_bounds"
+            ]
+          },
+          "max_missing_ratio_threshold": {
+            "type": "number",
+            "maximum": 0.5,
+            "minimum": 0.0,
+            "title": "Max Missing Ratio Threshold",
+            "description": "Ngưỡng tỷ lệ ô trống tối đa cho phép (mặc định 5%)",
+            "default": 0.05
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id"
+        ],
+        "title": "DatasetValidationRequest",
+        "description": "Payload to trigger an automated quality inspection on a dataset."
+      },
+      "DatasetValidationResponse": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id",
+            "description": "Mã định danh dataset được kiểm tra"
+          },
+          "total_records": {
+            "type": "integer",
+            "title": "Total Records",
+            "description": "Tổng số dòng kiểm tra"
+          },
+          "valid_records": {
+            "type": "integer",
+            "title": "Valid Records",
+            "description": "Số dòng dữ liệu hợp lệ"
+          },
+          "invalid_records": {
+            "type": "integer",
+            "title": "Invalid Records",
+            "description": "Số dòng chứa sai sót hoặc vi phạm"
+          },
+          "completeness_score": {
+            "type": "number",
+            "title": "Completeness Score",
+            "description": "Tỷ lệ đầy đủ của tập dữ liệu (0.0 đến 1.0)"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Kết luận kiểm định: PASSED | WARNING | FAILED"
+          },
+          "passed_gate": {
+            "type": "boolean",
+            "title": "Passed Gate",
+            "description": "Đạt điều kiện cho phép xuất bản sang Learning Platform"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationIssue"
+            },
+            "type": "array",
+            "title": "Issues",
+            "description": "Danh sách các cảnh báo và lỗi vi phạm"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "total_records",
+          "valid_records",
+          "invalid_records",
+          "completeness_score",
+          "status",
+          "passed_gate"
+        ],
+        "title": "DatasetValidationResponse",
+        "description": "Inspection report detailing data quality results and gate decision."
+      },
+      "EvaluationQuestionItem": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "title": "Question Id",
+            "description": "Mã định danh câu hỏi kiểm thử (ví dụ: EVAL-STD-01)"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "Nội dung câu hỏi học viên hoặc kiểm thử"
+          },
+          "ground_truth_answer": {
+            "type": "string",
+            "title": "Ground Truth Answer",
+            "description": "Câu trả lời chuẩn mực (ground-truth)"
+          },
+          "expected_behavior": {
+            "type": "string",
+            "title": "Expected Behavior",
+            "description": "Hành vi kỳ vọng của mô hình AI: ANSWER, ABSTAIN, REJECT, GUARD_BLOCKED"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category",
+            "description": "Phân loại ca kiểm thử (standard_qa, multi_hop, out_of_domain, adversarial_jailbreak)"
+          },
+          "expected_doc_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Expected Doc Ids",
+            "description": "Danh sách mã tài liệu kỳ vọng trích xuất"
+          },
+          "expected_chunk_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Expected Chunk Ids",
+            "description": "Danh sách chunk ID kỳ vọng"
+          },
+          "ground_truth_keywords": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ground Truth Keywords",
+            "description": "Từ khóa bắt buộc phải có trong câu trả lời"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id",
+          "query",
+          "ground_truth_answer",
+          "expected_behavior"
+        ],
+        "title": "EvaluationQuestionItem",
+        "description": "Single evaluation question item for AI Lab automated grading."
+      },
+      "EvaluationSetDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Mã định danh bộ dữ liệu đánh giá"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Tên bộ dữ liệu đánh giá"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Phiên bản phát hành"
+          },
+          "target_system": {
+            "type": "string",
+            "title": "Target System",
+            "description": "Phân hệ hoặc mô hình đánh giá",
+            "default": "RAG AI Tutor"
+          },
+          "total_questions": {
+            "type": "integer",
+            "title": "Total Questions",
+            "description": "Tổng số lượng câu hỏi đánh giá"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Mô tả mục đích và phạm vi đánh giá"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/EvaluationQuestionItem"
+            },
+            "type": "array",
+            "title": "Questions",
+            "description": "Danh sách toàn bộ câu hỏi và ground-truth tương ứng"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "version",
+          "total_questions",
+          "description",
+          "questions"
+        ],
+        "title": "EvaluationSetDetail",
+        "description": "Detailed evaluation set for AI Lab benchmarking."
+      },
+      "EvaluationSetListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Mã bộ đánh giá"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Tên bộ đánh giá"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Phiên bản"
+          },
+          "target_system": {
+            "type": "string",
+            "title": "Target System",
+            "description": "Hệ thống mục tiêu"
+          },
+          "total_questions": {
+            "type": "integer",
+            "title": "Total Questions",
+            "description": "Tổng số câu hỏi"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Mô tả"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "version",
+          "target_system",
+          "total_questions",
+          "description"
+        ],
+        "title": "EvaluationSetListItem",
+        "description": "Summary item for evaluation sets list."
+      },
+      "EvaluationSetListResponse": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Tổng số bộ đánh giá"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EvaluationSetListItem"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Danh sách các bộ đánh giá"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "items"
+        ],
+        "title": "EvaluationSetListResponse",
+        "description": "List response for evaluation sets."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Trạng thái sức khỏe tổng thể: healthy | degraded",
+            "default": "healthy"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "uptime_seconds": {
+            "type": "number",
+            "title": "Uptime Seconds",
+            "description": "Thời gian hoạt động liên tục của dịch vụ"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Phiên bản API hiện tại"
+          },
+          "services": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/HealthServiceStatus"
+            },
+            "type": "object",
+            "title": "Services",
+            "description": "Chi tiết trạng thái từng phân hệ"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uptime_seconds",
+          "version",
+          "services"
+        ],
+        "title": "HealthResponse",
+        "description": "System health check payload."
+      },
+      "HealthServiceStatus": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "healthy | degraded | down",
+            "default": "healthy"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Thông điệp trạng thái",
+            "default": "Sẵn sàng phục vụ"
+          },
+          "latency_ms": {
+            "type": "number",
+            "title": "Latency Ms",
+            "description": "Độ trễ phản hồi của phân hệ tính bằng milliseconds",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "HealthServiceStatus",
+        "description": "Health status of an internal subsystem."
+      },
+      "PaginationMeta": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Tổng số bản ghi thỏa điều kiện"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Số bản ghi tối đa trên một trang"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Vị trí bắt đầu của danh sách kết quả"
+          },
+          "has_next": {
+            "type": "boolean",
+            "title": "Has Next",
+            "description": "Có trang tiếp theo hay không"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "limit",
+          "offset",
+          "has_next"
+        ],
+        "title": "PaginationMeta",
+        "description": "Pagination metadata for list endpoints."
+      },
+      "ProjectDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Mã định danh duy nhất của đề án"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Tên đề tài dự án"
+          },
+          "track": {
+            "type": "string",
+            "title": "Track",
+            "description": "Chuyên ngành (Data Analyst, AI Engineer, Fullstack)"
+          },
+          "target_audience": {
+            "type": "string",
+            "title": "Target Audience",
+            "description": "Đối tượng phù hợp (K3-12, Đại học, Người chuyển ngành)"
+          },
+          "difficulty": {
+            "type": "string",
+            "title": "Difficulty",
+            "description": "Mức độ phức tạp (Level 1-5)"
+          },
+          "estimated_hours": {
+            "type": "integer",
+            "title": "Estimated Hours",
+            "description": "Thời lượng thực hiện ước tính (giờ)"
+          },
+          "associated_dataset_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Associated Dataset Ids",
+            "description": "Danh sách dataset sử dụng trong đề án"
+          },
+          "objectives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Objectives",
+            "description": "Mục tiêu đầu ra của dự án"
+          },
+          "deliverables": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Deliverables",
+            "description": "Sản phẩm học viên cần nộp (Dashboard, Notebook, REST API...)"
+          },
+          "rubric_summary": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Rubric Summary",
+            "description": "Trọng số các tiêu chí chấm điểm (%)"
+          },
+          "recommended_tools": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Recommended Tools",
+            "description": "Công cụ khuyến nghị (PowerBI, Python, SQL...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "track",
+          "target_audience",
+          "difficulty",
+          "estimated_hours",
+          "objectives",
+          "deliverables",
+          "rubric_summary"
+        ],
+        "title": "ProjectDetail",
+        "description": "Detailed specification and grading rubric for a student capstone project."
+      },
+      "ProjectItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Mã định danh duy nhất của đề án"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Tên đề tài dự án"
+          },
+          "track": {
+            "type": "string",
+            "title": "Track",
+            "description": "Chuyên ngành (Data Analyst, AI Engineer, Fullstack)"
+          },
+          "target_audience": {
+            "type": "string",
+            "title": "Target Audience",
+            "description": "Đối tượng phù hợp (K3-12, Đại học, Người chuyển ngành)"
+          },
+          "difficulty": {
+            "type": "string",
+            "title": "Difficulty",
+            "description": "Mức độ phức tạp (Level 1-5)"
+          },
+          "estimated_hours": {
+            "type": "integer",
+            "title": "Estimated Hours",
+            "description": "Thời lượng thực hiện ước tính (giờ)"
+          },
+          "associated_dataset_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Associated Dataset Ids",
+            "description": "Danh sách dataset sử dụng trong đề án"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "track",
+          "target_audience",
+          "difficulty",
+          "estimated_hours"
+        ],
+        "title": "ProjectItem",
+        "description": "Summary item of a student capstone project."
+      },
+      "ProjectListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectItem"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Danh sách đề tài thỏa điều kiện"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationMeta",
+            "description": "Thông tin phân trang"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "pagination"
+        ],
+        "title": "ProjectListResponse",
+        "description": "Response payload for capstone projects list."
+      },
+      "QualityMetricsResponse": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "Thời điểm đo lường số liệu ISO 8601"
+          },
+          "service_version": {
+            "type": "string",
+            "title": "Service Version",
+            "description": "Phiên bản phát hành của hệ thống",
+            "default": "v1.0.0"
+          },
+          "data_quality_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data Quality Summary",
+            "description": "Tổng quan chất lượng kho dữ liệu CyberSoft Data Lab"
+          },
+          "rag_benchmarks": {
+            "$ref": "#/components/schemas/RAGMetricsBenchmark",
+            "description": "Chỉ số kiểm thử chất lượng RAG Tutor v1.0"
+          },
+          "ci_gate_status": {
+            "type": "string",
+            "title": "Ci Gate Status",
+            "description": "Trạng thái cổng chất lượng CI/CD Quality Gate",
+            "default": "PASSED"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp",
+          "data_quality_summary",
+          "rag_benchmarks"
+        ],
+        "title": "QualityMetricsResponse",
+        "description": "Aggregated Quality and Evaluation metrics payload for TTS 03 Dashboard."
+      },
+      "RAGMetricsBenchmark": {
+        "properties": {
+          "recall_at_5": {
+            "type": "number",
+            "title": "Recall At 5",
+            "description": "Tỷ lệ thu hồi thông tin Top-5 Recall@5 (Đạt 100.0%)"
+          },
+          "mrr": {
+            "type": "number",
+            "title": "Mrr",
+            "description": "Thứ hạng nghịch đảo trung bình MRR (Đạt 1.0000)"
+          },
+          "citation_precision": {
+            "type": "number",
+            "title": "Citation Precision",
+            "description": "Độ chính xác trích nguồn (Đạt 96.67%)"
+          },
+          "phantom_citations": {
+            "type": "integer",
+            "title": "Phantom Citations",
+            "description": "Số ca trích dẫn ma bịa đặt (Đạt 0 ca)"
+          },
+          "groundedness_score": {
+            "type": "number",
+            "title": "Groundedness Score",
+            "description": "Điểm số trung thực có căn cứ (Đạt 85.67%)"
+          },
+          "abstention_accuracy": {
+            "type": "number",
+            "title": "Abstention Accuracy",
+            "description": "Độ chính xác từ chối an toàn khi ngoài phạm vi (Đạt 93.33%)"
+          },
+          "tail_latency_p95_ms": {
+            "type": "number",
+            "title": "Tail Latency P95 Ms",
+            "description": "Độ trễ đuôi phân vị 95 (Đạt 36.98 ms)"
+          },
+          "total_cost_usd": {
+            "type": "number",
+            "title": "Total Cost Usd",
+            "description": "Chi phí vận hành token (Đạt $0.00 USD offline)",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "recall_at_5",
+          "mrr",
+          "citation_precision",
+          "phantom_citations",
+          "groundedness_score",
+          "abstention_accuracy",
+          "tail_latency_p95_ms"
+        ],
+        "title": "RAGMetricsBenchmark",
+        "description": "Quantitative performance indicators from Task 20 RAG Evaluation Harness."
+      },
+      "SearchChunkItem": {
+        "properties": {
+          "chunk_id": {
+            "type": "string",
+            "title": "Chunk Id",
+            "description": "Mã định danh duy nhất của đoạn văn bản"
+          },
+          "document_title": {
+            "type": "string",
+            "title": "Document Title",
+            "description": "Tên tài liệu / giáo trình nguồn"
+          },
+          "section_header": {
+            "type": "string",
+            "title": "Section Header",
+            "description": "Tiêu đề mục hoặc chương sách"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "Nội dung chi tiết của đoạn trích"
+          },
+          "relevance_score": {
+            "type": "number",
+            "title": "Relevance Score",
+            "description": "Điểm số tương đồng tổng hợp kết hợp RRF (0.0 đến 1.0)"
+          },
+          "source_citation": {
+            "type": "string",
+            "title": "Source Citation",
+            "description": "Chuỗi trích nguồn tiêu chuẩn dạng [Doc X, Mục Y]"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags",
+            "description": "Thẻ phân loại chuyên đề"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chunk_id",
+          "document_title",
+          "section_header",
+          "content",
+          "relevance_score",
+          "source_citation"
+        ],
+        "title": "SearchChunkItem",
+        "description": "Retrieved chunk item with relevance score and source metadata."
+      },
+      "SemanticSearchRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 2,
+            "title": "Query",
+            "description": "Truy vấn tìm kiếm của người dùng hoặc học viên"
+          },
+          "top_k": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Top K",
+            "description": "Số lượng kết quả phù hợp nhất cần trả về (1 đến 20)",
+            "default": 5
+          },
+          "similarity_threshold": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Similarity Threshold",
+            "description": "Ngưỡng điểm tương đồng tối thiểu để đưa vào kết quả",
+            "default": 0.1
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filters",
+            "description": "Bộ lọc nâng cao (document_title, tags...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "SemanticSearchRequest",
+        "description": "Payload for executing hybrid semantic search over CyberSoft course corpus."
+      },
+      "SemanticSearchResponse": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "Truy vấn gốc đã thực thi"
+          },
+          "total_found": {
+            "type": "integer",
+            "title": "Total Found",
+            "description": "Tổng số đoạn trích tìm thấy vượt qua ngưỡng lọc"
+          },
+          "execution_time_ms": {
+            "type": "number",
+            "title": "Execution Time Ms",
+            "description": "Thời gian thực thi tìm kiếm lai tính bằng milliseconds"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/SearchChunkItem"
+            },
+            "type": "array",
+            "title": "Results",
+            "description": "Danh sách các đoạn trích phù hợp nhất xếp theo thứ hạng"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "total_found",
+          "execution_time_ms",
+          "results"
+        ],
+        "title": "SemanticSearchResponse",
+        "description": "Response payload for semantic search."
+      },
+      "SuccessEnvelope_APIInfoResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/APIInfoResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[APIInfoResponse]"
+      },
+      "SuccessEnvelope_DatasetDetail_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/DatasetDetail",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[DatasetDetail]"
+      },
+      "SuccessEnvelope_DatasetListResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/DatasetListResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[DatasetListResponse]"
+      },
+      "SuccessEnvelope_DatasetValidationResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/DatasetValidationResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[DatasetValidationResponse]"
+      },
+      "SuccessEnvelope_EvaluationSetDetail_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/EvaluationSetDetail",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[EvaluationSetDetail]"
+      },
+      "SuccessEnvelope_EvaluationSetListResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/EvaluationSetListResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[EvaluationSetListResponse]"
+      },
+      "SuccessEnvelope_HealthResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/HealthResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[HealthResponse]"
+      },
+      "SuccessEnvelope_ProjectDetail_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProjectDetail",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[ProjectDetail]"
+      },
+      "SuccessEnvelope_ProjectListResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProjectListResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[ProjectListResponse]"
+      },
+      "SuccessEnvelope_QualityMetricsResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/QualityMetricsResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[QualityMetricsResponse]"
+      },
+      "SuccessEnvelope_SearchChunkItem_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SearchChunkItem",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[SearchChunkItem]"
+      },
+      "SuccessEnvelope_SemanticSearchResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SemanticSearchResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[SemanticSearchResponse]"
+      },
+      "SuccessEnvelope_TableDataResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TableDataResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[TableDataResponse]"
+      },
+      "SuccessEnvelope_TableListResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TableListResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[TableListResponse]"
+      },
+      "SuccessEnvelope_TutorChatResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Trạng thái thực thi thành công luôn là true",
+            "default": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TutorChatResponse",
+            "description": "Payload kết quả trả về của API"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta",
+            "description": "Metadata bổ sung (thời gian thực thi, requestId...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "SuccessEnvelope[TutorChatResponse]"
+      },
+      "TableDataResponse": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id",
+            "description": "Mã dataset"
+          },
+          "table_name": {
+            "type": "string",
+            "title": "Table Name",
+            "description": "Tên bảng dữ liệu"
+          },
+          "variant": {
+            "type": "string",
+            "title": "Variant",
+            "description": "Trạng thái bản dữ liệu được cấp: 'clean' (chuẩn sạch nạp DB) hoặc 'dirty' (bản kiểm thử)"
+          },
+          "variant_description": {
+            "type": "string",
+            "title": "Variant Description",
+            "description": "Thông báo rõ ràng bản được cấp là clean hay dirty và mục đích sử dụng"
+          },
+          "current_version": {
+            "type": "string",
+            "title": "Current Version",
+            "description": "Phiên bản hiện tại của bộ dữ liệu (e.g. v1.0)"
+          },
+          "checksum_sha256": {
+            "type": "string",
+            "title": "Checksum Sha256",
+            "description": "Mã băm SHA-256 của tệp bảng tương ứng"
+          },
+          "total_rows": {
+            "type": "integer",
+            "title": "Total Rows",
+            "description": "Tổng số bản ghi của bảng"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page",
+            "description": "Trang hiện tại (1-indexed)"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "Số lượng bản ghi mỗi trang"
+          },
+          "total_pages": {
+            "type": "integer",
+            "title": "Total Pages",
+            "description": "Tổng số trang"
+          },
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns",
+            "description": "Danh sách tên các cột"
+          },
+          "rows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Rows",
+            "description": "Danh sách các bản ghi dữ liệu dạng dict"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "table_name",
+          "variant",
+          "variant_description",
+          "current_version",
+          "checksum_sha256",
+          "total_rows",
+          "page",
+          "page_size",
+          "total_pages",
+          "columns",
+          "rows"
+        ],
+        "title": "TableDataResponse",
+        "description": "Paginated table data for loading into Postgres Sandbox."
+      },
+      "TableDictionaryItem": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name",
+            "description": "Tên bảng dữ liệu"
+          },
+          "file_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Name",
+            "description": "Tên tệp CSV lưu trữ tương ứng"
+          },
+          "row_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Row Count",
+            "description": "Số lượng bản ghi chuẩn của bảng"
+          },
+          "primary_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Key",
+            "description": "Tên cột khóa chính"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Mô tả nghiệp vụ của bảng"
+          },
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/ColumnDictionaryItem"
+            },
+            "type": "array",
+            "title": "Columns",
+            "description": "Danh sách cột của bảng"
+          }
+        },
+        "type": "object",
+        "required": [
+          "table_name"
+        ],
+        "title": "TableDictionaryItem",
+        "description": "Definition of a table schema in the data dictionary."
+      },
+      "TableListResponse": {
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "title": "Dataset Id",
+            "description": "Mã dataset"
+          },
+          "total_tables": {
+            "type": "integer",
+            "title": "Total Tables",
+            "description": "Tổng số bảng"
+          },
+          "tables": {
+            "items": {
+              "$ref": "#/components/schemas/TableSummaryItem"
+            },
+            "type": "array",
+            "title": "Tables",
+            "description": "Danh sách các bảng"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dataset_id",
+          "total_tables",
+          "tables"
+        ],
+        "title": "TableListResponse",
+        "description": "List of available tables in a dataset."
+      },
+      "TableSummaryItem": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name",
+            "description": "Tên bảng dữ liệu"
+          },
+          "row_count": {
+            "type": "integer",
+            "title": "Row Count",
+            "description": "Số lượng dòng bản ghi"
+          },
+          "primary_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Key",
+            "description": "Cột khóa chính"
+          },
+          "available_variants": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Available Variants",
+            "description": "Các bản dữ liệu có sẵn",
+            "default": [
+              "clean",
+              "dirty"
+            ]
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Mô tả bảng"
+          }
+        },
+        "type": "object",
+        "required": [
+          "table_name",
+          "row_count"
+        ],
+        "title": "TableSummaryItem",
+        "description": "Summary information of an available table in a dataset."
+      },
+      "TutorChatRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 3,
+            "title": "Question",
+            "description": "Câu hỏi hoặc yêu cầu cần trợ giảng giải đáp"
+          },
+          "conversation_history": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ChatMessage"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation History",
+            "description": "Lịch sử các lượt đối thoại trước"
+          },
+          "top_k": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Top K",
+            "description": "Số lượng đoạn trích giáo trình tham chiếu làm bằng chứng",
+            "default": 3
+          },
+          "strict_abstention": {
+            "type": "boolean",
+            "title": "Strict Abstention",
+            "description": "Kích hoạt cơ chế từ chối nghiêm ngặt nếu câu hỏi ngoài phạm vi học liệu",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "TutorChatRequest",
+        "description": "Payload for submitting a question to CyberSoft AI Tutor."
+      },
+      "TutorChatResponse": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer",
+            "description": "Nội dung giải đáp sư phạm của trợ giảng"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/CitationItem"
+            },
+            "type": "array",
+            "title": "Citations",
+            "description": "Danh sách các trích dẫn đối chứng trong giáo trình"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Trạng thái phản hồi: ANSWERED (được trả lời) | ABSTAINED (từ chối do ngoài phạm vi) | GUARD_BLOCKED (chặn do bẫy bảo mật)"
+          },
+          "groundedness_score": {
+            "type": "number",
+            "title": "Groundedness Score",
+            "description": "Điểm số trung thực có căn cứ của câu trả lời (0.0 đến 1.0)"
+          },
+          "latency_ms": {
+            "type": "number",
+            "title": "Latency Ms",
+            "description": "Thời gian xử lý từ lúc nhận đến hoàn thành phản hồi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer",
+          "status",
+          "groundedness_score",
+          "latency_ms"
+        ],
+        "title": "TutorChatResponse",
+        "description": "Grounded answer from CyberSoft AI Tutor with citations and safety verification."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ValidationIssue": {
+        "properties": {
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "description": "Mức độ nghiêm trọng: CRITICAL | WARNING | INFO"
+          },
+          "rule": {
+            "type": "string",
+            "title": "Rule",
+            "description": "Tên quy tắc bị vi phạm"
+          },
+          "column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column",
+            "description": "Cột dữ liệu liên quan"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Mô tả chi tiết nguyên nhân phát sinh lỗi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "severity",
+          "rule",
+          "description"
+        ],
+        "title": "ValidationIssue",
+        "description": "Specific defect or violation identified during data inspection."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health & Metadata",
+      "description": "Endpoints kiểm tra sức khỏe hệ thống, uptime và thông tin hợp đồng OpenAPI."
+    },
+    {
+      "name": "Dataset Registry & Projects",
+      "description": "Quản lý danh mục bộ dữ liệu (Datasets) và ngân hàng đề án học viên (Project Bank)."
+    },
+    {
+      "name": "Semantic Search & Retrieval",
+      "description": "Tìm kiếm ngữ nghĩa và tìm kiếm lai (Hybrid Search BM25 + Vector Dense RRF) trên học liệu."
+    },
+    {
+      "name": "AI Tutor & RAG Engine",
+      "description": "Hỏi đáp Trợ giảng AI có trích nguồn xác thực và vành đai bảo vệ Guardrails."
+    },
+    {
+      "name": "Data Quality & QA Metrics",
+      "description": "Cổng kiểm định chất lượng dữ liệu và trích xuất chỉ số RAG Eval cho Dashboard hợp nhất của TTS 03."
+    }
+  ]
+}

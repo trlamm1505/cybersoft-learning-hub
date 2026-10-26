@@ -1,0 +1,18 @@
+{
+  "name": "day14-demo-automation",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Playwright read-only cho demo1 và demo2",
+  "scripts": {
+    "test": "playwright test",
+    "test:lab10": "playwright test tests/lab10-login.spec.ts tests/lab10-auth.spec.ts --project=demo2",
+    "test:lab11": "playwright test tests/lab11-booking.spec.ts --project=demo1",
+    "test:lab12": "playwright test tests/lab12-regression.spec.ts --project=demo1",
+    "test:smoke": "playwright test --grep @smoke",
+    "report": "playwright show-report reports/html",
+    "browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

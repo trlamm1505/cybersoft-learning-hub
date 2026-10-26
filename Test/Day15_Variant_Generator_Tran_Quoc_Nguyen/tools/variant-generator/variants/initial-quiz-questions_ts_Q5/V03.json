@@ -1,0 +1,56 @@
+{
+  "variantId": "initial-quiz-questions.ts#Q5-V03",
+  "sourceId": "initial-quiz-questions.ts#Q5",
+  "sourceVersion": "1.0",
+  "variantVersion": "1.0",
+  "sourceType": "QUIZ",
+  "parameters": {
+    "literal": "null",
+    "literalLabel": "null",
+    "innerType": "object"
+  },
+  "generationMethod": "ai-selected-parameters + program-recomputed-answer (python3/node, khong tin truc tiep AI)",
+  "content": {
+    "content": "Đoạn mã JavaScript sau đây sẽ in ra kết quả gì màn hình console?",
+    "codeSnippet": "console.log(typeof typeof null);",
+    "category": "JavaScript",
+    "difficulty": "MEDIUM",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "\"undefined\"",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "TypeError",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "\"number\"",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "\"string\"",
+        "isCorrect": true
+      }
+    ],
+    "explanation": "`typeof null` trả về chuỗi `\"object\"`. Tiếp tục thực hiện `typeof \"object\"` sẽ trả về chuỗi `\"string\"` (vì tham số của `typeof` lúc này đã là 1 chuỗi).",
+    "tags": [
+      "JavaScript",
+      "ES6",
+      "Core"
+    ]
+  },
+  "recomputedTypeofTypeof": "string",
+  "validationStatus": "PENDING",
+  "humanReview": {
+    "equivalenceAccepted": null,
+    "reviewer": "",
+    "notes": "",
+    "reviewedAt": ""
+  }
+}

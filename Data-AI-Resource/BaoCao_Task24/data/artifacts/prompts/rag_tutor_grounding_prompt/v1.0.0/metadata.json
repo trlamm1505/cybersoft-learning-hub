@@ -1,0 +1,24 @@
+{
+  "id": "prompt_rag_tutor_grounding_prompt_v1.0.0",
+  "name": "RAG Tutor Grounding Prompt",
+  "artifact_type": "prompt",
+  "version": "v1.0.0",
+  "state": "active",
+  "description": "Prompt trợ lý học tập AI trích xuất nguồn gốc và từ chối khi thiếu dữ kiện.",
+  "author": "Đào Trung Kiên - Data & AI Resource Engineer",
+  "created_at": "2026-10-01T18:37:47.264514+00:00",
+  "file_path": "data/artifacts/prompts/rag_tutor_grounding_prompt/v1.0.0/tutor_prompt_v1.txt",
+  "file_size_bytes": 156,
+  "content_hash": "dd5880a0533c52311494161405a2e0fc480f10df102224ef17e88013c8dcc166",
+  "upstream_ids": [],
+  "tags": [
+    "prompt",
+    "rag",
+    "tutor",
+    "citation"
+  ],
+  "deprecation_reason": null,
+  "superseded_by": null,
+  "sunset_date": null,
+  "extra_metadata": {}
+}

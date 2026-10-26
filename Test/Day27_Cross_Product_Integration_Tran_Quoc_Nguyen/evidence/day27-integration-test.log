@@ -1,0 +1,27 @@
+﻿
+> be@0.0.1 test
+> jest --runInBand src/integration/dataset-integration.service.spec.ts src/integration/real-registry-contract.spec.ts src/modules-api/da-labs/da-labs.submissions.spec.ts src/modules-api/da-labs/teacher-submissions.controller.spec.ts src/modules-api/ai-labs/ai-lab-grader.service.spec.ts src/integration/ai-exercise-to-lesson-publish.spec.ts
+
+[33m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [33m   WARN[39m [38;5;3m[DatasetIntegrationService] [39m[33mMáy chủ dữ liệu http://tts01:8000 không trả lời; tạm dùng dữ liệu tích hợp sẵn (DATA_SERVICE_FALLBACK=embedded).[39m
+
+PASS src/modules-api/ai-labs/ai-lab-grader.service.spec.ts (11.306 s)
+[31m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1): ECONNREFUSED[39m
+[31m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/evaluation-sets/eval-policy-curriculum-v1): connect ECONNREFUSED 127.0.0.1:8010[39m
+[31m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/evaluation-sets/eval-policy-curriculum-v1): fail[39m
+[31m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/evaluation-sets/eval-policy-curriculum-v1): fail[39m
+[31m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/evaluation-sets/eval-policy-curriculum-v1): fail[39m
+[31m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://data-service.test/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1): Server Error[39m
+[31m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://tts01:8000/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1): refused[39m
+[31m[Nest] 12064  - [39m10/10/2026, 9:23:20 PM [31m  ERROR[39m [38;5;3m[DatasetIntegrationService] [39m[31mGọi Dataset Registry thất bại (http://tts01:8000/api/v1/registry/datasets/ds-retail-ecommerce-sales-v1): refused[39m
+PASS src/integration/dataset-integration.service.spec.ts
+PASS src/integration/ai-exercise-to-lesson-publish.spec.ts (15.47 s)
+PASS src/integration/real-registry-contract.spec.ts
+PASS src/modules-api/da-labs/da-labs.submissions.spec.ts
+PASS src/modules-api/da-labs/teacher-submissions.controller.spec.ts (5.896 s)
+
+Test Suites: 6 passed, 6 total
+Tests:       90 passed, 90 total
+Snapshots:   0 total
+Time:        36.693 s
+Ran all test suites matching src/integration/dataset-integration.service.spec.ts|src/integration/real-registry-contract.spec.ts|src/modules-api/da-labs/da-labs.submissions.spec.ts|src/modules-api/da-labs/teacher-submissions.controller.spec.ts|src/modules-api/ai-labs/ai-lab-grader.service.spec.ts|src/integration/ai-exercise-to-lesson-publish.spec.ts.
+

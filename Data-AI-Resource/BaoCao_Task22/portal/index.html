@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSoft Data Resource Portal v0.1 — Cổng Tìm & Tải Dữ Liệu Giáo Dục</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur border-b border-slate-800 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-cyan-500/20 shadow-lg">
+          <i class="ph-bold ph-database"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">
+              CYBERSOFT DATA &amp; AI LAB
+            </span>
+            <span class="text-xs bg-cyan-950 text-cyan-400 font-semibold px-2 py-0.5 rounded-full border border-cyan-800/60">
+              Portal v0.1
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Giao diện tìm và tải tài nguyên giáo dục • Tuần 5: Sản phẩm hóa</p>
+        </div>
+      </div>
+
+      <!-- Live Global Stats Bar -->
+      <div class="hidden lg:flex items-center space-x-6 text-xs text-slate-300">
+        <div class="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+          <i class="ph-bold ph-folder-notch-open text-cyan-400 text-sm"></i>
+          <span>Tổng số: <strong id="stat-total" class="text-white font-semibold">5</strong> datasets</span>
+        </div>
+        <div class="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+          <i class="ph-bold ph-check-circle text-emerald-400 text-sm"></i>
+          <span>Đã phát hành: <strong id="stat-published" class="text-emerald-400 font-semibold">4</strong></span>
+        </div>
+        <div class="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+          <i class="ph-bold ph-star text-amber-400 text-sm"></i>
+          <span>Hữu ích: <strong id="stat-rating" class="text-amber-400 font-semibold">4.85 / 5.0</strong></span>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex items-center space-x-3">
+        <button id="btn-run-usability" class="flex items-center space-x-1.5 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all shadow-md hover:shadow-cyan-500/20 active:scale-95">
+          <i class="ph-bold ph-lightning text-sm"></i>
+          <span>Kiểm Thử Usability (5 Scenarios)</span>
+        </button>
+        <a href="/docs" target="_blank" class="text-xs text-slate-400 hover:text-cyan-400 flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-600 transition">
+          <i class="ph ph-code"></i>
+          <span>Swagger API</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- SEARCH BANNER -->
+  <section class="bg-gradient-to-b from-slate-900 via-slate-800/40 to-slate-900 py-8 border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-6">
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+          Kho Tài Nguyên Dữ Liệu Giáo Dục Chuẩn Hóa
+        </h1>
+        <p class="text-sm text-slate-400">
+          Hỗ trợ Giảng viên CyberSoft tìm kiếm, xem trước lược đồ cột 3NF, đối soát mã băm SHA-256 và tải tài nguyên trong <span class="text-cyan-400 font-bold underline decoration-cyan-500">dưới 60 giây</span>.
+        </p>
+      </div>
+
+      <!-- Search Input Container -->
+      <div class="max-w-3xl mx-auto relative">
+        <div class="relative flex items-center">
+          <div class="absolute left-4 text-slate-400 text-xl pointer-events-none">
+            <i class="ph ph-magnifying-glass"></i>
+          </div>
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Tìm theo tên dataset, từ khóa (ví dụ: 'bán hàng', 'nhân sự', 'rag', 'sql', 'churn')..."
+            class="w-full bg-slate-800/90 text-slate-100 placeholder-slate-400 text-sm rounded-xl pl-12 pr-28 py-3.5 border border-slate-700 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition shadow-inner"
+          />
+          <button id="btn-clear-search" class="hidden absolute right-12 text-slate-400 hover:text-white p-1">
+            <i class="ph-bold ph-x"></i>
+          </button>
+          <div class="absolute right-3">
+            <span class="text-[11px] font-mono bg-slate-700/80 text-cyan-300 px-2.5 py-1 rounded-md border border-slate-600">
+              &lt; 60s Discovery
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN BODY LAYOUT: SIDEBAR FILTERS + DATASET GRID -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full grid grid-cols-1 lg:grid-cols-4 gap-8">
+    
+    <!-- LEFT SIDEBAR: FILTERS -->
+    <aside class="lg:col-span-1 space-y-6">
+      <div class="bg-slate-800/60 rounded-xl p-5 border border-slate-700/70 shadow-sm backdrop-blur space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+          <div class="flex items-center space-x-2 text-cyan-400 font-bold text-sm">
+            <i class="ph-bold ph-faders"></i>
+            <span>Bộ Lọc Đa Chiều</span>
+          </div>
+          <button id="btn-reset-filters" class="text-xs text-slate-400 hover:text-cyan-400 transition">
+            Đặt lại
+          </button>
+        </div>
+
+        <!-- Trạng thái Phát hành (Access Rules Enforcer) -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+            Trạng Thái Phát Hành
+          </label>
+          <select id="filter-status" class="w-full bg-slate-900/80 text-xs rounded-lg p-2.5 border border-slate-700 focus:border-cyan-500 text-slate-200 outline-none">
+            <option value="all">Tất cả trạng thái</option>
+            <option value="published" selected> Đã phát hành (Sẵn sàng tải)</option>
+            <option value="draft"> Bản nháp (Draft - Khóa tải)</option>
+          </select>
+          <p class="text-[11px] text-amber-400/90 flex items-center space-x-1">
+            <i class="ph-bold ph-shield-warning"></i>
+            <span>Bản nháp bị chặn tải theo chuẩn DoD</span>
+          </p>
+        </div>
+
+        <!-- Domain Filter -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+            Lĩnh Vực (Domain)
+          </label>
+          <select id="filter-domain" class="w-full bg-slate-900/80 text-xs rounded-lg p-2.5 border border-slate-700 focus:border-cyan-500 text-slate-200 outline-none">
+            <option value="all">Tất cả lĩnh vực</option>
+            <option value="Retail">Bán lẻ (Retail E-Commerce)</option>
+            <option value="HR">Nhân sự (HR Operations)</option>
+            <option value="AI/RAG">Trí tuệ nhân tạo (AI &amp; RAG)</option>
+            <option value="Telecom">Viễn thông (Telecom ML)</option>
+            <option value="Education">Giáo dục (Education Survey)</option>
+          </select>
+        </div>
+
+        <!-- Level Filter -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+            Cấp Độ (Difficulty)
+          </label>
+          <select id="filter-level" class="w-full bg-slate-900/80 text-xs rounded-lg p-2.5 border border-slate-700 focus:border-cyan-500 text-slate-200 outline-none">
+            <option value="all">Tất cả cấp độ</option>
+            <option value="beginner">Cơ bản (Beginner)</option>
+            <option value="intermediate">Trung cấp (Intermediate)</option>
+            <option value="advanced">Nâng cao (Advanced)</option>
+          </select>
+        </div>
+
+        <!-- License Filter -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+            Giấy Phép (License)
+          </label>
+          <select id="filter-license" class="w-full bg-slate-900/80 text-xs rounded-lg p-2.5 border border-slate-700 focus:border-cyan-500 text-slate-200 outline-none">
+            <option value="all">Tất cả giấy phép</option>
+            <option value="CyberSoft Academy Educational License">CyberSoft Educational License</option>
+            <option value="CC-BY-4.0">Creative Commons CC-BY-4.0</option>
+            <option value="MIT License">MIT Open Source License</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SLA & Standards Badge Card -->
+      <div class="bg-gradient-to-br from-cyan-950/40 to-slate-900 rounded-xl p-4 border border-cyan-800/40 text-xs space-y-2">
+        <div class="font-bold text-cyan-300 flex items-center space-x-1.5">
+          <i class="ph-bold ph-seal-check text-cyan-400"></i>
+          <span>Cam Kết Nghiệm Thu (DoD)</span>
+        </div>
+        <ul class="space-y-1.5 text-slate-400 text-[11px]">
+          <li class="flex items-start space-x-1.5">
+            <i class="ph-bold ph-check text-emerald-400 mt-0.5"></i>
+            <span>Tìm kiếm &amp; lọc phản hồi &lt; 100ms.</span>
+          </li>
+          <li class="flex items-start space-x-1.5">
+            <i class="ph-bold ph-check text-emerald-400 mt-0.5"></i>
+            <span>Xem trước 10 dòng &amp; lược đồ cột 3NF.</span>
+          </li>
+          <li class="flex items-start space-x-1.5">
+            <i class="ph-bold ph-check text-emerald-400 mt-0.5"></i>
+            <span>Chặn tải dataset chưa publish (403).</span>
+          </li>
+          <li class="flex items-start space-x-1.5">
+            <i class="ph-bold ph-check text-emerald-400 mt-0.5"></i>
+            <span>Hệ thống chấm điểm hữu ích 1-5 sao.</span>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- RIGHT CONTENT: DATASETS CATALOG -->
+    <section class="lg:col-span-3 space-y-5">
+      <!-- Status & Count Toolbar -->
+      <div class="flex items-center justify-between bg-slate-800/40 px-4 py-3 rounded-xl border border-slate-700/60 text-xs">
+        <div class="flex items-center space-x-2">
+          <span class="text-slate-400">Kết quả tìm kiếm:</span>
+          <strong id="results-count" class="text-cyan-400 font-bold">5</strong>
+          <span class="text-slate-400">bộ dữ liệu</span>
+        </div>
+        <div class="text-slate-400 flex items-center space-x-2">
+          <i class="ph ph-timer"></i>
+          <span>Thời gian truy vấn: <span id="query-time" class="font-mono text-cyan-300">0.00 ms</span></span>
+        </div>
+      </div>
+
+      <!-- Dataset Cards Grid Container -->
+      <div id="dataset-grid" class="space-y-4">
+        <!-- Rendered dynamically via app.js -->
+        <div class="text-center py-12 text-slate-400">
+          <div class="inline-block animate-spin text-cyan-400 text-3xl mb-2">
+            <i class="ph ph-spinner-gap"></i>
+          </div>
+          <p>Đang tải danh mục tài nguyên dữ liệu CyberSoft...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: DATA PREVIEW & SCHEMA INSPECTOR -->
+  <div id="modal-preview" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-800/40">
+        <div>
+          <div class="flex items-center space-x-2">
+            <h2 id="modal-preview-title" class="text-lg font-bold text-white tracking-tight">Tên Dataset</h2>
+            <span id="modal-preview-tier" class="text-[11px] px-2 py-0.5 rounded-full font-bold bg-cyan-950 text-cyan-300 border border-cyan-700">Tier A</span>
+            <span id="modal-preview-status" class="text-[11px] px-2 py-0.5 rounded-full font-bold bg-emerald-950 text-emerald-300 border border-emerald-700">Published</span>
+          </div>
+          <p id="modal-preview-id" class="text-xs text-slate-400 font-mono mt-0.5">ds-retail-ecommerce-sales-v1</p>
+        </div>
+        <button id="btn-close-preview" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="flex border-b border-slate-800 bg-slate-900/60 px-6 space-x-6 text-xs font-semibold">
+        <button id="tab-btn-rows" class="py-3 text-cyan-400 border-b-2 border-cyan-400 flex items-center space-x-1.5">
+          <i class="ph-bold ph-table"></i>
+          <span>Dữ Liệu Mẫu (10 Dòng)</span>
+        </button>
+        <button id="tab-btn-schema" class="py-3 text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-1.5">
+          <i class="ph-bold ph-tree-structure"></i>
+          <span>Lược Đồ Cột (Schema Inspector)</span>
+        </button>
+        <button id="tab-btn-integrity" class="py-3 text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-1.5">
+          <i class="ph-bold ph-shield-check"></i>
+          <span>Chất Lượng &amp; License</span>
+        </button>
+      </div>
+
+      <!-- Modal Body Content -->
+      <div class="p-6 overflow-y-auto flex-1 space-y-4">
+        <!-- Tab 1: Sample Rows Table -->
+        <div id="tab-content-rows" class="space-y-3">
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-xs text-left text-slate-300">
+              <thead id="preview-table-head" class="text-[11px] uppercase bg-slate-800/80 text-cyan-300 font-mono">
+                <!-- Injected via app.js -->
+              </thead>
+              <tbody id="preview-table-body" class="divide-y divide-slate-800/60 font-mono text-[11px]">
+                <!-- Injected via app.js -->
+              </tbody>
+            </table>
+          </div>
+          <p class="text-[11px] text-slate-400 italic">
+            * Hiển thị tối đa 10 bản ghi trích xuất trực tiếp từ máy chủ để kiểm định tính toàn vẹn trước khi tải.
+          </p>
+        </div>
+
+        <!-- Tab 2: Schema Inspector -->
+        <div id="tab-content-schema" class="hidden space-y-3">
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-xs text-left text-slate-300">
+              <thead class="text-[11px] uppercase bg-slate-800/80 text-cyan-300">
+                <tr>
+                  <th class="px-4 py-2.5 font-bold">Tên Cột</th>
+                  <th class="px-4 py-2.5 font-bold">Kiểu Dữ Liệu</th>
+                  <th class="px-4 py-2.5 font-bold">Cho Phép Null</th>
+                  <th class="px-4 py-2.5 font-bold">Mô Tả Nghiệp Vụ Sư Phạm</th>
+                  <th class="px-4 py-2.5 font-bold">Giá Trị Mẫu</th>
+                </tr>
+              </thead>
+              <tbody id="schema-table-body" class="divide-y divide-slate-800/60">
+                <!-- Injected via app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: Integrity & License -->
+        <div id="tab-content-integrity" class="hidden space-y-4 text-xs">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60 space-y-2">
+              <div class="font-bold text-slate-200 flex items-center space-x-1.5">
+                <i class="ph-bold ph-fingerprint text-cyan-400"></i>
+                <span>Mã Băm Kiểm Định Tính Toàn Vẹn (SHA-256)</span>
+              </div>
+              <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 font-mono text-[11px] text-cyan-300 break-all select-all flex items-center justify-between">
+                <span id="preview-sha256">99b617486fd2...</span>
+                <button id="btn-copy-sha256" class="text-xs text-slate-400 hover:text-white ml-2 p-1" title="Sao chép">
+                  <i class="ph ph-copy"></i>
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-400">Dùng mã băm này để đối soát tệp CSV tải về nhằm bảo đảm không bị lỗi hoặc chỉnh sửa ngoài ý muốn.</p>
+            </div>
+
+            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60 space-y-2">
+              <div class="font-bold text-slate-200 flex items-center space-x-1.5">
+                <i class="ph-bold ph-certificate text-amber-400"></i>
+                <span>Giấy Phép Sử Dụng (Academic License)</span>
+              </div>
+              <p id="preview-license" class="text-slate-300 font-semibold">CyberSoft Academy Educational License</p>
+              <p class="text-[11px] text-slate-400">Được phép sử dụng cho mục đích đào tạo nội bộ, thực hành đồ án Capstone và bài giảng của học viên/giảng viên CyberSoft.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-3.5 border-t border-slate-800 bg-slate-800/40 flex items-center justify-between">
+        <div class="text-xs text-slate-400 flex items-center space-x-2">
+          <span>Kích thước: <strong id="preview-filesize" class="text-slate-200">1.42 MB</strong></span>
+          <span>•</span>
+          <span>Tổng số bản ghi: <strong id="preview-records" class="text-slate-200">10,500</strong></span>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button id="btn-modal-close" class="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition">
+            Đóng
+          </button>
+          <button id="btn-modal-download" class="px-4 py-2 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg flex items-center space-x-1.5 transition shadow-md shadow-cyan-600/20">
+            <i class="ph-bold ph-download-simple"></i>
+            <span>Tải Tập Dữ Liệu (.CSV)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: USEFULNESS FEEDBACK (1-5 STARS) -->
+  <div id="modal-feedback" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-800/40">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+            <i class="ph-fill ph-star text-lg"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">Đánh Giá Độ Hữu Ích (Usefulness Feedback)</h2>
+            <p id="feedback-dataset-title" class="text-xs text-slate-400">ds-retail-ecommerce-sales-v1</p>
+          </div>
+        </div>
+        <button id="btn-close-feedback" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Feedback Form -->
+      <div class="p-6 space-y-4">
+        <!-- Star Rating Picker -->
+        <div class="text-center py-2 bg-slate-800/40 rounded-xl border border-slate-700/60">
+          <label class="text-xs font-semibold text-slate-300 block mb-2">
+            Mức độ hữu ích của tập dữ liệu đối với bài giảng / bài tập
+          </label>
+          <div id="star-picker" class="flex justify-center space-x-2 text-3xl text-amber-400 cursor-pointer">
+            <i data-star="1" class="ph-fill ph-star hover:scale-110 transition"></i>
+            <i data-star="2" class="ph-fill ph-star hover:scale-110 transition"></i>
+            <i data-star="3" class="ph-fill ph-star hover:scale-110 transition"></i>
+            <i data-star="4" class="ph-fill ph-star hover:scale-110 transition"></i>
+            <i data-star="5" class="ph-fill ph-star hover:scale-110 transition"></i>
+          </div>
+          <span id="star-label" class="text-xs font-bold text-amber-300 mt-2 block">5 / 5 — Cực kỳ hữu ích</span>
+        </div>
+
+        <!-- Name & Role -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <label class="text-xs font-medium text-slate-300">Tên người đánh giá</label>
+            <input id="feedback-name" type="text" value="TS. Đào Trung Kiên" class="w-full bg-slate-800 text-xs rounded-lg p-2.5 border border-slate-700 text-white outline-none focus:border-cyan-500" />
+          </div>
+          <div class="space-y-1">
+            <label class="text-xs font-medium text-slate-300">Vai trò</label>
+            <select id="feedback-role" class="w-full bg-slate-800 text-xs rounded-lg p-2.5 border border-slate-700 text-white outline-none focus:border-cyan-500">
+              <option value="instructor" selected>Giảng viên (Instructor)</option>
+              <option value="teaching_assistant">Trợ giảng (Teaching Assistant)</option>
+              <option value="qa_engineer">Kỹ sư QA (Quality Engineer)</option>
+              <option value="student">Học viên (Student)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Comment Input -->
+        <div class="space-y-1">
+          <label class="text-xs font-medium text-slate-300">Nhận xét chi tiết</label>
+          <textarea id="feedback-comment" rows="3" placeholder="Chia sẻ cảm nhận về độ sạch dữ liệu, tính trực quan của schema 3NF, sự phù hợp với bài thực hành..." class="w-full bg-slate-800 text-xs rounded-lg p-2.5 border border-slate-700 text-white outline-none focus:border-cyan-500 resize-none"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button id="btn-submit-feedback" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs py-2.5 rounded-xl transition shadow-lg shadow-amber-500/20 active:scale-98">
+          Gửi Đánh Giá Ngay
+        </button>
+
+        <!-- Existing Reviews Section -->
+        <div class="pt-3 border-t border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-slate-300">Các nhận xét gần đây</span>
+            <span id="feedback-stats-badge" class="text-cyan-400 font-mono text-[11px]">4.8 / 5.0 (3 đánh giá)</span>
+          </div>
+          <div id="feedback-reviews-list" class="max-h-36 overflow-y-auto space-y-2 text-xs pr-1">
+            <!-- Injected via app.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: USABILITY BENCHMARK RUNNER (5 SCENARIOS) -->
+  <div id="modal-usability" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-800/40">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+            <i class="ph-bold ph-lightning text-lg"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">Kiểm Thử Độ Khả Dụng (Usability Benchmark)</h2>
+            <p class="text-xs text-slate-400">Tiêu chí nghiệm thu DoD: Hoàn thành 5 kịch bản trong &lt; 60 giây</p>
+          </div>
+        </div>
+        <button id="btn-close-usability" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between bg-slate-800/60 p-3.5 rounded-xl border border-slate-700">
+          <div>
+            <div class="text-xs font-semibold text-slate-200">Kịch bản tự động hóa giảng viên</div>
+            <div class="text-[11px] text-slate-400">Đo lường thời gian thực thi (Latency) trên môi trường thực tế</div>
+          </div>
+          <button id="btn-trigger-benchmark" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition flex items-center space-x-1.5 shadow-md shadow-indigo-600/20">
+            <i class="ph-bold ph-play"></i>
+            <span>Chạy Lại 5 Kịch Bản</span>
+          </button>
+        </div>
+
+        <!-- 5 Scenarios Progress List -->
+        <div id="usability-results-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+          <!-- Injected via app.js -->
+        </div>
+
+        <div id="usability-overall-summary" class="hidden p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-xs text-emerald-300 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i class="ph-bold ph-check-circle text-lg text-emerald-400"></i>
+            <span>TẤT CẢ 5/5 KỊCH BẢN ĐÃ PASS HOÀN TOÀN — ĐẠT CHUẨN NGHIỆM THU (DoD)</span>
+          </div>
+          <span id="usability-total-time" class="font-mono font-bold text-white">0.052s</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-6 text-xs text-slate-400 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <span class="font-bold text-slate-200">CyberSoft Academy</span>
+        <span>•</span>
+        <span>Phân hệ Data &amp; AI Lab</span>
+        <span>•</span>
+        <span>Người thực hiện: <strong class="text-cyan-400">Đào Trung Kiên</strong></span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <a href="/portal/" class="hover:text-cyan-300 transition">Portal UI</a>
+        <a href="/docs" target="_blank" class="hover:text-cyan-300 transition">OpenAPI Docs</a>
+        <a href="/redoc" target="_blank" class="hover:text-cyan-300 transition">ReDoc</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

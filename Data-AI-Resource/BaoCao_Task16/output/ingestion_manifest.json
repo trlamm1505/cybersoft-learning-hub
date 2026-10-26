@@ -1,0 +1,25 @@
+{
+  "ingestion_run_id": "INGEST_20260923_155929_4dd640",
+  "generated_at": "2026-09-23T15:59:29.122842",
+  "strategy": "markdown_header_semantic",
+  "metrics": {
+    "run_id": "INGEST_20260923_155929_4dd640",
+    "strategy": "markdown_header_semantic",
+    "total_files_scanned": 23,
+    "files_ingested": 0,
+    "files_skipped": 23,
+    "files_errored": 0,
+    "total_chunks": 0,
+    "total_tokens": 0,
+    "avg_tokens_per_chunk": 0.0,
+    "manifest_path": "",
+    "error_count": 0
+  },
+  "output_chunks_file": "chunks_markdown_header_semantic.jsonl",
+  "state_store_file": "state_store.json",
+  "log_files": {
+    "general_log": "logs/ingestion.log",
+    "error_log": "logs/ingestion_errors.log"
+  },
+  "sample_chunks": []
+}

@@ -1,0 +1,444 @@
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  ForbiddenException,
+  ConflictException,
+  UnauthorizedException,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { RevokedToken, RevokedTokenDocument } from '../../modules-system/database/schemas/revoked-token.schema';
+import { tokenRevocation } from '../../common/security/token-revocation';
+import { Model, Types } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import {
+  User,
+  UserDocument,
+} from '../../modules-system/database/schemas/user.schema';
+import {
+  Counter,
+  CounterDocument,
+} from '../../modules-system/database/schemas/counter.schema';
+import {
+  PasswordReset,
+  PasswordResetDocument,
+} from '../../modules-system/database/schemas/password-reset.schema';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { MailService } from './mail.service';
+import { checkAvatar } from './avatar';
+import { checkProfileInput } from './profile-input';
+import { emailError, passwordError } from './auth-validation';
+
+type AgeGroup = '3-5' | '6-9' | '10-12' | 'CAREER_ADULT';
+
+const VALID_AGE_GROUPS: AgeGroup[] = ['3-5', '6-9', '10-12', 'CAREER_ADULT'];
+const BCRYPT_SALT_ROUNDS = 10;
+const RESET_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 phút
+const STUDENT_CODE_COUNTER_KEY = 'studentCode';
+const STUDENT_CODE_DIGITS = 4; // C0001, C0002, ...
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** Học viên Lớp 3-5 (trẻ em): áp quy tắc tối thiểu hóa dữ liệu cá nhân. */
+const isKidAccount = (user: { role?: string; ageGroup?: string }): boolean => user.role === 'STUDENT' && user.ageGroup === '3-5';
+
+@Injectable()
+export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
+  constructor(
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
+
+    @InjectModel(Counter.name)
+    private readonly counterModel: Model<CounterDocument>,
+
+    @InjectModel(PasswordReset.name)
+    private readonly passwordResetModel: Model<PasswordResetDocument>,
+
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly mailService: MailService,
+
+    // Thu hồi token lưu bền (Day 29 L3). Thiếu (test cũ) thì chỉ thu hồi trong bộ nhớ.
+    @Optional()
+    @InjectModel(RevokedToken.name)
+    private readonly revokedTokenModel?: Model<RevokedTokenDocument>,
+  ) {}
+
+  /** Đăng xuất: thu hồi `jti` ngay trong bộ nhớ và lưu bền tới lúc token hết hạn (sống qua restart/nhiều instance). */
+  async revokeToken(jti: string, expSeconds?: number): Promise<void> {
+    tokenRevocation.revoke(jti, expSeconds);
+    if (!this.revokedTokenModel) return;
+    const expiresAt = new Date(expSeconds ? expSeconds * 1000 : Date.now() + 7 * 24 * 3600 * 1000);
+    if (expiresAt.getTime() <= Date.now()) return;
+    await this.revokedTokenModel.updateOne({ jti }, { $setOnInsert: { jti, expiresAt } }, { upsert: true });
+  }
+
+  /**
+   * Đăng ký tài khoản mới. Đăng ký công khai LUÔN tạo role STUDENT — Teacher/
+   * Admin không tự chọn role qua form này nữa (client gửi role gì cũng bị bỏ
+   * qua), tài khoản Teacher chỉ được cấp quyền bằng tay qua Admin sau này.
+   * ageGroup KHÔNG bắt buộc lúc đăng ký — học viên chọn ở modal ngay sau lần
+   * đăng nhập đầu tiên (xem setAgeGroup() bên dưới, gọi từ FE khi
+   * user.ageGroup còn rỗng). studentCode Cxxxx được cấp ngay từ lúc đăng ký.
+   */
+  async register(dto: RegisterDto) {
+    const { email, password, fullName } = dto;
+    // Nhóm đối tượng là tùy chọn khi đăng ký, nhưng nếu gửi thì phải hợp lệ (không im lặng bỏ qua giá trị lạ).
+    const requestedGroup = dto.ageGroup;
+    if (
+      requestedGroup !== undefined &&
+      requestedGroup !== null &&
+      requestedGroup !== '' &&
+      !VALID_AGE_GROUPS.includes(requestedGroup as AgeGroup)
+    ) {
+      throw new BadRequestException(
+        'Nhóm đối tượng không hợp lệ (chỉ nhận 3-5, 6-9, 10-12 hoặc CAREER_ADULT).',
+      );
+    }
+
+    if (!email || !password || !fullName) {
+      throw new BadRequestException(
+        'Vui lòng nhập đầy đủ email, mật khẩu và họ tên.',
+      );
+    }
+
+    // Email chuẩn (đã trim) và mật khẩu mạnh: 8-32 ký tự, có chữ hoa, chữ thường, số, ký tự đặc biệt.
+    const emailProblem = emailError(email);
+    if (emailProblem) throw new BadRequestException(emailProblem);
+    const passwordProblem = passwordError(password);
+    if (passwordProblem) throw new BadRequestException(passwordProblem);
+    if (typeof fullName !== 'string' || !fullName.trim() || fullName.trim().length > 100) {
+      throw new BadRequestException('Họ và tên bắt buộc, tối đa 100 ký tự.');
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existing = await this.userModel
+      .findOne({ email: normalizedEmail })
+      .lean();
+    if (existing) {
+      throw new ConflictException(
+        'Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.',
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+    const studentCode = await this.generateNextStudentCode();
+
+    const user = await this.userModel.create({
+      email: normalizedEmail,
+      password: hashedPassword,
+      fullName: fullName.trim(),
+      role: 'STUDENT',
+      studentCode,
+      ...(requestedGroup ? { ageGroup: requestedGroup as AgeGroup } : {}),
+    });
+
+    return this.buildAuthResponse(user);
+  }
+
+  /**
+   * Đặt nhóm tuổi cho tài khoản STUDENT hiện tại — gọi từ modal bắt buộc
+   * chọn nhóm tuổi ngay sau lần đăng nhập đầu tiên (khi ageGroup còn rỗng).
+   * Chỉ set được MỘT lần: khi đã có nhóm tuổi, học viên không tự đổi sang nhóm
+   * khác được (nếu không sẽ vượt rào phân quyền theo nhóm của Exercise). Việc đổi
+   * nhóm (ví dụ lên lớp) do quản trị viên thực hiện.
+   */
+  async setAgeGroup(
+    userId: string,
+    ageGroup: string,
+  ): Promise<{ ageGroup: AgeGroup }> {
+    if (!VALID_AGE_GROUPS.includes(ageGroup as AgeGroup)) {
+      throw new BadRequestException(
+        'Nhóm tuổi không hợp lệ (chỉ nhận 3-5, 6-9, 10-12 hoặc CAREER_ADULT).',
+      );
+    }
+
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('Không tìm thấy tài khoản.');
+    }
+    if (user.role !== 'STUDENT') {
+      throw new BadRequestException('Chỉ tài khoản học viên mới có nhóm tuổi.');
+    }
+
+    if (user.ageGroup && user.ageGroup !== ageGroup) {
+      throw new ForbiddenException(
+        'Nhóm tuổi đã được thiết lập, vui lòng liên hệ quản trị viên để thay đổi.',
+      );
+    }
+
+    user.ageGroup = ageGroup as AgeGroup;
+    await user.save();
+
+    return { ageGroup: user.ageGroup };
+  }
+
+  /**
+   * Cập nhật ảnh đại diện của CHÍNH tài khoản đang đăng nhập (userId từ token).
+   * Giá trị rỗng/null là xóa ảnh để quay về avatar chữ cái mặc định.
+   */
+  async setAvatar(
+    userId: string,
+    avatar: unknown,
+  ): Promise<{ avatar: string | null }> {
+    const checked = checkAvatar(avatar);
+    if (!checked.ok) throw new BadRequestException(checked.message);
+
+    const user = Types.ObjectId.isValid(userId)
+      ? await this.userModel.findById(userId)
+      : null;
+    if (!user) throw new NotFoundException('Không tìm thấy tài khoản.');
+
+    user.avatar = checked.value ?? undefined;
+    await user.save();
+    return { avatar: user.avatar ?? null };
+  }
+
+  /**
+   * Đăng nhập bằng email + mật khẩu, trả về JWT access token.
+   */
+  async login(dto: LoginDto) {
+    const { email, password } = dto ?? ({} as LoginDto);
+
+    // Chỉ nhận chuỗi: object kiểu { $ne: null } (NoSQL injection) bị từ chối 400 thay vì làm crash 500.
+    if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+      throw new BadRequestException('Vui lòng nhập email và mật khẩu.');
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.userModel.findOne({ email: normalizedEmail });
+
+    // Cùng một thông báo lỗi cho "không tìm thấy email" và "sai mật khẩu"
+    // để tránh lộ thông tin email nào đã đăng ký trong hệ thống.
+    if (!user) {
+      throw new UnauthorizedException('Email hoặc mật khẩu không chính xác.');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Email hoặc mật khẩu không chính xác.');
+    }
+
+    // Chỉ báo "bị khóa" sau khi mật khẩu đúng, để không lộ email nào đang tồn tại.
+    if (user.status === 'LOCKED') {
+      throw new ForbiddenException(
+        'Tài khoản đã bị khóa. Liên hệ quản trị viên để được mở lại.',
+      );
+    }
+
+    return this.buildAuthResponse(user);
+  }
+
+  /**
+   * Sinh yêu cầu đặt lại mật khẩu: tạo token ngẫu nhiên, lưu HASH của token
+   * (không lưu token gốc) kèm hạn 15 phút, rồi gửi email thật chứa link reset.
+   *
+   * Luôn trả về cùng một thông báo thành công bất kể email có tồn tại hay
+   * không — tránh lộ danh sách email đã đăng ký qua phản hồi khác nhau
+   * (cùng nguyên tắc chống user-enumeration như login()).
+   */
+  async forgotPassword(dto: ForgotPasswordDto): Promise<{ success: true; message: string; devResetLink?: string }> {
+    const email = typeof dto?.email === 'string' ? dto.email : '';
+    if (!email.trim()) {
+      throw new BadRequestException('Vui lòng nhập email.');
+    }
+    const normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail.length > 254 || !EMAIL_PATTERN.test(normalizedEmail)) {
+      throw new BadRequestException('Email không hợp lệ.');
+    }
+    const mailReady = this.mailService.isConfigured();
+    const user = await this.userModel
+      .findOne({ email: normalizedEmail })
+      .lean();
+
+    const genericResponse = {
+      success: true as const,
+      message: mailReady
+        ? 'Nếu email này đã đăng ký, một liên kết đặt lại mật khẩu đã được gửi tới hộp thư của bạn.'
+        : 'Đã gửi hướng dẫn đặt lại mật khẩu (Dev mode: kiểm tra console hoặc màn hình)',
+    };
+
+    if (!user) {
+      return genericResponse;
+    }
+
+    // Vô hiệu hóa mọi yêu cầu reset cũ chưa dùng của user này — chỉ token mới
+    // nhất có hiệu lực, tránh một link reset cũ rò rỉ vẫn còn dùng được.
+    await this.passwordResetModel.deleteMany({
+      userId: String(user._id),
+      used: false,
+    });
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = this.hashToken(rawToken);
+
+    await this.passwordResetModel.create({
+      userId: String(user._id),
+      tokenHash,
+      expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS),
+    });
+
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+    const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
+
+    if (!mailReady) {
+      // Development Mock Mode: không có SMTP, in liên kết ra console backend. Chỉ ngoài production mới trả liên kết trong response,
+      // để người dùng thử luồng đặt lại mật khẩu ngay trên màn hình.
+      // Day 29 (H6, L1): liên kết chỉ được trả về khi CHỦ ĐỘNG bật DEV_MAIL_MOCK=true ngoài production (nếu không, ai biết
+      // email admin cũng tự lấy được link đặt lại mật khẩu). Log không bao giờ chứa token, liên kết hay email.
+      const devMock = process.env.DEV_MAIL_MOCK === 'true' && process.env.NODE_ENV !== 'production';
+      this.logger.warn(`[DEV MAIL MOCK] Chưa cấu hình SMTP: đã tạo một yêu cầu đặt lại mật khẩu${devMock ? ' (liên kết trả trong phản hồi API vì DEV_MAIL_MOCK=true)' : ''}.`);
+      return devMock ? { ...genericResponse, devResetLink: resetLink } : genericResponse;
+    }
+
+    // Gửi thư chạy nền: phản hồi ngay, không treo theo tốc độ SMTP, và thời gian phản hồi không lộ email có tồn tại hay không.
+    try {
+      void Promise.resolve(this.mailService.sendPasswordResetEmail(user.email, resetLink)).catch((err: Error) =>
+        this.logger.error(`Gửi email đặt lại mật khẩu thất bại: ${err.message}`),
+      );
+    } catch (err) {
+      this.logger.error(`Gửi email đặt lại mật khẩu thất bại: ${(err as Error).message}`);
+    }
+
+    return genericResponse;
+  }
+
+  /**
+   * Đặt mật khẩu mới bằng token nhận qua email. Token chỉ dùng được một lần
+   * và trong 15 phút kể từ lúc yêu cầu.
+   */
+  async resetPassword(dto: ResetPasswordDto): Promise<{ message: string }> {
+    const { token, newPassword } = dto;
+
+    if (!token || !newPassword) {
+      throw new BadRequestException('Vui lòng cung cấp token và mật khẩu mới.');
+    }
+    const passwordProblem = passwordError(newPassword);
+    if (passwordProblem) throw new BadRequestException(passwordProblem);
+
+    const tokenHash = this.hashToken(token);
+    const resetRecord = await this.passwordResetModel.findOne({
+      tokenHash,
+      used: false,
+    });
+
+    if (!resetRecord || resetRecord.expiresAt.getTime() < Date.now()) {
+      throw new BadRequestException(
+        'Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.',
+      );
+    }
+
+    const user = await this.userModel.findById(resetRecord.userId);
+    if (!user) {
+      throw new NotFoundException(
+        'Không tìm thấy tài khoản tương ứng với liên kết này.',
+      );
+    }
+
+    user.password = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+    await user.save();
+
+    resetRecord.used = true;
+    await resetRecord.save();
+
+    return {
+      message:
+        'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.',
+    };
+  }
+
+  private hashToken(rawToken: string): string {
+    return crypto.createHash('sha256').update(rawToken).digest('hex');
+  }
+
+  /**
+   * Sinh mã học viên Cxxxx tuần tự (C0001, C0002, ...) bằng $inc atomic trên
+   * Counter collection — an toàn khi nhiều lượt đăng ký STUDENT xảy ra cùng
+   * lúc, khác với đếm `countDocuments` rồi +1 (có khoảng hở giữa đọc và ghi
+   * mà hai request có thể cùng đọc được cùng một số).
+   */
+  private async generateNextStudentCode(): Promise<string> {
+    const counter = await this.counterModel.findOneAndUpdate(
+      { key: STUDENT_CODE_COUNTER_KEY },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true },
+    );
+
+    return `C${String(counter.seq).padStart(STUDENT_CODE_DIGITS, '0')}`;
+  }
+
+  /**
+   * Người dùng tự cập nhật họ tên, số điện thoại, giới thiệu của CHÍNH mình (userId từ token).
+   * Email bị khóa cố định: gửi email khác bị từ chối. Vai trò, mã học viên, trạng thái không nhận từ client.
+   */
+  async updateProfile(userId: string, body: unknown) {
+    const user = Types.ObjectId.isValid(userId)
+      ? await this.userModel.findById(userId)
+      : null;
+    if (!user) throw new NotFoundException('Không tìm thấy tài khoản.');
+    const checked = checkProfileInput(body, user.email);
+    if (!checked.ok) throw new BadRequestException(checked.message);
+    const value: Record<string, unknown> = { ...checked.value };
+    // Day 29 (SEC-19, PRV-01/02): tài khoản Lớp 3-5 không thu thập số điện thoại / giới thiệu bản thân (tối thiểu hóa dữ liệu trẻ em).
+    if (isKidAccount(user)) {
+      delete value.phone;
+      delete value.bio;
+      user.set('phone', undefined);
+      user.set('bio', undefined);
+    }
+    Object.assign(user, value);
+    await user.save();
+    return this.buildAuthResponse(user).user;
+  }
+
+  /**
+   * Hồ sơ tài khoản theo token, đọc từ DB: FE dùng để xác thực lại vai trò khi
+   * khởi động thay vì tin bản lưu trong localStorage. Tài khoản đã bị xoá thì 401.
+   */
+  async getProfile(userId: string) {
+    const user = Types.ObjectId.isValid(userId)
+      ? await this.userModel.findById(userId)
+      : null;
+    if (!user) {
+      throw new UnauthorizedException('Phiên đăng nhập không còn hợp lệ.');
+    }
+    return this.buildAuthResponse(user).user;
+  }
+
+  private buildAuthResponse(user: UserDocument) {
+    const payload = {
+      sub: String(user._id),
+      email: user.email,
+      role: user.role,
+    };
+    const accessToken = this.jwtService.sign(payload, { jwtid: crypto.randomUUID() });
+
+    return {
+      accessToken,
+      user: {
+        id: String(user._id),
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        ageGroup: user.ageGroup,
+        studentCode: user.studentCode,
+        avatar: user.avatar,
+        // Trẻ Lớp 3-5: không trả số điện thoại / giới thiệu (kể cả dữ liệu cũ còn sót).
+        phone: isKidAccount(user) ? '' : (user.phone ?? ''),
+        bio: isKidAccount(user) ? '' : (user.bio ?? ''),
+      },
+    };
+  }
+}

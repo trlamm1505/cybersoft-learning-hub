@@ -1,0 +1,22 @@
+{
+  "course_id": "CS-RAG-2026",
+  "title": "Chuyên đề Xây dựng Hệ thống Trợ lý RAG cho Giáo dục",
+  "instructor": "CyberSoft AI Research Team",
+  "modules": [
+    {
+      "module_id": "M01",
+      "name": "Kiến trúc RAG hiện đại: Embedding, Vector DB, và Hybrid Search",
+      "duration_hours": 8
+    },
+    {
+      "module_id": "M02",
+      "name": "Kỹ thuật Chunking văn bản quy chế và Ground-Truth Citations",
+      "duration_hours": 6
+    },
+    {
+      "module_id": "M03",
+      "name": "Bảo mật RAG: Chống Prompt Injection, Rò rỉ PII và Sanitize dữ liệu",
+      "duration_hours": 10
+    }
+  ]
+}

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSoft Data &amp; AI Lab v1.0 — Trung Tâm Điều Hành Hợp Nhất</title>
+  <link rel="stylesheet" href="styles.css?v=16">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-badge">
+          <span class="pulse-dot"></span>
+          CYBERSOFT DATA &amp; AI LAB v1.0 — PRODUCTION READY
+        </div>
+        <h1>HỆ THỐNG QUẢN TRỊ TÀI NGUYÊN DỮ LIỆU &amp; TRỢ GIẢNG AI HỢP NHẤT</h1>
+        <p class="subtitle">Nền tảng đào tạo toàn diện: Kho dữ liệu 3NF, Tìm kiếm lai RRF, Trợ giảng AI trích nguồn, AI sinh bài tập Bloom, Tường lửa PII, Chốt chặn QA &amp; Vận hành Docker</p>
+      </div>
+      <div class="header-status-pill">
+        <span style="color:#10B981;">●</span>
+        <span>Cổng Vận Hành: <strong>8029</strong></span>
+      </div>
+    </header>
+
+    <!-- Modern Segmented Tabs -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="tab-catalog">
+        <span class="tab-week">Tuần 1 &amp; 2</span>
+        <span class="tab-title">📦 Kho Dữ Liệu 3NF</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-caching">
+        <span class="tab-week">Tuần 3 &amp; 4</span>
+        <span class="tab-title">🔍 Trợ Giảng AI RAG</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-bloom-worm">
+        <span class="tab-week">Tuần 5</span>
+        <span class="tab-title">🤖 Sinh Đề &amp; Lineage</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-security-qa">
+        <span class="tab-week">Tuần 5 &amp; 6</span>
+        <span class="tab-title">🛡️ Bảo Mật &amp; QA Gate</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-docker">
+        <span class="tab-week">Tuần 6</span>
+        <span class="tab-title">⚡ Đo Tải &amp; Docker Ops</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: Kho dữ liệu 3NF & Cổng Tải Học Liệu -->
+    <div id="tab-catalog" class="tab-content active">
+      <div class="section-card">
+        <div class="card-header">
+          <h2>📦 Kho Dữ Liệu Doanh Nghiệp Chuẩn 3NF &amp; Kiểm Soát Truy Cập</h2>
+          <span class="note">Dữ liệu quan hệ 0% khóa ngoại mồ côi, khử thông tin cá nhân PII qua HMAC-SHA256, kiểm soát chặn tải bản nháp Draft (HTTP 403)</span>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-group">
+            <span class="filter-label">Chuyên ngành:</span>
+            <select id="filter-track" class="form-select">
+              <option value="ALL">Tất cả Chuyên ngành</option>
+              <option value="DATA_ANALYST">Data Analyst (SQL / Power BI)</option>
+              <option value="AI_ENGINEER">AI Engineer (RAG / ML)</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Trạng thái:</span>
+            <select id="filter-status" class="form-select">
+              <option value="ALL">Tất cả Trạng thái</option>
+              <option value="PUBLISHED">Đã xuất bản (PUBLISHED)</option>
+              <option value="DRAFT">Bản nháp (DRAFT — Chặn tải 403)</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" id="btn-reset-filter" style="margin-left:auto;">
+            Đặt Lại Mặc Định
+          </button>
+        </div>
+
+        <div id="catalog-list" class="catalog-grid"></div>
+
+        <div id="dataset-action-result" class="result-box" style="display:none;margin-top:16px;"></div>
+
+        <div id="csv-preview-box" style="margin-top:20px;padding:16px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);display:none;">
+          <h4 id="csv-preview-title" style="margin-bottom:6px;color:#38BDF8;font-size:15px;">Xem trước dữ liệu mẫu 3NF</h4>
+          <p id="csv-schema-info" style="font-size:12px;color:#10B981;margin-bottom:12px;"></p>
+          <div class="table-responsive" id="csv-preview-table"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Tìm kiếm lai & Trợ giảng AI RAG -->
+    <div id="tab-caching" class="tab-content">
+      <div class="section-card">
+        <div class="card-header">
+          <h2>🔍 Động Cơ Tìm Kiếm Lai RRF &amp; Trợ Giảng Thông Minh Grounded AI</h2>
+          <span class="note">Kết hợp BM25 + Dense Vector RRF, câu trả lời kèm trích dẫn [doc#sec], cơ chế từ chối câu hỏi ngoài luồng và tối ưu hai tầng Cache LRU</span>
+        </div>
+
+        <!-- Sleek Search Box -->
+        <div class="ai-search-wrapper">
+          <div class="search-input-group">
+            <select id="rag-mode-select" class="search-mode-select">
+              <option value="hybrid_rrf">Chế độ: Hybrid (BM25 + Dense RRF)</option>
+              <option value="bm25_keyword">Chế độ: BM25 Keyword Search</option>
+              <option value="dense_vector">Chế độ: Dense Semantic Vector</option>
+            </select>
+            <input id="rag-query-input" type="text" class="search-input" value="quy định bảo mật PII và làm sạch dữ liệu 3NF" placeholder="Nhập câu hỏi học tập (VD: quy định bảo mật PII, chuẩn 3NF, mô hình RRF)...">
+            <button class="btn btn-primary" id="btn-rag-search" style="padding:10px 18px;">
+              ✨ Hỏi Trợ Giảng AI
+            </button>
+          </div>
+
+          <div class="quick-chips-row">
+            <span class="chip-label">Thử nghiệm nhanh:</span>
+            <button class="chip-btn danger" id="btn-out-of-scope">🛡️ Thử câu hỏi ngoài luồng (Chống ảo giác)</button>
+            <button class="chip-btn" id="btn-clear-cache">🧹 Xóa bộ nhớ đệm Cache</button>
+            <button class="chip-btn chip-example" data-q="quy định bảo mật PII và mã hóa HMAC-SHA256">💡 Gợi ý: Bảo mật PII</button>
+            <button class="chip-btn chip-example" data-q="chuẩn hóa 3NF và chống khóa ngoại mồ côi">💡 Gợi ý: Chuẩn 3NF</button>
+          </div>
+        </div>
+
+        <!-- Modern Cache & Latency Strip -->
+        <div class="cache-status-strip">
+          <div class="status-indicator-group">
+            <span id="live-cache-status" class="status-badge-live" style="background:rgba(56, 189, 248, 0.15);color:#38BDF8;">
+              ● Sẵn sàng
+            </span>
+            <span class="latency-metric">
+              Độ trễ: <strong id="live-latency-ms">3.30 ms</strong>
+            </span>
+          </div>
+          <div class="cache-stats-group">
+            <div class="stat-chip">
+              Lượt trúng: <strong id="live-hits-count">8.850 / 10.000</strong>
+            </div>
+            <div class="stat-chip">
+              Tỷ lệ Hit: <strong id="live-hit-rate" style="color:#10B981;">88.5%</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Tutor Response Area -->
+        <div id="rag-results-box" class="ai-results-container">
+          <div style="text-align:center;padding:32px 16px;color:var(--text-muted);">
+            <div style="font-size:32px;margin-bottom:8px;">🤖</div>
+            <p style="font-size:14px;color:var(--text-secondary);margin-bottom:4px;">Hệ thống Trợ giảng AI CyberSoft đã sẵn sàng hỗ trợ giải đáp học tập.</p>
+            <p style="font-size:12px;">Nhập câu hỏi và bấm <strong>"Hỏi Trợ Giảng AI"</strong> lần 1 (Cache Miss) rồi bấm lại lần 2 để đo tốc độ tăng tốc bộ đệm (Cache Hit &lt; 3ms).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: AI Sinh bài tập Bloom & Lineage WORM (Tuần 5) -->
+    <div id="tab-bloom-worm" class="tab-content">
+      <div class="section-card">
+        <div class="card-header">
+          <h2>🤖 AI Sinh Đề Bài Tập Theo Thang Bloom &amp; Truy Vết Nguồn Gốc Lineage WORM</h2>
+          <span class="note">Tự động sinh đề bài kèm rubric và kiểm tra chống trùng lặp, tích hợp kho lưu trữ bất biến WORM chặn sửa đổi trái phép (HTTP 409)</span>
+        </div>
+
+        <div class="ops-split-layout">
+          <!-- Cột Trái: Bảng Điều Khiển -->
+          <div class="ops-controls-sidebar">
+            <div class="control-subcard">
+              <div class="control-header">
+                <span class="control-icon" style="color:#38BDF8;">✨</span>
+                <div>
+                  <h4 style="color:#38BDF8;font-size:13.5px;margin:0;font-weight:700;">AI Exercise Generator</h4>
+                  <span style="font-size:11px;color:var(--text-muted);">Sinh đề theo Thang Bloom (Task 23)</span>
+                </div>
+              </div>
+              <p style="font-size:12px;color:var(--text-secondary);margin:8px 0 10px 0;">Sinh đề bài theo Thang đo Bloom &amp; Schema 3NF:</p>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+                <div>
+                  <label class="field-label">Bộ dữ liệu mục tiêu:</label>
+                  <select id="bloom-dataset" class="form-select" style="width:100%;">
+                    <option value="ds-retail-ecommerce-sales-v1">Retail Sales 3NF (Bán lẻ)</option>
+                    <option value="ds-customer-churn-classification-v1">Customer Churn (Ngân hàng)</option>
+                    <option value="ds-hr-operations-attendance-v1">HR Attendance (Nhân sự)</option>
+                    <option value="ds-ai-rag-knowledge-chunks-v1">AI Knowledge Chunks (RAG)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label">Cấp độ Thang Bloom:</label>
+                  <select id="bloom-level" class="form-select" style="width:100%;">
+                    <option value="Apply">Cấp độ 3: Apply (Vận dụng)</option>
+                    <option value="Analyze">Cấp độ 4: Analyze (Phân tích)</option>
+                    <option value="Evaluate">Cấp độ 5: Evaluate (Đánh giá)</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-primary" id="btn-gen-exercise" style="width:100%;padding:9px 14px;">
+                ✨ Sinh Đề Bài Tập Tự Động
+              </button>
+            </div>
+
+            <div class="control-subcard" style="margin-top:14px;">
+              <div class="control-header">
+                <span class="control-icon" style="color:#34D399;">🔗</span>
+                <div>
+                  <h4 style="color:#34D399;font-size:13.5px;margin:0;font-weight:700;">Lineage DAG &amp; Kho WORM</h4>
+                  <span style="font-size:11px;color:var(--text-muted);">Truy vết nguồn gốc &amp; Bất biến (Task 24)</span>
+                </div>
+              </div>
+              <p style="font-size:12px;color:var(--text-secondary);margin:8px 0 10px 0;">Truy vết 5 chặng và kiểm chứng kho bất biến:</p>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-secondary" id="btn-view-lineage" style="width:100%;text-align:left;justify-content:flex-start;font-size:12.5px;padding:9px 12px;">
+                  <span>🔗</span>
+                  <span>Xem Lưu Đồ Lineage DAG</span>
+                </button>
+                <button class="btn btn-secondary" id="btn-worm-overwrite" style="width:100%;text-align:left;justify-content:flex-start;font-size:12.5px;padding:9px 12px;">
+                  <span>🛡️</span>
+                  <span>Thử Ghi Đè WORM (HTTP 409)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột Phải: Khung Kết Quả Tương Tác -->
+          <div class="ops-display-pane">
+            <div id="bloom-worm-result" class="ops-result-display">
+              <div class="empty-state-card">
+                <div style="font-size:32px;margin-bottom:8px;">🤖</div>
+                <h4 style="color:var(--text-primary);font-size:14px;margin-bottom:4px;">Chưa kích hoạt kiểm thử Tuần 5</h4>
+                <p style="font-size:12px;color:var(--text-secondary);max-width:460px;margin:0 auto;">Chọn thông số ở cột bên trái và bấm <strong>"Sinh Đề Bài Tập"</strong> hoặc <strong>"Xem Lưu Đồ Lineage"</strong> để xem kết quả phân tích trực quan ngay tại đây.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Tường lửa PII, QA Gate & Việt hóa lỗi (Tuần 5 & 6) -->
+    <div id="tab-security-qa" class="tab-content">
+      <div class="section-card">
+        <div class="card-header">
+          <h2>🛡️ Tường Lửa Bảo Mật Dữ Liệu (PII / Injection), Chốt Chặn QA &amp; Việt Hóa Lỗi</h2>
+          <span class="note">Tự động phát hiện và che giấu PII, ngăn chặn tấn công Prompt Injection, 4 chốt chặn kiểm duyệt đề thi và bộ chuyển đổi thông báo tiếng Việt</span>
+        </div>
+
+        <!-- KHỐI 1: TƯỜNG LỬA BẢO MẬT & CHỐNG TẤN CÔNG AI (TASK 25) -->
+        <div class="sec-firewall-panel">
+          <div class="panel-subhead">
+            <span class="subhead-title">🛡️ 1. Tường Lửa Bảo Mật Dữ Liệu &amp; Chống Bẻ Khóa Prompt (Task 25)</span>
+            <span class="subhead-badge">Zero-Leakage &amp; WAF Layer</span>
+          </div>
+          <div class="firewall-controls">
+            <button class="btn btn-primary btn-sm" id="btn-scan-pii">🛡️ Kiểm Tra Khử PII (SĐT, CCCD, Email)</button>
+            <button class="btn btn-danger btn-sm" id="btn-test-injection">⚠️ Kiểm Tra Chặn Bẻ Khóa (Prompt Injection)</button>
+          </div>
+          <div id="firewall-live-result" class="firewall-result-box">
+            <span style="color:var(--text-muted);font-size:12px;">Bấm một trong hai nút phía trên để kiểm tra cơ chế khử PII HMAC hoặc tường lửa chặn bẻ khóa...</span>
+          </div>
+        </div>
+
+        <!-- KHỐI 2: QUY TRÌNH 4 CHỐT CHẶN MASTER RELEASE GATE (TASK 27 & 28) -->
+        <div class="pipeline-card" style="margin-top:16px;">
+          <div class="panel-subhead">
+            <span class="subhead-title">🚀 2. Quy Trình 4 Chốt Chặn Kiểm Duyệt Phát Hành — Master Release Gate (Task 27 &amp; 28)</span>
+            <span class="subhead-badge">CI/CD Automated Pipeline</span>
+          </div>
+
+          <!-- Thanh sơ đồ Pipeline 4 trạm trực quan -->
+          <div class="pipeline-stepper" id="pipeline-visual">
+            <div class="pipeline-step" id="pipe-step-1">
+              <div class="step-num">1</div>
+              <div class="step-info">
+                <div class="step-title">3NF Relational Gate</div>
+                <div class="step-metric">0% khóa ngoại mồ côi</div>
+              </div>
+              <div class="step-badge badge-idle" id="pipe-badge-1">SẴN SÀNG</div>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+
+            <div class="pipeline-step" id="pipe-step-2">
+              <div class="step-num">2</div>
+              <div class="step-info">
+                <div class="step-title">RAG Groundedness</div>
+                <div class="step-metric">Faithfulness &ge; 0.85</div>
+              </div>
+              <div class="step-badge badge-idle" id="pipe-badge-2">SẴN SÀNG</div>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+
+            <div class="pipeline-step" id="pipe-step-3">
+              <div class="step-num">3</div>
+              <div class="step-info">
+                <div class="step-title">Security Zero-Leak</div>
+                <div class="step-metric">0 PII &bull; 0 Injection</div>
+              </div>
+              <div class="step-badge badge-idle" id="pipe-badge-3">SẴN SÀNG</div>
+            </div>
+            <div class="pipeline-arrow">➔</div>
+
+            <div class="pipeline-step" id="pipe-step-4">
+              <div class="step-num">4</div>
+              <div class="step-info">
+                <div class="step-title">Lineage &amp; WORM</div>
+                <div class="step-metric">SHA-256 Audit Pass</div>
+              </div>
+              <div class="step-badge badge-idle" id="pipe-badge-4">SẴN SÀNG</div>
+            </div>
+          </div>
+
+          <!-- Bộ nút kích hoạt thẩm định pipeline -->
+          <div class="pipeline-actions" style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <span class="chip-label">Thẩm Định Gói:</span>
+            <button class="btn btn-secondary btn-sm" id="btn-qa-clean">✓ Thẩm Định Gói Chuẩn (PASS)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-qa-defective">🛑 Thẩm Định Gói Lỗi (BLOCKED)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-qa-bypass">🛡️ Thử Vượt Rào (Zero-Bypass)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-ux-localize">🌐 Việt Hóa Lỗi &amp; Điểm SUS</button>
+          </div>
+
+          <div id="security-qa-result" class="ops-result-display" style="min-height:120px;margin-top:14px;">
+            <div class="empty-state-card" style="padding:16px;">
+              <span style="font-size:24px;">🚀</span>
+              <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 0 0;">Chọn một gói phát hành phía trên để kích hoạt quy trình thẩm định 4 chốt chặn theo thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: Đo tải P50-P99, Docker & Cứu hộ thảm họa -->
+    <div id="tab-docker" class="tab-content">
+      <div class="section-card">
+        <div class="card-header">
+          <h2>⚡ Đo Lường Hiệu Năng Phân Vị P50–P99, Đóng Gói Docker &amp; Cứu Hộ Thảm Họa SHA-256</h2>
+          <span class="note">Đo tải thực nghiệm đạt 340.5 RPS, đóng gói Multi-stage non-root appuser (UID 1001) và khôi phục dữ liệu thảm họa dưới 1 giây</span>
+        </div>
+
+        <div class="table-responsive" style="margin-bottom:20px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Phân Hệ Dịch Vụ Hợp Nhất</th>
+                <th>P50</th>
+                <th>P75</th>
+                <th>P90</th>
+                <th>P95 (SLA)</th>
+                <th>P99</th>
+                <th>Ngưỡng Cho Phép</th>
+                <th>Đánh Giá</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Tìm Kiếm Lai (Hybrid Search BM25 + RRF)</strong></td>
+                <td>6.42 ms</td>
+                <td>11.20 ms</td>
+                <td>15.80 ms</td>
+                <td><strong style="color:#10B981">18.75 ms</strong></td>
+                <td>34.20 ms</td>
+                <td>&le; 25.0 ms</td>
+                <td><span class="badge-tag badge-published">PASS</span></td>
+              </tr>
+              <tr>
+                <td><strong>Trợ Giảng AI Có Trích Dẫn (Grounded RAG)</strong></td>
+                <td>12.50 ms</td>
+                <td>19.80 ms</td>
+                <td>24.30 ms</td>
+                <td><strong style="color:#10B981">28.10 ms</strong></td>
+                <td>42.60 ms</td>
+                <td>&le; 1500.0 ms</td>
+                <td><span class="badge-tag badge-published">PASS</span></td>
+              </tr>
+              <tr>
+                <td><strong>Truy Vấn Trúng Đệm (LRU Cache Hit)</strong></td>
+                <td>2.10 ms</td>
+                <td>2.80 ms</td>
+                <td>3.10 ms</td>
+                <td><strong style="color:#10B981">3.30 ms</strong></td>
+                <td>5.40 ms</td>
+                <td>&le; 10.0 ms</td>
+                <td><span class="badge-tag badge-published">PASS</span></td>
+              </tr>
+              <tr>
+                <td><strong>Pipeline Nạp &amp; Kiểm Định 4 Chốt Chặn QA</strong></td>
+                <td>145.0 ms</td>
+                <td>210.0 ms</td>
+                <td>280.0 ms</td>
+                <td><strong style="color:#10B981">315.4 ms</strong></td>
+                <td>390.0 ms</td>
+                <td>&le; 500.0 ms</td>
+                <td><span class="badge-tag badge-published">PASS</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+          <button class="btn btn-primary" id="btn-ping-health">Kiểm Tra Sức Khỏe Container (/api/v1/health)</button>
+          <button class="btn btn-secondary" id="btn-test-restore">Kích Hoạt Cứu Hộ Thảm Họa (Khôi Phục SHA-256)</button>
+        </div>
+        <div class="result-box" id="ops-result">Bấm nút để gọi trực tiếp API kiểm tra sức khỏe container Docker hoặc đối soát khôi phục bản sao lưu SHA-256...</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>CyberSoft Data &amp; AI Lab v1.0 — Hệ Thống Hợp Nhất Toàn Khóa</p>
+    </footer>
+  </div>
+  <script src="app.js?v=16"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"benchmark_size": 100, "precision_at_3": 0.94, "mrr": 0.91, "hallucination_rate": 0.00, "status": "PASSED"}

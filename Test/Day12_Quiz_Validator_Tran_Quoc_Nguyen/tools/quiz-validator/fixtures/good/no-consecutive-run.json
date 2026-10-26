@@ -1,0 +1,218 @@
+[
+  {
+    "content": "Câu hỏi số 1 trong bộ fixture pattern đáp án.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 3",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  },
+  {
+    "content": "Câu hỏi số 2 trong bộ fixture pattern đáp án.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 3",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  },
+  {
+    "content": "Câu hỏi số 3 trong bộ fixture pattern đáp án.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 3",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  },
+  {
+    "content": "Câu hỏi số 4 trong bộ fixture pattern đáp án.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 3",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  },
+  {
+    "content": "Câu hỏi số 5 trong bộ fixture pattern đáp án.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  },
+  {
+    "content": "Câu hỏi số 6 trong bộ fixture pattern đáp án.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  },
+  {
+    "content": "Câu hỏi số 7 trong bộ fixture pattern đáp án.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án sai 1",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 3",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  },
+  {
+    "content": "Câu hỏi số 8 trong bộ fixture pattern đáp án.",
+    "category": "Fixture",
+    "difficulty": "EASY",
+    "points": 10,
+    "options": [
+      {
+        "key": "A",
+        "text": "Đáp án đúng",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Đáp án sai 2",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Đáp án sai 3",
+        "isCorrect": false
+      }
+    ],
+    "explanation": "Giải thích đầy đủ, đủ dài để không bị QV020 bắt vì quá ngắn.",
+    "tags": [
+      "fixture"
+    ]
+  }
+]

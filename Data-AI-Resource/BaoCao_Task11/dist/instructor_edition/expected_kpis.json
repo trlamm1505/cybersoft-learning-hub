@@ -1,0 +1,33 @@
+{
+  "project_id": "proj-sales-performance-analytics",
+  "generated_at": "2026-09-15T12:00:00Z",
+  "author": "CyberSoft Data & AI Lab Instructor Team",
+  "ground_truth_metrics": {
+    "total_raw_orders": 402,
+    "total_clean_orders": 400,
+    "completed_orders_count": 338,
+    "cancelled_orders_count": 43,
+    "returned_orders_count": 19,
+    "net_revenue_usd": 388850.28,
+    "average_order_value_usd": 1150.44,
+    "cancellation_rate_pct": 10.75,
+    "return_rate_pct": 4.75,
+    "gross_profit_usd": 121652.51,
+    "gross_margin_pct": 31.43
+  },
+  "tolerances": {
+    "net_revenue_usd": 0.05,
+    "average_order_value_usd": 0.1,
+    "cancellation_rate_pct": 0.2,
+    "return_rate_pct": 0.2,
+    "gross_profit_usd": 0.5,
+    "gross_margin_pct": 0.5
+  },
+  "rfm_segment_distribution": {
+    "Champions": 20,
+    "Loyal Customers": 25,
+    "Potential Loyalists": 20,
+    "At Risk": 20,
+    "Hibernating / Lost": 15
+  }
+}

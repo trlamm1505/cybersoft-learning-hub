@@ -1,0 +1,36 @@
+file,line,path,rule,severity,message,fix
+lesson-bad.json,3,$[0],CT001,ERROR,title is missing,Thêm trường title mô tả rõ nội dung bài học.
+lesson-bad.json,10,$[0].prerequisite[0],CT010,ERROR,"prerequisite[0] references ""Bài 99"" which does not exist in the scanned corpus","Sửa lại số/thứ tự bài học được tham chiếu, hoặc bỏ tham chiếu nếu bài đó không còn tồn tại."
+lesson-bad.json,12,$[0].content,CT012,ERROR,"content contains banned/placeholder text ""todo""",Thay từ placeholder bằng nội dung thật trước khi publish.
+lesson-bad.json,13,$[0].videoUrl,CT014,ERROR,"videoUrl is malformed: ""not-a-valid-url""",Sửa lại URL đúng định dạng 'https://...'.
+lesson-bad.json,14,$[0].link,CT015,ERROR,link is empty,Điền URL hợp lệ hoặc bỏ hẳn field link nếu không dùng.
+lesson-bad.json,17,$[0].links[1],CT016,ERROR,"links[1] uses disallowed protocol ""javascript:""","Đổi sang link http(s), không dùng javascript:, data:, ftp:, file: ..."
+lesson-bad.json,20,$[0].points,CT019,ERROR,"points should be of type number, got string",Sửa lại đúng kiểu dữ liệu theo schema (array/number/boolean).
+lesson-bad.json,21,$[0].isPublished,CT019,ERROR,"isPublished should be of type boolean, got string",Sửa lại đúng kiểu dữ liệu theo schema (array/number/boolean).
+lesson-bad.json,23,$[1],CT018,ERROR,"required field ""content""/""contentMarkdown"" is missing","JSON: thêm key content/contentMarkdown. Markdown: thêm heading ""## Learning Outcome"", ""## Prerequisite"", ""## Terminology""."
+lesson-bad.json,25,$[1].learningOutcome,CT005,ERROR,learningOutcome is empty,Bổ sung ít nhất 1 mục tiêu học tập cụ thể.
+lesson-bad.md,1,$md,CT004,ERROR,learningOutcome field is missing,Thêm field learningOutcome (array các mục tiêu học tập) vào bài học.
+lesson-bad.md,1,$md,CT018,ERROR,"required section heading for ""learningOutcome"" is missing","JSON: thêm key content/contentMarkdown. Markdown: thêm heading ""## Learning Outcome"", ""## Prerequisite"", ""## Terminology""."
+lesson-bad.md,1,$md,CT018,ERROR,"required section heading for ""prerequisite"" is missing","JSON: thêm key content/contentMarkdown. Markdown: thêm heading ""## Learning Outcome"", ""## Prerequisite"", ""## Terminology""."
+lesson-bad.md,10,"$md.link[2] ""bad""",CT014,ERROR,"link[2] ""bad"" is malformed: ""not-a-url""",Sửa lại URL đúng định dạng 'https://...'.
+lesson-bad.md,10,"$md.link[0] ""Trang chủ""",CT015,ERROR,"link[0] ""Trang chủ"" is empty",Điền URL hợp lệ hoặc bỏ hẳn field link nếu không dùng.
+lesson-bad.md,10,"$md.link[1] ""ftp link""",CT016,ERROR,"link[1] ""ftp link"" uses disallowed protocol ""ftp:""","Đổi sang link http(s), không dùng javascript:, data:, ftp:, file: ..."
+lesson-invalid.json,1,,CTPARSE,ERROR,"invalid JSON - Unexpected token ']', ...""iêu 1"",
+  ]
+}
+"" is not valid JSON",Sửa lại cú pháp JSON (dùng linter JSON hoặc VSCode để xem lỗi cụ thể).
+lesson-bad.json,6,$[0].learningOutcome[0],CT006,WARNING,"learning outcome is too vague: ""ok""","Dùng động từ quan sát được rõ ràng, ví dụ ""giải thích"", ""triển khai"", ""so sánh"" thay vì câu chung chung."
+lesson-bad.json,7,$[0].learningOutcome[1],CT006,WARNING,"learning outcome is too vague: ""ok""","Dùng động từ quan sát được rõ ràng, ví dụ ""giải thích"", ""triển khai"", ""so sánh"" thay vì câu chung chung."
+lesson-bad.json,7,$[0].learningOutcome[1],CT007,WARNING,learning outcome[1] duplicates outcome[0],"Gộp hoặc xoá bớt mục tiêu trùng lặp, mỗi outcome nên là 1 ý riêng biệt."
+lesson-bad.json,12,$[0].content,CT011,WARNING,"terminology ""JS"" is inconsistent (found variants: JS, Js)",Chọn 1 cách viết chuẩn cho thuật ngữ và dùng thống nhất trong toàn bài.
+lesson-bad.json,12,$[0].content,CT013,WARNING,"""Html"" should be written as ""HTML""",Dùng đúng cách viết hoa chuẩn cho thuật ngữ/tên công nghệ (xem bảng canonical casing trong rules.js).
+lesson-bad.json,18,$[0].links[2],CT017,WARNING,"links[2] duplicates link already used in ""links[0]"": http://insecure.example.com/video","Bỏ bớt link trùng, hoặc gộp lại nếu cùng trỏ tới 1 tài nguyên."
+lesson-bad.json,23,$[1].content,CT020,WARNING,content is blank/empty,Bổ sung nội dung bài học đầy đủ trước khi publish (tối thiểu ~40 ký tự có nghĩa).
+lesson-bad.json,24,$[1],CT003,WARNING,title is too long (120 chars),"Rút gọn title, chuyển phần mô tả thêm xuống summary/description."
+lesson-bad.json,26,$[1].prerequisite,CT009,WARNING,prerequisite is empty,"Bổ sung ít nhất 1 điều kiện tiên quyết, hoặc ghi rõ ""Không yêu cầu tiên quyết""."
+lesson-bad.md,1,$md,CT002,WARNING,"title is too short (""JS"", 2 chars)","Viết title dài hơn, nêu rõ chủ đề + phạm vi bài học."
+lesson-bad.md,1,$md,CT008,WARNING,prerequisite field is missing,"Bổ sung danh sách prerequisite[]; nếu schema chưa hỗ trợ field này, cần đề xuất bổ sung trước."
+lesson-bad.md,3,$md.content,CT011,WARNING,"terminology ""JS"" is inconsistent (found variants: JS, Js)",Chọn 1 cách viết chuẩn cho thuật ngữ và dùng thống nhất trong toàn bài.
+lesson-bad.md,3,$md.content,CT013,WARNING,"""Html"" should be written as ""HTML""",Dùng đúng cách viết hoa chuẩn cho thuật ngữ/tên công nghệ (xem bảng canonical casing trong rules.js).
+lesson-bad.md,3,$md.content,CT020,WARNING,content is too short (11 chars),Bổ sung nội dung bài học đầy đủ trước khi publish (tối thiểu ~40 ký tự có nghĩa).
+lesson-bad.md,10,"$md.link[4] ""dup2""",CT017,WARNING,"link[4] ""dup2"" duplicates link already used in ""link[3] ""dup"""": https://example.com/x","Bỏ bớt link trùng, hoặc gộp lại nếu cùng trỏ tới 1 tài nguyên."

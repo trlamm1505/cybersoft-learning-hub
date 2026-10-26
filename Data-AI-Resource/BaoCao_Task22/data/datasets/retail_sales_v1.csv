@@ -1,0 +1,11 @@
+order_id,customer_id,order_date,total_amount,status,payment_method,city
+ORD-001,CUST-101,2026-09-01 10:15:00,1250000.0,Completed,VNPay,Hanoi
+ORD-002,CUST-102,2026-09-01 11:30:00,450000.0,Completed,MoMo,HoChiMinh
+ORD-003,CUST-103,2026-09-01 14:45:00,890000.0,Processing,CreditCard,Danang
+ORD-004,CUST-104,2026-09-02 09:20:00,2100000.0,Completed,VNPay,Hanoi
+ORD-005,CUST-105,2026-09-02 16:10:00,320000.0,Cancelled,COD,Cantho
+ORD-006,CUST-106,2026-09-03 13:00:00,1540000.0,Completed,Banking,Haiphong
+ORD-007,CUST-107,2026-09-03 15:40:00,780000.0,Processing,VNPay,HoChiMinh
+ORD-008,CUST-108,2026-09-04 10:05:00,620000.0,Completed,MoMo,Hanoi
+ORD-009,CUST-109,2026-09-04 11:55:00,1890000.0,Completed,CreditCard,Danang
+ORD-010,CUST-110,2026-09-04 17:30:00,540000.0,Completed,VNPay,HoChiMinh

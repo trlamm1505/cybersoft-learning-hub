@@ -1,0 +1,5 @@
+# Dependencies for CyberSoft Data & AI Lab Task 16 Ingestion & Chunking Pipeline
+pytest>=7.0.0
+matplotlib>=3.5.0
+pillow>=9.0.0
+python-docx>=0.8.11

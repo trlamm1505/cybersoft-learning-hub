@@ -1,0 +1,30 @@
+[
+  {
+    "version": "v1.1.0",
+    "release_date": "2026-10-01T18:37:47.492474+00:00",
+    "release_name": "CyberSoft Data & AI Lab Enhanced Release",
+    "items": [
+      {
+        "category": "Added",
+        "description": "Thêm mới tài nguyên dataset 'AI Knowledge Chunks Corpus Multi-Hop' phiên bản v1.1.0.; Thêm mới tài nguyên index 'Hybrid RAG Search Index' phiên bản v1.1.0.; Thêm mới tài nguyên prompt 'Exercise Generator System Prompt Enhanced' phiên bản v1.1.0.",
+        "artifact_ids": [
+          "dataset_ai_knowledge_chunks_corpus_multi_hop_v1.1.0",
+          "index_hybrid_rag_search_index_v1.1.0",
+          "prompt_exercise_generator_system_prompt_enhanced_v1.1.0"
+        ]
+      },
+      {
+        "category": "Deprecated",
+        "description": "Đánh dấu deprecate AI Knowledge Chunks Corpus v1.0.0.; Đánh dấu deprecate Exercise Generator System Prompt v1.0.0.",
+        "artifact_ids": [
+          "dataset_ai_knowledge_chunks_corpus_v1.0.0",
+          "prompt_exercise_generator_system_prompt_v1.0.0"
+        ]
+      }
+    ],
+    "breaking_changes": [
+      "Tài nguyên AI Knowledge Chunks Corpus chuẩn bị ngừng hỗ trợ.",
+      "Tài nguyên Exercise Generator System Prompt chuẩn bị ngừng hỗ trợ."
+    ]
+  }
+]

@@ -4,6 +4,11 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { scanPythonForViolations } from './python-guard.helper';
+import { scrubServerPaths } from '../utils/server-path.util';
+import {
+  ConcurrencyLimitExceededError,
+  getCodeRunnerLimiter,
+} from './concurrency-limiter';
 
 export interface RunResult {
   stdout: string;
@@ -22,7 +27,71 @@ export interface SyntaxCheckResult {
 }
 
 const DEFAULT_TIMEOUT_MS = 2000;
+const DEFAULT_MEMORY_LIMIT_MB = 128;
 const MAX_OUTPUT_BYTES = 64 * 1024; // 64KB stdout/stderr cap
+
+// Sai số cho phép khi so token là số thực — đủ nhỏ để không che giấu lỗi
+// logic thật (ví dụ nhầm công thức ra sai hẳn kết quả), chỉ hấp thụ sai số
+// làm tròn nhị phân tự nhiên của Python (0.1 + 0.2 = 0.30000000000000004).
+const FLOAT_COMPARE_EPSILON = 1e-6;
+
+/**
+ * So khớp output đã chấm điểm, dùng CHUNG cho cả judge chấm bài học viên
+ * thật (judge-queue.service.ts) và validator của AI Tạo Đề
+ * (problem-generator/problem-validator.ts) — bắt buộc 2 nơi phải cùng một
+ * tiêu chí "đúng" là gì, nếu không một bài AI duyệt "pass" có thể chấm SAI
+ * cho học viên làm đúng y hệt logic, hoặc ngược lại.
+ *
+ * So khớp theo TỪNG DÒNG, KHÔNG so cả khối text như một số duy nhất — một
+ * bài in nhiều số trên nhiều dòng vẫn phải khớp đúng số dòng và đúng thứ tự.
+ * Với mỗi cặp dòng: CHỈ so bằng sai số tuyệt đối FLOAT_COMPARE_EPSILON khi
+ * token đó có dấu chấm thập phân hoặc ký hiệu khoa học (isDecimalNotation) —
+ * tức chỉ áp dụng cho số THỰC, để hấp thụ sai số làm tròn dấu phẩy động
+ * (`1.5 + 3.2` ra `4.800000000000001` trong Python). Số nguyên thuần
+ * ("007" vs "7") và văn bản ("Yes"/"No") luôn so chuỗi tuyệt đối sau khi
+ * trim() — "007" và "7" KHÔNG được coi là bằng nhau, vì nhiều bài yêu cầu
+ * output giữ định dạng đệm 0 hoặc mã định danh dạng chuỗi số.
+ */
+export function outputsMatch(actual: string, expected: string): boolean {
+  if (actual === expected) return true;
+
+  const actualLines = actual.split('\n');
+  const expectedLines = expected.split('\n');
+  if (actualLines.length !== expectedLines.length) return false;
+
+  return actualLines.every((line, i) => {
+    const a = line.trim();
+    const e = expectedLines[i].trim();
+    if (a === e) return true;
+
+    if (!isDecimalNotation(a) || !isDecimalNotation(e)) return false;
+
+    const aNum = parseStrictFloat(a);
+    const eNum = parseStrictFloat(e);
+    if (aNum === null || eNum === null) return false;
+
+    return Math.abs(aNum - eNum) <= FLOAT_COMPARE_EPSILON;
+  });
+}
+
+// Chỉ token có dấu chấm thập phân hoặc ký hiệu khoa học (1.5, 3.2e10) mới được
+// coi là "số thực" đủ điều kiện so bằng epsilon. Số nguyên thuần (kể cả có số 0
+// đứng đầu như "007") không đi qua nhánh này, để "007" !== "7" như ý đồ output
+// đệm 0/mã định danh, thay vì bị ép kiểu số học rồi coi là bằng nhau.
+function isDecimalNotation(token: string): boolean {
+  return /[.eE]/.test(token);
+}
+
+// Number('') === 0 và Number(' 12 ') bỏ qua khoảng trắng giữa — cả hai đều
+// sai cho mục đích này (chuỗi rỗng không phải số 0, và khoảng trắng lẫn
+// trong output là lỗi định dạng thật cần bắt, không phải sai số làm tròn).
+// Regex bắt buộc token phải là toàn bộ một số thực hợp lệ, không cho khoảng
+// trắng nội bộ hay ký tự thừa.
+function parseStrictFloat(token: string): number | null {
+  if (!/^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(token)) return null;
+  const n = Number(token);
+  return Number.isFinite(n) ? n : null;
+}
 
 /**
  * On Windows, the bare `python` on PATH is often the Microsoft Store /
@@ -33,10 +102,14 @@ const MAX_OUTPUT_BYTES = 64 * 1024; // 64KB stdout/stderr cap
  * module load to sidestep the shim entirely.
  */
 function resolvePythonBin(): string {
+  // Cho phép chỉ định thẳng trình thông dịch qua BE/.env (vd C:/Python312/python.exe hoặc /usr/bin/python3).
+  if (process.env.PYTHON_BIN?.trim()) return process.env.PYTHON_BIN.trim();
   if (process.platform !== 'win32') return 'python3';
 
   const candidates = [
-    process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Python', 'bin', 'python.exe') : null,
+    process.env.LOCALAPPDATA
+      ? path.join(process.env.LOCALAPPDATA, 'Python', 'bin', 'python.exe')
+      : null,
   ].filter((p): p is string => !!p);
 
   for (const candidate of candidates) {
@@ -45,13 +118,17 @@ function resolvePythonBin(): string {
   return 'python';
 }
 
-const PYTHON_BIN = resolvePythonBin();
+// Phân giải ở lần chạy đầu tiên (không phải lúc nạp module) để PYTHON_BIN trong BE/.env luôn có hiệu lực.
+let pythonBinCache: string | undefined;
+const pythonBin = (): string => (pythonBinCache ??= resolvePythonBin());
 
 /**
  * Runs untrusted Python source against a single stdin payload.
- * Isolation strategy (no Docker available on this host):
- *  - static AST-ish guard rejects dangerous imports/calls before anything runs
- *  - `python -I` (isolated mode: ignores env vars / user site-packages)
+ * Isolation strategy:
+ *  - real Python AST guard (python-guard.helper.ts) rejects dangerous
+ *    imports/calls/dunder-attribute access before anything runs
+ *  - chạy 100% local (không Docker): `python -I -B` trên host, env tối giản (chỉ PATH/SystemRoot)
+ *  - stderr trả về đã che đường dẫn máy chủ (file bài làm luôn hiện là main.py)
  *  - execution cwd is a fresh temp dir per run, deleted immediately after
  *  - hard wall-clock timeout kills the process tree
  *  - stdout/stderr are truncated to MAX_OUTPUT_BYTES to bound memory
@@ -60,8 +137,10 @@ export async function runPythonCode(
   code: string,
   stdin: string,
   timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  memoryLimitMb: number = DEFAULT_MEMORY_LIMIT_MB,
+  { rejectWhenBusy = false }: { rejectWhenBusy?: boolean } = {},
 ): Promise<RunResult> {
-  const violations = scanPythonForViolations(code);
+  const violations = await scanPythonForViolations(code);
   if (violations.length > 0) {
     return {
       stdout: '',
@@ -76,8 +155,37 @@ export async function runPythonCode(
     };
   }
 
+  // Giới hạn số container/tiến trình chạy đồng thời trên host.
+  try {
+    return await getCodeRunnerLimiter().run(
+      () => executePython(code, stdin, timeoutMs, memoryLimitMb),
+      { rejectWhenBusy },
+    );
+  } catch (err) {
+    if (err instanceof ConcurrencyLimitExceededError) {
+      return {
+        stdout: '',
+        stderr: '',
+        exitCode: null,
+        timedOut: false,
+        executionTimeMs: 0,
+        blocked: true,
+        blockedReason: err.message,
+      };
+    }
+    throw err;
+  }
+}
+
+async function executePython(
+  code: string,
+  stdin: string,
+  timeoutMs: number,
+  memoryLimitMb: number,
+): Promise<RunResult> {
   const runDir = fs.mkdtempSync(path.join(os.tmpdir(), 'code-runner-'));
-  const scriptPath = path.join(runDir, `${randomUUID()}.py`);
+  const scriptFile = `${randomUUID()}.py`;
+  const scriptPath = path.join(runDir, scriptFile);
   fs.writeFileSync(scriptPath, code, 'utf-8');
 
   const startedAt = Date.now();
@@ -97,7 +205,7 @@ export async function runPythonCode(
       // so this must be a CLI flag, not an env var — without it, non-ASCII
       // output (Vietnamese exercise text included) crashes with
       // UnicodeEncodeError against cp1252.
-      const child = spawn(PYTHON_BIN, ['-I', '-B', '-X', 'utf8', scriptPath], {
+      const child = spawn(pythonBin(), ['-I', '-B', '-X', 'utf8', scriptPath], {
         cwd: runDir,
         env: minimalEnv,
         windowsHide: true,
@@ -108,17 +216,27 @@ export async function runPythonCode(
       let timedOut = false;
       let settled = false;
       let peakMemoryMb: number | undefined;
+      let memoryExceeded = false;
 
       const timer = setTimeout(() => {
         timedOut = true;
         child.kill('SIGKILL');
       }, timeoutMs);
 
-      const memorySampler = child.pid
-        ? setInterval(() => {
+      const memorySampler =
+        child.pid
+          ? setInterval(() => {
             sampleProcessMemoryMb(child.pid as number).then((mb) => {
-              if (mb !== undefined && (peakMemoryMb === undefined || mb > peakMemoryMb)) {
+              if (
+                mb !== undefined &&
+                (peakMemoryMb === undefined || mb > peakMemoryMb)
+              ) {
                 peakMemoryMb = mb;
+              }
+              // Chạy local (không còn cgroup của Docker): vượt giới hạn RAM thì dừng ngay tiến trình.
+              if (mb !== undefined && mb > memoryLimitMb && !memoryExceeded) {
+                memoryExceeded = true;
+                child.kill('SIGKILL');
               }
             });
           }, MEMORY_SAMPLE_INTERVAL_MS)
@@ -138,7 +256,7 @@ export async function runPythonCode(
         if (memorySampler) clearInterval(memorySampler);
         resolve({
           stdout: '',
-          stderr: `Không thể khởi chạy Python: ${err.message}`,
+          stderr: `Không thể khởi chạy Python: ${scrubServerPaths(err.message, [scriptPath])}`,
           exitCode: null,
           timedOut: false,
           executionTimeMs: Date.now() - startedAt,
@@ -152,8 +270,12 @@ export async function runPythonCode(
         clearTimeout(timer);
         if (memorySampler) clearInterval(memorySampler);
         resolve({
-          stdout: stdout.slice(0, MAX_OUTPUT_BYTES),
-          stderr: stderr.slice(0, MAX_OUTPUT_BYTES),
+          // stdout cũng không lộ đường dẫn tạm (vd print(__file__), os.getcwd()) — DEF-060.
+          stdout: scrubServerPaths(stdout.slice(0, MAX_OUTPUT_BYTES), [scriptPath], { libraries: false }),
+          // Traceback không bao giờ lộ đường dẫn tạm của máy chủ (DEF-034).
+          stderr:
+            scrubServerPaths(stderr.slice(0, MAX_OUTPUT_BYTES), [scriptPath]) +
+            (memoryExceeded ? `MemoryError: chương trình vượt giới hạn bộ nhớ ${memoryLimitMb}MB.` : ''),
           exitCode,
           timedOut,
           executionTimeMs: Date.now() - startedAt,
@@ -167,7 +289,12 @@ export async function runPythonCode(
     });
   } finally {
     // Windows can briefly hold the killed child's file handle open; retry a couple times.
-    fs.rmSync(runDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+    fs.rmSync(runDir, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 100,
+    });
   }
 }
 
@@ -194,9 +321,20 @@ async function sampleProcessMemoryMb(pid: number): Promise<number | undefined> {
     // usage above being capped by the caller's own timeout) since spawning a process per sample
     // is expensive relative to the thing being measured.
     return await new Promise<number | undefined>((resolve) => {
-      const probe = spawn('wmic', ['process', 'where', `ProcessId=${pid}`, 'get', 'WorkingSetSize', '/value'], {
-        windowsHide: true,
-      });
+      const probe = spawn(
+        'wmic',
+        [
+          'process',
+          'where',
+          `ProcessId=${pid}`,
+          'get',
+          'WorkingSetSize',
+          '/value',
+        ],
+        {
+          windowsHide: true,
+        },
+      );
       let out = '';
       probe.stdout?.on('data', (c) => (out += c.toString('utf-8')));
       probe.on('close', () => {
@@ -216,7 +354,9 @@ async function sampleProcessMemoryMb(pid: number): Promise<number | undefined> {
  * change between test cases — a SyntaxError/IndentationError here maps to judge status CE,
  * distinct from RE (a runtime error raised by otherwise-valid code).
  */
-export async function checkPythonSyntax(code: string): Promise<SyntaxCheckResult> {
+export async function checkPythonSyntax(
+  code: string,
+): Promise<SyntaxCheckResult> {
   const runDir = fs.mkdtempSync(path.join(os.tmpdir(), 'code-runner-syntax-'));
   const scriptPath = path.join(runDir, `${randomUUID()}.py`);
   fs.writeFileSync(scriptPath, code, 'utf-8');
@@ -228,11 +368,15 @@ export async function checkPythonSyntax(code: string): Promise<SyntaxCheckResult
         minimalEnv.SystemRoot = process.env.SystemRoot;
       }
 
-      const child = spawn(PYTHON_BIN, ['-I', '-B', '-m', 'py_compile', scriptPath], {
-        cwd: runDir,
-        env: minimalEnv,
-        windowsHide: true,
-      });
+      const child = spawn(
+        pythonBin(),
+        ['-I', '-B', '-m', 'py_compile', scriptPath],
+        {
+          cwd: runDir,
+          env: minimalEnv,
+          windowsHide: true,
+        },
+      );
 
       let stderr = '';
       let settled = false;
@@ -244,16 +388,28 @@ export async function checkPythonSyntax(code: string): Promise<SyntaxCheckResult
       child.on('error', (err) => {
         if (settled) return;
         settled = true;
-        resolve({ ok: false, errorMessage: `Không thể kiểm tra cú pháp: ${err.message}` });
+        resolve({
+          ok: false,
+          errorMessage: `Không thể kiểm tra cú pháp: ${scrubServerPaths(err.message, [scriptPath])}`,
+        });
       });
 
       child.on('close', (exitCode) => {
         if (settled) return;
         settled = true;
-        resolve({ ok: exitCode === 0, errorMessage: exitCode === 0 ? undefined : stderr.trim() });
+        resolve({
+          ok: exitCode === 0,
+          // Chỉ còn tên file chung main.py, không lộ đường dẫn thư mục tạm của máy chủ (DEF-060).
+          errorMessage: exitCode === 0 ? undefined : scrubServerPaths(stderr.trim(), [scriptPath]),
+        });
       });
     });
   } finally {
-    fs.rmSync(runDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+    fs.rmSync(runDir, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 100,
+    });
   }
 }

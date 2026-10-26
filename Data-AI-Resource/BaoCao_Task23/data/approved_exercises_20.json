@@ -1,0 +1,4878 @@
+[
+  {
+    "id": "EX-RETAIL-01",
+    "dataset_id": "retail_sales_v1",
+    "title": "Liệt Kê Các Đơn Hàng Đã Hoàn Thành (Remember / Beginner)",
+    "description": "Viết câu truy vấn SQL liệt kê toàn bộ thông tin các đơn hàng có trạng thái là 'Completed' từ bảng 'retail_sales_v1'.",
+    "bloom_level": "Remember",
+    "difficulty": "Beginner",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên ghi nhớ và sử dụng thành thạo mệnh đề WHERE để lọc dữ liệu bản ghi cơ bản.",
+      "Nhận biết được các trường thuộc tính trong lược đồ bán hàng đa bảng."
+    ],
+    "schema_dependencies": [
+      "order_id",
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết câu truy vấn lọc đơn hàng hoàn thành\nSELECT * FROM retail_sales_v1 WHERE status = ...;",
+    "solution_code": "SELECT order_id, customer_id, total_amount, status FROM retail_sales_v1 WHERE status = 'Completed';",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra số lượng đơn hàng hoàn thành trả về",
+        "expected_output": 7,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra tất cả đơn hàng đều có trạng thái Completed",
+        "expected_output": "Completed",
+        "assertion_type": "exact_value"
+      }
+    ],
+    "hints": [
+      "Sử dụng mệnh đề WHERE status = 'Completed'."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Đạt chuẩn sư phạm cho học viên mới bắt đầu học SQL. Cấu trúc câu hỏi rõ ràng, test case chính xác.",
+    "similarity_score": 0.12,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:00:00Z",
+    "updated_at": "2026-10-01T07:15:00Z",
+    "approved_at": "2026-10-01T07:15:00Z"
+  },
+  {
+    "id": "EX-RETAIL-02",
+    "dataset_id": "retail_sales_v1",
+    "title": "Tính Tổng Doanh Thu Theo Từng Phương Thức Thanh Toán (Understand / Beginner)",
+    "description": "Viết truy vấn SQL tính tổng giá trị đơn hàng (total_amount) và số lượng đơn tương ứng cho từng phương thức thanh toán (payment_method).",
+    "bloom_level": "Understand",
+    "difficulty": "Beginner",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu rõ cơ chế gom nhóm dữ liệu (GROUP BY) và hàm tổng hợp SUM, COUNT.",
+      "Phân biệt được sự khác nhau giữa tính toán trên từng dòng và tính toán gom nhóm."
+    ],
+    "schema_dependencies": [
+      "payment_method",
+      "total_amount"
+    ],
+    "starter_code": "SELECT payment_method, COUNT(*) AS total_orders, SUM(...) FROM retail_sales_v1 GROUP BY ...;",
+    "solution_code": "SELECT payment_method, COUNT(*) AS order_count, SUM(CAST(total_amount AS FLOAT)) AS total_revenue FROM retail_sales_v1 GROUP BY payment_method ORDER BY total_revenue DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra đầy đủ các cột kết quả",
+        "expected_output": [
+          "payment_method",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra số lượng phương thức thanh toán",
+        "expected_output": 5,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Nhớ sử dụng CAST(total_amount AS FLOAT) trước khi SUM và gom nhóm theo payment_method."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Bài tập rất tốt giúp học viên nắm chắc bản chất hàm gom nhóm cơ bản.",
+    "similarity_score": 0.18,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:05:00Z",
+    "updated_at": "2026-10-01T07:16:00Z",
+    "approved_at": "2026-10-01T07:16:00Z"
+  },
+  {
+    "id": "EX-RETAIL-03",
+    "dataset_id": "retail_sales_v1",
+    "title": "Lọc Các Thành Phố Có Doanh Thu Trên Một Triệu Đồng (Apply / Intermediate)",
+    "description": "Viết truy vấn SQL tính tổng doanh thu theo từng thành phố (city), nhưng chỉ hiển thị các thành phố có tổng doanh thu vượt trên 1,000,000 VNĐ.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên áp dụng thành thạo mệnh đề HAVING để lọc điều kiện trên kết quả hàm tổng hợp.",
+      "Phân biệt chính xác phạm vi áp dụng giữa WHERE và HAVING trong câu lệnh SQL."
+    ],
+    "schema_dependencies": [
+      "city",
+      "total_amount"
+    ],
+    "starter_code": "SELECT city, SUM(...) FROM retail_sales_v1 GROUP BY city HAVING ...;",
+    "solution_code": "SELECT city, SUM(CAST(total_amount AS FLOAT)) AS city_revenue FROM retail_sales_v1 GROUP BY city HAVING SUM(CAST(total_amount AS FLOAT)) > 1000000 ORDER BY city_revenue DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra sự hiện diện của cột city và city_revenue",
+        "expected_output": [
+          "city",
+          "city_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra Hà Nội nằm trong danh sách doanh thu cao",
+        "expected_output": "Hanoi",
+        "assertion_type": "contains_value"
+      }
+    ],
+    "hints": [
+      "Dùng HAVING SUM(CAST(total_amount AS FLOAT)) > 1000000."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Câu hỏi phân định rõ ràng giữa WHERE và HAVING, đạt yêu cầu sư phạm cấp độ Apply.",
+    "similarity_score": 0.22,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:08:00Z",
+    "updated_at": "2026-10-01T07:18:00Z",
+    "approved_at": "2026-10-01T07:18:00Z"
+  },
+  {
+    "id": "EX-RETAIL-04",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân Tích Tỷ Trọng Đơn Hàng Thành Công và Hủy (Analyze / Intermediate)",
+    "description": "Viết truy vấn SQL phân tích tỷ lệ phần trăm số lượng đơn hàng của từng trạng thái (status) so với tổng số lượng đơn trong toàn bộ hệ thống.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên phân tích được cơ cấu dữ liệu vận hành kinh doanh đa trạng thái.",
+      "Làm chủ kỹ thuật Subquery hoặc Window function để tính tỷ lệ tương đối."
+    ],
+    "schema_dependencies": [
+      "status",
+      "order_id"
+    ],
+    "starter_code": "SELECT status, COUNT(*) AS count_orders, ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM retail_sales_v1), 2) AS percentage FROM retail_sales_v1 GROUP BY status;",
+    "solution_code": "SELECT status, COUNT(*) AS count_orders, ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM retail_sales_v1), 2) AS percentage FROM retail_sales_v1 GROUP BY status ORDER BY count_orders DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có 3 trạng thái đơn hàng",
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra cột percentage có trong kết quả",
+        "expected_output": [
+          "status",
+          "count_orders",
+          "percentage"
+        ],
+        "assertion_type": "column_match"
+      }
+    ],
+    "hints": [
+      "Sử dụng subquery (SELECT COUNT(*) FROM retail_sales_v1) ở phần SELECT để làm mẫu số."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Bài toán ứng dụng thực tế phân tích tỷ lệ hoàn thành, duyệt đạt chuẩn.",
+    "similarity_score": 0.15,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:10:00Z",
+    "updated_at": "2026-10-01T07:20:00Z",
+    "approved_at": "2026-10-01T07:20:00Z"
+  },
+  {
+    "id": "EX-RETAIL-05",
+    "dataset_id": "retail_sales_v1",
+    "title": "Đánh Giá Giá Trị Đơn Hàng Bằng Phân Hạng Case-When (Evaluate / Advanced)",
+    "description": "Viết truy vấn SQL phân hạng các đơn hàng thành 3 nhóm quy mô giá trị: 'VIP' (> 1,500,000 VNĐ), 'Standard' (500,000 - 1,500,000 VNĐ), và 'Small' (< 500,000 VNĐ), sau đó thống kê số lượng đơn của từng phân khúc.",
+    "bloom_level": "Evaluate",
+    "difficulty": "Advanced",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên thẩm định và thiết lập tiêu chí phân loại khách hàng dựa trên biến định lượng.",
+      "Làm chủ cấu trúc CASE WHEN kết hợp subquery / CTE trong SQL nâng cao."
+    ],
+    "schema_dependencies": [
+      "order_id",
+      "total_amount"
+    ],
+    "starter_code": "WITH SegmentedOrders AS (\n  SELECT order_id, CASE WHEN ... THEN 'VIP' ... END AS order_segment\n  FROM retail_sales_v1\n)\nSELECT order_segment, COUNT(*) FROM SegmentedOrders GROUP BY order_segment;",
+    "solution_code": "SELECT CASE WHEN CAST(total_amount AS FLOAT) > 1500000 THEN 'VIP' WHEN CAST(total_amount AS FLOAT) >= 500000 THEN 'Standard' ELSE 'Small' END AS segment, COUNT(*) AS segment_count, ROUND(AVG(CAST(total_amount AS FLOAT)), 2) AS avg_amount FROM retail_sales_v1 GROUP BY segment ORDER BY avg_amount DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra các cột segment, segment_count, avg_amount",
+        "expected_output": [
+          "segment",
+          "segment_count",
+          "avg_amount"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra phân khúc VIP có xuất hiện",
+        "expected_output": "VIP",
+        "assertion_type": "contains_value"
+      }
+    ],
+    "hints": [
+      "Sử dụng CASE WHEN CAST(total_amount AS FLOAT) > 1500000 THEN 'VIP'..."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Rất xuất sắc, câu hỏi phản ánh tư duy phân tích định lượng của Data Analyst.",
+    "similarity_score": 0.2,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:12:00Z",
+    "updated_at": "2026-10-01T07:22:00Z",
+    "approved_at": "2026-10-01T07:22:00Z"
+  },
+  {
+    "id": "EX-HR-01",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Tra Cứu Danh Sách Nhân Viên Đi Làm Đúng Giờ (Remember / Beginner)",
+    "description": "Viết câu truy vấn SQL lấy mã nhân viên (employee_id), họ tên (full_name) và ngày làm việc (work_date) của tất cả bản ghi có trạng thái đi làm là 'OnTime'.",
+    "bloom_level": "Remember",
+    "difficulty": "Beginner",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên ghi nhớ cách lọc bản ghi theo điều kiện bằng mệnh đề WHERE.",
+      "Làm quen với dữ liệu nhân sự thực tế."
+    ],
+    "schema_dependencies": [
+      "employee_id",
+      "full_name",
+      "work_date",
+      "status"
+    ],
+    "starter_code": "SELECT employee_id, full_name, work_date, status FROM hr_attendance_v1 WHERE status = 'OnTime';",
+    "solution_code": "SELECT employee_id, full_name, work_date, status FROM hr_attendance_v1 WHERE status = 'OnTime';",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra số dòng nhân viên đi đúng giờ",
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra đúng trạng thái OnTime",
+        "expected_output": "OnTime",
+        "assertion_type": "exact_value"
+      }
+    ],
+    "hints": [
+      "Lọc theo trường status = 'OnTime'."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Đề bài rõ ràng, test case thực thi chuẩn xác.",
+    "similarity_score": 0.11,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:15:00Z",
+    "updated_at": "2026-10-01T07:25:00Z",
+    "approved_at": "2026-10-01T07:25:00Z"
+  },
+  {
+    "id": "EX-HR-02",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Thống Kê Số Lượt Chấm Công Theo Từng Phòng Ban (Understand / Beginner)",
+    "description": "Viết truy vấn SQL đếm tổng số lượt chấm công của từng phòng ban (department) và sắp xếp giảm dần theo số lượt.",
+    "bloom_level": "Understand",
+    "difficulty": "Beginner",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu cách phân nhóm dữ liệu nhân sự theo phòng ban.",
+      "Thành thạo kết hợp hàm COUNT và mệnh đề ORDER BY DESC."
+    ],
+    "schema_dependencies": [
+      "department",
+      "employee_id"
+    ],
+    "starter_code": "SELECT department, COUNT(*) AS total_records FROM hr_attendance_v1 GROUP BY department ORDER BY ...;",
+    "solution_code": "SELECT department, COUNT(*) AS record_count FROM hr_attendance_v1 GROUP BY department ORDER BY record_count DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra số lượng phòng ban trong bảng",
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra phòng Engineering có trong kết quả",
+        "expected_output": "Engineering",
+        "assertion_type": "contains_value"
+      }
+    ],
+    "hints": [
+      "GROUP BY department ORDER BY record_count DESC."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Kiểm tra tốt kỹ năng gom nhóm cơ bản.",
+    "similarity_score": 0.16,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:17:00Z",
+    "updated_at": "2026-10-01T07:27:00Z",
+    "approved_at": "2026-10-01T07:27:00Z"
+  },
+  {
+    "id": "EX-HR-03",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Tính Trung Bình Số Giờ Làm Việc Của Mỗi Phòng Ban (Apply / Intermediate)",
+    "description": "Viết câu truy vấn SQL tính số giờ làm việc trung bình (work_hours) của từng phòng ban, làm tròn 2 chữ số thập phân.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên vận dụng hàm AVG kết hợp hàm làm tròn ROUND.",
+      "Xử lý chuyển đổi kiểu dữ liệu (CAST) từ text sang float trong tính toán số liệu."
+    ],
+    "schema_dependencies": [
+      "department",
+      "work_hours"
+    ],
+    "starter_code": "SELECT department, ROUND(AVG(...), 2) AS avg_hours FROM hr_attendance_v1 GROUP BY department;",
+    "solution_code": "SELECT department, ROUND(AVG(CAST(work_hours AS FLOAT)), 2) AS avg_hours FROM hr_attendance_v1 GROUP BY department ORDER BY avg_hours DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra các cột department và avg_hours",
+        "expected_output": [
+          "department",
+          "avg_hours"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra 6 phòng ban",
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Sử dụng ROUND(AVG(CAST(work_hours AS FLOAT)), 2)."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Rèn luyện tốt kỹ năng ép kiểu dữ liệu thực tế.",
+    "similarity_score": 0.19,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:20:00Z",
+    "updated_at": "2026-10-01T07:30:00Z",
+    "approved_at": "2026-10-01T07:30:00Z"
+  },
+  {
+    "id": "EX-HR-04",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Phân Tích Tỷ Lệ Nhân Viên Đi Trễ Theo Từng Bộ Phận (Analyze / Intermediate)",
+    "description": "Viết truy vấn SQL phân tích số lượt đi trễ (status = 'Late') và tỷ lệ đi trễ trên tổng số lượt chấm công của từng phòng ban.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên phân tích tỷ lệ vi phạm kỷ luật lao động trong doanh nghiệp.",
+      "Sử dụng biểu thức SUM(CASE WHEN ...) để đếm có điều kiện mà không làm mất các dòng khác."
+    ],
+    "schema_dependencies": [
+      "department",
+      "status"
+    ],
+    "starter_code": "SELECT department, SUM(CASE WHEN status = 'Late' THEN 1 ELSE 0 END) AS late_count FROM hr_attendance_v1 GROUP BY department;",
+    "solution_code": "SELECT department, COUNT(*) AS total_shifts, SUM(CASE WHEN status = 'Late' THEN 1 ELSE 0 END) AS late_count, ROUND(SUM(CASE WHEN status = 'Late' THEN 1.0 ELSE 0.0 END) * 100.0 / COUNT(*), 2) AS late_rate FROM hr_attendance_v1 GROUP BY department ORDER BY late_rate DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra các cột kết quả",
+        "expected_output": [
+          "department",
+          "total_shifts",
+          "late_count",
+          "late_rate"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra số phòng ban",
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Dùng SUM(CASE WHEN status = 'Late' THEN 1 ELSE 0 END) để đếm số lượt đi trễ."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Kỹ thuật conditional aggregation rất hữu ích cho các bài toán phân tích nhân sự.",
+    "similarity_score": 0.23,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:22:00Z",
+    "updated_at": "2026-10-01T07:32:00Z",
+    "approved_at": "2026-10-01T07:32:00Z"
+  },
+  {
+    "id": "EX-HR-05",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Đánh Giá Kỷ Luật & Cảnh Báo Nhân Sự Chuyên Cần (Evaluate / Advanced)",
+    "description": "Viết truy vấn SQL lọc ra những nhân viên chuyên cần gương mẫu (đi đúng giờ 'OnTime' và làm việc từ 8.2 giờ trở lên trong ca).",
+    "bloom_level": "Evaluate",
+    "difficulty": "Advanced",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên xây dựng quy tắc đánh giá chuyên cần đa tiêu chí từ dữ liệu thô.",
+      "Làm chủ mệnh đề WHERE kết hợp nhiều điều kiện logic định lượng."
+    ],
+    "schema_dependencies": [
+      "employee_id",
+      "full_name",
+      "department",
+      "status",
+      "work_hours"
+    ],
+    "starter_code": "SELECT employee_id, full_name, department, work_hours FROM hr_attendance_v1 WHERE status = 'OnTime' AND CAST(work_hours AS FLOAT) >= 8.2;",
+    "solution_code": "SELECT employee_id, full_name, department, CAST(work_hours AS FLOAT) AS hours FROM hr_attendance_v1 WHERE status = 'OnTime' AND CAST(work_hours AS FLOAT) >= 8.2 ORDER BY hours DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra các cột kết quả",
+        "expected_output": [
+          "employee_id",
+          "full_name",
+          "department",
+          "hours"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra số nhân viên chuyên cần đạt chuẩn",
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "WHERE status = 'OnTime' AND CAST(work_hours AS FLOAT) >= 8.2."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Bài toán thực tế áp dụng trong quy chế khen thưởng doanh nghiệp, duyệt xuất sắc.",
+    "similarity_score": 0.25,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:25:00Z",
+    "updated_at": "2026-10-01T07:35:00Z",
+    "approved_at": "2026-10-01T07:35:00Z"
+  },
+  {
+    "id": "EX-CHURN-01",
+    "dataset_id": "customer_churn_v1",
+    "title": "Xác Định Số Lượng Khách Hàng Rời Bỏ Dịch Vụ (Remember / Beginner)",
+    "description": "Viết truy vấn SQL đếm tổng số lượng khách hàng đã rời bỏ mạng viễn thông (churn_label = 'Yes') trong bảng 'customer_churn_v1'.",
+    "bloom_level": "Remember",
+    "difficulty": "Beginner",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên ghi nhớ cách đếm số dòng thỏa mãn điều kiện với COUNT(*).",
+      "Nắm bắt ý nghĩa của nhãn mục tiêu Churn trong bài toán Machine Learning."
+    ],
+    "schema_dependencies": [
+      "customer_id",
+      "churn_label"
+    ],
+    "starter_code": "SELECT COUNT(*) AS churn_count FROM customer_churn_v1 WHERE churn_label = 'Yes';",
+    "solution_code": "SELECT COUNT(*) AS churn_count FROM customer_churn_v1 WHERE churn_label = 'Yes';",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra số khách hàng rời bỏ trong tập mẫu",
+        "expected_output": 3,
+        "assertion_type": "exact_value"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra trả về 1 dòng kết quả",
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "WHERE churn_label = 'Yes'."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Rất chuẩn cho bài khởi động chuyên đề Phân tích nguy cơ khách hàng rời bỏ.",
+    "similarity_score": 0.13,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:28:00Z",
+    "updated_at": "2026-10-01T07:38:00Z",
+    "approved_at": "2026-10-01T07:38:00Z"
+  },
+  {
+    "id": "EX-CHURN-02",
+    "dataset_id": "customer_churn_v1",
+    "title": "Phân Nhóm Khách Hàng Theo Loại Hợp Đồng Viễn Thông (Understand / Beginner)",
+    "description": "Viết câu truy vấn SQL thống kê số lượng khách hàng theo từng loại hợp đồng (contract_type) và cước phí hàng tháng trung bình (monthly_charges).",
+    "bloom_level": "Understand",
+    "difficulty": "Beginner",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu mối liên hệ giữa các hình thức hợp đồng và mức chi trả của khách hàng.",
+      "Thành thạo cú pháp GROUP BY contract_type."
+    ],
+    "schema_dependencies": [
+      "contract_type",
+      "monthly_charges"
+    ],
+    "starter_code": "SELECT contract_type, COUNT(*) AS count_cust, AVG(...) FROM customer_churn_v1 GROUP BY ...;",
+    "solution_code": "SELECT contract_type, COUNT(*) AS customer_count, ROUND(AVG(CAST(monthly_charges AS FLOAT)), 2) AS avg_monthly_charge FROM customer_churn_v1 GROUP BY contract_type ORDER BY customer_count DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra 3 loại hợp đồng",
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra cột contract_type và avg_monthly_charge",
+        "expected_output": [
+          "contract_type",
+          "customer_count",
+          "avg_monthly_charge"
+        ],
+        "assertion_type": "column_match"
+      }
+    ],
+    "hints": [
+      "GROUP BY contract_type và dùng CAST(monthly_charges AS FLOAT)."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Đáp ứng tốt yêu cầu sư phạm mức độ Thông hiểu.",
+    "similarity_score": 0.17,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:30:00Z",
+    "updated_at": "2026-10-01T07:40:00Z",
+    "approved_at": "2026-10-01T07:40:00Z"
+  },
+  {
+    "id": "EX-CHURN-03",
+    "dataset_id": "customer_churn_v1",
+    "title": "Tính Tỷ Lệ Rời Bỏ Của Khách Hàng Theo Từng Loại Hợp Đồng (Apply / Intermediate)",
+    "description": "Viết truy vấn SQL tính toán tỷ lệ rời bỏ (churn rate) của từng loại hợp đồng (contract_type) trong bảng dữ liệu.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên áp dụng phân tích tỷ lệ theo từng phân khúc khách hàng.",
+      "Đo lường được tác động của thời hạn cam kết tới tỷ lệ giữ chân."
+    ],
+    "schema_dependencies": [
+      "contract_type",
+      "churn_label"
+    ],
+    "starter_code": "SELECT contract_type, COUNT(*) AS total, SUM(CASE WHEN churn_label = 'Yes' THEN 1 ELSE 0 END) FROM customer_churn_v1 GROUP BY contract_type;",
+    "solution_code": "SELECT contract_type, COUNT(*) AS total_customers, SUM(CASE WHEN churn_label = 'Yes' THEN 1 ELSE 0 END) AS churn_count, ROUND(SUM(CASE WHEN churn_label = 'Yes' THEN 1.0 ELSE 0.0 END) * 100.0 / COUNT(*), 2) AS churn_percentage FROM customer_churn_v1 GROUP BY contract_type ORDER BY churn_percentage DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra 3 nhóm hợp đồng",
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra cột churn_percentage",
+        "expected_output": [
+          "contract_type",
+          "total_customers",
+          "churn_count",
+          "churn_percentage"
+        ],
+        "assertion_type": "column_match"
+      }
+    ],
+    "hints": [
+      "Dùng SUM(CASE WHEN churn_label = 'Yes' THEN 1.0 ELSE 0.0 END) * 100.0 / COUNT(*)."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Rất thực tế, bài toán này trực tiếp phục vụ bộ môn Trực quan hóa và Phân tích Dữ liệu.",
+    "similarity_score": 0.21,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:33:00Z",
+    "updated_at": "2026-10-01T07:43:00Z",
+    "approved_at": "2026-10-01T07:43:00Z"
+  },
+  {
+    "id": "EX-CHURN-04",
+    "dataset_id": "customer_churn_v1",
+    "title": "Phân Tích Tương Quan Giữa Thời Gian Gắn Bó và Cước Phí (Analyze / Intermediate)",
+    "description": "Viết truy vấn SQL phân nhóm khách hàng theo thâm niên sử dụng (tenure_months): Nhóm 'New' (<= 12 tháng), Nhóm 'Medium' (13 - 36 tháng), Nhóm 'Loyal' (> 36 tháng) và phân tích cước phí trung bình của từng nhóm.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên phân tích được chu kỳ vòng đời khách hàng (Customer Lifecycle Analysis).",
+      "Vận dụng thành thạo CASE WHEN trong GROUP BY."
+    ],
+    "schema_dependencies": [
+      "tenure_months",
+      "churn_label",
+      "monthly_charges"
+    ],
+    "starter_code": "SELECT CASE WHEN CAST(tenure_months AS INT) <= 12 THEN 'New' ... END AS tenure_group, COUNT(*) FROM customer_churn_v1 GROUP BY tenure_group;",
+    "solution_code": "SELECT CASE WHEN CAST(tenure_months AS INT) <= 12 THEN 'New (0-12m)' WHEN CAST(tenure_months AS INT) <= 36 THEN 'Medium (13-36m)' ELSE 'Loyal (>36m)' END AS tenure_group, COUNT(*) AS total_cust, SUM(CASE WHEN churn_label = 'Yes' THEN 1 ELSE 0 END) AS churn_count, ROUND(AVG(CAST(monthly_charges AS FLOAT)), 2) AS avg_charges FROM customer_churn_v1 GROUP BY tenure_group ORDER BY total_cust DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có 3 nhóm thâm niên",
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra nhóm New có xuất hiện",
+        "expected_output": "New (0-12m)",
+        "assertion_type": "contains_value"
+      }
+    ],
+    "hints": [
+      "Sử dụng CASE WHEN CAST(tenure_months AS INT) <= 12 THEN 'New (0-12m)'..."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Rèn luyện tư duy Feature Engineering cho học viên hướng theo lộ trình AI/Data Science.",
+    "similarity_score": 0.24,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:35:00Z",
+    "updated_at": "2026-10-01T07:45:00Z",
+    "approved_at": "2026-10-01T07:45:00Z"
+  },
+  {
+    "id": "EX-CHURN-05",
+    "dataset_id": "customer_churn_v1",
+    "title": "Thẩm Định Nhóm Khách Hàng Nguy Cơ Cao & Thiệt Hại Doanh Thu (Evaluate / Advanced)",
+    "description": "Viết truy vấn SQL xác định nhóm khách hàng có rủi ro churn cao nhất (hợp đồng Month-to-month và rời bỏ) và ước tính tổng số tiền thiệt hại hàng tháng.",
+    "bloom_level": "Evaluate",
+    "difficulty": "Advanced",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên thẩm định rủi ro kinh doanh và lượng hóa tác động tài chính từ mô hình phân tích.",
+      "Viết các truy vấn tổng hợp đa điều kiện phục vụ báo cáo quản trị cấp cao."
+    ],
+    "schema_dependencies": [
+      "contract_type",
+      "monthly_charges",
+      "churn_label"
+    ],
+    "starter_code": "SELECT contract_type, SUM(CAST(monthly_charges AS FLOAT)) AS potential_loss FROM customer_churn_v1 WHERE ... GROUP BY ...;",
+    "solution_code": "SELECT contract_type, COUNT(*) AS at_risk_count, SUM(CAST(monthly_charges AS FLOAT)) AS total_potential_monthly_loss, ROUND(AVG(CAST(monthly_charges AS FLOAT)), 2) AS avg_loss_per_user FROM customer_churn_v1 WHERE contract_type = 'Month-to-month' AND churn_label = 'Yes' GROUP BY contract_type;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra trả về nhóm nguy cơ cao",
+        "expected_output": [
+          "contract_type",
+          "at_risk_count",
+          "total_potential_monthly_loss",
+          "avg_loss_per_user"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có 1 dòng kết quả",
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "WHERE contract_type = 'Month-to-month' AND churn_label = 'Yes'."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Bài tập mang tính định hướng kinh doanh chiến lược rất cao, duyệt đạt chuẩn A+.",
+    "similarity_score": 0.22,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:38:00Z",
+    "updated_at": "2026-10-01T07:48:00Z",
+    "approved_at": "2026-10-01T07:48:00Z"
+  },
+  {
+    "id": "EX-RAG-01",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Liệt Kê Các Phân Đoạn Tri Thức Dạng Văn Bản (Remember / Beginner)",
+    "description": "Viết truy vấn SQL lấy mã phân đoạn (chunk_id), tiêu đề tài liệu (document_title), tiêu đề mục (heading) và số token của tất cả các chunk có định dạng là 'text'.",
+    "bloom_level": "Remember",
+    "difficulty": "Beginner",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên nhận diện được các thuộc tính cốt lõi của kho tri thức Vector DB / RAG.",
+      "Lọc chính xác các phân đoạn văn bản."
+    ],
+    "schema_dependencies": [
+      "chunk_id",
+      "document_title",
+      "heading",
+      "token_count",
+      "modality"
+    ],
+    "starter_code": "SELECT chunk_id, document_title, heading, token_count FROM ai_knowledge_chunks_v1 WHERE modality = 'text';",
+    "solution_code": "SELECT chunk_id, document_title, heading, token_count FROM ai_knowledge_chunks_v1 WHERE modality = 'text';",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra số phân đoạn có định dạng text",
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra các cột trả về",
+        "expected_output": [
+          "chunk_id",
+          "document_title",
+          "heading",
+          "token_count"
+        ],
+        "assertion_type": "column_match"
+      }
+    ],
+    "hints": [
+      "WHERE modality = 'text'."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Giúp học viên khóa AI Engineer làm quen với cấu trúc bảng dữ liệu RAG chunks.",
+    "similarity_score": 0.14,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:40:00Z",
+    "updated_at": "2026-10-01T07:50:00Z",
+    "approved_at": "2026-10-01T07:50:00Z"
+  },
+  {
+    "id": "EX-RAG-02",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Thống Kê Số Lượng Chunks Theo Từng Tài Liệu Nguồn (Understand / Beginner)",
+    "description": "Viết truy vấn SQL đếm số lượng phân đoạn tri thức (chunk_id) theo từng tài liệu nguồn (document_title).",
+    "bloom_level": "Understand",
+    "difficulty": "Beginner",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu cấu trúc phân rã văn bản (Text Chunking) từ tài liệu lớn thành nhiều đoạn nhỏ.",
+      "Thành thạo hàm COUNT và GROUP BY document_title."
+    ],
+    "schema_dependencies": [
+      "document_title",
+      "chunk_id"
+    ],
+    "starter_code": "SELECT document_title, COUNT(*) AS chunk_count FROM ai_knowledge_chunks_v1 GROUP BY document_title;",
+    "solution_code": "SELECT document_title, COUNT(*) AS chunk_count FROM ai_knowledge_chunks_v1 GROUP BY document_title ORDER BY chunk_count DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra số tài liệu nguồn",
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra cột document_title và chunk_count",
+        "expected_output": [
+          "document_title",
+          "chunk_count"
+        ],
+        "assertion_type": "column_match"
+      }
+    ],
+    "hints": [
+      "GROUP BY document_title."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Khái niệm chunking được minh họa rất trực quan thông qua SQL.",
+    "similarity_score": 0.17,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:42:00Z",
+    "updated_at": "2026-10-01T07:52:00Z",
+    "approved_at": "2026-10-01T07:52:00Z"
+  },
+  {
+    "id": "EX-RAG-03",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Lọc Các Phân Đoạn Có Độ Dài Vượt Trọng Số 300 Tokens (Apply / Intermediate)",
+    "description": "Viết truy vấn SQL lọc các phân đoạn có độ dài lớn hơn 300 token (token_count > 300) và sắp xếp giảm dần theo số lượng token.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên vận dụng kỹ năng tính toán dung lượng ngữ cảnh (Context Window Management) trong hệ thống LLM.",
+      "Lọc và sắp xếp số liệu token trong phân đoạn tri thức."
+    ],
+    "schema_dependencies": [
+      "heading",
+      "token_count"
+    ],
+    "starter_code": "SELECT heading, CAST(token_count AS INT) AS tokens FROM ai_knowledge_chunks_v1 WHERE CAST(token_count AS INT) > 300 ORDER BY tokens DESC;",
+    "solution_code": "SELECT heading, CAST(token_count AS INT) AS tokens FROM ai_knowledge_chunks_v1 WHERE CAST(token_count AS INT) > 300 ORDER BY tokens DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra số phân đoạn dài > 300 token",
+        "expected_output": 4,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra các cột trong kết quả",
+        "expected_output": [
+          "heading",
+          "tokens"
+        ],
+        "assertion_type": "column_match"
+      }
+    ],
+    "hints": [
+      "WHERE CAST(token_count AS INT) > 300 ORDER BY tokens DESC."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Liên hệ trực tiếp đến chi phí API và giới hạn ngữ cảnh của LLM, rất có giá trị thực tiễn.",
+    "similarity_score": 0.2,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:45:00Z",
+    "updated_at": "2026-10-01T07:55:00Z",
+    "approved_at": "2026-10-01T07:55:00Z"
+  },
+  {
+    "id": "EX-RAG-04",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Phân Tích Phân Bố Độ Dài Kích Thước Chunks Theo Tầng (Analyze / Intermediate)",
+    "description": "Viết truy vấn SQL phân loại các chunk theo kích thước token: 'Long Chunk' (>= 350 tokens), 'Medium Chunk' (280 - 350 tokens) và 'Short Chunk' (< 280 tokens), sau đó thống kê số lượng chunk của từng tầng.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên phân tích được phân bố kích thước chunk để tối ưu hóa mô hình Retrieval.",
+      "Làm chủ kỹ thuật phân tầng dữ liệu bằng CASE WHEN."
+    ],
+    "schema_dependencies": [
+      "token_count",
+      "chunk_id"
+    ],
+    "starter_code": "SELECT CASE WHEN CAST(token_count AS INT) >= 350 THEN 'Long Chunk' ... END AS chunk_size_tier, COUNT(*) FROM ai_knowledge_chunks_v1 GROUP BY chunk_size_tier;",
+    "solution_code": "SELECT CASE WHEN CAST(token_count AS INT) >= 350 THEN 'Long Chunk' WHEN CAST(token_count AS INT) >= 280 THEN 'Medium Chunk' ELSE 'Short Chunk' END AS chunk_size_tier, COUNT(*) AS tier_count, ROUND(AVG(CAST(token_count AS INT)), 1) AS avg_tokens FROM ai_knowledge_chunks_v1 GROUP BY chunk_size_tier ORDER BY avg_tokens DESC;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra các cột kết quả",
+        "expected_output": [
+          "chunk_size_tier",
+          "tier_count",
+          "avg_tokens"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra tầng Long Chunk có xuất hiện",
+        "expected_output": "Long Chunk",
+        "assertion_type": "contains_value"
+      }
+    ],
+    "hints": [
+      "Dùng CASE WHEN CAST(token_count AS INT) >= 350 THEN 'Long Chunk'..."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Gắn liền bài toán Reranking và Retrieval Benchmark trong hệ thống RAG.",
+    "similarity_score": 0.23,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:48:00Z",
+    "updated_at": "2026-10-01T07:58:00Z",
+    "approved_at": "2026-10-01T07:58:00Z"
+  },
+  {
+    "id": "EX-RAG-05",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Tối Ưu Hóa Ngữ Cảnh Tri Thức: Lọc Top-3 Chunks Giàu Thông Tin Nhất (Evaluate / Advanced)",
+    "description": "Viết truy vấn SQL lấy 3 phân đoạn tri thức có lượng token lớn nhất kèm tiêu đề phân mục để đưa vào bộ ngữ cảnh cho mô hình ngôn ngữ lớn (Context Injection).",
+    "bloom_level": "Evaluate",
+    "difficulty": "Advanced",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên thẩm định và lựa chọn tài liệu phù hợp nhất để đưa vào ngữ cảnh của mô hình ngôn ngữ lớn (Context Injection).",
+      "Tối ưu hóa độ chính xác và tránh hiện tượng ảo giác (hallucination) trong sinh văn bản."
+    ],
+    "schema_dependencies": [
+      "chunk_id",
+      "heading",
+      "token_count"
+    ],
+    "starter_code": "SELECT chunk_id, heading, CAST(token_count AS INT) AS tokens FROM ai_knowledge_chunks_v1 ORDER BY tokens DESC LIMIT 3;",
+    "solution_code": "SELECT chunk_id, heading, CAST(token_count AS INT) AS tokens FROM ai_knowledge_chunks_v1 ORDER BY tokens DESC LIMIT 3;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra đúng 3 phân đoạn được chọn",
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra các cột trong kết quả",
+        "expected_output": [
+          "chunk_id",
+          "heading",
+          "tokens"
+        ],
+        "assertion_type": "column_match"
+      }
+    ],
+    "hints": [
+      "ORDER BY tokens DESC LIMIT 3."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "reviewer_id": "teacher_kien_lead",
+    "review_notes": "Mô phỏng chân thực quy trình Top-k Retrieval trong RAG pipeline. Đạt chuẩn bài tập nâng cao.",
+    "similarity_score": 0.25,
+    "is_duplicate": false,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "created_at": "2026-10-01T07:50:00Z",
+    "updated_at": "2026-10-01T08:00:00Z",
+    "approved_at": "2026-10-01T08:00:00Z"
+  },
+  {
+    "id": "EX-RETAIL-E1FC",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "published",
+    "review_round": 1,
+    "review_notes": "Phê duyệt kiểm thử API.",
+    "created_at": "2026-10-01T00:28:31.732227Z",
+    "updated_at": "2026-10-01T00:28:31.809663Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:31.792664Z"
+  },
+  {
+    "id": "EX-RETAIL-3B0E",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:31.916345Z",
+    "updated_at": "2026-10-01T00:28:32.219344Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:32.219344Z"
+  },
+  {
+    "id": "EX-RETAIL-6442",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:31.941970Z",
+    "updated_at": "2026-10-01T00:28:32.229341Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:32.229341Z"
+  },
+  {
+    "id": "EX-RETAIL-DBB1",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:31.964974Z",
+    "updated_at": "2026-10-01T00:28:32.241390Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:32.241390Z"
+  },
+  {
+    "id": "EX-RETAIL-B700",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:31.988984Z",
+    "updated_at": "2026-10-01T00:28:32.253355Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:32.253355Z"
+  },
+  {
+    "id": "EX-RETAIL-B2F4",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:32.027182Z",
+    "updated_at": "2026-10-01T00:28:32.262981Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:32.262981Z"
+  },
+  {
+    "id": "EX-RETAIL-48EB",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:32.070177Z",
+    "updated_at": "2026-10-01T00:28:32.272535Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:32.272535Z"
+  },
+  {
+    "id": "EX-RETAIL-142C",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:32.113813Z",
+    "updated_at": "2026-10-01T00:28:32.281572Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:32.281572Z"
+  },
+  {
+    "id": "EX-RETAIL-043E",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:32.154812Z",
+    "updated_at": "2026-10-01T00:28:32.291585Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:32.291585Z"
+  },
+  {
+    "id": "EX-RETAIL-63A9",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "published",
+    "review_round": 1,
+    "review_notes": "Phê duyệt kiểm thử API.",
+    "created_at": "2026-10-01T00:28:47.788259Z",
+    "updated_at": "2026-10-01T00:28:47.860293Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:47.840257Z"
+  },
+  {
+    "id": "EX-RETAIL-BC7E",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:47.920126Z",
+    "updated_at": "2026-10-01T00:28:48.289776Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:48.289776Z"
+  },
+  {
+    "id": "EX-RETAIL-60F8",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:47.950128Z",
+    "updated_at": "2026-10-01T00:28:48.301741Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:48.301741Z"
+  },
+  {
+    "id": "EX-RETAIL-72A6",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:47.976160Z",
+    "updated_at": "2026-10-01T00:28:48.312736Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:48.312736Z"
+  },
+  {
+    "id": "EX-RETAIL-271F",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:48.015500Z",
+    "updated_at": "2026-10-01T00:28:48.327736Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:48.327736Z"
+  },
+  {
+    "id": "EX-RETAIL-1735",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:48.074501Z",
+    "updated_at": "2026-10-01T00:28:48.346738Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:48.346738Z"
+  },
+  {
+    "id": "EX-RETAIL-4B6B",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:48.127502Z",
+    "updated_at": "2026-10-01T00:28:48.368739Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:48.368739Z"
+  },
+  {
+    "id": "EX-RETAIL-6636",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:48.173497Z",
+    "updated_at": "2026-10-01T00:28:48.394740Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:48.394740Z"
+  },
+  {
+    "id": "EX-RETAIL-61AD",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T00:28:48.209621Z",
+    "updated_at": "2026-10-01T00:28:48.424738Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:28:48.424738Z"
+  },
+  {
+    "id": "EX-AI_KNO-8ACE",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Thống Kê Kích Thước Chunks Tri Thức Apply",
+    "description": "Tính tổng số lượng token và số chunk theo tài liệu nguồn trong bảng 'ai_knowledge_chunks_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường document_title, token_count."
+    ],
+    "schema_dependencies": [
+      "document_title",
+      "token_count"
+    ],
+    "starter_code": "SELECT document_title, COUNT(*) FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "solution_code": "SELECT document_title, COUNT(*) as chunk_count, SUM(CAST(token_count AS INT)) as total_tokens FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột kết quả",
+        "input_params": {},
+        "expected_output": [
+          "document_title",
+          "chunk_count",
+          "total_tokens"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "published",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T00:25:50.299839Z",
+    "updated_at": "2026-10-01T12:05:29.484296Z",
+    "similarity_score": 0.8652,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:25:51.151354Z"
+  },
+  {
+    "id": "EX-AI_KNO-0B37",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Thống Kê Kích Thước Chunks Tri Thức Analyze",
+    "description": "Tính tổng số lượng token và số chunk theo tài liệu nguồn trong bảng 'ai_knowledge_chunks_v1'.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Analyze.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường document_title, token_count."
+    ],
+    "schema_dependencies": [
+      "document_title",
+      "token_count"
+    ],
+    "starter_code": "SELECT document_title, COUNT(*) FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "solution_code": "SELECT document_title, COUNT(*) as chunk_count, SUM(CAST(token_count AS INT)) as total_tokens FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột kết quả",
+        "input_params": {},
+        "expected_output": [
+          "document_title",
+          "chunk_count",
+          "total_tokens"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "published",
+    "review_round": 2,
+    "review_notes": "Đã hiệu chuẩn và hoàn thiện đạt chuẩn sau vòng 2.",
+    "created_at": "2026-10-01T00:25:50.941263Z",
+    "updated_at": "2026-10-01T12:05:40.140107Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T00:25:51.624394Z"
+  },
+  {
+    "id": "EX-RETAIL-36A2",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 2,
+    "review_notes": "Đã thẩm định sư phạm và phê duyệt chính thức.",
+    "created_at": "2026-10-01T00:28:32.202854Z",
+    "updated_at": "2026-10-01T15:51:33.802520Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T15:51:33.802520Z"
+  },
+  {
+    "id": "EX-RETAIL-AF9E",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "published",
+    "review_round": 1,
+    "review_notes": "Phê duyệt kiểm thử API.",
+    "created_at": "2026-10-01T16:36:27.297390Z",
+    "updated_at": "2026-10-01T16:36:27.427250Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T16:36:27.407245Z"
+  },
+  {
+    "id": "EX-RETAIL-1416",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T16:36:27.521390Z",
+    "updated_at": "2026-10-01T16:36:27.972047Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T16:36:27.972047Z"
+  },
+  {
+    "id": "EX-RETAIL-BB24",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T16:36:27.564389Z",
+    "updated_at": "2026-10-01T16:36:28.003047Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T16:36:28.003047Z"
+  },
+  {
+    "id": "EX-RETAIL-C703",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T16:36:27.598389Z",
+    "updated_at": "2026-10-01T16:36:28.026328Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T16:36:28.026328Z"
+  },
+  {
+    "id": "EX-RETAIL-064C",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T16:36:27.630388Z",
+    "updated_at": "2026-10-01T16:36:28.050325Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T16:36:28.050325Z"
+  },
+  {
+    "id": "EX-RETAIL-E1D8",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T16:36:27.665399Z",
+    "updated_at": "2026-10-01T16:36:28.081328Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T16:36:28.081328Z"
+  },
+  {
+    "id": "EX-RETAIL-D09D",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T16:36:27.731425Z",
+    "updated_at": "2026-10-01T16:36:28.100364Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T16:36:28.100364Z"
+  },
+  {
+    "id": "EX-RETAIL-1625",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T16:36:27.784430Z",
+    "updated_at": "2026-10-01T16:36:28.125330Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T16:36:28.125330Z"
+  },
+  {
+    "id": "EX-RETAIL-BE34",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T16:36:27.843582Z",
+    "updated_at": "2026-10-01T16:36:28.150327Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T16:36:28.150327Z"
+  },
+  {
+    "id": "EX-RETAIL-5801",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "published",
+    "review_round": 1,
+    "review_notes": "Phê duyệt kiểm thử API.",
+    "created_at": "2026-10-01T17:03:21.745765Z",
+    "updated_at": "2026-10-01T17:03:21.902334Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:21.863239Z"
+  },
+  {
+    "id": "EX-RETAIL-0F93",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:22.025601Z",
+    "updated_at": "2026-10-01T17:03:22.950492Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:22.950492Z"
+  },
+  {
+    "id": "EX-RETAIL-8BA7",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:22.081596Z",
+    "updated_at": "2026-10-01T17:03:22.966487Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:22.966487Z"
+  },
+  {
+    "id": "EX-RETAIL-21C3",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:22.133595Z",
+    "updated_at": "2026-10-01T17:03:22.986485Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:22.986485Z"
+  },
+  {
+    "id": "EX-RETAIL-D261",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:22.195061Z",
+    "updated_at": "2026-10-01T17:03:23.015127Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:23.015127Z"
+  },
+  {
+    "id": "EX-RETAIL-B939",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:22.305601Z",
+    "updated_at": "2026-10-01T17:03:23.040135Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:23.040135Z"
+  },
+  {
+    "id": "EX-RETAIL-36E3",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:22.386014Z",
+    "updated_at": "2026-10-01T17:03:23.056135Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:23.056135Z"
+  },
+  {
+    "id": "EX-RETAIL-BB19",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:22.472922Z",
+    "updated_at": "2026-10-01T17:03:23.074137Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:23.074137Z"
+  },
+  {
+    "id": "EX-RETAIL-1E16",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:22.661863Z",
+    "updated_at": "2026-10-01T17:03:23.107303Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:23.107303Z"
+  },
+  {
+    "id": "EX-RETAIL-DCC2",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "published",
+    "review_round": 1,
+    "review_notes": "Phê duyệt kiểm thử API.",
+    "created_at": "2026-10-01T17:03:42.246617Z",
+    "updated_at": "2026-10-01T17:03:42.377695Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:42.345696Z"
+  },
+  {
+    "id": "EX-RETAIL-9C05",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:42.500987Z",
+    "updated_at": "2026-10-01T17:03:43.397603Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:43.397603Z"
+  },
+  {
+    "id": "EX-RETAIL-1B26",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:42.583986Z",
+    "updated_at": "2026-10-01T17:03:43.414608Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:43.414608Z"
+  },
+  {
+    "id": "EX-RETAIL-25AE",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:42.669722Z",
+    "updated_at": "2026-10-01T17:03:43.434226Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:43.434226Z"
+  },
+  {
+    "id": "EX-RETAIL-3BA7",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:42.726460Z",
+    "updated_at": "2026-10-01T17:03:43.453663Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:43.453663Z"
+  },
+  {
+    "id": "EX-RETAIL-16A2",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:42.805031Z",
+    "updated_at": "2026-10-01T17:03:43.486761Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:43.486761Z"
+  },
+  {
+    "id": "EX-RETAIL-14AB",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:42.857655Z",
+    "updated_at": "2026-10-01T17:03:43.530604Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:43.530604Z"
+  },
+  {
+    "id": "EX-RETAIL-50E4",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:42.948656Z",
+    "updated_at": "2026-10-01T17:03:43.570743Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:43.570743Z"
+  },
+  {
+    "id": "EX-RETAIL-E67B",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Approved round 1",
+    "created_at": "2026-10-01T17:03:43.124080Z",
+    "updated_at": "2026-10-01T17:03:43.611228Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:43.611228Z"
+  },
+  {
+    "id": "EX-RETAIL-E2AC",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Remember",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Remember",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Remember.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:50.776545Z",
+    "updated_at": "2026-10-01T17:03:52.967496Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:52.967496Z"
+  },
+  {
+    "id": "EX-HR_ATT-8BCA",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Thống kê Giờ Làm Việc Nhân Sự Understand",
+    "description": "Truy vấn danh sách các phòng ban và tính trung bình số giờ làm việc (work_hours) trong bảng 'hr_attendance_v1'.",
+    "bloom_level": "Understand",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Understand.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường department, work_hours."
+    ],
+    "schema_dependencies": [
+      "department",
+      "work_hours"
+    ],
+    "starter_code": "SELECT department, AVG(...) FROM \"hr_attendance_v1\" GROUP BY department;",
+    "solution_code": "SELECT department, COUNT(*) as emp_count, ROUND(AVG(CAST(work_hours AS FLOAT)), 2) as avg_hours FROM \"hr_attendance_v1\" GROUP BY department;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột department và avg_hours",
+        "input_params": {},
+        "expected_output": [
+          "department",
+          "emp_count",
+          "avg_hours"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra số phòng ban",
+        "input_params": {},
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:50.857769Z",
+    "updated_at": "2026-10-01T17:03:52.989525Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:52.989525Z"
+  },
+  {
+    "id": "EX-CUSTOM-CED0",
+    "dataset_id": "customer_churn_v1",
+    "title": "Đánh giá Tỷ lệ Rời bỏ Khách hàng Apply",
+    "description": "Thống kê số lượng khách hàng rời bỏ (churn_label = 'Yes') theo từng loại hợp đồng (contract_type) trong bảng 'customer_churn_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường contract_type, churn_label."
+    ],
+    "schema_dependencies": [
+      "contract_type",
+      "churn_label"
+    ],
+    "starter_code": "SELECT contract_type, COUNT(*) FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY ...;",
+    "solution_code": "SELECT contract_type, COUNT(*) as churn_count FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY contract_type;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột contract_type",
+        "input_params": {},
+        "expected_output": [
+          "contract_type",
+          "churn_count"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:50.910765Z",
+    "updated_at": "2026-10-01T17:03:53.013526Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.013526Z"
+  },
+  {
+    "id": "EX-AI_KNO-38CD",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Thống Kê Kích Thước Chunks Tri Thức Analyze",
+    "description": "Tính tổng số lượng token và số chunk theo tài liệu nguồn trong bảng 'ai_knowledge_chunks_v1'.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Analyze.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường document_title, token_count."
+    ],
+    "schema_dependencies": [
+      "document_title",
+      "token_count"
+    ],
+    "starter_code": "SELECT document_title, COUNT(*) FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "solution_code": "SELECT document_title, COUNT(*) as chunk_count, SUM(CAST(token_count AS INT)) as total_tokens FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột kết quả",
+        "input_params": {},
+        "expected_output": [
+          "document_title",
+          "chunk_count",
+          "total_tokens"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:50.996765Z",
+    "updated_at": "2026-10-01T17:03:53.036495Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.036495Z"
+  },
+  {
+    "id": "EX-RETAIL-31A6",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Evaluate",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Evaluate",
+    "difficulty": "Advanced",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Evaluate.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:51.138151Z",
+    "updated_at": "2026-10-01T17:03:53.058525Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.058525Z"
+  },
+  {
+    "id": "EX-HR_ATT-B342",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Thống kê Giờ Làm Việc Nhân Sự Remember",
+    "description": "Truy vấn danh sách các phòng ban và tính trung bình số giờ làm việc (work_hours) trong bảng 'hr_attendance_v1'.",
+    "bloom_level": "Remember",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Remember.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường department, work_hours."
+    ],
+    "schema_dependencies": [
+      "department",
+      "work_hours"
+    ],
+    "starter_code": "SELECT department, AVG(...) FROM \"hr_attendance_v1\" GROUP BY department;",
+    "solution_code": "SELECT department, COUNT(*) as emp_count, ROUND(AVG(CAST(work_hours AS FLOAT)), 2) as avg_hours FROM \"hr_attendance_v1\" GROUP BY department;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột department và avg_hours",
+        "input_params": {},
+        "expected_output": [
+          "department",
+          "emp_count",
+          "avg_hours"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra số phòng ban",
+        "input_params": {},
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:51.268668Z",
+    "updated_at": "2026-10-01T17:03:53.081041Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.081041Z"
+  },
+  {
+    "id": "EX-CUSTOM-9249",
+    "dataset_id": "customer_churn_v1",
+    "title": "Đánh giá Tỷ lệ Rời bỏ Khách hàng Understand",
+    "description": "Thống kê số lượng khách hàng rời bỏ (churn_label = 'Yes') theo từng loại hợp đồng (contract_type) trong bảng 'customer_churn_v1'.",
+    "bloom_level": "Understand",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Understand.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường contract_type, churn_label."
+    ],
+    "schema_dependencies": [
+      "contract_type",
+      "churn_label"
+    ],
+    "starter_code": "SELECT contract_type, COUNT(*) FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY ...;",
+    "solution_code": "SELECT contract_type, COUNT(*) as churn_count FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY contract_type;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột contract_type",
+        "input_params": {},
+        "expected_output": [
+          "contract_type",
+          "churn_count"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:51.371834Z",
+    "updated_at": "2026-10-01T17:03:53.105667Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.105667Z"
+  },
+  {
+    "id": "EX-AI_KNO-8F5A",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Thống Kê Kích Thước Chunks Tri Thức Apply",
+    "description": "Tính tổng số lượng token và số chunk theo tài liệu nguồn trong bảng 'ai_knowledge_chunks_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường document_title, token_count."
+    ],
+    "schema_dependencies": [
+      "document_title",
+      "token_count"
+    ],
+    "starter_code": "SELECT document_title, COUNT(*) FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "solution_code": "SELECT document_title, COUNT(*) as chunk_count, SUM(CAST(token_count AS INT)) as total_tokens FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột kết quả",
+        "input_params": {},
+        "expected_output": [
+          "document_title",
+          "chunk_count",
+          "total_tokens"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:51.440954Z",
+    "updated_at": "2026-10-01T17:03:53.128669Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.128669Z"
+  },
+  {
+    "id": "EX-RETAIL-499A",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Analyze",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Analyze.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:51.531845Z",
+    "updated_at": "2026-10-01T17:03:53.153316Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.153316Z"
+  },
+  {
+    "id": "EX-HR_ATT-A084",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Thống kê Giờ Làm Việc Nhân Sự Evaluate",
+    "description": "Truy vấn danh sách các phòng ban và tính trung bình số giờ làm việc (work_hours) trong bảng 'hr_attendance_v1'.",
+    "bloom_level": "Evaluate",
+    "difficulty": "Advanced",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Evaluate.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường department, work_hours."
+    ],
+    "schema_dependencies": [
+      "department",
+      "work_hours"
+    ],
+    "starter_code": "SELECT department, AVG(...) FROM \"hr_attendance_v1\" GROUP BY department;",
+    "solution_code": "SELECT department, COUNT(*) as emp_count, ROUND(AVG(CAST(work_hours AS FLOAT)), 2) as avg_hours FROM \"hr_attendance_v1\" GROUP BY department;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột department và avg_hours",
+        "input_params": {},
+        "expected_output": [
+          "department",
+          "emp_count",
+          "avg_hours"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra số phòng ban",
+        "input_params": {},
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:51.662573Z",
+    "updated_at": "2026-10-01T17:03:53.181949Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.181949Z"
+  },
+  {
+    "id": "EX-CUSTOM-C1B4",
+    "dataset_id": "customer_churn_v1",
+    "title": "Đánh giá Tỷ lệ Rời bỏ Khách hàng Remember",
+    "description": "Thống kê số lượng khách hàng rời bỏ (churn_label = 'Yes') theo từng loại hợp đồng (contract_type) trong bảng 'customer_churn_v1'.",
+    "bloom_level": "Remember",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Remember.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường contract_type, churn_label."
+    ],
+    "schema_dependencies": [
+      "contract_type",
+      "churn_label"
+    ],
+    "starter_code": "SELECT contract_type, COUNT(*) FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY ...;",
+    "solution_code": "SELECT contract_type, COUNT(*) as churn_count FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY contract_type;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột contract_type",
+        "input_params": {},
+        "expected_output": [
+          "contract_type",
+          "churn_count"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:51.830517Z",
+    "updated_at": "2026-10-01T17:03:53.208951Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.208951Z"
+  },
+  {
+    "id": "EX-AI_KNO-45F3",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Thống Kê Kích Thước Chunks Tri Thức Understand",
+    "description": "Tính tổng số lượng token và số chunk theo tài liệu nguồn trong bảng 'ai_knowledge_chunks_v1'.",
+    "bloom_level": "Understand",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Understand.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường document_title, token_count."
+    ],
+    "schema_dependencies": [
+      "document_title",
+      "token_count"
+    ],
+    "starter_code": "SELECT document_title, COUNT(*) FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "solution_code": "SELECT document_title, COUNT(*) as chunk_count, SUM(CAST(token_count AS INT)) as total_tokens FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột kết quả",
+        "input_params": {},
+        "expected_output": [
+          "document_title",
+          "chunk_count",
+          "total_tokens"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:51.903631Z",
+    "updated_at": "2026-10-01T17:03:53.231343Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.231343Z"
+  },
+  {
+    "id": "EX-RETAIL-4D3A",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Apply",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:51.998641Z",
+    "updated_at": "2026-10-01T17:03:53.268341Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.268341Z"
+  },
+  {
+    "id": "EX-HR_ATT-FC38",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Thống kê Giờ Làm Việc Nhân Sự Analyze",
+    "description": "Truy vấn danh sách các phòng ban và tính trung bình số giờ làm việc (work_hours) trong bảng 'hr_attendance_v1'.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Analyze.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường department, work_hours."
+    ],
+    "schema_dependencies": [
+      "department",
+      "work_hours"
+    ],
+    "starter_code": "SELECT department, AVG(...) FROM \"hr_attendance_v1\" GROUP BY department;",
+    "solution_code": "SELECT department, COUNT(*) as emp_count, ROUND(AVG(CAST(work_hours AS FLOAT)), 2) as avg_hours FROM \"hr_attendance_v1\" GROUP BY department;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột department và avg_hours",
+        "input_params": {},
+        "expected_output": [
+          "department",
+          "emp_count",
+          "avg_hours"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra số phòng ban",
+        "input_params": {},
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:52.066640Z",
+    "updated_at": "2026-10-01T17:03:53.301787Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.301787Z"
+  },
+  {
+    "id": "EX-CUSTOM-3704",
+    "dataset_id": "customer_churn_v1",
+    "title": "Đánh giá Tỷ lệ Rời bỏ Khách hàng Evaluate",
+    "description": "Thống kê số lượng khách hàng rời bỏ (churn_label = 'Yes') theo từng loại hợp đồng (contract_type) trong bảng 'customer_churn_v1'.",
+    "bloom_level": "Evaluate",
+    "difficulty": "Advanced",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Evaluate.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường contract_type, churn_label."
+    ],
+    "schema_dependencies": [
+      "contract_type",
+      "churn_label"
+    ],
+    "starter_code": "SELECT contract_type, COUNT(*) FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY ...;",
+    "solution_code": "SELECT contract_type, COUNT(*) as churn_count FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY contract_type;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột contract_type",
+        "input_params": {},
+        "expected_output": [
+          "contract_type",
+          "churn_count"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:52.137644Z",
+    "updated_at": "2026-10-01T17:03:53.323758Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.323758Z"
+  },
+  {
+    "id": "EX-AI_KNO-A58B",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Thống Kê Kích Thước Chunks Tri Thức Remember",
+    "description": "Tính tổng số lượng token và số chunk theo tài liệu nguồn trong bảng 'ai_knowledge_chunks_v1'.",
+    "bloom_level": "Remember",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Remember.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường document_title, token_count."
+    ],
+    "schema_dependencies": [
+      "document_title",
+      "token_count"
+    ],
+    "starter_code": "SELECT document_title, COUNT(*) FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "solution_code": "SELECT document_title, COUNT(*) as chunk_count, SUM(CAST(token_count AS INT)) as total_tokens FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột kết quả",
+        "input_params": {},
+        "expected_output": [
+          "document_title",
+          "chunk_count",
+          "total_tokens"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:52.220120Z",
+    "updated_at": "2026-10-01T17:03:53.345755Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.345755Z"
+  },
+  {
+    "id": "EX-RETAIL-24D5",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Understand",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Understand",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Understand.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:52.298745Z",
+    "updated_at": "2026-10-01T17:03:53.388297Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.388297Z"
+  },
+  {
+    "id": "EX-HR_ATT-067D",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Thống kê Giờ Làm Việc Nhân Sự Apply",
+    "description": "Truy vấn danh sách các phòng ban và tính trung bình số giờ làm việc (work_hours) trong bảng 'hr_attendance_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường department, work_hours."
+    ],
+    "schema_dependencies": [
+      "department",
+      "work_hours"
+    ],
+    "starter_code": "SELECT department, AVG(...) FROM \"hr_attendance_v1\" GROUP BY department;",
+    "solution_code": "SELECT department, COUNT(*) as emp_count, ROUND(AVG(CAST(work_hours AS FLOAT)), 2) as avg_hours FROM \"hr_attendance_v1\" GROUP BY department;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột department và avg_hours",
+        "input_params": {},
+        "expected_output": [
+          "department",
+          "emp_count",
+          "avg_hours"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra số phòng ban",
+        "input_params": {},
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:52.421710Z",
+    "updated_at": "2026-10-01T17:03:53.436290Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.436290Z"
+  },
+  {
+    "id": "EX-CUSTOM-17EA",
+    "dataset_id": "customer_churn_v1",
+    "title": "Đánh giá Tỷ lệ Rời bỏ Khách hàng Analyze",
+    "description": "Thống kê số lượng khách hàng rời bỏ (churn_label = 'Yes') theo từng loại hợp đồng (contract_type) trong bảng 'customer_churn_v1'.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Analyze.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường contract_type, churn_label."
+    ],
+    "schema_dependencies": [
+      "contract_type",
+      "churn_label"
+    ],
+    "starter_code": "SELECT contract_type, COUNT(*) FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY ...;",
+    "solution_code": "SELECT contract_type, COUNT(*) as churn_count FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY contract_type;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột contract_type",
+        "input_params": {},
+        "expected_output": [
+          "contract_type",
+          "churn_count"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:52.509991Z",
+    "updated_at": "2026-10-01T17:03:53.490827Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.490827Z"
+  },
+  {
+    "id": "EX-AI_KNO-8CB1",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Thống Kê Kích Thước Chunks Tri Thức Evaluate",
+    "description": "Tính tổng số lượng token và số chunk theo tài liệu nguồn trong bảng 'ai_knowledge_chunks_v1'.",
+    "bloom_level": "Evaluate",
+    "difficulty": "Advanced",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Evaluate.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường document_title, token_count."
+    ],
+    "schema_dependencies": [
+      "document_title",
+      "token_count"
+    ],
+    "starter_code": "SELECT document_title, COUNT(*) FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "solution_code": "SELECT document_title, COUNT(*) as chunk_count, SUM(CAST(token_count AS INT)) as total_tokens FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột kết quả",
+        "input_params": {},
+        "expected_output": [
+          "document_title",
+          "chunk_count",
+          "total_tokens"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:52.562990Z",
+    "updated_at": "2026-10-01T17:03:53.559468Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.559468Z"
+  },
+  {
+    "id": "EX-RETAIL-8332",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Remember",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Remember",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Remember.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 1,
+    "review_notes": "Đạt chuẩn sư phạm vòng 1: Learning outcome rõ ràng, test case và query khả thi.",
+    "created_at": "2026-10-01T17:03:52.616995Z",
+    "updated_at": "2026-10-01T17:03:53.603948Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.603948Z"
+  },
+  {
+    "id": "EX-HR_ATT-C9C3",
+    "dataset_id": "hr_attendance_v1",
+    "title": "Thống kê Giờ Làm Việc Nhân Sự Understand",
+    "description": "Truy vấn danh sách các phòng ban và tính trung bình số giờ làm việc (work_hours) trong bảng 'hr_attendance_v1'.",
+    "bloom_level": "Understand",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Understand.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường department, work_hours."
+    ],
+    "schema_dependencies": [
+      "department",
+      "work_hours"
+    ],
+    "starter_code": "SELECT department, AVG(...) FROM \"hr_attendance_v1\" GROUP BY department;",
+    "solution_code": "SELECT department, COUNT(*) as emp_count, ROUND(AVG(CAST(work_hours AS FLOAT)), 2) as avg_hours FROM \"hr_attendance_v1\" GROUP BY department;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột department và avg_hours",
+        "input_params": {},
+        "expected_output": [
+          "department",
+          "emp_count",
+          "avg_hours"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra số phòng ban",
+        "input_params": {},
+        "expected_output": 6,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 2,
+    "review_notes": "Đã hiệu chuẩn và hoàn thiện đạt chuẩn sau vòng 2.",
+    "created_at": "2026-10-01T17:03:52.671496Z",
+    "updated_at": "2026-10-01T17:03:53.743398Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": false,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.743398Z"
+  },
+  {
+    "id": "EX-CUSTOM-872E",
+    "dataset_id": "customer_churn_v1",
+    "title": "Đánh giá Tỷ lệ Rời bỏ Khách hàng Apply",
+    "description": "Thống kê số lượng khách hàng rời bỏ (churn_label = 'Yes') theo từng loại hợp đồng (contract_type) trong bảng 'customer_churn_v1'.",
+    "bloom_level": "Apply",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Apply.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường contract_type, churn_label."
+    ],
+    "schema_dependencies": [
+      "contract_type",
+      "churn_label"
+    ],
+    "starter_code": "SELECT contract_type, COUNT(*) FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY ...;",
+    "solution_code": "SELECT contract_type, COUNT(*) as churn_count FROM \"customer_churn_v1\" WHERE churn_label = 'Yes' GROUP BY contract_type;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột contract_type",
+        "input_params": {},
+        "expected_output": [
+          "contract_type",
+          "churn_count"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 2,
+    "review_notes": "Đã hiệu chuẩn và hoàn thiện đạt chuẩn sau vòng 2.",
+    "created_at": "2026-10-01T17:03:52.732489Z",
+    "updated_at": "2026-10-01T17:03:53.766357Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.766357Z"
+  },
+  {
+    "id": "EX-AI_KNO-E59B",
+    "dataset_id": "ai_knowledge_chunks_v1",
+    "title": "Thống Kê Kích Thước Chunks Tri Thức Analyze",
+    "description": "Tính tổng số lượng token và số chunk theo tài liệu nguồn trong bảng 'ai_knowledge_chunks_v1'.",
+    "bloom_level": "Analyze",
+    "difficulty": "Intermediate",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Analyze.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường document_title, token_count."
+    ],
+    "schema_dependencies": [
+      "document_title",
+      "token_count"
+    ],
+    "starter_code": "SELECT document_title, COUNT(*) FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "solution_code": "SELECT document_title, COUNT(*) as chunk_count, SUM(CAST(token_count AS INT)) as total_tokens FROM \"ai_knowledge_chunks_v1\" GROUP BY document_title;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra cột kết quả",
+        "input_params": {},
+        "expected_output": [
+          "document_title",
+          "chunk_count",
+          "total_tokens"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 1,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 2,
+    "review_notes": "Đã hiệu chuẩn và hoàn thiện đạt chuẩn sau vòng 2.",
+    "created_at": "2026-10-01T17:03:52.821493Z",
+    "updated_at": "2026-10-01T17:03:53.791366Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.791366Z"
+  },
+  {
+    "id": "EX-RETAIL-7825",
+    "dataset_id": "retail_sales_v1",
+    "title": "Phân tích Tổng Doanh thu Giao dịch Evaluate",
+    "description": "Viết câu truy vấn SQL tính tổng doanh thu và số lượng đơn hàng theo từng trạng thái hoặc thành phố trong bảng 'retail_sales_v1'.",
+    "bloom_level": "Evaluate",
+    "difficulty": "Advanced",
+    "exercise_type": "SQL",
+    "learning_outcomes": [
+      "Học viên hiểu và vận dụng được kỹ năng truy vấn dữ liệu theo cấp độ Evaluate.",
+      "Làm chủ kỹ thuật xử lý dữ liệu với các trường status, total_amount."
+    ],
+    "schema_dependencies": [
+      "status",
+      "total_amount"
+    ],
+    "starter_code": "-- Viết truy vấn nhóm theo trạng thái và tính tổng tiền\nSELECT ... FROM \"retail_sales_v1\" GROUP BY ...;",
+    "solution_code": "SELECT status, COUNT(*) as order_count, SUM(CAST(total_amount AS FLOAT)) as total_revenue FROM \"retail_sales_v1\" GROUP BY status;",
+    "test_cases": [
+      {
+        "id": "TC-01",
+        "description": "Kiểm tra có cột status và order_count",
+        "input_params": {},
+        "expected_output": [
+          "status",
+          "order_count",
+          "total_revenue"
+        ],
+        "assertion_type": "column_match"
+      },
+      {
+        "id": "TC-02",
+        "description": "Kiểm tra có kết quả dòng",
+        "input_params": {},
+        "expected_output": 3,
+        "assertion_type": "row_count"
+      }
+    ],
+    "hints": [
+      "Xem lại cú pháp SELECT, GROUP BY và WHERE trong tài liệu học tập."
+    ],
+    "status": "approved",
+    "review_round": 2,
+    "review_notes": "Đã hiệu chuẩn và hoàn thiện đạt chuẩn sau vòng 2.",
+    "created_at": "2026-10-01T17:03:52.922490Z",
+    "updated_at": "2026-10-01T17:03:53.815394Z",
+    "similarity_score": 1.0,
+    "is_duplicate": true,
+    "is_feasible": true,
+    "is_calibrated": true,
+    "reviewer_id": "teacher_kien_lead",
+    "approved_at": "2026-10-01T17:03:53.815394Z"
+  }
+]
