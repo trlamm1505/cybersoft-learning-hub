@@ -24,8 +24,7 @@ BaoCao_Task30/
     ├── instructor_guide.md           # Sổ tay hướng dẫn nhanh 3 phút dành cho Giảng viên & Trợ giảng
     ├── release_v1.0.md               # Hồ sơ phát hành Release v1.0.0, bảng kiểm kê tài sản & SLA
     ├── retro_and_roadmap.md          # Đánh giá Start/Stop/Continue, số liệu Before/After & lộ trình 60 ngày
-    ├── demo_guide.md                 # Hướng dẫn quy trình thuyết minh và demo sản phẩm bằng dữ liệu động sinh mới
-    └── GIAI_THICH.md                 # Sơ đồ tư duy, thứ tự đọc file theo vai trò & 5 câu hỏi kỹ thuật trọng tâm
+    └── demo_guide.md                 # Hướng dẫn quy trình thuyết minh và demo sản phẩm bằng dữ liệu động sinh mới
 ```
 
 ---
@@ -36,7 +35,7 @@ BaoCao_Task30/
 | :--- | :--- | :--- |
 | **Kỹ sư Tiếp quản / DevOps** | [`docs/technical_handbook.md`](docs/technical_handbook.md)<br>[`docs/release_v1.0.md`](docs/release_v1.0.md) | Nắm kiến trúc 4 tầng, cài đặt môi trường, giám sát sức khỏe, ranh giới tài nguyên và quy trình xử lý sự cố. |
 | **Giảng viên & Trợ giảng** | [`docs/instructor_guide.md`](docs/instructor_guide.md)<br>[`docs/demo_guide.md`](docs/demo_guide.md) | Tra cứu nhanh 4 datasets (sạch/bẩn), barem 5 tiêu chí chấm Capstone và kiểm tra Trợ giảng AI trong 3 phút. |
-| **Ban Quản lý & Kỹ sư Nghiệm thu** | [`30_final_handover_and_demo.md`](30_final_handover_and_demo.md)<br>[`docs/retro_and_roadmap.md`](docs/retro_and_roadmap.md)<br>[`docs/GIAI_THICH.md`](docs/GIAI_THICH.md) | Đánh giá toàn diện kết quả 30 ngày, đối soát 8 chỉ số định lượng đo thật, xem xét 3 hạn chế đã biết và lộ trình 60 ngày. |
+| **Ban Quản lý & Kỹ sư Nghiệm thu** | [`30_final_handover_and_demo.md`](30_final_handover_and_demo.md)<br>[`docs/retro_and_roadmap.md`](docs/retro_and_roadmap.md) | Đánh giá toàn diện kết quả 30 ngày, đối soát 8 chỉ số định lượng đo thật, xem xét 3 hạn chế đã biết và lộ trình 60 ngày. |
 
 ---
 

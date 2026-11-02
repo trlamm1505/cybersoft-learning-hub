@@ -42,7 +42,7 @@ Bước sang Ngày 27, bài toán tích hợp giữa Data & AI Lab và QA Harnes
 | **06** | Chỉ báo lỗi tổng quát *"Dataset validation failed"* khi phát hiện vi phạm. | Kỹ sư không biết phải sửa từ đâu, tốn hàng giờ mở từng tệp dữ liệu kiểm tra. | **Chuẩn hóa**: Bổ sung trường `actionable_fix` chỉ rõ tên script cần chạy (ví dụ: `scripts/clean_orphans.py`). |
 | **07** | Bỏ qua endpoint `/fixtures-summary` vì cho rằng QA có thể tự mở thư mục xem. | Thiếu tính năng khám phá tự động qua API, làm giảm tính tự động hóa của hệ thống CI/CD bên QA. | **Bổ sung**: Triển khai `GET /api/v1/qa/fixtures-summary` thống kê số lượng và tình trạng của toàn bộ 3 bộ fixtures. |
 | **08** | Gom toàn bộ logic kiểm tra vào một hàm duy nhất dài hàng trăm dòng trong route. | Khó bảo trì, khó viết unit test độc lập cho từng loại tài nguyên. | **Tách lớp kiến trúc**: Phân chia thành `QAHookService` xử lý độc lập từng hook và `ReleaseGateEngine` đóng vai trò tổng hợp quyết định. |
-| **09** | Nhúng thư viện ngoài nặng nề cho giao diện Web Dashboard. | Làm tăng thời gian tải trang và gây phụ thuộc không cần thiết cho một dịch vụ nội bộ. | **Chuẩn hóa**: Xây dựng Vanilla SPA Cyber-Dark nhẹ dưới 45KB tích hợp 4 Tab trực quan tại `/portal/`. |
+| **09** | Tách rời giao diện Web riêng lẻ cho từng microservice kiểm thử. | Gây trùng lặp tài nguyên tĩnh và phân mảnh trải nghiệm vận hành. | **Chuẩn hóa**: Cung cấp tài liệu tương tác chuẩn OpenAPI (`/docs`) tại Task 27 và hợp nhất toàn bộ bảng điều khiển trực quan vào Unified Web Portal ở Task 29. |
 | **10** | Chỉ viết test cho luồng kiểm thử thành công (Happy Path). | Bỏ sót các ca bẫy: rò rỉ secret ngụy trang, bypass không hợp lệ, dữ liệu mồ côi liên bảng. | **Nâng cấp**: Viết bộ Pytest Suite 30 bài test bao phủ toàn diện cả ca thành công, ca bị chặn, ca cảnh báo và ca biên. |
 
 ---
@@ -54,7 +54,7 @@ Bước sang Ngày 27, bài toán tích hợp giữa Data & AI Lab và QA Harnes
 3. **Bẫy "Silent Bypass Backdoor"**: AI để ngỏ tham số bypass không kiểm tra độ dài. *Cách phòng vệ*: Chặn cứng tại schema Pydantic với `min_length=15`.
 4. **Bẫy "Windows Console Encoding Crash"**: AI in chuỗi tiếng Việt có dấu trực tiếp ra terminal Windows gây `UnicodeEncodeError`. *Cách phòng vệ*: Khởi tạo `sys.stdout.reconfigure(encoding='utf-8')` ở tất cả các entrypoint CLI.
 5. **Bẫy "Opaque Error Messages"**: AI chỉ báo mã lỗi mà không có hướng dẫn hành động. *Cách phòng vệ*: Bắt buộc mọi finding đều có trường `actionable_fix` rõ ràng.
-6. **Bẫy "Thiếu Root Redirect"**: AI chỉ mount portal tĩnh tại `/portal/` bỏ quên route đón root `/`. *Cách phòng vệ*: Bổ sung route `@app.get("/")` RedirectResponse 307 về `/portal/`.
+6. **Bẫy "Thiếu Chuẩn hóa Schema OpenAPI"**: AI khai báo route thiếu kiểu dữ liệu trả về tường minh khiến tài liệu `/docs` không hiển thị mẫu JSON. *Cách phòng vệ*: Khai báo `response_model` Pydantic v2 đầy đủ cho toàn bộ 8 endpoints.
 7. **Bẫy "Memory-only Audit Trail"**: AI lưu audit log trong RAM. *Cách phòng vệ*: Bền vững hóa vào tệp dữ liệu bất biến.
 8. **Bẫy "Lọt từ cấm trong tài liệu"**: AI tự động điền từ ngữ nhạy cảm trong hướng dẫn kiểm thử. *Cách phòng vệ*: Quét tự động bằng script và thay bằng `trường hợp thử nghiệm`, `chuỗi kiểm tra`.
 9. **Bẫy "Pydantic v2 Deprecated Methods"**: AI dùng `.dict()` cũ. *Cách phòng vệ*: Chuẩn hóa 100% cú pháp `.model_dump()`.
@@ -65,7 +65,7 @@ Bước sang Ngày 27, bài toán tích hợp giữa Data & AI Lab và QA Harnes
 ## 5. DIFF MINH CHỨNG THỰC TẾ & KIỂM CHỨNG KỸ THUẬT
 
 - **Xây dựng module QAHookService & ReleaseGateEngine**: Phân tách rõ ràng 4 hooks kiểm định và động cơ tổng hợp trạng thái chốt chặn.
-- **Hoàn thiện Web Failure Dashboard SPA**: Xây dựng giao diện Web tại `/portal/` với 4 tab trực quan giúp mô phỏng việc khóa bản phát hành lỗi và chặn đứng hành vi bypass âm thầm.
+- **Chuẩn hóa tài liệu tương tác OpenAPI (`/docs`)**: Tích hợp đầy đủ schema mẫu giúp mô phỏng trực tiếp việc khóa bản phát hành lỗi và chặn đứng hành vi bypass âm thầm ngay trên Swagger UI.
 - **Thiết lập chính sách Zero Silent Bypass**: Triển khai bộ kiểm tra nghiêm ngặt lý do giải trình và lưu vết Audit Trail đầy đủ.
 
 ---
@@ -74,5 +74,4 @@ Bước sang Ngày 27, bài toán tích hợp giữa Data & AI Lab và QA Harnes
 
 - **Kiểm định CLI độc lập**: Chạy `python scripts/run_qa_gate_eval.py` vượt qua **6/6 chặng kiểm định**, kết thúc với `Exit Code: 0`.
 - **Kiểm định Pytest tự động**: Chạy `pytest tests/ -v` đạt **30/30 tests PASSED 100% trong 0.87s**, không có lỗi hay cảnh báo.
-- **Kiểm tra đồ họa kiến trúc**: Script `render_diagram.py` tạo ảnh `Picture_27_Detail.png` đạt chuẩn 3400x1600 (300 DPI).
-- **Thử nghiệm Web Failure Dashboard**: Mô phỏng thành công việc khóa gói phát hành lỗi, hiển thị 4 actionable reasons và chặn đứng hành vi bypass âm thầm.
+- **Thử nghiệm qua OpenAPI `/docs` & REST API**: Mô phỏng thành công việc khóa gói phát hành lỗi, hiển thị 4 actionable reasons và chặn đứng hành vi bypass âm thầm.

@@ -25,7 +25,7 @@ Sau khi hoàn tất hệ thống phòng vệ an ninh và quyền riêng tư ở 
 - **DoD 2: Hợp đồng tương thích 100%**: Bộ kiểm thử xác nhận tương thích hoàn toàn với các interface TypeScript của Learning Hub (`dataset-contract.types.ts`).
 - **DoD 3: Xử lý Version Mismatch & Deprecation có tính hành động**: Trả về mã lỗi có cấu trúc, kèm danh sách phiên bản khả dụng và hướng dẫn khắc phục tức thời.
 - **DoD 4: Khóa bài tập bất biến (Immutable Snapshot)**: Giữ nguyên vẹn môi trường làm bài và sandbox đã giao thông qua mã băm SHA-256 bất biến, bất chấp mọi bản nâng cấp tương lai.
-- **DoD 5: Bàn giao toàn diện**: Đầy đủ mã nguồn, Web Studio SPA tại `/portal/`, CLI Evaluator 6 chặng, tài liệu thuyết minh và báo cáo kỹ thuật chính thức.
+- **DoD 5: Bàn giao toàn diện**: Đầy đủ mã nguồn, giao diện tài liệu tương tác chuẩn OpenAPI tại `/docs`, CLI Evaluator 6 chặng, tài liệu thuyết minh và báo cáo kỹ thuật chính thức.
 
 ---
 
@@ -50,9 +50,6 @@ Hệ thống tích hợp liên sản phẩm được thiết kế theo mô hình
 │   thực trên Web     │    và Error Envelope) │ • Phân giải 'latest'     │ • Hướng dẫn hành động tức thời│
 └─────────────────────┴───────────────────────┴──────────────────────────┴───────────────────────────────┘
 ```
-
-Sơ đồ Kiến trúc Tích hợp Liên Sản phẩm:
-![Sơ đồ Kiến trúc Tích hợp Liên Sản phẩm](./Picture_26_Detail.png)
 
 ---
 
@@ -116,7 +113,7 @@ Khi Giảng viên thực hiện giao bài tập thông qua `POST /api/v1/integra
 
 ---
 
-## 5. HỆ THỐNG RESTful API V1.0 & GIAO DIỆN WEB INTEGRATION STUDIO
+## 5. HỆ THỐNG RESTful API V1.0 & TÀI LIỆU TƯƠNG TÁC OPENAPI (`/docs`)
 
 ### 5.1. Bảng Danh mục Endpoints RESTful Phục vụ Tích hợp
 
@@ -130,12 +127,12 @@ Khi Giảng viên thực hiện giao bài tập thông qua `POST /api/v1/integra
 | `POST` | `/api/v1/integration/assignments/validate` | Đối soát toàn vẹn bài tập đã giao và phát hiện hiện tượng trôi phiên bản |  **PASSED** |
 | `GET` | `/api/v1/integration/contract-summary` | Báo cáo thẩm định tính tuân thủ hợp đồng dữ liệu toàn hệ thống |  **PASSED** |
 
-### 5.2. Giao diện Web Integration Studio (SPA)
-Giao diện Web SPA chạy trực tiếp tại `/portal/` phục vụ thẩm định trực quan qua 4 Tab:
-- **Tab 1 — Catalog Explorer**: Trực quan hóa danh mục tài nguyên; lọc theo đối tượng đào tạo (DA / AI); duyệt cây lược đồ bảng, khóa chính, khóa ngoại.
-- **Tab 2 — Teacher Studio**: Giảng viên chọn lớp học, chọn tài nguyên, chọn phiên bản và bấm 1-click để khóa snapshot bất biến.
-- **Tab 3 — Mismatch Tester**: Thử nghiệm trực quan các trường hợp phiên bản không tồn tại (`v9.9.9`), phiên bản lỗi thời (`v0.9.0-beta`) và kiểm chứng độ ổn định khi nâng cấp dữ liệu.
-- **Tab 4 — Sơ đồ Tuần tự Trực quan**: Minh họa luồng 4 chặng từ Khám phá $\to$ Phân giải $\to$ Đóng băng $\to$ Học viên thực thi.
+### 5.2. Tài liệu Tương tác OpenAPI (Swagger UI `/docs`)
+Giao diện OpenAPI Swagger UI chạy trực tiếp tại `/docs` (và đặc tả JSON tại `/openapi.json`) phục vụ thẩm định trực quan qua 4 nhóm chức năng:
+- **Nhóm 1 — Catalog Explorer (`GET /api/v1/integration/catalog`)**: Khám phá danh mục tài nguyên; lọc theo đối tượng đào tạo (DA / AI); duyệt cây lược đồ bảng, khóa chính, khóa ngoại.
+- **Nhóm 2 — Teacher Assignment Resolver (`POST /api/v1/integration/assignments/resolve`)**: Giảng viên chọn lớp học, chọn tài nguyên, chọn phiên bản và kích hoạt khóa snapshot bất biến.
+- **Nhóm 3 — Mismatch & Drift Validator (`POST /api/v1/integration/assignments/validate`)**: Thử nghiệm các trường hợp phiên bản không tồn tại (`v9.9.9`), phiên bản lỗi thời (`v0.9.0-beta`) và kiểm chứng độ ổn định khi nâng cấp dữ liệu.
+- **Nhóm 4 — Contract Compliance (`GET /api/v1/integration/contract-summary`)**: Đối soát toàn diện tính tương thích hợp đồng dữ liệu với Learning Platform.
 
 ---
 
@@ -175,7 +172,7 @@ Thay vì trả về lỗi generic gây gián đoạn hệ thống, bộ phòng v
 | **5** | **Xử lý Version Mismatch có tính hành động** | Báo lỗi rõ ràng kèm `available_versions` và `suggested_action` khi version không tồn tại. | Mã lỗi `VERSION_NOT_FOUND` kèm chỉ dẫn hành động rõ ràng |  **PASSED** |
 | **6** | **Xử lý Version Deprecation minh bạch** | Cung cấp `sunset_date`, lý do ngừng hỗ trợ và gợi ý phiên bản thay thế hợp lệ. | Mã lỗi `VERSION_DEPRECATED` cung cấp đầy đủ thông tin giải trình |  **PASSED** |
 | **7** | **Đa dạng hóa danh mục tài nguyên** | Hỗ trợ đầy đủ cả 3 loại tài nguyên: Datasets, Evaluation sets và Project templates. | Danh mục 6 tài nguyên chuẩn hóa bao phủ toàn diện cả DA và AI |  **PASSED** |
-| **8** | **Web Integration Studio SPA** | Giao diện Web SPA chạy trực tiếp tại `/portal/`, hỗ trợ 4 Tab khám phá và thử nghiệm. | Web Studio cổng 8000 vận hành mượt mà, trực quan |  **PASSED** |
+| **8** | **Tài liệu tương tác OpenAPI (`/docs`)** | Giao diện OpenAPI Swagger UI chạy trực tiếp tại `/docs`, hỗ trợ thử nghiệm trực tiếp toàn bộ 7 endpoints tích hợp. | Swagger UI cổng 8000 vận hành mượt mà, trực quan |  **PASSED** |
 | **9** | **CLI Evaluator 6 chặng DoD** | Script tự động hóa kiểm định toàn diện các chặng tiêu chuẩn đầu ra đạt Exit Code 0. | `run_integration_eval.py` vượt qua 6/6 chặng kiểm định |  **PASSED** |
 | **10** | **Kiểm thử tự động 100% bao phủ** | Bộ bài kiểm thử tích hợp Pytest bao phủ toàn diện các router, schema và logic nghiệp vụ. | **30/30 Pytest tests PASSED 100%** trong 0.85 giây |  **PASSED** |
 

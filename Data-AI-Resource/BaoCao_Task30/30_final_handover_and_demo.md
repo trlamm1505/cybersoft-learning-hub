@@ -43,15 +43,14 @@ Bước sang **Ngày 30 — Ngày đích cuối cùng**, trọng tâm chuyển s
 
 Toàn bộ gói bàn giao được tổ chức chuẩn hóa trong thư mục `BaoCao_Task30/` gồm:
 
-1. **Hồ sơ kỹ thuật & Hướng dẫn sử dụng (Bộ 6 tài liệu docs/)**:
+1. **Hồ sơ kỹ thuật & Hướng dẫn sử dụng (Bộ 5 tài liệu docs/)**:
    - `docs/technical_handbook.md`: Sổ tay kiến trúc 4 tầng, setup, quản trị bảo mật và quy trình gỡ 5 sự cố thực tế.
    - `docs/instructor_guide.md`: Hướng dẫn nhanh 3 phút dành cho Giảng viên & Trợ giảng (datasets sạch/bẩn, rubric 5 tiêu chí Capstone).
    - `docs/release_v1.0.md`: Hồ sơ phát hành Release v1.0.0, bảng kiểm kê tài sản (manifest), SLA và Quality Gates.
    - `docs/retro_and_roadmap.md`: Báo cáo Retrospective Start/Stop/Continue, số liệu Before/After, 3 hạn chế đã biết và lộ trình 60 ngày.
    - `docs/demo_guide.md`: Hướng dẫn quy trình thuyết minh và demo sản phẩm bằng dữ liệu động sinh mới không hard-code.
-   - `docs/GIAI_THICH.md`: Sơ đồ tư duy, thứ tự đọc file theo vai trò và bộ 5 câu hỏi kỹ thuật trọng tâm khi bàn giao.
 2. **Tài liệu tổng quan & Nhật ký điều hành**:
-   - `README.md`: Cổng điều hướng tổng thể hồ sơ bàn giao và ma trận đối chiếu 6 tiêu chí nghiệm thu DoD.
+   - `README.md`: Cổng điều hướng tổng thể hồ sơ bàn giao và ma trận đối chiếu 7 tiêu chí nghiệm thu DoD.
    - `AI_WORKLOG.md`: Nhật ký phối hợp và thẩm định AI 3 cột chuẩn CyberSoft, ghi nhận toàn bộ quyết định tinh gọn hệ thống.
 
 ---
@@ -67,7 +66,7 @@ Tuân thủ nghiêm ngặt nguyên tắc nghiệm thu: *"Tuyệt đối không c
    - *Cách khắc phục tạm thời:* Phân phối tải trọng qua Nginx Reverse Proxy với thuật toán Round-Robin.
    - *Kế hoạch khắc phục:* Triển khai cụm Kubernetes HPA tự động mở rộng pod khi CPU > 70% (`TICKET-845`).
 3. **Hạn chế KNOWN-003 (Mức Low)**: Tải tệp Parquet dung lượng lớn (> 500MB) mất từ 3-5s nạp schema trên máy tính cấu hình thấp.
-   - *Cách khắc phục tạm thời:* Cung cấp endpoint xem trước 10 dòng đầu (`/api/datasets/preview`) mà không cần tải toàn bộ tệp.
+   - *Cách khắc phục tạm thời:* Cung cấp endpoint xem trước 10 dòng đầu (`POST /api/v1/ops/hub/dataset-action` với `action="preview"`, `limit=10`) mà không cần tải toàn bộ tệp.
    - *Kế hoạch khắc phục:* Tích hợp thư viện stream phân đoạn tệp tin (Apache Arrow Flight) trong Sprint tiếp theo (`TICKET-849`).
 
 ---

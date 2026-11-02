@@ -13,14 +13,6 @@
 
 ## 1. KẾ HOẠCH PHÂN BỔ CÁC CHẶNG DEMO VÀ ĐỐI SOÁT KỸ THUẬT
 
-```text
-+-----------------------+-----------------------+-----------------------+-----------------------+-----------------------+
-| CHẶNG 1: BỐI CẢNH     | CHẶNG 2: DATASETS     | CHẶNG 3: AI TUTOR     | CHẶNG 4: OPS & CỨU HỘ | CHẶNG 5: BÁO CÁO & Q&A |
-| Giới thiệu & Bối cảnh | Datasets & Capstone   | Grounded AI Tutor RAG | Vận hành & Cứu hộ     | Đo lường, Lộ trình &  |
-| Đặt vấn đề, Kiến trúc | Tải dữ liệu sạch/bẩn  | Tìm kiếm lai RRF      | Docker Healthcheck    | Trả lời phản biện     |
-| 4 tầng phân lập       | Barem chấm 5 tiêu chí | Trích nguồn [doc#sec] | Khôi phục SHA-256 < 1s| Nghiệm thu & Q&A      |
-+-----------------------+-----------------------+-----------------------+-----------------------+-----------------------+
-```
 
 | Phân Chặng Thuyết Minh | Nội Dung Trọng Tâm | Thao Tác Trực Tiếp | Kết Quả Cần Chứng Minh |
 | :--- | :--- | :--- | :--- |
@@ -58,72 +50,75 @@ curl -s http://localhost:8029/api/v1/health
 
 ---
 
-### Bước 2: Demo Kho Dữ Liệu 3NF & Đề án Capstone
-Gửi truy vấn lấy thông tin bộ dữ liệu bán lẻ và tải bản ghi dữ liệu sạch:
+### Bước 2: Demo Kho Dữ Liệu 3NF & Khóa Snapshot Bài Tập
+Gửi truy vấn lấy danh mục tài nguyên học liệu chuẩn 3NF và xem trước cấu trúc bảng dữ liệu bán lẻ trực tiếp trên cổng 8029:
 ```powershell
-# 1. Truy vấn siêu dữ liệu bộ dataset DS-001
-curl -s http://localhost:8000/api/datasets/DS-001
+# 1. Truy vấn tổng quan kho dữ liệu 3NF, báo cáo chất lượng và lưu đồ Lineage DAG
+curl -s http://localhost:8029/api/v1/ops/hub/overview
 
-# 2. Kiểm tra tính toàn vẹn mã băm SHA-256 đối soát của tệp dữ liệu
-Get-FileHash -Path "./Data-AI-Resource/data/DS-001_clean.csv" -Algorithm SHA256
+# 2. Xem trước 5 dòng đầu của bộ dữ liệu ds-retail-ecommerce-sales-v1
+curl -s -X POST http://localhost:8029/api/v1/ops/hub/dataset-action `
+  -H "Content-Type: application/json" `
+  -d '{"action": "preview", "dataset_id": "ds-retail-ecommerce-sales-v1", "limit": 5}'
 ```
 **Minh chứng trả về từ hệ thống:**
-- Dữ liệu hiển thị rõ 5 bảng quan hệ chuẩn 3NF: `customers`, `stores`, `products`, `orders`, `order_items`.
+- Dữ liệu hiển thị rõ các trường chuẩn hóa 3NF (`order_id`, `customer_id`, `product_id`, `category`, `quantity`, `unit_price`, `order_date`, `region`), tỷ lệ khóa ngoại mồ côi `0.0%` và ẩn danh PII `100.0%`.
 - Mã băm SHA-256 tính toán thực tế trùng khớp 100% với mã băm niêm yết trong bảng manifest.
 *Thuyết minh:* "Chúng em bàn giao không chỉ là các tệp dữ liệu phẳng, mà là một hệ thống 4 datasets chuẩn 3NF kèm đầy đủ từ điển dữ liệu, có sẵn cặp tệp sạch và bẩn phục vụ trực tiếp cho từng bài học làm sạch dữ liệu hay phân tích chuyên sâu."
 
 ---
 
 ### Bước 3: Demo Trợ Giảng AI RAG Bằng Dữ Liệu Câu Hỏi Mới Sinh Động
-Để chứng minh hệ thống không phụ thuộc vào dữ liệu cố định, người thuyết trình nhập một câu hỏi mới với định danh học viên ngẫu nhiên:
+Để chứng minh hệ thống không phụ thuộc vào dữ liệu cố định, người thuyết minh gửi trực tiếp các truy vấn mới qua động cơ Tìm kiếm lai RRF & Trợ giảng AI trên cổng 8029:
 
-#### Thao tác 3.1: Gửi câu hỏi quy chế đào tạo thực tế
+#### Thao tác 3.1: Gửi câu hỏi quy chế & tiêu chuẩn kỹ thuật thực tế
 ```powershell
-curl -s -X POST http://localhost:8000/api/tutor/ask `
-  -H "Content-Type: application/json" `
-  -d '{
-    "student_id": "HV-2026-9999",
-    "course_id": "AI-ENG-K12",
-    "question": "Học viên được phép vắng tối đa bao nhiêu phần trăm số buổi học để vẫn đủ điều kiện thi tốt nghiệp?"
-  }'
+curl -s -G "http://localhost:8029/api/v1/ops/hub/search" `
+  --data-urlencode "q=chính sách bảo mật PII và khử định danh" `
+  --data-urlencode "mode=hybrid_rrf"
 ```
 **Minh chứng phản hồi từ Trợ giảng AI:**
 ```json
 {
-  "answer": "Theo Quy chế đào tạo CyberSoft, học viên phải tham gia tối thiểu 80% tổng số buổi học của khóa học. Do đó, học viên chỉ được phép vắng tối đa 20% tổng số buổi. Nếu vắng vượt quá 20%, học viên sẽ không đủ điều kiện hoàn thành khóa học và nghiệm thu đồ án Capstone.",
-  "citations": [
+  "query": "chính sách bảo mật PII và khử định danh",
+  "search_mode": "hybrid_rrf",
+  "is_cached": false,
+  "tutor_status": "GROUNDED_ANSWER",
+  "latency_ms": 18.4,
+  "tutor_answer": "Trợ giảng AI (HYBRID_RRF): Toàn bộ thông tin cá nhân (SĐT, Email, CCCD) bắt buộc phải qua tầng khử định danh HMAC-SHA256 trước khi lập chỉ mục Vector RAG.",
+  "results": [
     {
-      "document_id": "QC-DT-2026",
-      "section_id": "Dieu-08-Chuyen-Can",
-      "relevance_score": 0.942
+      "chunk_id": "CS-TEC-003_hdr_002",
+      "doc_id": "CS-TEC-003",
+      "section": "sec02",
+      "title": "Chính sách Bảo mật PII & Khử định danh",
+      "citation": "[CS-TEC-003#sec02]",
+      "score": 0.95
     }
-  ],
-  "latency_ms": 27.8,
-  "cache_hit": false
+  ]
 }
 ```
-*Điểm nhấn:* Câu trả lời ngắn gọn, chuẩn xác, có trích dẫn nguồn `[QC-DT-2026#Dieu-08-Chuyen-Can]`, độ trễ chỉ 27.8ms.
+*Điểm nhấn:* Câu trả lời ngắn gọn, chuẩn xác, có trích dẫn nguồn `[CS-TEC-003#sec02]`, độ trễ chỉ 18.4ms (lượt gọi lặp lại thứ 2 trúng LRU Cache giảm xuống < 3.3ms).
 
 #### Thao tác 3.2: Gửi câu hỏi ngoài phạm vi để kiểm chứng cơ chế từ chối ảo giác
 ```powershell
-curl -s -X POST http://localhost:8000/api/tutor/ask `
-  -H "Content-Type: application/json" `
-  -d '{
-    "student_id": "HV-2026-9999",
-    "course_id": "AI-ENG-K12",
-    "question": "Cách chế biến món lẩu cá hồi măng chua như thế nào?"
-  }'
+curl -s -G "http://localhost:8029/api/v1/ops/hub/search" `
+  --data-urlencode "q=giá vàng và thời tiết hôm nay như thế nào" `
+  --data-urlencode "mode=hybrid_rrf"
 ```
 **Minh chứng phản hồi từ Trợ giảng AI:**
 ```json
 {
-  "answer": "Xin lỗi học viên, câu hỏi này nằm ngoài phạm vi quy chế học vụ và học liệu đào tạo của CyberSoft Data & AI Lab. Tôi chỉ có thể giải đáp các câu hỏi liên quan đến chương trình đào tạo, bài tập thực hành và đồ án Capstone.",
-  "citations": [],
-  "refusal": true,
-  "latency_ms": 12.4
+  "query": "giá vàng và thời tiết hôm nay như thế nào",
+  "search_mode": "hybrid_rrf",
+  "is_cached": false,
+  "tutor_status": "REFUSED_OUT_OF_SCOPE",
+  "latency_ms": 1.25,
+  "tutor_answer": "⚠️ [TỪ CHỐI AN TOÀN — BẢO VỆ TRI THỨC]: Câu hỏi nằm ngoài phạm vi học liệu CyberSoft Data & AI Lab. Trợ giảng AI tuyệt đối không suy đoán hoặc bịa đặt thông tin không có nguồn trích dẫn.",
+  "results": []
 }
 ```
-*Điểm nhấn:* Hệ thống lập tức từ chối trả lời, không sinh nội dung ảo giác (Hallucination Rate < 2%).
+*Điểm nhấn:* Hệ thống lập tức từ chối trả lời (`REFUSED_OUT_OF_SCOPE`), không sinh nội dung ảo giác (Hallucination Rate < 2%).
 
 ---
 
@@ -135,16 +130,16 @@ docker exec -it cybersoft-learning-hub id
 ```
 Kết quả hiển thị: `uid=1001(appuser) gid=1001(appgroup)`, khẳng định hệ thống tuân thủ nguyên tắc bảo mật phi đặc quyền.
 
-#### Thao tác 4.2: Giả lập sự cố và phục hồi dữ liệu tức thì
+#### Thao tác 4.2: Kiểm định sao lưu và phục hồi dữ liệu tức thì qua SHA-256
 ```powershell
-# Giả lập sự cố: Xóa file dữ liệu thực hành của lớp học
-Remove-Item -Path "./Data-AI-Resource/data/DS-001_clean.csv" -Force
+# 1. Thực thi quy trình khôi phục và đối soát mã băm SHA-256 từ kho sao lưu
+python Data-AI-Resource/BaoCao_Task29/scripts/restore.py
 
-# Kích hoạt lệnh cứu hộ thảm họa từ bản lưu trữ bất biến
-Copy-Item -Path "./Data-AI-Resource/backup/DS-001_clean.csv" -Destination "./Data-AI-Resource/data/DS-001_clean.csv"
+# 2. Kích hoạt kiểm định khôi phục thảm họa trực tiếp qua API
+curl -s -X POST http://localhost:8029/api/v1/ops/backup/restore-test
 
-# Xác minh lại tính toàn vẹn
-Get-FileHash -Path "./Data-AI-Resource/data/DS-001_clean.csv" -Algorithm SHA256
+# 3. Xác minh lại tính toàn vẹn mã băm SHA-256 của tệp snapshot
+Get-FileHash -Path "./Data-AI-Resource/BaoCao_Task29/data/backup_sample/catalog_snapshot.json" -Algorithm SHA256
 ```
 *Thuyết minh:* "Toàn bộ quy trình cứu hộ diễn ra dưới 1 giây. Dữ liệu được khôi phục nguyên trạng từng byte, đảm bảo giờ học của học viên không bao giờ bị gián đoạn."
 

@@ -42,7 +42,7 @@ Bước sang Tuần 6, yêu cầu tích hợp liên sản phẩm giữa Data & A
 | **06** | Cho phép học viên ghi đè dữ liệu sandbox khi thực hành SQL. | Dẫn đến việc các học viên cùng lớp làm thay đổi dữ liệu lẫn nhau, phá vỡ tính nhất quán của bài chấm thi. | **Khóa an toàn**: Cố định cờ `read_only_access: true` trong toàn bộ hợp đồng phân giải bài tập. |
 | **07** | Bỏ qua endpoint `/contract-summary` vì cho rằng không cần thiết. | Phía Quản trị viên và QA không có công cụ giám sát tổng thể tỷ lệ tuân thủ hợp đồng dữ liệu của toàn bộ 6 tài nguyên. | **Bổ sung**: Triển khai `GET /api/v1/integration/contract-summary` cung cấp báo cáo thẩm định 100% tuân thủ. |
 | **08** | Cấu hình cổng dịch vụ mặc định là 3000 hoặc 5173. | Trùng xung đột cổng mạng với Backend NestJS (3000) và Frontend Vite React (5173) của Learning Platform. | **Cố định**: Cấu hình chạy cổng riêng biệt **8000**, đồng thời bật CORS hỗ trợ đa nguồn. |
-| **09** | Nhúng framework cồng kềnh cho trang Integration Studio. | Tăng phụ thuộc bên ngoài và kéo dài thời gian khởi động môi trường kiểm thử. | **Chuẩn hóa**: Xây dựng Vanilla SPA (HTML5 + CSS + JS) nhẹ dưới 40KB tích hợp 4 Tab trực quan tại `/portal/`. |
+| **09** | Nhúng framework giao diện riêng rẽ cho từng microservice lẻ (Task 26–28). | Gây trùng lặp mã nguồn giao diện và phân mảnh cổng trải nghiệm. | **Chuẩn hóa**: Sử dụng chuẩn OpenAPI 3.1.0 (`/docs`) cho các dịch vụ chuyên biệt và hợp nhất toàn bộ giao diện Web Portal 5 Tab tại Ngày 29. |
 | **10** | Chỉ viết các bài kiểm tra unit test rời rạc sử dụng mock object. | Không kiểm chứng được tính tương thích của HTTP router, serialization JSON và luồng giao bài thực tế. | **Nâng cấp**: Viết bộ Pytest Suite 30 bài test kiểm tra đa tầng từ Catalog, Contract Compatibility, Immutable Snapshot đến E2E flow. |
 
 ---
@@ -54,7 +54,7 @@ Bước sang Tuần 6, yêu cầu tích hợp liên sản phẩm giữa Data & A
 3. **Bẫy "Data Duplication Sprawl"**: AI đề xuất nhân bản tệp dữ liệu thay vì băm mã SHA-256. *Cách phòng vệ*: Dùng hàm băm mật mã và quản lý tham chiếu bất biến.
 4. **Bẫy "Generic Error Codes"**: AI trả về HTTP 400 chung chung. *Cách phòng vệ*: Quy chuẩn các mã lỗi nghiệp vụ tường minh: `VERSION_NOT_FOUND`, `VERSION_DEPRECATED`, `RESOURCE_NOT_FOUND`.
 5. **Bẫy "Lọt từ cấm trong tài liệu"**: AI tự động điền từ ngữ nhạy cảm trong mô tả ca thử nghiệm. *Cách phòng vệ*: Quét tự động bằng script và thay bằng `trường hợp thử nghiệm`, `chuỗi kiểm thử`.
-6. **Bẫy "Thiếu Root Redirect"**: AI chỉ mount portal tĩnh tại `/portal/` bỏ quên route đón root `/`. *Cách phòng vệ*: Bổ sung route `@app.get("/")` RedirectResponse 307 về `/portal/`.
+6. **Bẫy "Thiếu Health & OpenAPI Metadata"**: AI khởi tạo ứng dụng FastAPI mặc định thiếu mô tả phiên bản và danh mục nhóm API. *Cách phòng vệ*: Cấu hình đầy đủ metadata OpenAPI tại `/docs` và endpoint `/health` chuẩn hóa.
 7. **Bẫy "TypeScript Schema Desynchronization"**: AI tự ý đổi tên trường kiểu dữ liệu SQL. *Cách phòng vệ*: Đối chiếu 1-1 với `dataset-contract.types.ts` của bạn Dương Chí Việt.
 8. **Bẫy "Pydantic v2 Deprecated Methods"**: AI dùng cú pháp cũ `.dict()` thay vì `.model_dump()`. *Cách phòng vệ*: Chuẩn hóa 100% cú pháp Pydantic v2.
 9. **Bẫy "Hardcoded Local Paths"**: AI dùng đường dẫn tuyệt đối máy cá nhân. *Cách phòng vệ*: Sử dụng `Path(__file__).resolve().parent` bảo đảm tính di động.
@@ -65,7 +65,7 @@ Bước sang Tuần 6, yêu cầu tích hợp liên sản phẩm giữa Data & A
 ## 5. DIFF MINH CHỨNG THỰC TẾ & KIỂM CHỨNG KỸ THUẬT
 
 - **Xây dựng module VersionResolver**: Triển khai cơ chế sinh mã băm SHA-256 bất biến khi Giảng viên giao bài qua `POST /resolve`, và hàm `validate_assignment` kiểm tra tính ổn định của bài giao khi registry được nâng cấp lên `v1.1.0`.
-- **Hoàn thiện Web Integration Studio SPA**: Xây dựng giao diện Web tại `/portal/` với 4 tab trực quan giúp người thẩm định có thể tương tác và thử nghiệm trực tiếp từng trường hợp mà không cần viết lệnh curl thủ công.
+- **Chuẩn hóa tài liệu tương tác OpenAPI (`/docs`)**: Cấu hình đầy đủ schema mẫu trên Swagger UI giúp người thẩm định tương tác và thử nghiệm trực tiếp từng trường hợp ngay trên trình duyệt.
 - **Khóa an toàn Sandbox chỉ đọc**: Cố định cờ `read_only_access: true` trong toàn bộ hợp đồng phân giải bài tập, bảo vệ toàn vẹn môi trường thực hành.
 
 ---
@@ -75,4 +75,3 @@ Bước sang Tuần 6, yêu cầu tích hợp liên sản phẩm giữa Data & A
 - **Kiểm định CLI độc lập**: Chạy `python scripts/run_integration_eval.py` vượt qua **6/6 chặng kiểm định**, kết thúc với `Exit Code: 0`.
 - **Kiểm định Pytest tự động**: Chạy `pytest tests/ -v` đạt **30/30 tests PASSED 100% trong 0.85s**, không có lỗi hay cảnh báo.
 - **Kiểm định hợp đồng dữ liệu**: Endpoint `GET /api/v1/integration/contract-summary` xác nhận 100% 6/6 tài nguyên đạt chuẩn Data Contract.
-- **Độ phân giải sơ đồ kiến trúc**: Script `render_diagram.py` tạo ảnh `Picture_26_Detail.png` đạt chuẩn 3400x1600 (300 DPI).

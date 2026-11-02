@@ -11,12 +11,6 @@
 
 Giảng viên hoặc Trợ giảng có thể chuẩn bị học liệu cho buổi học chỉ trong 3 bước:
 
-```text
-+-----------------------+     +-------------------------------+     +----------------------------+
-| BƯỚC 1: TRA CỨU HỌC LIỆU| ──> | BƯỚC 2: TẢI DATASET SẠCH/BẨN   | ──> | BƯỚC 3: GIAO ĐỀ & CHẤM THI |
-| Mở tài liệu / Cổng API|     | Chọn định dạng CSV / Parquet  |     | Lấy rubric 5 tiêu chí      |
-+-----------------------+     +-------------------------------+     +----------------------------+
-```
 
 1. **Bước 1: Tra cứu học liệu và đề bài theo môn học**
    - Xác định chuyên đề giảng dạy: SQL nâng cao, Làm sạch dữ liệu (Data Cleaning), Trực quan hóa Power BI, hoặc Xây dựng ứng dụng AI RAG.

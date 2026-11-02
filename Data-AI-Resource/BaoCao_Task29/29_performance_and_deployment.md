@@ -130,7 +130,7 @@ Khi thực thi cứu hộ thông qua `scripts/restore.py`:
 | **7** | **Giám sát sức khỏe tự động (Healthcheck)** | Thiết lập kiểm tra `/api/v1/health` tự động mỗi 30s trong Docker Compose, tự phục hồi nếu lỗi 3 lần liên tiếp. | Endpoint `/api/v1/health` phản hồi tức thì 1.5ms |  **PASSED** |
 | **8** | **Cơ chế sao lưu và đối soát SHA-256** | Tiến trình sao lưu snapshot tự động và phục hồi cứu hộ kiểm tra khớp 100% mã băm SHA-256 từng byte. | 2/2 tệp tin trùng khớp SHA-256 hoàn hảo |  **PASSED** |
 | **9** | **Web Ops Dashboard SPA** | Giao diện Web SPA chạy trực tiếp tại `/portal/`, hiển thị 4 KPI cards, ma trận phân vị độ trễ, số liệu Cache và nút kiểm thử. | Web Dashboard cổng 8029 mượt mà, trực quan |  **PASSED** |
-| **10** | **Sổ tay vận hành & Kiểm thử 100%** | Soạn thảo sổ tay `docs/operations_guide.md` chi tiết và hoàn thành bộ kiểm thử 100% PASS. | **30/30 Pytest tests PASSED 100%** trong 1.0s |  **PASSED** |
+| **10** | **Sổ tay vận hành & Kiểm thử 100%** | Soạn thảo sổ tay `docs/operations_guide.md` chi tiết và hoàn thành bộ kiểm thử 100% PASS. | **34/34 Pytest tests PASSED 100%** trong 1.0s |  **PASSED** |
 
 ---
 
@@ -150,7 +150,7 @@ Khi thực thi cứu hộ thông qua `scripts/restore.py`:
 | **RAM Đỉnh tải (Peak Load)** | $\le 200.0\text{ MB}$ | **165.2 MB** | Nằm an toàn trong trần 1024 MB |
 | **Kích thước Docker Image** | $\le 200.0\text{ MB}$ | **182 MB** | Giảm 75% so với bản image tiêu chuẩn |
 | **Toàn vẹn khôi phục SHA-256** | $100\%$ byte khớp | **100% SUCCESS** | Đối soát mã băm mật mã khớp từng bit |
-| **Tỷ lệ bao phủ kiểm thử (Pytest)** | $100\%$ modules | **30/30 tests PASS** | Đạt 100% thành công trong 1.02 giây |
+| **Tỷ lệ bao phủ kiểm thử (Pytest)** | $100\%$ modules | **34/34 tests PASS** | Đạt 100% thành công trong 0.87 giây |
 
 ---
 
@@ -159,4 +159,4 @@ Khi thực thi cứu hộ thông qua `scripts/restore.py`:
 Việc hoàn tất xuất sắc phân hệ tối ưu hiệu năng và đóng gói triển khai Docker ở Ngày 29 đã đưa toàn bộ dự án CyberSoft Data & AI Lab v1.0 về đích trọn vẹn:
 1. **Khẳng định năng lực kỹ thuật đỉnh cao**: Đạt độ trễ P95 dưới 19ms, năng lực tải 340+ RPS và tỷ lệ trúng cache 88.5%, bảo đảm hệ thống vận hành bền bỉ trên môi trường đào tạo quy mô lớn.
 2. **Tiêu chuẩn đóng gói công nghiệp**: Container Docker nhỏ gọn 182 MB, chạy dưới quyền non-root và có cơ chế tự phục hồi bảo đảm tính an toàn tối đa.
-3. **Tiền đề cho Phiên Bảo Vệ Đồ Án Tốt Nghiệp Ngày 30**: Toàn bộ tài nguyên, số liệu đo lường định lượng và sổ tay vận hành đã sẵn sàng để tổng kết và bảo vệ xuất sắc đồ án trước Hội đồng giám khảo học viện CyberSoft.
+3. **Tiền đề cho Giai đoạn Tài Liệu, Demo & Bàn Giao Cuối Kỳ Ngày 30**: Toàn bộ tài nguyên, số liệu đo lường định lượng và sổ tay vận hành đã sẵn sàng để đóng gói Release v1.0.0 và bàn giao chính thức cho học viện CyberSoft.

@@ -19,13 +19,11 @@ BaoCao_Task28/
 ├── README.md                               # Sổ tay hướng dẫn bàn giao, tương tác Web Dashboard & đối soát DoD
 ├── AI_WORKLOG.md                           # Nhật ký phối hợp AI & thẩm định theo chuẩn CyberSoft
 ├── requirements.txt                        # Danh mục thư viện phụ thuộc (FastAPI, Uvicorn, Pydantic, etc.)
-├── docs/
-│   └── GIAI_THICH.md                       # Sơ đồ luồng, thứ tự đọc hiểu và 5 câu hỏi bảo vệ 3-5 phút
 ├── data/                                   # Dữ liệu thực nghiệm người dùng và hồ sơ lỗi
 │   ├── user_sessions.json                  # Hồ sơ 5 người dùng thử, 25 lượt tác vụ, điểm SUS và Time-to-find
 │   ├── issue_backlog.json                  # Danh mục 10 vấn đề ghi nhận, phân loại Impact vs Effort và Severity
 │   └── resolved_fixes.json                 # 5 bản vá ưu tiên đã lập trình, commit tag và kiểm chứng Pytest
-├── src/                                    # Mã nguồn FastAPI service (tinh gọn, dễ bảo vệ)
+├── src/                                    # Mã nguồn FastAPI service (tinh gọn, dễ bảo trì)
 │   ├── __init__.py
 │   ├── main.py                             # Điểm khởi tạo FastAPI App cổng 8028, CORS, Error Handlers
 │   ├── config.py                           # Cấu hình đường dẫn dữ liệu, thông số đo lường SUS và cổng dịch vụ

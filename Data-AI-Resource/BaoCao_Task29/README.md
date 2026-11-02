@@ -26,7 +26,6 @@ BaoCao_Task29/
 ├── docker-compose.yml                      # Cấu hình cụm container, giới hạn tài nguyên CPU 2.0, RAM 1GB, healthcheck
 ├── .dockerignore                           # Danh mục loại trừ các tệp tạm, cache và dữ liệu thừa khi đóng gói
 ├── docs/                                   # Tài liệu hướng dẫn chuyên sâu
-│   ├── GIAI_THICH.md                       # Sơ đồ luồng văn bản, thứ tự đọc file và 5 câu hỏi bảo vệ 3-5 phút
 │   └── operations_guide.md                 # Sổ tay hướng dẫn vận hành, giám sát tài nguyên và cứu hộ sự cố
 ├── data/                                   # Dữ liệu hợp nhất Tuần 1-6, hiệu năng và gói bản sao lưu mẫu
 │   ├── unified_hub_data.json               # Dữ liệu hợp nhất: 6 tài nguyên Catalog 3NF, CSV preview, RAG chunks
@@ -39,7 +38,7 @@ BaoCao_Task29/
 │   ├── index.html                          # Giao diện 5 Tab bao phủ trọn vẹn Task 01-25 và Task 26-29
 │   ├── styles.css                          # Thiết kế Cyber-Dark đồng bộ, Responsive Grid, huy hiệu trạng thái
 │   └── app.js                              # Logic client kết nối toàn bộ API Tuần 1-6 (/overview, /dataset-action, /search, /exercise-lineage, /security-qa-ux)
-├── src/                                    # Mã nguồn FastAPI service hợp nhất (tinh gọn, dễ bảo vệ)
+├── src/                                    # Mã nguồn FastAPI service hợp nhất (tinh gọn, dễ bảo trì)
 │   ├── __init__.py
 │   ├── main.py                             # Khởi tạo FastAPI App cổng 8029, CORS, tĩnh học Unified Portal
 │   ├── config.py                           # Cấu hình đường dẫn dữ liệu, hạn mức bộ nhớ đệm và cổng dịch vụ
@@ -215,9 +214,9 @@ python cybersoft-learning-hub/Data-AI-Resource/BaoCao_Task29/scripts/restore.py
 
 ---
 
-## 5. KẾ HOẠCH BÀN GIAO CHO NGÀY 30 (BẢO VỆ ĐỒ ÁN TỐT NGHIỆP)
+## 5. KẾ HOẠCH BÀN GIAO CHO NGÀY 30 (TÀI LIỆU, DEMO & BÀN GIAO CUỐI KỲ)
 
 Việc hoàn tất xuất sắc phân hệ tối ưu hiệu năng và đóng gói triển khai Docker ở Ngày 29 đã đưa toàn bộ dự án CyberSoft Data & AI Lab v1.0 về đích trọn vẹn:
 1. **Tổng hợp hồ sơ bàn giao toàn khóa**: Hợp nhất toàn bộ tài nguyên từ Ngày 1 đến Ngày 29 (Datasets chuẩn hóa 3NF, Pipeline làm sạch dữ liệu, Hệ thống Hybrid Search RRF, Trợ giảng AI Guardrails, API v1.0, Giao diện Web Portal, Cơ chế Lineage WORM, Đề thi thực hành, Bộ kiểm thử tự động, Đo lường người dùng thử và Container hóa Docker).
-2. **Chuẩn bị bài thuyết trình bảo vệ đồ án tốt nghiệp (Final Defense)**: Trình bày cấu trúc kiến trúc tổng thể, minh chứng các chỉ số SLA kỹ thuật, báo cáo định lượng điểm SUS 92.5 và năng lực tải 340+ RPS.
+2. **Chuẩn bị hồ sơ nghiệm thu và Live Demo tổng kết (Final Handover & Demo)**: Trình bày cấu trúc kiến trúc tổng thể, minh chứng các chỉ số SLA kỹ thuật, báo cáo định lượng điểm SUS 92.5 và năng lực tải 340+ RPS.
 3. **Chuyển giao tài liệu vận hành và tài khoản quản trị**: Bàn giao bộ sổ tay vận hành `operations_guide.md`, bộ tệp cấu hình triển khai một chạm (`deploy.ps1`, `deploy.sh`, `docker-compose.yml`) cho đội ngũ kỹ thuật và giảng viên của học viện CyberSoft.

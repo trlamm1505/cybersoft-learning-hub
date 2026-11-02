@@ -19,9 +19,7 @@ BaoCao_Task26/
 ├── README.md                              # Sổ tay hướng dẫn bàn giao, kiểm thử độc lập & đối soát DoD
 ├── AI_WORKLOG.md                          # Nhật ký phối hợp & thẩm định AI theo chuẩn CyberSoft
 ├── requirements.txt                       # Danh mục thư viện phụ thuộc (FastAPI, Uvicorn, Pydantic, Pytest...)
-├── docs/
-│   └── GIAI_THICH.md                      # Sơ đồ luồng, thứ tự đọc hiểu và 5 câu hỏi bảo vệ 3-5 phút
-├── src/                                   # Mã nguồn backend FastAPI v1.0 (tinh gọn, dễ bảo vệ)
+├── src/                                   # Mã nguồn backend FastAPI v1.0 (tinh gọn, dễ bảo trì)
 │   ├── __init__.py
 │   ├── main.py                            # Khởi tạo App FastAPI, CORS, Error Envelope Handlers
 │   ├── config.py                          # Cấu hình cổng 8000, tiền tố API /api/v1/integration, đường dẫn dữ liệu

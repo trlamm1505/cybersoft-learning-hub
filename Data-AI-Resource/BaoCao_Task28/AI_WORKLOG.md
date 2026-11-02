@@ -40,7 +40,7 @@ Bước sang Tuần 6 (Giai đoạn hoàn thiện và bàn giao), sản phẩm C
 | **05** | Tải toàn bộ bảng CSV lớn hàng trăm nghìn dòng vào trình duyệt xem trước. | Làm đơ trình duyệt của học viên dùng máy cấu hình thấp, gây tràn bộ nhớ client. | **Cải tiến**: Cắt lát giới hạn 10 dòng đầu xem trước (Preview Slice), bọc container `overflow-x: auto` và giữ cố định thanh tiêu đề cột. |
 | **06** | Bỏ qua tính năng sao chép trích dẫn học liệu, yêu cầu người dùng tự bôi đen chuột để copy. | Thao tác bôi đen trên giao diện web dễ sót dấu ngoặc `[doc#sec]` làm hỏng truy vấn trích dẫn của AI Tutor. | **Bổ sung**: Tích hợp nút 1-click Copy tự động định dạng chuẩn `[Mã_tài_liệu#Mục] "Trích dẫn..."` vào Clipboard hệ thống. |
 | **07** | Hiển thị nút tải file không có thông tin dung lượng và thanh tiến trình. | Học viên không biết tệp nặng bao nhiêu MB để chuẩn bị dung lượng đĩa cứng và đường truyền mạng. | **Bổ sung**: Hiển thị trước dung lượng tệp tính theo MB và bật animation tiến trình trong thời gian chuẩn bị dữ liệu. |
-| **08** | Nhúng thư viện React hoặc Vue cồng kềnh cho trang Usability Dashboard. | Gây phân mảnh hệ thống, tăng gánh nặng cài đặt thư viện phụ thuộc cho dịch vụ báo cáo. | **Chuẩn hóa**: Xây dựng Vanilla SPA (HTML5 + CSS Grid/Flexbox + ES6 JavaScript) nhẹ dưới 50KB, tải tức thì dưới 0.1s. |
+| **08** | Dựng trang giao diện rời rạc riêng cho Task 28. | Gây trùng lặp mã nguồn tĩnh và phân mảnh trải nghiệm giữa các task cuối khóa. | **Chuẩn hóa**: Cung cấp bộ REST API chuẩn OpenAPI (`/docs`) tại Task 28 và hợp nhất toàn bộ giao diện trực quan 5 Tab tại Unified Web Portal của Task 29. |
 | **09** | Dùng từ ngữ nhạy cảm trong tiến trình thử nghiệm sản phẩm. | Vi phạm quy chuẩn giao tiếp và kỷ luật tài liệu nghiêm ngặt của CyberSoft. | **Bác bỏ & Quét sạch**: Loại bỏ 100% từ cấm, thay bằng `tiến trình`, `chuỗi thao tác`, `bài thử nghiệm`. |
 | **10** | Viết bài test chỉ kiểm tra mã HTTP 200 đơn thuần. | Không kiểm chứng được tính đúng đắn của công thức tính điểm SUS và cấu trúc ma trận phân loại lỗi. | **Nâng cấp**: Viết bộ Pytest Suite 32 bài test kiểm tra đa tầng từ toán học SUS, logic chuyển đổi lỗi song ngữ đến API endpoint. |
 
@@ -52,7 +52,7 @@ Bước sang Tuần 6 (Giai đoạn hoàn thiện và bàn giao), sản phẩm C
 2. **Bẫy "Unescaped Quotes trong JavaScript"**: AI sinh chuỗi lồng dấu ngoặc kép `"Trích dẫn..."` bên trong chuỗi string bọc bởi `""` gây lỗi `SyntaxError: Unexpected identifier` làm crash toàn bộ Web Dashboard. *Cách phòng vệ*: Dùng dấu ngoặc đơn lồng nhau hoặc template literal và kiểm chứng với `node -c app.js`.
 3. **Bẫy "Relative Import vượt cấp khi chạy script"**: AI viết `from ..src.config import HOST, PORT` trong tệp `scripts/run_server.py`. *Cách phòng vệ*: Bổ sung `sys.path.insert(0, str(TASK_ROOT))` để chạy độc lập ổn định.
 4. **Bẫy "Module path chứa dấu gạch nối"**: AI viết `uvicorn.run("cybersoft-learning-hub.Data-AI-Resource...src.main:app")` bị lỗi cú pháp Python module. *Cách phòng vệ*: Đưa task root vào `sys.path` và gọi trực tiếp `"src.main:app"`.
-5. **Bẫy "Thiếu Root Redirect"**: AI chỉ mount static file tại `/portal/` mà quên route đón tại `/` làm người dùng gõ `localhost:8028` bị lỗi 404. *Cách phòng vệ*: Thêm route `@app.get("/")` RedirectResponse 307 về `/portal/`.
+5. **Bẫy "Lọc Backlog Phân biệt Hoa Thường"**: AI so sánh trực tiếp chuỗi `severity` mà không chuẩn hóa `.upper()`, khiến truy vấn `?severity=critical` trả về danh sách rỗng. *Cách phòng vệ*: Chuẩn hóa `.strip().upper()` trước khi lọc.
 6. **Bẫy "Pydantic v2 min_items deprecated"**: AI dùng cú pháp cũ của Pydantic v1. *Cách phòng vệ*: Chuyển đổi toàn diện sang `min_length` và `max_length` chuẩn Pydantic v2.
 7. **Bẫy "Lệch số liệu giữa file tĩnh và data động"**: AI hardcode số liệu cũ (86.5) trong HTML trong khi dữ liệu tính toán thực tế là 92.5. *Cách phòng vệ*: Đồng bộ hóa 100% các giá trị KPI trong HTML, README, tài liệu và mã kiểm định.
 8. **Bẫy "Lọt từ cấm trong tài liệu"**: AI có xu hướng dịch tự động từ tiếng Anh sinh từ nhạy cảm. *Cách phòng vệ*: Thiết lập script kiểm định tự động ripgrep quét từ ngữ trước khi đóng gói.
@@ -72,22 +72,12 @@ Bước sang Tuần 6 (Giai đoạn hoàn thiện và bàn giao), sản phẩm C
 
 ## 6. LỖI KỸ THUẬT PHÁT SINH, NGUYÊN NHÂN GỐC RỄ & CÁCH KHẮC PHỤC
 
-### Sự cố 1: Lỗi cú pháp JavaScript trong `portal/app.js` phá vỡ giao diện Dashboard
-- **Hiện tượng**: Khi mở `http://localhost:8028/portal/`, giao diện web bị trắng/đơ, không nạp được danh mục vấn đề và chỉ số đo lường.
-- **Nguyên nhân gốc rễ**: Dòng 167 chứa chuỗi chưa escape dấu ngoặc kép `after: "1-Click nút Copy tự động sao chép '[CS-POL-001#sec] "Trích dẫn..."' vào Clipboard."` gây lỗi `SyntaxError: Unexpected identifier 'Trích'`.
-- **Giải pháp xử lý**: Đổi các dấu ngoặc kép lồng bên trong thành dấu ngoặc đơn, kiểm tra cú pháp với `node -c portal/app.js` đạt Exit Code 0.
-
-### Sự cố 2: Lỗi Import tương đối & Module Path trong `scripts/run_server.py`
-- **Hiện tượng**: Chạy lệnh `python scripts/run_server.py` bị crash ngay từ đầu.
+### Sự cố 1: Lỗi Import tương đối & Module Path trong `scripts/run_server.py`
+- **Hiện tượng**: Chạy lệnh `python scripts/run_server.py` bị dừng ngay từ đầu khi gọi trực tiếp từ thư mục gốc.
 - **Nguyên nhân gốc rễ**: Lệnh sử dụng `from ..src.config import HOST, PORT` (Python không cho phép import tương đối khi chạy trực tiếp dưới dạng script độc lập) và module target chứa dấu gạch nối `cybersoft-learning-hub`.
 - **Giải pháp xử lý**: Bổ sung `sys.path.insert(0, str(TASK28_ROOT))` và truyền target `"src.main:app"` sạch cho uvicorn.
 
-### Sự cố 3: Lỗi 404 Not Found tại đường dẫn gốc `/`
-- **Hiện tượng**: Truy cập `http://localhost:8028/` trên trình duyệt trả về 404 Not Found.
-- **Nguyên nhân gốc rễ**: Static files chỉ được mount tại `/portal/`, thiếu route tiếp nhận tại đường dẫn gốc.
-- **Giải pháp xử lý**: Thêm route `@app.get("/")` sử dụng `RedirectResponse(url="/portal/")` tự động chuyển hướng người dùng vào Dashboard.
-
-### Sự cố 4: Lệch số liệu SUS và Time-to-find giữa tài liệu tĩnh và dữ liệu tính toán
+### Sự cố 2: Lệch số liệu SUS và Time-to-find giữa tài liệu tĩnh và dữ liệu tính toán
 - **Hiện tượng**: Tài liệu ban đầu ghi 86.5/100 và 48.6s $\to$ 18.2s, trong khi dữ liệu `user_sessions.json` tính ra SUS là 92.5/100 và 45.9s $\to$ 17.3s.
 - **Nguyên nhân gốc rễ**: Sử dụng số liệu phác thảo dự kiến ban đầu thay vì số liệu thực tế được tính toán từ các câu trả lời của 5 người dùng.
 - **Giải pháp xử lý**: Đồng bộ hóa toàn diện 100% số liệu: Điểm SUS đạt **92.5 / 100 (Hạng A — Excellent)**, Thời gian tra cứu giảm **62.4%** (từ 45.9s xuống 17.3s), CSAT đạt **4.8 / 5.0**, và bộ kiểm thử đạt **32/32 tests PASS 100%**.

@@ -25,13 +25,13 @@ Sau khi hoàn tất hệ thống chốt chặn chất lượng tích hợp ba b�
 - **DoD 2: Thang đo chuẩn quốc tế SUS $\ge 80.0$**: Đạt điểm trung bình System Usability Scale (Brookes 1996) thuộc Hạng A (Excellent).
 - **DoD 3: Giảm thời gian tra cứu $\ge 50.0\%$**: Rút ngắn thời gian Time-to-find trung bình trên 5 tác vụ tiêu chuẩn.
 - **DoD 4: Quản trị ma trận 10 vấn đề & Giải quyết dứt điểm Top 5 Fixes**: Ghi nhận 10 vấn đề vào Issue Backlog, lập trình bản vá hoàn tất cho 100% vấn đề Critical và High.
-- **DoD 5: Bàn giao toàn diện hệ sinh thái**: Cung cấp Web Dashboard SPA tại `/portal/`, CLI Evaluator 6 chặng, bộ 32 bài test Pytest tự động và báo cáo kỹ thuật chính thức.
+- **DoD 5: Bàn giao toàn diện hệ sinh thái**: Cung cấp dịch vụ REST API kèm tài liệu tương tác OpenAPI tại `/docs`, CLI Evaluator 6 chặng, bộ 32 bài test Pytest tự động và báo cáo kỹ thuật chính thức.
 
 ---
 
 ## 2. KIẾN TRÚC TỔNG THỂ HỆ THỐNG ĐO LƯỜNG (SYSTEM ARCHITECTURE)
 
-Hệ thống đo lường trải nghiệm người dùng thử và xử lý vấn đề được thiết kế theo mô hình 4 trụ cột kiến trúc, kết nối từ tầng thực nghiệm người dùng tới động cơ xử lý và giao diện Web Dashboard:
+Hệ thống đo lường trải nghiệm người dùng thử và xử lý vấn đề được thiết kế theo mô hình 4 trụ cột kiến trúc, kết nối từ tầng thực nghiệm người dùng tới động cơ xử lý và hệ thống REST API chuẩn OpenAPI (`/docs`):
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -49,9 +49,6 @@ Hệ thống đo lường trải nghiệm người dùng thử và xử lý vấ
 │   và phỏng vấn sâu  │   (100% sau bản vá)   │   thời gian thực trên Web│ • FIX-005: Download MB Header │
 └─────────────────────┴───────────────────────┴──────────────────────────┴───────────────────────────────┘
 ```
-
-Sơ đồ Kiến trúc Thực nghiệm Đo lường Người dùng thử:
-![Sơ đồ Kiến trúc Thực nghiệm Task 28](./Picture_28_Detail.png)
 
 ---
 
@@ -133,7 +130,7 @@ Thang đo SUS gồm 10 câu hỏi chuẩn hóa (Brookes 1996) với thang điể
 
 ---
 
-## 6. HỆ THỐNG RESTful API V1.0 & GIAO DIỆN WEB USABILITY DASHBOARD SPA
+## 6. HỆ THỐNG RESTful API V1.0 & TÀI LIỆU TƯƠNG TÁC OPENAPI (`/docs`)
 
 ### 6.1. Bảng Danh mục Endpoints RESTful Phục vụ Usability
 
@@ -146,12 +143,12 @@ Thang đo SUS gồm 10 câu hỏi chuẩn hóa (Brookes 1996) với thang điể
 | `POST` | `/api/v1/usability/tools/localize-error` | Tiện ích chuyển đổi thông báo lỗi Pydantic tiếng Anh sang chỉ dẫn tiếng Việt |  **PASSED** |
 | `GET` | `/api/v1/usability/tools/citation-copy` | Tiện ích chuẩn hóa và sao chép thẻ trích dẫn AI Tutor 1-click |  **PASSED** |
 
-### 6.2. Giao diện Web Usability & Issue Resolution Dashboard (SPA)
-Giao diện Web SPA chạy trực tiếp tại `/portal/` phục vụ thẩm định trực quan qua 4 Tab:
-- **Tab 1 — Đo Lường 5 Người Dùng Thử**: Bảng chi tiết 5 hồ sơ người dùng thật, điểm SUS cá nhân, xếp hạng và phản hồi định tính.
-- **Tab 2 — Danh Mục Vấn Đề (Issue Backlog 10)**: Bảng ma trận 10 vấn đề có bộ lọc theo 4 mức độ nghiêm trọng (Critical, High, Medium, Low).
-- **Tab 3 — Top 5 Bản Vá Ưu Tiên**: 5 thẻ card bản vá hiển thị chi tiết tệp cập nhật, hành vi trước/sau khi sửa và hàm test Pytest xác minh.
-- **Tab 4 — Thử Nghiệm Công Cụ Trực Tiếp**: 2 công cụ tương tác trực tiếp: Sao chép trích dẫn AI Tutor chuẩn hóa và Mô phỏng chuyển đổi lỗi schema tiếng Việt.
+### 6.2. Tài liệu Tương tác OpenAPI (Swagger UI `/docs`)
+Giao diện OpenAPI Swagger UI chạy trực tiếp tại `/docs` phục vụ thẩm định trực quan qua 4 nhóm chức năng:
+- **Nhóm 1 — Đo Lường 5 Người Dùng Thử (`GET /api/v1/usability/summary`)**: Truy xuất bảng chi tiết 5 hồ sơ người dùng thật, điểm SUS cá nhân, xếp hạng và phản hồi định tính.
+- **Nhóm 2 — Danh Mục Vấn Đề (`GET /api/v1/usability/backlog`)**: Truy vấn ma trận 10 vấn đề có bộ lọc theo 4 mức độ nghiêm trọng (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`).
+- **Nhóm 3 — Top 5 Bản Vá Ưu Tiên (`GET /api/v1/usability/fixes`)**: Kiểm tra chi tiết tệp cập nhật, hành vi trước/sau khi sửa và trạng thái xác minh Pytest của 5 bản vá ưu tiên.
+- **Nhóm 4 — Công Cụ Trực Tiếp (`/api/v1/usability/tools/*`)**: Thử nghiệm trực tiếp tiện ích sao chép trích dẫn AI Tutor chuẩn hóa (`citation-copy`) và bộ chuyển đổi lỗi schema tiếng Việt (`localize-error`).
 
 ---
 
@@ -167,7 +164,7 @@ Giao diện Web SPA chạy trực tiếp tại `/portal/` phục vụ thẩm đ�
 | **6** | **Quản trị danh mục vấn đề (Backlog)** | Tổng hợp tối thiểu 10 vấn đề phát sinh, phân loại ma trận Impact vs Effort và 4 cấp độ nghiêm trọng. | 10 issues trong `data/issue_backlog.json` |  **PASSED** |
 | **7** | **Xử lý dứt điểm Top 5 bản vá** | Lập trình và tích hợp hoàn chỉnh 5 bản vá cho các lỗi Critical và High vào mã nguồn Portal và Service. | 5/5 bản vá (`FIX-001` đến `FIX-005`) hoàn tất |  **PASSED** |
 | **8** | **Bộ chuyển đổi lỗi song ngữ** | Cung cấp tiện ích chuyển đổi lỗi xác thực Pydantic sang tiếng Việt có hướng dẫn hành động khắc phục cụ thể. | `Vietnamese Error Transformer` hoạt động chính xác |  **PASSED** |
-| **9** | **Web Usability Dashboard SPA** | Giao diện Web SPA chạy trực tiếp tại `/portal/`, hiển thị 4 KPI cards, bảng 5 người dùng, bộ lọc Backlog và công cụ thử nghiệm. | Web Dashboard cổng 8028 mượt mà, trực quan |  **PASSED** |
+| **9** | **Tài liệu tương tác OpenAPI (`/docs`)** | Giao diện OpenAPI Swagger UI chạy trực tiếp tại `/docs`, hỗ trợ tra cứu KPI, lọc Backlog và thử nghiệm trực tiếp 2 công cụ UX. | Swagger UI cổng 8028 mượt mà, trực quan |  **PASSED** |
 | **10** | **Kiểm thử tự động 100% bao phủ** | Toàn bộ các bài kiểm tra logic tính toán, API endpoints, bộ lọc backlog và các trường hợp biên đạt 100% PASS. | **32/32 Pytest tests PASSED 100%** trong 1.1s |  **PASSED** |
 
 ---

@@ -72,7 +72,7 @@ Nhìn lại toàn bộ chu trình 30 ngày xây dựng và hoàn thiện phân h
 ### Hạn chế 3 (KNOWN-003) — Thời gian nạp Schema tệp Parquet dung lượng lớn (> 500MB) trên máy cấu hình thấp
 - **Mức độ nghiêm trọng:** Low (Thấp).
 - **Hiện tượng & Ảnh hưởng:** Khi học viên dùng máy tính xách tay cấu hình yếu (dưới 4GB RAM) tải và phân tích trực tiếp tệp Parquet sự kiện lớn, thời gian khởi tạo thư viện mất khoảng 3 - 5 giây.
-- **Giải pháp khắc phục tạm thời (Workaround):** Đã cung cấp endpoint xem trước 10 dòng đầu (`/api/datasets/preview`) để học viên xem cấu trúc cột và kiểu dữ liệu mà không cần nạp toàn bộ tệp lớn.
+- **Giải pháp khắc phục tạm thời (Workaround):** Đã cung cấp endpoint xem trước 10 dòng đầu (`POST /api/v1/ops/hub/dataset-action` với `action="preview"`, `limit=10`) để học viên xem cấu trúc cột và kiểu dữ liệu mà không cần nạp toàn bộ tệp lớn.
 - **Kế hoạch xử lý triệt để (Permanent Fix):** Bổ sung tính năng phân trang dữ liệu theo khối (Chunked Streaming & Apache Arrow Flight) trong bản cập nhật tiếp theo (Mã ticket: `TICKET-849`, thực hiện trong Sprint 33).
 
 ---

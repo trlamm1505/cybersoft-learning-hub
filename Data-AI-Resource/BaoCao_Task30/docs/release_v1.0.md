@@ -68,7 +68,6 @@ Toàn bộ gói tài nguyên bàn giao Release v1.0.0 được kiểm kê chi ti
     "docs/release_v1.0.md",
     "docs/retro_and_roadmap.md",
     "docs/demo_guide.md",
-    "docs/GIAI_THICH.md",
     "30_final_handover_and_demo.md",
     "README.md",
     "AI_WORKLOG.md"

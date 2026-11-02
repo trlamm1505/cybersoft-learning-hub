@@ -31,7 +31,7 @@ Sau khi hoàn thiện tích hợp hợp đồng dữ liệu với Learning Platf
 
 ## 2. KIẾN TRÚC TỔNG THỂ HỆ THỐNG (SYSTEM ARCHITECTURE)
 
-Hệ thống tích hợp chốt chặn chất lượng QA được thiết kế theo mô hình 4 trụ cột kiến trúc, kết nối từ tầng Fixtures dùng chung tới Cổng chốt chặn phát hành và Giao diện Web Failure Dashboard:
+Hệ thống tích hợp chốt chặn chất lượng QA được thiết kế theo mô hình 4 trụ cột kiến trúc, kết nối từ tầng Fixtures dùng chung tới Cổng chốt chặn phát hành và Giao diện tài liệu tương tác OpenAPI (`/docs`):
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -49,9 +49,6 @@ Hệ thống tích hợp chốt chặn chất lượng QA được thiết kế 
 │    Content Good/Bad)│ • Security Guard Hook │ • Override có thẩm quyền │    người duyệt, lý do)        │
 └─────────────────────┴───────────────────────┴──────────────────────────┴───────────────────────────────┘
 ```
-
-Sơ đồ Kiến trúc Chốt Chặn Phát Hành Tổng Hợp:
-![Sơ đồ Kiến trúc Chốt Chặn Phát Hành Tổng Hợp](./Picture_27_Detail.png)
 
 ---
 
@@ -85,7 +82,7 @@ Nhằm đảm bảo tính nhất quán tuyệt đối giữa môi trường ki�
 
 ---
 
-## 5. HỆ THỐNG RESTful API V1.0 & GIAO DIỆN WEB FAILURE DASHBOARD
+## 5. HỆ THỐNG RESTful API V1.0 & TÀI LIỆU TƯƠNG TÁC OPENAPI (`/docs`)
 
 ### 5.1. Bảng Danh mục Endpoints RESTful Phục vụ QA Gate
 
@@ -100,12 +97,12 @@ Nhằm đảm bảo tính nhất quán tuyệt đối giữa môi trường ki�
 | `POST` | `/api/v1/qa/gate/release-check` | Master Release Quality Gate: thẩm định tổng hợp toàn bộ gói phát hành |  **PASSED** |
 | `GET` | `/api/v1/qa/audit-trail` | Truy vấn nhật ký kiểm toán ghi vết các lần yêu cầu bypass chốt chặn |  **PASSED** |
 
-### 5.2. Giao diện Web Failure Dashboard (SPA)
-Giao diện Web SPA chạy trực tiếp tại `/portal/` phục vụ thẩm định trực quan qua 4 Tab:
-- **Tab 1 — Gate Dashboard**: Tổng quan trạng thái 4 Hooks và các thẻ KPI chất lượng hệ thống.
-- **Tab 2 — Release Checker**: Cho phép người dùng chọn gói phát hành (Gói chuẩn Clean Release vs Gói lỗi Defective Release) và bấm 1-click để kích hoạt kiểm định toàn diện.
-- **Tab 3 — Bypass Guard**: Mô phỏng hành vi cố tình bypass chốt chặn âm thầm và quan sát phản ứng khóa chặt của hệ thống.
-- **Tab 4 — QA Rules & Audit Trail**: Bảng tra cứu 6 quy tắc QA và nhật ký kiểm toán Audit Trail ghi nhận chi tiết thời gian, người duyệt và lý do.
+### 5.2. Tài liệu Tương tác OpenAPI (Swagger UI `/docs`)
+Giao diện OpenAPI Swagger UI chạy trực tiếp tại `/docs` phục vụ thẩm định trực quan qua 4 nhóm chức năng:
+- **Nhóm 1 — Quality Hooks (`/api/v1/qa/evaluate/*`)**: Kích hoạt độc lập từng chốt chặn Dataset, RAG và Content.
+- **Nhóm 2 — Master Release Checker (`POST /api/v1/qa/gate/release-check`)**: Thử nghiệm gói phát hành chuẩn (`Clean Release`) và gói phát hành lỗi (`Defective Release`) chỉ với 1-click.
+- **Nhóm 3 — Zero Silent Bypass Guard**: Mô phỏng hành vi bypass chốt chặn âm thầm và kiểm chứng phản ứng khóa chặt (`BYPASS_REJECTED`).
+- **Nhóm 4 — QA Rules & Audit Trail (`/api/v1/qa/rules`, `/api/v1/qa/audit-trail`)**: Tra cứu 6 quy tắc QA và nhật ký kiểm toán bất biến ghi nhận chi tiết thời gian, người duyệt và lý do.
 
 ---
 
@@ -144,7 +141,7 @@ Khi một bản phát hành bị lỗi mà người dùng muốn kích hoạt c�
 | **6** | **Chấp nhận cảnh báo mức Medium** | Lỗi Content Lint không làm nghẽn tiến độ phát hành mà chuyển sang `WARNING`. | Gói nội dung lỗi nhẹ được cấp phép phát hành có cảnh báo |  **PASSED** |
 | **7** | **Lý do hành động được (Actionable)** | 100% findings đều có hướng dẫn hành động cụ thể để kỹ sư sửa chữa. | Mọi lỗi đều có trường `actionable_fix` rõ ràng |  **PASSED** |
 | **8** | **Kỷ luật Zero Silent Bypass** | Ngăn chặn tuyệt đối việc bypass không lý do hoặc lý do ngắn dưới 15 ký tự. | Hệ thống ném lỗi `BYPASS_REJECTED` khi vi phạm |  **PASSED** |
-| **9** | **Web Failure Dashboard SPA** | Giao diện Web SPA chạy trực tiếp tại `/portal/`, hiển thị 4 Tab trực quan. | Web Dashboard cổng 8000 vận hành mượt mà |  **PASSED** |
+| **9** | **Tài liệu tương tác OpenAPI (`/docs`)** | Giao diện OpenAPI Swagger UI chạy trực tiếp tại `/docs`, hỗ trợ kiểm thử toàn bộ 8 endpoints QA Gate. | Swagger UI cổng 8000 vận hành mượt mà |  **PASSED** |
 | **10** | **Kiểm thử tự động 100% bao phủ** | Bộ bài kiểm thử tích hợp Pytest bao phủ toàn diện các router, chốt chặn và ca biên. | **30/30 Pytest tests PASSED 100%** trong 0.87 giây |  **PASSED** |
 
 ---
